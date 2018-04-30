@@ -7404,6 +7404,10 @@ namespace Core.Catalog
                 definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
             }
 
+            // in case operator is searching we override the existing value
+            definitions.shouldUseStartDateForMedia = !request.IsOperatorSearch;
+            definitions.shouldUseEndDateForMedia = !request.IsOperatorSearch;
+
             #endregion
 
             BooleanPhraseNode initialTree = null;

@@ -1240,8 +1240,10 @@ namespace Core.Catalog
         {
             if (string.IsNullOrEmpty(metaName))
             {
-                return true;// no need to check we'll use default order 
+                // no need to check we'll use default order 
+                return true;
             }
+
             if (shouldSearchMedia)
             {
                 // check meta in Media
@@ -1256,6 +1258,7 @@ namespace Core.Catalog
                     return false;
                 }
             }
+
             if (shouldSearchEpg || shouldSearchRecordings)
             {
                 if (group.m_oEpgGroupSettings == null)

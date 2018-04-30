@@ -1125,6 +1125,7 @@ namespace Core.Catalog
                     unifiedSearchDefinitions.topHitsCount = 1;
                 }
             }
+            // if there is group by
             else if (!string.IsNullOrEmpty(distinctGroup.Key) &&
                 (orderBy == OrderBy.META || orderBy == OrderBy.NAME))
             {
@@ -1144,10 +1145,12 @@ namespace Core.Catalog
             }
             else
             {
+                // normal case - regular page index and size
                 queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.From = unifiedSearchDefinitions.from;
 
+                // no group by and page size is 0 means we want all documents
                 if (queryParser.PageSize == 0 &&
                     (unifiedSearchDefinitions.groupBy == null ||
                     unifiedSearchDefinitions.groupBy.Count == 0))

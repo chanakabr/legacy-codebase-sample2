@@ -94,7 +94,7 @@ namespace Core.Catalog
                     }
                 }
 
-                // in case opeartor is searching we override the existing value
+                // in case operator is searching we override the existing value
                 definitions.shouldUseStartDateForMedia = !request.IsOperatorSearch;
                 definitions.shouldUseEndDateForMedia = !request.IsOperatorSearch;
 
