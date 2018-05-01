@@ -3842,7 +3842,43 @@ namespace WebAPI.Clients
 
         internal KalturaAssetRule UpdateAssetRule(int groupId, long id, KalturaAssetRule assetRule)
         {
-            throw new NotImplementedException();
+            AssetRulesResponse response = null;
+
+            AssetRule assetRuleRequest = AutoMapper.Mapper.Map<AssetRule>(assetRule);
+            assetRuleRequest.Id = id;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.UpdateAssetRule(groupId, assetRuleRequest);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaAssetRule kAssetRule = null;
+            if (response.AssetRules != null && response.AssetRules.Count > 0)
+            {
+                // convert response
+                kAssetRule = AutoMapper.Mapper.Map<KalturaAssetRule>(response.AssetRules[0]);
+            }
+
+            return kAssetRule;
         }
 
         internal KalturaAssetRule AddAssetRule(int groupId, KalturaAssetRule assetRule)
