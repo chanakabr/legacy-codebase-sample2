@@ -822,10 +822,13 @@ namespace TVPApi
             }
             else
             {
-
-                iRet = (from entry in m_LanguageIDPages[culture]
-                        where entry.Value.URL != null && sPageUrl.ToLower().Contains(entry.Value.URL.ToLower()) && entry.Value.IsActive
-                        select (long?)entry.Key).SingleOrDefault();
+                try
+                {
+                    iRet = (from entry in m_LanguageIDPages[culture]
+                            where entry.Value.URL != null && sPageUrl.ToLower().Contains(entry.Value.URL.ToLower()) && entry.Value.IsActive
+                            select (long?)entry.Key).SingleOrDefault();
+                }
+                catch (Exception ex) { }
             }
 
             return iRet;
