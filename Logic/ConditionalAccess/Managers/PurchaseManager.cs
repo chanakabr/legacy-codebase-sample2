@@ -1313,7 +1313,7 @@ namespace Core.ConditionalAccess
                                         {"BillingTransactionID", response.TransactionID},
                                         {"SiteGUID", siteguid},
                                         {"PurchaseID", purchaseID},
-                                        {"CouponCode", coupon},
+                                        {"CouponCode", couponCode},
                                         {"CustomData", customData}
                                     };
 
@@ -1637,7 +1637,7 @@ namespace Core.ConditionalAccess
                                         {"BillingTransactionID", response.TransactionID},
                                         {"PPVModuleCode", productId},
                                         {"SiteGUID", siteguid},
-                                        {"CouponCode", coupon},
+                                        {"CouponCode", couponCode},
                                         {"CustomData", customData},
                                         {"PurchaseID", purchaseId}
                                     };
