@@ -10535,13 +10535,13 @@ namespace Core.Api
             return response;
         }
 
-        internal static Status DeleteAssetRule(int groupId, long id)
+        internal static Status DeleteAssetRule(int groupId, long assetRuleId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 //check AssetRule exists
-                DataSet ds = ApiDAL.GetAssetRule(groupId, id);
+                DataSet ds = ApiDAL.GetAssetRule(groupId, assetRuleId);
                 if (ds == null || ds.Tables.Count != 3)
                 {
                     response.Code = (int)eResponseStatus.AssetRuleNotExists;
@@ -10549,7 +10549,7 @@ namespace Core.Api
                     return response;
                 }
 
-                int res = ApiDAL.DeleteAssetRule(groupId, id);
+                int res = ApiDAL.DeleteAssetRule(groupId, assetRuleId);
                 if (res == 0)
                 {
                     response.Code = (int)eResponseStatus.Error;
@@ -10564,7 +10564,17 @@ namespace Core.Api
                 }
                 else
                 {
-                    // Delete from CB :(:(:(:(:
+                    // delete assetRulesActions from CB
+                    if (!ApiDAL.DeleteAssetRulesActions(groupId, assetRuleId, ds.Tables[1]))
+                    {
+                        log.ErrorFormat("Error while delete AssetRulesActions CB. groupId: {0}, assetRuleId:{1}", groupId, assetRuleId);
+                    }
+
+                    // delete assetRulesConditions from CB
+                    if (!ApiDAL.DeleteAssetRulesCondition(groupId, assetRuleId, ds.Tables[2]))
+                    {
+                        log.ErrorFormat("Error while delete assetRulesConditions CB. groupId: {0}, assetRuleId:{1}", groupId, assetRuleId);
+                    }
 
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
@@ -10573,7 +10583,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, id);
+                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRuleId);
             }
 
             return response;
