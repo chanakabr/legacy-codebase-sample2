@@ -4649,7 +4649,7 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteDataSet();
         }
-
+   
         public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority,
                                                 bool? isPredefined, long userId)
         {
@@ -5563,6 +5563,15 @@ namespace Tvinci.Core.DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@MetaId", metaId);
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetGroupLinearMediaIds(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupLinearMediaIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
 
             return sp.Execute();
         }
