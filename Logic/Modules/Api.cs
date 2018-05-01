@@ -1857,6 +1857,11 @@ namespace Core.Api
             return Core.Api.api.GetAssetRules(groupId);
         }
 
+        public static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        {
+            return Core.Api.api.UpdateAssetRule(groupId, assetRuleRequest);
+        }
+
         public static bool DoActionAssetRules()
         {
             throw new NotImplementedException();

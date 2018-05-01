@@ -230,6 +230,7 @@ namespace ApiObjects.Response
         NotaTopicInterestMeta = 5027,
         PermissionNameNotExists = 5028,
         RoleAlreadyExists = 5029,
+        AssetRuleNotExists = 5030,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
