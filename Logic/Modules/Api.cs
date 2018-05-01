@@ -44,7 +44,7 @@ namespace Core.Api
                 throw ex;
             }
         }
-
+        
         public static ChannelObject TVAPI_GetMedias(int groupId, InitializationObject oInitObj, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
         {
             try
@@ -1855,6 +1855,11 @@ namespace Core.Api
         public static AssetRulesResponse GetAssetRules(int groupId)
         {
             return Core.Api.api.GetAssetRules(groupId);
+        }
+
+        public static bool DoActionAssetRules()
+        {
+            throw new NotImplementedException();
         }
     }
 }

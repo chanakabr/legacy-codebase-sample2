@@ -1022,4 +1022,10 @@ namespace ApiObjects
         Asset,
         Country        
     }
+
+    public enum RuleActioType
+    {
+        LifeCycle = 0,
+        Asset = 1
+    }
 }
