@@ -22,6 +22,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
+using CouchbaseManager;
 using DAL;
 using EpgBL;
 using KLogMonitor;
@@ -104,7 +105,8 @@ namespace Core.Api
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
-        private const string ASSET_RULE_FAILED_DELETE= "failed to delete Asset rule";
+        private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
+        private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
         #endregion
 
@@ -1607,7 +1609,7 @@ namespace Core.Api
             }
             return res;
         }
-                
+
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
             List<int> result = new List<int>();
@@ -10578,7 +10580,7 @@ namespace Core.Api
 
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
-                    return response;                    
+                    return response;
                 }
             }
             catch (Exception ex)
@@ -10737,10 +10739,98 @@ namespace Core.Api
             }
         }
 
-        internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRule)
         {
-            throw new NotImplementedException();
+            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                //check AssetRule exists
+                DataSet ds = ApiDAL.GetAssetRule(groupId, assetRule.Id);
+                if (ds == null || ds.Tables.Count != 3)
+                {
+                    response.Status.Code = (int)eResponseStatus.AssetRuleNotExists;
+                    response.Status.Message = ASSET_RULE_NOT_EXIST;
+                    return response;
+                }
+
+                DataSet updatedAssetRule = ApiDAL.UpdateAssetRule(groupId, assetRule);
+                if (updatedAssetRule == null || updatedAssetRule.Tables.Count != 3)
+                {
+                    response.Status.Code = (int)eResponseStatus.Error;
+                    response.Status.Message = ASSET_RULE_FAILED_UPDATE;
+                    return response;
+                }
+
+                // update assetRulesActions from CB
+                UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
+
+                // update assetRulesConditions from CB
+                UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
+
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRule.Id);
+            }
+
+            return response;
         }
 
+        private static void UpdateAssetRulesActions(int groupId, long assetRuleId, List<AssetRuleAction> actions, DataTable dtAssetRulesActions, DataTable dtUpdatedAssetRulesActions)
+        {
+            long assetRuleActionId = 0;
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            // DeleteAssetRuleAction if needed
+            foreach (DataRow dr in dtUpdatedAssetRulesActions.Rows)
+            {
+                assetRuleActionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                // in case assetRuleActionId  not exist at dtAssetRulesActions ( old AssetRulesActions  ) - need to delete the action
+                var assetRuleActions = dtAssetRulesActions.Select("Id =" + assetRuleActionId);
+                if (assetRuleActions != null && assetRuleActions.Length > 0)
+                {
+                    if (!ApiDAL.DeleteAssetRuleAction(groupId, assetRuleId, assetRuleActionId, cbManager))
+                    {
+                        log.ErrorFormat("Error while DeleteAssetRuleAction. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, assetRuleActionId);
+                    }
+                }
+            }
+
+            // upsert dtUpdatedAssetRulesActions            
+            if (!ApiDAL.SaveAssetRulesActions(groupId, assetRuleId, dtUpdatedAssetRulesActions, actions))
+            {
+                log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRuleActions:{1}", groupId, JsonConvert.SerializeObject(actions));
+            }         
+        }
+
+        private static void UpdateAssetRulesCondition(int groupId, long assetRuleId, List<AssetRuleCondition> conditions, DataTable dtAssetRulesConditions, DataTable dtUpdatedAssetRulesConditions)
+        {
+            long assetRuleConditionId = 0;
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            // DeleteAssetRuleCondition if needed
+            foreach (DataRow dr in dtUpdatedAssetRulesConditions.Rows)
+            {
+                assetRuleConditionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                // in case assetRuleConditionId  not exist at dtAssetRulesConditions ( old ssetRulesConditions  ) - need to delete the action
+                var assetRuleConditions = dtAssetRulesConditions.Select("Id =" + assetRuleConditionId);
+                if (assetRuleConditions != null && assetRuleConditions.Length > 0)
+                {
+                    if (!ApiDAL.DeleteAssetRuleCondition(groupId, assetRuleId, assetRuleConditionId, cbManager))
+                    {
+                        log.ErrorFormat("Error while DeleteAssetRuleCondition. groupId: {0}, assetRuleId: {1}, assetRuleConditionId: {2}", groupId, assetRuleId, assetRuleConditionId);
+                    }
+                }
+            }
+
+            // upsert dtUpdatedAssetRulesConditions            
+            if (!ApiDAL.SaveAssetRulesConditions(groupId, assetRuleId, dtUpdatedAssetRulesConditions, conditions))
+            {
+                log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRuleConditions:{1}", groupId, JsonConvert.SerializeObject(conditions));
+            }
+        }
     }
 }
