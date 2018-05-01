@@ -1607,7 +1607,7 @@ namespace Core.Api
             }
             return res;
         }
-
+                
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
             List<int> result = new List<int>();
@@ -10736,5 +10736,11 @@ namespace Core.Api
                     return assetRuleAction = ApiDAL.GetAssetRuleAction<AssetRuleAction>(groupId, assetRuleId, id);
             }
         }
+
+        internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
