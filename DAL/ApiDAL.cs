@@ -4927,8 +4927,7 @@ namespace DAL
             return result;
         }
 
-        public static bool DeleteAssetRuleAction(int groupId, long assetRuleId, long assetRuleActionId,
-            CouchbaseManager.CouchbaseManager cbManager)
+        public static bool DeleteAssetRuleAction(int groupId, long assetRuleId, long assetRuleActionId, CouchbaseManager.CouchbaseManager cbManager)
         {
             bool passed = false;
             string key = GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId);
@@ -4969,8 +4968,7 @@ namespace DAL
             return result;
         }
 
-        private static bool DeleteAssetRuleCondition(int groupId, long assetRuleId, long assetRuleConditionId,
-            CouchbaseManager.CouchbaseManager cbManager)
+        public static bool DeleteAssetRuleCondition(int groupId, long assetRuleId, long assetRuleConditionId, CouchbaseManager.CouchbaseManager cbManager)
         {
             bool passed = false;
             string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
@@ -4989,6 +4987,11 @@ namespace DAL
             }
 
             return passed;
+        }
+
+        public static DataSet UpdateAssetRule(int groupId, AssetRule assetRule)
+        {
+            throw new NotImplementedException();
         }
     }
 }
