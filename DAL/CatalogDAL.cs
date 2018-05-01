@@ -1967,7 +1967,7 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-
+        
         public static DataTable Get_MediaFilesDetails(List<int> groupTree, List<int> mediaFileIDs, string mediaFileCoGuid)
         {
             StoredProcedure sp = new StoredProcedure("Get_MediaFilesDetails");
@@ -4616,7 +4616,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByGroupId");
+            StoredProcedure sp = new StoredProcedure("GetAssetStructsByGroupId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             return sp.ExecuteDataSet();
@@ -5538,6 +5538,31 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
             sp.AddParameter("@ExternalIngestId", externalIngestId);      
             sp.AddParameter("@UpdaterId", userId);
+
+            return sp.Execute();
+        }
+
+        public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@AssetStructId", assetStructId);
+            sp.AddParameter("@MetaId", metaId);
+            sp.AddParameter("@IngestReferencePath", ingestReferencePath);
+            sp.AddParameter("@ProtectFromIngest", protectFromIngest);
+            sp.AddParameter("@DefaultIngestValue", defaultIngestValue);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@UserId", userId);
+            
+            return sp.Execute();
+        }
+
+        public static DataTable GetAssetStructMetaList(int groupId, long metaId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetAssetStructMetaListByMetaId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@MetaId", metaId);
 
             return sp.Execute();
         }
