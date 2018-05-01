@@ -4906,5 +4906,89 @@ namespace DAL
             }
             return 0;
         }
+
+        public static bool DeleteAssetRulesActions(int groupId, long assetRuleId, DataTable dtAssetRulesActions)
+        {
+            bool result = false;
+
+            if (dtAssetRulesActions != null && dtAssetRulesActions.Rows.Count > 0 )
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                long assetRuleActionId = 0;
+                int assetRuleActionIndex = 0;
+                foreach (DataRow dr in dtAssetRulesActions.Rows)
+                {
+                    assetRuleActionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesActions.Rows[assetRuleActionIndex], "ID");
+
+                    result = DeleteAssetRuleAction(groupId, assetRuleId, assetRuleActionId, cbManager);
+                }
+            }
+
+            return result;
+        }
+
+        public static bool DeleteAssetRuleAction(int groupId, long assetRuleId, long assetRuleActionId,
+            CouchbaseManager.CouchbaseManager cbManager)
+        {
+            bool passed = false;
+            string key = GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId);
+
+            try
+            {
+                passed = cbManager.Remove(key);
+                if (passed)
+                    log.DebugFormat("Successfully removed {0}", key);
+                else
+                    log.ErrorFormat("Error while removing {0}", key);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
+            }
+
+            return passed;
+        }
+
+        public static bool DeleteAssetRulesCondition(int groupId, long assetRuleId, DataTable dtAssetRulesConditions)
+        {
+            bool result = false;
+
+            if (dtAssetRulesConditions != null && dtAssetRulesConditions.Rows.Count > 0)
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                long assetRuleConditionId = 0;
+                int assetRuleConditionIndex = 0;
+                foreach (DataRow dr in dtAssetRulesConditions.Rows)
+                {
+                    assetRuleConditionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesConditions.Rows[assetRuleConditionIndex], "ID");
+
+                    result = DeleteAssetRuleCondition(groupId, assetRuleId, assetRuleConditionId, cbManager);
+                }
+            }
+
+            return result;
+        }
+
+        private static bool DeleteAssetRuleCondition(int groupId, long assetRuleId, long assetRuleConditionId,
+            CouchbaseManager.CouchbaseManager cbManager)
+        {
+            bool passed = false;
+            string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
+
+            try
+            {
+                passed = cbManager.Remove(key);
+                if (passed)
+                    log.DebugFormat("Successfully removed {0}", key);
+                else
+                    log.ErrorFormat("Error while removing {0}", key);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
+            }
+
+            return passed;
+        }
     }
 }
