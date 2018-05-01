@@ -108,7 +108,7 @@ namespace Core.Api.Managers
                                             if (action.Type == RuleActionType.StartDateOffset)
                                             {
                                                 // append the country and offset conditions
-                                                long totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
+                                                double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
                                                 actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country); //IRENA: not in
 
                                                 UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, actionKsqlFilter);
@@ -138,7 +138,7 @@ namespace Core.Api.Managers
                                             {
                                                 if (action.Type == RuleActionType.EndDateOffset)
                                                 {
-                                                    long totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
+                                                    double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
                                                     actionKsqlFilter = string.Format("(and {0} end_date <= '-{1}' blocked_countries != '{2}')", ksqlFilter, totalOffset, country);
                                                 }
                                                 else // block
@@ -237,26 +237,69 @@ namespace Core.Api.Managers
             return null;
         }
 
-        private static long CalcTotalOfssetForCountry(int groupId, AssetRuleAction action, int country)
+        private static double CalcTotalOfssetForCountry(int groupId, AssetRuleAction action, int country)
         {
             StartDateOffsetRuleAction offsetAction = (StartDateOffsetRuleAction)action;
-            long totalOffset = offsetAction.Offset;
+            double totalOffset = offsetAction.Offset;
 
             if (offsetAction.TimeZone)
             {
-                totalOffset += GetTimeZoneOffsetForCountry(country);
+                totalOffset += GetTimeZoneOffsetForCountry(groupId, country);
             }
             return totalOffset;
         }
 
-        private static long GetTimeZoneOffsetForCountry(int country)
+        private static double GetTimeZoneOffsetForCountry(int groupId, int country)
         {
-            throw new NotImplementedException();
+            double timeZoneOffsetSeconds = 0;
+            string timeZoneId = ApiDAL.GetCountryTimeZone(groupId, country);
+            if (!string.IsNullOrEmpty(timeZoneId))
+            {
+                TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId); 
+                if (tzi != null)
+                {
+                    timeZoneOffsetSeconds = tzi.BaseUtcOffset.TotalSeconds;
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to get time zone info by ID = {0} for country = {1}, groupId = {2}", timeZoneId, country, groupId);
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to get time zone ID for country = {0}, groupId = {1}", country, groupId);
+            }
+
+            return timeZoneOffsetSeconds;
         }
 
         private static Dictionary<int, List<AssetRule>> GetRules(int groupId, List<long> rulesIds)
         {
-            throw new NotImplementedException();
+            Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
+            
+            // IRENA: make sure Anat supports 0;
+            AssetRulesResponse ruleResponse = Api.api.GetAssetRules(0);
+            if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.AssetRules != null)
+            {
+                if (groupId == 0)
+                {
+                    rules.Add(groupId, ruleResponse.AssetRules);
+                }
+                else
+                {
+                    foreach (var rule in ruleResponse.AssetRules)
+                    {
+                        if (!rules.ContainsKey(rule.GroupId))
+                        {
+                            rules.Add(rule.GroupId, new List<AssetRule>());
+                        }
+
+                        rules[rule.GroupId].Add(rule);
+                    }
+                }
+            }
+
+            return rules;
         }
 
         private static UnifiedSearchResponse GetUnifiedSearchResponse(int groupId, string ksql)

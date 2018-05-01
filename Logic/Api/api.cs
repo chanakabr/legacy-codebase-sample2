@@ -102,6 +102,7 @@ namespace Core.Api
         private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
         private const double MAX_SERVER_TIME_DIF = 5;
         private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
@@ -1609,7 +1610,7 @@ namespace Core.Api
             }
             return res;
         }
-
+        
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
             List<int> result = new List<int>();
@@ -10831,6 +10832,86 @@ namespace Core.Api
             {
                 log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRuleConditions:{1}", groupId, JsonConvert.SerializeObject(conditions));
             }
+        }
+
+        internal static bool DoActionAssetRules()
+        {
+            // IRENA: Add logic for making the next request on round time
+            double assetRuleScheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
+            try
+            {
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetRuleScheduledTasks);
+
+                // get run details
+                ScheduledTaskLastRunDetails lastRunDetails = assetRuleScheduledTask.GetLastRunDetails();
+                assetRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+
+                if (assetRuleScheduledTask != null &&
+                    assetRuleScheduledTask.Status.Code == (int)eResponseStatus.OK &&
+                    assetRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                {
+                    assetRuleScheduledTaskIntervalSec = assetRuleScheduledTask.NextRunIntervalInSeconds;
+
+                    if (assetRuleScheduledTask.LastRunDate.AddSeconds(assetRuleScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = true;
+                    }
+                }
+                else
+                {
+                    shouldEnqueueFollowUp = true;
+                    assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                }
+
+                int impactedItems = AssetRuleManager.DoActionRules();
+
+                if (impactedItems > 0)
+                {
+                    log.DebugFormat("Successfully applied asset rules on: {0} assets", impactedItems);
+                }
+                else
+                {
+                    log.DebugFormat("No assets were modified on DoActionRules");
+                }
+
+                assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, assetRuleScheduledTaskIntervalSec, ScheduledTaskType.assetRuleScheduledTasks);
+                if (!assetRuleScheduledTask.SetLastRunDetails())
+                {
+                    log.InfoFormat("Failed updating asset rules scheduled task last run details, AssetRuleScheduledTask: {0}", assetRuleScheduledTask.ToString());
+                }
+                else
+                {
+                    log.Debug("Successfully updated asset rules scheduled task last run date");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in DoActionAssetRules", ex);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {
+                if (shouldEnqueueFollowUp)
+                {
+                    if (assetRuleScheduledTaskIntervalSec == 0)
+                    {
+                        assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, new List<object>() [(int)RuleActionTaskType.Asset], nextExecutionDate); // IRENA
+                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                }
+            }
+
+            return true;
         }
     }
 }

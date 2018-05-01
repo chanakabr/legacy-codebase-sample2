@@ -1864,7 +1864,19 @@ namespace Core.Api
 
         public static bool DoActionAssetRules()
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            try
+            {
+                result = Core.Api.api.DoActionAssetRules();
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Error in DoActionAssetRules", ex);
+            }
+
+            return result;
         }
     }
 }

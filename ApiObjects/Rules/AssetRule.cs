@@ -11,6 +11,7 @@ namespace ApiObjects.Rules
         public string Description { get; set; }
         public List<AssetRuleCondition> Conditions { get; set; }
         public List<AssetRuleAction> Actions { get; set; }
+        public int GroupId { get; set; }
     }
 
     public class AssetRuleAction

@@ -747,7 +747,8 @@ namespace ApiObjects
         recordingsCleanup = 2,
         notificationCleanup = 3,
         reminderCleanup = 4,
-        assetLifeCycleRuleScheduledTasks = 5
+        assetLifeCycleRuleScheduledTasks = 5,
+        assetRuleScheduledTasks = 6
     }
 
     public enum SearchSeriesRecordingsTimeOptions
@@ -1023,7 +1024,7 @@ namespace ApiObjects
         Country        
     }
 
-    public enum RuleActioType
+    public enum RuleActionTaskType
     {
         LifeCycle = 0,
         Asset = 1
