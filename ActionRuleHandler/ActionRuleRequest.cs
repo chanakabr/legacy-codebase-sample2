@@ -27,7 +27,7 @@ namespace ActionRuleHandler
         }
 
         [JsonProperty("action_type")]
-        public RuleActioType ActionType
+        public RuleActionTaskType ActionType
         {
             get;
             set;
