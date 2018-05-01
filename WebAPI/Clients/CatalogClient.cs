@@ -460,8 +460,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
-            // in case asset is media
+
+            // in case asset is Linear Media
             if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
@@ -586,14 +586,21 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             AssetResponse response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
-                Asset assetToUpdate = null;                
-                // in case asset is media
-                if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                Asset assetToUpdate = null;
+                // in case asset is linear media
+                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
+                    assetToUpdate = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // in case asset is media
+                else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // add here else if for epg\recording when needed
@@ -623,8 +630,14 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
+            // in case asset is Linear Media
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
             // in case asset is media
-            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaMediaAsset>(response.Asset);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
@@ -696,7 +709,16 @@ namespace WebAPI.Clients
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (MediaAsset mediaAssetToConvert in assetListResponse.Assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                     {
-                        KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                        KalturaMediaAsset kalturaMediaAsset = null;
+                        if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
+                        {
+                            kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);                            
+                        }
+                        else
+                        {
+                            kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);                            
+                        }
+
                         kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
                         result.Objects.Add(kalturaMediaAsset);
                     }
@@ -3946,7 +3968,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, List<int> specificChannelIds, int pageIndex, int pageSize,
+                                                            KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             Core.Catalog.CatalogManagement.ChannelListResponse response = null;
@@ -3995,7 +4018,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
             }
             catch (Exception ex)
@@ -4336,39 +4359,96 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaChannelProfile GetKSQLChannel(int groupId, int channelId)
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
-            KalturaChannelProfile profile = null;
-            KSQLChannelResponse response = null;
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+            Core.Catalog.CatalogManagement.ChannelListResponse response = null;
 
+            List<GroupsCacheManager.Channel> channels = null;
+            ChannelOrderBy orderBy = ChannelOrderBy.Id;
+            OrderDir orderDirection = OrderDir.NONE;
 
+            switch (channelOrderBy)
+            {
+                case KalturaChannelsOrderBy.NONE:
+                    {
+                        orderBy = ChannelOrderBy.Id;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_ASC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_DESC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                default:
+                    break;
+            }
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetKSQLChannel(groupId, channelId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetKSQLChannel. groupID: {0}, channelId: {1}, exception: {2}", groupId, channelId, ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
             if (response == null)
             {
+                // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
+            if (response.Channels != null && response.Channels.Count > 0)
+            {
+                result.Channels = new List<KalturaChannel>();
+                // convert channels
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                if (dynamicChannels != null)
+                {
+                    result.Channels.AddRange(dynamicChannels);
+                }
 
-            return profile;
+                if (manualChannels != null && manualChannels.Count > 0)
+                {
+                    result.Channels.AddRange(manualChannels);
+                }
+
+                result.TotalCount = response.TotalItems;
+            }
+
+            return result;
         }
     }
 }
