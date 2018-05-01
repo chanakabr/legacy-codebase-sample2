@@ -651,6 +651,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+
+            // AssetStructMeta to KalturaAssetStructMeta
+            Mapper.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()
+                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                .ForMember(dest => dest.IngestReferencePath, opt => opt.MapFrom(src => src.IngestReferencePath))
+                .ForMember(dest => dest.ProtectFromIngest, opt => opt.MapFrom(src => src.ProtectFromIngest))
+                .ForMember(dest => dest.DefaultIngestValue, opt => opt.MapFrom(src => src.DefaultIngestValue))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            // KalturaAssetStructMeta to AssetStructMeta
+            Mapper.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
+               .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+               .ForMember(dest => dest.IngestReferencePath, opt => opt.MapFrom(src => src.IngestReferencePath))
+               .ForMember(dest => dest.ProtectFromIngest, opt => opt.MapFrom(src => src.ProtectFromIngest))
+               .ForMember(dest => dest.DefaultIngestValue, opt => opt.MapFrom(src => src.DefaultIngestValue))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
             #endregion
 
             #region Tag

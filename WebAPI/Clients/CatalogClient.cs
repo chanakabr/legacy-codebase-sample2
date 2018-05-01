@@ -37,6 +37,7 @@ namespace WebAPI.Clients
 
         public string Signature { get; set; }
         public string SignString { get; set; }
+        
         public string SignatureKey
         {
             set
@@ -45,7 +46,7 @@ namespace WebAPI.Clients
                 Signature = GetSignature(SignString, value);
             }
         }
-
+        
         #region New Catalog Management        
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
@@ -770,7 +771,36 @@ namespace WebAPI.Clients
 
             return result;
         }
+        
+        public KalturaAssetStructMeta UpdateAssetStructMeta(long assetStructId, long MetaId, KalturaAssetStructMeta assetStructMeta, int groupId, long userId)
+        {
+            Func<AssetStructMeta, GenericResponse<AssetStructMeta>> updateAssetStructMetaFunc = (AssetStructMeta assetStructMetaToUpdate) => 
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStructMeta
+                        (assetStructId, MetaId, assetStructMetaToUpdate, groupId, userId);
 
+            KalturaAssetStructMeta result =
+                ClientUtils.GetResponseFromWS<KalturaAssetStructMeta, AssetStructMeta>(assetStructMeta, updateAssetStructMetaFunc);
+                
+            return result;
+        }
+        
+        public KalturaAssetStructMetaListResponse GetAssetStructMetaList
+            (int groupId, long? assetStructId, long? metaId)
+        {
+            KalturaAssetStructMetaListResponse result = new KalturaAssetStructMetaListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<AssetStructMeta>> getAssetStructMetaListFunc = () =>
+               Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructMetaList(groupId, assetStructId, metaId);
+
+            KalturaGenericListResponse<KalturaAssetStructMeta> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetStructMeta, AssetStructMeta>(getAssetStructMetaListFunc);
+
+            result.AssetStructMetas = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+        
         #endregion        
 
         public int CacheDuration { get; set; }
@@ -4340,6 +4370,5 @@ namespace WebAPI.Clients
 
             return profile;
         }
-
     }
 }

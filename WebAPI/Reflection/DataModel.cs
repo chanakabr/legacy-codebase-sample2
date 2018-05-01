@@ -2815,6 +2815,44 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetStructMeta":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "CreateDate":
+                            return "createDate";
+                        case "DefaultIngestValue":
+                            return "defaultIngestValue";
+                        case "IngestReferencePath":
+                            return "ingestReferencePath";
+                        case "MetaId":
+                            return "metaId";
+                        case "ProtectFromIngest":
+                            return "protectFromIngest";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructMetaFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetStructIdEqual":
+                            return "assetStructIdEqual";
+                        case "MetaIdEqual":
+                            return "metaIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructMetaListResponse":
+                    switch(property.Name)
+                    {
+                        case "AssetStructMetas":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaBaseAssetInfo":
                     switch(property.Name)
                     {
@@ -4125,6 +4163,14 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "FollowDataList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaGenericListResponse`1":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;

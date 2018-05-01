@@ -25,7 +25,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]
         [XmlElement(ElementName = "objectType")]
-        public string objectType { get { return this.GetType().Name; } set { } }
+        public virtual string objectType { get { return this.GetType().Name; } set { } }
 
         [DataMember(Name = "relatedObjects")]
         [JsonProperty(PropertyName = "relatedObjects")]

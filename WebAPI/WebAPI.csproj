@@ -216,9 +216,11 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Clients\DMSClient.cs" />
+    <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\AssetStructMetaController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\MediaFileTypeController.cs" />
@@ -246,6 +248,10 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
+    <Compile Include="Models\General\KalturaGenericListResponse .cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMeta .cs" />
     <Compile Include="Models\Catalog\KalturaChannelOrder.cs" />
     <Compile Include="Models\Catalog\KalturaChannelsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaDynamicChannel.cs" />
