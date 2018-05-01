@@ -201,6 +201,7 @@
     <Compile Include="Catalog\CatalogManagement\Managers\IndexManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\Objects\AssetStructMeta.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetFileTypeListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaFileType.cs" />

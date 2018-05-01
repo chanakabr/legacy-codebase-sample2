@@ -281,11 +281,13 @@ namespace Core.Catalog.CatalogManagement
                 if (metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0 && idToAssetStructMap.Count > 0)
                 {
                     Dictionary<long, Dictionary<int, long>> assetStructOrderedMetasMap = new Dictionary<long, Dictionary<int, long>>();
+                    
                     foreach (DataRow dr in metasDt.Rows)
                     {
                         long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
                         long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
                         int order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER", 0);
+                        
                         if (assetStructId > 0 && metaId > 0 && order > 0 && idToAssetStructMap.ContainsKey(assetStructId))
                         {
                             if (assetStructOrderedMetasMap.ContainsKey(assetStructId))
@@ -296,6 +298,19 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
                             }
+
+                            AssetStructMeta assetStructMeta = new AssetStructMeta()
+                            {
+                                AssetStructId = assetStructId,
+                                MetaId = metaId,
+                                IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
+                                ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
+                                DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
+                                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"))
+                            };
+
+                            idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
                         }
                     }
 
@@ -654,6 +669,34 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
+        
+        private static List<AssetStructMeta> CreateAssetStructMetaListFromDT(DataTable dt)
+        {
+            List<AssetStructMeta> assetStructMetaList = null;
+
+            if (dt != null && dt.Rows != null)
+            {
+                assetStructMetaList = new List<AssetStructMeta>(dt.Rows.Count);
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    AssetStructMeta assetStructMeta = new AssetStructMeta()
+                    {
+                        AssetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"),
+                        MetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"),
+                        IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
+                        ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
+                        DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
+                        CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                        UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"))
+                    };
+
+                    assetStructMetaList.Add(assetStructMeta);
+                }
+            }
+
+            return assetStructMetaList;
+        }
 
         #endregion
 
@@ -698,7 +741,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         #endregion
 
         #region Public Methods        
@@ -859,7 +902,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         public static AssetStructResponse UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
@@ -1733,6 +1776,100 @@ namespace Core.Catalog.CatalogManagement
             result.TotalItems = totalItemsCount;
 
             return result;
+        }
+
+        public static GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long MetaId, AssetStructMeta assetStructMeta, int groupId, long userId)
+        {
+            GenericResponse<AssetStructMeta> response = new GenericResponse<AssetStructMeta>();
+
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStructMeta", groupId);
+                    return response;
+                }
+
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                {
+                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (!catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds.Contains(MetaId))
+                {
+                    response.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    return response;
+                }
+
+                DataTable dt = CatalogDAL.UpdateAssetStructMeta
+                    (assetStructId, MetaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId);
+                
+                List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
+
+                if (assetStructMetaList != null)
+                {
+                    response.Object = assetStructMetaList.FirstOrDefault();
+                }
+
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAssetStructMeta for groupId: {0}, assetStructId: {1}, MetaId: {2} and assetStructMeta: {3}",
+                                        groupId, assetStructId, MetaId, assetStructMeta.ToString()), ex);
+            }
+
+            return response;
+        }
+        
+        public static GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
+        {
+            GenericListResponse<AssetStructMeta> response = new GenericListResponse<AssetStructMeta>();
+
+            try
+            {
+                if (assetStructId.HasValue)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructMetaList", groupId);
+                        return response;
+                    }
+
+                    if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId.Value))
+                    {
+                        if (metaId.HasValue)
+                        {
+                            if (catalogGroupCache.AssetStructsMapById[assetStructId.Value].AssetStructMetas.ContainsKey(metaId.Value))
+                            {
+                                response.Objects.Add(catalogGroupCache.AssetStructsMapById[assetStructId.Value].AssetStructMetas[metaId.Value]);
+                            }
+                        }
+                        else
+                        {
+                            response.Objects.AddRange(catalogGroupCache.AssetStructsMapById[assetStructId.Value].AssetStructMetas.Values);
+                        }
+
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+                else
+                {
+                    DataTable dt = CatalogDAL.GetAssetStructMetaList(groupId, metaId.Value);
+                    response.Objects = CreateAssetStructMetaListFromDT(dt);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetStructMetaList with groupId: {0}, assetStructId: {1} and metaId: {2}", groupId, assetStructId, metaId), ex);
+            }
+
+            return response;
         }
 
         #endregion

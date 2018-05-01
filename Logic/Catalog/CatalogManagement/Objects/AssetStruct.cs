@@ -15,7 +15,7 @@ namespace Core.Catalog.CatalogManagement
         public string SystemName { get; set; }
         public List<long> MetaIds { get; set; }
         public bool? IsPredefined { get; set; }
-
+        
         // TODO - Need to support adding/editing AssociationTag per asset struct
         public string AssociationTag { get; set; }
         // TODO - Need to support adding/editing ParentId per asset struct
@@ -23,6 +23,11 @@ namespace Core.Catalog.CatalogManagement
 
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
+
+        /// <summary>
+        /// Asset Struct Meta list (the key is the metaID)
+        /// </summary>
+        public Dictionary<long, AssetStructMeta> AssetStructMetas { get; set; }
 
         public AssetStruct()
         {
@@ -35,7 +40,8 @@ namespace Core.Catalog.CatalogManagement
             this.AssociationTag = string.Empty;
             this.ParentId = 0;
             this.CreateDate = 0;
-            this.UpdateDate = 0;         
+            this.UpdateDate = 0;
+            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
         }
 
         public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, string associationTag, long parentId, long createDate, long updateDate)
@@ -49,7 +55,8 @@ namespace Core.Catalog.CatalogManagement
             this.AssociationTag = associationTag;
             this.ParentId = parentId;
             this.CreateDate = createDate;
-            this.UpdateDate = updateDate;            
+            this.UpdateDate = updateDate;
+            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
         }
 
         public AssetStruct(AssetStruct assetStructToCopy)
@@ -63,7 +70,8 @@ namespace Core.Catalog.CatalogManagement
             this.AssociationTag = assetStructToCopy.AssociationTag;
             this.ParentId = assetStructToCopy.ParentId;
             this.CreateDate = assetStructToCopy.CreateDate;
-            this.UpdateDate = assetStructToCopy.UpdateDate;            
+            this.UpdateDate = assetStructToCopy.UpdateDate;
+            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>(assetStructToCopy.AssetStructMetas);
         }
 
         public override string ToString()
@@ -78,7 +86,9 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("AssociationTag: {0}, ", AssociationTag);
             sb.AppendFormat("ParentId: {0}, ", ParentId.HasValue ? ParentId.Value.ToString() : string.Empty);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);
-            sb.AppendFormat("UpdateDate: {0}", UpdateDate);            
+            sb.AppendFormat("UpdateDate: {0}", UpdateDate);
+            sb.AppendFormat("AssetStructMetas: {0}, ", AssetStructMetas != null && AssetStructMetas.Count > 0 ?
+                                                      string.Join(",", AssetStructMetas.Select(x => x.Value.ToString()).ToList()) : string.Empty);
             return sb.ToString();
         }
 

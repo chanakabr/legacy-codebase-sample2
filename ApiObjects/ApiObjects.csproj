@@ -145,6 +145,8 @@
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
+    <Compile Include="Response\GenericListResponse.cs" />
+    <Compile Include="Response\GenericResponse.cs" />
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
