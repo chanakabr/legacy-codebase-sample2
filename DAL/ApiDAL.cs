@@ -357,7 +357,7 @@ namespace DAL
 
             return sPIN;
         }
-
+        
         public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
         {
             ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
@@ -4993,5 +4993,10 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
+        public static string GetCountryTimeZone(int groupId, int country)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

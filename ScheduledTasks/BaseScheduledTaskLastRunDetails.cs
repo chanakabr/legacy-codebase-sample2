@@ -47,6 +47,9 @@ namespace ScheduledTasks
                 case ApiObjects.ScheduledTaskType.assetLifeCycleRuleScheduledTasks:
                     key = "alcr_scheduledTasks";
                     break;
+                case ApiObjects.ScheduledTaskType.assetRuleScheduledTasks:
+                    key = "assetRule_scheduledTasks";
+                    break;
                 default:
                     break;
             }
