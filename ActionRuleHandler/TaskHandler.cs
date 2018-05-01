@@ -23,7 +23,18 @@ namespace ActionRuleHandler
 
                 ActionRuleRequest request = JsonConvert.DeserializeObject<ActionRuleRequest>(data);
 
-                bool apiResult = Core.Api.Module.DoActionRules();
+                bool apiResult = false;
+                switch (request.Type)
+                {
+                    case ApiObjects.RuleActioType.LifeCycle:
+                        apiResult = Core.Api.Module.DoActionRules();
+                        break;
+                    case ApiObjects.RuleActioType.Asset:
+                        apiResult = Core.Api.Module.DoActionAssetRules();
+                        break;
+                    default:
+                        break;
+                }
 
                 if (!apiResult)
                 {
