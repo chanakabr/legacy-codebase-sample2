@@ -9,7 +9,6 @@ namespace Core.Catalog.CatalogManagement
 {
     public class AssetListResponse
     {
-
         public Status Status { get; set; }
 
         public List<Asset> Assets { get; set; }
@@ -19,6 +18,5 @@ namespace Core.Catalog.CatalogManagement
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             Assets = new List<Asset>();
         }
-
     }
 }

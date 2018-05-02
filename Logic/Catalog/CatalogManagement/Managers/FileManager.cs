@@ -155,9 +155,9 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<MediaFileType>, bool>(mediaFileType, res);
         }
 
-        private static MediaFileTypeResponse CreateMediaFileTypeResponseFromDataSet(DataSet ds)
+        private static GenericResponse<MediaFileType> CreateMediaFileTypeResponseFromDataSet(DataSet ds)
         {
-            MediaFileTypeResponse response = new MediaFileTypeResponse();
+            GenericResponse<MediaFileType> response = new GenericResponse<MediaFileType>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -166,8 +166,8 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        response.MediaFileType = CreateMediaFileType(id, dt.Rows[0]);
-                        if (response.MediaFileType != null)
+                        response.Object = CreateMediaFileType(id, dt.Rows[0]);
+                        if (response.Object != null)
                         {
                             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
@@ -188,16 +188,17 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static AssetFileResponse CreateAssetFileResponseFromDataSet(int groupId, DataSet ds)
+        private static GenericResponse<AssetFile> CreateAssetFileResponseFromDataSet(int groupId, DataSet ds)
         {
-            AssetFileResponse response = new AssetFileResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            GenericResponse<AssetFile> response = new GenericResponse<AssetFile>();
+
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.File = CreateAssetFile(groupId, dt.Rows[0]);
-                    if (response.File != null)
+                    response.Object = CreateAssetFile(groupId, dt.Rows[0]);
+                    if (response.Object != null)
                     {
                         response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
@@ -252,7 +253,7 @@ namespace Core.Catalog.CatalogManagement
         private static List<AssetFile> GetAssetFilesById(int groupId, long id)
         {
             List<AssetFile> files = new List<AssetFile>();
-            AssetFileResponse result = new AssetFileResponse();
+            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
 
             DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
             result = CreateAssetFileResponseFromDataSet(groupId, ds);
@@ -262,7 +263,7 @@ namespace Core.Catalog.CatalogManagement
                 return files;
             }
 
-            files.Add(result.File);
+            files.Add(result.Object);
             return files;
         }
 
@@ -353,10 +354,13 @@ namespace Core.Catalog.CatalogManagement
         private static MediaFileType GetMediaFileType(int groupId, int id)
         {
             MediaFileType result = null;
-            AssetFileTypeListResponse mediaFileTypesResponse = GetMediaFileTypes(groupId);
-            if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && mediaFileTypesResponse.Types.Count > 0)
+            GenericListResponse<MediaFileType> mediaFileTypesResponse = GetMediaFileTypes(groupId);
+            if (mediaFileTypesResponse != null && 
+                mediaFileTypesResponse.Status != null && 
+                mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && 
+                mediaFileTypesResponse.Objects.Count > 0)
             {
-                result = mediaFileTypesResponse.Types.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Types.Where(x => x.Id == id).First() : null;
+                result = mediaFileTypesResponse.Objects.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Objects.Where(x => x.Id == id).First() : null;
             }
 
             return result;
@@ -410,13 +414,13 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
-        public static AssetFileTypeListResponse GetMediaFileTypes(int groupId)
+        public static GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId)
         {
-            AssetFileTypeListResponse response = new AssetFileTypeListResponse();
+            GenericListResponse<MediaFileType> response = new GenericListResponse<MediaFileType>();
             try
             {
-                response.Types = GetGroupMediaFileTypes(groupId);
-                if (response.Types != null)
+                response.Objects = GetGroupMediaFileTypes(groupId);
+                if (response.Objects != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -429,9 +433,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }        
 
-        public static MediaFileTypeResponse AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
+        public static GenericResponse<MediaFileType> AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
         {
-            MediaFileTypeResponse result = new MediaFileTypeResponse();
+            GenericResponse<MediaFileType> result = new GenericResponse<MediaFileType>();
             try
             {
                 DataSet ds = CatalogDAL.InsertMediaFileType(groupId, mediaFileTypeToAdd.Name, mediaFileTypeToAdd.Description, mediaFileTypeToAdd.IsActive, mediaFileTypeToAdd.IsTrailer,
@@ -456,9 +460,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static MediaFileTypeResponse UpdateMediaFileType(int groupId, long id, MediaFileType mediaFileTypeToUpdate, long userId)
+        public static GenericResponse<MediaFileType> UpdateMediaFileType(int groupId, long id, MediaFileType mediaFileTypeToUpdate, long userId)
         {
-            MediaFileTypeResponse result = new MediaFileTypeResponse();
+            GenericResponse<MediaFileType> result = new GenericResponse<MediaFileType>();
             try
             {
                 DataSet ds = CatalogDAL.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate.Name, mediaFileTypeToUpdate.Description, mediaFileTypeToUpdate.IsActive, mediaFileTypeToUpdate.Quality,
@@ -534,9 +538,9 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static AssetFileResponse InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd)
+        public static GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd)
         {
-            AssetFileResponse result = new AssetFileResponse();
+            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
             {
                 // validate that asset exist - isOperatorSearch = true becuase only operator can insert media file
@@ -633,7 +637,7 @@ namespace Core.Catalog.CatalogManagement
         public static Status DeleteMediaFile(int groupId, long userId, long id)
         {
             Status result = null;
-            AssetFileResponse assetFileResponse = null;
+            GenericResponse<AssetFile> assetFileResponse = null;
             try
             {
 
@@ -652,14 +656,14 @@ namespace Core.Catalog.CatalogManagement
                     if (result.Code == (int)eResponseStatus.OK)
                     {
                         // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileResponse.File.AssetId);
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileResponse.Object.AssetId);
                         if (!indexingResult)
                         {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.File.AssetId, groupId);
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
                         }
 
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.File.AssetId);
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.Object.AssetId);
                     }
                 }
             }
@@ -671,20 +675,20 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileResponse UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId)
+        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId)
         {
-            AssetFileResponse result = new AssetFileResponse();
+            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
             {
                 DataSet ds = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
-                AssetFileResponse currentAssetFile = CreateAssetFileResponseFromDataSet(groupId, ds);
+                GenericResponse<AssetFile> currentAssetFile = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (currentAssetFile != null && currentAssetFile.Status != null && currentAssetFile.Status.Code != (int)eResponseStatus.OK)
                 {
                     return currentAssetFile;
                 }
 
-                if (currentAssetFile.File != null && currentAssetFile.File.AssetId != assetFileToUpdate.AssetId)
+                if (currentAssetFile.Object != null && currentAssetFile.Object.AssetId != assetFileToUpdate.AssetId)
                 {                 
                     result.Status = new Status() { Code = (int)eResponseStatus.MediaFileNotBelongToAsset, Message = eResponseStatus.MediaFileNotBelongToAsset.ToString() };
                     return result;
@@ -719,12 +723,12 @@ namespace Core.Catalog.CatalogManagement
                 // ExternalId and AltExternalId cannot be the same value
                 if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
                 {
-                    assetFileToUpdate.ExternalId = currentAssetFile.File.ExternalId;
+                    assetFileToUpdate.ExternalId = currentAssetFile.Object.ExternalId;
                 }
 
-                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.File.AltExternalId))
+                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.Object.AltExternalId))
                 {
-                    assetFileToUpdate.AltExternalId = currentAssetFile.File.AltExternalId;
+                    assetFileToUpdate.AltExternalId = currentAssetFile.Object.AltExternalId;
                 }
 
                 // validate ExternalId and AltExternalId  are unique 
@@ -779,8 +783,8 @@ namespace Core.Catalog.CatalogManagement
                     AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToUpdate.AssetId);
 
                     // free item index update 
-                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.File.StartDate, assetFileToUpdate.StartDate,
-                                                    currentAssetFile.File.EndDate, assetFileToUpdate.EndDate);
+                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.Object.StartDate, assetFileToUpdate.StartDate,
+                                                    currentAssetFile.Object.EndDate, assetFileToUpdate.EndDate);
                 }
             }
             catch (Exception ex)
@@ -791,21 +795,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileListResponse GetMediaFiles(int groupId, long id, long assetId)
+        public static GenericListResponse<AssetFile> GetMediaFiles(int groupId, long id, long assetId)
         {
-            AssetFileListResponse response = new AssetFileListResponse();
+            GenericListResponse<AssetFile> response = new GenericListResponse<AssetFile>();
             try
             {
                 if (id > 0)
                 {
-                    response.Files = GetAssetFilesById(groupId, id);
+                    response.Objects = GetAssetFilesById(groupId, id);
                 }
                 else
                 {
-                    response.Files = GetAssetFilesByAssetId(groupId, assetId);
+                    response.Objects = GetAssetFilesByAssetId(groupId, assetId);
                 }
 
-                if (response.Files != null)
+                if (response.Objects != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }

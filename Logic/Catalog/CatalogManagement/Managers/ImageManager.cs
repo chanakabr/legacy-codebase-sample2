@@ -20,15 +20,15 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static ImageTypeResponse CreateImageTypeResponseFromDataSet(DataSet ds)
+        private static GenericResponse<ImageType> CreateImageTypeResponseFromDataSet(DataSet ds)
         {
-            ImageTypeResponse response = new ImageTypeResponse();
+            GenericResponse<ImageType> response = new GenericResponse<ImageType>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 long id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
                 if (id > 0)
                 {
-                    response.ImageType = new ImageType()
+                    response.Object = new ImageType()
                     {
                         Id = id,
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
@@ -43,7 +43,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Status = CreateImageTypeResponseStatusFromResult(id);
                 }
 
-                if (response.ImageType != null)
+                if (response.Object != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -260,10 +260,10 @@ namespace Core.Catalog.CatalogManagement
         private static ImageType GetImageType(int groupId, long imageTypeId)
         {
             ImageType imageType = null;
-            ImageTypeListResponse imageTypeResponse = GetImageTypes(groupId, true, new List<long>() { imageTypeId });
-            if (imageTypeResponse != null && imageTypeResponse.Status != null && imageTypeResponse.Status.Code == (int)eResponseStatus.OK && imageTypeResponse.ImageTypes.Count == 1)
+            GenericListResponse<ImageType> imageTypeResponse = GetImageTypes(groupId, true, new List<long>() { imageTypeId });
+            if (imageTypeResponse != null && imageTypeResponse.Status != null && imageTypeResponse.Status.Code == (int)eResponseStatus.OK && imageTypeResponse.Objects.Count == 1)
             {
-                imageType = imageTypeResponse.ImageTypes[0];
+                imageType = imageTypeResponse.Objects[0];
             }
 
             return imageType;
@@ -322,10 +322,10 @@ namespace Core.Catalog.CatalogManagement
                             if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
                             {
                                 groupDefaultImages = new List<Image>();
-                                ImageListResponse defaultImagesResponse = GetImagesByIds(groupId.Value, imageTypesWithDefaultPic, true);
+                                GenericListResponse<Image> defaultImagesResponse = GetImagesByIds(groupId.Value, imageTypesWithDefaultPic, true);
                                 if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
                                 {
-                                    groupDefaultImages.AddRange(defaultImagesResponse.Images);
+                                    groupDefaultImages.AddRange(defaultImagesResponse.Objects);
                                 }
                             }
                         }                                                
@@ -365,19 +365,19 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal
 
-        internal static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        internal static GenericListResponse<Image> CreateImageListResponseFromDataTable(int groupId, DataTable dt)
         {
-            ImageListResponse response = new ImageListResponse();
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                response.Images = new List<Image>();
+                response.Objects = new List<Image>();
 
                 foreach (DataRow row in dt.Rows)
                 {
                     Image image = CreateImageFromDataRow(groupId, row);
                     if (image != null)
                     {
-                        response.Images.Add(image);
+                        response.Objects.Add(image);
                     }
                 }
             }
@@ -408,15 +408,15 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
-        public static ImageTypeResponse AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
+        public static GenericResponse<ImageType> AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
         {
-            ImageTypeResponse result = new ImageTypeResponse();
+            GenericResponse<ImageType> result = new GenericResponse<ImageType>();
             try
             {
                 if (imageTypeToAdd.DefaultImageId.HasValue)
                 {
-                    ImageListResponse imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToAdd.DefaultImageId.Value });
-                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK ||imageList.Images == null || imageList.Images.Count != 1)
+                    GenericListResponse<Image> imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToAdd.DefaultImageId.Value });
+                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK ||imageList.Objects == null || imageList.Objects.Count != 1)
                     {
                         result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
                         return result;
@@ -450,8 +450,8 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 //check if exist before delete
-                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
-                if (imageTypeListResponse != null && imageTypeListResponse.ImageTypes != null && imageTypeListResponse.ImageTypes.Count == 0)
+                GenericListResponse<ImageType> imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
+                if (imageTypeListResponse != null && imageTypeListResponse.Objects != null && imageTypeListResponse.Objects.Count == 0)
                 {
                     result = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
                     return result;
@@ -485,7 +485,7 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", invalidationKey);
                     }
 
-                    ImageType imageType = imageTypeListResponse.ImageTypes.First();
+                    ImageType imageType = imageTypeListResponse.Objects.FirstOrDefault();
                     if (imageType != null && imageType.DefaultImageId.HasValue && imageType.DefaultImageId.Value > 0)
                     {
                         string defaultGroupImagesInvalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
@@ -504,42 +504,42 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageTypeResponse UpdateImageType(int groupId, long id, ImageType imageTypeToUpdate, long userId)
+        public static GenericResponse<ImageType> UpdateImageType(int groupId, long id, ImageType imageTypeToUpdate, long userId)
         {
-            ImageTypeResponse result = new ImageTypeResponse();
+            GenericResponse<ImageType> result = new GenericResponse<ImageType>();
             try
             {
                 if (imageTypeToUpdate.DefaultImageId.HasValue)
                 {
-                    ImageListResponse imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToUpdate.DefaultImageId.Value });
-                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Images == null || imageList.Images.Count != 1)
+                    GenericListResponse<Image> imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToUpdate.DefaultImageId.Value });
+                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Objects == null || imageList.Objects.Count != 1)
                     {
                         result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
                         return result;
                     }
 
-                    if (imageList.Images[0].ImageTypeId != id)
+                    if (imageList.Objects[0].ImageTypeId != id)
                     {
                         result.Status = new Status((int)eResponseStatus.DefaultImageInvalidImageType, eResponseStatus.DefaultImageInvalidImageType.ToString());
                         return result;
                     }
                 }
 
-                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, null);
-                if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.ImageTypes == null) || (imageTypeListResponse.ImageTypes.Count == 0))
+                GenericListResponse<ImageType> imageTypeListResponse = GetImageTypes(groupId, true, null);
+                if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.Objects == null) || (imageTypeListResponse.Objects.Count == 0))
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
                     return result;
                 }
 
-                ImageType cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == id).FirstOrDefault();
+                ImageType cachedImageType = imageTypeListResponse.Objects.Where(x => x.Id == id).FirstOrDefault();
                 if (cachedImageType == null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
                     return result;
                 }
 
-                cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
+                cachedImageType = imageTypeListResponse.Objects.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
                 if (cachedImageType != null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
@@ -557,7 +557,7 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", invalidationKey);
                     }
 
-                    if (result != null && result.ImageType != null && result.ImageType.DefaultImageId.HasValue && result.ImageType.DefaultImageId.Value > 0)
+                    if (result != null && result.Object != null && result.Object.DefaultImageId.HasValue && result.Object.DefaultImageId.Value > 0)
                     {
                         string defaultGroupImagesInvalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
                         if (!LayeredCache.Instance.SetInvalidationKey(defaultGroupImagesInvalidationKey))
@@ -575,9 +575,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
+        public static GenericListResponse<ImageType> GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
         {
-            ImageTypeListResponse response = new ImageTypeListResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            GenericListResponse<ImageType> response = new GenericListResponse<ImageType>();
 
             List<ImageType> imageTypes = GetGroupImageTypes(groupId);
 
@@ -588,37 +588,37 @@ namespace Core.Catalog.CatalogManagement
 
                 if (ids == null || ids.Count == 0)
                 {
-                    response.ImageTypes = imageTypes;
+                    response.Objects = imageTypes;
                     return response;
                 }
 
                 if (isSearchByIds)
                 {
                     // return image Types according to Ids
-                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
+                    response.Objects = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
                 }
                 else
                 {
                     // return image Types according to ratio Ids
-                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId.Value)).ToList();
+                    response.Objects = imageTypes.Where(x => ids.Contains(x.RatioId.Value)).ToList();
                 }
 
-                response.TotalItems = response.ImageTypes.Count;
+                response.TotalItems = response.Objects.Count;
             }
 
             return response;
         }
 
-        public static RatioListResponse GetRatios(int groupId)
+        public static GenericListResponse<Ratio> GetRatios(int groupId)
         {
-            RatioListResponse response = new RatioListResponse();
+            GenericListResponse<Ratio> response = new GenericListResponse<Ratio>();
 
-            response.Ratios = GetGroupImageRatios(groupId);
+            response.Objects = GetGroupImageRatios(groupId);
 
-            if (response.Ratios != null)
+            if (response.Objects != null)
             {
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                response.TotalItems = response.Ratios.Count;
+                response.TotalItems = response.Objects.Count;
             }
 
             return response;
@@ -630,8 +630,8 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 //check if exist before delete
-                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
-                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                GenericListResponse<Image> imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Objects != null && imagesResponse.Objects.Count == 0)
                 {
                     result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
                     return result;
@@ -640,7 +640,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeletePic(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    Image image = imagesResponse.Images.First();
+                    Image image = imagesResponse.Objects.First();
                     if (image != null)
                     {
                         if (image.IsDefault.HasValue && image.IsDefault.Value)
@@ -665,33 +665,33 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageListResponse GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
+        public static GenericListResponse<Image> GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
-            ImageListResponse response = new ImageListResponse();
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
 
             DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds, isDefault);
             response = CreateImageListResponseFromDataTable(groupId, dt);
             return response;
         }
 
-        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
+        public static GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
-            ImageListResponse response = new ImageListResponse();
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
 
             DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
             response = CreateImageListResponseFromDataTable(groupId, dt);
             if (isDefault.HasValue && isDefault.Value)
             {
                 List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
-                response.Images.AddRange(groupDefualtImages);
+                response.Objects.AddRange(groupDefualtImages);
             }
 
             return response;
         }
 
-        public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
+        public static GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId)
         {
-            ImageResponse result = new ImageResponse();
+            GenericResponse<Image> result = new GenericResponse<Image>();
             try
             {
                 if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
@@ -731,15 +731,15 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
                     if (id > 0)
                     {
-                        result.Image = CreateImageFromDataRow(groupId, dt.Rows[0], id);
+                        result.Object = CreateImageFromDataRow(groupId, dt.Rows[0], id);
 
-                        if (result.Image != null)
+                        if (result.Object != null)
                         {
                             if (imageToAdd.ImageObjectType == eAssetImageType.ImageType)
                             {
                                 // update default image ID in image type
-                                ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId,
-                                    new ImageType() { DefaultImageId = result.Image.Id }, userId);
+                                GenericResponse<ImageType> imageTypeResult = UpdateImageType(groupId, result.Object.ImageTypeId,
+                                    new ImageType() { DefaultImageId = result.Object.Id }, userId);
 
                                 result.Status = imageTypeResult.Status;
                             }
@@ -769,14 +769,14 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 //check if exist before setting content
-                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
-                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                GenericListResponse<Image> imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Objects != null && imagesResponse.Objects.Count == 0)
                 {
                     result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
                     return result;
                 }
 
-                Image image = imagesResponse.Images[0];
+                Image image = imagesResponse.Objects[0];
                 if (string.IsNullOrEmpty(image.ContentId))
                 {
                     //first setContent

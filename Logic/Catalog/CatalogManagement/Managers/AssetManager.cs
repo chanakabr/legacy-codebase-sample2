@@ -19,7 +19,6 @@ namespace Core.Catalog.CatalogManagement
 {
     public class AssetManager
     {
-
         #region Constants and Readonly
 
         private const string NAME_META_SYSTEM_NAME = "Name";
@@ -168,15 +167,15 @@ namespace Core.Catalog.CatalogManagement
             List<Image> images = new List<Image>();
             if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
             {
-                ImageListResponse imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
-                if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Images.Count == 0)
+                GenericListResponse<Image> imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
+                if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Objects.Count == 0)
                 {
                     log.WarnFormat("CreateMediaAssetFromDataSet - failed to get images for Id: {0}", id);
                     return null;
                 }
 
                 // get only active images
-                images = imageResponse.Images.Where(x => x.Status == eTableStatus.OK).Count() > 0 ? imageResponse.Images.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
+                images = imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).Count() > 0 ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
             }
 
             List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
@@ -1225,13 +1224,13 @@ namespace Core.Catalog.CatalogManagement
             topicIds.AddRange(topicIdToTag.Keys.ToList());
             if (topicIds.Count > 0)
             {
-                TopicListResponse groupTopicsResponse = CatalogManager.GetTopicsByIds(groupId, topicIds, MetaType.All);
+                GenericListResponse<Topic> groupTopicsResponse = CatalogManager.GetTopicsByIds(groupId, topicIds, MetaType.All);
                 if (groupTopicsResponse != null && groupTopicsResponse.Status != null && groupTopicsResponse.Status.Code == (int)eResponseStatus.OK
-                    && groupTopicsResponse.Topics != null && groupTopicsResponse.Topics.Count > 0)
+                    && groupTopicsResponse.Objects != null && groupTopicsResponse.Objects.Count > 0)
                 {
                     metas = new List<Metas>();
                     tags = new List<Tags>();
-                    foreach (Topic topic in groupTopicsResponse.Topics)
+                    foreach (Topic topic in groupTopicsResponse.Objects)
                     {
                         if (topic.Type == MetaType.Tag)
                         {
@@ -2118,6 +2117,5 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
-
     }
 }

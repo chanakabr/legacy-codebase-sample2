@@ -197,9 +197,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }        
 
-        private static AssetStructResponse CreateAssetStructResponseFromDataSet(DataSet ds)
+        private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds)
         {
-            AssetStructResponse response = new AssetStructResponse();
+            GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -211,7 +211,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> assetStructTranslations = (from row in translations
                                                                  select row).ToList();
-                        response.AssetStruct = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
+                        response.Object = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
                     }
                     else
                     {
@@ -224,24 +224,24 @@ namespace Core.Catalog.CatalogManagement
                     response.Status = CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString()));
                 }
 
-                if (response.AssetStruct != null && ds.Tables.Count == 3)
+                if (response.Object != null && ds.Tables.Count == 3)
                 {
                     DataTable metasDt = ds.Tables[2];
-                    if (response.AssetStruct != null && metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0)
+                    if (response.Object != null && metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0)
                     {
                         foreach (DataRow dr in metasDt.Rows)
                         {
                             long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
                             long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
-                            if (!response.AssetStruct.MetaIds.Contains(metaId))
+                            if (!response.Object.MetaIds.Contains(metaId))
                             {
-                                response.AssetStruct.MetaIds.Add(metaId);
+                                response.Object.MetaIds.Add(metaId);
                             }
                         }
                     }
                 }
 
-                if (response.AssetStruct != null)
+                if (response.Object != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -392,9 +392,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static TopicResponse CreateTopicResponseFromDataSet(DataSet ds)
+        private static GenericResponse<Topic> CreateTopicResponseFromDataSet(DataSet ds)
         {
-            TopicResponse response = new TopicResponse();
+            GenericResponse<Topic> response = new GenericResponse<Topic>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -406,7 +406,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> topicTranslations = (from row in translations
                                                            select row).ToList();
-                        response.Topic = CreateTopic(id, dt.Rows[0], topicTranslations);
+                        response.Object = CreateTopic(id, dt.Rows[0], topicTranslations);
                     }
                     else
                     {
@@ -415,7 +415,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (response.Topic != null)
+                if (response.Object != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -482,9 +482,9 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static TagResponse CreateTagResponseFromDataSet(DataSet ds)
+        private static GenericListResponse<ApiObjects.SearchObjects.TagValue> CreateTagListResponseFromDataSet(DataSet ds)
         {
-            TagResponse response = new TagResponse();
+            GenericListResponse<ApiObjects.SearchObjects.TagValue> response = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -496,7 +496,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> tagTranslations = (from row in translations
                                                          select row).ToList();
-                        response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
+                        response.Objects.Add(CreateTag(id, dt.Rows[0], tagTranslations));
                     }
                     else
                     {
@@ -510,7 +510,7 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (response.TagValues != null)
+                if (response.Objects != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -518,7 +518,6 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
-
             }
 
             return response;
@@ -769,9 +768,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetStructListResponse GetAssetStructsByIds(int groupId, List<long> ids, bool? isProtected)
+        public static GenericListResponse<AssetStruct> GetAssetStructsByIds(int groupId, List<long> ids, bool? isProtected)
         {
-            AssetStructListResponse response = new AssetStructListResponse();
+            GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -783,16 +782,16 @@ namespace Core.Catalog.CatalogManagement
 
                 if (ids != null && ids.Count > 0)
                 {
-                    response.AssetStructs = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
+                    response.Objects = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
                 }
                 else
                 {
-                    response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.ToList();
+                    response.Objects = catalogGroupCache.AssetStructsMapById.Values.ToList();
                 }
 
                 if (isProtected.HasValue)
                 {
-                    response.AssetStructs = response.AssetStructs.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
+                    response.Objects = response.Objects.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
                 }
 
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -805,9 +804,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
+        public static GenericListResponse<AssetStruct> GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
         {
-            AssetStructListResponse response = new AssetStructListResponse();
+            GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
             try
             {
                 if (topicId > 0)
@@ -819,10 +818,10 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
+                    response.Objects = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
                     if (isProtected.HasValue)
                     {
-                        response.AssetStructs = response.AssetStructs.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
+                        response.Objects = response.Objects.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
                     }
 
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -836,9 +835,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
+        public static GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
         {
-            AssetStructResponse result = new AssetStructResponse();
+            GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -893,7 +892,7 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
             {
@@ -903,9 +902,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        public static AssetStructResponse UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
+        public static GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
         {
-            AssetStructResponse result = new AssetStructResponse();
+            GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1023,7 +1022,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
             {
@@ -1096,9 +1095,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids, MetaType type)
+        public static GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
-            TopicListResponse response = new TopicListResponse();
+            GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1110,12 +1109,12 @@ namespace Core.Catalog.CatalogManagement
 
                 if (ids != null && ids.Count > 0)
                 {
-                    response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                    response.Objects = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
                                                 .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
                 }
                 else
                 {
-                    response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
+                    response.Objects = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
                 }
 
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1128,9 +1127,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static TopicListResponse GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
+        public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
-            TopicListResponse response = new TopicListResponse();
+            GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
             {
                 if (assetStructId > 0)
@@ -1147,7 +1146,7 @@ namespace Core.Catalog.CatalogManagement
                         List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
                         if (topicIds != null && topicIds.Count > 0)
                         {
-                            response.Topics = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                            response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
                                                             .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
                         }
                     }
@@ -1163,9 +1162,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static TopicResponse AddTopic(int groupId, Topic topicToAdd, long userId)
+        public static GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId)
         {
-            TopicResponse result = new TopicResponse();
+            GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1193,7 +1192,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, languageCodeToName, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
             {
@@ -1203,9 +1202,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TopicResponse UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
+        public static GenericResponse<Topic> UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
         {
-            TopicResponse result = new TopicResponse();
+            GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1244,7 +1243,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.GetFeaturesForDB(topic.Features),
                                                     topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
             {
@@ -1533,9 +1532,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
         {
-            TagResponse result = new TagResponse();
+            GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
             try
             {
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -1567,7 +1566,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);
+                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = CreateTagListResponseFromDataSet(ds);
+                result.Object = tagListResponse.Objects.FirstOrDefault();
+                result.Status = tagListResponse.Status;
 
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1575,7 +1576,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.Object);
             }
             catch (Exception ex)
             {
@@ -1585,18 +1586,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TagResponse UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
         {
-            TagResponse result = new TagResponse();
+            GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+
             try
             {
+                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagByIdListResponse = GetTagListResponseById(groupId, id);
+                result.Object = tagByIdListResponse.Objects.FirstOrDefault();
+                result.Status = tagByIdListResponse.Status;
 
-                result = GetTagById(groupId, id);
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
                     return result;
                 }
-
+                
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
                 if (tagToUpdate.TagsInOtherLanguages != null)
@@ -1629,7 +1633,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);
+                tagByIdListResponse = CreateTagListResponseFromDataSet(ds);
+                result.Object = tagByIdListResponse.Objects.FirstOrDefault();
+                result.Status = tagByIdListResponse.Status;
 
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1642,7 +1648,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.Object);
 
             }
             catch (Exception ex)
@@ -1655,12 +1661,15 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
-            TagResponse tagResponse = new TagResponse();
+            GenericResponse<ApiObjects.SearchObjects.TagValue> tagResponse = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                tagResponse = GetTagById(groupId, tagId);
+                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagId);
+                tagResponse.Object = tagListResponse.Objects.FirstOrDefault();
+                tagResponse.Status = tagListResponse.Status;
+
                 if (tagResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     return tagResponse.Status;
@@ -1704,13 +1713,14 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static TagResponse GetTagById(int groupId, long tagId)
+        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTagListResponseById(int groupId, long tagId)
         {
-            TagResponse result = new TagResponse();
+            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+
             try
             {
                 DataSet ds = CatalogDAL.GetTag(groupId, tagId);
-                result = CreateTagResponseFromDataSet(ds);
+                result = CreateTagListResponseFromDataSet(ds);
             }
             catch (Exception ex)
             {
@@ -1720,9 +1730,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
+        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
         {
-            TagResponse result = new TagResponse();
+            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
             CatalogGroupCache catalogGroupCache;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
@@ -1758,17 +1768,22 @@ namespace Core.Catalog.CatalogManagement
             List<ApiObjects.SearchObjects.TagValue> tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
 
 
-            List<TagResponse> tagResponses = new List<TagResponse>();
+            List<GenericListResponse<ApiObjects.SearchObjects.TagValue>> tagListResponseList = new List<GenericListResponse<ApiObjects.SearchObjects.TagValue>>();
             HashSet<long> tagIds = new HashSet<long>();
 
             foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
             {
                 if (!tagIds.Contains(tagValue.tagId))
                 {
-                    TagResponse tagResponse = GetTagById(groupId, tagValue.tagId);
-                    tagResponses.Add(tagResponse);
+                    //TODO SHIR - ASK LIOR IF THIS OK?
+                    GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagValue.tagId);
+                    tagListResponseList.Add(tagListResponse);
                     tagIds.Add(tagValue.tagId);
-                    result.TagValues.AddRange(tagResponse.TagValues);
+                    result.Objects.AddRange(tagListResponse.Objects);
+
+                    //GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse1 = GetTagListResponseById(groupId, tagValue.tagId);
+                    //tagIds.Add(tagValue.tagId);
+                    //result.Objects.AddRange(tagListResponse1.TagValues);
                 }
             }
 
