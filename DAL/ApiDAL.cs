@@ -4581,7 +4581,7 @@ namespace DAL
 
         public static bool UpdateAssetRuleLastRunDate(long id)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); //IRENA
         }
 
         public static bool SaveAssetRulesConditions(long groupId, long assetRuleId, DataTable dtAssetRulesConditions, List<AssetRuleCondition> conditions)
@@ -4993,10 +4993,5 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
-        public static string GetCountryTimeZone(int groupId, int country)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
