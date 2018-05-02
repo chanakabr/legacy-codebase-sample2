@@ -17,7 +17,6 @@ namespace Core.Catalog.CatalogManagement
 {
     public class ChannelManager
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Private Methods
@@ -385,9 +384,9 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        private static ChannelListResponse GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isOperatorSearch, int totalItems)
+        private static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isOperatorSearch, int totalItems)
         {
-            ChannelListResponse result = new ChannelListResponse();
+            GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
                 List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isOperatorSearch);
@@ -401,10 +400,10 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<int, Channel> mappedChannels = unorderedChannels.ToDictionary(x => x.m_nChannelID, x => x);
                 foreach (int channelId in channelIds)
                 {
-                    result.Channels.Add(mappedChannels[channelId]);
+                    result.Objects.Add(mappedChannels[channelId]);
                 }
 
-                if (result.Channels != null)
+                if (result.Objects != null)
                 {
                     result.TotalItems = totalItems;
                     result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -454,13 +453,13 @@ namespace Core.Catalog.CatalogManagement
             return groupChannels;
         }
 
-        public static ChannelListResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
-            ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection, bool isOperatorSearch)
+        public static GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
         {
-            ChannelListResponse result = new ChannelListResponse();
+            GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                ApiObjects.SearchObjects.ChannelSearchDefinitions definitions = new ApiObjects.SearchObjects.ChannelSearchDefinitions()
+                ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
                     GroupId = groupId,
                     PageIndex = pageIndex,
@@ -486,9 +485,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }        
 
-        public static ChannelResponse AddChannel(int groupId, Channel channelToAdd, long userId)
+        public static GenericResponse<Channel> AddChannel(int groupId, Channel channelToAdd, long userId)
         {
-            ChannelResponse response = new ChannelResponse();
+            GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
@@ -618,16 +617,16 @@ namespace Core.Catalog.CatalogManagement
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
                     {
-                        response.Channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
                     }
                 }                
 
-                if (response.Channel != null && response.Channel.m_nChannelID > 0)
+                if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
-                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Channel.m_nChannelID, response.Channel);
+                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object);
                     if (!updateResult)
                     {
-                        log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Channel.m_nChannelID);
+                        log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Object.m_nChannelID);
                     }
                     else
                     {
@@ -647,9 +646,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelResponse UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId)
+        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId)
         {
-            ChannelResponse response = new ChannelResponse();
+            GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
@@ -791,13 +790,13 @@ namespace Core.Catalog.CatalogManagement
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
                     {
-                        response.Channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
                     }
                 }
 
-                if (response.Channel != null && response.Channel.m_nChannelID > 0)
+                if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
-                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Channel.m_nChannelID, response.Channel);
+                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
@@ -827,14 +826,14 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelResponse GetChannel(int groupId, int channelId, bool isOperatorSearch)
+        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isOperatorSearch)
         {
-            ChannelResponse response = new ChannelResponse();
+            GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
-                response.Channel = GetChannelById(groupId, channelId, isOperatorSearch);
-                if (response.Channel != null)
+                response.Object = GetChannelById(groupId, channelId, isOperatorSearch);
+                if (response.Object != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -863,14 +862,14 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //check if channel exists - isOperatorSearch = true becuase only operator can delete channel
-                ChannelResponse channelResponse = GetChannel(groupId, channelId, true);                
+                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true);                
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response = channelResponse.Status;
                     return response;
                 }                
 
-                if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Channel.m_nChannelTypeID, userId))
+                if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {                    
                     bool deleteResult = IndexManager.DeleteChannel(groupId, channelId);
                     if (!deleteResult)
@@ -902,9 +901,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
+        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
         {
-            ChannelListResponse result = new ChannelListResponse();
+            GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {                
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
@@ -927,6 +926,5 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
-
     }
 }

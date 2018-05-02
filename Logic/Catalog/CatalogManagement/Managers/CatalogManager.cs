@@ -1724,7 +1724,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetTagById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+                log.Error(string.Format("Failed GetTagListResponseById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
             }
 
             return result;

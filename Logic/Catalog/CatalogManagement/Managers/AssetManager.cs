@@ -72,9 +72,9 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static AssetResponse CreateMediaAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        private static GenericResponse<Asset> CreateMediaAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             if (ds == null || ds.Tables == null)
             {
                 log.WarnFormat("CreateAssetResponseFromDataSet - dataset or tables are null");
@@ -96,9 +96,9 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            result.Asset = CreateMediaAsset(groupId, id, ds, defaultLanguage, groupLanguages);
+            result.Object = CreateMediaAsset(groupId, id, ds, defaultLanguage, groupLanguages);
 
-            if (result.Asset != null)
+            if (result.Object != null)
             {
                 result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -1015,9 +1015,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static AssetResponse AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId)
+        private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 // validate assetStruct Exists
@@ -1066,13 +1066,13 @@ namespace Core.Catalog.CatalogManagement
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
-                    && result.Asset != null && result.Asset.Id > 0 && !isLinear)
+                    && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
                     }
                 }
             }
@@ -1084,9 +1084,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        private static AssetResponse UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId)
+        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 // validate asset
@@ -1134,13 +1134,13 @@ namespace Core.Catalog.CatalogManagement
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
-                    && result.Asset != null && result.Asset.Id > 0 && !isLinear)
+                    && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
                     }
                 }
             }
@@ -1568,24 +1568,24 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static AssetResponse AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToAdd, long userId)
+        private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToAdd, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
                                                                 linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.CatchUpBuffer, linearMediaAssetToAdd.TrickPlayBuffer,
                                                                 linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalIngestId, mediaAsset.Id, userId);
-                result.Asset = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
-                if (result.Asset != null)
+                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
+                if (result.Object != null)
                 {
                     result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddLinearMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddLinearMediaAsset", result.Object.Id, groupId);
                     }
                 }
             }
@@ -1597,25 +1597,25 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static AssetResponse UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToUpdate, long userId)
+        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToUpdate, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 DataTable dt = CatalogDAL.UpdateLinearMediaAsset(groupId, mediaAsset.Id, linearMediaAssetToUpdate.EnableCdvrState, linearMediaAssetToUpdate.EnableCatchUpState,
                                                                 linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState, linearMediaAssetToUpdate.EnableTrickPlayState,
                                                                 linearMediaAssetToUpdate.CatchUpBuffer, linearMediaAssetToUpdate.TrickPlayBuffer, linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalIngestId, userId);
-                result.Asset = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
+                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
 
-                if (result.Asset != null)
+                if (result.Object != null)
                 {
                     result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Object.Id, groupId);
                     }
                 }
             }
@@ -1660,9 +1660,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType, bool isOperatorSearch)
+        public static GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isOperatorSearch)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
@@ -1675,7 +1675,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        result.Asset = assets[0];
+                        result.Object = assets[0];
                         result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
@@ -1712,9 +1712,10 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetListResponse GetOrderedAssets(int groupId, List<BaseObject> assets, bool isOperatorSearch)
+        public static GenericListResponse<Asset> GetOrderedAssets(int groupId, List<BaseObject> assets, bool isOperatorSearch)
         {
-            AssetListResponse result = new AssetListResponse();
+            GenericListResponse<Asset> result = new GenericListResponse<Asset>();
+
             try
             {
                 if (assets != null && assets.Count > 0)
@@ -1740,7 +1741,7 @@ namespace Core.Catalog.CatalogManagement
                     {                        
                         if (!isOperatorSearch || Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
                         {
-                            result.Assets.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
+                            result.Objects.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
                         }
                         else
                         {
@@ -1844,9 +1845,9 @@ namespace Core.Catalog.CatalogManagement
             return groupMediaAssetsMap;
         }
 
-        public static AssetResponse AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId)
+        public static GenericResponse<Asset> AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1871,7 +1872,7 @@ namespace Core.Catalog.CatalogManagement
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LinearMediaAsset linearMediaAssetToAdd = assetToAdd as LinearMediaAsset;
-                                result = AddLinearMediaAsset(groupId, result.Asset as MediaAsset, linearMediaAssetToAdd, userId);
+                                result = AddLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToAdd, userId);
                             }
                         }
                         break;
@@ -1888,9 +1889,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetResponse UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId)
+        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId)
         {
-            AssetResponse result = new AssetResponse();
+            GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1932,7 +1933,7 @@ namespace Core.Catalog.CatalogManagement
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LinearMediaAsset linearMediaAssetToUpdate = assetToUpdate as LinearMediaAsset;
-                                result = UpdateLinearMediaAsset(groupId, result.Asset as MediaAsset, linearMediaAssetToUpdate, userId);
+                                result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId);
                             }
                         }
                         break;

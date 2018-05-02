@@ -197,8 +197,6 @@
     <Compile Include="Catalog\CatalogManagement\Objects\Asset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetFile.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\IndexManager.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\AssetListResponse.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\AssetResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetStructMeta.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaFileType.cs" />
@@ -207,8 +205,6 @@
     <Compile Include="Catalog\CatalogManagement\Objects\ImageType.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\LinearMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaAsset.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\ChannelResponse.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\ChannelListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Topic.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\CatalogManager.cs" />
     <Compile Include="Catalog\ChannelViewsResult.cs" />
