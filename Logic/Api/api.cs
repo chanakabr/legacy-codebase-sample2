@@ -10764,10 +10764,16 @@ namespace Core.Api
                 }
 
                 // update assetRulesActions from CB
-                UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
+                if (assetRule.Actions != null)
+                {
+                    UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
+                }
 
                 // update assetRulesConditions from CB
-                UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
+                if (assetRule.Conditions!= null)
+                {
+                    UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
+                }
 
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
