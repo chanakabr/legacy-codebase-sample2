@@ -10593,7 +10593,7 @@ namespace Core.Api
             return response;
         }
 
-        internal static AssetRulesResponse GetAssetRules(int groupId)
+        internal static AssetRulesResponse GetAssetRules(int groupId = 0)
         {
             AssetRulesResponse response = new AssetRulesResponse();
             try
@@ -10719,7 +10719,8 @@ namespace Core.Api
             {
                 Id = assetRuleId,
                 Name = ODBCWrapper.Utils.GetSafeStr(dataRow, "NAME"),
-                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION")
+                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION"),
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "GROUP_ID")
             };
 
             return assetRule;
