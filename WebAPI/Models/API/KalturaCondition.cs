@@ -72,9 +72,13 @@ namespace WebAPI.Models.API
             if (!string.IsNullOrEmpty(Countries))
             {
                 string[] splitted = Countries.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                int countryId = 0;
                 foreach (var country in splitted)
                 {
-                    countries.Add(int.Parse(country));
+                    if (int.TryParse(country, out countryId) && countryId > 0)
+                    {
+                        countries.Add(countryId);
+                    }
                 }
             }
 
