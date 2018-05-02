@@ -46,7 +46,10 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<U>(response.Object);
+            if (response.Object != null)
+            {
+                result = AutoMapper.Mapper.Map<U>(response.Object);
+            }
 
             return result;
         }
@@ -88,8 +91,8 @@ namespace WebAPI.Clients
             }
 
             if (response.Objects != null && response.Objects.Count > 0)
-            {
-                result.TotalCount = response.Objects.Count;
+            {   
+                result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
                 result.Objects = new List<U>();
                 foreach (T data in response.Objects)
                 {
@@ -97,7 +100,44 @@ namespace WebAPI.Clients
                 }
             }
 
+            //TODO SHIR - CHECK THIS - LOOKS GOOD!
+            //if (response.Images != null)
+            //{
+            //    imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
+            //    imagesResponse.TotalCount = imagesResponse.Images.Count;
+            //}
+
             return result;
+        }
+
+        internal static bool GetResponseStatusFromWS(Func<Status> funcInWS)
+        {
+            Status status = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    status = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(status.Code, status.Message);
+            }
+
+            return true;
         }
     }
 }
