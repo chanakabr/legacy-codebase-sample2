@@ -89,23 +89,12 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-
+            
             if (response.Objects != null && response.Objects.Count > 0)
-            {   
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-                result.Objects = new List<U>();
-                foreach (T data in response.Objects)
-                {
-                    result.Objects.Add(AutoMapper.Mapper.Map<U>(data));
-                }
             }
-
-            //TODO SHIR - CHECK THIS - LOOKS GOOD!
-            //if (response.Images != null)
-            //{
-            //    imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
-            //    imagesResponse.TotalCount = imagesResponse.Images.Count;
-            //}
 
             return result;
         }

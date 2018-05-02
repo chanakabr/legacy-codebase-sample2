@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
             try
             {    
-                response = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);                
+                response = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);       
             }
             catch (ClientException ex)
             {

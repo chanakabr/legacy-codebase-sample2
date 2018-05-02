@@ -234,7 +234,7 @@ namespace WebAPI.Clients
         public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
         {
             KalturaAsset result = null;
-            AssetResponse response = null;
+            GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
             Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
 
@@ -284,14 +284,14 @@ namespace WebAPI.Clients
             // in case asset is Linear Media
             if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
             else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result = Mapper.Map<KalturaMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // add here else if for epg\recording when needed
             else
@@ -316,7 +316,7 @@ namespace WebAPI.Clients
         public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isOperatorSearch)
         {
             KalturaAsset result = null;
-            AssetResponse response = null;
+            GenericResponse<Asset> response = null;
             eAssetTypes assetType = eAssetTypes.UNKNOWN;
             bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             try
@@ -357,15 +357,15 @@ namespace WebAPI.Clients
             switch (assetType)
             {
                 case eAssetTypes.MEDIA:
-                    if ((response.Asset as MediaAsset).MediaAssetType == MediaAssetType.Linear)
+                    if ((response.Object as MediaAsset).MediaAssetType == MediaAssetType.Linear)
                     {
-                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
+                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
                     }
                     else
                     {
-                        result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                        result = Mapper.Map<KalturaMediaAsset>(response.Object);
                     }                    
-                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
                     break;
                 case eAssetTypes.EPG:
                     break;
@@ -383,7 +383,7 @@ namespace WebAPI.Clients
         public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
         {
             KalturaAsset result = null;
-            AssetResponse response = null;
+            GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
             Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
             try
@@ -432,14 +432,14 @@ namespace WebAPI.Clients
             // in case asset is Linear Media
             if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
             else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result = Mapper.Map<KalturaMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // add here else if for epg\recording when needed
             else
@@ -499,14 +499,14 @@ namespace WebAPI.Clients
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
-            {                
-                AssetListResponse assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isOperatorSearch);
+            {
+                GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isOperatorSearch);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
-                    foreach (MediaAsset mediaAssetToConvert in assetListResponse.Assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                    foreach (MediaAsset mediaAssetToConvert in assetListResponse.Objects.Where(x => x.AssetType == eAssetTypes.MEDIA))
                     {
                         KalturaMediaAsset kalturaMediaAsset = null;
                         if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
@@ -621,7 +621,7 @@ namespace WebAPI.Clients
             return result;
         }
         
-        #endregion        
+        #endregion
 
         public int CacheDuration { get; set; }
 
@@ -3264,7 +3264,7 @@ namespace WebAPI.Clients
                                                             KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            Core.Catalog.CatalogManagement.ChannelListResponse response = null;
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
@@ -3331,12 +3331,12 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Channels != null && response.Channels.Count > 0)
+            if (response.Objects != null && response.Objects.Count > 0)
             {
                 result.Channels = new List<KalturaChannel>();                
                 // convert channels
-                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
-                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
                 if (dynamicChannels != null)
                 {
                     result.Channels.AddRange(dynamicChannels);
@@ -3355,7 +3355,7 @@ namespace WebAPI.Clients
 
         internal KalturaChannel GetChannel(int groupId, int channelId, bool isOperatorSearch)
         {
-            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+            GenericResponse<GroupsCacheManager.Channel> response = null;
             KalturaChannel result = null;
 
             try
@@ -3382,14 +3382,14 @@ namespace WebAPI.Clients
             }
 
             // DynamicChannel
-            if (response.Channel.m_nChannelTypeID == 4)
+            if (response.Object.m_nChannelTypeID == 4)
             {
-                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
             }
             // Should only be manual channel
             else
             {
-                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
             }
 
             return result;
@@ -3431,7 +3431,7 @@ namespace WebAPI.Clients
         internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, long userId)
         {
             KalturaChannel result = null;
-            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+            GenericResponse<GroupsCacheManager.Channel> response = null;
 
             try
             {
@@ -3458,14 +3458,14 @@ namespace WebAPI.Clients
             }
 
             // DynamicChannel
-            if (response.Channel.m_nChannelTypeID == 4)
+            if (response.Object.m_nChannelTypeID == 4)
             {
-                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
             }
             // Should only be manual channel
             else
             {
-                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
             }
 
             return result;
@@ -3474,7 +3474,7 @@ namespace WebAPI.Clients
         internal KalturaChannel UpdateChannel(int groupId, int  id, KalturaChannel channel, long userId)
         {
             KalturaChannel result = null;
-            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+            GenericResponse<GroupsCacheManager.Channel> response = null;
 
             try
             {
@@ -3501,14 +3501,14 @@ namespace WebAPI.Clients
             }
 
             // DynamicChannel
-            if (response.Channel.m_nChannelTypeID == 4)
+            if (response.Object.m_nChannelTypeID == 4)
             {
-                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
             }
             // Should only be manual channel
             else
             {
-                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
             }
 
             return result;
@@ -3630,7 +3630,7 @@ namespace WebAPI.Clients
         internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            Core.Catalog.CatalogManagement.ChannelListResponse response = null;
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
@@ -3697,12 +3697,12 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Channels != null && response.Channels.Count > 0)
+            if (response.Objects != null && response.Objects.Count > 0)
             {
                 result.Channels = new List<KalturaChannel>();
                 // convert channels
-                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
-                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
                 if (dynamicChannels != null)
                 {
                     result.Channels.AddRange(dynamicChannels);
