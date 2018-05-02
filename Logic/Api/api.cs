@@ -10595,7 +10595,7 @@ namespace Core.Api
             return response;
         }
 
-        internal static AssetRulesResponse GetAssetRules(int groupId)
+        internal static AssetRulesResponse GetAssetRules(int groupId = 0)
         {
             AssetRulesResponse response = new AssetRulesResponse();
             try
@@ -10606,10 +10606,10 @@ namespace Core.Api
                 {
                     response.AssetRules = new List<AssetRule>();
                     long assetRuleId = 0;
-                    AssetRule assetRule = null;
+                    AssetRule assetRule = null;                    
                     foreach (DataRow dataRow in ds.Tables[0].Rows)
                     {
-                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
 
                         assetRule = CreateAssetRule(assetRuleId, dataRow);
 
@@ -10721,7 +10721,8 @@ namespace Core.Api
             {
                 Id = assetRuleId,
                 Name = ODBCWrapper.Utils.GetSafeStr(dataRow, "NAME"),
-                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION")
+                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION"),
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "GROUP_ID")
             };
 
             return assetRule;
@@ -10766,10 +10767,16 @@ namespace Core.Api
                 }
 
                 // update assetRulesActions from CB
-                UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
+                if (assetRule.Actions != null)
+                {
+                    UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
+                }
 
                 // update assetRulesConditions from CB
-                UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
+                if (assetRule.Conditions!= null)
+                {
+                    UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
+                }
 
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
