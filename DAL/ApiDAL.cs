@@ -357,7 +357,7 @@ namespace DAL
 
             return sPIN;
         }
-        
+
         public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
         {
             ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
@@ -2510,7 +2510,7 @@ namespace DAL
 
             return ossAdapterRes;
         }
-        
+
         public static List<OSSAdapter> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
             List<OSSAdapter> res = new List<OSSAdapter>();
@@ -4831,7 +4831,7 @@ namespace DAL
         {
             T assetRuleCondition = default(T);
             eResultStatus status = eResultStatus.ERROR;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS); 
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
             string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
 
@@ -4895,14 +4895,14 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Delete_AssetRule");                
+                StoredProcedure sp = new StoredProcedure("Delete_AssetRule");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", id);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id,ex);
+                log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id, ex);
             }
             return 0;
         }
@@ -4911,7 +4911,7 @@ namespace DAL
         {
             bool result = false;
 
-            if (dtAssetRulesActions != null && dtAssetRulesActions.Rows.Count > 0 )
+            if (dtAssetRulesActions != null && dtAssetRulesActions.Rows.Count > 0)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
                 long assetRuleActionId = 0;
@@ -4990,6 +4990,47 @@ namespace DAL
         }
 
         public static DataSet UpdateAssetRule(int groupId, AssetRule assetRule)
+        {
+            DataSet ds = null;
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Update_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", assetRule.Id);
+                sp.AddParameter("@name", assetRule.Name);
+                sp.AddParameter("@description", assetRule.Description);
+
+                string xml = RetriveActionsXML(assetRule.Actions);
+                sp.AddParameter("@actions", xml);
+                sp.AddParameter("@actionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
+
+                xml = RetriveConditionsXML(assetRule.Conditions);
+                sp.AddParameter("@conditions", xml);
+                sp.AddParameter("@conditionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
+
+
+                ds = sp.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRule: {1}, ex:{3} ", groupId, JsonConvert.SerializeObject(assetRule), ex);
+            }
+
+            return ds;
+        }       
+
+        private static string RetriveActionsXML(List<AssetRuleAction> actions)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static string RetriveConditionsXML(List<AssetRuleCondition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static string GetCountryTimeZone(int groupId, int country)
         {
             throw new NotImplementedException();
         }
