@@ -16,12 +16,10 @@ namespace ApiObjects.Rules
 
     public class AssetRuleAction
     {
-        //[JsonProperty()]
-        //[DataMember]
+        public long Id { get; set; }
         public RuleActionType Type { get; set; }
         public string Description { get; set; }
     }
-
 
     public class AccessControlBlockAction : AssetRuleAction
     {
@@ -43,6 +41,7 @@ namespace ApiObjects.Rules
 
     public class AssetRuleCondition
     {
+        public int Id { get; set; }
         public AssetRuleConditionType Type { get; set; }
         public string Description { get; set; }
     }
