@@ -41,7 +41,7 @@ namespace ApiObjects.Rules
 
     public class AssetRuleCondition
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public AssetRuleConditionType Type { get; set; }
         public string Description { get; set; }
     }
