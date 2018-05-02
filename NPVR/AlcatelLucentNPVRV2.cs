@@ -100,7 +100,7 @@ namespace NPVR
 
         /*********************************************************************************/
 
-        private static readonly string ALU_RECORD_COMMAND = "record/";
+        private static readonly string ALU_RECORD_COMMAND = "Record/";
         private static readonly string ALU_DELETE_BY_COMMAND = "deleteBy";
         private static readonly string ALU_BY_SERIES_ID_PARAM = "bySeriesId";
         private static readonly string ALU_BY_SEASON_NUMBER_PARAM = "bySeasonNumber";
