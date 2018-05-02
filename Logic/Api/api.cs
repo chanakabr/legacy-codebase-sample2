@@ -109,6 +109,8 @@ namespace Core.Api
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
+        private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
+
         #endregion
 
         protected api() { }
@@ -10882,7 +10884,7 @@ namespace Core.Api
                 }
 
                 assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, assetRuleScheduledTaskIntervalSec, ScheduledTaskType.assetRuleScheduledTasks);
-                if (!assetRuleScheduledTask.SetLastRunDetails())
+                if (!assetRuleScheduledTask.SetLastRunDetails(ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN))
                 {
                     log.InfoFormat("Failed updating asset rules scheduled task last run details, AssetRuleScheduledTask: {0}", assetRuleScheduledTask.ToString());
                 }

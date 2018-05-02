@@ -30,7 +30,7 @@ namespace Core.Api.Managers
 
         public static int DoActionRules(int groupId = 0, List<long> rulesIds = null)
         {
-            int result = -1;
+            List <int> result = new List<int>();
 
             try
             {
@@ -40,11 +40,11 @@ namespace Core.Api.Managers
                 {
                     groupId = pair.Key;
                     List<AssetRule> rules = pair.Value;
-                    Task<int>[] tasks = new Task<int>[rules.Count];
+                    Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
 
                     for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
                     {
-                        tasks[ruleIndex] = new Task<int>(
+                        tasks[ruleIndex] = new Task<List<int>>(
                             (obj) =>
                             {
                                 long ruleId = -1;
@@ -55,7 +55,6 @@ namespace Core.Api.Managers
                                     ruleId = rule.Id;
 
                                     List<int> modifiedAssetIds = new List<int>();
-
 
                                     // separate the country conditions and the ksql, 
                                     List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
@@ -109,7 +108,7 @@ namespace Core.Api.Managers
                                             {
                                                 // append the country and offset conditions
                                                 double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                                actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country); //IRENA: not in
+                                                actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country); 
 
                                                 UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, actionKsqlFilter);
 
@@ -121,7 +120,7 @@ namespace Core.Api.Managers
                                                         assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                                         // Apply rule on assets that returned from search
-                                                        if (ApiDAL.AddCountryToAllowedInAssets(groupId, assetIds, country))
+                                                        if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true))
                                                         {
                                                             modifiedAssetIds.AddRange(assetIds);
                                                             log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
@@ -145,6 +144,7 @@ namespace Core.Api.Managers
                                                 {
                                                     actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
                                                 }
+
                                                 UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, actionKsqlFilter);
 
                                                 if (unifiedSearcjResponse != null)
@@ -155,7 +155,7 @@ namespace Core.Api.Managers
                                                         assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                                         // Apply rule on assets that returned from search
-                                                        if (ApiDAL.AddCountryToBlockedInAssets(groupId, assetIds, country))
+                                                        if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false))
                                                         {
                                                             modifiedAssetIds.AddRange(assetIds);
                                                             log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
@@ -169,18 +169,7 @@ namespace Core.Api.Managers
                                             }
                                         }
                                     }
-
-                                    modifiedAssetIds = modifiedAssetIds.Distinct().ToList();
-                                    if (Catalog.Module.UpdateIndex(modifiedAssetIds, groupId, eAction.Update))
-                                    {
-                                        modifiedAssetIds.AddRange(assetIds);
-                                        log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", assetIds));
-                                    }
-                                    else
-                                    {
-                                        log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", assetIds));
-                                    }
-
+                                    
                                     /*if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))
                                     {
                                         // init result for DoActionByRuleIds
@@ -190,7 +179,7 @@ namespace Core.Api.Managers
                                             log.WarnFormat("failed to update asset rule last run date for groupId: {0}, rule: {1}", groupId, rule);
                                         }
                                     }*/
-                                    return modifiedAssetIds.Count; // IRENA: Make sure its OK, had assetIds.Count before
+                                    return modifiedAssetIds; 
 
                                 }
                                 catch (Exception ex)
@@ -211,9 +200,21 @@ namespace Core.Api.Managers
                     {
                         if (task != null)
                         {
-                            result += task.Result;
+                            result.AddRange(task.Result);
                             task.Dispose();
                         }
+                    }
+
+                    result = result.Distinct().ToList();
+                    if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                    {
+                        log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
+                        return result.Count;
+                    }
+                    else
+                    {
+                        log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
+                        return 0;
                     }
                 }
 
@@ -224,7 +225,7 @@ namespace Core.Api.Managers
                 log.ErrorFormat("Error in DoActionRules", ex);
             }
 
-            return result;
+            return result.Count;
         }
 
         private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countries)
@@ -251,22 +252,22 @@ namespace Core.Api.Managers
 
         private static double GetTimeZoneOffsetForCountry(int groupId, int countryId)
         {
-            CountryLocaleResponse countriesResponse = Api.Module.GetCountryList(groupId,  new List<int>() { countryId });
+            CountryLocaleResponse countriesResponse = Api.Module.GetCountryList(groupId, new List<int>() { countryId });
             if (countriesResponse.Status.Code != (int)eResponseStatus.OK || countriesResponse.Countries.Count == 0)
             {
                 log.ErrorFormat("Failed to get countryId = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
 
-                Country country = countriesResponse.Countries[0];
+            Country country = countriesResponse.Countries[0];
 
             if (string.IsNullOrEmpty(country.TimeZoneId))
             {
-                log.ErrorFormat("Failed to get time zone ID for country = {0}, groupId = {1}", countryId, groupId);
+                log.DebugFormat("Failed to get time zone ID for country = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
 
-                TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(country.TimeZoneId);
+            TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(country.TimeZoneId);
             if (tzi == null)
             {
                 log.ErrorFormat("Failed to get time zone info by ID = {0} for country = {1}, groupId = {2}", country.TimeZoneId, countryId, groupId);
@@ -332,9 +333,10 @@ namespace Core.Api.Managers
                 order = new ApiObjects.SearchObjects.OrderObj()
                 {
                     m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
-                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
                 },
                 filterQuery = ksql,
+                isInternalSearch = true
             };
 
             // Call catalog
