@@ -10604,10 +10604,10 @@ namespace Core.Api
                 {
                     response.AssetRules = new List<AssetRule>();
                     long assetRuleId = 0;
-                    AssetRule assetRule = null;
+                    AssetRule assetRule = null;                    
                     foreach (DataRow dataRow in ds.Tables[0].Rows)
                     {
-                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
 
                         assetRule = CreateAssetRule(assetRuleId, dataRow);
 
