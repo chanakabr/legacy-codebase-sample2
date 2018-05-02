@@ -121,7 +121,7 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            var tagValues = CatalogManager.GetTagById(groupId, id);
+                            GenericListResponse<ApiObjects.SearchObjects.TagValue> tagValues = CatalogManager.GetTagListResponseById(groupId, id);
 
                             if (tagValues == null || tagValues.Status == null || tagValues.Status.Code != (int)eResponseStatus.OK)
                             {
@@ -130,7 +130,7 @@ namespace ElasticSearchHandler.Updaters
                             }
                             else
                             {
-                                foreach (var tagValue in tagValues.TagValues)
+                                foreach (var tagValue in tagValues.Objects)
                                 {
                                     var status = wrapper.UpdateTag(groupId, catalogGroupCache, tagValue);
 
