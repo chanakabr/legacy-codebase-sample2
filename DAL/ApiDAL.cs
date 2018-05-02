@@ -16,6 +16,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace DAL
 {
@@ -4591,13 +4592,12 @@ namespace DAL
             if (dtAssetRulesConditions != null && conditions != null && dtAssetRulesConditions.Rows.Count == dtAssetRulesConditions.Rows.Count)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                long assetRuleConditionId = 0;
                 int assetRuleConditionIndex = 0;
                 foreach (var assetRuleCondition in conditions)
                 {
-                    assetRuleConditionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesConditions.Rows[assetRuleConditionIndex], "ID");
-
-                    result = SetAssetRuleCondition(groupId, assetRuleId, assetRuleConditionId, assetRuleCondition, cbManager);
+                    assetRuleCondition.Id = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesConditions.Rows[assetRuleConditionIndex], "ID");
+                    result = SetAssetRuleCondition(groupId, assetRuleId, assetRuleCondition.Id, assetRuleCondition, cbManager);
+                    assetRuleConditionIndex++;
                 }
             }
 
@@ -4655,13 +4655,12 @@ namespace DAL
             if (dtAssetRulesActions != null && actions != null && dtAssetRulesActions.Rows.Count == dtAssetRulesActions.Rows.Count)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                long assetRuleActionId = 0;
                 int assetRuleActionIndex = 0;
                 foreach (var assetRuleAction in actions)
                 {
-                    assetRuleActionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesActions.Rows[assetRuleActionIndex], "ID");
-
-                    result = SetAssetRuleAction(groupId, assetRuleId, assetRuleActionId, assetRuleAction, cbManager);
+                    assetRuleAction.Id = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesActions.Rows[assetRuleActionIndex], "ID");
+                    result = SetAssetRuleAction(groupId, assetRuleId, assetRuleAction.Id, assetRuleAction, cbManager);
+                    assetRuleActionIndex++;
                 }
             }
 
@@ -5001,12 +5000,12 @@ namespace DAL
                 sp.AddParameter("@name", assetRule.Name);
                 sp.AddParameter("@description", assetRule.Description);
 
-                string xml = RetriveActionsXML(assetRule.Actions);
-                sp.AddParameter("@actions", xml);
+                string xml = RetriveActionsXML(assetRule.Id, assetRule.Actions);
+                sp.AddParameter("@actionsXmlDoc", xml);
                 sp.AddParameter("@actionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
 
-                xml = RetriveConditionsXML(assetRule.Conditions);
-                sp.AddParameter("@conditions", xml);
+                xml = RetriveConditionsXML(assetRule.Id, assetRule.Conditions);
+                sp.AddParameter("@conditionsXmlDoc", xml);
                 sp.AddParameter("@conditionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
 
 
@@ -5018,16 +5017,48 @@ namespace DAL
             }
 
             return ds;
-        }       
-
-        private static string RetriveActionsXML(List<AssetRuleAction> actions)
-        {
-            throw new NotImplementedException();
         }
 
-        private static string RetriveConditionsXML(List<AssetRuleCondition> conditions)
+        private static string RetriveActionsXML(long assetRuleId, List<AssetRuleAction> actions)
         {
-            throw new NotImplementedException();
+            if (actions == null || actions.Count > 0)
+            {
+                return string.Empty;
+            }
+
+            XElement root = new XElement("root");
+            XElement cElement = null;
+
+            foreach (var action in actions)
+            {
+                cElement = new XElement("row");
+                cElement.SetAttributeValue("asset_rule_id", assetRuleId);
+                cElement.SetAttributeValue("id", action.Id);
+                cElement.SetAttributeValue("type", action.Type);
+            }
+
+            return root.ToString();
+        }
+
+        private static string RetriveConditionsXML(long assetRuleId, List<AssetRuleCondition> conditions)
+        {
+            if (conditions == null || conditions.Count > 0)
+            {
+                return string.Empty;
+            }
+
+            XElement root = new XElement("root");
+            XElement cElement = null;
+
+            foreach (var condition in conditions)
+            {
+                cElement = new XElement("row");
+                cElement.SetAttributeValue("asset_rule_id", assetRuleId);
+                cElement.SetAttributeValue("id", condition.Id);
+                cElement.SetAttributeValue("type", condition.Type);
+            }
+
+            return root.ToString();
         }
 
         public static string GetCountryTimeZone(int groupId, int country)
