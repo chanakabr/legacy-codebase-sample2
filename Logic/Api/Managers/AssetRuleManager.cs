@@ -249,28 +249,31 @@ namespace Core.Api.Managers
             return totalOffset;
         }
 
-        private static double GetTimeZoneOffsetForCountry(int groupId, int country)
+        private static double GetTimeZoneOffsetForCountry(int groupId, int countryId)
         {
-            double timeZoneOffsetSeconds = 0;
-            string timeZoneId = ApiDAL.GetCountryTimeZone(groupId, country);
-            if (!string.IsNullOrEmpty(timeZoneId))
+            CountryLocaleResponse countriesResponse = Api.Module.GetCountryList(groupId,  new List<int>() { countryId });
+            if (countriesResponse.Status.Code != (int)eResponseStatus.OK || countriesResponse.Countries.Count == 0)
             {
-                TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId); 
-                if (tzi != null)
-                {
-                    timeZoneOffsetSeconds = tzi.BaseUtcOffset.TotalSeconds;
-                }
-                else
-                {
-                    log.ErrorFormat("Failed to get time zone info by ID = {0} for country = {1}, groupId = {2}", timeZoneId, country, groupId);
-                }
-            }
-            else
-            {
-                log.ErrorFormat("Failed to get time zone ID for country = {0}, groupId = {1}", country, groupId);
+                log.ErrorFormat("Failed to get countryId = {0}, groupId = {1}", countryId, groupId);
+                return 0;
             }
 
-            return timeZoneOffsetSeconds;
+                Country country = countriesResponse.Countries[0];
+
+            if (string.IsNullOrEmpty(country.TimeZoneId))
+            {
+                log.ErrorFormat("Failed to get time zone ID for country = {0}, groupId = {1}", countryId, groupId);
+                return 0;
+            }
+
+                TimeZoneInfo tzi = TimeZoneInfo.FindSystemTimeZoneById(country.TimeZoneId);
+            if (tzi == null)
+            {
+                log.ErrorFormat("Failed to get time zone info by ID = {0} for country = {1}, groupId = {2}", country.TimeZoneId, countryId, groupId);
+                return 0;
+            }
+
+            return tzi.BaseUtcOffset.TotalSeconds;
         }
 
         private static Dictionary<int, List<AssetRule>> GetRules(int groupId, List<long> rulesIds)

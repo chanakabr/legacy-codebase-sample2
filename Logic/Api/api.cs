@@ -9385,6 +9385,7 @@ namespace Core.Api
                             Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
                             Name = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_NAME"),
                             Code = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_CD2"),
+                            TimeZoneId = ODBCWrapper.Utils.GetSafeStr(dr, "TIME_ZONE_ID"),
                         };
                         if (country.Id > 0)
                         {
