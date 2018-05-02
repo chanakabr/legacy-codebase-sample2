@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset rule ID to update</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetRuleNotExists)]
         public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -101,6 +103,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset rule ID</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetRuleNotExists)]
         public bool Delete(long id)
         {
             bool response = false;
