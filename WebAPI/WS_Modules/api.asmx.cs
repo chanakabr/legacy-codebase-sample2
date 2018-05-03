@@ -4300,5 +4300,11 @@ namespace WS_API
                 return response;
             }
         }
+
+        [WebMethod]
+        public bool DoActionAssetRules()
+        {
+            return Core.Api.Module.DoActionAssetRules();
+        }
     }
 }
