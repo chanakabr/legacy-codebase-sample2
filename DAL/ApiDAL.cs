@@ -5002,7 +5002,7 @@ namespace DAL
 
         private static string RetriveActionsXML(long assetRuleId, List<AssetRuleAction> actions)
         {
-            if (actions == null || actions.Count > 0)
+            if (actions == null || actions.Count == 0)
             {
                 return string.Empty;
             }
@@ -5023,7 +5023,7 @@ namespace DAL
 
         private static string RetriveConditionsXML(long assetRuleId, List<AssetRuleCondition> conditions)
         {
-            if (conditions == null || conditions.Count > 0)
+            if (conditions == null || conditions.Count == 0)
             {
                 return string.Empty;
             }
