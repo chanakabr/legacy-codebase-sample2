@@ -290,7 +290,7 @@ namespace Core.Api.Managers
             AssetRulesResponse ruleResponse = Api.api.GetAssetRules();
             if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.AssetRules != null)
             {
-                if (groupId == 0)
+                if (groupId != 0)
                 {
                     rules.Add(groupId, ruleResponse.AssetRules);
                 }
