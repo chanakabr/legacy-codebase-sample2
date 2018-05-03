@@ -1129,9 +1129,10 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        public KalturaAssetInfoListResponse GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetMediaByIds(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1168,6 +1169,11 @@ namespace WebAPI.Clients
             {
                 result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
+
+            if (result == null || result.Objects == null || result.Objects.Count == 0)
+            {
+                throw new ClientException((int)StatusCode.NotFound, "asset not found");
             }
 
             return result;
@@ -2404,7 +2410,7 @@ namespace WebAPI.Clients
                                                      string subHeader, string contextText, string udid, string language)
         {
             KalturaAssetComment result = new KalturaAssetComment();
-
+            
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
 

@@ -78,12 +78,8 @@ namespace WebAPI.Controllers
                             }
 
 
-                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, udid, language,
                                 pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
-
-                            // if no response - return not found status 
-                            if (response == null || response.Objects == null || response.Objects.Count == 0)
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
                         break;
                     case KalturaCatalogReferenceBy.EPG_INTERNAL:
@@ -481,14 +477,9 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
-                            // if no response - return not found status 
-                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                            {
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                            }
+                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, udid, language,
+                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
                             response = mediaRes.Objects.First();
                         }

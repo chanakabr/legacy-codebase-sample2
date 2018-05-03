@@ -655,16 +655,9 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { assetId }, new List<KalturaCatalogWith>());
-
-            if (mediaInfoResponse == null ||
-                mediaInfoResponse.Objects == null ||
-                mediaInfoResponse.Objects.Count == 0)
-            {
-                throw new ClientException((int)StatusCode.NotFound, "asset not found");
-            }
-
+            
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = assetId;
             followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name) ? mediaInfoResponse.Objects[0].Name.ToString() : string.Empty;
@@ -705,14 +698,9 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
-
-            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
-            {
-                throw new ClientException((int)StatusCode.NotFound, "asset not found");
-            }
-
+            
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);

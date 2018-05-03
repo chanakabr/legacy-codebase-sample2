@@ -72,6 +72,11 @@ namespace WebAPI.Controllers
         {
             KalturaAssetComment response = null;
 
+            if (comment.AssetId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "comment.assetId");
+            }
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
