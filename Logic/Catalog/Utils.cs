@@ -1124,9 +1124,9 @@ namespace Core.Catalog
                         {
                             int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
                             int countryId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "COUNTRY_ID");
-                            bool isAvailable = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_AVAILABLE") == 1;
+                            bool isAllowed = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_ALLOWED") == 1;
 
-                            if (isAvailable)
+                            if (isAllowed)
                             {
                                 medias[mediaId].allowedCountries.Add(countryId);
                             }
