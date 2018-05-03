@@ -100,7 +100,7 @@ namespace NPVR
 
         /*********************************************************************************/
 
-        private static readonly string ALU_RECORD_COMMAND = "record";
+        private static readonly string ALU_RECORD_COMMAND = "Record/";
         private static readonly string ALU_DELETE_BY_COMMAND = "deleteBy";
         private static readonly string ALU_BY_SERIES_ID_PARAM = "bySeriesId";
         private static readonly string ALU_BY_SEASON_NUMBER_PARAM = "bySeasonNumber";
@@ -108,7 +108,7 @@ namespace NPVR
         private static readonly string ALU_BY_STATUS_PARAM = "byStatus";
 
         private static readonly string ALU_SERIES_ID_PARAM = "seriesId";
-        private static readonly string ALU_ENDPOINT_UPDATE_FIELD = "updateField/";
+        private static readonly string ALU_ENDPOINT_UPDATE_FIELD = "updateField";
         private static readonly string ALU_SEASON_SEED = "seasonSeed";
         private static readonly string ALU_EPISODE_SEED = "episodeSeed";
         private static readonly string ALU_LOOKUP_CRITERIA = "lookupCriteria";
@@ -517,7 +517,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));
 
-                    string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_ENDPOINT_UPDATE_FIELD, urlParams);
+                    string url = BuildRestCommand(ALU_ENDPOINT_UPDATE_FIELD, ALU_RECORD_COMMAND, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -2165,7 +2165,7 @@ namespace NPVR
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
-            string url =  String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
+            string url = String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
 
             log.DebugFormat("BuildRestCommand url: {0}", url);
