@@ -3926,7 +3926,7 @@ namespace Tvinci.Core.DAL
             RelatedRecommendationEngineEnrichments = 0;
             SearchRecommendationEngine = 0;
             SearchRecommendationEngineEnrichments = 0;
-            isGeoAvailabilityEnabled = 0;
+            isGeoAvailabilityEnabled = false;
 
             // Call stored procedure that checks if this group has regionalization or not
             ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultParameters");
