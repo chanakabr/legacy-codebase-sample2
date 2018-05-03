@@ -58,7 +58,21 @@ namespace WebAPI.Controllers
 
             try
             {
-                //  check 
+                if (string.IsNullOrEmpty(assetRule.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+
+                if (assetRule.Actions == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
+                }
+
+                if (assetRule.Conditions == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+                }
+                
                 ValidateAssetRuleAction(assetRule);
 
                 response = ClientsManager.ApiClient().AddAssetRule(groupId, assetRule);
