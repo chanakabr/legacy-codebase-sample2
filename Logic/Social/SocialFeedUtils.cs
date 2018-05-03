@@ -46,26 +46,34 @@ namespace Core.Social
 
             static public List<SocialFeedItem> GetFacebookSocialFeed(string pageName, int numOfPosts, string accessToken)
             {
-                int nStatus = 0;
+                List<SocialFeedItem> result = new List<SocialFeed.SocialFeedItem>();
+                int httpStatus = 0;
 
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat("{0}/{1}/{2}&access_token={3}", FB_GRAPH_URI_PREFIX, pageName, FB_GRAPH_SOCIALFEED_FIELDS, accessToken);
 
-                string fbRespStr = Utils.SendGetHttpReq(sb.ToString(), ref nStatus, string.Empty, string.Empty);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+                string fbRespStr = Utils.SendGetHttpReq(sb.ToString(), ref httpStatus, string.Empty, string.Empty);
 
-                while (parsedResp.data.Count < numOfPosts)
+                if (httpStatus >= 200 && httpStatus < 300)
                 {
-                    FacebookResp tmpResp = GetNextPage(parsedResp.paging.next);
-                    if (tmpResp.data.Count > 0)
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+
+                    while (parsedResp.data.Count < numOfPosts)
                     {
-                        parsedResp.data.AddRange(tmpResp.data);
+                        FacebookResp tmpResp = GetNextPage(parsedResp.paging.next);
+                        if (tmpResp.data.Count > 0)
+                        {
+                            parsedResp.data.AddRange(tmpResp.data);
+                        }
+                        else
+                            break;
                     }
-                    else
-                        break;
+
+                    result = ParsePlatformResp(parsedResp, eSocialPlatform.Facebook);
                 }
-                return ParsePlatformResp(parsedResp, eSocialPlatform.Facebook);
+
+                return result;
             }
 
             static private FacebookResp GetNextPage(string nextPageUrl)
