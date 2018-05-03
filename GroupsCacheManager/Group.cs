@@ -120,6 +120,9 @@ namespace GroupsCacheManager
         [JsonProperty("group_media_file_type_to_file_type")]
         public Dictionary<int, int> groupMediaFileTypeToFileType;
 
+        [JsonProperty("is_geo_availability_windowing_enabled")]
+        public bool isGeoAvailabilityWindowingEnabled;
+
         #endregion
 
         #region CTOR
