@@ -10916,7 +10916,11 @@ namespace Core.Api
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
                     GenericCeleryQueue queue = new GenericCeleryQueue();
-                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, new List<object>() [(int)RuleActionTaskType.Asset], nextExecutionDate); // IRENA
+                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+                    {
+                        ETA = nextExecutionDate
+                    };
+
                     bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
                 }
             }
