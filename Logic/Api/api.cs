@@ -10507,7 +10507,7 @@ namespace Core.Api
                 List<int> assetRulesConditions = null;
                 if (assetRule.Actions != null)
                 {
-                    assetRulesConditions = assetRule.Actions.Select(x => (int)x.Type).ToList();
+                    assetRulesConditions = assetRule.Conditions.Select(x => (int)x.Type).ToList();
                 }
 
                 DataSet ds = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, assetRulesActions, assetRulesConditions);
@@ -10846,7 +10846,6 @@ namespace Core.Api
 
         internal static bool DoActionAssetRules()
         {
-            // IRENA: Add logic for making the next request on round time
             double assetRuleScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
             try

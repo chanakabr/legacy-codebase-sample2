@@ -28,8 +28,10 @@ namespace Core.Api.Managers
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
 
-        public static int DoActionRules(int groupId = 0, List<long> rulesIds = null)
+        public static int DoActionRules()
         {
+            int groupId = 0;
+            List<long> rulesIds = null;
             List <int> result = new List<int>();
 
             try
