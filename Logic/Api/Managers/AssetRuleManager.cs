@@ -39,186 +39,189 @@ namespace Core.Api.Managers
                 foreach (KeyValuePair<int, List<AssetRule>> pair in allRules)
                 {
                     groupId = pair.Key;
-                    List<AssetRule> rules = pair.Value;
-                    Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
-
-                    for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
+                    Group group = new GroupManager().GetGroup(groupId);
+                    if (group.isGeoAvailabilityWindowingEnabled)
                     {
-                        tasks[ruleIndex] = new Task<List<int>>(
-                            (obj) =>
-                            {
-                                long ruleId = -1;
+                        List<AssetRule> rules = pair.Value;
+                        Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
 
-                                try
-                                {
-                                    var rule = rules[(int)obj];
-                                    ruleId = rule.Id;
-
-                                    List<int> modifiedAssetIds = new List<int>();
-
-                                    // separate the country conditions and the ksql, 
-                                    List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
-                                    List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
-
-                                    string ksqlFilter = null;
-
-                                    // concat the ksql with 'and'
-                                    if (assetConditions != null && assetConditions.Count > 0)
-                                    {
-                                        StringBuilder ksql = new StringBuilder("(and");
-                                        foreach (var assetCondition in assetConditions)
-                                        {
-                                            ksql.Append(" " + assetCondition.Ksql);
-                                        }
-                                        ksql.AppendFormat(")");
-
-                                        ksqlFilter = ksql.ToString();
-                                    }
-
-                                    // concatenate the countries lists with NOT and without not
-                                    List<int> countriesToAllow = new List<int>();
-
-                                    if (countryConditions != null && countryConditions.Count > 0)
-                                    {
-                                        foreach (var countryCondition in countryConditions)
-                                        {
-                                            if (countryCondition.Not)
-                                            {
-                                                countriesToAllow.AddRange(GetAllCountriesBut(groupId, countryCondition.Countries));
-                                            }
-                                            else
-                                            {
-                                                countriesToAllow.AddRange(countryCondition.Countries);
-                                            }
-                                        }
-
-                                        countriesToAllow = countriesToAllow.Distinct().ToList();
-                                    }
-
-                                    List<int> assetIds = new List<int>();
-
-                                    foreach (int country in countriesToAllow)
-                                    {
-                                        foreach (var action in rule.Actions)
-                                        {
-                                            assetIds = new List<int>();
-                                            string actionKsqlFilter;
-
-                                            if (action.Type == RuleActionType.StartDateOffset)
-                                            {
-                                                // append the country and offset conditions
-                                                double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                                actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country); 
-
-                                                UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, actionKsqlFilter);
-
-                                                if (unifiedSearcjResponse != null)
-                                                {
-                                                    bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
-                                                    if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
-                                                    {
-                                                        assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                                        // Apply rule on assets that returned from search
-                                                        if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true))
-                                                        {
-                                                            modifiedAssetIds.AddRange(assetIds);
-                                                            log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                                        }
-                                                        else
-                                                        {
-                                                            log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            if (action.Type == RuleActionType.EndDateOffset || action.Type == RuleActionType.Block)
-                                            {
-                                                if (action.Type == RuleActionType.EndDateOffset)
-                                                {
-                                                    double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                                    actionKsqlFilter = string.Format("(and {0} end_date <= '-{1}' blocked_countries != '{2}')", ksqlFilter, totalOffset, country);
-                                                }
-                                                else // block
-                                                {
-                                                    actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
-                                                }
-
-                                                UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, actionKsqlFilter);
-
-                                                if (unifiedSearcjResponse != null)
-                                                {
-                                                    bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
-                                                    if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
-                                                    {
-                                                        assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                                        // Apply rule on assets that returned from search
-                                                        if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false))
-                                                        {
-                                                            modifiedAssetIds.AddRange(assetIds);
-                                                            log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                                        }
-                                                        else
-                                                        {
-                                                            log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    /*if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))
-                                    {
-                                        // init result for DoActionByRuleIds
-                                        result = 0;
-                                        if (!ApiDAL.UpdateAssetRuleLastRunDate(rule.Id))
-                                        {
-                                            log.WarnFormat("failed to update asset rule last run date for groupId: {0}, rule: {1}", groupId, rule);
-                                        }
-                                    }*/
-                                    return modifiedAssetIds; 
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                                    return result;
-                                }
-                            }, ruleIndex);
-
-                        tasks[ruleIndex].Start();
-                    }
-
-                    #region Finish tasks
-
-                    Task.WaitAll(tasks);
-
-                    foreach (var task in tasks)
-                    {
-                        if (task != null)
+                        for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
                         {
-                            result.AddRange(task.Result);
-                            task.Dispose();
+                            tasks[ruleIndex] = new Task<List<int>>(
+                                (obj) =>
+                                {
+                                    long ruleId = -1;
+
+                                    try
+                                    {
+                                        var rule = rules[(int)obj];
+                                        ruleId = rule.Id;
+
+                                        List<int> modifiedAssetIds = new List<int>();
+
+                                        // separate the country conditions and the ksql, 
+                                        List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
+                                        List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
+
+                                        string ksqlFilter = null;
+
+                                        // concatenate the ksql with 'and'
+                                        if (assetConditions != null && assetConditions.Count > 0)
+                                        {
+                                            StringBuilder ksql = new StringBuilder("(and");
+                                            foreach (var assetCondition in assetConditions)
+                                            {
+                                                ksql.Append(" " + assetCondition.Ksql);
+                                            }
+                                            ksql.AppendFormat(")");
+
+                                            ksqlFilter = ksql.ToString();
+                                        }
+
+                                        // concatenate the countries lists with NOT and without not
+                                        List<int> countriesToAllow = new List<int>();
+
+                                        if (countryConditions != null && countryConditions.Count > 0)
+                                        {
+                                            foreach (var countryCondition in countryConditions)
+                                            {
+                                                if (countryCondition.Not)
+                                                {
+                                                    countriesToAllow.AddRange(GetAllCountriesBut(groupId, countryCondition.Countries));
+                                                }
+                                                else
+                                                {
+                                                    countriesToAllow.AddRange(countryCondition.Countries);
+                                                }
+                                            }
+
+                                            countriesToAllow = countriesToAllow.Distinct().ToList();
+                                        }
+
+                                        List<int> assetIds = new List<int>();
+
+                                        foreach (int country in countriesToAllow)
+                                        {
+                                            foreach (var action in rule.Actions)
+                                            {
+                                                assetIds = new List<int>();
+                                                string actionKsqlFilter;
+
+                                                if (action.Type == RuleActionType.StartDateOffset)
+                                                {
+                                                    // append the country and offset conditions
+                                                    double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
+                                                    actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country);
+
+                                                    UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(group, actionKsqlFilter);
+
+                                                    if (unifiedSearcjResponse != null)
+                                                    {
+                                                        bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
+                                                        if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
+                                                        {
+                                                            assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                                            // Apply rule on assets that returned from search
+                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true))
+                                                            {
+                                                                modifiedAssetIds.AddRange(assetIds);
+                                                                log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                                            }
+                                                            else
+                                                            {
+                                                                log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                if (action.Type == RuleActionType.EndDateOffset || action.Type == RuleActionType.Block)
+                                                {
+                                                    if (action.Type == RuleActionType.EndDateOffset)
+                                                    {
+                                                        double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
+                                                        actionKsqlFilter = string.Format("(and {0} end_date <= '-{1}' blocked_countries != '{2}')", ksqlFilter, totalOffset, country);
+                                                    }
+                                                    else // block
+                                                    {
+                                                        actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
+                                                    }
+
+                                                    UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(group, actionKsqlFilter);
+
+                                                    if (unifiedSearcjResponse != null)
+                                                    {
+                                                        bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
+                                                        if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
+                                                        {
+                                                            assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                                            // Apply rule on assets that returned from search
+                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false))
+                                                            {
+                                                                modifiedAssetIds.AddRange(assetIds);
+                                                                log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                                            }
+                                                            else
+                                                            {
+                                                                log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        /*if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))
+                                        {
+                                            // init result for DoActionByRuleIds
+                                            result = 0;
+                                            if (!ApiDAL.UpdateAssetRuleLastRunDate(rule.Id))
+                                            {
+                                                log.WarnFormat("failed to update asset rule last run date for groupId: {0}, rule: {1}", groupId, rule);
+                                            }
+                                        }*/
+                                        return modifiedAssetIds;
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
+                                        return result;
+                                    }
+                                }, ruleIndex);
+
+                            tasks[ruleIndex].Start();
+                        }
+
+                        #region Finish tasks
+
+                        Task.WaitAll(tasks);
+
+                        foreach (var task in tasks)
+                        {
+                            if (task != null)
+                            {
+                                result.AddRange(task.Result);
+                                task.Dispose();
+                            }
+                        }
+
+                        result = result.Distinct().ToList();
+                        if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                        {
+                            log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
+                            return result.Count;
+                        }
+                        else
+                        {
+                            log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
+                            return 0;
                         }
                     }
-
-                    result = result.Distinct().ToList();
-                    if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
-                    {
-                        log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
-                        return result.Count;
-                    }
-                    else
-                    {
-                        log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
-                        return 0;
-                    }
+                    #endregion
                 }
-
-                #endregion
             }
             catch (Exception ex)
             {
@@ -282,7 +285,7 @@ namespace Core.Api.Managers
             Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
             
             // IRENA: make sure Anat supports 0;
-            AssetRulesResponse ruleResponse = Api.api.GetAssetRules(0);
+            AssetRulesResponse ruleResponse = Api.api.GetAssetRules();
             if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.AssetRules != null)
             {
                 if (groupId == 0)
@@ -306,7 +309,7 @@ namespace Core.Api.Managers
             return rules;
         }
 
-        private static UnifiedSearchResponse GetUnifiedSearchResponse(int groupId, string ksql)
+        private static UnifiedSearchResponse GetUnifiedSearchResponse(Group group, string ksql)
         {
             // Initialize unified search request:
             // SignString/Signature (basic catalog parameters)
@@ -316,12 +319,13 @@ namespace Core.Api.Managers
 
             // page size should be max_results so it will return everything
             int pageSize = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            
 
             UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
             {
                 m_sSignature = sSignature,
                 m_sSignString = sSignString,
-                m_nGroupID = groupId,
+                m_nGroupID = group.m_nParentGroupID,
                 m_oFilter = new Core.Catalog.Filter()
                 {
                     m_bOnlyActiveMedia = true,
@@ -336,7 +340,9 @@ namespace Core.Api.Managers
                     m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
                 },
                 filterQuery = ksql,
-                isInternalSearch = true
+                isInternalSearch = true,
+                assetTypes = group.GetMediaTypes()
+
             };
 
             // Call catalog
