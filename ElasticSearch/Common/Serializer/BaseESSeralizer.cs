@@ -215,6 +215,44 @@ namespace ElasticSearch.Common
             }
             #endregion
 
+            #region add countries
+
+            // Add this field only if there are available countries on the media object
+            if (media.allowedCountries != null && media.allowedCountries.Count > 0)
+            {
+                recordBuilder.Append(", \"allowed_countries\": [");
+
+                foreach (int countryId in media.allowedCountries)
+                {
+                    recordBuilder.Append(countryId);
+                    recordBuilder.Append(',');
+                }
+
+                // Remove last ','
+                recordBuilder.Remove(recordBuilder.Length - 1, 1);
+
+                recordBuilder.Append("]");
+            }
+
+            // Add this field only if there are restricted countries on the media object
+            if (media.blockedCountries != null && media.blockedCountries.Count > 0)
+            {
+                recordBuilder.Append(", \"blocked_countries\": [");
+
+                foreach (int countryId in media.blockedCountries)
+                {
+                    recordBuilder.Append(countryId);
+                    recordBuilder.Append(',');
+                }
+
+                // Remove last ','
+                recordBuilder.Remove(recordBuilder.Length - 1, 1);
+
+                recordBuilder.Append("]");
+            }
+
+            #endregion
+
             recordBuilder.Append(" }");
 
             return recordBuilder.ToString();

@@ -47,6 +47,9 @@ namespace ScheduledTasks
                 case ApiObjects.ScheduledTaskType.assetLifeCycleRuleScheduledTasks:
                     key = "alcr_scheduledTasks";
                     break;
+                case ApiObjects.ScheduledTaskType.assetRuleScheduledTasks:
+                    key = "assetRule_scheduledTasks";
+                    break;
                 default:
                     break;
             }
@@ -99,7 +102,7 @@ namespace ScheduledTasks
             return response;
         }
 
-        public override bool SetLastRunDetails()
+        public override bool SetLastRunDetails(int roundNextRunDateInMin = 0)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
@@ -121,6 +124,13 @@ namespace ScheduledTasks
                     BaseScheduledTaskLastRunDetails currentScheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
                     if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
+                        if (roundNextRunDateInMin % 5 == 0) 
+                        {
+                            // round seconds
+                            this.LastRunDate.AddSeconds(-this.LastRunDate.Second);
+                            // round minutes
+                            this.LastRunDate.AddMinutes(-(this.LastRunDate.Minute % roundNextRunDateInMin));
+                        }
                         result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, this, version);
                     }
 

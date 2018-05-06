@@ -180,6 +180,18 @@ namespace ElasticSearch.Common
                 type = eESFieldType.INTEGER,
                 index = eMappingIndex.not_analyzed
             });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "allowed_countries",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "blocked_countries",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed
+            });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {

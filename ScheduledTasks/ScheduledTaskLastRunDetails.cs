@@ -38,7 +38,7 @@ namespace ScheduledTasks
 
         public abstract ScheduledTaskLastRunDetails GetLastRunDetails();
 
-        public abstract bool SetLastRunDetails();
+        public abstract bool SetLastRunDetails(int roundNextRunDateInMin);
 
         public abstract bool SetNextRunIntervalInSeconds(double updatedNextRunIntervalInSeconds);
 
