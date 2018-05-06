@@ -104,6 +104,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                ValidateAssetRuleConditions(assetRule.Conditions);
+
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }
             catch (ClientException ex)
@@ -161,12 +163,15 @@ namespace WebAPI.Controllers
 
         private void ValidateAssetRuleConditions(List<KalturaCondition> conditions)
         {
+            bool countryConditionExist = false;
+
             if (conditions != null)
             {
                 foreach (var condition in conditions)
                 {
                     if (condition is KalturaCountryCondition)
                     {
+                        countryConditionExist = true;
                         KalturaCountryCondition kAssetCondition = condition as KalturaCountryCondition;
                         if (string.IsNullOrEmpty(kAssetCondition.Countries))
                         {
@@ -181,6 +186,11 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
                         }
                     }
+                }
+
+                if (!countryConditionExist)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "countries");
                 }
             }
         }
