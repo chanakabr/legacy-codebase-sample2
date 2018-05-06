@@ -322,8 +322,6 @@ namespace DAL
 
             return false;
         }
-
-
         public static string GetDomainCodeForParentalPIN(int nDomainID, int nRuleID)
         {
             string sPIN = null;
@@ -4548,5 +4546,279 @@ namespace DAL
 
             return rules;
         }
+
+        #region Permissions Management
+
+        public static DataSet Get_PermissionsForExport()
+        {
+            DataSet result = null;
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_PermissionsForExport");
+
+            result = storedProcedure.ExecuteDataSet();
+
+            return result;
+        }
+
+        public static bool InsertRole(string name)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Role");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@name", name);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool InsertPermission(string name, int type, string usersGroup)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@usersGroup", usersGroup);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@usersGroup", usersGroup);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermission(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool InsertPermissionRole(int roleId, int permissionId, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@roleId", roleId);
+            storedProcedure.AddParameter("@permissionId", permissionId);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool UpdatePermissionRole(int id, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+
+        public static bool DeletePermissionRole(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool InsertPermissionItem(string name, int? type, string service, string action, string permissionItemObject, string parameter)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@service", service);
+            storedProcedure.AddParameter("@action", action);
+            storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
+            storedProcedure.AddParameter("@parameter", parameter);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool UpdatePermissionItem(int id, int? type, string service, string action, string permissionItemObject, string parameter)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@service", service);
+            storedProcedure.AddParameter("@action", action);
+            storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
+            storedProcedure.AddParameter("@parameter", parameter);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermissionItem(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool InsertPermissionPermissionItem(int permissionId, int permissionItemId, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@permissionId", permissionId);
+            storedProcedure.AddParameter("@permissionItemId", permissionItemId);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool UpdatePermissionPermissionItem(int id, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermissionPermissionItem(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        } 
+
+        #endregion
     }
 }
