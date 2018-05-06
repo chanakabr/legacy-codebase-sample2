@@ -5707,13 +5707,13 @@
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.AssetTypes">
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.ChannelAssetTypes">
             <summary>
             Asset types in the channel.
             -26 is EPG
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.GroupBy">
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.ChannelGroupBy">
             <summary>
             Channel group by
             </summary>

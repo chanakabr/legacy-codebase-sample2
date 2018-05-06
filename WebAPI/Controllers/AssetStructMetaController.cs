@@ -24,9 +24,10 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        public Models.General.KalturaGenericListResponse<KalturaAssetStructMeta> List(KalturaAssetStructMetaFilter filter)
         {
-            KalturaAssetStructMetaListResponse response = null;
+            Models.General.KalturaGenericListResponse<KalturaAssetStructMeta> response = null;
             int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
@@ -37,8 +38,9 @@ namespace WebAPI.Controllers
             filter.Validate();
 
             try
-            {    
-                response = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);       
+            {
+                KalturaAssetStructMetaListResponse abc = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);
+                response = new Models.General.KalturaGenericListResponse<KalturaAssetStructMeta>() { TotalCount = abc.TotalCount, Objects = abc.AssetStructMetas };
             }
             catch (ClientException ex)
             {

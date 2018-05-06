@@ -189,12 +189,12 @@ namespace WebAPI.Models.Catalog
 
             if (CatchUpBuffer == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "catchUpBufferState");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "catchUpBuffer");
             }
 
             if (TrickPlayBuffer == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "trickPlayBufferState");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "trickPlayBuffer");
             }
 
             if (string.IsNullOrEmpty(ExternalIngestId))
