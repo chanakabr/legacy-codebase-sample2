@@ -319,6 +319,10 @@ namespace WebAPI.Reflection
                 case "KalturaAsset":
                     switch (propertyName)
                     {
+                        case "EnableCatchUp":
+                        case "EnableCdvr":
+                        case "EnableStartOver":
+                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };
@@ -517,7 +521,14 @@ namespace WebAPI.Reflection
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
+                        case "CatchUpBuffer":
+                        case "EnableCatchUp":
+                        case "EnableCdvr":
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                        case "EnableStartOver":
+                        case "EnableTrickPlay":
                         case "Statistics":
+                        case "TrickPlayBuffer":
                             return true;
                     };
                     break;
@@ -543,7 +554,14 @@ namespace WebAPI.Reflection
                 case "KalturaMediaAsset":
                     switch (propertyName)
                     {
+                        case "CatchUpBuffer":
+                        case "EnableCatchUp":
+                        case "EnableCdvr":
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                        case "EnableStartOver":
+                        case "EnableTrickPlay":
                         case "Statistics":
+                        case "TrickPlayBuffer":
                             return true;
                     };
                     break;
@@ -592,6 +610,10 @@ namespace WebAPI.Reflection
                 case "KalturaProgramAsset":
                     switch (propertyName)
                     {
+                        case "EnableCatchUp":
+                        case "EnableCdvr":
+                        case "EnableStartOver":
+                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };
@@ -600,6 +622,10 @@ namespace WebAPI.Reflection
                 case "KalturaRecordingAsset":
                     switch (propertyName)
                     {
+                        case "EnableCatchUp":
+                        case "EnableCdvr":
+                        case "EnableStartOver":
+                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };

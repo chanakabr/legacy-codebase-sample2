@@ -145,6 +145,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -154,6 +155,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -163,6 +165,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -172,6 +175,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
