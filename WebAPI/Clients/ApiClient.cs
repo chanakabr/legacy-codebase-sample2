@@ -2449,8 +2449,6 @@ namespace WebAPI.Clients
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
