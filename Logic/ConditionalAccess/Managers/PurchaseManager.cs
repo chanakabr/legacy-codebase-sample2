@@ -1690,23 +1690,23 @@ namespace Core.ConditionalAccess
                 // validate content ID
                 if (contentId < 1)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ILLEGAL_CONTENT_ID);
+                    response.Status = new Status((int)eResponseStatus.Error, ILLEGAL_CONTENT_ID);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
 
                 // validate content ID related media
-                int mediaID = ConditionalAccess.Utils.GetMediaIDFromFileID(contentId, groupId);
+                int mediaID = Utils.GetMediaIDFromFileID(contentId, groupId);
                 if (mediaID < 1)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Content ID with a related media");
+                    response.Status = new Status((int)eResponseStatus.Error, "Content ID with no related media");
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
 
                 // validate PPV 
                 PPVModule ppvModule = null;
-                ApiObjects.Response.Status status = Utils.ValidatePPVModuleCode(groupId, productId, contentId, ref ppvModule);
+                Status status = Utils.ValidatePPVModuleCode(groupId, productId, contentId, ref ppvModule);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;

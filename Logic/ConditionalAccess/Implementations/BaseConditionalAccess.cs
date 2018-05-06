@@ -57,7 +57,7 @@ namespace Core.ConditionalAccess
         internal const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         internal const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
         internal const string ILLEGAL_CONTENT_ID = "Illegal content ID";
-        internal const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
+        internal const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with no related media";
         internal const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         internal const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         internal const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
@@ -11362,7 +11362,7 @@ namespace Core.ConditionalAccess
                 int mediaID = Utils.GetMediaIDFromFileID(contentId, m_nGroupID);
                 if (mediaID < 1)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Content ID with a related media");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, CONTENT_ID_WITH_A_RELATED_MEDIA);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }

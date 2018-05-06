@@ -7549,7 +7549,7 @@ namespace Core.ConditionalAccess
                 long ppvModuleCode = 0;
                 long.TryParse(productId.ToString(), out ppvModuleCode);
 
-                thePPVModule = Core.Pricing.Module.ValidatePPVModuleForMediaFile(groupId, contentId, ppvModuleCode);
+                thePPVModule = Pricing.Module.ValidatePPVModuleForMediaFile(groupId, contentId, ppvModuleCode);
 
                 if (thePPVModule == null)
                 {

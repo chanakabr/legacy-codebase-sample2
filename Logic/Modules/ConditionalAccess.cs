@@ -2012,14 +2012,12 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
-
-
-        public static ApiObjects.Response.Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,
-                                        int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
+        
+        public static Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,
+            int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
         {
-            ApiObjects.Response.Status status = null;
-
-
+            Status status = null;
+            
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
@@ -2032,13 +2030,12 @@ namespace Core.ConditionalAccess
                 status = casImpl.GrantEntitlements(siteguid, housholdId, contentId, productId, transactionType, userIp, deviceName, history);
                 if (status == null)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
             return status;
         }
-
-
+        
         public static ApiObjects.Response.Status UpdatePendingTransaction(int groupID, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
             string externalMessage, int failReason, string signature)
         {
