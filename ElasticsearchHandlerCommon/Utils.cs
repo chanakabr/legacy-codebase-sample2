@@ -584,13 +584,16 @@ namespace ElasticsearchTasksCommon
                     return dMediaTrans;
                 }
 
-                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
-                GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
+                ODBCWrapper.StoredProcedure groupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
+                groupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                GroupMedias.AddParameter("@GroupID", nGroupID);
-                GroupMedias.AddParameter("@MediaID", nMediaID);
+                groupMedias.AddParameter("@GroupID", nGroupID);
+                groupMedias.AddParameter("@MediaID", nMediaID);
 
-                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
+                // increase timeout: default is 30. Stored procedure might take longer than that if there are too many media.
+                groupMedias.SetTimeout(90);
+
+                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => groupMedias.ExecuteDataSet());
                 tDS.Wait();
                 DataSet dataSet = tDS.Result;
 
@@ -926,6 +929,39 @@ namespace ElasticsearchTasksCommon
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        #endregion
+
+                        #region - get countries of media
+
+                        // Regions table should be 6h on stored procedure
+                        if (dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null)
+                        {
+                            foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
+                                int countryId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "COUNTRY_ID");
+                                bool isAllowed = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_ALLOWED") == 1;
+
+                                if (isAllowed)
+                                {
+                                    medias[mediaId].allowedCountries.Add(countryId);
+                                }
+                                else
+                                {
+                                    medias[mediaId].blockedCountries.Add(countryId);
+                                }
+                            }   
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (Media media in medias.Values)
+                        {
+                            if (media.allowedCountries.Count == 0)
+                            {
+                                media.allowedCountries.Add(0);
                             }
                         }
 
