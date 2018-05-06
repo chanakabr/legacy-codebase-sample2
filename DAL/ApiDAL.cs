@@ -4778,7 +4778,7 @@ namespace DAL
                     assetRuleAction = cbManager.Get<T>(key, out status);
                     if (assetRuleAction == null)
                     {
-                        if (status == eResultStatus.ERROR)
+                        if (status != eResultStatus.SUCCESS)
                         {
                             numOfTries++;
                             log.ErrorFormat("Error while GetAssetRuleAction. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
@@ -4824,7 +4824,7 @@ namespace DAL
                     assetRuleCondition = cbManager.Get<T>(key, out status);
                     if (assetRuleCondition == null)
                     {
-                        if (status == eResultStatus.ERROR)
+                        if (status != eResultStatus.SUCCESS)
                         {
                             numOfTries++;
                             log.ErrorFormat("Error while GetAssetRuleCondition. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
