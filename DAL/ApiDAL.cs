@@ -5220,7 +5220,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdatePermissionItem(int id, int? type, string service, string action, string permissionItemObject, string parameter)
+        public static bool UpdatePermissionItem(int id, int? type, string name, string service, string action, string permissionItemObject, string parameter)
         {
             bool result = false;
 
