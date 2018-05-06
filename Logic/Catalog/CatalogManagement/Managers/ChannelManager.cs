@@ -201,9 +201,10 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
-                            if (manualMedias != null)
+                            if (manualMedias != null && manualMedias.Count > 0)
                             {
                                 channel.m_lManualMedias = manualMedias.OrderBy(x => x.m_nOrderNum).ToList();
+                                channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();                                
                             }
                         }
 
@@ -252,56 +253,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
             }
-        }
-
-        private static List<SearchValue> GetMediasForManualChannel(int channelId, out List<GroupsCacheManager.ManualMedia> lManualMedias)
-        {
-            List<SearchValue> lMediaIds = null;
-            DataTable mediaIdsTable = Tvinci.Core.DAL.CatalogDAL.GetMediaIdsByChannelId(channelId);
-            lManualMedias = null;
-            if (mediaIdsTable != null && mediaIdsTable.Rows.Count > 0)
-            {
-                lManualMedias = new List<GroupsCacheManager.ManualMedia>();
-                lMediaIds = new List<SearchValue>();
-                foreach (DataRow mediaIdRow in mediaIdsTable.Rows)
-                {
-                    string sMediaID = ODBCWrapper.Utils.GetSafeStr(mediaIdRow, "media_id");
-                    int nOrderNum = ODBCWrapper.Utils.GetIntSafeVal(mediaIdRow, "order_num");
-                    bool bIsAlreadyExist = false;
-
-                    SearchValue searchedSearchValue = lMediaIds.Find(o => o.m_sKey.Equals("media_id"));
-                    if (searchedSearchValue == null)
-                    {
-                        SearchValue oNewSearchValue = new SearchValue();
-                        CreateSearchValueObject(ref oNewSearchValue, "media_id", sMediaID, bIsAlreadyExist, string.Empty);
-                        lMediaIds.Add(oNewSearchValue);
-
-                    }
-                    else
-                    {
-                        bIsAlreadyExist = true;
-                        CreateSearchValueObject(ref searchedSearchValue, "media_id", sMediaID, bIsAlreadyExist, string.Empty);
-                    }
-
-                    lManualMedias.Add(new GroupsCacheManager.ManualMedia(sMediaID, nOrderNum));
-                }
-            }
-
-            return lMediaIds;
-        }
-
-        private static void CreateSearchValueObject(ref SearchValue oNewSearchValue, string key, string value, bool isAlreadyExist, string sKeyPrefix)
-        {
-            if (!isAlreadyExist)
-            {
-                oNewSearchValue.m_sKey = key;
-                List<string> tagValues = new List<string>();
-                oNewSearchValue.m_lValue = tagValues;
-            }
-            oNewSearchValue.m_sKeyPrefix = sKeyPrefix;
-            List<string> lCurrentTagsValues = oNewSearchValue.m_lValue.ToList();
-            lCurrentTagsValues.Add(value);
-            oNewSearchValue.m_lValue = lCurrentTagsValues;
         }
 
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isOperatorSearch)

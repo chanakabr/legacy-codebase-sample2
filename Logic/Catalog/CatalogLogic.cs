@@ -7338,7 +7338,7 @@ namespace Core.Catalog
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
-
+            definitions.shouldDateSearchesApplyToAllTypes = request.IsOperatorSearch;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isOperatorSearch = request.IsOperatorSearch;
             if (definitions.isOperatorSearch)
@@ -7527,12 +7527,6 @@ namespace Core.Catalog
                         }
                     default:
                         break;
-                }
-
-                // need to build channel tags from manualMedias
-                if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.m_lManualMedias != null && channel.m_lManualMedias.Count > 0)
-                {
-                    channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();
                 }
 
                 // If there is at least one tag
