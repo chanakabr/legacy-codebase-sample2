@@ -646,8 +646,7 @@ namespace WebAPI.Clients
             Status response = null;
 
             // get group ID
-
-
+            
             try
             {
                 // convert local enumerator, to web service enumerator
@@ -656,8 +655,8 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.ConditionalAccess.Module.GrantEntitlements(groupId, user_id, household_id, content_id,
-                        product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
+                    response = Core.ConditionalAccess.Module.GrantEntitlements
+                        (groupId, user_id, household_id, content_id, product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
                 }
             }
             catch (Exception ex)

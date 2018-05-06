@@ -325,6 +325,7 @@ namespace WebAPI.Controllers
         [OldStandardArgument("productType", "product_type")]
         [OldStandardArgument("contentId", "content_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("productId", MinInteger = 1)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -348,8 +349,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, userId, domainID, contentId, productId,
-                    productType, history, string.Empty);
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements
+                    (groupId, userId, domainID, contentId, productId, productType, history, string.Empty);
             }
             catch (ClientException ex)
             {
