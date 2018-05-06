@@ -37,6 +37,8 @@ using APILogic.ConditionalAccess.Modules;
 using QueueWrapper;
 using ApiObjects.Roles;
 using ConfigurationManager;
+using GroupsCacheManager;
+
 
 namespace Core.ConditionalAccess
 {
@@ -1954,7 +1956,7 @@ namespace Core.ConditionalAccess
 
             // check if file is avilable             
             Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode, nGroupID);
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode, nGroupID, GetIP2CountryId(nGroupID, ip));
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
                 theReason = PriceReason.NotForPurchase;
@@ -3480,7 +3482,7 @@ namespace Core.ConditionalAccess
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode, int groupId)
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode, int groupId, int countryId)
         {
             Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int, MediaFileStatus>();
             mediaFilesProductCode = new Dictionary<int, string>();
@@ -3507,6 +3509,7 @@ namespace Core.ConditionalAccess
                 bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keysToOriginalValueMap, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
                                                                                 groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
+                long mediaId;
                 int mediaFileID;
                 int mediaIsActive = 0, mediaFileIsActive = 0;
                 int mediaStatus = 0, mediaFileStatus = 0;
@@ -3550,46 +3553,80 @@ namespace Core.ConditionalAccess
                         {
                             DataRow dr = dt.Rows[0];
                             currentDate = DateTime.UtcNow;
-                            //media
-                            mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
-                            mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
-                            mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
-                            mediaEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_end_date");
-                            mediaFinalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_final_end_date");
 
-                            //mediaFiles
                             mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
-                            mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
-                            mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
-                            mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
-                            mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
-                            productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
 
-                            if (!mediaFilesProductCode.ContainsKey(mediaFileID))
+                            Group group = new GroupManager().GetGroup(groupId);
+                            if (group.isGeoAvailabilityWindowingEnabled)
                             {
-                                mediaFilesProductCode.Add(mediaFileID, productCode);
-                            }
-                            else
-                            {
-                                mediaFilesProductCode[mediaFileID] = productCode;
+                                mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                                DataTable mediaCountriesDt = GetMediaCountries(mediaId);
+                                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
+                                {
+                                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
+                                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
+
+                                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
+                                    {
+                                        eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                    }
+                                    else if (allowedCountries == null || allowedCountries.Length == 0)
+                                    {
+                                        eMediaFileStatus = MediaFileStatus.OK;
+                                    }
+                                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
+                                    {
+                                        eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                    }
+                                }
+                                else
+                                {
+                                    eMediaFileStatus = MediaFileStatus.OK;
+                                }
                             }
 
-                            if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
+                            if (eMediaFileStatus == MediaFileStatus.OK)
                             {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if (mediaStartDate > currentDate || mediaFileStartDate > currentDate)
-                            {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
-                            {
-                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                            }
-                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) &&
-                                (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
-                            {
-                                eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
+                                //media
+                                mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
+                                mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
+                                mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
+                                mediaEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_end_date");
+                                mediaFinalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_final_end_date");
+
+                                //mediaFiles
+                                mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
+                                mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
+                                mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
+                                mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
+                                productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
+
+                                if (!mediaFilesProductCode.ContainsKey(mediaFileID))
+                                {
+                                    mediaFilesProductCode.Add(mediaFileID, productCode);
+                                }
+                                else
+                                {
+                                    mediaFilesProductCode[mediaFileID] = productCode;
+                                }
+
+                                if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
+                                {
+                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                }
+                                else if (mediaStartDate > currentDate || mediaFileStartDate > currentDate)
+                                {
+                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                }
+                                else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
+                                {
+                                    eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                                }
+                                else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) &&
+                                    (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
+                                {
+                                    eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
+                                }
                             }
 
                             if (eMediaFileStatus != MediaFileStatus.OK)
@@ -3605,6 +3642,7 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
+
                 }
                 else
                 {
@@ -3616,6 +3654,11 @@ namespace Core.ConditionalAccess
                 log.Error(string.Empty, ex);
             }
             return mediaFilesStatus;
+        }
+
+        private static DataTable GetMediaCountries(long mediaId)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
