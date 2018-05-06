@@ -165,7 +165,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 //Get All programs by group_id + date from CB
                 TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
 
-                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1));
+                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1), true);
 
                 if (lEpgCB != null && lEpgCB.Count > 0)
                 {
