@@ -36,18 +36,15 @@ namespace WebAPI.Managers
        
        internal static Dictionary<string, Dictionary<long, Tuple<string, bool>>>  BuildPermissionItemsDictionary(List<KalturaUserRole> roles)
         {
-            Dictionary<string, Dictionary<long, Tuple<string, bool>>> dictionary = new Dictionary<string, Dictionary<long, Tuple<string, bool>>>();
-       
-            string key = null;
-            bool isExcluded = false;
+            Dictionary<string, Dictionary<long, Tuple<string, bool>>> dictionary = new Dictionary<string, Dictionary<long, Tuple<string, bool>>>();                              
             KalturaApiActionPermissionItem apiActionPermissionItem;
             KalturaApiParameterPermissionItem apiParameterPermissionItem;
             KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
             string usersGroup;
 
-            foreach (var role in roles)
+            foreach (KalturaUserRole role in roles)
             {
-                foreach (var permission in role.Permissions)
+                foreach (KalturaPermission permission in role.Permissions)
                 {
                     // if the permission is group permission, get the users group list to append later
                     if (permission is KalturaGroupPermission)
@@ -58,49 +55,83 @@ namespace WebAPI.Managers
                     {
                         usersGroup = string.Empty;
                     }
-
-                    foreach (var permissionItem in permission.PermissionItems)
+                    
+                    foreach (KalturaPermissionItem permissionItem in permission.PermissionItems)
                     {
+                        // in case we have the following actions on KalturaApiParameterPermissionItem we need to create multiple items: ALL\WRITE
+                        Dictionary<string, bool> keyToExcludeMap = new Dictionary<string, bool>();
                         // the dictionary is relevant only for action permission items
                         if (permissionItem is KalturaApiActionPermissionItem)
                         {
                             apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
-                            key = string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower();
+                            keyToExcludeMap.Add(string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower(), apiActionPermissionItem.IsExcluded);
                         }
                         else if (permissionItem is KalturaApiParameterPermissionItem)
                         {
                             apiParameterPermissionItem = (KalturaApiParameterPermissionItem)permissionItem;
-                            key = string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter, apiParameterPermissionItem.Action).ToLower();
+                            string key = string.Empty;
+                            switch (apiParameterPermissionItem.Action)
+                            {
+                                case KalturaApiParameterPermissionItemAction.READ:                                    
+                                case KalturaApiParameterPermissionItemAction.INSERT:                                    
+                                case KalturaApiParameterPermissionItemAction.UPDATE:
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                                    apiParameterPermissionItem.Action).ToLower(), apiParameterPermissionItem.IsExcluded);                                    
+                                    break;
+                                // add both insert and update
+                                case KalturaApiParameterPermissionItemAction.WRITE:
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                    break;
+                                // add read, insert and update
+                                case KalturaApiParameterPermissionItemAction.ALL:
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                        KalturaApiParameterPermissionItemAction.READ).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                    break;
+                                default:
+                                    continue;
+                                    break;
+                            }                            
                         }
                         else if (permissionItem is KalturaApiArgumentPermissionItem)
                         {
                             apiArgumentPermissionItem = (KalturaApiArgumentPermissionItem)permissionItem;
-                            key = string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower();
+                            keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower(), apiArgumentPermissionItem.IsExcluded);
                         }
                         else
                         {
                             continue;
                         }
-                        isExcluded = permissionItem.IsExcluded;
 
-                        // if the dictionary already contains the action, try to append the role and /or the users group
-                        if (dictionary.ContainsKey(key))
+                        foreach (KeyValuePair<string, bool> pair in keyToExcludeMap)
                         {
-                            if (!dictionary[key].ContainsKey(role.getId()))
+                            bool isExcluded = pair.Value;
+
+                            // if the dictionary already contains the action, try to append the role and /or the users group
+                            if (dictionary.ContainsKey(pair.Key))
                             {
-                                dictionary[key].Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));// usersGroup);
+                                if (!dictionary[pair.Key].ContainsKey(role.getId()))
+                                {
+                                    dictionary[pair.Key].Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));// usersGroup);
+                                }
+                                else
+                                {
+                                    dictionary[pair.Key][role.getId()] = new Tuple<string, bool>(string.Format("{0};{1}", usersGroup, dictionary[pair.Key][role.getId()]), isExcluded);
+                                }
                             }
+                            // add the action to the dictionary
                             else
                             {
-                                dictionary[key][role.getId()] = new Tuple<string, bool>(string.Format("{0};{1}", usersGroup, dictionary[key][role.getId()]), isExcluded);
+                                Dictionary<long, Tuple<string, bool>> d = new Dictionary<long, Tuple<string, bool>>();
+                                d.Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));
+                                dictionary.Add(pair.Key, d);
                             }
-                        }
-                        // add the action to the dictionary
-                        else
-                        {
-                            Dictionary<long, Tuple<string, bool>> d = new Dictionary<long, Tuple<string, bool>>();
-                            d.Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));
-                            dictionary.Add(key, d);
                         }
                     }
                 }

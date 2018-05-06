@@ -14,7 +14,8 @@ namespace WebAPI.Models.General
         READ = 1,
         INSERT = 2,
 	    UPDATE = 4,
-	    USAGE = 7
+        WRITE = 6,
+	    ALL = 7
     }
 
     public class KalturaApiParameterPermissionItem : KalturaPermissionItem
