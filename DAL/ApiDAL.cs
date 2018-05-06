@@ -4729,25 +4729,6 @@ namespace DAL
             return assetRuleAction;
         }
 
-        //public static DataSet GetAssetRule(int groupId, long id)
-        //{
-        //    DataSet ds = null;
-        //    try
-        //    {
-        //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRuleById");
-        //        sp.AddParameter("@groupId", groupId);
-        //        sp.AddParameter("@id", id);
-
-        //        ds = sp.ExecuteDataSet();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while GetAssetRule in DB, groupId: {0} , ex:{1} ", groupId, ex);
-        //    }
-
-        //    return ds;
-        //}
-
         public static bool DeleteAssetRule(int groupId, long id)
         {
             try
