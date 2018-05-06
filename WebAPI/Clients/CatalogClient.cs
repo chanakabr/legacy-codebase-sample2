@@ -2411,10 +2411,6 @@ namespace WebAPI.Clients
         {
             KalturaAssetComment result = new KalturaAssetComment();
             
-            // Check if asset exist - throw's exception if not
-            ClientsManager.CatalogClient().GetMediaByIds
-                (groupId, userId, KSUtils.ExtractKSPayload().UDID, null, 0, 0, new List<int>() { assetId }, new List<KalturaCatalogWith>());
-            
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
 

@@ -519,8 +519,6 @@ namespace WebAPI.Clients
             KalturaHouseholdLimitations result;
             DLMResponse response = null;
 
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

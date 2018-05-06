@@ -2320,6 +2320,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetCondition":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "ksql";
+                    }
+                    break;
+                    
                 case "KalturaAssetCount":
                     switch(property.Name)
                     {
@@ -2483,6 +2491,30 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
+                    }
+                    break;
+                    
+                case "KalturaAssetRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                        case "Description":
+                            return "description";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -2934,6 +2966,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCondition":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                    }
+                    break;
+                    
                 case "KalturaConfigurationGroup":
                     switch(property.Name)
                     {
@@ -3087,6 +3127,16 @@ namespace WebAPI.Reflection
                             return "name";
                         case "VatPercent":
                             return "vatPercent";
+                    }
+                    break;
+                    
+                case "KalturaCountryCondition":
+                    switch(property.Name)
+                    {
+                        case "Countries":
+                            return "countries";
+                        case "Not":
+                            return "not";
                     }
                     break;
                     
@@ -5715,6 +5765,8 @@ namespace WebAPI.Reflection
                 case "KalturaRuleAction":
                     switch(property.Name)
                     {
+                        case "Description":
+                            return "description";
                         case "Type":
                             return "type";
                     }
@@ -6297,6 +6349,16 @@ namespace WebAPI.Reflection
                             return "by";
                         case "Ids":
                             return "ids";
+                    }
+                    break;
+                    
+                case "KalturaTimeOffsetRuleAction":
+                    switch(property.Name)
+                    {
+                        case "Offset":
+                            return "offset";
+                        case "TimeZone":
+                            return "timeZone";
                     }
                     break;
                     

@@ -668,6 +668,30 @@
             <remarks>Possible status codes:      
               </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetRuleController.List">
+            <summary>
+            Get the list of asset rules for the partner
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetRuleController.Add(WebAPI.Models.API.KalturaAssetRule)">
+            <summary>
+            Add asset rule
+            </summary>
+            <param name="assetRule">Asset rule</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetRuleController.Update(System.Int64,WebAPI.Models.API.KalturaAssetRule)">
+            <summary>
+            Update asset rule
+            </summary>
+            <param name="assetRule">Asset rule</param>
+            <param name="id">Asset rule ID to update</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetRuleController.Delete(System.Int64)">
+            <summary>
+            Delete asset rule
+            </summary>
+            <param name="id">Asset rule ID</param>
+        </member>
         <member name="M:WebAPI.Controllers.CouponsGroupController.Generate(System.Int64,WebAPI.Models.Pricing.KalturaCouponGenerationOptions)">
             <summary>
             Generate a coupon 
@@ -4158,6 +4182,41 @@
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaCondition">
+            <summary>
+            Condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCondition.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetCondition">
+            <summary>
+            Asset Condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetCondition.Ksql">
+            <summary>
+            KSQL  
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaCountryCondition">
+            <summary>
+            Country condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryCondition.Not">
+            <summary>
+            Indicates whether to apply not on the other properties in the condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryCondition.Countries">
+            <summary>
+            Comma separated countries IDs list
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaCurrencyListResponse.Objects">
             <summary>
             Currencies
@@ -4196,6 +4255,41 @@
         <member name="P:WebAPI.Models.API.KalturaCurrencyFilter.CodeIn">
             <summary>
             Currency codes
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetRule">
+            <summary>
+            Asset rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Id">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Conditions">
+            <summary>
+            List of conditions for the rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Actions">
+            <summary>
+            List of actions for the rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleListResponse.Objects">
+            <summary>
+            Asset rules
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaLanguageFilter">
@@ -7003,6 +7097,36 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Type">
             <summary>
             The type of the action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction">
+            <summary>
+            Time offset action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.Offset">
+            <summary>
+            Offset in seconds 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.TimeZone">
+            <summary>
+            Indicates whether to add time zone offset to the time 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEndDateOffsetRuleAction">
+            <summary>
+            End date offset action
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaStartDateOffsetRuleAction">
+            <summary>
+            Start date offset action
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">

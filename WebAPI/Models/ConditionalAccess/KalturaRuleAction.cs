@@ -18,14 +18,72 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         public KalturaRuleActionType Type { get; set; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
+        public string Description { get; set; }
     }
 
     public class KalturaAccessControlBlockAction : KalturaRuleAction
     { 
+        public KalturaAccessControlBlockAction()
+        {
+            Type = KalturaRuleActionType.BLOCK;
+        }
+    }
+
+    /// <summary>
+    /// Time offset action
+    /// </summary>
+    public abstract class KalturaTimeOffsetRuleAction : KalturaRuleAction
+    {
+        /// <summary>
+        /// Offset in seconds 
+        /// </summary>
+        [DataMember(Name = "offset")]
+        [JsonProperty("offset")]
+        [XmlElement(ElementName = "offset")]
+        public int Offset { get; set; }
+
+        /// <summary>
+        /// Indicates whether to add time zone offset to the time 
+        /// </summary>
+        [DataMember(Name = "timeZone")]
+        [JsonProperty("timeZone")]
+        [XmlElement(ElementName = "timeZone")]
+        public bool TimeZone { get; set; }
+    }
+
+    /// <summary>
+    /// End date offset action
+    /// </summary>
+    public class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
+    {
+        public KalturaEndDateOffsetRuleAction()
+        {
+            Type = KalturaRuleActionType.END_DATE_OFFSET;
+        }
+    }
+
+    /// <summary>
+    /// Start date offset action
+    /// </summary>
+    public class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
+    {
+        public KalturaStartDateOffsetRuleAction()
+        {
+            Type = KalturaRuleActionType.START_DATE_OFFSET;
+        }
     }
 
     public enum KalturaRuleActionType
     {
         BLOCK,
+        START_DATE_OFFSET,
+        END_DATE_OFFSET,
     }
 }
