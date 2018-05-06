@@ -223,11 +223,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
-                .ForMember(dest => dest.ChannelAssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
+                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
-                .ForMember(dest => dest.ChannelGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
 
@@ -243,7 +243,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
                .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
-               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.ChannelGroupBy)))
+               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.KSQL))
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
                .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())

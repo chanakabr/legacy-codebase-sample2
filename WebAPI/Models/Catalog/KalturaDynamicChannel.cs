@@ -41,19 +41,21 @@ namespace WebAPI.Models.Catalog
         /// Asset types in the channel.
         /// -26 is EPG
         /// </summary>
-        [DataMember(Name = "channelAssetTypes")]
-        [JsonProperty(PropertyName = "channelAssetTypes")]
-        [XmlArray(ElementName = "channelAssetTypes", IsNullable = true)]
+        [DataMember(Name = "assetTypes")]
+        [JsonProperty(PropertyName = "assetTypes")]
+        [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> ChannelAssetTypes { get; set; }
+        [OnlyNewStandard]
+        public List<KalturaIntegerValue> AssetTypes { get; set; }
 
         /// <summary>
         /// Channel group by
         /// </summary>
-        [DataMember(Name = "channelGroupBy")]
-        [JsonProperty("channelGroupBy")]
-        [XmlElement(ElementName = "channelGroupBy", IsNullable = true)]
-        public KalturaAssetGroupBy ChannelGroupBy
+        [DataMember(Name = "groupBy")]
+        [JsonProperty("groupBy")]
+        [XmlElement(ElementName = "groupBy", IsNullable = true)]
+        [OnlyNewStandard]
+        public KalturaAssetGroupBy GroupBy
         {
             get;
             set;
@@ -61,16 +63,16 @@ namespace WebAPI.Models.Catalog
 
         public int[] getAssetTypes()
         {
-            if (ChannelAssetTypes == null && MediaTypes != null)
-                ChannelAssetTypes = MediaTypes;
+            if (AssetTypes == null && MediaTypes != null)
+                AssetTypes = MediaTypes;
 
-            if (ChannelAssetTypes == null)
+            if (AssetTypes == null)
                 return new int[0];
 
-            int[] assetTypes = new int[ChannelAssetTypes.Count];
-            for (int i = 0; i < ChannelAssetTypes.Count; i++)
+            int[] assetTypes = new int[AssetTypes.Count];
+            for (int i = 0; i < AssetTypes.Count; i++)
             {
-                assetTypes[i] = ChannelAssetTypes[i].value;
+                assetTypes[i] = AssetTypes[i].value;
             }
 
             return assetTypes;
