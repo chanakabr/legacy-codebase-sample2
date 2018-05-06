@@ -23,6 +23,11 @@ RUN Import-Module WebAdministration; \
 
 RUN iisReset
 	
+# filebeat should be downloaded from https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.4-windows-x86_64.zip
+ADD filebeat filebeat
+RUN C:\filebeat\install-service-filebeat.ps1
+RUN Start-Service filebeat
+
 COPY WebAPI WebAPI
 
 EXPOSE 80
