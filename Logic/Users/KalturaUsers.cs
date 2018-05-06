@@ -143,48 +143,46 @@ namespace Core.Users
             UserResponseObject Response = new UserResponseObject();
             Int32 oldSiteGuid = siteGuid;
             bool isGracePeriod = false;
+
             UserActivationState userStatus = GetUserStatus(ref userName, ref siteGuid, ref isGracePeriod);
 
             if (userStatus != UserActivationState.Activated)
             {
-                Response.m_RespStatus = ResponseStatus.UserNotActivated;
-
-                if (siteGuid <= 0)
-                    Response.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-                else
+                switch (userStatus)
                 {
-                    switch (userStatus)
-                    {
-                        case UserActivationState.UserDoesNotExist:
-                            Response.m_RespStatus = ResponseStatus.UserDoesNotExist;
-                            break;
+                    case UserActivationState.UserDoesNotExist:
+                        Response.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                        break;
 
-                        case UserActivationState.NotActivated:
-                            Response.m_user = new User(groupId, siteGuid);
-                            Response.m_RespStatus = ResponseStatus.UserNotActivated;
-                            break;
+                    case UserActivationState.NotActivated:
+                        Response.m_user = new User(groupId, siteGuid);
+                        Response.m_RespStatus = ResponseStatus.UserNotActivated;
+                        break;
 
-                        case UserActivationState.NotActivatedByMaster:
-                            Response.m_user = new User(groupId, siteGuid);
-                            Response.m_RespStatus = ResponseStatus.UserNotMasterApproved;
-                            break;
+                    case UserActivationState.NotActivatedByMaster:
+                        Response.m_user = new User(groupId, siteGuid);
+                        Response.m_RespStatus = ResponseStatus.UserNotMasterApproved;
+                        break;
 
-                        case UserActivationState.UserRemovedFromDomain:
-                            Response.m_user = new User(groupId, siteGuid);
-                            Response.m_RespStatus = ResponseStatus.UserNotIndDomain;
-                            break;
-                        case UserActivationState.UserWIthNoDomain:
-                            Response.m_user = new User(groupId, siteGuid);
-                            bool bValidDomainStat = MidAddDomain(ref Response, Response.m_user, userName, siteGuid, new DomainInfo(groupId));
-                            if (!bValidDomainStat)
-                                return Response;
-                            break;
-                        case UserActivationState.UserSuspended:
-                            Response.m_user = new User(groupId, siteGuid);
-                            Response.m_RespStatus = ResponseStatus.UserSuspended;
-                            break;
-                    }
+                    case UserActivationState.UserRemovedFromDomain:
+                        Response.m_user = new User(groupId, siteGuid);
+                        Response.m_RespStatus = ResponseStatus.UserNotIndDomain;
+                        break;
+                    case UserActivationState.UserWIthNoDomain:
+                        Response.m_user = new User(groupId, siteGuid);
+                        bool bValidDomainStat = MidAddDomain(ref Response, Response.m_user, userName, siteGuid, new DomainInfo(groupId));
+                        if (!bValidDomainStat)
+                            return Response;
+                        break;
+                    case UserActivationState.UserSuspended:
+                        Response.m_user = new User(groupId, siteGuid);
+                        Response.m_RespStatus = ResponseStatus.UserSuspended;
+                        break;
+                    default:
+                        Response.m_RespStatus = ResponseStatus.UserNotActivated;
+                        break;
                 }
+
                 if (userStatus != UserActivationState.UserWIthNoDomain)
                     return Response;
             }
