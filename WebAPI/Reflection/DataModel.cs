@@ -380,6 +380,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannel":
                     switch (propertyName)
                     {
+                        case "AssetTypes":
+                        case "GroupBy":
                         case "MediaTypes":
                             return true;
                     };
@@ -527,6 +529,8 @@ namespace WebAPI.Reflection
                 case "KalturaManualChannel":
                     switch (propertyName)
                     {
+                        case "AssetTypes":
+                        case "GroupBy":
                         case "MediaTypes":
                             return true;
                     };

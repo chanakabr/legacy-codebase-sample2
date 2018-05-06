@@ -73,6 +73,7 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         [OldStandardProperty("asset_types")]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
         
         /// <summary>
@@ -131,6 +132,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("groupBy")]
         [XmlElement(ElementName = "groupBy", IsNullable = true)]
         [Deprecated(GENESIS_VERSION)]
+        [Obsolete]
         public KalturaAssetGroupBy GroupBy
         {
             get;
