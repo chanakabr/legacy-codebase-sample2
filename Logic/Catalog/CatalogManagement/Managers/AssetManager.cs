@@ -1574,7 +1574,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
-                                                                linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.CatchUpBuffer, linearMediaAssetToAdd.TrickPlayBuffer,
+                                                                linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.BufferCatchUp, linearMediaAssetToAdd.BufferTrickPlay,
                                                                 linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalIngestId, mediaAsset.Id, userId);
                 result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
                 if (result.Object != null)
@@ -1604,7 +1604,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataTable dt = CatalogDAL.UpdateLinearMediaAsset(groupId, mediaAsset.Id, linearMediaAssetToUpdate.EnableCdvrState, linearMediaAssetToUpdate.EnableCatchUpState,
                                                                 linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState, linearMediaAssetToUpdate.EnableTrickPlayState,
-                                                                linearMediaAssetToUpdate.CatchUpBuffer, linearMediaAssetToUpdate.TrickPlayBuffer, linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalIngestId, userId);
+                                                                linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay, linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalIngestId, userId);
                 result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
 
                 if (result.Object != null)
