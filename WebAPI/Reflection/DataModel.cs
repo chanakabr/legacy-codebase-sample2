@@ -68,7 +68,11 @@ namespace WebAPI.Reflection
                 case "KalturaDynamicChannel":
                     switch (propertyName)
                     {
+                        case "AssetTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "GroupBy":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "Images":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
@@ -1303,6 +1307,7 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDynamicChannel":
                     ret = new Dictionary<string, string>() { 
+                        {"assetTypes", "asset_types"},
                         {"filterExpression", "filter_expression"},
                     };
                     break;
@@ -3690,10 +3695,10 @@ namespace WebAPI.Reflection
                 case "KalturaDynamicChannel":
                     switch(property.Name)
                     {
-                        case "AssetTypes":
-                            return "assetTypes";
-                        case "GroupBy":
-                            return "groupBy";
+                        case "ChannelAssetTypes":
+                            return "channelAssetTypes";
+                        case "ChannelGroupBy":
+                            return "channelGroupBy";
                         case "Ksql":
                             return "kSql";
                     }
