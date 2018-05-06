@@ -568,11 +568,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))               
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
-                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
-                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
                 .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
-                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
-                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
+                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
+                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.CatchUpBuffer))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.EnableCatchUp))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.EnableCdvr))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableCatchUpState)))
                 .ForMember(dest => dest.EnableCdvrState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableCdvrState)))
                 .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
@@ -580,10 +580,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlayState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableTrickPlayState)))               
                 .ForMember(dest => dest.ExternalCdvrId, opt => opt.MapFrom(src => src.ExternalCdvrId))
                 .ForMember(dest => dest.ExternalIngestId, opt => opt.MapFrom(src => src.ExternalIngestId))
-                .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
-                .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.EnableStartOver))
+                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.TrickPlayBuffer))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay));
 
             // Asset to KalturaAsset
             Mapper.CreateMap<Asset, KalturaAsset>()
@@ -635,11 +635,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
-                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
-                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
                 .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
-                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
-                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
+                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
+                .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.BufferCatchUp))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.EnableCatchUp))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.EnableCdvr))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableCatchUpState)))
                 .ForMember(dest => dest.EnableCdvrState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableCdvrState)))
                 .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
@@ -647,10 +647,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlayState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableTrickPlayState)))            
                 .ForMember(dest => dest.ExternalCdvrId, opt => opt.MapFrom(src => src.ExternalCdvrId))
                 .ForMember(dest => dest.ExternalIngestId, opt => opt.MapFrom(src => src.ExternalIngestId))
-                .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
-                .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.EnableStartOver))
+                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.BufferTrickPlay))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay));
 
             // AssetStructMeta to KalturaAssetStructMeta
             Mapper.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()

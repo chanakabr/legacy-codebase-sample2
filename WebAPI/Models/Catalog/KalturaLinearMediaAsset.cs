@@ -46,22 +46,22 @@ namespace WebAPI.Models.Catalog
         public KalturaTimeShiftedTvState? EnableStartOverState { get; set; }
 
         /// <summary>
-        /// Catch-up buffer, configuration only
+        /// buffer Catch-up, configuration only
         /// </summary>
-        [DataMember(Name = "catchUpBuffer")]
-        [JsonProperty(PropertyName = "catchUpBuffer")]
-        [XmlElement(ElementName = "catchUpBuffer")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
-        public long? CatchUpBuffer { get; set; }
+        [DataMember(Name = "bufferCatchUp")]
+        [JsonProperty(PropertyName = "bufferCatchUp")]
+        [XmlElement(ElementName = "bufferCatchUp")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]        
+        public long? BufferCatchUp { get; set; }
 
         /// <summary>
-        /// Trick-play buffer, configuration only
+        /// buffer Trick-play, configuration only
         /// </summary>
-        [DataMember(Name = "trickPlayBuffer")]
-        [JsonProperty(PropertyName = "trickPlayBuffer")]
-        [XmlElement(ElementName = "trickPlayBuffer")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
-        public long? TrickPlayBuffer { get; set; }
+        [DataMember(Name = "bufferTrickPlay")]
+        [JsonProperty(PropertyName = "bufferTrickPlay")]
+        [XmlElement(ElementName = "bufferTrickPlay")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]        
+        public long? BufferTrickPlay { get; set; }
 
         /// <summary>
         /// Enable Recording playback for non entitled channel, configuration only
@@ -100,65 +100,72 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Is CDVR enabled for this asset
         /// </summary>
-        [DataMember(Name = "cdvrEnabaled")]
-        [JsonProperty(PropertyName = "cdvrEnabaled")]
-        [XmlElement(ElementName = "cdvrEnabaled")]
+        [DataMember(Name = "enableCdvr")]
+        [JsonProperty(PropertyName = "enableCdvr")]
+        [XmlElement(ElementName = "enableCdvr")]
         [SchemeProperty(ReadOnly = true)]
-        public bool CdvrEnabled { get; set; }
+        [OnlyNewStandard]
+        public bool EnableCdvr { get; set; }
 
         /// <summary>
         /// Is catch-up enabled for this asset
         /// </summary>
-        [DataMember(Name = "catchUpEnabled")]
-        [JsonProperty(PropertyName = "catchUpEnabled")]
-        [XmlElement(ElementName = "catchUpEnabled")]
+        [DataMember(Name = "enableCatchUp")]
+        [JsonProperty(PropertyName = "enableCatchUp")]
+        [XmlElement(ElementName = "enableCatchUp")]
         [SchemeProperty(ReadOnly = true)]
-        public bool CatchUpEnabled { get; set; }
+        [OnlyNewStandard]
+        public bool EnableCatchUp { get; set; }
 
         /// <summary>
         /// Is start over enabled for this asset
         /// </summary>
-        [DataMember(Name = "startOverEnabled")]
-        [JsonProperty(PropertyName = "startOverEnabled")]
-        [XmlElement(ElementName = "startOverEnabled")]
+        [DataMember(Name = "enableStartOver")]
+        [JsonProperty(PropertyName = "enableStartOver")]
+        [XmlElement(ElementName = "enableStartOver")]
         [SchemeProperty(ReadOnly = true)]
-        public bool StartOverEnabled { get; set; }
+        [OnlyNewStandard]
+        public bool EnableStartOver { get; set; }
 
         /// <summary>
-        /// buffer Catch-up
+        /// Catch-up buffer
         /// </summary>
-        [DataMember(Name = "bufferCatchUp")]
-        [JsonProperty(PropertyName = "bufferCatchUp")]
-        [XmlElement(ElementName = "bufferCatchUp")]
+        [DataMember(Name = "catchUpBuffer")]
+        [JsonProperty(PropertyName = "catchUpBuffer")]
+        [XmlElement(ElementName = "catchUpBuffer")]
         [SchemeProperty(ReadOnly = true)]
-        public long BufferCatchUp { get; set; }
+        [OnlyNewStandard]
+        public long CatchUpBuffer { get; set; }
 
         /// <summary>
         /// buffer Trick-play 
         /// </summary>
-        [DataMember(Name = "bufferTrickPlay")]
-        [JsonProperty(PropertyName = "bufferTrickPlay")]
-        [XmlElement(ElementName = "bufferTrickPlay")]
+        [DataMember(Name = "trickPlayBuffer")]
+        [JsonProperty(PropertyName = "trickPlayBuffer")]
+        [XmlElement(ElementName = "trickPlayBuffer")]
         [SchemeProperty(ReadOnly = true)]
-        public long BufferTrickPlay { get; set; }
+        [OnlyNewStandard]
+        public long TrickPlayBuffer { get; set; }
 
         /// <summary>
         /// Is recording playback for non entitled channel enabled for this asset
         /// </summary>
-        [DataMember(Name = "recordingPlaybackNonEntitledChannelEnabled")]
-        [JsonProperty(PropertyName = "recordingPlaybackNonEntitledChannelEnabled")]
-        [XmlElement(ElementName = "recordingPlaybackNonEntitledChannelEnabled")]
+        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
+        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
+        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
-        public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
+        [OnlyNewStandard]
+        public bool EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
         /// <summary>
         /// Is trick-play enabled for this asset
         /// </summary>
-        [DataMember(Name = "trickPlayEnabled")]
-        [JsonProperty(PropertyName = "trickPlayEnabled")]
-        [XmlElement(ElementName = "trickPlayEnabled")]
+        [DataMember(Name = "enableTrickPlay")]
+        [JsonProperty(PropertyName = "enableTrickPlay")]
+        [XmlElement(ElementName = "enableTrickPlay")]
         [SchemeProperty(ReadOnly = true)]
-        public bool TrickPlayEnabled { get; set; }
+        [OnlyNewStandard]
+        public bool EnableTrickPlay { get; set; }
 
         internal void ValidateForInsert()
         {
@@ -187,14 +194,14 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableTrickPlayState");
             }
 
-            if (CatchUpBuffer == null)
+            if (BufferCatchUp == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "catchUpBuffer");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bufferCatchUp");
             }
 
-            if (TrickPlayBuffer == null)
+            if (BufferTrickPlay == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "trickPlayBuffer");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bufferTrickPlay");
             }
 
             if (string.IsNullOrEmpty(ExternalIngestId))
