@@ -412,9 +412,9 @@ namespace Core.Catalog.CatalogManagement
                 string serializedChannel = esSerializer.SerializeChannelObject(channel);
                 if (esApi.InsertRecord(index, type, channelId.ToString(), serializedChannel))
                 {
-                    result = true;
-                    // TODO: Ask Ira should updateChannelPercolator result influence channel index result 
-                    if (!UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
+                    result = true;                    
+                    if ((channel.m_nChannelTypeID != (int)ChannelType.Manual || (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0))
+                            && !UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
                     {
                         log.ErrorFormat("Update channel percolator failed for Upsert Channel with channelId: {0}", channelId);                        
                     }
