@@ -5524,15 +5524,35 @@ namespace Tvinci.Core.DAL
         public static DataTable UpdateLinearMediaAsset(int groupId, long mediaId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
                                                         TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@MediaId", mediaId);
-            sp.AddParameter("@EnableCdvr", (int)enableCdvr.Value);
-            sp.AddParameter("@EnableCatchUp", (int)enableCatchUp.Value);
-            sp.AddParameter("@EnableRecordingPlaybackNonEntitledChannel", (int)enableRecordingPlaybackNonEntitledChannel.Value);
-            sp.AddParameter("@EnableStartOver", (int)enableStartOver.Value);
-            sp.AddParameter("@EnableTrickPlay", (int)enableTrickPlay.Value);
+            if (enableCdvr.HasValue)
+            {
+                sp.AddParameter("@EnableCdvr", (int)enableCdvr.Value);
+            }
+
+            if (enableCatchUp.HasValue)
+            {
+                sp.AddParameter("@EnableCatchUp", (int)enableCatchUp.Value);
+            }
+
+            if (enableRecordingPlaybackNonEntitledChannel.HasValue)
+            {
+                sp.AddParameter("@EnableRecordingPlaybackNonEntitledChannel", (int)enableRecordingPlaybackNonEntitledChannel.Value);
+            }
+
+            if (enableStartOver.HasValue)
+            {
+                sp.AddParameter("@EnableStartOver", (int)enableStartOver.Value);
+            }
+
+            if (enableTrickPlay.HasValue)
+            {
+                sp.AddParameter("@EnableTrickPlay", (int)enableTrickPlay.Value);
+            }
+
             sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
             sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
