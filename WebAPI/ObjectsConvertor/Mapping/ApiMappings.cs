@@ -9,14 +9,14 @@ using AutoMapper;
 using Core.Api.Modules;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using System.Linq;
-
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -282,7 +282,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<KalturaUserRole, Role>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))            
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
 
             #endregion
@@ -518,14 +518,260 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
-            #endregion            
+            #endregion
+
+            #region AssetRule
+
+            Mapper.CreateMap<AssetRule, KalturaAssetRule>()
+              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            Mapper.CreateMap<KalturaAssetRule, AssetRule>()
+              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;           
+            #endregion
+        }
+
+        private static KalturaRuleActionType ConvertRuleActionType(RuleActionType type)
+        {
+            switch (type)
+            {
+                case RuleActionType.Block:
+                    return KalturaRuleActionType.BLOCK;
+                case RuleActionType.StartDateOffset:
+                    return KalturaRuleActionType.START_DATE_OFFSET;
+                case RuleActionType.EndDateOffset:
+                    return KalturaRuleActionType.END_DATE_OFFSET;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
+            }
+        }
+
+        private static RuleActionType ConvertRuleActionType(KalturaRuleActionType type)
+        {
+            switch (type)
+            {
+                case KalturaRuleActionType.BLOCK:
+                    return RuleActionType.Block;
+                case KalturaRuleActionType.START_DATE_OFFSET:
+                    return RuleActionType.StartDateOffset;
+                case KalturaRuleActionType.END_DATE_OFFSET:
+                    return RuleActionType.EndDateOffset;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
+            }
+        }
+
+        private static List<AssetRuleCondition> ConvertAssetRuleConditions(List<KalturaCondition> conditions)
+        {
+            List<AssetRuleCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<AssetRuleCondition>();
+
+                AssetRuleCondition item;
+                foreach (var condition in conditions)
+                {
+                    if (condition is KalturaAssetCondition)
+                    {
+                        KalturaAssetCondition kAssetCondition = condition as KalturaAssetCondition;
+                        item = new AssetCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            Ksql = kAssetCondition.Ksql,
+                            Type = AssetRuleConditionType.Asset
+                        };
+                    }
+                    else if (condition is KalturaCountryCondition)
+                    {
+                        KalturaCountryCondition kAssetCondition = condition as KalturaCountryCondition;
+                        item = new CountryCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            Not = kAssetCondition.Not.HasValue ? kAssetCondition.Not.Value : false,
+                            Countries = kAssetCondition.getCountries(),
+                            Type = AssetRuleConditionType.Country
+                        };
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<KalturaCondition> ConvertAssetRuleConditions(List<AssetRuleCondition> conditions)
+        {
+            List<KalturaCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<KalturaCondition>();
+
+                KalturaCondition item;
+                foreach (var condition in conditions)
+                {
+                    if (condition is AssetCondition)
+                    {
+                        AssetCondition assetCondition = condition as AssetCondition;
+                        item = new KalturaAssetCondition()
+                        {
+                            Description = assetCondition.Description,
+                            Ksql = assetCondition.Ksql,
+                        };
+                    }
+                    else if (condition is CountryCondition)
+                    {
+                        CountryCondition assetCondition = condition as CountryCondition;
+                        item = new KalturaCountryCondition()
+                        {
+                            Description = assetCondition.Description,
+                            Not = assetCondition.Not
+                        };
+                        if (assetCondition.Countries != null)
+                        {
+                            ((KalturaCountryCondition)item).Countries = string.Join(",", assetCondition.Countries);
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<KalturaRuleAction> ConvertAssetRuleActions(List<AssetRuleAction> ruleActions)
+        {
+            List<KalturaRuleAction> result = null;
+
+            if (ruleActions != null && ruleActions.Count > 0)
+            {
+                result = new List<KalturaRuleAction>();
+
+                KalturaRuleAction item;
+                foreach (var ruleAction in ruleActions)
+                {
+                    if (ruleAction is AccessControlBlockAction)
+                    {
+                        AccessControlBlockAction assetCondition = ruleAction as AccessControlBlockAction;
+                        item = new KalturaAccessControlBlockAction()
+                        {
+                            Description = assetCondition.Description,
+                            Type = KalturaRuleActionType.BLOCK                          
+                        };
+                    }
+                    else if (ruleAction is EndDateOffsetRuleAction)
+                    {
+                        EndDateOffsetRuleAction assetCondition = ruleAction as EndDateOffsetRuleAction;
+                        item = new KalturaEndDateOffsetRuleAction()
+                        {
+                            Description = assetCondition.Description,
+                           Type = KalturaRuleActionType.END_DATE_OFFSET,
+                           Offset = assetCondition.Offset,
+                           TimeZone = assetCondition.TimeZone 
+                        };                       
+                    }
+                    else if (ruleAction is StartDateOffsetRuleAction)
+                    {
+                        StartDateOffsetRuleAction assetCondition = ruleAction as StartDateOffsetRuleAction;
+                        item = new KalturaStartDateOffsetRuleAction()
+                        {
+                            Description = assetCondition.Description,
+                            Type = KalturaRuleActionType.START_DATE_OFFSET,
+                            Offset = assetCondition.Offset,
+                            TimeZone = assetCondition.TimeZone
+                        };
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<AssetRuleAction> ConvertAssetRuleActions(List<KalturaRuleAction> ruleActions)
+        {
+            List<AssetRuleAction> result = null;
+
+            if (ruleActions != null && ruleActions.Count > 0)
+            {
+                result = new List<AssetRuleAction>();
+
+                AssetRuleAction item;
+                foreach (var action in ruleActions)
+                {
+                    if (action is KalturaAccessControlBlockAction)
+                    {
+                        KalturaAccessControlBlockAction kAssetAction = action as KalturaAccessControlBlockAction;
+                        item = new AccessControlBlockAction()
+                        {
+                            Description = kAssetAction.Description,
+                            Type = RuleActionType.Block
+                        };
+                    }
+                    else if (action is KalturaStartDateOffsetRuleAction)
+                    {
+                        KalturaStartDateOffsetRuleAction kAssetAction = action as KalturaStartDateOffsetRuleAction;
+                        item = new StartDateOffsetRuleAction()
+                        {
+                            Description = kAssetAction.Description,                           
+                            Type  = RuleActionType.StartDateOffset,
+                            Offset = kAssetAction.Offset,
+                            TimeZone = kAssetAction.TimeZone
+                        };
+                    }
+                    else if (action is KalturaEndDateOffsetRuleAction)
+                    {
+                        KalturaEndDateOffsetRuleAction kAssetAction = action as KalturaEndDateOffsetRuleAction;
+                        item = new EndDateOffsetRuleAction()
+                        {
+                            Description = kAssetAction.Description,
+                            Type = RuleActionType.EndDateOffset,
+                            Offset = kAssetAction.Offset,
+                            TimeZone = kAssetAction.TimeZone
+                        };
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
         {
             List<Permission> result = new List<Permission>();
             HashSet<string> duplicatePermission = new HashSet<string>();
-            
+
             if (!string.IsNullOrEmpty(permissionNames))
             {
                 foreach (string permission in permissionNames.Split(','))
@@ -560,7 +806,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             string result = null;
 
             if (permissions != null && permissions.Count > 0)
-            {   
+            {
                 result = string.Join(",", permissions.Where(x => x.isExcluded == isExcluded).Select(x => x.Name).ToList());
             }
 
@@ -586,12 +832,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), groupBy);
 
                 ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
-       
+
             }
             else
             {
                 kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
-                ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = groupBy;                
+                ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = groupBy;
             }
             return kalturaAssetGroupBy;
         }
@@ -603,13 +849,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaMetaType.STRING:
                     return false;
                 case KalturaMetaType.NUMBER:
-                    return false;                    
+                    return false;
                 case KalturaMetaType.BOOLEAN:
-                    return false;                    
+                    return false;
                 case KalturaMetaType.STRING_ARRAY:
                     return true;
                 default:
-                    return false;                                        
+                    return false;
             }
         }
 
@@ -688,7 +934,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     list.Add(ConvertMetaFeatureType(kalturaMetaFeatureType));
                 }
             }
-            
+
             return list;
         }
 
