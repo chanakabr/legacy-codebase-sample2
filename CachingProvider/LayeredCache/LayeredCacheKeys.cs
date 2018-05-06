@@ -293,6 +293,16 @@ namespace CachingProvider.LayeredCache
         }
         #endregion
 
+        public static string GetAllAssetRulesKey()
+        {
+            return string.Format("all_asset_rules");
+        }
+
+        public static string GetAssetRuleKey(long ruleId)
+        {
+            return string.Format("asset_rules_{0}", ruleId);
+        }
+
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
 
         public static string GetUserRolesInvalidationKey(string userId)
@@ -472,7 +482,18 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_coupons_groups_groupId_{0}", groupId);
         }
-        #endregion  
+
+        public static string GetAllAssetRulesInvalidationKey()
+        {
+            return string.Format("invalidationKey_all_asset_rules");
+        }
+
+        public static string GetAssetRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_asset_rule_{0}", ruleId);
+        }
+
+        #endregion
 
         #region Domains
 

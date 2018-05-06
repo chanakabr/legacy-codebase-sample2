@@ -4550,15 +4550,9 @@ namespace DAL
             return rules;
         }
 
-        public static DataSet AddAssetRule(int groupId, string name, string description, List<int> assetRulesActions, List<int> assetRulesConditions)
+        public static DataSet AddAssetRule(int groupId, string name, string description)
         {
             DataSet ds = null;
-
-            // DB IDlist type cannot be null.
-            if (assetRulesActions == null)
-                assetRulesActions = new List<int>();
-            if (assetRulesConditions == null)
-                assetRulesConditions = new List<int>();
 
             try
             {
@@ -4566,9 +4560,6 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
-                sp.AddIDListParameter<int>("@assetRulesActions", assetRulesActions, "Id");
-                sp.AddIDListParameter<int>("@assetRulesConditions", assetRulesConditions, "Id");
-
 
                 ds = sp.ExecuteDataSet();
             }
@@ -4585,26 +4576,20 @@ namespace DAL
             throw new NotImplementedException(); //IRENA
         }
 
-        public static bool SaveAssetRulesConditions(long groupId, long assetRuleId, DataTable dtAssetRulesConditions, List<AssetRuleCondition> conditions)
+        public static bool SaveAssetRule(int groupId, AssetRule assetRule)
         {
             bool result = false;
 
-            if (dtAssetRulesConditions != null && conditions != null && dtAssetRulesConditions.Rows.Count == dtAssetRulesConditions.Rows.Count)
+            if (assetRule != null && assetRule.Id > 0)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                int assetRuleConditionIndex = 0;
-                foreach (var assetRuleCondition in conditions)
-                {
-                    assetRuleCondition.Id = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesConditions.Rows[assetRuleConditionIndex], "ID");
-                    result = SetAssetRuleCondition(groupId, assetRuleId, assetRuleCondition.Id, assetRuleCondition, cbManager);
-                    assetRuleConditionIndex++;
-                }
+                result = SetAssetRule(groupId, assetRule, cbManager);
             }
 
             return result;
         }
 
-        private static bool SetAssetRuleCondition(long groupId, long assetRuleId, long assetRuleConditionId, AssetRuleCondition assetRuleCondition, CouchbaseManager.CouchbaseManager cbManager)
+        private static bool SetAssetRule(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
         {
             bool result = false;
             int numOfTries = 0;
@@ -4612,16 +4597,15 @@ namespace DAL
             {
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId), assetRuleCondition);
+                    result = cbManager.Set(GetAssetRuleKey(groupId, assetRule.Id), assetRule);
                     if (!result)
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while AssetRuleCondition. number of tries: {0}/{1}. groupId: {2}, assetRuleId: {3}. assetRuleConditionId: {4}",
+                        log.ErrorFormat("Error while set AssetRule. number of tries: {0}/{1}. groupId: {2}, assetRuleId: {3}.",
                              numOfTries,
                             NUM_OF_INSERT_TRIES,
                             groupId,
-                            assetRuleId,
-                            assetRuleConditionId);
+                            assetRule.Id);
                         Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                     }
                     else
@@ -4630,96 +4614,21 @@ namespace DAL
                         if (numOfTries > 0)
                         {
                             numOfTries++;
-                            log.DebugFormat("successfully set AssetRuleCondition. number of tries: {0}/{1}. GID: {2}, assetRuleId: {3}. assetRuleConditionId: {4}",
+                            log.DebugFormat("successfully set AssetRule. number of tries: {0}/{1}. GID: {2}, assetRuleId: {3}.",
                              numOfTries,
                             NUM_OF_INSERT_TRIES,
                             groupId,
-                            assetRuleId,
-                            assetRuleConditionId);
+                            assetRule.Id);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to set AssetRuleCondition. key: {0}, ex: {1}", GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId), ex);
+                log.ErrorFormat("Error while trying to set AssetRule. Id: {0}, ex: {1}", assetRule.Id, ex);
             }
 
             return result;
-        }
-
-        public static bool SaveAssetRulesActions(int groupId, long assetRuleId, DataTable dtAssetRulesActions, List<AssetRuleAction> actions)
-        {
-            bool result = false;
-
-            if (dtAssetRulesActions != null && actions != null && dtAssetRulesActions.Rows.Count == dtAssetRulesActions.Rows.Count)
-            {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                int assetRuleActionIndex = 0;
-                foreach (var assetRuleAction in actions)
-                {
-                    assetRuleAction.Id = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesActions.Rows[assetRuleActionIndex], "ID");
-                    result = SetAssetRuleAction(groupId, assetRuleId, assetRuleAction.Id, assetRuleAction, cbManager);
-                    assetRuleActionIndex++;
-                }
-            }
-
-            return result;
-        }
-
-        private static bool SetAssetRuleAction(int groupId, long assetRuleId, long assetRuleActionId, AssetRuleAction assetRuleAction,
-            CouchbaseManager.CouchbaseManager cbManager)
-        {
-            bool result = false;
-            int numOfTries = 0;
-            try
-            {
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId), assetRuleAction);
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while AssetRuleAction. number of tries: {0}/{1}. groupId: {2}, assetRuleId: {3}. assetRuleActionId: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRuleId,
-                            assetRuleActionId);
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set AssetRuleAction. number of tries: {0}/{1}. GID: {2}, assetRuleId: {3}. assetRuleActionId: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRuleId,
-                            assetRuleActionId);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to set AssetRuleAction. key: {0}, ex: {1}", GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId), ex);
-            }
-
-            return result;
-        }
-
-        private static string GetAssetRuleConditionKey(long groupId, long assetRuleId, long assetRuleConditionId)
-        {
-            return string.Format("asset_rule_condition:{0}:{1}:{2}", groupId, assetRuleId, assetRuleConditionId);
-        }
-
-        private static string GetAssetRuleActionKey(int groupId, long assetRuleId, long assetRuleActionId)
-        {
-            return string.Format("asset_rule_action:{0}:{1}:{2}", groupId, assetRuleId, assetRuleActionId);
         }
 
         public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed)
@@ -4743,31 +4652,44 @@ namespace DAL
             return false;
         }
 
-        public static DataSet GetAssetRules(int groupId)
+        public static DataTable GetAssetRules()
         {
-            DataSet ds = null;
+            DataTable dt = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRules");
-                sp.AddParameter("@groupId", groupId);
 
-                ds = sp.ExecuteDataSet();
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetAssetRules in DB, groupId: {0} , ex:{1} ", groupId, ex);
+                log.ErrorFormat("Error while GetAssetRules in DB, ex:{0} ", ex);
             }
 
-            return ds;
+            return dt;
         }
 
-        public static AssetRuleAction GetAssetRuleAction<T>(int groupId, long assetRuleId, int assetRuleActionId)
+        public static string GetAssetRuleKey(int groupId, long assetRuleId)
         {
-            T assetRuleAction = default(T);
+            return string.Format("asset_rule:{0}:{1}", groupId, assetRuleId);
+        }
+
+        public static AssetRule GetAssetRule(int groupId, long assetRuleId)
+        {
+            string key = GetAssetRuleKey(groupId, assetRuleId);
+            return GetAssetRule(key);
+        }
+
+        public static AssetRule GetAssetRule(string key)
+        {
+            AssetRule assetRuleAction = null;
             eResultStatus status = eResultStatus.ERROR;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            string key = GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId);
 
             try
             {
@@ -4775,13 +4697,13 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    assetRuleAction = cbManager.Get<T>(key, out status);
+                    assetRuleAction = cbManager.Get<AssetRule>(key, out status);
                     if (assetRuleAction == null)
                     {
                         if (status != eResultStatus.SUCCESS)
                         {
                             numOfTries++;
-                            log.ErrorFormat("Error while GetAssetRuleAction. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
+                            log.ErrorFormat("Error while GetAssetRule. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
 
                             Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
@@ -4794,128 +4716,67 @@ namespace DAL
                         if (numOfTries > 0)
                         {
                             numOfTries++;
-                            log.DebugFormat("successfully received AssetRuleAction. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
+                            log.DebugFormat("successfully received AssetRule. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to GetAssetRuleAction. key: {0}, ex: {1}", key, ex);
+                log.ErrorFormat("Error while trying to GetAssetRule. key: {0}, ex: {1}", key, ex);
             }
 
-            return assetRuleAction as AssetRuleAction;
+            return assetRuleAction;
         }
 
-        public static AssetRuleCondition GetAssetRuleCondition<T>(int groupId, long assetRuleId, int assetRuleConditionId)
-        {
-            T assetRuleCondition = default(T);
-            eResultStatus status = eResultStatus.ERROR;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+        //public static DataSet GetAssetRule(int groupId, long id)
+        //{
+        //    DataSet ds = null;
+        //    try
+        //    {
+        //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRuleById");
+        //        sp.AddParameter("@groupId", groupId);
+        //        sp.AddParameter("@id", id);
 
-            string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
+        //        ds = sp.ExecuteDataSet();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while GetAssetRule in DB, groupId: {0} , ex:{1} ", groupId, ex);
+        //    }
 
-            try
-            {
-                bool result = false;
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_TRIES)
-                {
-                    assetRuleCondition = cbManager.Get<T>(key, out status);
-                    if (assetRuleCondition == null)
-                    {
-                        if (status != eResultStatus.SUCCESS)
-                        {
-                            numOfTries++;
-                            log.ErrorFormat("Error while GetAssetRuleCondition. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
-                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                        }
-                    }
-                    else
-                    {
-                        result = true;
+        //    return ds;
+        //}
 
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully received GetAssetRuleCondition. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to GetAssetRuleCondition. key: {0}, ex: {1}", key, ex);
-            }
-
-            return assetRuleCondition as AssetRuleCondition;
-        }
-
-        public static DataSet GetAssetRule(int groupId, long id)
-        {
-            DataSet ds = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRuleById");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@id", id);
-
-                ds = sp.ExecuteDataSet();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetAssetRule in DB, groupId: {0} , ex:{1} ", groupId, ex);
-            }
-
-            return ds;
-        }
-
-        public static int DeleteAssetRule(int groupId, long id)
+        public static bool DeleteAssetRule(int groupId, long id)
         {
             try
             {
                 StoredProcedure sp = new StoredProcedure("Delete_AssetRule");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", id);
-                return sp.ExecuteReturnValue<int>();
+                return sp.ExecuteReturnValue<int>() > 0;
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id, ex);
             }
-            return 0;
+
+            return false;
         }
 
-        public static bool DeleteAssetRulesActions(int groupId, long assetRuleId, DataTable dtAssetRulesActions)
+        public static bool DeleteAssetRuleCb(int groupId, long assetRuleId)
         {
             bool result = false;
 
-            if (dtAssetRulesActions != null && dtAssetRulesActions.Rows.Count > 0)
-            {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                long assetRuleActionId = 0;
-                int assetRuleActionIndex = 0;
-                foreach (DataRow dr in dtAssetRulesActions.Rows)
-                {
-                    assetRuleActionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesActions.Rows[assetRuleActionIndex], "ID");
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-                    result = DeleteAssetRuleAction(groupId, assetRuleId, assetRuleActionId, cbManager);
-                }
-            }
-
-            return result;
-        }
-
-        public static bool DeleteAssetRuleAction(int groupId, long assetRuleId, long assetRuleActionId, CouchbaseManager.CouchbaseManager cbManager)
-        {
-            bool passed = false;
-            string key = GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId);
+            string key = GetAssetRuleKey(groupId, assetRuleId);
 
             try
             {
-                passed = cbManager.Remove(key);
-                if (passed)
+                result = cbManager.Remove(key);
+                if (result)
                     log.DebugFormat("Successfully removed {0}", key);
                 else
                     log.ErrorFormat("Error while removing {0}", key);
@@ -4925,126 +4786,28 @@ namespace DAL
                 log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
             }
 
-            return passed;
-        }
-
-        public static bool DeleteAssetRulesCondition(int groupId, long assetRuleId, DataTable dtAssetRulesConditions)
-        {
-            bool result = false;
-
-            if (dtAssetRulesConditions != null && dtAssetRulesConditions.Rows.Count > 0)
-            {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                long assetRuleConditionId = 0;
-                int assetRuleConditionIndex = 0;
-                foreach (DataRow dr in dtAssetRulesConditions.Rows)
-                {
-                    assetRuleConditionId = ODBCWrapper.Utils.GetLongSafeVal(dtAssetRulesConditions.Rows[assetRuleConditionIndex], "ID");
-
-                    result = DeleteAssetRuleCondition(groupId, assetRuleId, assetRuleConditionId, cbManager);
-                }
-            }
-
             return result;
         }
 
-        public static bool DeleteAssetRuleCondition(int groupId, long assetRuleId, long assetRuleConditionId, CouchbaseManager.CouchbaseManager cbManager)
+        public static bool UpdateAssetRule(int groupId, AssetRule assetRule)
         {
-            bool passed = false;
-            string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
-
+            bool result = false;
             try
             {
-                passed = cbManager.Remove(key);
-                if (passed)
-                    log.DebugFormat("Successfully removed {0}", key);
-                else
-                    log.ErrorFormat("Error while removing {0}", key);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
-            }
-
-            return passed;
-        }
-
-        public static DataSet UpdateAssetRule(int groupId, AssetRule assetRule)
-        {
-            DataSet ds = null;
-            try
-            {
-
                 StoredProcedure sp = new StoredProcedure("Update_AssetRule");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", assetRule.Id);
                 sp.AddParameter("@name", assetRule.Name);
                 sp.AddParameter("@description", assetRule.Description);
 
-                string xml = RetriveActionsXML(assetRule.Id, assetRule.Actions);
-                sp.AddParameter("@actionsXmlDoc", xml);
-                sp.AddParameter("@actionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
-
-                xml = RetriveConditionsXML(assetRule.Id, assetRule.Conditions);
-                sp.AddParameter("@conditionsXmlDoc", xml);
-                sp.AddParameter("@conditionsXmlDocRowCount", string.IsNullOrEmpty(xml) ? 0 : 1);
-
-
-                ds = sp.ExecuteDataSet();
+                result = sp.ExecuteReturnValue<int>() > 0;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRule: {1}, ex:{3} ", groupId, JsonConvert.SerializeObject(assetRule), ex);
+                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRule.Id, ex);
             }
 
-            return ds;
-        }
-
-        private static string RetriveActionsXML(long assetRuleId, List<AssetRuleAction> actions)
-        {
-            if (actions == null || actions.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            XElement root = new XElement("root");
-            XElement cElement = null;
-
-            foreach (var action in actions)
-            {
-                cElement = new XElement("row");
-                cElement.SetAttributeValue("asset_rule_id", assetRuleId);
-                cElement.SetAttributeValue("id", action.Id);
-                cElement.SetAttributeValue("type", action.Type);
-            }
-
-            return root.ToString();
-        }
-
-        private static string RetriveConditionsXML(long assetRuleId, List<AssetRuleCondition> conditions)
-        {
-            if (conditions == null || conditions.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            XElement root = new XElement("root");
-            XElement cElement = null;
-
-            foreach (var condition in conditions)
-            {
-                cElement = new XElement("row");
-                cElement.SetAttributeValue("asset_rule_id", assetRuleId);
-                cElement.SetAttributeValue("id", condition.Id);
-                cElement.SetAttributeValue("type", condition.Type);
-            }
-
-            return root.ToString();
-        }
-
-        public static string GetCountryTimeZone(int groupId, int country)
-        {
-            throw new NotImplementedException();
+            return result;
         }
 
         #region Permissions Management
