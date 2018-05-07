@@ -151,6 +151,7 @@ namespace NPVR
             sb.Append(String.Concat(" Is Protect: ", IsProtect.ToString().ToLower()));
             sb.Append(String.Concat(" Stream Type: ", streamType));
             sb.Append(String.Concat(" HAS Format: ", hasFormat));
+            sb.Append(String.Concat(" Value: ", value));
             return sb.ToString();
         }
 

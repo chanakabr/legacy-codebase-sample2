@@ -527,7 +527,10 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            GetRecordSeriesResponse(responseJson, args, res);
+                            res.entityID = args.EntityID;
+                            res.msg = string.Empty;
+                            res.status = RecordStatus.OK;
+                            res.recordingID = args.AssetID;
                         }
                         else
                         {
@@ -1256,7 +1259,7 @@ namespace NPVR
 
         private bool IsSetAssetAlreadyWatchedInputValid(NPVRParamsObj args)
         {
-            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID) && args.Value > 0;
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID) && (args.Value == 0 || args.Value == 1);
         }
 
         private void GetSetAssetProtectionStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
