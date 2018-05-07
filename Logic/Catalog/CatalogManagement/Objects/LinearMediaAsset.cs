@@ -17,7 +17,7 @@ namespace Core.Catalog.CatalogManagement
         public TstvState? EnableRecordingPlaybackNonEntitledChannelState { get; set; }
         public long? BufferCatchUp { get; set; }
         public long? BufferTrickPlay { get; set; }
-        public string ExternalIngestId { get; set; }
+        public string ExternalEpgIngestId { get; set; }
         public string ExternalCdvrId { get; set; }
         public bool CdvrEnabled { get; set; }
         public bool CatchUpEnabled { get; set; }
@@ -37,7 +37,7 @@ namespace Core.Catalog.CatalogManagement
             this.EnableRecordingPlaybackNonEntitledChannelState = null;
             this.BufferCatchUp = null;
             this.BufferTrickPlay = null;
-            this.ExternalIngestId = null;
+            this.ExternalEpgIngestId = null;
             this.ExternalCdvrId = null;
             this.CdvrEnabled = false;
             this.CatchUpEnabled = false;
@@ -61,7 +61,7 @@ namespace Core.Catalog.CatalogManagement
             this.EnableRecordingPlaybackNonEntitledChannelState = enableRecordingPlaybackNonEntitledChannel;
             this.BufferCatchUp = catchUpBuffer;
             this.BufferTrickPlay = trickPlayBuffer;
-            this.ExternalIngestId = externalIngestId;
+            this.ExternalEpgIngestId = externalIngestId;
             this.ExternalCdvrId = externalCdvrId;
             FillEnabledAndBufferProperties(accountTstvSettings);
         }
