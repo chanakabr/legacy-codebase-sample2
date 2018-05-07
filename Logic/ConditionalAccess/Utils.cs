@@ -3548,6 +3548,8 @@ namespace Core.ConditionalAccess
 
                     foreach (DataTable dt in fileDatatables.Values)
                     {
+                        eMediaFileStatus = MediaFileStatus.OK;
+
                         if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                         {
                             DataRow dr = dt.Rows[0];
@@ -3564,8 +3566,13 @@ namespace Core.ConditionalAccess
                             {
                                 mediaFilesProductCode[mediaFileID] = productCode;
                             }
+                            mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
 
-                            eMediaFileStatus = GetMediaFileStatusForGeoAvailability(groupId, dr, countryId, ref mediaId);
+                            bool isGeoAvailability;
+                            if (Core.Api.api.IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability))
+                            {
+                                eMediaFileStatus = MediaFileStatus.NotForPurchase;
+                            }
 
                             if (eMediaFileStatus == MediaFileStatus.OK)
                             {
@@ -3626,42 +3633,6 @@ namespace Core.ConditionalAccess
                 log.Error(string.Empty, ex);
             }
             return mediaFilesStatus;
-        }
-
-        private static MediaFileStatus GetMediaFileStatusForGeoAvailability(int groupId, DataRow dr, int countryId, ref long mediaId)
-        {
-            MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
-            
-            Group group = new GroupManager().GetGroup(groupId);
-            if (group.isGeoAvailabilityWindowingEnabled)
-            {
-                mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
-                DataTable mediaCountriesDt = Core.Api.api.GetMediaCountries(groupId, mediaId);
-                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
-                {
-                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
-                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
-
-                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
-                    {
-                        eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                    }
-                    else if (allowedCountries == null || allowedCountries.Length == 0)
-                    {
-                        eMediaFileStatus = MediaFileStatus.OK;
-                    }
-                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
-                    {
-                        eMediaFileStatus = MediaFileStatus.NotForPurchase;
-                    }
-                }
-                else
-                {
-                    eMediaFileStatus = MediaFileStatus.OK;
-                }
-            }
-
-            return eMediaFileStatus;
         }
         
         /// <summary>

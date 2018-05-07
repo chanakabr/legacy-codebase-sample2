@@ -2482,45 +2482,51 @@ namespace Core.Api
         {
             bool isBlocked = false;
             Int32 geoBlockID = 0;
-            ruleName = string.Empty;
-            string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
-            DataTable dt = null;
-            // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
-                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
-            if (cacheResult && dt != null)
+            ruleName = "GeoAvailability";
+            Country country = GetCountryByIp(groupId, ip);
+
+            bool isGeoAvailability;
+            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, country.Id, mediaId, out isGeoAvailability);
+            
+            if (!isGeoAvailability)
             {
-                if (dt.Rows != null && dt.Rows.Count > 0)
+                string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
+                DataTable dt = null;
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                if (cacheResult && dt != null)
                 {
-                    Country country = GetCountryByIp(groupId, ip);
-                    Int32 nCountryID = country != null ? country.Id : 0;
-                    ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                    geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
-                    int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
-
-                    DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
-                    bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-
-                    log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
-
-                    if (geoBlockID > 0)
+                    if (dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        //No one except
-                        if (nONLY_OR_BUT == 0)
-                            isBlocked = !bExsitInRuleM2M;
-                        //All except
-                        if (nONLY_OR_BUT == 1)
-                            isBlocked = bExsitInRuleM2M;
+                        Int32 nCountryID = country != null ? country.Id : 0;
+                        ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
+                        geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+                        int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
-                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                        DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
+                        bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
+
+                        log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
+
+                        if (geoBlockID > 0)
                         {
-                            isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            //No one except
+                            if (nONLY_OR_BUT == 0)
+                                isBlocked = !bExsitInRuleM2M;
+                            //All except
+                            if (nONLY_OR_BUT == 1)
+                                isBlocked = bExsitInRuleM2M;
+
+                            if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                            {
+                                isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            }
                         }
                     }
                 }
             }
-
             return isBlocked;
         }
 
@@ -10632,6 +10638,42 @@ namespace Core.Api
             }
 
             return new Tuple<DataTable, bool>(mediaCountries, result);
+        }
+
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability)
+        {
+            isGeoAvailability = false;
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                isGeoAvailability = true;
+
+                DataTable mediaCountriesDt = Core.Api.api.GetMediaCountries(groupId, mediaId);
+                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
+                {
+                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
+                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
+
+                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
+                    {
+                        return true;
+                    }
+                    else if (allowedCountries == null || allowedCountries.Length == 0)
+                    {
+                        return false;
+                    }
+                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
