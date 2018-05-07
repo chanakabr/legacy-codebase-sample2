@@ -464,13 +464,14 @@ namespace Core.Api.Managers
 
                 if (!cacheResult)
                 {
-                    log.Error(string.Format("GetAssetRules - GetAllAssetRules - Failed get data from cache"));
+                    log.Error("GetAssetRules - GetAllAssetRules - Failed get data from cache");
                     return null;
                 }
 
                 if (assetRules == null || assetRules.Rows == null || assetRules.Rows.Count == 0)
                 {
-                    //error
+                    log.ErrorFormat("GetAssetRules - no assetRules for groupId: {0}", groupId);
+                    return null;
                 }
 
                 DataRow[] filteredAssetRules = null;
@@ -486,7 +487,8 @@ namespace Core.Api.Managers
 
                 if (filteredAssetRules == null)
                 {
-                    // exit
+                    log.ErrorFormat("GetAssetRules - filteredAssetRules is empty. groupId: {0}", groupId);
+                    return null;
                 }
 
                 Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
@@ -584,6 +586,7 @@ namespace Core.Api.Managers
             {
                 //check AssetRule exists
                 AssetRule oldAssetRule = ApiDAL.GetAssetRule(assetRule.Id);
+                assetRule.GroupId = groupId;
                 if (assetRule == null || assetRule.Id == 0 || groupId != oldAssetRule.GroupId)
                 {
                     response.Status.Code = (int)eResponseStatus.AssetRuleNotExists;
@@ -598,8 +601,6 @@ namespace Core.Api.Managers
                     return response;
                 }
 
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
                 // upsert dtUpdatedAssetRulesActions            
                 if (!ApiDAL.SaveAssetRule(groupId, assetRule))
                 {
@@ -607,6 +608,8 @@ namespace Core.Api.Managers
                 }
                 else
                 {
+                    response.AssetRules = new List<AssetRule>();
+                    response.AssetRules.Add(assetRule);
                     response.Status.Code = (int)eResponseStatus.OK;
                     response.Status.Message = eResponseStatus.OK.ToString();
 
@@ -616,7 +619,7 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRule.Id);
+                log.ErrorFormat("UpdateAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRule.Id);
             }
 
             return response;
