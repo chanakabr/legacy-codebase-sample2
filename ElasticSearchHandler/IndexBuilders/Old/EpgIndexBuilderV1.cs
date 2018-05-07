@@ -376,14 +376,11 @@ namespace ElasticSearchHandler.IndexBuilders
                         return;
                     }
 
-                    // TODO - Lior get all epgs
-                    programs = null;
+                    // TODO - Lior get all epgs differently when and if we decide to use different object then today                    
                 }
-                else
-                {
-                    // Get EPG objects from CB
-                    programs = GetEpgPrograms(groupId, date);
-                }
+
+                // Get EPG objects from CB
+                programs = GetEpgPrograms(groupId, date);
 
                 AddEPGsToIndex(index, type, programs, group, doesGroupUsesTemplates, catalogGroupCache);
             }
