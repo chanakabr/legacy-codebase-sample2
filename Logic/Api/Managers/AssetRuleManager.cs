@@ -601,6 +601,22 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                // before saving AssetRule complete name,actions,conditions in case they are empty
+                if (string.IsNullOrEmpty(assetRule.Name))
+                {
+                    assetRule.Name = oldAssetRule.Name;
+                }
+
+                if (assetRule.Actions == null || assetRule.Actions.Count == 0)
+                {
+                    assetRule.Actions = oldAssetRule.Actions;
+                }
+
+                if (assetRule.Conditions == null || assetRule.Conditions.Count == 0)
+                {
+                    assetRule.Conditions = oldAssetRule.Conditions;
+                }
+
                 // upsert dtUpdatedAssetRulesActions            
                 if (!ApiDAL.SaveAssetRule(groupId, assetRule))
                 {
