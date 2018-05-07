@@ -4044,7 +4044,7 @@ namespace DAL
 
             return response;
         }
-        
+
         private static CDNPartnerSettings CreateCDNPartnerSettings(DataSet ds)
         {
             CDNPartnerSettings response = null;
@@ -4571,9 +4571,9 @@ namespace DAL
             return ds;
         }
 
-        public static bool UpdateAssetRuleLastRunDate(long id)
+        public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
         {
-            throw new NotImplementedException(); //IRENA
+            return UpdateAssetRule(groupId, id, null, null, true);
         }
 
         public static bool SaveAssetRule(int groupId, AssetRule assetRule)
@@ -4599,7 +4599,7 @@ namespace DAL
 
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set<string>(GetAssetRuleKey(assetRule.Id), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings) );
+                    result = cbManager.Set<string>(GetAssetRuleKey(assetRule.Id), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
                     if (!result)
                     {
                         numOfTries++;
@@ -4695,7 +4695,7 @@ namespace DAL
 
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    assetRule  = JsonConvert.DeserializeObject<AssetRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);                    
+                    assetRule = JsonConvert.DeserializeObject<AssetRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);
                     if (assetRule == null)
                     {
                         if (status != eResultStatus.SUCCESS)
@@ -4770,22 +4770,23 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateAssetRule(int groupId, AssetRule assetRule)
+        public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description, bool shouldUpdateLastRunDate = false)
         {
             bool result = false;
             try
             {
                 StoredProcedure sp = new StoredProcedure("Update_AssetRule");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@id", assetRule.Id);
-                sp.AddParameter("@name", assetRule.Name);
-                sp.AddParameter("@description", assetRule.Description);
+                sp.AddParameter("@id", assetRuleId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+                sp.AddParameter("@shouldUpdateLastRunDate", shouldUpdateLastRunDate ? 1 : 0);
 
                 result = sp.ExecuteReturnValue<int>() > 0;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRule.Id, ex);
+                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRuleId, ex);
             }
 
             return result;
