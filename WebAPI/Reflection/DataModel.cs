@@ -4780,8 +4780,8 @@ namespace WebAPI.Reflection
                             return "enableTrickPlayState";
                         case "ExternalCdvrId":
                             return "externalCdvrId";
-                        case "ExternalIngestId":
-                            return "externalIngestId";
+                        case "ExternalEpgIngestId":
+                            return "externalEpgIngestId";
                         case "RecordingPlaybackNonEntitledChannelEnabled":
                             return "recordingPlaybackNonEntitledChannelEnabled";
                         case "StartOverEnabled":

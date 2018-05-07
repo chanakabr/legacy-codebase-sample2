@@ -84,11 +84,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// External identifier used when ingesting programs for this linear media asset
         /// </summary>
-        [DataMember(Name = "externalIngestId")]
-        [JsonProperty(PropertyName = "externalIngestId")]
-        [XmlElement(ElementName = "externalIngestId")]
+        [DataMember(Name = "externalEpgIngestId")]
+        [JsonProperty(PropertyName = "externalEpgIngestId")]
+        [XmlElement(ElementName = "externalEpgIngestId")]
         [SchemeProperty(MinLength = 1, MaxLength = 255)]
-        public string ExternalIngestId { get; set; }
+        public string ExternalEpgIngestId { get; set; }
 
         /// <summary>
         /// External identifier for the CDVR
@@ -199,9 +199,9 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bufferTrickPlay");
             }
 
-            if (string.IsNullOrEmpty(ExternalIngestId))
+            if (string.IsNullOrEmpty(ExternalEpgIngestId))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalIngestId");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
             }
 
             if (string.IsNullOrEmpty(ExternalCdvrId))
@@ -212,9 +212,9 @@ namespace WebAPI.Models.Catalog
 
         internal void ValidateForUpdate()
         {
-            if (ExternalIngestId != null && ExternalIngestId == string.Empty)
+            if (ExternalEpgIngestId != null && ExternalEpgIngestId == string.Empty)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalIngestId");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
             }
 
             if (ExternalCdvrId != null && ExternalCdvrId == string.Empty)

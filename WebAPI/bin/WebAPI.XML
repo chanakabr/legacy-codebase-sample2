@@ -6095,7 +6095,7 @@
             Enable trick-play, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalIngestId">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalEpgIngestId">
             <summary>
             External identifier used when ingesting programs for this linear media asset
             </summary>
