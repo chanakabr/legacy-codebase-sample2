@@ -4595,9 +4595,11 @@ namespace DAL
             int numOfTries = 0;
             try
             {
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetAssetRuleKey(assetRule.Id), assetRule);
+                    result = cbManager.Set<string>(GetAssetRuleKey(assetRule.Id), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings) );
                     if (!result)
                     {
                         numOfTries++;
@@ -4689,9 +4691,11 @@ namespace DAL
             {
                 bool result = false;
                 int numOfTries = 0;
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    assetRule = cbManager.Get<AssetRule>(key, out status);
+                    assetRule  = JsonConvert.DeserializeObject<AssetRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);                    
                     if (assetRule == null)
                     {
                         if (status != eResultStatus.SUCCESS)
