@@ -4597,7 +4597,7 @@ namespace DAL
             {
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetAssetRuleKey(groupId, assetRule.Id), assetRule);
+                    result = cbManager.Set(GetAssetRuleKey(assetRule.Id), assetRule);
                     if (!result)
                     {
                         numOfTries++;
@@ -4674,31 +4674,25 @@ namespace DAL
             return dt;
         }
 
-        public static string GetAssetRuleKey(int groupId, long assetRuleId)
+        private static string GetAssetRuleKey(long assetRuleId)
         {
-            return string.Format("asset_rule:{0}:{1}", groupId, assetRuleId);
+            return string.Format("asset_rule:{0}", assetRuleId);
         }
 
-        public static AssetRule GetAssetRule(int groupId, long assetRuleId)
+        public static AssetRule GetAssetRule(long assetRuleId)
         {
-            string key = GetAssetRuleKey(groupId, assetRuleId);
-            return GetAssetRule(key);
-        }
-
-        public static AssetRule GetAssetRule(string key)
-        {
-            AssetRule assetRuleAction = null;
+            AssetRule assetRule = null;
             eResultStatus status = eResultStatus.ERROR;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
+            string key = GetAssetRuleKey(assetRuleId);
             try
             {
                 bool result = false;
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    assetRuleAction = cbManager.Get<AssetRule>(key, out status);
-                    if (assetRuleAction == null)
+                    assetRule = cbManager.Get<AssetRule>(key, out status);
+                    if (assetRule == null)
                     {
                         if (status != eResultStatus.SUCCESS)
                         {
@@ -4726,7 +4720,9 @@ namespace DAL
                 log.ErrorFormat("Error while trying to GetAssetRule. key: {0}, ex: {1}", key, ex);
             }
 
-            return assetRuleAction;
+            return assetRule;
+
+
         }
 
         public static bool DeleteAssetRule(int groupId, long id)
@@ -4752,7 +4748,7 @@ namespace DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            string key = GetAssetRuleKey(groupId, assetRuleId);
+            string key = GetAssetRuleKey(assetRuleId);
 
             try
             {
