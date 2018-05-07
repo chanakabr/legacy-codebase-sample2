@@ -570,7 +570,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.SummedCatchUpBuffer))
                 .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
-                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.SummedCatchUpBuffer))
+                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.CatchUpBuffer))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableCatchUpState)))
@@ -582,7 +582,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.MapFrom(src => src.ExternalEpgIngestId))
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
+                .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
 
             // Asset to KalturaAsset
@@ -637,7 +637,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.SummedCatchUpBuffer))
                 .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
-                .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.BufferCatchUp))
+                .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableCatchUpState)))
@@ -649,7 +649,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.MapFrom(src => src.ExternalEpgIngestId))
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.BufferTrickPlay))
+                .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
 
             // AssetStructMeta to KalturaAssetStructMeta
