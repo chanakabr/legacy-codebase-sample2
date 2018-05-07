@@ -495,9 +495,11 @@ namespace Core.Api.Managers
                 Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
                 Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
 
+
+                long ruleId = 0;
                 foreach (DataRow row in filteredAssetRules)
                 {
-                    long ruleId = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
+                    ruleId = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
                     keysToOriginalValueMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), ruleId.ToString());
                     invalidationKeysMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), new List<string>() { LayeredCacheKeys.GetAssetRuleInvalidationKey(ruleId) });
                 }
@@ -560,12 +562,15 @@ namespace Core.Api.Managers
 
                     if (ids != null && ids.Count > 0)
                     {
-                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };                        
+                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+                        long ruleId = 0;
+                        AssetRule assetRule = null;
 
                         foreach (string key in ids)
                         {
-                            long ruleId = long.Parse(key);
-                            AssetRule assetRule = ApiDAL.GetAssetRule(ruleId);
+                            ruleId = long.Parse(key);
+                            assetRule = ApiDAL.GetAssetRule(ruleId);
                             if (assetRule != null)
                             {
                                 result.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
@@ -599,7 +604,7 @@ namespace Core.Api.Managers
                     return response;
                 }
 
-                if (!ApiDAL.UpdateAssetRule(groupId, assetRule))
+                if (!ApiDAL.UpdateAssetRule(groupId, assetRule.Id, assetRule.Name, assetRule.Description))
                 {
                     response.Status.Code = (int)eResponseStatus.Error;
                     response.Status.Message = ASSET_RULE_FAILED_UPDATE;
