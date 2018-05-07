@@ -198,6 +198,12 @@ namespace Core.Api.Managers
                                                 log.WarnFormat("failed to update asset rule last run date for groupId: {0}, rule: {1}", groupId, rule);
                                             }
                                         }*/
+
+                                        if (!ApiDAL.UpdateAssetRuleLastRunDate(groupId, ruleId))
+                                        {
+                                            log.ErrorFormat("Failed to update asset rule last run date, ruleId = {0}", ruleId);
+                                        }
+
                                         return modifiedAssetIds;
 
                                     }
