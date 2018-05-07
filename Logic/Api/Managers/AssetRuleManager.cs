@@ -225,15 +225,18 @@ namespace Core.Api.Managers
                         }
 
                         result = result.Distinct().ToList();
-                        if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                        if (result.Count > 0)
                         {
-                            log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
-                            return result.Count;
-                        }
-                        else
-                        {
-                            log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
-                            return 0;
+                            if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                            {
+                                log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
+                                return result.Count;
+                            }
+                            else
+                            {
+                                log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
+                                return 0;
+                            }
                         }
                     }
                     #endregion
@@ -259,7 +262,7 @@ namespace Core.Api.Managers
 
         private static double CalcTotalOfssetForCountry(int groupId, AssetRuleAction action, int country)
         {
-            StartDateOffsetRuleAction offsetAction = (StartDateOffsetRuleAction)action;
+            TimeOffsetRuleAction offsetAction = (TimeOffsetRuleAction)action;
             double totalOffset = offsetAction.Offset;
 
             if (offsetAction.TimeZone)
@@ -282,7 +285,6 @@ namespace Core.Api.Managers
 
             if (string.IsNullOrEmpty(country.TimeZoneId))
             {
-                log.DebugFormat("Failed to get time zone ID for country = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
 
@@ -300,7 +302,6 @@ namespace Core.Api.Managers
         {
             Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
 
-            // IRENA: make sure Anat supports 0;
             AssetRulesResponse ruleResponse = GetAssetRules();
             if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.AssetRules != null)
             {
