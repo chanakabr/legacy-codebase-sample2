@@ -379,8 +379,8 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                assetRule.GroupId = groupId;
                 DataSet ds = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
-
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
                     long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
@@ -415,8 +415,8 @@ namespace Core.Api.Managers
             try
             {
                 //check AssetRule exists
-                AssetRule assetRule = ApiDAL.GetAssetRule(groupId, assetRuleId);
-                if (assetRule == null || assetRule.Id == 0)
+                AssetRule assetRule = ApiDAL.GetAssetRule(assetRuleId);
+                if (assetRule == null || assetRule.Id == 0 || groupId != assetRule.GroupId)
                 {
                     response.Code = (int)eResponseStatus.AssetRuleNotExists;
                     response.Message = ASSET_RULE_NOT_EXIST;
@@ -473,17 +473,15 @@ namespace Core.Api.Managers
                     //error
                 }
 
-                EnumerableRowCollection<DataRow> filteredAssetRules = null;
+                DataRow[] filteredAssetRules = null;
 
                 if (groupId > 0)
                 {
-                    filteredAssetRules = (from row in assetRules.AsEnumerable()
-                                          where (Int64)row["GROUP_ID"] == groupId
-                                          select row);
+                    filteredAssetRules = assetRules.Select("GROUP_ID = " + groupId);
                 }
                 else
                 {
-                    filteredAssetRules = assetRules.AsEnumerable();
+                    filteredAssetRules = assetRules.Select();
                 }
 
                 if (filteredAssetRules == null)
@@ -497,8 +495,7 @@ namespace Core.Api.Managers
                 foreach (DataRow row in filteredAssetRules)
                 {
                     long ruleId = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
-                    int ruleGroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "GROUP_ID");
-                    keysToOriginalValueMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), ApiDAL.GetAssetRuleKey(ruleGroupId, ruleId));
+                    keysToOriginalValueMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), ruleId.ToString());
                     invalidationKeysMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), new List<string>() { LayeredCacheKeys.GetAssetRuleInvalidationKey(ruleId) });
                 }
 
@@ -506,7 +503,7 @@ namespace Core.Api.Managers
 
                 // try to get from cache            
                 if (LayeredCache.Instance.GetValues<AssetRule>(keysToOriginalValueMap, ref fullAssetRules, GetAssetRules, new Dictionary<string, object>() {
-                                                            { "keys", keysToOriginalValueMap.Keys.ToList() } }, groupId, LayeredCacheConfigNames.GET_ASSET_RULE, invalidationKeysMap))
+                                                            { "ruleIds", keysToOriginalValueMap.Values.ToList() } }, groupId, LayeredCacheConfigNames.GET_ASSET_RULE, invalidationKeysMap))
                 {
                     if (fullAssetRules != null && fullAssetRules.Count > 0)
                     {
@@ -534,19 +531,8 @@ namespace Core.Api.Managers
 
         private static Tuple<DataTable, bool> GetAllAssetRules(Dictionary<string, object> funcParams)
         {
-            bool result = false;
-            DataTable dtAssetRules = null;
-
-            try
-            {
-                dtAssetRules = DAL.ApiDAL.GetAssetRules();
-            }
-            catch (Exception ex)
-            {
-                // TODO: anat
-            }
-
-            return new Tuple<DataTable, bool>(dtAssetRules, result);
+            DataTable dtAssetRules = DAL.ApiDAL.GetAssetRules();
+            return new Tuple<DataTable, bool>(dtAssetRules, dtAssetRules != null);
         }
 
         private static Tuple<Dictionary<string, AssetRule>, bool> GetAssetRules(Dictionary<string, object> funcParams)
@@ -555,31 +541,32 @@ namespace Core.Api.Managers
             Dictionary<string, AssetRule> result = new Dictionary<string, AssetRule>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("keys"))
+                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
                 {
-                    List<string> keys = null;
+                    List<string> ids = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        keys = funcParams[LayeredCache.MISSING_KEYS] as List<string>;
+                        ids = funcParams[LayeredCache.MISSING_KEYS] as List<string>;
                     }
                     else
                     {
-                        keys = funcParams["keys"] != null ? funcParams["keys"] as List<string> : null;
+                        ids = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
                     }
 
-                    if (keys != null && keys.Count > 0)
+                    if (ids != null && ids.Count > 0)
                     {
-                        foreach (string key in keys)
+                        foreach (string key in ids)
                         {
-                            AssetRule assetyRule = ApiDAL.GetAssetRule(key);
+                            long ruleId = long.Parse(key);
+                            AssetRule assetyRule = ApiDAL.GetAssetRule(ruleId);
                             if (assetyRule != null)
                             {
-                                result.Add(key, assetyRule);
+                                result.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), assetyRule);
                             }
                         }
                     }
 
-                    res = result.Keys.Count() == keys.Count();
+                    res = result.Keys.Count() == ids.Count();
                 }
             }
             catch (Exception ex)
@@ -596,8 +583,8 @@ namespace Core.Api.Managers
             try
             {
                 //check AssetRule exists
-                AssetRule oldAssetRule = ApiDAL.GetAssetRule(groupId, assetRule.Id);
-                if (oldAssetRule == null || oldAssetRule.Id == 0)
+                AssetRule oldAssetRule = ApiDAL.GetAssetRule(assetRule.Id);
+                if (assetRule == null || assetRule.Id == 0 || groupId != oldAssetRule.GroupId)
                 {
                     response.Status.Code = (int)eResponseStatus.AssetRuleNotExists;
                     response.Status.Message = ASSET_RULE_NOT_EXIST;
