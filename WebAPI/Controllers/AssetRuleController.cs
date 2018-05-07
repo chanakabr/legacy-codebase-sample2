@@ -143,7 +143,6 @@ namespace WebAPI.Controllers
 
         private void ValidateAssetRuleActions(KalturaAssetRule assetRule)
         {
-
             if (assetRule != null && assetRule.Actions != null)
             {
                 var duplicates = assetRule.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
