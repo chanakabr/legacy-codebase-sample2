@@ -291,6 +291,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("coupons_groups_groupId_{0}", groupId);
         }
+
+        public static string GetMediaCountriesKey(long mediaId)
+        {
+            return string.Format("media_countries_{0}", mediaId);
+        }
         #endregion
 
         public static string GetAllAssetRulesKey()
@@ -529,6 +534,11 @@ namespace CachingProvider.LayeredCache
         public static string GetUserWatchedMediaIdsInvalidationKey(int userId)
         {
             return string.Format("invalidationkey_userWatchedMediaIds_user_{0}", userId);
+        }
+
+        public static string GetMediaCountriesInvalidationKey(long mediaId)
+        {
+            return string.Format("invalidationkey_mediaCountries_{0}", mediaId);
         }
 
         #endregion

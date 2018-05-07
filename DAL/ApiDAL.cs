@@ -4044,7 +4044,7 @@ namespace DAL
 
             return response;
         }
-
+        
         private static CDNPartnerSettings CreateCDNPartnerSettings(DataSet ds)
         {
             CDNPartnerSettings response = null;
@@ -4786,6 +4786,24 @@ namespace DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRule.Id, ex);
+            }
+
+            return result;
+        }
+
+        public static DataTable GetMediaCountries(long mediaId)
+        {
+            DataTable result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
+                sp.AddParameter("@mediaId", mediaId);
+
+                result = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
             }
 
             return result;
