@@ -364,11 +364,14 @@ namespace WebAPI.Clients
                     else
                     {
                         result = Mapper.Map<KalturaMediaAsset>(response.Object);
-                    }                    
+                    }
+
                     result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
                     break;
                 case eAssetTypes.EPG:
+                    result = Mapper.Map<KalturaProgramAsset>(response.Object);
                     break;
+                //TODO : add support when needed for Recording
                 case eAssetTypes.NPVR:
                     break;
                 case eAssetTypes.UNKNOWN:                    
@@ -506,34 +509,39 @@ namespace WebAPI.Clients
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
-                    foreach (MediaAsset mediaAssetToConvert in assetListResponse.Objects.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                    foreach (Asset assetToConvert in assetListResponse.Objects)
                     {
-                        KalturaMediaAsset kalturaMediaAsset = null;
-                        if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
+                        switch (assetToConvert.AssetType)
                         {
-                            kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);                            
+                            case eAssetTypes.MEDIA:
+                                MediaAsset mediaAssetToConvert = assetToConvert as MediaAsset;
+                                KalturaMediaAsset kalturaMediaAsset = null;
+                                if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
+                                {
+                                    kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);
+                                }
+                                else
+                                {
+                                    kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                                }
+
+                                kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
+                                result.Objects.Add(kalturaMediaAsset);
+                                break;
+                            case eAssetTypes.EPG:
+                                EpgAsset epgAssetToConvert = assetToConvert as EpgAsset;
+                                KalturaProgramAsset kalturaEpgAsset = Mapper.Map<KalturaProgramAsset>(epgAssetToConvert.Epg);
+                                result.Objects.Add(kalturaEpgAsset);
+                                break;
+                            //TODO : add support when needed for Recording
+                            case eAssetTypes.NPVR:
+                                break;
+                            case eAssetTypes.UNKNOWN:                                
+                            default:
+                                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                                break;
                         }
-                        else
-                        {
-                            kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);                            
-                        }
-
-                        kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
-                        result.Objects.Add(kalturaMediaAsset);
-                    }
-
-                    //TODO : add support when needed for EPG\Recording
-                    //List<KalturaProgramAsset> programAssets = null;
-                    //List<KalturaRecordingAsset> recordingAssets = null;
-                    //if (programAssets != null && programAssets.Count > 0)
-                    //{
-                    //    result.Objects.AddRange(programAssets);
-                    //}
-
-                    //if (recordingAssets != null && recordingAssets.Count > 0)
-                    //{
-                    //    result.Objects.AddRange(recordingAssets);
-                    //}        
+                    }                                                            
                 }
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
@@ -549,7 +557,7 @@ namespace WebAPI.Clients
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-            // check if aggragation result have values 
+            // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
