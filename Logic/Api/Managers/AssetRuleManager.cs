@@ -501,15 +501,17 @@ namespace Core.Api.Managers
                     invalidationKeysMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), new List<string>() { LayeredCacheKeys.GetAssetRuleInvalidationKey(ruleId) });
                 }
 
-                Dictionary<string, AssetRule> fullAssetRules = null;
+                Dictionary<string, string> fullAssetRules = null;
 
                 // try to get from cache            
-                if (LayeredCache.Instance.GetValues<AssetRule>(keysToOriginalValueMap, ref fullAssetRules, GetAssetRules, new Dictionary<string, object>() {
+                if (LayeredCache.Instance.GetValues<string>(keysToOriginalValueMap, ref fullAssetRules, GetAssetRules, new Dictionary<string, object>() {
                                                             { "ruleIds", keysToOriginalValueMap.Values.ToList() } }, groupId, LayeredCacheConfigNames.GET_ASSET_RULE, invalidationKeysMap))
                 {
+                    JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
                     if (fullAssetRules != null && fullAssetRules.Count > 0)
                     {
-                        response.AssetRules = fullAssetRules.Values.ToList();
+                        response.AssetRules = fullAssetRules.Values.Select(x => JsonConvert.DeserializeObject<AssetRule>(x, jsonSerializerSettings)).ToList();
                     }
                 }
 
@@ -537,10 +539,10 @@ namespace Core.Api.Managers
             return new Tuple<DataTable, bool>(dtAssetRules, dtAssetRules != null);
         }
 
-        private static Tuple<Dictionary<string, AssetRule>, bool> GetAssetRules(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, string>, bool> GetAssetRules(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, AssetRule> result = new Dictionary<string, AssetRule>();
+            Dictionary<string, string> result = new Dictionary<string, string>();
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("ruleIds"))
@@ -557,13 +559,15 @@ namespace Core.Api.Managers
 
                     if (ids != null && ids.Count > 0)
                     {
+                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };                        
+
                         foreach (string key in ids)
                         {
                             long ruleId = long.Parse(key);
-                            AssetRule assetyRule = ApiDAL.GetAssetRule(ruleId);
-                            if (assetyRule != null)
+                            AssetRule assetRule = ApiDAL.GetAssetRule(ruleId);
+                            if (assetRule != null)
                             {
-                                result.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), assetyRule);
+                                result.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
                             }
                         }
                     }
@@ -576,7 +580,7 @@ namespace Core.Api.Managers
                 log.Error(string.Format("GetAssetRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, AssetRule>, bool>(result, res);
+            return new Tuple<Dictionary<string, string>, bool>(result, res);
         }
 
         internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRule)
