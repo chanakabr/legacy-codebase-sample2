@@ -319,10 +319,6 @@ namespace WebAPI.Reflection
                 case "KalturaAsset":
                     switch (propertyName)
                     {
-                        case "EnableCatchUp":
-                        case "EnableCdvr":
-                        case "EnableStartOver":
-                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };
@@ -521,14 +517,7 @@ namespace WebAPI.Reflection
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
-                        case "CatchUpBuffer":
-                        case "EnableCatchUp":
-                        case "EnableCdvr":
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                        case "EnableStartOver":
-                        case "EnableTrickPlay":
                         case "Statistics":
-                        case "TrickPlayBuffer":
                             return true;
                     };
                     break;
@@ -554,14 +543,7 @@ namespace WebAPI.Reflection
                 case "KalturaMediaAsset":
                     switch (propertyName)
                     {
-                        case "CatchUpBuffer":
-                        case "EnableCatchUp":
-                        case "EnableCdvr":
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                        case "EnableStartOver":
-                        case "EnableTrickPlay":
                         case "Statistics":
-                        case "TrickPlayBuffer":
                             return true;
                     };
                     break;
@@ -610,10 +592,6 @@ namespace WebAPI.Reflection
                 case "KalturaProgramAsset":
                     switch (propertyName)
                     {
-                        case "EnableCatchUp":
-                        case "EnableCdvr":
-                        case "EnableStartOver":
-                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };
@@ -622,10 +600,6 @@ namespace WebAPI.Reflection
                 case "KalturaRecordingAsset":
                     switch (propertyName)
                     {
-                        case "EnableCatchUp":
-                        case "EnableCdvr":
-                        case "EnableStartOver":
-                        case "EnableTrickPlay":
                         case "Statistics":
                             return true;
                     };
@@ -4790,34 +4764,34 @@ namespace WebAPI.Reflection
                             return "bufferCatchUp";
                         case "BufferTrickPlay":
                             return "bufferTrickPlay";
-                        case "CatchUpBuffer":
-                            return "catchUpBuffer";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
+                        case "CatchUpEnabled":
+                            return "catchUpEnabled";
+                        case "CdvrEnabled":
+                            return "cdvrEnabled";
                         case "EnableCatchUpState":
                             return "enableCatchUpState";
-                        case "EnableCdvr":
-                            return "enableCdvr";
                         case "EnableCdvrState":
                             return "enableCdvrState";
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return "enableRecordingPlaybackNonEntitledChannel";
                         case "EnableRecordingPlaybackNonEntitledChannelState":
                             return "enableRecordingPlaybackNonEntitledChannelState";
-                        case "EnableStartOver":
-                            return "enableStartOver";
                         case "EnableStartOverState":
                             return "enableStartOverState";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
                         case "EnableTrickPlayState":
                             return "enableTrickPlayState";
                         case "ExternalCdvrId":
                             return "externalCdvrId";
                         case "ExternalIngestId":
                             return "externalIngestId";
-                        case "TrickPlayBuffer":
-                            return "trickPlayBuffer";
+                        case "RecordingPlaybackNonEntitledChannelEnabled":
+                            return "recordingPlaybackNonEntitledChannelEnabled";
+                        case "StartOverEnabled":
+                            return "startOverEnabled";
+                        case "SummedCatchUpBuffer":
+                            return "summedCatchUpBuffer";
+                        case "SummedTrickPlayBuffer":
+                            return "summedTrickPlayBuffer";
+                        case "TrickPlayEnabled":
+                            return "trickPlayEnabled";
                     }
                     break;
                     
@@ -7588,26 +7562,6 @@ namespace WebAPI.Reflection
                         case "AssetTypes":
                             return true;
                         case "GroupBy":
-                            return true;
-                    }
-                    break;
-                    
-                case "KalturaLinearMediaAsset":
-                    switch(property.Name)
-                    {
-                        case "CatchUpBuffer":
-                            return true;
-                        case "EnableCatchUp":
-                            return true;
-                        case "EnableCdvr":
-                            return true;
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return true;
-                        case "EnableStartOver":
-                            return true;
-                        case "EnableTrickPlay":
-                            return true;
-                        case "TrickPlayBuffer":
                             return true;
                     }
                     break;

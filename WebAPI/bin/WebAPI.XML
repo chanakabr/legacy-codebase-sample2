@@ -6105,37 +6105,37 @@
             External identifier for the CDVR
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvr">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CdvrEnabled">
             <summary>
             Is CDVR enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUp">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpEnabled">
             <summary>
             Is catch-up enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOver">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.StartOverEnabled">
             <summary>
             Is start over enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpBuffer">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedCatchUpBuffer">
             <summary>
-            Catch-up buffer
+            summed Catch-up buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayBuffer">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedTrickPlayBuffer">
             <summary>
-            buffer Trick-play 
+            summed Trick-play buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.RecordingPlaybackNonEntitledChannelEnabled">
             <summary>
             Is recording playback for non entitled channel enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlay">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayEnabled">
             <summary>
             Is trick-play enabled for this asset
             </summary>

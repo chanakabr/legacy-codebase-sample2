@@ -33,8 +33,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "catchUpBuffer")]
         [JsonProperty(PropertyName = "catchUpBuffer")]
         [XmlElement(ElementName = "catchUpBuffer")]
-        [Deprecated(GENESIS_VERSION)]
-        [Obsolete]
+        [Deprecated(GENESIS_VERSION)]        
         public long? CatchUpBuffer { get; set; }
 
         /// <summary>
@@ -43,8 +42,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "trickPlayBuffer")]
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
-        [Deprecated(GENESIS_VERSION)]
-        [Obsolete]
+        [Deprecated(GENESIS_VERSION)]        
         public long? TrickPlayBuffer { get; set; }
 
         /// <summary>
@@ -54,8 +52,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
-        [Deprecated(GENESIS_VERSION)]
-        [Obsolete]
+        [Deprecated(GENESIS_VERSION)]        
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
         /// <summary>

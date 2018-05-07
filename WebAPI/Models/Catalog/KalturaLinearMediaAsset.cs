@@ -87,6 +87,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalIngestId")]
         [JsonProperty(PropertyName = "externalIngestId")]
         [XmlElement(ElementName = "externalIngestId")]
+        [SchemeProperty(MinLength = 1, MaxLength = 255)]
         public string ExternalIngestId { get; set; }
 
         /// <summary>
@@ -95,77 +96,71 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalCdvrId")]
         [JsonProperty(PropertyName = "externalCdvrId")]
         [XmlElement(ElementName = "externalCdvrId")]
+        [SchemeProperty(MinLength = 1, MaxLength = 255)]
         public string ExternalCdvrId { get; set; }
 
         /// <summary>
         /// Is CDVR enabled for this asset
         /// </summary>
-        [DataMember(Name = "enableCdvr")]
-        [JsonProperty(PropertyName = "enableCdvr")]
-        [XmlElement(ElementName = "enableCdvr")]
-        [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public bool EnableCdvr { get; set; }
+        [DataMember(Name = "cdvrEnabled")]
+        [JsonProperty(PropertyName = "cdvrEnabled")]
+        [XmlElement(ElementName = "cdvrEnabled")]
+        [SchemeProperty(ReadOnly = true)]        
+        public bool CdvrEnabled { get; set; }
 
         /// <summary>
         /// Is catch-up enabled for this asset
         /// </summary>
-        [DataMember(Name = "enableCatchUp")]
-        [JsonProperty(PropertyName = "enableCatchUp")]
-        [XmlElement(ElementName = "enableCatchUp")]
-        [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public bool EnableCatchUp { get; set; }
+        [DataMember(Name = "catchUpEnabled")]
+        [JsonProperty(PropertyName = "catchUpEnabled")]
+        [XmlElement(ElementName = "catchUpEnabled")]
+        [SchemeProperty(ReadOnly = true)]        
+        public bool CatchUpEnabled { get; set; }
 
         /// <summary>
         /// Is start over enabled for this asset
         /// </summary>
-        [DataMember(Name = "enableStartOver")]
-        [JsonProperty(PropertyName = "enableStartOver")]
-        [XmlElement(ElementName = "enableStartOver")]
-        [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public bool EnableStartOver { get; set; }
+        [DataMember(Name = "startOverEnabled")]
+        [JsonProperty(PropertyName = "startOverEnabled")]
+        [XmlElement(ElementName = "startOverEnabled")]
+        [SchemeProperty(ReadOnly = true)]        
+        public bool StartOverEnabled { get; set; }
 
         /// <summary>
-        /// Catch-up buffer
+        /// summed Catch-up buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
         /// </summary>
-        [DataMember(Name = "catchUpBuffer")]
-        [JsonProperty(PropertyName = "catchUpBuffer")]
-        [XmlElement(ElementName = "catchUpBuffer")]
+        [DataMember(Name = "summedCatchUpBuffer")]
+        [JsonProperty(PropertyName = "summedCatchUpBuffer")]
+        [XmlElement(ElementName = "summedCatchUpBuffer")]
         [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public long CatchUpBuffer { get; set; }
+        public long SummedCatchUpBuffer { get; set; }
 
         /// <summary>
-        /// buffer Trick-play 
+        /// summed Trick-play buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
         /// </summary>
-        [DataMember(Name = "trickPlayBuffer")]
-        [JsonProperty(PropertyName = "trickPlayBuffer")]
-        [XmlElement(ElementName = "trickPlayBuffer")]
+        [DataMember(Name = "summedTrickPlayBuffer")]
+        [JsonProperty(PropertyName = "summedTrickPlayBuffer")]
+        [XmlElement(ElementName = "summedTrickPlayBuffer")]
         [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public long TrickPlayBuffer { get; set; }
+        public long SummedTrickPlayBuffer { get; set; }
 
         /// <summary>
         /// Is recording playback for non entitled channel enabled for this asset
         /// </summary>
-        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
-        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
-        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
+        [DataMember(Name = "recordingPlaybackNonEntitledChannelEnabled")]
+        [JsonProperty(PropertyName = "recordingPlaybackNonEntitledChannelEnabled")]
+        [XmlElement(ElementName = "recordingPlaybackNonEntitledChannelEnabled")]
         [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public bool EnableRecordingPlaybackNonEntitledChannel { get; set; }
+        public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
 
         /// <summary>
         /// Is trick-play enabled for this asset
         /// </summary>
-        [DataMember(Name = "enableTrickPlay")]
-        [JsonProperty(PropertyName = "enableTrickPlay")]
-        [XmlElement(ElementName = "enableTrickPlay")]
+        [DataMember(Name = "trickPlayEnabled")]
+        [JsonProperty(PropertyName = "trickPlayEnabled")]
+        [XmlElement(ElementName = "trickPlayEnabled")]
         [SchemeProperty(ReadOnly = true)]
-        [OnlyNewStandard]
-        public bool EnableTrickPlay { get; set; }
+        public bool TrickPlayEnabled { get; set; }
 
         internal void ValidateForInsert()
         {
