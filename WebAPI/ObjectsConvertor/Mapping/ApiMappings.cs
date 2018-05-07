@@ -536,7 +536,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              ;           
+              ;
             #endregion
         }
 
@@ -622,37 +622,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new List<KalturaCondition>();
 
-                KalturaCondition item;
+                KalturaCondition item = null;
                 foreach (var condition in conditions)
                 {
-                    if (condition is AssetCondition)
+                    switch (condition.Type)
                     {
-                        AssetCondition assetCondition = condition as AssetCondition;
-                        item = new KalturaAssetCondition()
-                        {
-                            Description = assetCondition.Description,
-                            Ksql = assetCondition.Ksql,
-                        };
-                    }
-                    else if (condition is CountryCondition)
-                    {
-                        CountryCondition assetCondition = condition as CountryCondition;
-                        item = new KalturaCountryCondition()
-                        {
-                            Description = assetCondition.Description,
-                            Not = assetCondition.Not
-                        };
-                        if (assetCondition.Countries != null)
-                        {
-                            ((KalturaCountryCondition)item).Countries = string.Join(",", assetCondition.Countries);
-                        }
-                    }
-                    else
-                    {
-                        continue;
+                        case AssetRuleConditionType.Asset:
+                            {
+                                AssetCondition assetCondition = condition as AssetCondition;
+                                item = new KalturaAssetCondition()
+                                {
+                                    Description = assetCondition.Description,
+                                    Ksql = assetCondition.Ksql,
+                                };
+                            }
+
+                            break;
+
+                        case AssetRuleConditionType.Country:
+                            {
+                                CountryCondition countryCondition = condition as CountryCondition;
+                                item = new KalturaCountryCondition()
+                                {
+                                    Description = countryCondition.Description,
+                                    Not = countryCondition.Not
+                                };
+                                if (countryCondition.Countries != null)
+                                {
+                                    ((KalturaCountryCondition)item).Countries = string.Join(",", countryCondition.Countries);
+                                }
+
+                            }
+                            break;
+
+                        default:
+                            break;
                     }
 
                     result.Add(item);
+
                 }
             }
 
@@ -667,43 +675,49 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new List<KalturaRuleAction>();
 
-                KalturaRuleAction item;
+                KalturaRuleAction item = null;
                 foreach (var ruleAction in ruleActions)
                 {
-                    if (ruleAction is AccessControlBlockAction)
+                    switch (ruleAction.Type)
                     {
-                        AccessControlBlockAction assetCondition = ruleAction as AccessControlBlockAction;
-                        item = new KalturaAccessControlBlockAction()
-                        {
-                            Description = assetCondition.Description,
-                            Type = KalturaRuleActionType.BLOCK                          
-                        };
-                    }
-                    else if (ruleAction is EndDateOffsetRuleAction)
-                    {
-                        EndDateOffsetRuleAction assetCondition = ruleAction as EndDateOffsetRuleAction;
-                        item = new KalturaEndDateOffsetRuleAction()
-                        {
-                            Description = assetCondition.Description,
-                           Type = KalturaRuleActionType.END_DATE_OFFSET,
-                           Offset = assetCondition.Offset,
-                           TimeZone = assetCondition.TimeZone 
-                        };                       
-                    }
-                    else if (ruleAction is StartDateOffsetRuleAction)
-                    {
-                        StartDateOffsetRuleAction assetCondition = ruleAction as StartDateOffsetRuleAction;
-                        item = new KalturaStartDateOffsetRuleAction()
-                        {
-                            Description = assetCondition.Description,
-                            Type = KalturaRuleActionType.START_DATE_OFFSET,
-                            Offset = assetCondition.Offset,
-                            TimeZone = assetCondition.TimeZone
-                        };
-                    }
-                    else
-                    {
-                        continue;
+                        case RuleActionType.Block:
+
+                            AccessControlBlockAction accessControlBlockAction = ruleAction as AccessControlBlockAction;
+                            item = new KalturaAccessControlBlockAction()
+                            {
+                                Description = accessControlBlockAction.Description,
+                                Type = KalturaRuleActionType.BLOCK
+                            };
+
+                            break;
+
+                        case RuleActionType.StartDateOffset:
+
+                            StartDateOffsetRuleAction startDateOffsetRuleAction = ruleAction as StartDateOffsetRuleAction;
+                            item = new KalturaStartDateOffsetRuleAction()
+                            {
+                                Description = startDateOffsetRuleAction.Description,
+                                Type = KalturaRuleActionType.START_DATE_OFFSET,
+                                Offset = startDateOffsetRuleAction.Offset,
+                                TimeZone = startDateOffsetRuleAction.TimeZone
+                            };
+
+                            break;
+
+                        case RuleActionType.EndDateOffset:
+
+                            EndDateOffsetRuleAction endDateOffsetRuleAction = ruleAction as EndDateOffsetRuleAction;
+                            item = new KalturaEndDateOffsetRuleAction()
+                            {
+                                Description = endDateOffsetRuleAction.Description,
+                                Type = KalturaRuleActionType.END_DATE_OFFSET,
+                                Offset = endDateOffsetRuleAction.Offset,
+                                TimeZone = endDateOffsetRuleAction.TimeZone
+                            };
+                            break;
+
+                        default:
+                            break;
                     }
 
                     result.Add(item);
@@ -738,8 +752,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         KalturaStartDateOffsetRuleAction kAssetAction = action as KalturaStartDateOffsetRuleAction;
                         item = new StartDateOffsetRuleAction()
                         {
-                            Description = kAssetAction.Description,                           
-                            Type  = RuleActionType.StartDateOffset,
+                            Description = kAssetAction.Description,
+                            Type = RuleActionType.StartDateOffset,
                             Offset = kAssetAction.Offset,
                             TimeZone = kAssetAction.TimeZone
                         };
