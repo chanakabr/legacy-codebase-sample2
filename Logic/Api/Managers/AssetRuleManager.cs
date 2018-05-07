@@ -169,6 +169,14 @@ namespace Core.Api.Managers
                                                             if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false))
                                                             {
                                                                 modifiedAssetIds.AddRange(assetIds);
+                                                                foreach (var assetId in assetIds)
+                                                                {
+                                                                    string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(assetId);
+                                                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                                                    {
+                                                                        log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
+                                                                    }
+                                                                }
                                                                 log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
                                                             }
                                                             else
