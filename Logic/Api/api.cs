@@ -10589,5 +10589,49 @@ namespace Core.Api
 
             return true;
         }
+
+        internal static DataTable GetMediaCountries(int groupId, long mediaId)
+        {
+            DataTable mediaCountries = null;
+
+            string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
+            if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
+                groupId, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+            {
+                log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
+            }
+
+            return mediaCountries;
+        }
+
+        private static Tuple<DataTable, bool> GetMediaCountries(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            DataTable mediaCountries = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaId"))
+                    {
+                        long? mediaId = funcParams["mediaId"] as long?;
+
+                        if (mediaId.HasValue && mediaId.HasValue)
+                        {
+                            mediaCountries = ApiDAL.GetMediaCountries(mediaId.Value);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaCountries failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DataTable, bool>(mediaCountries, result);
+        }
     }
 }
