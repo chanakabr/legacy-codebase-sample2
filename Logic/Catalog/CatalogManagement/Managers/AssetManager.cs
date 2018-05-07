@@ -960,9 +960,30 @@ namespace Core.Catalog.CatalogManagement
             return mediaAssets;
         }
 
-        private static List<Asset> GetEpgAssetsFromCache(int groupId, List<long> ids)
+        private static List<EpgAsset> GetEpgAssetsFromCache(int groupId, List<long> ids)
         {
-            throw new NotImplementedException();
+            List<EpgAsset> epgAssets = null;
+            try
+            {
+                if (ids == null || ids.Count == 0)
+                {
+                    return epgAssets;
+                }
+
+                List<ProgramObj> programs = CatalogLogic.GetEPGProgramInformation(ids, groupId);
+                if (programs == null || programs.Count == 0)
+                {
+                    return epgAssets;
+                }
+
+                epgAssets = programs.Select(x => new EpgAsset(x)).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetEpgAssetsFromCache with groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return epgAssets;
         }
 
         private static List<Asset> GetNpvrAssetsFromCache(int groupId, List<long> ids)
