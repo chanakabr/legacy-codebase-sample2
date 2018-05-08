@@ -5008,6 +5008,7 @@ namespace DAL
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
             storedProcedure.AddParameter("@permissionId", permissionId);
             storedProcedure.AddParameter("@permissionItemId", permissionItemId);
             storedProcedure.AddParameter("@isExcluded", isExcluded);
