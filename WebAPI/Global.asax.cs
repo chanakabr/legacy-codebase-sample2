@@ -23,6 +23,8 @@ namespace WebAPI
 
         protected void Application_Start()
         {
+            InitializeLogging();
+
             // Configuration
             ConfigurationManager.ApplicationConfiguration.Initialize(true);
 
@@ -30,6 +32,10 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+        }
+
+        private static void InitializeLogging()
+        {
             // build log4net partial file name
             string partialLogName = string.Empty;
 
