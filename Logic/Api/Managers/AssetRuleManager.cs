@@ -189,16 +189,6 @@ namespace Core.Api.Managers
                                             }
                                         }
 
-                                        /*if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))
-                                        {
-                                            // init result for DoActionByRuleIds
-                                            result = 0;
-                                            if (!ApiDAL.UpdateAssetRuleLastRunDate(rule.Id))
-                                            {
-                                                log.WarnFormat("failed to update asset rule last run date for groupId: {0}, rule: {1}", groupId, rule);
-                                            }
-                                        }*/
-
                                         if (!ApiDAL.UpdateAssetRuleLastRunDate(groupId, ruleId))
                                         {
                                             log.ErrorFormat("Failed to update asset rule last run date, ruleId = {0}", ruleId);

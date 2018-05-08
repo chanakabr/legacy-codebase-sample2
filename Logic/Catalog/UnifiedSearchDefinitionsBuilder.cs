@@ -336,6 +336,15 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region Regions
+
+                if (group.isGeoAvailabilityWindowingEnabled)
+                {
+                    definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+                }
+                
+                #endregion
+
             }
             catch (Exception ex)
             {

@@ -369,6 +369,13 @@ namespace ApiObjects.SearchObjects
 
         public List<string> PersonalData { get; set; }
 
+        /// <summary>
+        /// The country Id of the calling user for geo availability 
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public int countryId;
+
         #endregion
 
         #region Ctor
@@ -414,8 +421,9 @@ namespace ApiObjects.SearchObjects
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
 
             PersonalData = new List<string>();
-        }
 
+            countryId = 0;
+        }
 
         #endregion
 

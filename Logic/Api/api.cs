@@ -102,7 +102,7 @@ namespace Core.Api
         private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
         private const double MAX_SERVER_TIME_DIF = 5;
         private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
-        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 600; // 10 minutes
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
