@@ -4822,28 +4822,23 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertRole(string name)
+        public static int InsertRole(string name)
         {
-            bool result = false;
+            int result = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Role");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@groupId", 0);
             storedProcedure.AddParameter("@name", name);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
-
-            if (executionValue > 0)
-            {
-                result = true;
-            }
-
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
             return result;
         }
 
-        public static bool InsertPermission(string name, int type, string usersGroup)
+        public static int InsertPermission(string name, int type, string usersGroup)
         {
-            bool result = false;
+            int result = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4852,13 +4847,8 @@ namespace DAL
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
-
-            if (executionValue > 0)
-            {
-                result = true;
-            }
-
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
             return result;
         }
 
@@ -4873,7 +4863,7 @@ namespace DAL
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -4891,7 +4881,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -4901,9 +4891,9 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertPermissionRole(int roleId, int permissionId, int? isExcluded)
+        public static int InsertPermissionRole(int roleId, int permissionId, int? isExcluded)
         {
-            bool result = false;
+            int result = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionRole");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4912,13 +4902,8 @@ namespace DAL
             storedProcedure.AddParameter("@permissionId", permissionId);
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
-
-            if (executionValue > 0)
-            {
-                result = true;
-            }
-
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
             return result;
         }
 
@@ -4931,7 +4916,7 @@ namespace DAL
             storedProcedure.AddParameter("@id", id);
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -4940,7 +4925,6 @@ namespace DAL
 
             return result;
         }
-
 
         public static bool DeletePermissionRole(int id)
         {
@@ -4950,7 +4934,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -4960,9 +4944,9 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertPermissionItem(string name, int? type, string service, string action, string permissionItemObject, string parameter)
+        public static int InsertPermissionItem(string name, int? type, string service, string action, string permissionItemObject, string parameter)
         {
-            bool result = false;
+            int result = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionItem");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4973,13 +4957,8 @@ namespace DAL
             storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
             storedProcedure.AddParameter("@parameter", parameter);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
-
-            if (executionValue > 0)
-            {
-                result = true;
-            }
-
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
             return result;
         }
 
@@ -4997,7 +4976,7 @@ namespace DAL
             storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
             storedProcedure.AddParameter("@parameter", parameter);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -5015,7 +4994,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -5025,9 +5004,9 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertPermissionPermissionItem(int permissionId, int permissionItemId, int? isExcluded)
+        public static int InsertPermissionPermissionItem(int permissionId, int permissionItemId, int? isExcluded)
         {
-            bool result = false;
+            int result = 0;
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5035,13 +5014,8 @@ namespace DAL
             storedProcedure.AddParameter("@permissionItemId", permissionItemId);
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
-
-            if (executionValue > 0)
-            {
-                result = true;
-            }
-
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
             return result;
         }
 
@@ -5054,7 +5028,7 @@ namespace DAL
             storedProcedure.AddParameter("@id", id);
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {
@@ -5072,7 +5046,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@id", id);
 
-            int executionValue = storedProcedure.ExecuteReturnValue<int>();
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
             if (executionValue > 0)
             {

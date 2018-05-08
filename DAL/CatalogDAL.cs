@@ -674,7 +674,7 @@ namespace Tvinci.Core.DAL
 
                 domainMediaMark.devices.Add(userMediaMark);
             }
-
+            
             bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
             return res;
         }
