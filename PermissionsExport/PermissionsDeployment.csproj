@@ -55,6 +55,10 @@
       <Project>{62a8464c-c3a9-4566-a883-59a10e9856e3}</Project>
       <Name>PermissionsManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
