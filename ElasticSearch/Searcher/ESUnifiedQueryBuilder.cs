@@ -783,31 +783,51 @@ namespace ElasticSearch.Searcher
 
                 #region Media Dates ranges
 
-                FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+                FilterCompositeType mediaDatesFilter = BuildMediaDatesComposit();
 
-                string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
-
-                ESRange mediaStartDateRange = new ESRange(false);
-
-                if (this.SearchDefinitions.shouldUseStartDate)
+                // Geo availability enabled
+                if (SearchDefinitions.countryId > 0)
                 {
-                    mediaStartDateRange.Key = "start_date";
-                    string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+                    FilterCompositeType allowedEmpty = new FilterCompositeType(CutWith.AND);
+
+                    ESTerm emptyAllowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = "0"
+                    };
+
+                    // allowed_countries = 0 and dates filter
+                    allowedEmpty.AddChild(emptyAllowedCountryTerm);
+                    allowedEmpty.AddChild(mediaDatesFilter);
+
+                    FilterCompositeType allowed = new FilterCompositeType(CutWith.OR);
+
+                    ESTerm allowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = SearchDefinitions.countryId.ToString()
+                    };
+
+                    // allowed_countries = countryId or allowedEmpty
+                    allowed.AddChild(allowedCountryTerm);
+                    allowed.AddChild(allowedEmpty);
+
+                    FilterCompositeType blocked = new FilterCompositeType(CutWith.AND);
+
+                    ESTerm blockedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "blocked_countries",
+                        Value = SearchDefinitions.countryId.ToString(),
+                        isNot = true
+                    };
+
+                    // blocked_countries != countryId and allowed
+                    blocked.AddChild(blockedCountryTerm);
+                    blocked.AddChild(allowed);
+
+                    mediaFilter.AddChild(blocked);
                 }
-
-                mediaDatesFilter.AddChild(mediaStartDateRange);
-
-                ESRange mediaEndDateRange = new ESRange(false);
-                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
-
-                mediaDatesFilter.AddChild(mediaEndDateRange);
-
-                if (!mediaDatesFilter.IsEmpty())
+                else if (!mediaDatesFilter.IsEmpty()) // No geo availability - handle dates without country consideration 
                 {
                     mediaFilter.AddChild(mediaDatesFilter);
                 }
@@ -906,47 +926,7 @@ namespace ElasticSearch.Searcher
 
                 #endregion
 
-                #region Geo Availability 
-
-                // region term 
-                if (SearchDefinitions.countryId > 0)
-                {
-                    FilterCompositeType allowed = new FilterCompositeType(CutWith.OR);
-
-                    ESTerm emptyAllowedCountryTerm = new ESTerm(true)
-                    {
-                        Key = "allowed_countries",
-                        Value = "0"
-                    };
-
-                    ESTerm allowedCountryTerm = new ESTerm(true)
-                    {
-                        Key = "allowed_countries",
-                        Value = SearchDefinitions.countryId.ToString()
-                    };
-
-
-                    // allowed_countries = 0 or allowed_countries = countryId
-                    allowed.AddChild(emptyAllowedCountryTerm);
-                    allowed.AddChild(allowedCountryTerm);
-
-                    ESTerm blockedCountryTerm = new ESTerm(true)
-                    {
-                        Key = "blocked_countries",
-                        Value = SearchDefinitions.countryId.ToString(),
-                        isNot = true
-                    };
-
-                    FilterCompositeType blocked = new FilterCompositeType(CutWith.AND);
-
-                    // blocked_countries != countryId and allowed
-                    blocked.AddChild(blockedCountryTerm);
-                    blocked.AddChild(allowed);
-
-                    mediaFilter.AddChild(blocked);
-                }
-
-                #endregion
+               
             }
 
             // Recordings specific filters
@@ -2518,6 +2498,34 @@ namespace ElasticSearch.Searcher
                     Script = script,
                 };
             }
+        }
+
+        private FilterCompositeType BuildMediaDatesComposit()
+        {
+            FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+
+            string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+
+            ESRange mediaStartDateRange = new ESRange(false);
+
+            if (this.SearchDefinitions.shouldUseStartDate)
+            {
+                mediaStartDateRange.Key = "start_date";
+                string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+            }
+
+            mediaDatesFilter.AddChild(mediaStartDateRange);
+
+            ESRange mediaEndDateRange = new ESRange(false);
+            mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+
+            mediaDatesFilter.AddChild(mediaEndDateRange);
+            return mediaDatesFilter;
         }
 
         #endregion

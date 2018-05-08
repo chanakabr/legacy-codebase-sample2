@@ -57,6 +57,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_COUPONS_GROUP = "GetCouponsGroup";
         public const string GET_ALL_ASSET_RULES = "GetAllAssetRules";
         public const string GET_ASSET_RULE = "GetAssetRule";
+        public const string GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllCountryList";
 
         #endregion
 
