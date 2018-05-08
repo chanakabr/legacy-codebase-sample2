@@ -52,7 +52,7 @@ namespace Core.Catalog.Request
                 return new List<string>();
             }
         }
-
+        
         internal override bool GetShouldUseSearchEndDate()
         {
             return ShouldUseSearchEndDate;
