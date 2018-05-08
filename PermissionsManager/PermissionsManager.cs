@@ -288,44 +288,57 @@ namespace PermissionsManager
                         string sourceRoleName = ExtractValue<string>(sourceRow, "role_name");
                         string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
 
-                        int? sourceIsExcluded = ExtractValue<int?>(sourceRow, "is_excluded");
+                        int? sourceIsExcluded = ExtractNullableInteger(sourceRow, "is_excluded");
 
                         DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
                              sourceRoleName == Convert.ToString(row["role_name"]) &&
                              sourcePermissionName == Convert.ToString(row["permission_name"]));
 
-                        int destinationRoleId = rolesDictionary[sourceRoleName];
-                        int destinationPermissionId = permissionsDictionary[sourcePermissionName];
-
-                        // not found - it is new, insert
-                        if (destinationRow == null)
+                        if (!rolesDictionary.ContainsKey(sourceRoleName))
                         {
-                            int newId = ApiDAL.InsertPermissionRole(sourceRoleId, destinationRoleId, destinationPermissionId);
-
-                            log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} role_name : {5} permission_name : {6}",
-                                ROLE_PERMISSION,
-                                sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
-                                sourceRoleName,
-                                sourcePermissionName);
+                            log.ErrorFormat("Import error : try to import permission_role with non existing role {0}", sourceRoleName);
                         }
-                        else
-                        // found - check for differences
+
+                        if (!permissionsDictionary.ContainsKey(sourcePermissionName))
                         {
-                            int destinationId = Convert.ToInt32(destinationRow["id"]);
+                            log.ErrorFormat("Import error : try to import permission_role with non existing permission {0}", sourcePermissionName);
+                        }
 
-                            int? destinationIsExcluded = ExtractValue<int?>(destinationRow, "is_excluded");
+                        if (rolesDictionary.ContainsKey(sourceRoleName) && permissionsDictionary.ContainsKey(sourcePermissionName))
+                        {
+                            int destinationRoleId = rolesDictionary[sourceRoleName];
+                            int destinationPermissionId = permissionsDictionary[sourcePermissionName];
 
-                            if (
-                                sourceIsExcluded != destinationIsExcluded
-                                )
+                            // not found - it is new, insert
+                            if (destinationRow == null)
                             {
-                                bool actionResult = ApiDAL.UpdatePermissionRole(destinationId, sourceIsExcluded);
+                                int newId = ApiDAL.InsertPermissionRole(destinationRoleId, destinationPermissionId, sourceIsExcluded);
 
-                                log.InfoFormat("!!UPDATE!! Table : {0} destination Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} role_name : {5} permission_name : {6}",
-                                ROLE_PERMISSION,
-                                sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
-                                sourceRoleName,
-                                sourcePermissionName);
+                                log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} role_name : {5} permission_name : {6}",
+                                    ROLE_PERMISSION,
+                                    sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
+                                    sourceRoleName,
+                                    sourcePermissionName);
+                            }
+                            else
+                            // found - check for differences
+                            {
+                                int destinationId = Convert.ToInt32(destinationRow["id"]);
+
+                                int? destinationIsExcluded = ExtractNullableInteger(destinationRow, "is_excluded");
+
+                                if (
+                                    sourceIsExcluded != destinationIsExcluded
+                                    )
+                                {
+                                    bool actionResult = ApiDAL.UpdatePermissionRole(destinationId, sourceIsExcluded);
+
+                                    log.InfoFormat("!!UPDATE!! Table : {0} destination Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} role_name : {5} permission_name : {6}",
+                                    ROLE_PERMISSION,
+                                    sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
+                                    sourceRoleName,
+                                    sourcePermissionName);
+                                }
                             }
                         }
                     }
@@ -368,7 +381,7 @@ namespace PermissionsManager
                     {
                         int sourceId = Convert.ToInt32(sourceRow["id"]);
                         string sourceName = ExtractValue<string>(sourceRow, "name");
-                        int? sourceType = ExtractValue<int?>(sourceRow, "type");
+                        int? sourceType = ExtractNullableInteger(sourceRow, "type");
                         string sourceService = ExtractValue<string>(sourceRow, "service");
                         string sourceAction = ExtractValue<string>(sourceRow, "action");
                         string sourceObject = ExtractValue<string>(sourceRow, "object");
@@ -392,7 +405,7 @@ namespace PermissionsManager
                         {
                             int destinationId = Convert.ToInt32(destinationRow["id"]);
                             string destinationName = ExtractValue<string>(destinationRow, "name");
-                            int? destinationType = ExtractValue<int?>(destinationRow, "type");
+                            int? destinationType = ExtractNullableInteger(destinationRow, "type");
                             string destinationService = ExtractValue<string>(destinationRow, "service");
                             string destinationAction = ExtractValue<string>(destinationRow, "action");
                             string destinationObject = ExtractValue<string>(destinationRow, "object");
@@ -450,7 +463,7 @@ namespace PermissionsManager
                         int sourceId = Convert.ToInt32(sourceRow["id"]);
                         int sourcePermissionId = ExtractValue<int>(sourceRow, "permission_id");
                         int sourcePermissionItemId = ExtractValue<int>(sourceRow, "permission_item_id");
-                        int? sourceIsExcluded = ExtractValue<int?>(sourceRow, "is_excluded");
+                        int? sourceIsExcluded = ExtractNullableInteger(sourceRow, "is_excluded");
                         string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
                         string sourcePermissionItemName = ExtractValue<string>(sourceRow, "permission_item_name");
 
@@ -458,35 +471,49 @@ namespace PermissionsManager
                              sourcePermissionName == ExtractValue<string>(row, "permission_name") &&
                              sourcePermissionItemName == ExtractValue<string>(row, "permission_item_name"));
 
-                        int destinationPermissionId = permissionsDictionary[sourcePermissionName];
-                        int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
 
-                        // not found - it is new, insert new permission permission item
-                        if (destinationRow == null)
+                        if (!permissionsDictionary.ContainsKey(sourcePermissionName))
                         {
-                            int newId = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
-
-                            log.InfoFormat(
-                                "!!INSERT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} permission_name : {5} permission_item_name : {6}",
-                                PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
-                                sourcePermissionName, sourcePermissionItemName);
+                            log.ErrorFormat("Import error : try to import permission_permission_item with non existing permission {0}", sourcePermissionName);
                         }
-                        else
-                        // found - check for differences - permission permission item
-                        {
-                            int destinationId = Convert.ToInt32(destinationRow["id"]);
-                            int? destinationIsExcluded = ExtractValue<int?>(destinationRow, "is_excluded");
 
-                            if (
-                                sourceIsExcluded != destinationIsExcluded
-                                )
+                        if (!permissionItemsDictionary.ContainsKey(sourcePermissionItemName))
+                        {
+                            log.ErrorFormat("Import error : try to import permission_permission_item with non existing permission_item {0}", sourcePermissionItemName);
+                        }
+
+                        if (permissionItemsDictionary.ContainsKey(sourcePermissionItemName) && permissionsDictionary.ContainsKey(sourcePermissionName))
+                        {
+                            int destinationPermissionId = permissionsDictionary[sourcePermissionName];
+                            int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
+
+                            // not found - it is new, insert new permission permission item
+                            if (destinationRow == null)
                             {
-                                bool actionResult = ApiDAL.UpdatePermissionPermissionItem(destinationId, sourceIsExcluded);
+                                int newId = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
 
                                 log.InfoFormat(
-                                    "!!UPDATE!! Table : {0} Destination Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} permission_name : {5} permission_item_name : {6}",
+                                    "!!INSERT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} permission_name : {5} permission_item_name : {6}",
                                     PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
                                     sourcePermissionName, sourcePermissionItemName);
+                            }
+                            else
+                            // found - check for differences - permission permission item
+                            {
+                                int destinationId = Convert.ToInt32(destinationRow["id"]);
+                                int? destinationIsExcluded = ExtractNullableInteger(destinationRow, "is_excluded");
+
+                                if (
+                                    sourceIsExcluded != destinationIsExcluded
+                                    )
+                                {
+                                    bool actionResult = ApiDAL.UpdatePermissionPermissionItem(destinationId, sourceIsExcluded);
+
+                                    log.InfoFormat(
+                                        "!!UPDATE!! Table : {0} Destination Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} permission_name : {5} permission_item_name : {6}",
+                                        PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
+                                        sourcePermissionName, sourcePermissionItemName);
+                                }
                             }
                         }
                     }
@@ -503,7 +530,6 @@ namespace PermissionsManager
                         DataRow sourceRow = sourceTable.AsEnumerable().FirstOrDefault(row =>
                              destinationPermissionName == ExtractValue<string>(row, "permission_name") &&
                              destinationPermissionItemName == ExtractValue<string>(row, "permission_item_name"));
-
 
                         // not found in source - it was deleted
                         if (sourceRow == null)
@@ -826,6 +852,35 @@ namespace PermissionsManager
                     if (value != null && value != DBNull.Value)
                     {
                         result = (T)Convert.ChangeType(value, typeof(T));
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (result);
+        }
+
+        /// <summary>
+        /// Extracts a nullable integer value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public static int? ExtractNullableInteger(DataRow row, string fieldName)
+        {
+            int? result = null;
+
+            try
+            {
+                if (row != null)
+                {
+                    object value = row[fieldName];
+
+                    if (value != null && value != DBNull.Value)
+                    {
+                        result = Convert.ToInt32(value);
                     }
                 }
             }

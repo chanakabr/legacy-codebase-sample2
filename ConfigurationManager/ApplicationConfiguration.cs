@@ -122,7 +122,6 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PwlalPMaxResultsSize;
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
 
-
         #endregion
 
         #region Private Members
@@ -163,7 +162,7 @@ namespace ConfigurationManager
             {
                 TCMClient.Settings.Instance.Init();
             }
-
+            
             #region Remote tasks configuration values
 
             CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
