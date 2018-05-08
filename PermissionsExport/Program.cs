@@ -23,12 +23,12 @@ namespace PermissionsDeployment
             if (arguments.ContainsKey(IMPORT_FILE_NAME))
             {
                 fileName = arguments[IMPORT_FILE_NAME];
-                result = PermissionsManager.PermissionsManager.Export(fileName);
+                result = PermissionsManager.PermissionsManager.Import(fileName);
             }
             else if (arguments.ContainsKey(EXPORT_FILE_NAME))
             {
                 fileName = arguments[EXPORT_FILE_NAME];
-                result = PermissionsManager.PermissionsManager.Import(fileName);
+                result = PermissionsManager.PermissionsManager.Export(fileName);
             }
             else if (arguments.ContainsKey(DELETE_FILE_NAME))
             {
