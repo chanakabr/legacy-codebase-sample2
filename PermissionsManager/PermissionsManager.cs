@@ -677,8 +677,8 @@ namespace PermissionsManager
                                  sourceRoleName == Convert.ToString(row["role_name"]) &&
                                  sourcePermissionName == Convert.ToString(row["permission_name"]));
 
-                            int destinationRoleId = rolesDictionary[sourceRoleName];
-                            int destinationPermissionId = permissionsDictionary[sourcePermissionName];
+                            //int destinationRoleId = rolesDictionary[sourceRoleName];
+                            //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
                             
                             if (destinationRow != null)
                             {
@@ -756,8 +756,8 @@ namespace PermissionsManager
                                  sourcePermissionName == ExtractValue<string>(row, "permission_name") &&
                                  sourcePermissionItemName == ExtractValue<string>(row, "permission_item_name"));
 
-                            int destinationPermissionId = permissionsDictionary[sourcePermissionName];
-                            int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
+                            //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
+                            //int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
                             
                             if (destinationRow != null)
                             {
