@@ -1646,7 +1646,7 @@ namespace Core.Api
 
         public static ApiObjects.CountryLocaleResponse GetCountryList(int groupId, List<int> countryIds)
         {
-            return Core.Api.api.GetCountryList(countryIds, groupId);
+            return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
         }
 
         public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
