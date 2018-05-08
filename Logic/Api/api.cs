@@ -102,7 +102,7 @@ namespace Core.Api
         private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
         private const double MAX_SERVER_TIME_DIF = 5;
         private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
-        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 600; // 10 minutes
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
@@ -2482,45 +2482,51 @@ namespace Core.Api
         {
             bool isBlocked = false;
             Int32 geoBlockID = 0;
-            ruleName = string.Empty;
-            string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
-            DataTable dt = null;
-            // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
-                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
-            if (cacheResult && dt != null)
+            ruleName = "GeoAvailability";
+            Country country = GetCountryByIp(groupId, ip);
+
+            bool isGeoAvailability;
+            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, country.Id, mediaId, out isGeoAvailability);
+            
+            if (!isGeoAvailability)
             {
-                if (dt.Rows != null && dt.Rows.Count > 0)
+                string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
+                DataTable dt = null;
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                if (cacheResult && dt != null)
                 {
-                    Country country = GetCountryByIp(groupId, ip);
-                    Int32 nCountryID = country != null ? country.Id : 0;
-                    ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                    geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
-                    int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
-
-                    DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
-                    bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-
-                    log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
-
-                    if (geoBlockID > 0)
+                    if (dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        //No one except
-                        if (nONLY_OR_BUT == 0)
-                            isBlocked = !bExsitInRuleM2M;
-                        //All except
-                        if (nONLY_OR_BUT == 1)
-                            isBlocked = bExsitInRuleM2M;
+                        Int32 nCountryID = country != null ? country.Id : 0;
+                        ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
+                        geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+                        int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
-                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                        DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
+                        bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
+
+                        log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
+
+                        if (geoBlockID > 0)
                         {
-                            isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            //No one except
+                            if (nONLY_OR_BUT == 0)
+                                isBlocked = !bExsitInRuleM2M;
+                            //All except
+                            if (nONLY_OR_BUT == 1)
+                                isBlocked = bExsitInRuleM2M;
+
+                            if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                            {
+                                isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            }
                         }
                     }
                 }
             }
-
             return isBlocked;
         }
 
@@ -10489,359 +10495,22 @@ namespace Core.Api
         internal static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
         {
 
-            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
-            try
-            {
-                if (assetRule == null)
-                {
-                    log.ErrorFormat("Error while AddAssetRule. assetRule is empty.");
-                    return response;
-                }
-
-                List<int> assetRulesActions = null;
-                if (assetRule.Actions != null)
-                {
-                    assetRulesActions = assetRule.Actions.Select(x => (int)x.Type).ToList();
-                }
-
-                List<int> assetRulesConditions = null;
-                if (assetRule.Actions != null)
-                {
-                    assetRulesConditions = assetRule.Conditions.Select(x => (int)x.Type).ToList();
-                }
-
-                DataSet ds = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, assetRulesActions, assetRulesConditions);
-
-                if (ds != null && ds.Tables.Count == 3 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                {
-                    long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
-                    assetRule.Id = assetRuleId;
-
-                    // Save assetRulesActions
-                    if (!ApiDAL.SaveAssetRulesActions(groupId, assetRuleId, ds.Tables[1], assetRule.Actions))
-                    {
-                        log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
-                    }
-                    // Save assetRulesConditions
-                    if (!ApiDAL.SaveAssetRulesConditions(groupId, assetRuleId, ds.Tables[2], assetRule.Conditions))
-                    {
-                        log.ErrorFormat("Error while saving AssetRulesConditions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
-                    }
-
-                    response.Status.Code = (int)eResponseStatus.OK;
-                    response.Status.Message = eResponseStatus.OK.ToString();
-                    response.AssetRules = new List<AssetRule>() { assetRule };
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while adding new assetRule . groupId: {0}, assetRule: {1}, ex: {2}", groupId, JsonConvert.SerializeObject(assetRule), ex);
-            }
-
-            return response;
+            return AssetRuleManager.AddAssetRule(groupId, assetRule);
         }
 
         internal static Status DeleteAssetRule(int groupId, long assetRuleId)
         {
-            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
-            {
-                //check AssetRule exists
-                DataSet ds = ApiDAL.GetAssetRule(groupId, assetRuleId);
-                if (ds == null || ds.Tables.Count != 3)
-                {
-                    response.Code = (int)eResponseStatus.AssetRuleNotExists;
-                    response.Message = ASSET_RULE_NOT_EXIST;
-                    return response;
-                }
-
-                int res = ApiDAL.DeleteAssetRule(groupId, assetRuleId);
-                if (res == 0)
-                {
-                    response.Code = (int)eResponseStatus.Error;
-                    response.Message = ASSET_RULE_FAILED_DELETE;
-                    return response;
-                }
-                else if (res == -1)
-                {
-                    response.Code = (int)eResponseStatus.AssetRuleNotExists;
-                    response.Message = ASSET_RULE_NOT_EXIST;
-                    return response;
-                }
-                else
-                {
-                    // delete assetRulesActions from CB
-                    if (!ApiDAL.DeleteAssetRulesActions(groupId, assetRuleId, ds.Tables[1]))
-                    {
-                        log.ErrorFormat("Error while delete AssetRulesActions CB. groupId: {0}, assetRuleId:{1}", groupId, assetRuleId);
-                    }
-
-                    // delete assetRulesConditions from CB
-                    if (!ApiDAL.DeleteAssetRulesCondition(groupId, assetRuleId, ds.Tables[2]))
-                    {
-                        log.ErrorFormat("Error while delete assetRulesConditions CB. groupId: {0}, assetRuleId:{1}", groupId, assetRuleId);
-                    }
-
-                    response.Code = (int)eResponseStatus.OK;
-                    response.Message = eResponseStatus.OK.ToString();
-                    return response;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRuleId);
-            }
-
-            return response;
+            return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
         internal static AssetRulesResponse GetAssetRules(int groupId = 0)
         {
-            AssetRulesResponse response = new AssetRulesResponse();
-            try
-            {
-                DataSet ds = DAL.ApiDAL.GetAssetRules(groupId);
-
-                if (ds != null && ds.Tables.Count == 3)
-                {
-                    response.AssetRules = new List<AssetRule>();
-                    long assetRuleId = 0;
-                    AssetRule assetRule = null;                    
-                    foreach (DataRow dataRow in ds.Tables[0].Rows)
-                    {
-                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
-
-                        assetRule = CreateAssetRule(assetRuleId, dataRow);
-
-                        if (ds.Tables[1].Rows.Count > 0)
-                        {
-                            var dtAssetRuleAction = ds.Tables[1].Select("ASSET_RULE_ID = " + assetRuleId);
-                            assetRule.Actions = CreateAssetRuleActions(groupId, assetRuleId, dtAssetRuleAction);
-                        }
-
-                        if (ds.Tables[2].Rows.Count > 0)
-                        {
-                            var dtAssetRuleCondition = ds.Tables[2].Select("ASSET_RULE_ID = " + assetRuleId);
-                            assetRule.Conditions = CreateAssetRuleConditions(groupId, assetRuleId, dtAssetRuleCondition);
-                        }
-
-                        response.AssetRules.Add(assetRule);
-                    }
-                }
-
-                if (response.AssetRules == null || response.AssetRules.Count == 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No AssetRules found");
-                }
-                else
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed GetAssetRules groupID: {0}, ex: {1}", groupId, ex);
-            }
-
-            return response;
-        }
-
-        private static List<AssetRuleAction> CreateAssetRuleActions(int groupId, long assetRuleId, DataRow[] dtAssetRuleAction)
-        {
-            List<AssetRuleAction> assetRuleActions = new List<AssetRuleAction>();
-            if (dtAssetRuleAction != null && dtAssetRuleAction.Length > 0)
-            {
-                // Get assetRulesActions
-                int id = 0;
-                RuleActionType type;
-                AssetRuleAction assetRuleAction = null;
-                foreach (DataRow dr in dtAssetRuleAction)
-                {
-                    id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                    type = (RuleActionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
-                    assetRuleAction = GetAssetRuleActionByType(groupId, assetRuleId, id, type);
-                    if (assetRuleAction == null)
-                    {
-                        log.ErrorFormat("Error while GetAssetRuleAction. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
-                        continue;
-                    }
-
-                    assetRuleActions.Add(assetRuleAction);
-                }
-            }
-
-            return assetRuleActions;
-        }
-
-        private static List<AssetRuleCondition> CreateAssetRuleConditions(int groupId, long assetRuleId, DataRow[] dtAssetRuleCondition)
-        {
-            List<AssetRuleCondition> assetRuleActions = new List<AssetRuleCondition>();
-            if (dtAssetRuleCondition != null && dtAssetRuleCondition.Length > 0)
-            {
-                // Get assetRulesCondition
-                int id = 0;
-                AssetRuleConditionType type;
-                AssetRuleCondition assetRuleCondition = null;
-                foreach (DataRow dr in dtAssetRuleCondition)
-                {
-                    id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                    type = (AssetRuleConditionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
-
-                    assetRuleCondition = GetAssetRuleConditionByType(groupId, assetRuleId, id, type);
-                    if (assetRuleCondition == null)
-                    {
-                        log.ErrorFormat("Error while CreateAssetRuleConditions. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
-                        continue;
-                    }
-
-                    assetRuleActions.Add(assetRuleCondition);
-                }
-            }
-
-            return assetRuleActions;
-        }
-
-        private static AssetRuleCondition GetAssetRuleConditionByType(int groupId, long assetRuleId, int id, AssetRuleConditionType type)
-        {
-            switch (type)
-            {
-                case AssetRuleConditionType.Asset:
-                    return ApiDAL.GetAssetRuleCondition<AssetCondition>(groupId, assetRuleId, id);
-                case AssetRuleConditionType.Country:
-                    return ApiDAL.GetAssetRuleCondition<CountryCondition>(groupId, assetRuleId, id);
-                default:
-                    return ApiDAL.GetAssetRuleCondition<AssetRuleCondition>(groupId, assetRuleId, id);
-            }
-        }
-
-        private static AssetRule CreateAssetRule(long assetRuleId, DataRow dataRow)
-        {
-            AssetRule assetRule = new AssetRule()
-            {
-                Id = assetRuleId,
-                Name = ODBCWrapper.Utils.GetSafeStr(dataRow, "NAME"),
-                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION"),
-                GroupId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "GROUP_ID")
-            };
-
-            return assetRule;
-        }
-
-        private static AssetRuleAction GetAssetRuleActionByType(int groupId, long assetRuleId, int id, RuleActionType type)
-        {
-            AssetRuleAction assetRuleAction = null;
-            switch (type)
-            {
-                case RuleActionType.Block:
-                    return assetRuleAction = ApiDAL.GetAssetRuleAction<AccessControlBlockAction>(groupId, assetRuleId, id);
-                case RuleActionType.StartDateOffset:
-                    return assetRuleAction = ApiDAL.GetAssetRuleAction<StartDateOffsetRuleAction>(groupId, assetRuleId, id);
-                case RuleActionType.EndDateOffset:
-                    return assetRuleAction = ApiDAL.GetAssetRuleAction<EndDateOffsetRuleAction>(groupId, assetRuleId, id);
-                default:
-                    return assetRuleAction = ApiDAL.GetAssetRuleAction<AssetRuleAction>(groupId, assetRuleId, id);
-            }
+            return AssetRuleManager.GetAssetRules(groupId);
         }
 
         internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRule)
         {
-            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
-            try
-            {
-                //check AssetRule exists
-                DataSet ds = ApiDAL.GetAssetRule(groupId, assetRule.Id);
-                if (ds == null || ds.Tables.Count != 3)
-                {
-                    response.Status.Code = (int)eResponseStatus.AssetRuleNotExists;
-                    response.Status.Message = ASSET_RULE_NOT_EXIST;
-                    return response;
-                }
-
-                DataSet updatedAssetRule = ApiDAL.UpdateAssetRule(groupId, assetRule);
-                if (updatedAssetRule == null || updatedAssetRule.Tables.Count != 3)
-                {
-                    response.Status.Code = (int)eResponseStatus.Error;
-                    response.Status.Message = ASSET_RULE_FAILED_UPDATE;
-                    return response;
-                }
-
-                // update assetRulesActions from CB
-                if (assetRule.Actions != null)
-                {
-                    UpdateAssetRulesActions(groupId, assetRule.Id, assetRule.Actions, ds.Tables[1], updatedAssetRule.Tables[1]);
-                }
-
-                // update assetRulesConditions from CB
-                if (assetRule.Conditions!= null)
-                {
-                    UpdateAssetRulesCondition(groupId, assetRule.Id, assetRule.Conditions, ds.Tables[2], updatedAssetRule.Tables[2]);
-                }
-
-                response.Status.Code = (int)eResponseStatus.OK;
-                response.Status.Message = eResponseStatus.OK.ToString();
-                return response;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRule.Id);
-            }
-
-            return response;
-        }
-
-        private static void UpdateAssetRulesActions(int groupId, long assetRuleId, List<AssetRuleAction> actions, DataTable dtAssetRulesActions, DataTable dtUpdatedAssetRulesActions)
-        {
-            long assetRuleActionId = 0;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            // DeleteAssetRuleAction if needed
-            foreach (DataRow dr in dtUpdatedAssetRulesActions.Rows)
-            {
-                assetRuleActionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                // in case assetRuleActionId  not exist at dtAssetRulesActions ( old AssetRulesActions  ) - need to delete the action
-                var assetRuleActions = dtAssetRulesActions.Select("Id =" + assetRuleActionId);
-                if (assetRuleActions != null && assetRuleActions.Length > 0)
-                {
-                    if (!ApiDAL.DeleteAssetRuleAction(groupId, assetRuleId, assetRuleActionId, cbManager))
-                    {
-                        log.ErrorFormat("Error while DeleteAssetRuleAction. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, assetRuleActionId);
-                    }
-                }
-            }
-
-            // upsert dtUpdatedAssetRulesActions            
-            if (!ApiDAL.SaveAssetRulesActions(groupId, assetRuleId, dtUpdatedAssetRulesActions, actions))
-            {
-                log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRuleActions:{1}", groupId, JsonConvert.SerializeObject(actions));
-            }         
-        }
-
-        private static void UpdateAssetRulesCondition(int groupId, long assetRuleId, List<AssetRuleCondition> conditions, DataTable dtAssetRulesConditions, DataTable dtUpdatedAssetRulesConditions)
-        {
-            long assetRuleConditionId = 0;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            // DeleteAssetRuleCondition if needed
-            foreach (DataRow dr in dtUpdatedAssetRulesConditions.Rows)
-            {
-                assetRuleConditionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                // in case assetRuleConditionId  not exist at dtAssetRulesConditions ( old ssetRulesConditions  ) - need to delete the action
-                var assetRuleConditions = dtAssetRulesConditions.Select("Id =" + assetRuleConditionId);
-                if (assetRuleConditions != null && assetRuleConditions.Length > 0)
-                {
-                    if (!ApiDAL.DeleteAssetRuleCondition(groupId, assetRuleId, assetRuleConditionId, cbManager))
-                    {
-                        log.ErrorFormat("Error while DeleteAssetRuleCondition. groupId: {0}, assetRuleId: {1}, assetRuleConditionId: {2}", groupId, assetRuleId, assetRuleConditionId);
-                    }
-                }
-            }
-
-            // upsert dtUpdatedAssetRulesConditions            
-            if (!ApiDAL.SaveAssetRulesConditions(groupId, assetRuleId, dtUpdatedAssetRulesConditions, conditions))
-            {
-                log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRuleConditions:{1}", groupId, JsonConvert.SerializeObject(conditions));
-            }
+            return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
         }
 
         internal static bool DoActionAssetRules()
@@ -10921,6 +10590,86 @@ namespace Core.Api
                     };
 
                     bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                }
+            }
+
+            return true;
+        }
+
+        internal static DataTable GetMediaCountries(int groupId, long mediaId)
+        {
+            DataTable mediaCountries = null;
+
+            string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
+            if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
+                groupId, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+            {
+                log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
+            }
+
+            return mediaCountries;
+        }
+
+        private static Tuple<DataTable, bool> GetMediaCountries(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            DataTable mediaCountries = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaId"))
+                    {
+                        long? mediaId = funcParams["mediaId"] as long?;
+
+                        if (mediaId.HasValue && mediaId.HasValue)
+                        {
+                            mediaCountries = ApiDAL.GetMediaCountries(mediaId.Value);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaCountries failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DataTable, bool>(mediaCountries, result);
+        }
+
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability)
+        {
+            isGeoAvailability = false;
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                isGeoAvailability = true;
+
+                DataTable mediaCountriesDt = Core.Api.api.GetMediaCountries(groupId, mediaId);
+                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
+                {
+                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
+                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
+
+                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
+                    {
+                        return true;
+                    }
+                    else if (allowedCountries == null || allowedCountries.Length == 0)
+                    {
+                        return false;
+                    }
+                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
 

@@ -16,7 +16,6 @@ namespace ApiObjects.Rules
 
     public class AssetRuleAction
     {
-        public long Id { get; set; }
         public RuleActionType Type { get; set; }
         public string Description { get; set; }
     }
@@ -41,7 +40,6 @@ namespace ApiObjects.Rules
 
     public class AssetRuleCondition
     {
-        public long Id { get; set; }
         public AssetRuleConditionType Type { get; set; }
         public string Description { get; set; }
     }

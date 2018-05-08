@@ -47,8 +47,7 @@ namespace Core.Catalog
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
 
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                int parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
@@ -334,6 +333,15 @@ namespace Core.Catalog
                     definitions.userPreferences = CatalogLogic.GetUserPreferences(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
                 }
 
+                #endregion
+
+                #region Regions
+
+                if (group.isGeoAvailabilityWindowingEnabled)
+                {
+                    definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+                }
+                
                 #endregion
 
             }
