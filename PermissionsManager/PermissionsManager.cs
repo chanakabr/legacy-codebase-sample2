@@ -158,7 +158,9 @@ namespace PermissionsManager
                         // not found - it is new, insert
                         if (destinationRole == null)
                         {
-                            bool actionResult = ApiDAL.InsertRole(sourceName);
+                            int newId = ApiDAL.InsertRole(sourceName);
+
+                            rolesDictionary[sourceName] = newId;
 
                             log.InfoFormat("!!INSERT!! Table : {0} Source id : {1} Source name : {2}", ROLE, sourceId, sourceName);
                         }
@@ -220,7 +222,9 @@ namespace PermissionsManager
                         // not found - it is new, insert
                         if (destinationRow == null)
                         {
-                            bool actionResult = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup);
+                            int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup);
+
+                            permissionsDictionary[sourceName] = newId;
 
                             log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
                                 sourceId, sourceName, sourceType, sourceUsersGroup);
@@ -296,7 +300,7 @@ namespace PermissionsManager
                         // not found - it is new, insert
                         if (destinationRow == null)
                         {
-                            bool actionResult = ApiDAL.InsertPermissionRole(sourceRoleId, destinationRoleId, destinationPermissionId);
+                            int newId = ApiDAL.InsertPermissionRole(sourceRoleId, destinationRoleId, destinationPermissionId);
 
                             log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} role_name : {5} permission_name : {6}",
                                 ROLE_PERMISSION,
@@ -376,7 +380,9 @@ namespace PermissionsManager
                         // not found - it is new, insert new permission item
                         if (destinationRow == null)
                         {
-                            bool actionResult = ApiDAL.InsertPermissionItem(sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+                            int newId = ApiDAL.InsertPermissionItem(sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+
+                            permissionItemsDictionary[sourceName] = newId;
 
                             log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type: {3} service : {4} action : {5} object : {6} parameter : {7}",
                                 PERMISSION_ITEM, sourceId, sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
@@ -458,7 +464,7 @@ namespace PermissionsManager
                         // not found - it is new, insert new permission permission item
                         if (destinationRow == null)
                         {
-                            bool actionResult = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
+                            int newId = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
 
                             log.InfoFormat(
                                 "!!INSERT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} permission_name : {5} permission_item_name : {6}",
@@ -484,7 +490,7 @@ namespace PermissionsManager
                             }
                         }
                     }
-
+                    
                     // Delete permission permission item
                     foreach (DataRow destinationRow in destinationTable.Rows)
                     {
