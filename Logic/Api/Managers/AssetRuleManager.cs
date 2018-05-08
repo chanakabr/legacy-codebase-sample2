@@ -87,7 +87,7 @@ namespace Core.Api.Managers
                                         }
 
                                         // concatenate the countries lists with NOT and without not
-                                        List<int> countriesToAllow = new List<int>();
+                                        List<int> countries = new List<int>();
 
                                         if (countryConditions != null && countryConditions.Count > 0)
                                         {
@@ -95,20 +95,20 @@ namespace Core.Api.Managers
                                             {
                                                 if (countryCondition.Not)
                                                 {
-                                                    countriesToAllow.AddRange(GetAllCountriesBut(groupId, countryCondition.Countries));
+                                                    countries.AddRange(GetAllCountriesBut(groupId, countryCondition.Countries));
                                                 }
                                                 else
                                                 {
-                                                    countriesToAllow.AddRange(countryCondition.Countries);
+                                                    countries.AddRange(countryCondition.Countries);
                                                 }
                                             }
 
-                                            countriesToAllow = countriesToAllow.Distinct().ToList();
+                                            countries = countries.Distinct().ToList();
                                         }
 
                                         List<int> assetIds = new List<int>();
 
-                                        foreach (int country in countriesToAllow)
+                                        foreach (int country in countries)
                                         {
                                             foreach (var action in rule.Actions)
                                             {
@@ -119,7 +119,7 @@ namespace Core.Api.Managers
                                                 {
                                                     // append the country and offset conditions
                                                     double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                                    actionKsqlFilter = string.Format("(and {0} start_date <= '-{1}' allowed_countries != '{2}')", ksqlFilter, totalOffset, country);
+                                                    actionKsqlFilter = string.Format("(and {0} start_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
 
                                                     UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(group, actionKsqlFilter);
 
@@ -149,7 +149,7 @@ namespace Core.Api.Managers
                                                     if (action.Type == RuleActionType.EndDateOffset)
                                                     {
                                                         double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                                        actionKsqlFilter = string.Format("(and {0} end_date <= '-{1}' blocked_countries != '{2}')", ksqlFilter, totalOffset, country);
+                                                        actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' blocked_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
                                                     }
                                                     else // block
                                                     {

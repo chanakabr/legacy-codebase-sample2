@@ -6809,7 +6809,7 @@ namespace Core.Api
 
             try
             {
-                List<int> countries = DAL.ApiDAL.GetAllCountries();
+                List<int> countries = DAL.ApiDAL.GetAllCountriesIds();
 
                 if (countries != null)
                 {
@@ -9375,34 +9375,41 @@ namespace Core.Api
             return result;
         }
 
-        public static ApiObjects.CountryLocaleResponse GetCountryList(List<int> countryIds, int groupId = 0)
+        private static List<Country> GetCountryListByIds(List<int> countryIds, int groupId)
         {
-            ApiObjects.CountryLocaleResponse result = new ApiObjects.CountryLocaleResponse();
-            List<Country> countries = new List<Country>();
-            DataTable dt = DAL.ApiDAL.GetCountries(countryIds);
-            if (dt != null && dt.Rows != null)
+            List<Country> countries = null;
+            try
             {
-                ApiObjects.Country country;
-                for (int i = 0; i < dt.Rows.Count; i++)
+                string key = LayeredCacheKeys.GetAllCountryListKey();
+                
+                if (!LayeredCache.Instance.Get<List<Country>>(key, 
+                                                              ref countries, 
+                                                              APILogic.Utils.GetAllCountryList, 
+                                                              new Dictionary<string, object>(), 
+                                                              groupId, 
+                                                              LayeredCacheConfigNames.GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME))
                 {
-                    DataRow dr = dt.Rows[i];
-                    if (dr != null)
-                    {
-                        country = new ApiObjects.Country()
-                        {
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
-                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_NAME"),
-                            Code = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_CD2"),
-                            TimeZoneId = ODBCWrapper.Utils.GetSafeStr(dr, "TIME_ZONE_ID"),
-                        };
-                        if (country.Id > 0)
-                        {
-                            countries.Add(country);
-                        }
-                    }
+                    log.ErrorFormat("Failed getting country list by Ids from LayeredCache, groupId: {0}, countryIds: {1}, key: {2}", groupId, string.Join(", ", countryIds), key);
+                }
+
+                if (countries != null && countryIds != null && countryIds.Count > 0)
+                {
+                    countries = countries.Where(x => countryIds.Contains(x.Id)).ToList();
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryListByIds for groupId: {0}, countryIds: {1}", groupId, string.Join(", ", countryIds)), ex);
+            }
 
+            return countries;
+        }
+
+        public static CountryLocaleResponse GetCountryLocaleList(List<int> countryIds, int groupId = 0)
+        {
+            CountryLocaleResponse result = new CountryLocaleResponse();
+            List<Country> countries = GetCountryListByIds(countryIds, groupId);
+            
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
             if (groupId > 0)
             {
@@ -9432,7 +9439,6 @@ namespace Core.Api
             }
 
             result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
             return result;
         }
 
@@ -9440,7 +9446,7 @@ namespace Core.Api
         {
             MetaResponse response = new MetaResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             try
