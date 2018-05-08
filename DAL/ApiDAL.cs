@@ -2719,7 +2719,7 @@ namespace DAL
             return table;
         }
 
-        public static List<int> GetAllCountries()
+        public static List<int> GetAllCountriesIds()
         {
             List<int> countries = new List<int>();
 
@@ -4176,13 +4176,11 @@ namespace DAL
 
         }
 
-        public static DataTable GetCountries(List<int> countryIds)
+        public static DataTable GetAllCountries()
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountries");
+            StoredProcedure sp = new StoredProcedure("GetCountries");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@ind", countryIds.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter("@countryIds", countryIds, "ID");
             dt = sp.Execute();
 
             return dt;

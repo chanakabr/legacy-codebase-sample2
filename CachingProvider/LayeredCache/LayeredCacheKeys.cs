@@ -296,6 +296,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("media_countries_{0}", mediaId);
         }
+
+        public static string GetAllCountryListKey()
+        {
+            return "allCountryList";
+        }
+
         #endregion
 
         public static string GetAllAssetRulesKey()
