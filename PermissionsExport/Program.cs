@@ -10,34 +10,32 @@ namespace PermissionsDeployment
     {
         private const string IMPORT_FILE_NAME = "import";
         private const string EXPORT_FILE_NAME = "export";
+        private const string DELETE_FILE_NAME = "delete";
 
         static void Main(string[] args)
         {
+            bool result = false;
+
             Dictionary<string, string> arguments = ResolveArguments(args);
 
-            string importFileName = string.Empty;
-            string exportFileName = string.Empty;
+            string fileName = string.Empty;
 
             if (arguments.ContainsKey(IMPORT_FILE_NAME))
             {
-                importFileName = arguments[IMPORT_FILE_NAME];
+                fileName = arguments[IMPORT_FILE_NAME];
+                result = PermissionsManager.PermissionsManager.Export(fileName);
             }
             else if (arguments.ContainsKey(EXPORT_FILE_NAME))
             {
-                exportFileName = arguments[EXPORT_FILE_NAME];
+                fileName = arguments[EXPORT_FILE_NAME];
+                result = PermissionsManager.PermissionsManager.Import(fileName);
             }
-
-            bool result = false;
-
-            if (!string.IsNullOrEmpty(exportFileName))
+            else if (arguments.ContainsKey(DELETE_FILE_NAME))
             {
-                result = PermissionsManager.PermissionsManager.Export(exportFileName);
+                fileName = arguments[DELETE_FILE_NAME];
+                result = PermissionsManager.PermissionsManager.Delete(fileName);
             }
-            else if (!string.IsNullOrEmpty(importFileName))
-            {
-                result = PermissionsManager.PermissionsManager.Import(importFileName);
-            }
-
+            
             if (result)
                 Environment.Exit(0);
 
@@ -70,18 +68,10 @@ namespace PermissionsDeployment
                         {
                             key = EXPORT_FILE_NAME;
                         }
-                        //else if (key == "e")
-                        //{
-                        //    key = ENVIRONMENT;
-                        //}
-                        //else if (key == "f")
-                        //{
-                        //    key = OUTPUT_FILE;
-                        //}
-                        //else if (key == "m")
-                        //{
-                        //    key = MIGRATE;
-                        //}
+                        else if (key == "d")
+                        {
+                            key = DELETE_FILE_NAME;
+                        }
                     }
                     else
                     {
