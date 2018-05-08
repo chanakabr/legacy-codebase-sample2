@@ -905,6 +905,48 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                #region Geo Availability 
+
+                // region term 
+                if (SearchDefinitions.countryId > 0)
+                {
+                    FilterCompositeType allowed = new FilterCompositeType(CutWith.OR);
+
+                    ESTerm emptyAllowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = "0"
+                    };
+
+                    ESTerm allowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = SearchDefinitions.countryId.ToString()
+                    };
+
+
+                    // allowed_countries = 0 or allowed_countries = countryId
+                    allowed.AddChild(emptyAllowedCountryTerm);
+                    allowed.AddChild(allowedCountryTerm);
+
+                    ESTerm blockedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "blocked_countries",
+                        Value = SearchDefinitions.countryId.ToString(),
+                        isNot = true
+                    };
+
+                    FilterCompositeType blocked = new FilterCompositeType(CutWith.AND);
+
+                    // blocked_countries != countryId and allowed
+                    blocked.AddChild(blockedCountryTerm);
+                    blocked.AddChild(allowed);
+
+                    mediaFilter.AddChild(blocked);
+                }
+
+                #endregion
             }
 
             // Recordings specific filters
