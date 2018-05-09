@@ -4631,7 +4631,7 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed)
+        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
         {
             try
             {
@@ -4640,6 +4640,7 @@ namespace DAL
                 sp.AddParameter("@countryId", countryId);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@isAllowed", isAllowed);
+                sp.AddParameter("@ruleId", ruleId);
 
                 int rowCount = sp.ExecuteReturnValue<int>();
                 return rowCount > 0;
@@ -4650,6 +4651,31 @@ namespace DAL
             }
 
             return false;
+        }
+
+        public static DataTable UpdateMediaCountry(int groupId, long ruleId)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountry");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@status", 2);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while update media country", ex);
+            }
+
+            return dt;
         }
 
         public static DataTable GetAssetRules()
