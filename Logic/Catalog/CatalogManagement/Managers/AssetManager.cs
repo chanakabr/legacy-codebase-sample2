@@ -1926,7 +1926,7 @@ namespace Core.Catalog.CatalogManagement
                 Asset asset = GetAssetFromDb(groupId, id, assetType);
                 if (asset == null)
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
@@ -1943,7 +1943,7 @@ namespace Core.Catalog.CatalogManagement
                         // validate that existing asset is indeed linear media
                         if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
                         {
-                            result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                            result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                             return result;
                         }
 
@@ -1986,7 +1986,7 @@ namespace Core.Catalog.CatalogManagement
                 Asset asset = GetAssetFromDb(groupId, id, assetType);
                 if (asset == null)
                 {
-                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
@@ -2040,7 +2040,7 @@ namespace Core.Catalog.CatalogManagement
                 Asset asset = GetAssetFromDb(groupId, id, assetType);
                 if (asset == null)
                 {
-                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
