@@ -131,7 +131,7 @@ namespace Core.Api.Managers
                                                             assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                                             // Apply rule on assets that returned from search
-                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true))
+                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true, ruleId))
                                                             {
                                                                 modifiedAssetIds.AddRange(assetIds);
                                                                 log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
@@ -166,7 +166,7 @@ namespace Core.Api.Managers
                                                             assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                                             // Apply rule on assets that returned from search
-                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false))
+                                                            if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false, ruleId))
                                                             {
                                                                 modifiedAssetIds.AddRange(assetIds);
                                                                 foreach (var assetId in assetIds)
@@ -420,6 +420,8 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                ResetMediaCountries(groupId, assetRule.Id);
+
                 if (!ApiDAL.DeleteAssetRule(groupId, assetRuleId))
                 {
                     response.Code = (int)eResponseStatus.Error;
@@ -607,6 +609,9 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                ResetMediaCountries(groupId, assetRule.Id);
+                //Irena run rule after update
+
                 // before saving AssetRule complete name,actions,conditions in case they are empty
                 if (string.IsNullOrEmpty(assetRule.Name))
                 {
@@ -645,6 +650,28 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+
+        private static void ResetMediaCountries(int groupId, long ruleId)
+        {
+            DataTable mediaTable = ApiDAL.UpdateMediaCountry(groupId, ruleId);
+            if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+            {
+                List<int> mediaIds = new List<int>();
+                foreach (DataRow dr in mediaTable.Rows)
+                {
+                    mediaIds.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID"));
+                }
+
+                if (Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
+                {
+                    log.InfoFormat("Successfully updated index after asset rule update for assets: {0}", string.Join(",", mediaIds));
+                }
+                else
+                {
+                    log.InfoFormat("Failed to update index after asset rule update for assets", string.Join(",", mediaIds));
+                }
+            }
         }
     }
 }
