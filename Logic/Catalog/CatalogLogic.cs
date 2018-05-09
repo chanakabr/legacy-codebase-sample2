@@ -341,7 +341,10 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+                if (group.isGeoAvailabilityWindowingEnabled)
+                    sEndDate = "GEO";
+                else
+                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
                 if (filter != null)
                 {
@@ -375,6 +378,8 @@ namespace Core.Catalog
                     if (!languagesIds.Contains(languageId))
                         languagesIds.Add(languageId);
                 }
+
+
 
                 DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languagesIds, sEndDate, bUseStartDate);
 
