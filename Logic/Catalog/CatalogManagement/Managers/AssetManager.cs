@@ -830,41 +830,6 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static Asset GetAssetFromDb(int groupId, long id, eAssetTypes assetType)
-        {
-            Asset result = null;
-            try
-            {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetFromDb", groupId);
-                    return result;
-                }
-
-                switch (assetType)
-                {
-                    case eAssetTypes.EPG:
-                        break;
-                    case eAssetTypes.NPVR:
-                        break;
-                    case eAssetTypes.MEDIA:
-                        DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
-                        result = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                        break;
-                    case eAssetTypes.UNKNOWN:
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetAssetFromDb for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
-            }
-
-            return result;
-        }
-
         private static Tuple<Dictionary<string, JObject>, bool> GetMediaAssets(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -1666,10 +1631,11 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                     
-                    MediaAsset mediaAsset = GetAssetFromDb(groupId, id, eAssetTypes.MEDIA) as MediaAsset;
-                    if (mediaAsset != null)
+                    // isOperatorSearch = false due to backward compatibility 
+                    List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, false);
+                    if (assets != null && assets.Count == 1)
                     {
-                        result = new MediaObj(groupId, mediaAsset);
+                        result = new MediaObj(groupId, assets[0] as MediaAsset);                   
                     }
                 }
             }
@@ -1923,8 +1889,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate that asset exist
-                Asset asset = GetAssetFromDb(groupId, id, assetType);
-                if (asset == null)
+                // isOperatorSearch = true because only operator can update asset
+                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
+                if (assets == null || assets.Count != 1)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
@@ -1939,7 +1906,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         bool isLinear = assetToUpdate is LinearMediaAsset;
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
-                        MediaAsset currentAsset = asset as MediaAsset;
+                        MediaAsset currentAsset = assets[0] as MediaAsset;
                         // validate that existing asset is indeed linear media
                         if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
                         {
@@ -1983,8 +1950,9 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                Asset asset = GetAssetFromDb(groupId, id, assetType);
-                if (asset == null)
+                // isOperatorSearch = true because only operator can delete asset
+                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
+                if (assets == null || assets.Count != 1)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
@@ -2037,8 +2005,9 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                Asset asset = GetAssetFromDb(groupId, id, assetType);
-                if (asset == null)
+                // isOperatorSearch = true because only operator can remove topics from asset asset
+                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
+                if (assets == null || assets.Count != 1)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
@@ -2069,7 +2038,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         dbAssetType = 0;
                         // validate topicsIds exist on asset
-                        MediaAsset mediaAsset = asset as MediaAsset;
+                        MediaAsset mediaAsset = assets[0] as MediaAsset;
                         if (mediaAsset != null)
                         {
                             List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
