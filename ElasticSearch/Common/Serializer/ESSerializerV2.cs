@@ -803,6 +803,12 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "linear_media_id",
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "wp_type_id",
                 type = eESFieldType.INTEGER,
                 index = eMappingIndex.not_analyzed,

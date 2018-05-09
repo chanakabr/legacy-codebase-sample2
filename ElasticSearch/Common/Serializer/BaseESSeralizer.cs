@@ -690,6 +690,12 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV1()
             {
+                name = "linear_media_id",
+                analyzed = false,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
                 name = "is_active",
                 analyzed = false,
                 type = eESFieldType.INTEGER
@@ -975,6 +981,16 @@ namespace ElasticSearch.Common
                 // {15}
                 oEpg.EpgIdentifier
                 );
+
+            // Add this field only if it has a value
+            if (oEpg.ExtraData != null && oEpg.ExtraData.MediaID > 0)
+            {
+                sRecord.Append(", \"linear_media_id\": \"");
+
+                sRecord.Append(oEpg.ExtraData.MediaID);
+
+                sRecord.Append("\"");
+            }
 
             if (withRouting)
             {
