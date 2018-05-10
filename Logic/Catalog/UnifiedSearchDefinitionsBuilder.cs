@@ -45,7 +45,7 @@ namespace Core.Catalog
             try
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
-                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() || request.IsOperatorSearch;
+                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.IsOperatorSearch;
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
                 int parentGroupID = request.m_nGroupID;
