@@ -16,12 +16,7 @@ namespace WebAPI.Models.ConditionalAccess
         END_DATE_OFFSET,
         ASSET_USER_BLOCK
     }
-
-    [DataContract(Name = "KalturaRuleActionType")]
-    public enum block {
-        one
-    }
-
+    
     public abstract class KalturaRuleAction : KalturaOTTObject
     {
         /// <summary>
