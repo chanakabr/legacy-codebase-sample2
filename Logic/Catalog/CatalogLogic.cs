@@ -132,7 +132,8 @@ namespace Core.Catalog
             "epg_channel_id",
             "media_id",
             "epg_id",
-            STATUS
+            STATUS,
+            "linear_media_id"
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
