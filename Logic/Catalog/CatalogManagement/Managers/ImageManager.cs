@@ -318,17 +318,17 @@ namespace Core.Catalog.CatalogManagement
                         List<ImageType> imageTypes = GetGroupImageTypes(groupId.Value);
                         if (imageTypes != null)
                         {
+                            groupDefaultImages = new List<Image>();
                             List<long> imageTypesWithDefaultPic = imageTypes.Where(x => x.DefaultImageId.HasValue && x.DefaultImageId.Value > 0).Select(x => x.DefaultImageId.Value).ToList();
                             if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
-                            {
-                                groupDefaultImages = new List<Image>();
+                            {                                
                                 GenericListResponse<Image> defaultImagesResponse = GetImagesByIds(groupId.Value, imageTypesWithDefaultPic, true);
                                 if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
                                 {
                                     groupDefaultImages.AddRange(defaultImagesResponse.Objects);
                                 }
                             }
-                        }                                                
+                        }                                          
 
                         res = groupDefaultImages != null;
                     }
