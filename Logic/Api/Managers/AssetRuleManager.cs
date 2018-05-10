@@ -259,12 +259,14 @@ namespace Core.Api.Managers
 
         private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countries)
         {
+            List<int> response = new List<int>();
             CountryLocaleResponse countrieResponse = Api.Module.GetCountryList(groupId, null);
             if (countrieResponse.Status.Code == (int)eResponseStatus.OK)
             {
-                return countrieResponse.Countries.Select(c => c.Id).Where(c => !countries.Contains(c));
+                response = countrieResponse.Countries.Select(c => c.Id).Where(c => !countries.Contains(c)).ToList();
+                response.AddRange(countrieResponse.CountryLocales.Select(c => c.Id).Where(c => !countries.Contains(c)));
             }
-            return null;
+            return response;
         }
 
         private static double CalcTotalOfssetForCountry(int groupId, AssetRuleAction action, int country)
