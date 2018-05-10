@@ -3974,8 +3974,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            kAssetRuleListResponse.Objects = AutoMapper.Mapper.Map<List<KalturaAssetRule>>(response.AssetRules);
-            kAssetRuleListResponse.TotalCount = kAssetRuleListResponse.Objects != null ? kAssetRuleListResponse.Objects.Count : 0;
+            if (response.AssetRules != null && response.AssetRules.Count > 0)
+            {
+                kAssetRuleListResponse.Objects = AutoMapper.Mapper.Map<List<KalturaAssetRule>>(response.AssetRules);
+                kAssetRuleListResponse.TotalCount = kAssetRuleListResponse.Objects != null ? kAssetRuleListResponse.Objects.Count : 0;
+            }
 
             return kAssetRuleListResponse;
         }
