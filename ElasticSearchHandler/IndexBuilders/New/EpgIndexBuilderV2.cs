@@ -411,8 +411,16 @@ namespace ElasticSearchHandler.IndexBuilders
 
             ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
 
+            // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
+            List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
+            Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
+            if (linearChannelSettings == null)
+            {
+                linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+            }
+
             // Run on all programs
-            foreach (ulong epgID in programs.Keys)
+                foreach (ulong epgID in programs.Keys)
             {
                 foreach (string languageCode in programs[epgID].Keys)
                 {
@@ -445,6 +453,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (epg != null)
                     {
+                        // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
+                        if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                        {
+                            epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
+                        }
+
+
                         // Serialize EPG object to string
                         string serializedEpg = SerializeEPGObject(epg, suffix);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
