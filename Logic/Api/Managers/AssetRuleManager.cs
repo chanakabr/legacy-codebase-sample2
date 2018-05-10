@@ -33,6 +33,8 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
+        private const int MAX_ASSETS_TO_UPDATE = 100;
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static int DoActionRules()
@@ -183,6 +185,13 @@ namespace Core.Api.Managers
                                 {
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
+                                    if (assetIds.Count > MAX_ASSETS_TO_UPDATE)
+                                    {
+                                        log.DebugFormat("Exceeded the maximum number of assets to update at once. maximum = {0}, received assets = {1}, query = {2}", 
+                                            MAX_ASSETS_TO_UPDATE, assetIds.Count, actionKsqlFilter);
+                                        return result;
+                                    }
+
                                     // Apply rule on assets that returned from search
                                     if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true, rule.Id))
                                     {
@@ -217,6 +226,13 @@ namespace Core.Api.Managers
                                 if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
                                 {
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                    if (assetIds.Count > MAX_ASSETS_TO_UPDATE)
+                                    {
+                                        log.DebugFormat("Exceeded the maximum number of assets to update at once. maximum = {0}, received assets = {1}, query = {2}",
+                                            MAX_ASSETS_TO_UPDATE, assetIds.Count, actionKsqlFilter);
+                                        return result;
+                                    }
 
                                     // Apply rule on assets that returned from search
                                     if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false, rule.Id))
