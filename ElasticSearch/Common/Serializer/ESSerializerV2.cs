@@ -805,7 +805,7 @@ namespace ElasticSearch.Common
             {
                 name = "linear_media_id",
                 index = eMappingIndex.not_analyzed,
-                type = eESFieldType.INTEGER
+                type = eESFieldType.LONG
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {

@@ -692,7 +692,7 @@ namespace ElasticSearch.Common
             {
                 name = "linear_media_id",
                 analyzed = false,
-                type = eESFieldType.INTEGER
+                type = eESFieldType.LONG
             });
             mappingObj.AddProperty(new BasicMappingPropertyV1()
             {
@@ -983,11 +983,11 @@ namespace ElasticSearch.Common
                 );
 
             // Add this field only if it has a value
-            if (oEpg.ExtraData != null && oEpg.ExtraData.MediaID > 0)
+            if (oEpg.LinearMediaId > 0)
             {
                 sRecord.Append(", \"linear_media_id\": \"");
 
-                sRecord.Append(oEpg.ExtraData.MediaID);
+                sRecord.Append(oEpg.LinearMediaId);
 
                 sRecord.Append("\"");
             }
