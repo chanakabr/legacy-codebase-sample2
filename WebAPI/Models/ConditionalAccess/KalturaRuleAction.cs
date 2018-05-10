@@ -9,7 +9,20 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaRuleAction : KalturaOTTObject
+    public enum KalturaRuleActionType
+    {
+        BLOCK,
+        START_DATE_OFFSET,
+        END_DATE_OFFSET,
+        ASSET_USER_BLOCK
+    }
+
+    [DataContract(Name = "KalturaRuleActionType")]
+    public enum block {
+        one
+    }
+
+    public abstract class KalturaRuleAction : KalturaOTTObject
     {
         /// <summary>
         /// The type of the action
@@ -17,7 +30,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
-        public KalturaRuleActionType Type { get; set; }
+        public KalturaRuleActionType Type { get; protected set; }
 
         /// <summary>
         /// Description
@@ -28,18 +41,34 @@ namespace WebAPI.Models.ConditionalAccess
         public string Description { get; set; }
     }
 
-    public class KalturaAccessControlBlockAction : KalturaRuleAction
-    { 
+    public abstract class KalturaAssetRuleAction : KalturaRuleAction
+    {
+    }
+
+    public abstract class KalturaAssetUserRuleAction : KalturaRuleAction
+    {
+    }
+    
+    public class KalturaAssetUserBlockRuleAction : KalturaAssetUserRuleAction
+    {
+        public KalturaAssetUserBlockRuleAction()
+        {
+            this.Type = KalturaRuleActionType.ASSET_USER_BLOCK;
+        }
+    }
+
+    public class KalturaAccessControlBlockAction : KalturaAssetRuleAction
+    {
         public KalturaAccessControlBlockAction()
         {
-            Type = KalturaRuleActionType.BLOCK;
+            this.Type = KalturaRuleActionType.BLOCK;
         }
     }
 
     /// <summary>
     /// Time offset action
     /// </summary>
-    public abstract class KalturaTimeOffsetRuleAction : KalturaRuleAction
+    public abstract class KalturaTimeOffsetRuleAction : KalturaAssetRuleAction
     {
         /// <summary>
         /// Offset in seconds 
@@ -65,7 +94,7 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaEndDateOffsetRuleAction()
         {
-            Type = KalturaRuleActionType.END_DATE_OFFSET;
+            this.Type = KalturaRuleActionType.END_DATE_OFFSET;
         }
     }
 
@@ -76,14 +105,7 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaStartDateOffsetRuleAction()
         {
-            Type = KalturaRuleActionType.START_DATE_OFFSET;
+            this.Type = KalturaRuleActionType.START_DATE_OFFSET;
         }
-    }
-
-    public enum KalturaRuleActionType
-    {
-        BLOCK,
-        START_DATE_OFFSET,
-        END_DATE_OFFSET,
     }
 }

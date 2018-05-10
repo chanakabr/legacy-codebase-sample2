@@ -2501,6 +2501,12 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleBase":
+                    switch(property.Name)
+                    {
                         case "Description":
                             return "description";
                         case "Id":
@@ -2581,6 +2587,24 @@ namespace WebAPI.Reflection
                             return "endDateGreaterThanOrEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     

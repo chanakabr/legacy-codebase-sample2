@@ -2034,11 +2034,13 @@ namespace WebAPI.Clients
                 kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
                 kalturaPlaybackContext.Messages = new List<KalturaAccessControlMessage>()
+                {
+                    new KalturaAccessControlMessage()
                     {
-                        new KalturaAccessControlMessage() {
-                            Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
-                        }
-                    };
+                        Code = ((eResponseStatus)response.Status.Code).ToString(),
+                        Message = response.Status.Message
+                    }
+                };
             }
             else
             {
@@ -2048,7 +2050,7 @@ namespace WebAPI.Clients
             if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
                 kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
-                kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
+                kalturaPlaybackContext.Actions.Add(new KalturaAccessControlBlockAction());
             }
 
             return kalturaPlaybackContext;

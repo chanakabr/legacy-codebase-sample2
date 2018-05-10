@@ -25,20 +25,6 @@ namespace WebAPI.Models.API
     }
 
     /// <summary>
-    /// Asset Condition
-    /// </summary>
-    public class KalturaAssetCondition : KalturaCondition
-    {
-        /// <summary>
-        /// KSQL  
-        /// </summary>
-        [DataMember(Name = "ksql")]
-        [JsonProperty("ksql")]
-        [XmlElement(ElementName = "ksql")]
-        public string Ksql { get; set; }
-    }
-
-    /// <summary>
     /// Country condition
     /// </summary>
     public class KalturaCountryCondition : KalturaCondition
@@ -85,4 +71,18 @@ namespace WebAPI.Models.API
             return countries;
         }
     }
+
+    /// <summary>
+    /// Asset Condition
+    /// </summary>
+    public class KalturaAssetCondition : KalturaCondition
+    {
+        /// <summary>
+        /// KSQL  
+        /// </summary>
+        [DataMember(Name = "ksql")]
+        [JsonProperty("ksql")]
+        [XmlElement(ElementName = "ksql")]
+        public string Ksql { get; set; }
+    }  
 }
