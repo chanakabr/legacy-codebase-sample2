@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
         BLOCK,
         START_DATE_OFFSET,
         END_DATE_OFFSET,
-        ASSET_USER_BLOCK
+        USER_BLOCK
     }
     
     public abstract class KalturaRuleAction : KalturaOTTObject
@@ -44,11 +44,11 @@ namespace WebAPI.Models.ConditionalAccess
     {
     }
     
-    public class KalturaAssetUserBlockRuleAction : KalturaAssetUserRuleAction
+    public class KalturaAssetUserRuleBlockAction : KalturaAssetUserRuleAction
     {
-        public KalturaAssetUserBlockRuleAction()
+        public KalturaAssetUserRuleBlockAction()
         {
-            this.Type = KalturaRuleActionType.ASSET_USER_BLOCK;
+            this.Type = KalturaRuleActionType.USER_BLOCK;
         }
     }
 
