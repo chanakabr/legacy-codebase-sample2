@@ -337,7 +337,7 @@ namespace Core.Catalog
 
                 #region Regions
 
-                if (group.isGeoAvailabilityWindowingEnabled)
+                if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
