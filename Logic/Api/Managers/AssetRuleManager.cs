@@ -483,8 +483,7 @@ namespace Core.Api.Managers
 
                 if (assetRules == null || assetRules.Rows == null || assetRules.Rows.Count == 0)
                 {
-                    log.DebugFormat("GetAssetRules - no assetRule. groupId: {0}", groupId);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No Asset Rules found");
                     return response;
                 }
 
