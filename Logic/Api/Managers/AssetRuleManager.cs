@@ -492,14 +492,15 @@ namespace Core.Api.Managers
 
                 if (!cacheResult)
                 {
-                    log.Error("GetAssetRules - GetAllAssetRules - Failed get data from cache");
-                    return null;
+                    log.ErrorFormat("GetAssetRules - GetAllAssetRules - Failed get data from cache. groupId: {0}", groupId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
                 }
 
                 if (assetRules == null || assetRules.Rows == null || assetRules.Rows.Count == 0)
                 {
-                    log.ErrorFormat("GetAssetRules - no assetRules for groupId: {0}", groupId);
-                    return null;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No Asset Rules found");
+                    return response;
                 }
 
                 DataRow[] filteredAssetRules = null;
