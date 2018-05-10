@@ -203,11 +203,6 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
             }
-
-            if (string.IsNullOrEmpty(ExternalCdvrId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalCdvrId");
-            }
         }
 
         internal void ValidateForUpdate()
