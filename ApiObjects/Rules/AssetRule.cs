@@ -20,7 +20,7 @@ namespace ApiObjects.Rules
         public string Description { get; set; }
     }
 
-    public class AccessControlBlockAction : AssetRuleAction
+    public class AssetBlockAction : AssetRuleAction
     {
     }
 
