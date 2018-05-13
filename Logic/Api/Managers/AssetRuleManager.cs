@@ -100,6 +100,12 @@ namespace Core.Api.Managers
                                 return 0;
                             }
                         }
+
+                        List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
+                        if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
+                        {
+                            log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
+                        }
                     }
                     #endregion
                 }
@@ -257,12 +263,7 @@ namespace Core.Api.Managers
                         }
                     }
                 }
-
-                if (!ApiDAL.UpdateAssetRuleLastRunDate(groupId, rule.Id))
-                {
-                    log.ErrorFormat("Failed to update asset rule last run date, ruleId = {0}", rule.Id);
-                }
-
+                
                 return modifiedAssetIds;
 
             }
