@@ -335,7 +335,7 @@ namespace Core.Catalog
 
                 #endregion
 
-                #region Regions
+                #region GeoAvailability
 
                 if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
                 {
