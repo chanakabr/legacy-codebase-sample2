@@ -985,11 +985,7 @@ namespace ElasticSearch.Common
             // Add this field only if it has a value
             if (oEpg.LinearMediaId > 0)
             {
-                sRecord.Append("\"linear_media_id\": \"");
-
-                sRecord.Append(oEpg.LinearMediaId);
-
-                sRecord.Append("\", ");
+                sRecord.AppendFormat("\"linear_media_id\": {0},", oEpg.LinearMediaId);
             }
 
             if (withRouting)
