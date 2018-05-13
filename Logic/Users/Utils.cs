@@ -24,6 +24,8 @@ using System.Web;
 using System.ServiceModel;
 using Core.Users.Cache;
 using ApiObjects.DRM;
+using ScheduledTasks;
+using QueueWrapper;
 
 namespace Core.Users
 {
@@ -38,6 +40,10 @@ namespace Core.Users
         internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
         protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
+        private const string PURGE_TASK = "distributed_tasks.process_purge";
+        private const double MAX_SERVER_TIME_DIF = 5;
+        private const double HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const string ROUTING_KEY_PURGE = "PROCESS_PURGE";
 
         static public Int32 GetGroupID(string sWSUserName, string sPass)
         {
@@ -1396,6 +1402,85 @@ namespace Core.Users
                 result = result & DomainDal.RemoveDrmId(drmId, groupId);
             }
             return result;
+        }
+
+        public static bool Purge()
+        {
+            double purgeScheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
+            try
+            {
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails purgeScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.purgeScheduledTasks);
+
+                // get run details
+                ScheduledTaskLastRunDetails lastRunDetails = purgeScheduledTask.GetLastRunDetails();
+                purgeScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+
+                if (purgeScheduledTask != null &&
+                    purgeScheduledTask.Status.Code == (int)eResponseStatus.OK &&
+                    purgeScheduledTask.NextRunIntervalInSeconds > 0)
+                {
+                    purgeScheduledTaskIntervalSec = purgeScheduledTask.NextRunIntervalInSeconds;
+
+                    if (purgeScheduledTask.LastRunDate.AddSeconds(purgeScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = true;
+                    }
+                }
+                else
+                {
+                    shouldEnqueueFollowUp = true;
+                    purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
+                }
+
+                int impactedItems = 0; //TODO call DB
+
+                if (impactedItems > 0)
+                {
+                    log.DebugFormat("Successfully applied purge on: {0} users", impactedItems);
+                }
+                else
+                {
+                    log.DebugFormat("No users were modified on purge");
+                }
+
+                purgeScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, purgeScheduledTaskIntervalSec, ScheduledTaskType.purgeScheduledTasks);
+                if (!purgeScheduledTask.SetLastRunDetails())
+                {
+                    log.InfoFormat("Failed to run purge scheduled task last run details, PurgeScheduledTask: {0}", purgeScheduledTask.ToString());
+                }
+                else
+                {
+                    log.Debug("Successfully ran purge scheduled task last run date");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in purge process", ex);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {
+                if (shouldEnqueueFollowUp)
+                {
+                    if (purgeScheduledTaskIntervalSec == 0)
+                    {
+                        purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(purgeScheduledTaskIntervalSec);
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), PURGE_TASK, new List<object>(), nextExecutionDate);
+                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_PURGE);
+                }
+            }
+
+            return true;
         }
     }
 }
