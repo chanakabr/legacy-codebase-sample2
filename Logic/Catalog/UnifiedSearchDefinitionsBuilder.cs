@@ -79,6 +79,8 @@ namespace Core.Catalog
                     }
                 }
 
+                definitions.shouldIgnoreEndDate = request.shouldIgnoreEndDate;
+
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
                 order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
