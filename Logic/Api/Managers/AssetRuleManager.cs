@@ -350,6 +350,9 @@ namespace Core.Api.Managers
             int pageSize = MAX_ASSETS_TO_UPDATE; //ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
 
+            bool shouldIgnoreEndDate = ksql.ToLower().Contains("end_date");
+
+
             UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
             {
                 m_sSignature = sSignature,
@@ -370,8 +373,8 @@ namespace Core.Api.Managers
                 },
                 filterQuery = ksql,
                 isInternalSearch = true,
-                assetTypes = group.GetMediaTypes()
-
+                assetTypes = group.GetMediaTypes(),
+                shouldIgnoreEndDate = shouldIgnoreEndDate
             };
 
             // Call catalog
