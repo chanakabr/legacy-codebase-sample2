@@ -7035,7 +7035,14 @@ namespace Core.Catalog
 
             #endregion
 
+            #region GeoAvailability
 
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
+
+            #endregion
 
             return status;
         }
@@ -7928,6 +7935,15 @@ namespace Core.Catalog
 
             CatalogLogic.GetParentMediaTypesAssociations(request.m_nGroupID,
                 out definitions.parentMediaTypes, out definitions.associationTags);
+
+            #endregion
+
+            #region GeoAvailability
+
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
 
             #endregion
 

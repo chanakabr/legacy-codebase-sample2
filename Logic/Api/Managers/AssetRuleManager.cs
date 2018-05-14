@@ -33,7 +33,7 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
-        private const int MAX_ASSETS_TO_UPDATE = 100;
+        private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -99,6 +99,12 @@ namespace Core.Api.Managers
                                 log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
                                 return 0;
                             }
+                        }
+
+                        List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
+                        if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
+                        {
+                            log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                         }
                     }
                     #endregion
@@ -185,13 +191,6 @@ namespace Core.Api.Managers
                                 {
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
-                                    if (assetIds.Count > MAX_ASSETS_TO_UPDATE)
-                                    {
-                                        log.DebugFormat("Exceeded the maximum number of assets to update at once. maximum = {0}, received assets = {1}, query = {2}", 
-                                            MAX_ASSETS_TO_UPDATE, assetIds.Count, actionKsqlFilter);
-                                        return result;
-                                    }
-
                                     // Apply rule on assets that returned from search
                                     if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true, rule.Id))
                                     {
@@ -227,13 +226,6 @@ namespace Core.Api.Managers
                                 {
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
-                                    if (assetIds.Count > MAX_ASSETS_TO_UPDATE)
-                                    {
-                                        log.DebugFormat("Exceeded the maximum number of assets to update at once. maximum = {0}, received assets = {1}, query = {2}",
-                                            MAX_ASSETS_TO_UPDATE, assetIds.Count, actionKsqlFilter);
-                                        return result;
-                                    }
-
                                     // Apply rule on assets that returned from search
                                     if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false, rule.Id))
                                     {
@@ -257,12 +249,7 @@ namespace Core.Api.Managers
                         }
                     }
                 }
-
-                if (!ApiDAL.UpdateAssetRuleLastRunDate(groupId, rule.Id))
-                {
-                    log.ErrorFormat("Failed to update asset rule last run date, ruleId = {0}", rule.Id);
-                }
-
+                
                 return modifiedAssetIds;
 
             }
@@ -360,7 +347,10 @@ namespace Core.Api.Managers
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             // page size should be max_results so it will return everything
-            int pageSize = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            int pageSize = MAX_ASSETS_TO_UPDATE; //ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+
+
+            bool shouldIgnoreEndDate = ksql.ToLower().Contains("end_date");
 
 
             UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
@@ -383,8 +373,8 @@ namespace Core.Api.Managers
                 },
                 filterQuery = ksql,
                 isInternalSearch = true,
-                assetTypes = group.GetMediaTypes()
-
+                assetTypes = group.GetMediaTypes(),
+                shouldIgnoreEndDate = shouldIgnoreEndDate
             };
 
             // Call catalog

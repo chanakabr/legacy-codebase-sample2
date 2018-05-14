@@ -71,6 +71,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool isInternalSearch;
 
+        [DataMember]
+        public bool shouldIgnoreEndDate;
+
         /// <summary>
         /// add new GroupID to Search assets ONLY in specific group 
         /// </summary>
