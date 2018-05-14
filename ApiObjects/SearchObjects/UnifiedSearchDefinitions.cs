@@ -375,6 +375,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public int countryId;
+        
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldIgnoreEndDate;
 
         #endregion
 
