@@ -4570,9 +4570,9 @@ namespace DAL
 
         public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
         {
-            return UpdateAssetRule(groupId, id, null, null, true);
+            return UpdateAssetRule(groupId, id, null, null);
         }
-
+        
         public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
         {
             bool result = false;
@@ -4791,7 +4791,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description, bool shouldUpdateLastRunDate = false)
+        public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)
         {
             bool result = false;
             try
@@ -4801,7 +4801,6 @@ namespace DAL
                 sp.AddParameter("@id", assetRuleId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
-                sp.AddParameter("@shouldUpdateLastRunDate", shouldUpdateLastRunDate ? 1 : 0);
 
                 result = sp.ExecuteReturnValue<int>() > 0;
             }
@@ -4826,6 +4825,25 @@ namespace DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool UpdateAssetRulesLastRunDate(int groupId, List<long> assetRuleIds)
+        {
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("UpdateAssetRulesLastRunDate");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIds, "ID");
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIds), ex);
             }
 
             return result;
