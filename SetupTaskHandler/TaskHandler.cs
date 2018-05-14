@@ -216,6 +216,23 @@ namespace SetupTaskHandler
 
                         #endregion
                     }
+                    case ApiObjects.eSetupTask.PurgeUsers:
+                        {
+                            #region Purge Users
+
+                            //Call users service 
+                            if (Core.Users.Module.Purge())
+                            {
+                                log.Debug("PurgeUsers: Successfully run purge");
+                                success = true;
+                            }
+                            else
+                                log.Error("PurgeUsers: Error received when trying to purge");
+
+                            break;
+
+                            #endregion
+                        }
                     default:
                         break;
                 }
