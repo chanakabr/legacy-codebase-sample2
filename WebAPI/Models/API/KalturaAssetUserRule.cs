@@ -35,25 +35,27 @@ namespace WebAPI.Models.API
 
         public void ValidateActions()
         {
-            //if (Actions != null)
-            //{
-            //    var duplicates = assetRule.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
-            //    if (duplicates != null && duplicates.ToList().Count > 1)
-            //    {
-            //        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
-            //    }
+            if (Actions != null)
+            {
+                var duplicates = Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
 
-            //    var ruleActionBlock = assetRule.Actions.Where(x => x.Type == KalturaRuleActionType.BLOCK).ToList();
-            //    if (ruleActionBlock != null && ruleActionBlock.Count > 0 && assetRule.Actions.Count > 1)
-            //    {
-            //        throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "actions=" + KalturaRuleActionType.BLOCK.ToString(),
-            //            "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
-            //    }
-            //}
-            //else
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
-            //}
+                if (duplicates != null && duplicates.ToList().Count > 1)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
+                }
+
+                // relevent if there is more then one action type (right now we have only one)
+                //var ruleActionBlock = Actions.Where(x => x.Type == KalturaRuleActionType.USER_BLOCK).ToList();
+                //if (ruleActionBlock != null && ruleActionBlock.Count > 0 && Actions.Count > 1)
+                //{
+                //    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "actions=" + KalturaRuleActionType.USER_BLOCK.ToString(),
+                //        "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
+                //}
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
+            }
         }
 
         public void ValidateConditions()
@@ -78,7 +80,7 @@ namespace WebAPI.Models.API
     public class KalturaAssetUserRuleListResponse : KalturaListResponse
     {
         /// <summary>
-        /// Asset rules
+        /// Asset user rules
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]

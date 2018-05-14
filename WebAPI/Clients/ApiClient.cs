@@ -83,7 +83,7 @@ namespace WebAPI.Clients
 
             return roles;
         }
-
+        
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)
@@ -120,7 +120,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
@@ -3982,5 +3982,53 @@ namespace WebAPI.Clients
 
             return kAssetRuleListResponse;
         }
+
+        #region AssetUserRule
+
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId)
+        {
+            KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
+
+            Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
+               Core.Api.Module.GetAssetUserRuleList(groupId);
+
+            KalturaGenericListResponse<KalturaAssetUserRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule AddAssetUserRule(int groupId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> addAssetUserRuleFunc = (AssetUserRule assetUserRuleToAdd) =>
+                Core.Api.Module.AddAssetUserRule(groupId, assetUserRuleToAdd);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, addAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> updateAssetUserRuleFunc = (AssetUserRule assetUserRuleToUpdate) =>
+                Core.Api.Module.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, updateAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal bool DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
+            return ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
+        }
+
+        #endregion
     }
 }

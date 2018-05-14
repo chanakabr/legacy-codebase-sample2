@@ -215,6 +215,7 @@
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
@@ -298,6 +299,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
+    <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
     <Compile Include="Models\General\KalturaAggregationCountOrderBy.cs" />
     <Compile Include="Models\General\KalturaDetachedResponseProfile.cs" />

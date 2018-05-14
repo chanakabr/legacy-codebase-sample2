@@ -21,28 +21,28 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        ///// <summary>
-        ///// Get the list of asset rules for the partner
-        ///// </summary>
-        //[Route("list"), HttpPost]
-        //[ApiAuthorize]
-        //public KalturaAssetUserRuleListResponse List()
-        //{
-        //    KalturaAssetRuleListResponse response = null;
+        /// <summary>
+        /// Get the list of asset user rules for the partner
+        /// </summary>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaAssetUserRuleListResponse List()
+        {
+            KalturaAssetUserRuleListResponse response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        response = ClientsManager.ApiClient().GetAssetRules(groupId);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                response = ClientsManager.ApiClient().GetAssetUserRules(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
         /// <summary>
         /// Add asset user rule
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
                 assetUserRule.ValidateActions();
                 assetUserRule.ValidateConditions();
                 
-                //response = ClientsManager.ApiClient().AddAssetRule(groupId, assetUserRule);
+                response = ClientsManager.ApiClient().AddAssetUserRule(groupId, assetUserRule);
             }
             catch (ClientException ex)
             {
@@ -76,57 +76,59 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Update asset rule
-        ///// </summary>
-        ///// <param name="assetRule">Asset rule</param>
-        ///// <param name="id">Asset rule ID to update</param>
-        //[Route("update"), HttpPost]
-        //[ApiAuthorize]
-        //[Throws(eResponseStatus.AssetRuleNotExists)]
-        //public KalturaAssetUserRule Update(long id, KalturaAssetUserRule assetRule)
-        //{
-        //    KalturaAssetRule response = null;
+        /// <summary>
+        /// Update asset user rule
+        /// </summary>
+        /// <param name="assetUserRule">Asset user rule</param>
+        /// <param name="id">Asset user rule ID to update</param>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaAssetUserRule Update(long id, KalturaAssetUserRule assetUserRule)
+        {
+            KalturaAssetUserRule response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        ValidateAssetRuleConditions(assetRule.Conditions);
+            try
+            {
+                assetUserRule.ValidateConditions();
 
-        //        response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+                response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
-        ///// <summary>
-        ///// Delete asset rule
-        ///// </summary>
-        ///// <param name="id">Asset rule ID</param>
-        //[Route("delete"), HttpPost]
-        //[ApiAuthorize]
-        //[Throws(eResponseStatus.AssetRuleNotExists)]
-        //public bool Delete(long id)
-        //{
-        //    bool response = false;
+        /// <summary>
+        /// Delete asset user rule
+        /// </summary>
+        /// <param name="id">Asset user rule ID</param>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [SchemeArgument("id", MinLong = 1)]
+        public bool Delete(long id)
+        {
+            bool response = false;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        response = ClientsManager.ApiClient().DeleteAssetRule(groupId, id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                response = ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
     }
 }
