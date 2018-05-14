@@ -134,6 +134,7 @@
     <Compile Include="AdaptersController.cs" />
     <Compile Include="Api\api.cs" />
     <Compile Include="Api\ApiCache.cs" />
+    <Compile Include="Api\Managers\AssetUserRuleManager.cs" />
     <Compile Include="Api\Managers\AssetRuleManager.cs" />
     <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
     <Compile Include="Api\Managers\RolesPermissionsManager.cs" />

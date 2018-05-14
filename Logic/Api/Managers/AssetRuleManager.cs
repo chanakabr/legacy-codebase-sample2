@@ -406,14 +406,14 @@ namespace Core.Api.Managers
                 }
 
                 assetRule.GroupId = groupId;
-                DataSet ds = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
-                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                DataTable dt = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                    long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
                     assetRule.Id = assetRuleId;
 
                     // Save assetRulesActions
-                    if (!ApiDAL.SaveAssetRule(groupId, assetRule))
+                    if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
                     {
                         log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
                     }
@@ -459,7 +459,7 @@ namespace Core.Api.Managers
                 }
 
                 // delete assetRulesActions from CB
-                if (!ApiDAL.DeleteAssetRuleCb(groupId, assetRuleId))
+                if (!ApiDAL.DeleteAssetRuleCB(groupId, assetRuleId))
                 {
                     log.ErrorFormat("Error while delete AssetRules CB. groupId: {0}, assetRuleId:{1}", groupId, assetRuleId);
                 }
@@ -659,7 +659,7 @@ namespace Core.Api.Managers
                 }
 
                 // upsert dtUpdatedAssetRulesActions            
-                if (!ApiDAL.SaveAssetRule(groupId, assetRule))
+                if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
                 {
                     log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
                 }

@@ -1016,6 +1016,7 @@ namespace ApiObjects
         Block,
         StartDateOffset,
         EndDateOffset,
+        UserBlock
     }
 
     public enum AssetRuleConditionType
@@ -1028,5 +1029,11 @@ namespace ApiObjects
     {
         LifeCycle = 0,
         Asset = 1
+    }
+
+    public enum AssetRuleType
+    {
+        AssetRule = 0,
+        AssetUserRule = 1
     }
 }

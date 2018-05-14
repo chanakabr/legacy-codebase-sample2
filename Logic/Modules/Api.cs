@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
+using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog.Response;
 using Core.Pricing;
@@ -1878,5 +1879,29 @@ namespace Core.Api
 
             return result;
         }
+
+        #region AssetUserRule
+        
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId)
+        {
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId);
+        }
+        
+        public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
+        {
+            return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
+        }
+        
+        public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
+        {
+            return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+        }
+        
+        public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId);
+        }
+
+        #endregion
     }
 }
