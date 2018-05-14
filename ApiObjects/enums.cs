@@ -494,7 +494,8 @@ namespace ApiObjects
         MigrateStatistics,
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks,
-        ReminderCleanupIteration
+        ReminderCleanupIteration,
+        PurgeUsers
     }
 
 

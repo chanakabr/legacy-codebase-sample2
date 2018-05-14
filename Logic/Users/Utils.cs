@@ -1438,7 +1438,7 @@ namespace Core.Users
                     purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = 0; //TODO call DB
+                int impactedItems = UsersDal.Purge(); //TODO call DB
 
                 if (impactedItems > 0)
                 {
@@ -1474,8 +1474,8 @@ namespace Core.Users
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(purgeScheduledTaskIntervalSec);
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), PURGE_TASK, new List<object>(), nextExecutionDate);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.PurgeUsers, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_PURGE);
                 }
             }
