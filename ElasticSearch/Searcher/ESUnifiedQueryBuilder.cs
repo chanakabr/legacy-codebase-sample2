@@ -2519,12 +2519,16 @@ namespace ElasticSearch.Searcher
 
             mediaDatesFilter.AddChild(mediaStartDateRange);
 
-            ESRange mediaEndDateRange = new ESRange(false);
-            mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-            mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+            if (!this.SearchDefinitions.shouldIgnoreEndDate)
+            {
+                ESRange mediaEndDateRange = new ESRange(false);
+                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
 
-            mediaDatesFilter.AddChild(mediaEndDateRange);
+                mediaDatesFilter.AddChild(mediaEndDateRange);
+            }
+
             return mediaDatesFilter;
         }
 
