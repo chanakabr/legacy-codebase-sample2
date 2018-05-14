@@ -53,7 +53,7 @@ namespace DAL
 
             return dt != null ? dt : new DataTable();
         }
-
+        
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
         {
             ODBCWrapper.StoredProcedure spGet_Operators_Info = new ODBCWrapper.StoredProcedure("Get_Operators_Info");
@@ -83,7 +83,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_UserSocialActionID(int nMediaID, string sSiteGuid, int nGroupID, int nSocialPlatform, int nSocialAction)
         {
             ODBCWrapper.StoredProcedure spUserSocialActionID = new ODBCWrapper.StoredProcedure("Get_UserSocialActionID");
@@ -243,7 +243,7 @@ namespace DAL
 
             return ret;
         }
-
+        
         public static string[] GetDomainGroupRule(int nGroupID, int nDomainID, int nRuleID)
         {
             try
@@ -372,7 +372,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_GroupOperatorsDetails(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spGroupOperatorsDetails = new ODBCWrapper.StoredProcedure("Get_GroupOperatorsDetails");
@@ -385,9 +385,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
-
-
+        
         public static DataTable Get_UserGroupRules(string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spUserGroupRules = new ODBCWrapper.StoredProcedure("Get_UserGroupRules");
@@ -4548,22 +4546,23 @@ namespace DAL
             return rules;
         }
 
-        public static DataSet AddAssetRule(int groupId, string name, string description)
+        public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
         {
-            DataSet ds = null;
+            DataTable ds = null;
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_AssetRule");
+                StoredProcedure sp = new StoredProcedure("Insert_AssetRule");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
+                sp.AddParameter("@assetRuleType", assetRuleType);
 
-                ds = sp.ExecuteDataSet();
+                ds = sp.Execute();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ex:{3} ", groupId, name, description, ex);
+                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ruleType: {3}, ex:{4} ", groupId, name, description, assetRuleType, ex);
             }
 
             return ds;
@@ -4574,20 +4573,20 @@ namespace DAL
             return UpdateAssetRule(groupId, id, null, null, true);
         }
 
-        public static bool SaveAssetRule(int groupId, AssetRule assetRule)
+        public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
         {
             bool result = false;
 
             if (assetRule != null && assetRule.Id > 0)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                result = SetAssetRule(groupId, assetRule, cbManager);
+                result = SetAssetRuleCB(groupId, assetRule, cbManager);
             }
 
             return result;
         }
 
-        private static bool SetAssetRule(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
+        private static bool SetAssetRuleCB(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
         {
             bool result = false;
             int numOfTries = 0;
@@ -4749,8 +4748,6 @@ namespace DAL
             }
 
             return assetRule;
-
-
         }
 
         public static bool DeleteAssetRule(int groupId, long id)
@@ -4770,7 +4767,7 @@ namespace DAL
             return false;
         }
 
-        public static bool DeleteAssetRuleCb(int groupId, long assetRuleId)
+        public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
         {
             bool result = false;
 
@@ -5083,5 +5080,125 @@ namespace DAL
 
         #endregion
 
+        #region AssetUserRule
+        
+        public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId, string key)
+        {
+            AssetUserRule assetUserRule = null;
+            eResultStatus status = eResultStatus.ERROR;
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            bool result = false;
+            int numOfTries = 0;
+
+            try
+            {
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    assetUserRule = JsonConvert.DeserializeObject<AssetUserRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);
+
+                    if (assetUserRule != null)
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received AssetUserRule. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
+                        }
+                    }
+                    else if (status != eResultStatus.SUCCESS)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while GetAssetUserRuleCB. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
+
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetAssetUserRuleCB. key: {0}, ex: {1}", key, ex);
+            }
+
+            return assetUserRule;
+        }
+        
+        public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave, string key)
+        {
+            bool result = false;
+
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            int numOfTries = 0;
+
+            try
+            {
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set<string>(key, JsonConvert.SerializeObject(assetUserRuleToSave, jsonSerializerSettings));
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while Save AssetUserRuleCB. number of tries: {0}/{1}. groupId: {2}, assetUserRuleId: {3}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, assetUserRuleToSave.GroupId, assetUserRuleToSave.Id);
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    // log success on retry
+                    else if (numOfTries > 0)
+                    {
+                        numOfTries++;
+                        log.DebugFormat("successfully Save AssetUserRuleCB. number of tries: {0}/{1}. GID: {2}, assetUserRuleId: {3}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, assetUserRuleToSave.GroupId, assetUserRuleToSave.Id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to Save AssetUserRuleCB. Id: {0}, ex: {1}", assetUserRuleToSave.Id, ex);
+            }
+
+            return result;
+        }
+        
+        public static bool DeleteAssetUserRuleCB(string assetUserRuleKey)
+        {
+            bool result = false;
+
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            
+            try
+            {
+                result = cbManager.Remove(assetUserRuleKey);
+                if (result)
+                    log.DebugFormat("Successfully removed {0}", assetUserRuleKey);
+                else
+                    log.ErrorFormat("Error while removing {0}", assetUserRuleKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", assetUserRuleKey, ex);
+            }
+
+            return result;
+        }
+
+        public static DataTable GetAssetUserRules(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_AssetUserRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
+
+        #endregion
     }
 }

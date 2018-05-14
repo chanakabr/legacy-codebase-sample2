@@ -58,6 +58,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_ALL_ASSET_RULES = "GetAllAssetRules";
         public const string GET_ASSET_RULE = "GetAssetRule";
         public const string GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllCountryList";
+        public const string GET_ALL_ASSET_USER_RULE_IDS = "GetAllAssetUserRuleIds";
+        public const string GET_ASSET_USER_RULE = "GetAssetUserRule";
 
         #endregion
 

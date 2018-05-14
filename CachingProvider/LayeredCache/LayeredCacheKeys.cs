@@ -51,7 +51,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
         }
-
+        
         public static string GetKeyForIp(string ip)
         {
             return string.Format("ip_{0}", ip);
@@ -314,6 +314,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("asset_rules_{0}", ruleId);
         }
 
+        public static string GetAllAssetUserRuleIdsKey(int groupId)
+        {
+            return string.Format("all_asset_user_rule_ids_{0}", groupId);
+        }
+
+        public static string GetAssetUserRuleKey(long ruleId)
+        {
+            return string.Format("asset_user_rule_{0}", ruleId);
+        }
+        
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
 
         public static string GetUserRolesInvalidationKey(string userId)
@@ -502,6 +512,16 @@ namespace CachingProvider.LayeredCache
         public static string GetAssetRuleInvalidationKey(long ruleId)
         {
             return string.Format("invalidationKey_asset_rule_{0}", ruleId);
+        }
+
+        public static string GetAllAssetUserRuleIdsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_all_asset_user_rule_ids_{0}", groupId);
+        }
+
+        public static string GetAssetUserRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_asset_user_rule_{0}", ruleId);
         }
 
         #endregion
