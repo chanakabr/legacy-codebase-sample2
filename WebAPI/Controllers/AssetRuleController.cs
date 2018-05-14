@@ -63,20 +63,8 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
 
-                if (assetRule.Actions == null)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
-                }
-
-                if (assetRule.Conditions == null)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
-                }
-
-                ValidateAssetRuleActions(assetRule);
-
-                ValidateAssetRuleConditions(assetRule.Conditions);
-
+                assetRule.ValidateActions();
+                assetRule.ValidateConditions();
 
                 response = ClientsManager.ApiClient().AddAssetRule(groupId, assetRule);
             }
@@ -104,7 +92,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ValidateAssetRuleConditions(assetRule.Conditions);
+                assetRule.ValidateConditions();
 
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }
@@ -139,59 +127,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
-
-        private void ValidateAssetRuleActions(KalturaAssetRule assetRule)
-        {
-            if (assetRule != null && assetRule.Actions != null)
-            {
-                var duplicates = assetRule.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
-                if (duplicates != null && duplicates.ToList().Count > 1)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
-                }
-
-                var ruleActionBlock = assetRule.Actions.Where(x => x.Type == KalturaRuleActionType.BLOCK).ToList();
-                if (ruleActionBlock != null && ruleActionBlock.Count > 0 && assetRule.Actions.Count > 1)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "actions=" + KalturaRuleActionType.BLOCK.ToString(),
-                        "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
-                }
-            }
-        }
-
-        private void ValidateAssetRuleConditions(List<KalturaCondition> conditions)
-        {
-            bool countryConditionExist = false;
-
-            if (conditions != null)
-            {
-                foreach (var condition in conditions)
-                {
-                    if (condition is KalturaCountryCondition)
-                    {
-                        countryConditionExist = true;
-                        KalturaCountryCondition kAssetCondition = condition as KalturaCountryCondition;
-                        if (string.IsNullOrEmpty(kAssetCondition.Countries))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "countries");
-                        }
-                    }
-                    else if (condition is KalturaAssetCondition)
-                    {
-                        KalturaAssetCondition kAssetCondition = condition as KalturaAssetCondition;
-                        if (string.IsNullOrEmpty(kAssetCondition.Ksql))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
-                        }
-                    }
-                }
-
-                if (!countryConditionExist)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "countries");
-                }
-            }
         }
     }
 }

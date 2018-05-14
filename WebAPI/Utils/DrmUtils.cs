@@ -221,10 +221,7 @@ namespace WebAPI.Utils
                 {
                     response.Actions = new List<KalturaRuleAction>();
                 }
-                response.Actions.Add(new KalturaRuleAction()
-                {
-                    Type = KalturaRuleActionType.BLOCK
-                });
+                response.Actions.Add(new KalturaAccessControlBlockAction());
             }
         }
     }

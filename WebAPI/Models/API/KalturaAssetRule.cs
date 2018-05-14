@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -14,33 +15,8 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset rule
     /// </summary>
-    public class KalturaAssetRule : KalturaOTTObject
+    public class KalturaAssetRule : KalturaAssetRuleBase
     {
-        /// <summary>
-        /// ID
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
-        public long Id { get; set; }
-
-        /// <summary>
-        /// Name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty("description")]
-        [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
-
         /// <summary>
         /// List of conditions for the rule
         /// </summary>
@@ -55,8 +31,71 @@ namespace WebAPI.Models.API
         [DataMember(Name = "actions")]
         [JsonProperty("actions")]
         [XmlElement(ElementName = "actions")]
-        public List<KalturaRuleAction> Actions { get; set; }
+        public List<KalturaAssetRuleAction> Actions { get; set; }
 
+        public void ValidateActions()
+        {
+            if (this.Actions != null)
+            {
+                var duplicates = this.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
+                
+                if (duplicates != null && duplicates.ToList().Count > 1)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
+                }
+
+                var ruleActionBlock = Actions.Where(x => x.Type == KalturaRuleActionType.BLOCK).ToList();
+                if (ruleActionBlock != null && ruleActionBlock.Count > 0 && Actions.Count > 1)
+                {
+                    throw new BadRequestException
+                        (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, 
+                        "actions=" + KalturaRuleActionType.BLOCK.ToString(),
+                        "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
+                }
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
+            }
+        }
+
+        public void ValidateConditions()
+        {
+            bool countryConditionExist = false;
+
+            if (this.Conditions != null)
+            {
+                foreach (var condition in Conditions)
+                {
+                    if (condition is KalturaCountryCondition)
+                    {
+                        countryConditionExist = true;
+                        KalturaCountryCondition kAssetCondition = condition as KalturaCountryCondition;
+                        if (string.IsNullOrEmpty(kAssetCondition.Countries))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "countries");
+                        }
+                    }
+                    else if (condition is KalturaAssetCondition)
+                    {
+                        KalturaAssetCondition ksqlCondition = condition as KalturaAssetCondition;
+                        if (string.IsNullOrEmpty(ksqlCondition.Ksql))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+                        }
+                    }
+                }
+
+                if (!countryConditionExist)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "countries");
+                }
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+            }
+        }
     }
 
     public class KalturaAssetRuleListResponse : KalturaListResponse
@@ -70,5 +109,4 @@ namespace WebAPI.Models.API
         [XmlArrayItem("item")]
         public List<KalturaAssetRule> Objects { get; set; }
     }
-
 }

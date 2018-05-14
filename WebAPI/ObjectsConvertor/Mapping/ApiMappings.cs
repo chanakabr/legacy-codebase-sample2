@@ -540,36 +540,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        private static KalturaRuleActionType ConvertRuleActionType(RuleActionType type)
-        {
-            switch (type)
-            {
-                case RuleActionType.Block:
-                    return KalturaRuleActionType.BLOCK;
-                case RuleActionType.StartDateOffset:
-                    return KalturaRuleActionType.START_DATE_OFFSET;
-                case RuleActionType.EndDateOffset:
-                    return KalturaRuleActionType.END_DATE_OFFSET;
-                default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
-            }
-        }
-
-        private static RuleActionType ConvertRuleActionType(KalturaRuleActionType type)
-        {
-            switch (type)
-            {
-                case KalturaRuleActionType.BLOCK:
-                    return RuleActionType.Block;
-                case KalturaRuleActionType.START_DATE_OFFSET:
-                    return RuleActionType.StartDateOffset;
-                case KalturaRuleActionType.END_DATE_OFFSET:
-                    return RuleActionType.EndDateOffset;
-                default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
-            }
-        }
-
         private static List<AssetRuleCondition> ConvertAssetRuleConditions(List<KalturaCondition> conditions)
         {
             List<AssetRuleCondition> result = null;
@@ -667,26 +637,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaRuleAction> ConvertAssetRuleActions(List<AssetRuleAction> ruleActions)
+        private static List<KalturaAssetRuleAction> ConvertAssetRuleActions(List<AssetRuleAction> ruleActions)
         {
-            List<KalturaRuleAction> result = null;
+            List<KalturaAssetRuleAction> result = null;
 
             if (ruleActions != null && ruleActions.Count > 0)
             {
-                result = new List<KalturaRuleAction>();
+                result = new List<KalturaAssetRuleAction>();
 
-                KalturaRuleAction item = null;
+                KalturaAssetRuleAction kalturaAssetRuleAction = null;
                 foreach (var ruleAction in ruleActions)
                 {
                     switch (ruleAction.Type)
                     {
                         case RuleActionType.Block:
 
-                            AccessControlBlockAction accessControlBlockAction = ruleAction as AccessControlBlockAction;
-                            item = new KalturaAccessControlBlockAction()
+                            AssetBlockAction assetBlockAction = ruleAction as AssetBlockAction;
+                            kalturaAssetRuleAction = new KalturaAccessControlBlockAction()
                             {
-                                Description = accessControlBlockAction.Description,
-                                Type = KalturaRuleActionType.BLOCK
+                                Description = assetBlockAction.Description
                             };
 
                             break;
@@ -694,10 +663,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.StartDateOffset:
 
                             StartDateOffsetRuleAction startDateOffsetRuleAction = ruleAction as StartDateOffsetRuleAction;
-                            item = new KalturaStartDateOffsetRuleAction()
+                            kalturaAssetRuleAction = new KalturaStartDateOffsetRuleAction()
                             {
                                 Description = startDateOffsetRuleAction.Description,
-                                Type = KalturaRuleActionType.START_DATE_OFFSET,
                                 Offset = startDateOffsetRuleAction.Offset,
                                 TimeZone = startDateOffsetRuleAction.TimeZone
                             };
@@ -707,10 +675,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.EndDateOffset:
 
                             EndDateOffsetRuleAction endDateOffsetRuleAction = ruleAction as EndDateOffsetRuleAction;
-                            item = new KalturaEndDateOffsetRuleAction()
+                            kalturaAssetRuleAction = new KalturaEndDateOffsetRuleAction()
                             {
                                 Description = endDateOffsetRuleAction.Description,
-                                Type = KalturaRuleActionType.END_DATE_OFFSET,
                                 Offset = endDateOffsetRuleAction.Offset,
                                 TimeZone = endDateOffsetRuleAction.TimeZone
                             };
@@ -720,14 +687,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                     }
 
-                    result.Add(item);
+                    result.Add(kalturaAssetRuleAction);
                 }
             }
 
             return result;
         }
 
-        private static List<AssetRuleAction> ConvertAssetRuleActions(List<KalturaRuleAction> ruleActions)
+        private static List<AssetRuleAction> ConvertAssetRuleActions(List<KalturaAssetRuleAction> ruleActions)
         {
             List<AssetRuleAction> result = null;
 
@@ -741,7 +708,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     if (action is KalturaAccessControlBlockAction)
                     {
                         KalturaAccessControlBlockAction kAssetAction = action as KalturaAccessControlBlockAction;
-                        item = new AccessControlBlockAction()
+                        item = new AssetBlockAction()
                         {
                             Description = kAssetAction.Description,
                             Type = RuleActionType.Block

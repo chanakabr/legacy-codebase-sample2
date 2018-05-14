@@ -220,6 +220,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
+    <Compile Include="Controllers\AssetUserRuleController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
@@ -284,6 +285,8 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
+    <Compile Include="Models\API\KalturaAssetUserRule.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />
