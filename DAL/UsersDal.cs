@@ -1494,7 +1494,7 @@ namespace DAL
             sp.AddParameter("@Status", nStatus);
             return sp.ExecuteReturnValue<long>();
         }
-
+        
         public static void Update_IsActiveForAllUserSessionsOtherThan(long lOtherThanThisSiteGuid, string sDeviceID, bool bIsActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_IsActiveForAllUserSessionsOtherThan");
@@ -2158,6 +2158,13 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupAdapterId");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static int Purge()
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             return sp.ExecuteReturnValue<int>();
         }
     }     
