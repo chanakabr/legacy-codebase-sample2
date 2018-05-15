@@ -1946,5 +1946,11 @@ namespace Core.Users
             }
             return null;
         }
+
+        public static bool Purge()
+        {
+            bool result = Utils.Purge();
+            return result;
+        }
     }
 }
