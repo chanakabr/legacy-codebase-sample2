@@ -2104,5 +2104,11 @@ namespace WS_Users
             }
             return response;
         }
+
+        [WebMethod]
+        public bool Purge()
+        {
+            return Core.Users.Module.Purge();
+        }
     }
 }
