@@ -10679,7 +10679,7 @@ namespace Core.Api
                 }
             }
 
-            return true;
+            return false;
         }
     }
 }
