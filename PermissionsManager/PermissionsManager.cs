@@ -39,7 +39,7 @@ namespace PermissionsManager
             }
 
             InitializeLogging();
-            ConfigurationManager.ApplicationConfiguration.Initialize(true);
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
             try
             {
@@ -49,7 +49,17 @@ namespace PermissionsManager
                 {
                     RenameTables(allPermissions);
 
+                    // create output directory
+                    string directory = Path.GetDirectoryName(fileName);
+
+                    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
                     allPermissions.WriteXml(fileName);
+
+                    log.InfoFormat("export into file {0} has been completed", fileName);
 
                     result = true;
                 }
@@ -80,7 +90,15 @@ namespace PermissionsManager
 
             log.InfoFormat("Starting import of permission from file {0}", fileName);
 
-            ConfigurationManager.ApplicationConfiguration.Initialize(true);
+            // create output directory
+            string directory = Path.GetDirectoryName(fileName);
+
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
             try
             {
@@ -543,6 +561,8 @@ namespace PermissionsManager
                 #endregion
 
                 result = true;
+
+                log.InfoFormat("import from file {0} has been completed", fileName);
             }
             catch (Exception ex)
             {
@@ -565,7 +585,7 @@ namespace PermissionsManager
             }
 
             InitializeLogging();
-            ConfigurationManager.ApplicationConfiguration.Initialize(true);
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
             log.InfoFormat("Starting deleting of permissions from file {0}", fileName);
 
