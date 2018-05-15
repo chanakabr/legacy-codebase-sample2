@@ -10676,6 +10676,7 @@ namespace Core.Api
                 }
                 else
                 {
+                    isGeoAvailability = false;
                     return false;
                 }
             }

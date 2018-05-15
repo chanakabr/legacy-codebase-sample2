@@ -3593,7 +3593,7 @@ namespace Core.ConditionalAccess
                                 {
                                     eMediaFileStatus = MediaFileStatus.NotForPurchase;
                                 }
-                                else if (mediaStartDate > currentDate || mediaFileStartDate > currentDate)
+                                else if (!isGeoAvailability && (mediaStartDate > currentDate || mediaFileStartDate > currentDate))
                                 {
                                     eMediaFileStatus = MediaFileStatus.NotForPurchase;
                                 }
