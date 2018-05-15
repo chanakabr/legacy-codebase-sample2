@@ -50,6 +50,9 @@ namespace ScheduledTasks
                 case ApiObjects.ScheduledTaskType.assetRuleScheduledTasks:
                     key = "assetRule_scheduledTasks";
                     break;
+                case ScheduledTaskType.purgeScheduledTasks:
+                    key = "purge_scheduledTasks";
+                    break;
                 default:
                     break;
             }
@@ -124,7 +127,7 @@ namespace ScheduledTasks
                     BaseScheduledTaskLastRunDetails currentScheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
                     if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
-                        if (roundNextRunDateInMin % 5 == 0) 
+                        if (roundNextRunDateInMin % 5 == 0)
                         {
                             // round seconds
                             this.LastRunDate.AddSeconds(-this.LastRunDate.Second);
