@@ -47,6 +47,9 @@ namespace ScheduledTasks
                 case ApiObjects.ScheduledTaskType.assetLifeCycleRuleScheduledTasks:
                     key = "alcr_scheduledTasks";
                     break;
+                case ScheduledTaskType.purgeScheduledTasks:
+                    key = "purge_scheduledTasks";
+                    break;
                 default:
                     break;
             }
