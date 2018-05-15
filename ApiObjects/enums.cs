@@ -494,7 +494,8 @@ namespace ApiObjects
         MigrateStatistics,
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks,
-        ReminderCleanupIteration
+        ReminderCleanupIteration,
+        PurgeUsers
     }
 
 
@@ -747,7 +748,8 @@ namespace ApiObjects
         recordingsCleanup = 2,
         notificationCleanup = 3,
         reminderCleanup = 4,
-        assetLifeCycleRuleScheduledTasks = 5
+        assetLifeCycleRuleScheduledTasks = 5,
+        purgeScheduledTasks = 6
     }
 
     public enum SearchSeriesRecordingsTimeOptions
