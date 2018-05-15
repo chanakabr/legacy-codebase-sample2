@@ -10666,6 +10666,7 @@ namespace Core.Api
                     }
                     else if (allowedCountries == null || allowedCountries.Length == 0)
                     {
+                        isGeoAvailability = false;
                         return false;
                     }
                     else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
