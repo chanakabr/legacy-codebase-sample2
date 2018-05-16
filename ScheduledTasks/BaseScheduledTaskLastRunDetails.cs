@@ -105,7 +105,7 @@ namespace ScheduledTasks
             return response;
         }
 
-        public override bool SetLastRunDetails(int roundNextRunDateInMin = 0)
+        public override bool SetLastRunDetails(int roundNextRunDateInMin = -1)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
@@ -127,13 +127,21 @@ namespace ScheduledTasks
                     BaseScheduledTaskLastRunDetails currentScheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
                     if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
-                        if (roundNextRunDateInMin % 5 == 0)
+                        if (roundNextRunDateInMin != -1)
                         {
                             // round seconds
-                            this.LastRunDate.AddSeconds(-this.LastRunDate.Second);
+                            this.LastRunDate = this.LastRunDate.AddSeconds(-this.LastRunDate.Second);
                             // round minutes
-                            this.LastRunDate.AddMinutes(-(this.LastRunDate.Minute % roundNextRunDateInMin));
-                        }
+                            if (roundNextRunDateInMin == 0)
+                            {
+                                this.LastRunDate = this.LastRunDate.AddMinutes(-this.LastRunDate.Minute);
+                            }
+                            else
+                            {
+                                this.LastRunDate = this.LastRunDate.AddMinutes(-(this.LastRunDate.Minute % roundNextRunDateInMin));
+                            }
+                        }                       
+
                         result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, this, version);
                     }
 
