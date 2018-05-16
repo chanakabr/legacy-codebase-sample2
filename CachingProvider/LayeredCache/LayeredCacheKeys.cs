@@ -314,16 +314,21 @@ namespace CachingProvider.LayeredCache
             return string.Format("asset_rules_{0}", ruleId);
         }
 
-        public static string GetAllAssetUserRuleIdsKey(int groupId)
+        public static string GetAssetUserRuleIdsGroupKey(int groupId)
         {
-            return string.Format("all_asset_user_rule_ids_{0}", groupId);
+            return string.Format("asset_user_rule_ids_groupId_{0}", groupId);
         }
 
         public static string GetAssetUserRuleKey(long ruleId)
         {
             return string.Format("asset_user_rule_{0}", ruleId);
         }
-        
+
+        public static string GetUserToAssetUserRuleIdsKey(long userId)
+        {
+            return string.Format("asset_user_rule_ids_userId_{0}", userId);
+        }
+
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
 
         public static string GetUserRolesInvalidationKey(string userId)
@@ -514,9 +519,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_asset_rule_{0}", ruleId);
         }
 
-        public static string GetAllAssetUserRuleIdsInvalidationKey(int groupId)
+        public static string GetAssetUserRuleIdsGroupInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_all_asset_user_rule_ids_{0}", groupId);
+            return string.Format("invalidationKey_asset_user_rule_ids_groupId_{0}", groupId);
         }
 
         public static string GetAssetUserRuleInvalidationKey(long ruleId)
@@ -524,6 +529,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_asset_user_rule_{0}", ruleId);
         }
 
+        public static string GetUserToAssetUserRuleIdsInvalidationKey(long userId)
+        {
+            return string.Format("invalidationKey_user_asset_user_rule_ids_userId_{0}", userId);
+        }
+        
         #endregion
 
         #region Domains
