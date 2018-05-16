@@ -376,9 +376,10 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
 
+                            var mediaRes = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 1,
+                                string.Format("media_id = '{0}'", mediaId), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                           
                             // if no response - return not found status 
                             if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
                             {
