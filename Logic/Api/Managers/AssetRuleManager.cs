@@ -260,14 +260,13 @@ namespace Core.Api.Managers
             }
         }
 
-        private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countries)
+        private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countryIds)
         {
             List<int> response = new List<int>();
-            CountryLocaleResponse countrieResponse = Api.Module.GetCountryList(groupId, null);
-            if (countrieResponse.Status.Code == (int)eResponseStatus.OK)
+            List<Country> countries = Core.Api.api.GetCountryListByIds(null, groupId);
+            if (countries != null)
             {
-                response = countrieResponse.Countries.Select(c => c.Id).Where(c => !countries.Contains(c)).ToList();
-                response.AddRange(countrieResponse.CountryLocales.Select(c => c.Id).Where(c => !countries.Contains(c)));
+                response = countries.Select(c => c.Id).Where(c => !countryIds.Contains(c)).ToList();
             }
             return response;
         }
@@ -286,27 +285,15 @@ namespace Core.Api.Managers
 
         private static double GetTimeZoneOffsetForCountry(int groupId, int countryId)
         {
-            CountryLocaleResponse countriesResponse = Api.Module.GetCountryList(groupId, new List<int>() { countryId });
+            List<Country> countries = Core.Api.api.GetCountryListByIds(new List<int>() { countryId }, groupId);
 
-            Country country = null;
-
-            if (countriesResponse.Status.Code == (int)eResponseStatus.OK)
-            {
-                if (countriesResponse.Countries != null && countriesResponse.Countries.Count > 0)
-                {
-                    country = countriesResponse.Countries[0];
-                }
-                else if (countriesResponse.CountryLocales != null && countriesResponse.CountryLocales.Count > 0)
-                {
-                    country = countriesResponse.CountryLocales[0];
-                }
-            }
-
-            if (country == null)
+            if (countries == null || countries.Count == 0)
             {
                 log.ErrorFormat("Failed to get countryId = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
+
+            Country country = countries[0];
 
             if (string.IsNullOrEmpty(country.TimeZoneId))
             {
