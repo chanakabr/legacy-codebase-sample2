@@ -375,7 +375,14 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public int countryId;
-        
+
+        /// <summary>
+        /// Asset user rule phrase to append to main query with not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public BooleanPhraseNode assetUserRulePhrase;
+
         [JsonProperty()]
         [DataMember]
         public bool shouldIgnoreEndDate;

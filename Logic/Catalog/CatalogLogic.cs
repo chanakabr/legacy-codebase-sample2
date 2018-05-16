@@ -7035,7 +7035,7 @@ namespace Core.Catalog
 
             #endregion
 
-            #region GeoAvailability
+            #region Geo Availability
 
             if (group.isGeoAvailabilityWindowingEnabled)
             {

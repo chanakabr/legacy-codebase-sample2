@@ -337,13 +337,49 @@ namespace Core.Catalog
 
                 #endregion
 
-                #region GeoAvailability
+                #region Geo Availability
 
                 if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
-                
+
+                #endregion
+
+                #region Asset User Rule
+
+                var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+                if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)
+                    {
+                        StringBuilder notQuery = new StringBuilder();
+                        notQuery.Append("(and ");
+                        foreach (var rule in assetUserRulesResponse.Objects)
+                        {
+                            foreach (var condition in rule.Conditions)
+                            {
+                                notQuery.AppendFormat(" {0}", condition.Ksql);
+                            }
+                        }
+
+                        notQuery.Append(")");
+
+                        string notQueryString = notQuery.ToString();
+
+                        BooleanPhraseNode notPhrase = null;
+                        BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+
+                        CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group);
+
+                        definitions.assetUserRulePhrase = notPhrase;
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+                }
+
                 #endregion
 
             }
