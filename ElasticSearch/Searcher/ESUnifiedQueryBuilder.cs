@@ -926,7 +926,6 @@ namespace ElasticSearch.Searcher
 
                 #endregion
 
-               
             }
 
             // Recordings specific filters
@@ -1079,8 +1078,40 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+
             #endregion
 
+            #region Asset User Rule
+
+            if (SearchDefinitions.assetUserRulePhrase != null)
+            {
+                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRulePhrase);
+
+                if (queryTerm == null)
+                {
+                    queryTerm = new BoolQuery();
+                    (queryTerm as BoolQuery).AddNot(notPhraseQuery);
+                }
+                else
+                {
+                    BoolQuery boolQuery = queryTerm as BoolQuery;
+
+                    if (boolQuery != null)
+                    {
+                        boolQuery.AddNot(notPhraseQuery);
+                    }
+                    else
+                    {
+                        boolQuery = new BoolQuery();
+                        boolQuery.AddChild(queryTerm, CutWith.AND);
+                        boolQuery.AddNot(notPhraseQuery);
+
+                        queryTerm = boolQuery;
+                    }
+                }
+            }
+
+            #endregion
             // Eventual filter will be:
             //
             // AND: [
