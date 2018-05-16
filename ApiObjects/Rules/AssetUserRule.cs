@@ -26,6 +26,11 @@ namespace ApiObjects.Rules
                     this.Name = assetUserRule.Name;
                 }
 
+                if (string.IsNullOrEmpty(this.Description))
+                {
+                    this.Description = assetUserRule.Description;
+                }
+
                 if (this.Actions == null || this.Actions.Count == 0)
                 {
                     this.Actions = assetUserRule.Actions;

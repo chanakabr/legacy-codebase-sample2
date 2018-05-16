@@ -32,29 +32,51 @@ namespace Core.Api.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string ASSET_USER_RULE_DOES_NOT_EXIST = "Asset user rule does not exist";
-        private const string ASSET_USER_RULE_FAILED_DELETE = "failed to delete Asset user rule";
+        private const string DELETE_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule";
+        private const string DELETE_USER_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule from user";
         private const string ASSET_USER_RULE_FAILED_UPDATE = "failed to update Asset user rule";
         private const string ASSET_USER_RULE_NOT_FOUND = "No Asset User Rules found";
         
-        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId)
+        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
 
             try
             {
-                List<long> assetUserRuleIds = new List<long>();
-                string key = LayeredCacheKeys.GetAllAssetUserRuleIdsKey(groupId);
 
-                if (!LayeredCache.Instance.Get<List<long>>(key,
-                                                           ref assetUserRuleIds,
-                                                           GetAllAssetUserRuleIds,
-                                                           new Dictionary<string, object>() { { "groupId", groupId } },
-                                                           groupId,
-                                                           LayeredCacheConfigNames.GET_ALL_ASSET_USER_RULE_IDS,
-                                                           new List<string>() { LayeredCacheKeys.GetAllAssetUserRuleIdsInvalidationKey(groupId) }))
+                List<long> assetUserRuleIds = new List<long>();
+
+                if (!userId.HasValue)
                 {
-                    log.ErrorFormat("GetAssetUserRuleList - Failed get data from cache. groupId: {0}", groupId);
-                    return response;
+                    string key = LayeredCacheKeys.GetAssetUserRuleIdsGroupKey(groupId);
+
+                    if (!LayeredCache.Instance.Get<List<long>>(key,
+                                                               ref assetUserRuleIds,
+                                                               GetAssetUserRuleIdsByGroup,
+                                                               new Dictionary<string, object>() { { "groupId", groupId } },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.GET_ASSET_USER_RULE_IDS_BY_GROUP,
+                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
+                    {
+                        log.ErrorFormat("GetAssetUserRuleList - GetAssetUserRuleIdsByGroup - Failed get data from cache. groupId: {0}", groupId);
+                        return response;
+                    }
+                }
+                else
+                {
+                    string key = LayeredCacheKeys.GetUserToAssetUserRuleIdsKey(userId.Value);
+
+                    if (!LayeredCache.Instance.Get<List<long>>(key,
+                                                               ref assetUserRuleIds,
+                                                               GetUserToAssetUserRuleIds,
+                                                               new Dictionary<string, object>() { { "userId", userId.Value } },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.GET_USER_TO_ASSET_USER_RULE_IDS,
+                                                               new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId.Value) }))
+                    {
+                        log.ErrorFormat("GetAssetUserRuleList - GetUserToAssetUserRuleIds - Failed get data from cache. groupId: {0}, userId: {1}", groupId, userId.Value);
+                        return response;
+                    }
                 }
 
                 if (assetUserRuleIds == null || assetUserRuleIds.Count == 0)
@@ -108,84 +130,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-
-        private static Tuple<Dictionary<string, AssetUserRule>, bool> GetAssetUserRules(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            Dictionary<string, AssetUserRule> result = new Dictionary<string, AssetUserRule>();
-
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
-                {
-                    List<string> ruleIds = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
-                    
-                    if (ruleIds != null && ruleIds.Count > 0)
-                    {
-                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-                        
-                        foreach (string sRuleId in ruleIds)
-                        {
-                            long ruleId = long.Parse(sRuleId);
-                            string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(ruleId);
-
-                            AssetUserRule assetUserRule = ApiDAL.GetAssetUserRuleCB(ruleId, assetUserRuleKey);
-                            if (assetUserRule != null)
-                            {
-                                result.Add(assetUserRuleKey, assetUserRule);
-                            }
-                        }
-
-                        res = result.Count == ruleIds.Count();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAssetUserRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<Dictionary<string, AssetUserRule>, bool>(result, res);
-        }
-
-        /// <summary>
-        /// Get All Asset User Rule Ids by groupID from DB
-        /// </summary>
-        /// <param name="funcParams">groupId</param>
-        /// <returns></returns>
-        private static Tuple<List<long>, bool> GetAllAssetUserRuleIds(Dictionary<string, object> funcParams)
-        {
-            List<long> assetUserRuleIds = new List<long>();
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-
-                    if (groupId.HasValue)
-                    {
-                        DataTable dtAssetUserRules = ApiDAL.GetAssetUserRules(groupId.Value);
-
-                        if (dtAssetUserRules != null && dtAssetUserRules.Rows != null && dtAssetUserRules.Rows.Count > 0)
-                        {
-                            foreach (DataRow assetUserRuleRow in dtAssetUserRules.Rows)
-                            {
-                                long assetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(assetUserRuleRow, "ID");
-                                assetUserRuleIds.Add(assetUserRuleId);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAllAssetUserRuleIds failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<List<long>, bool>(assetUserRuleIds, assetUserRuleIds.Count() > 0);
-        }
-
+        
         internal static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
         {
             GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
@@ -206,7 +151,7 @@ namespace Core.Api.Managers
                     }
                     else
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetUserRuleIdsInvalidationKey(groupId));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
                         
                         response.Object = assetUserRuleToAdd;
                         response.Status.Code = (int)eResponseStatus.OK;
@@ -242,6 +187,9 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                // before saving AssetUserRule fill name,description,actions,conditions in case they are empty
+                assetUserRuleToUpdate.FillEmpty(oldAssetUserRule);
+
                 // update asset user rule in DB
                 if (!ApiDAL.UpdateAssetRule(groupId, assetUserRuleToUpdate.Id, assetUserRuleToUpdate.Name, assetUserRuleToUpdate.Description))
                 {
@@ -249,10 +197,7 @@ namespace Core.Api.Managers
                     response.Status.Message = ASSET_USER_RULE_FAILED_UPDATE;
                     return response;
                 }
-
-                // before saving AssetRule complete name,actions,conditions in case they are empty
-                assetUserRuleToUpdate.FillEmpty(oldAssetUserRule);
-
+                
                 // update asset user rule in CB           
                 if (!ApiDAL.SaveAssetUserRuleCB(assetUserRuleToUpdate, assetUserRuleKey))
                 {
@@ -291,12 +236,14 @@ namespace Core.Api.Managers
                     response.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
                     return response;
                 }
-
+                
                 // delete asset user rule in DB
-                if (!ApiDAL.DeleteAssetRule(groupId, assetUserRuleId))
+                DataTable dtDeletedUserToAssetUserRuleIds = ApiDAL.DeleteAssetUserRule(groupId, assetUserRuleId);
+
+                if (dtDeletedUserToAssetUserRuleIds == null || dtDeletedUserToAssetUserRuleIds.Rows == null )
                 {
                     response.Code = (int)eResponseStatus.Error;
-                    response.Message = ASSET_USER_RULE_FAILED_DELETE;
+                    response.Message = DELETE_ASSET_USER_RULE_FAILED;
                     return response;
                 }
 
@@ -307,10 +254,17 @@ namespace Core.Api.Managers
                 }
                 else
                 {
+
                     // set invalidation keys
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetUserRuleIdsInvalidationKey(groupId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleId));
-                    
+
+                    foreach (DataRow deletedUserToAssetUserRow in dtDeletedUserToAssetUserRuleIds.Rows)
+                    {
+                        long deletedUserId = ODBCWrapper.Utils.GetLongSafeVal(deletedUserToAssetUserRow, "USER_ID");
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(deletedUserId));
+                    }
+
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();   
                 }
@@ -321,6 +275,187 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+        
+        internal static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // check if AssetUserRule exists in CB
+                string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(ruleId);
+                AssetUserRule assetUserRule = ApiDAL.GetAssetUserRuleCB(ruleId, assetUserRuleKey);
+                if (assetUserRule == null || assetUserRule.Id == 0 || assetUserRule.GroupId != groupId)
+                {
+                    response.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
+                    response.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
+                    return response;
+                }
+
+                // add user to asset user rule in DB
+                if (ApiDAL.AddAssetUserRuleToUser(userId, ruleId))
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId));
+
+                    response.Code = (int)eResponseStatus.OK;
+                    response.Message = eResponseStatus.OK.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddAssetUserRuleToUser failed ex={0}, groupId={1}, ruleId={2}, userId={3}", ex, groupId, ruleId, userId);
+            }
+
+            return response;
+        }
+
+        internal static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // check if AssetUserRule exists in CB
+                string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(ruleId);
+                AssetUserRule assetUserRule = ApiDAL.GetAssetUserRuleCB(ruleId, assetUserRuleKey);
+                if (assetUserRule == null || assetUserRule.Id == 0 || assetUserRule.GroupId != groupId)
+                {
+                    response.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
+                    response.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
+                    return response;
+                }
+
+                // delete asset user rule from user in DB
+                if (!ApiDAL.DeleteAssetUserRuleFromUser(userId, ruleId))
+                {
+                    response.Code = (int)eResponseStatus.Error;
+                    response.Message = DELETE_USER_ASSET_USER_RULE_FAILED;
+                    return response;
+                }
+
+                // set invalidation keys
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId));
+
+                response.Code = (int)eResponseStatus.OK;
+                response.Message = eResponseStatus.OK.ToString();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteAssetUserRuleFromUser failed ex={0}, groupId={1}, ruleId={2}, userId={3}", ex, groupId, ruleId, userId);
+            }
+
+            return response;
+        }
+
+        private static Tuple<Dictionary<string, AssetUserRule>, bool> GetAssetUserRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, AssetUserRule> result = new Dictionary<string, AssetUserRule>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
+                {
+                    List<string> ruleIds = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
+
+                    if (ruleIds != null && ruleIds.Count > 0)
+                    {
+                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+                        foreach (string sRuleId in ruleIds)
+                        {
+                            long ruleId = long.Parse(sRuleId);
+                            string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(ruleId);
+
+                            AssetUserRule assetUserRule = ApiDAL.GetAssetUserRuleCB(ruleId, assetUserRuleKey);
+                            if (assetUserRule != null)
+                            {
+                                result.Add(assetUserRuleKey, assetUserRule);
+                            }
+                        }
+
+                        res = result.Count == ruleIds.Count();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAssetUserRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, AssetUserRule>, bool>(result, res);
+        }
+
+        /// <summary>
+        /// Get All Asset User Rule Ids by groupID from DB
+        /// </summary>
+        /// <param name="funcParams">groupId</param>
+        /// <returns></returns>
+        private static Tuple<List<long>, bool> GetAssetUserRuleIdsByGroup(Dictionary<string, object> funcParams)
+        {
+            List<long> assetUserRuleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.Count == 1)
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+
+                    if (groupId.HasValue)
+                    {
+                        DataTable dtAssetUserRules = ApiDAL.GetAssetUserRules(groupId.Value);
+
+                        if (dtAssetUserRules != null && dtAssetUserRules.Rows != null && dtAssetUserRules.Rows.Count > 0)
+                        {
+                            foreach (DataRow assetUserRuleRow in dtAssetUserRules.Rows)
+                            {
+                                long assetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(assetUserRuleRow, "ID");
+                                assetUserRuleIds.Add(assetUserRuleId);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllAssetUserRuleIds failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<long>, bool>(assetUserRuleIds, assetUserRuleIds.Count() > 0);
+        }
+
+        private static Tuple<List<long>, bool> GetUserToAssetUserRuleIds(Dictionary<string, object> funcParams)
+        {
+            List<long> assetUserRuleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("userId") && funcParams.Count == 1)
+                {
+                    long? userId = funcParams["userId"] as long?;
+
+                    if (userId.HasValue)
+                    {
+                        DataTable dtUserToAssetUserRules = ApiDAL.GetUserToAssetUserRules(userId.Value);
+
+                        if (dtUserToAssetUserRules != null && dtUserToAssetUserRules.Rows != null && dtUserToAssetUserRules.Rows.Count > 0)
+                        {
+                            foreach (DataRow userToAssetUserRuleRow in dtUserToAssetUserRules.Rows)
+                            {
+                                long assetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(userToAssetUserRuleRow, "RULE_ID");
+                                assetUserRuleIds.Add(assetUserRuleId);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUserToAssetUserRuleIds failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<long>, bool>(assetUserRuleIds, assetUserRuleIds.Count() > 0);
         }
     }
 }

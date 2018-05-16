@@ -1882,9 +1882,9 @@ namespace Core.Api
 
         #region AssetUserRule
         
-        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId)
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
         {
-            return AssetUserRuleManager.GetAssetUserRuleList(groupId);
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
         }
         
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
@@ -1900,6 +1900,16 @@ namespace Core.Api
         public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
             return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId);
+        }
+        
+        public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.AddAssetUserRuleToUser(userId, ruleId, groupId);
+        }
+        
+        public static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
         }
 
         #endregion
