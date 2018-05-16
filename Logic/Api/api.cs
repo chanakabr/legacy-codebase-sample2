@@ -9425,6 +9425,7 @@ namespace Core.Api
                         countriesLocaleMap[country.Id].Id = country.Id;
                         countriesLocaleMap[country.Id].Code = country.Code;
                         countriesLocaleMap[country.Id].Name = country.Name;
+                        countriesLocaleMap[country.Id].TimeZoneId = country.TimeZoneId;
                         result.CountryLocales.Add(countriesLocaleMap[country.Id]);
                     }
                     else
@@ -9937,6 +9938,7 @@ namespace Core.Api
                         countriesLocaleMap[country.Id].Id = country.Id;
                         countriesLocaleMap[country.Id].Code = country.Code;
                         countriesLocaleMap[country.Id].Name = country.Name;
+                        countriesLocaleMap[country.Id].TimeZoneId = country.TimeZoneId;
                         result.CountryLocales.Add(countriesLocaleMap[country.Id]);
                     }
                     else

@@ -287,13 +287,26 @@ namespace Core.Api.Managers
         private static double GetTimeZoneOffsetForCountry(int groupId, int countryId)
         {
             CountryLocaleResponse countriesResponse = Api.Module.GetCountryList(groupId, new List<int>() { countryId });
-            if (countriesResponse.Status.Code != (int)eResponseStatus.OK || countriesResponse.Countries.Count == 0)
+
+            Country country = null;
+
+            if (countriesResponse.Status.Code == (int)eResponseStatus.OK)
+            {
+                if (countriesResponse.Countries != null && countriesResponse.Countries.Count > 0)
+                {
+                    country = countriesResponse.Countries[0];
+                }
+                else if (countriesResponse.CountryLocales != null && countriesResponse.CountryLocales.Count > 0)
+                {
+                    country = countriesResponse.CountryLocales[0];
+                }
+            }
+
+            if (country == null)
             {
                 log.ErrorFormat("Failed to get countryId = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
-
-            Country country = countriesResponse.Countries[0];
 
             if (string.IsNullOrEmpty(country.TimeZoneId))
             {
