@@ -2600,6 +2600,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetUserRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "AssociatedUserIdEqualCurrent":
+                            return "associatedUserIdEqualCurrent";
+                    }
+                    break;
+                    
                 case "KalturaAssetUserRuleListResponse":
                     switch(property.Name)
                     {

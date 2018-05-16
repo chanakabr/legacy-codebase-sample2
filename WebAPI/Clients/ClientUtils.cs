@@ -104,7 +104,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal static bool GetResponseStatusFromWS(Func<Status> funcInWS)
+        internal static void GetResponseStatusFromWS(Func<Status> funcInWS)
         {
             Status status = null;
 
@@ -130,8 +130,6 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status.Code, status.Message);
             }
-
-            return true;
         }
     }
 }

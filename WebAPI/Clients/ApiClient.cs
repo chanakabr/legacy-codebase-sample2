@@ -155,7 +155,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
             ParentalRulesResponse response = null;
@@ -190,7 +190,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
             KalturaUserRole userRole = new KalturaUserRole();
@@ -3985,12 +3985,12 @@ namespace WebAPI.Clients
 
         #region AssetUserRule
 
-        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId)
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null)
         {
             KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
 
             Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
-               Core.Api.Module.GetAssetUserRuleList(groupId);
+               Core.Api.Module.GetAssetUserRuleList(groupId, userId);
 
             KalturaGenericListResponse<KalturaAssetUserRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
@@ -4023,12 +4023,23 @@ namespace WebAPI.Clients
             return result;
         }
         
-        internal bool DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        internal void DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
             Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
-            return ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
         }
 
+        internal void AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> addAssetUserRuleToUserFunc = () => Core.Api.Module.AddAssetUserRuleToUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(addAssetUserRuleToUserFunc);
+        }
+        
+        internal void DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> deleteAssetUserRuleFromUserFunc = () => Core.Api.Module.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFromUserFunc);
+        }
         #endregion
     }
 }

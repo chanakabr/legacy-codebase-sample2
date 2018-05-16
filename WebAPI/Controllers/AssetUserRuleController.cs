@@ -22,11 +22,13 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Get the list of asset user rules for the partner
+        ///  Get the list of asset user rules for the partner
         /// </summary>
+        /// <param name="filter">AssetUserRule Filter</param>
+        /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetUserRuleListResponse List()
+        public KalturaAssetUserRuleListResponse List(KalturaAssetUserRuleFilter filter = null)
         {
             KalturaAssetUserRuleListResponse response = null;
 
@@ -34,7 +36,15 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetAssetUserRules(groupId);
+                if (filter != null && filter.AssociatedUserIdEqualCurrent.HasValue && filter.AssociatedUserIdEqualCurrent.Value)
+                {
+                    long userId = long.Parse(KS.GetFromRequest().UserId);
+                    response = response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId);
+                }
+                else
+                {
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId);
+                }
             }
             catch (ClientException ex)
             {
@@ -93,8 +103,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                assetUserRule.ValidateConditions();
-
                 response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule);
             }
             catch (ClientException ex)
@@ -113,22 +121,66 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        public void Delete(long id)
         {
-            bool response = false;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                response = ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id);
+                ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+        }
 
-            return response;
+        /// <summary>
+        /// Add Asset User Rule To User
+        /// </summary>
+        /// <param name="ruleId">Asset user rule id to add</param>
+        [Route("addRuleToUser"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [SchemeArgument("ruleId", MinLong = 1)]
+        public void AddRuleToUser(long ruleId)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                ClientsManager.ApiClient().AddAssetUserRuleToUser(long.Parse(userId), ruleId, groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Remove asset user rule from user
+        /// </summary>
+        /// <param name="ruleId">Asset user rule id to remove</param>
+        [Route("removeRuleToUser"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [SchemeArgument("ruleId", MinLong = 1)]
+        public void RemoveRuleToUser(long ruleId)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                ClientsManager.ApiClient().DeleteAssetUserRuleFromUser(long.Parse(userId), ruleId, groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
     }
 }
