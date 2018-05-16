@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace PermissionsDeployment
         private const string IMPORT_FILE_NAME = "import";
         private const string EXPORT_FILE_NAME = "export";
         private const string DELETE_FILE_NAME = "delete";
+        private const string HELP = "help";
 
         static void Main(string[] args)
         {
@@ -20,6 +22,31 @@ namespace PermissionsDeployment
 
             string fileName = string.Empty;
 
+            if (arguments == null || arguments.Count == 0 || arguments.ContainsKey(HELP))
+            {
+
+                string version = string.Empty;
+
+                try
+                {
+                    version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                }
+                catch
+                {
+                }
+
+                Console.WriteLine("Permissions deployment tool.");
+
+                if (!string.IsNullOrEmpty(version))
+                {
+                    Console.WriteLine(string.Format("Current version is {0}", version));
+                }
+
+                Console.WriteLine("Possible command line arguments, which are not case sensitive:");
+                Console.WriteLine("export: File path to export permissions data into. Shortcut: e");
+                Console.WriteLine("import: File path to import permissions data from. Shortcut: i");
+                Console.WriteLine("delete: File path to delete permissions data from. Shortcut: d");
+            }
             if (arguments.ContainsKey(IMPORT_FILE_NAME))
             {
                 fileName = arguments[IMPORT_FILE_NAME];
@@ -71,6 +98,10 @@ namespace PermissionsDeployment
                         else if (key == "d")
                         {
                             key = DELETE_FILE_NAME;
+                        }
+                        else if (key == "h")
+                        {
+                            key = HELP;
                         }
                     }
                     else
