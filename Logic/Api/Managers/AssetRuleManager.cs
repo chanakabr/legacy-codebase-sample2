@@ -279,7 +279,7 @@ namespace Core.Api.Managers
 
             if (offsetAction.TimeZone)
             {
-                totalOffset += GetTimeZoneOffsetForCountry(groupId, country);
+                totalOffset -= GetTimeZoneOffsetForCountry(groupId, country);
             }
             return totalOffset;
         }
@@ -307,7 +307,7 @@ namespace Core.Api.Managers
                 return 0;
             }
 
-            return tzi.BaseUtcOffset.TotalSeconds;
+            return tzi.GetUtcOffset(DateTime.UtcNow).TotalSeconds;
         }
 
         private static Dictionary<int, List<AssetRule>> GetRules(int groupId, List<long> rulesIds)
@@ -680,7 +680,10 @@ namespace Core.Api.Managers
                 List<int> mediaIds = new List<int>();
                 foreach (DataRow dr in mediaTable.Rows)
                 {
-                    mediaIds.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID"));
+                    int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                    mediaIds.Add(mediaId);
+
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId));
                 }
 
                 if (Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
