@@ -594,9 +594,9 @@ namespace PermissionsManager
                 DataSet source = new DataSet();
                 source.ReadXml(fileName);
 
-                if (source == null || source.Tables == null || source.Tables.Count < 5)
+                if (source == null || source.Tables == null || source.Tables.Count == 0)
                 {
-                    log.ErrorFormat("Delete failed: reading from XML resulted in empty data set or data set with less than 5 tables");
+                    log.ErrorFormat("Delete failed: reading from XML resulted in empty data set");
 
                     return result;
                 }
