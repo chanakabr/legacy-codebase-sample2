@@ -790,5 +790,10 @@ namespace DAL
         {
             return string.Format("unifiedBillingCycle_householdId_{0}_cycle_{1}", domainId, renewBillingCycle);
         }
+
+        public static string GetAssetUserRuleKey(long ruleId)
+        {
+            return string.Format("asset_user_rule_{0}", ruleId);
+        }
     }
 }

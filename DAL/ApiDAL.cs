@@ -5100,7 +5100,7 @@ namespace DAL
 
         #region AssetUserRule
         
-        public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId, string key)
+        public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
             AssetUserRule assetUserRule = null;
             eResultStatus status = eResultStatus.ERROR;
@@ -5108,6 +5108,7 @@ namespace DAL
 
             bool result = false;
             int numOfTries = 0;
+            string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
 
             try
             {
@@ -5145,12 +5146,13 @@ namespace DAL
             return assetUserRule;
         }
         
-        public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave, string key)
+        public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
         {
             bool result = false;
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             int numOfTries = 0;
+            string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleToSave.Id);
 
             try
             {
@@ -5184,12 +5186,13 @@ namespace DAL
             return result;
         }
         
-        public static bool DeleteAssetUserRuleCB(string assetUserRuleKey)
+        public static bool DeleteAssetUserRuleCB(long assetUserRuleId)
         {
             bool result = false;
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            
+            string assetUserRuleKey = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
+
             try
             {
                 result = cbManager.Remove(assetUserRuleKey);
@@ -5217,17 +5220,14 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        public static DataSet DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
-            DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Delete_AssetUserRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@ruleId", assetUserRuleId);
-
-            dt = sp.Execute();
-
-            return dt;
+            
+            return sp.ExecuteDataSet();
         }
 
         public static DataTable GetUserToAssetUserRules(long userId)
@@ -5241,14 +5241,14 @@ namespace DAL
             return dt;
         }
 
-        public static bool AddAssetUserRuleToUser(long userId, long ruleId)
+        public static DataTable AddAssetUserRuleToUser(long userId, long ruleId)
         {
             StoredProcedure sp = new StoredProcedure("Insert_UserToAssetUserRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@userId", userId);
             sp.AddParameter("@ruleID", ruleId);
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            return sp.Execute();
         }
         
         public static bool DeleteAssetUserRuleFromUser(long userId, long ruleId)
