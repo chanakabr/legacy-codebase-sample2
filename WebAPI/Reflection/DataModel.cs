@@ -3157,6 +3157,8 @@ namespace WebAPI.Reflection
                             return "mainLanguageCode";
                         case "Name":
                             return "name";
+                        case "TimeZoneId":
+                            return "timeZoneId";
                         case "VatPercent":
                             return "vatPercent";
                     }
