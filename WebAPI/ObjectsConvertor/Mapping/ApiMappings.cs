@@ -468,12 +468,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.CurrencySign))
                 .ForMember(dest => dest.LanguagesCode, opt => opt.MapFrom(src => src.LanguageCodes != null ? string.Join(",", src.LanguageCodes) : string.Empty))
                 .ForMember(dest => dest.MainLanguageCode, opt => opt.MapFrom(src => src.MainLanguageCode))
-                .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent));
+                .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent))
+                .ForMember(dest => dest.TimeZoneId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
 
             Mapper.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.TimeZoneId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
 
             #endregion
 

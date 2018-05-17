@@ -80,5 +80,12 @@ namespace WebAPI.Models.Users
         [XmlElement(ElementName = "vatPercent", IsNullable = true)]
         public double? VatPercent { get; set; }
 
+        /// <summary>
+        ///Time zone ID
+        /// </summary>
+        [DataMember(Name = "timeZoneId")]
+        [JsonProperty("timeZoneId")]
+        [XmlElement(ElementName = "timeZoneId")]
+        public string TimeZoneId { get; set; }
     }
 }
