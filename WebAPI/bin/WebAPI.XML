@@ -380,17 +380,17 @@
             </summary>
             <param name="id">Asset user rule ID</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetUserRuleController.AddRuleToUser(System.Int64)">
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.AttachUser(System.Int64)">
             <summary>
-            Add Asset User Rule To User
+            Attach AssetUserRule To User
             </summary>
-            <param name="ruleId">Asset user rule id to add</param>
+            <param name="ruleId">AssetUserRule id to add</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetUserRuleController.RemoveRuleToUser(System.Int64)">
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.DetachUser(System.Int64)">
             <summary>
-            Remove asset user rule from user
+            Detach AssetUserRule from user
             </summary>
-            <param name="ruleId">Asset user rule id to remove</param>
+            <param name="ruleId">AssetUserRule id to remove</param>
         </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
@@ -4309,9 +4309,9 @@
             Asset user rule filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetUserRuleFilter.AssociatedUserIdEqualCurrent">
+        <member name="P:WebAPI.Models.API.KalturaAssetUserRuleFilter.AttachedUserIdEqualCurrent">
             <summary>
-            Indicates if to get the asset user rule list for the associated user or for the entire group
+            Indicates if to get the asset user rule list for the attached user or for the entire group
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCurrencyListResponse.Objects">
