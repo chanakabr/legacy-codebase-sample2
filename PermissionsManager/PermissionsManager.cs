@@ -633,27 +633,30 @@ namespace PermissionsManager
                         rolesDictionary[destinationName] = destinationId;
                     }
 
-                    var sourceTable = source.Tables[ROLE];
-
-                    if (sourceTable != null)
+                    if (source.Tables.Contains(ROLE))
                     {
-                        destinationRoles.PrimaryKey = new DataColumn[] { destinationRoles.Columns["id"] };
-                        
-                        foreach (DataRow sourceRole in sourceTable.Rows)
+                        var sourceTable = source.Tables[ROLE];
+
+                        if (sourceTable != null)
                         {
-                            string sourceName = Convert.ToString(sourceRole["name"]);
+                            destinationRoles.PrimaryKey = new DataColumn[] { destinationRoles.Columns["id"] };
 
-                            DataRow destinationRole = destinationRoles.AsEnumerable().FirstOrDefault(row =>
-                                Convert.ToString(row["name"]) == sourceName);
-                            
-                            if (destinationRole != null)
+                            foreach (DataRow sourceRole in sourceTable.Rows)
                             {
-                                int destinationId = Convert.ToInt32(destinationRole["id"]);
-                                string destinationName = Convert.ToString(destinationRole["name"]);
+                                string sourceName = Convert.ToString(sourceRole["name"]);
 
-                                bool actionResult = ApiDAL.DeleteRole(0, destinationId);
+                                DataRow destinationRole = destinationRoles.AsEnumerable().FirstOrDefault(row =>
+                                    Convert.ToString(row["name"]) == sourceName);
 
-                                log.InfoFormat("!!DELETE!! Table : {0} destinationId : {1} Source name : {2}", ROLE, destinationId, sourceName);
+                                if (destinationRole != null)
+                                {
+                                    int destinationId = Convert.ToInt32(destinationRole["id"]);
+                                    string destinationName = Convert.ToString(destinationRole["name"]);
+
+                                    bool actionResult = ApiDAL.DeleteRole(0, destinationId);
+
+                                    log.InfoFormat("!!DELETE!! Table : {0} destinationId : {1} Source name : {2}", ROLE, destinationId, sourceName);
+                                }
                             }
                         }
                     }
@@ -673,28 +676,31 @@ namespace PermissionsManager
                         permissionsDictionary[destinationName] = destinationId;
                     }
 
-                    var sourceTable = source.Tables[PERMISSION];
-
-                    if (sourceTable != null)
+                    if (source.Tables.Contains(PERMISSION))
                     {
-                        destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
-                        
-                        foreach (DataRow sourceRow in sourceTable.Rows)
+                        var sourceTable = source.Tables[PERMISSION];
+
+                        if (sourceTable != null)
                         {
-                            int sourceId = Convert.ToInt32(sourceRow["id"]);
-                            string sourceName = Convert.ToString(sourceRow["name"]);
+                            destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
-                            DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
-                                Convert.ToString(row["name"]) == sourceName);
-                            
-                            if (destinationRow != null)
+                            foreach (DataRow sourceRow in sourceTable.Rows)
                             {
-                                int destinationId = Convert.ToInt32(destinationRow["id"]);
-                                string destinationName = Convert.ToString(destinationRow["name"]);
-                                
-                                bool actionResult = ApiDAL.DeletePermission(destinationId);
+                                int sourceId = Convert.ToInt32(sourceRow["id"]);
+                                string sourceName = Convert.ToString(sourceRow["name"]);
 
-                                log.InfoFormat("!!DELETE!! Table : {0} Id : {1} name : {2}", PERMISSION, destinationId, destinationName);
+                                DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
+                                    Convert.ToString(row["name"]) == sourceName);
+
+                                if (destinationRow != null)
+                                {
+                                    int destinationId = Convert.ToInt32(destinationRow["id"]);
+                                    string destinationName = Convert.ToString(destinationRow["name"]);
+
+                                    bool actionResult = ApiDAL.DeletePermission(destinationId);
+
+                                    log.InfoFormat("!!DELETE!! Table : {0} Id : {1} name : {2}", PERMISSION, destinationId, destinationName);
+                                }
                             }
                         }
                     }
@@ -703,37 +709,40 @@ namespace PermissionsManager
 
                 #region Role Permission
                 {
-                    var sourceTable = source.Tables[ROLE_PERMISSION];
-
-                    if (sourceTable != null)
+                    if (source.Tables.Contains(ROLE_PERMISSION))
                     {
-                        var destinationTable = destination.Tables[ROLE_PERMISSION];
-                        
-                        destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
-                        
-                        foreach (DataRow sourceRow in sourceTable.Rows)
+                        var sourceTable = source.Tables[ROLE_PERMISSION];
+
+                        if (sourceTable != null)
                         {
-                            int sourceId = Convert.ToInt32(sourceRow["id"]);
-                            int sourceRoleId = Convert.ToInt32(sourceRow["role_id"]);
-                            int sourcePermissionId = Convert.ToInt32(sourceRow["permission_id"]);
-                            string sourceRoleName = ExtractValue<string>(sourceRow, "role_name");
-                            string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
-                            
-                            DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
-                                 sourceRoleName == Convert.ToString(row["role_name"]) &&
-                                 sourcePermissionName == Convert.ToString(row["permission_name"]));
+                            var destinationTable = destination.Tables[ROLE_PERMISSION];
 
-                            //int destinationRoleId = rolesDictionary[sourceRoleName];
-                            //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
-                            
-                            if (destinationRow != null)
+                            destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
+
+                            foreach (DataRow sourceRow in sourceTable.Rows)
                             {
-                                int destinationId = Convert.ToInt32(destinationRow["id"]);
+                                int sourceId = Convert.ToInt32(sourceRow["id"]);
+                                int sourceRoleId = Convert.ToInt32(sourceRow["role_id"]);
+                                int sourcePermissionId = Convert.ToInt32(sourceRow["permission_id"]);
+                                string sourceRoleName = ExtractValue<string>(sourceRow, "role_name");
+                                string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
 
-                                bool actionResult = ApiDAL.DeletePermissionRole(destinationId);
+                                DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
+                                     sourceRoleName == Convert.ToString(row["role_name"]) &&
+                                     sourcePermissionName == Convert.ToString(row["permission_name"]));
 
-                                log.InfoFormat("!!DELETE!! Table : {0} Id : {1} role name : {2} permission name : {3}", 
-                                    ROLE_PERMISSION, destinationId, sourceRoleName, sourcePermissionName);
+                                //int destinationRoleId = rolesDictionary[sourceRoleName];
+                                //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
+
+                                if (destinationRow != null)
+                                {
+                                    int destinationId = Convert.ToInt32(destinationRow["id"]);
+
+                                    bool actionResult = ApiDAL.DeletePermissionRole(destinationId);
+
+                                    log.InfoFormat("!!DELETE!! Table : {0} Id : {1} role name : {2} permission name : {3}",
+                                        ROLE_PERMISSION, destinationId, sourceRoleName, sourcePermissionName);
+                                }
                             }
                         }
                     }
@@ -742,38 +751,41 @@ namespace PermissionsManager
 
                 #region Permission Item
                 {
-                    var destinationTable = destination.Tables[PERMISSION_ITEM];
-
-                    foreach (DataRow destinationRow in destinationTable.Rows)
+                    if (source.Tables.Contains(PERMISSION_ITEM))
                     {
-                        int destinationId = Convert.ToInt32(destinationRow["id"]);
-                        string destinationName = ExtractValue<string>(destinationRow, "name");
+                        var destinationTable = destination.Tables[PERMISSION_ITEM];
 
-                        permissionItemsDictionary[destinationName] = destinationId;
-                    }
-
-                    var sourceTable = source.Tables[PERMISSION_ITEM];
-
-                    if (sourceTable != null)
-                    {
-                        destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
-                        
-                        foreach (DataRow sourceRow in sourceTable.Rows)
+                        foreach (DataRow destinationRow in destinationTable.Rows)
                         {
-                            int sourceId = Convert.ToInt32(sourceRow["id"]);
-                            string sourceName = ExtractValue<string>(sourceRow, "name");
+                            int destinationId = Convert.ToInt32(destinationRow["id"]);
+                            string destinationName = ExtractValue<string>(destinationRow, "name");
 
-                            DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
-                                 sourceName == ExtractValue<string>(row, "name"));
-                            
-                            if (destinationRow != null)
+                            permissionItemsDictionary[destinationName] = destinationId;
+                        }
+
+                        var sourceTable = source.Tables[PERMISSION_ITEM];
+
+                        if (sourceTable != null)
+                        {
+                            destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
+
+                            foreach (DataRow sourceRow in sourceTable.Rows)
                             {
-                                int destinationId = Convert.ToInt32(destinationRow["id"]);
-                                string destinationName = ExtractValue<string>(destinationRow, "name");
+                                int sourceId = Convert.ToInt32(sourceRow["id"]);
+                                string sourceName = ExtractValue<string>(sourceRow, "name");
 
-                                bool actionResult = ApiDAL.DeletePermissionItem(destinationId);
+                                DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
+                                     sourceName == ExtractValue<string>(row, "name"));
 
-                                log.InfoFormat("!!DELETE!! Table : {0} Id : {1} name : {2}", PERMISSION_ITEM, destinationId, destinationName);
+                                if (destinationRow != null)
+                                {
+                                    int destinationId = Convert.ToInt32(destinationRow["id"]);
+                                    string destinationName = ExtractValue<string>(destinationRow, "name");
+
+                                    bool actionResult = ApiDAL.DeletePermissionItem(destinationId);
+
+                                    log.InfoFormat("!!DELETE!! Table : {0} Id : {1} name : {2}", PERMISSION_ITEM, destinationId, destinationName);
+                                }
                             }
                         }
                     }
@@ -782,37 +794,40 @@ namespace PermissionsManager
 
                 #region Permission Permission Item
                 {
-                    var sourceTable = source.Tables[PERMISSION_PERMISSION_ITEM];
-
-                    if (sourceTable != null)
+                    if (source.Tables.Contains(PERMISSION_PERMISSION_ITEM))
                     {
-                        var destinationTable = destination.Tables[PERMISSION_PERMISSION_ITEM];
-                        
-                        destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
-                        
-                        foreach (DataRow sourceRow in sourceTable.Rows)
+                        var sourceTable = source.Tables[PERMISSION_PERMISSION_ITEM];
+
+                        if (sourceTable != null)
                         {
-                            int sourceId = Convert.ToInt32(sourceRow["id"]);
-                            int sourcePermissionId = ExtractValue<int>(sourceRow, "permission_id");
-                            int sourcePermissionItemId = ExtractValue<int>(sourceRow, "permission_item_id");
-                            string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
-                            string sourcePermissionItemName = ExtractValue<string>(sourceRow, "permission_item_name");
+                            var destinationTable = destination.Tables[PERMISSION_PERMISSION_ITEM];
 
-                            DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
-                                 sourcePermissionName == ExtractValue<string>(row, "permission_name") &&
-                                 sourcePermissionItemName == ExtractValue<string>(row, "permission_item_name"));
+                            destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
-                            //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
-                            //int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
-                            
-                            if (destinationRow != null)
+                            foreach (DataRow sourceRow in sourceTable.Rows)
                             {
-                                int destinationId = Convert.ToInt32(destinationRow["id"]);
+                                int sourceId = Convert.ToInt32(sourceRow["id"]);
+                                int sourcePermissionId = ExtractValue<int>(sourceRow, "permission_id");
+                                int sourcePermissionItemId = ExtractValue<int>(sourceRow, "permission_item_id");
+                                string sourcePermissionName = ExtractValue<string>(sourceRow, "permission_name");
+                                string sourcePermissionItemName = ExtractValue<string>(sourceRow, "permission_item_name");
 
-                                bool actionResult = ApiDAL.DeletePermissionPermissionItem(destinationId);
+                                DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
+                                     sourcePermissionName == ExtractValue<string>(row, "permission_name") &&
+                                     sourcePermissionItemName == ExtractValue<string>(row, "permission_item_name"));
 
-                                log.InfoFormat("!!DELETE!! Table : {0} Id : {1} permission name : {2} permission item name : {3}", 
-                                    PERMISSION_PERMISSION_ITEM, destinationId, sourcePermissionName, sourcePermissionItemName);
+                                //int destinationPermissionId = permissionsDictionary[sourcePermissionName];
+                                //int destinationPermissionItemId = permissionItemsDictionary[sourcePermissionItemName];
+
+                                if (destinationRow != null)
+                                {
+                                    int destinationId = Convert.ToInt32(destinationRow["id"]);
+
+                                    bool actionResult = ApiDAL.DeletePermissionPermissionItem(destinationId);
+
+                                    log.InfoFormat("!!DELETE!! Table : {0} Id : {1} permission name : {2} permission item name : {3}",
+                                        PERMISSION_PERMISSION_ITEM, destinationId, sourcePermissionName, sourcePermissionItemName);
+                                }
                             }
                         }
                     }
