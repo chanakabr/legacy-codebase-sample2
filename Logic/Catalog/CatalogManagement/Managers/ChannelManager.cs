@@ -161,7 +161,7 @@ namespace Core.Catalog.CatalogManagement
             int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
             channel.m_OrderObject.m_eOrderDir =
                 (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-            channel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;
+            channel.m_OrderObject.m_bIsSlidingWindowField = channel.m_OrderObject.isSlidingWindowFromRestApi = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;            
             channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
 
             #endregion
@@ -555,9 +555,11 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
+                int? isSlidingWindow = channelToAdd.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
+                int? slidingWindowPeriod = channelToAdd.m_OrderObject.lu_min_period_id;
                 DataSet ds = CatalogDAL.InsertChannel(groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
-                                                        (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, channelToAdd.m_nChannelTypeID, channelToAdd.filterQuery,
-                                                        channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
+                                                        (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
+                                                        channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
@@ -722,14 +724,18 @@ namespace Core.Catalog.CatalogManagement
                 int? orderByType = null;
                 int? orderByDir = null;
                 string orderByValue = null;
+                int? isSlidingWindow = null;
+                int? slidingWindowPeriod = null;
                 if (channelToUpdate.m_OrderObject != null)
                 {
                     orderByType = (int)channelToUpdate.m_OrderObject.m_eOrderBy;
                     orderByDir = (int)channelToUpdate.m_OrderObject.m_eOrderDir;
                     orderByValue = channelToUpdate.m_OrderObject.m_sOrderValue;
+                    isSlidingWindow = channelToUpdate.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
+                    slidingWindowPeriod = channelToUpdate.m_OrderObject.lu_min_period_id;
                 }
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
-                                                        orderByDir, orderByValue, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
+                                                        orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
