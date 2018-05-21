@@ -244,14 +244,10 @@ namespace Core.Catalog.CatalogManagement
 
         private static void UpdateOrderByObject(int nOrderBy, ref Channel oChannel, string orderByValue)
         {
+            oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
             if (!string.IsNullOrEmpty(orderByValue))
             {
-                oChannel.m_OrderObject.m_sOrderValue = orderByValue;
-                oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-            }
-            else
-            {
-                oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
+                oChannel.m_OrderObject.m_sOrderValue = orderByValue;                
             }
         }
 
