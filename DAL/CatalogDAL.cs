@@ -5409,8 +5409,9 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, int channelType, string filterQuery, List<int> assetTypes, string groupBy,
-                                            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId)
+        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
+                                            int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages, 
+                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5421,6 +5422,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderBy", orderBy);
             sp.AddParameter("@orderDirection", orderByDir + 1);
             sp.AddParameter("@orderByValue", orderByValue);
+            sp.AddParameter("@IsSlidingWindow", isSlidingWindow);
+            sp.AddParameter("@SlidingWindowPeriod", slidingWindowPeriod);
             sp.AddParameter("@channelType", channelType);
             sp.AddParameter("@Filter", filterQuery);
             sp.AddParameter("@groupBy", groupBy);
@@ -5438,8 +5441,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateChannel(int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, int? orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy,
-            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId)
+        public static DataSet UpdateChannel(int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, int? orderByDir, string orderByValue, int? isSlidingWindow,
+                                            int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
+                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5451,6 +5455,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderBy", orderBy.HasValue ? orderBy : null);
             sp.AddParameter("@orderDirection", orderByDir.HasValue ? orderByDir + 1 : null);
             sp.AddParameter("@orderByValue", orderByValue);
+            sp.AddParameter("@IsSlidingWindow", isSlidingWindow);
+            sp.AddParameter("@SlidingWindowPeriod", slidingWindowPeriod);
             sp.AddParameter("@Filter", filterQuery);
             sp.AddParameter("@groupBy", groupBy);
             sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
