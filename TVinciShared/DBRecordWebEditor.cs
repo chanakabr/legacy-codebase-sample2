@@ -3694,10 +3694,10 @@ namespace TVinciShared
                 this.m_sStartValue = this.m_sStartValue.Replace(".", "/");
 
                 if (!string.IsNullOrEmpty(m_timeZone))
-                {                    
-                    DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
+                {
+                    DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy HH:mm:ss");
                     dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_timeZone);
-                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
+                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture);
                 }
                 sStartDate = m_sStartValue.Split(' ')[0].ToString();
                 sStartTime = m_sStartValue.Split(' ')[1].ToString();
