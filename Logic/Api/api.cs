@@ -26,6 +26,7 @@ using CouchbaseManager;
 using DAL;
 using EpgBL;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
@@ -2647,7 +2648,17 @@ namespace Core.Api
                     IsActive = true
                 });
             }
+            
+            // check if the user have assetUserRules 
+            long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
+            var mediaAssetUserRules = GetMediaAssetUserRules(groupId, userId, mediaId);
 
+            if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+            {
+                groupRules.AddRange(ConvertAssetUserRuleToGroupRule(mediaAssetUserRules));
+            }
+
+            // check if the user have Parental Rules 
             var response = GetParentalMediaRules(groupId, siteGuid, mediaId, 0);
 
             if (response != null && response.status != null && response.status.Code == 0)
@@ -5478,7 +5489,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-
+        
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
         {
             GenericRuleResponse response = new GenericRuleResponse();
@@ -5502,6 +5513,25 @@ namespace Core.Api
                         response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
                     }
 
+                    // get all AssetUserRule for the user
+                    long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
+                    var mediaAssetUserRules = GetMediaAssetUserRules(groupId, userId, mediaId);
+
+                    if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                    {
+                        foreach(AssetUserRule assetUserRule in mediaAssetUserRules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = assetUserRule.Id,
+                                Name = assetUserRule.Name,
+                                Description = assetUserRule.Description,
+                                RuleType = RuleType.AssetUser
+                            });
+                        }
+                    }
+
+                    // get all ParentalRules for the user
                     ParentalRulesResponse parentalRulesResponse = GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
                     if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
                     {
@@ -10684,6 +10714,138 @@ namespace Core.Api
             }
 
             return false;
+        }
+
+        private static Tuple<List<long>, bool> GetMediaAssetUserRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("assetUserRules"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        long? mediaId = funcParams["mediaId"] as long?;
+                        List<AssetUserRule> mediaAssetUserRules = funcParams["assetUserRules"] as List<AssetUserRule>;
+
+                        UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build serach for each tag and tag values
+                            Parallel.ForEach(mediaAssetUserRules, (rule) =>
+                            {
+                                if (rule.Conditions != null && rule.Conditions.Count > 0)
+                                {
+                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);    
+                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.Id);
+                                    }
+                                }
+                            });
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaAssetUserRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+
+        public static List<AssetUserRule> GetMediaAssetUserRules(int groupId, long userId, long mediaId)
+        {
+            List<AssetUserRule> rules = new List<AssetUserRule>();
+
+            if (userId > 0)
+            {
+                try
+                {
+                    var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
+
+                    if (assetUserRuleList == null ||
+                        assetUserRuleList.Status == null ||
+                        assetUserRuleList.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return rules;
+                    }
+
+                    // media asset user rules id 
+                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
+                    List<long> mediaAssetUserRuleIds = null;
+
+                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
+                                                               ref mediaAssetUserRuleIds,
+                                                               GetMediaAssetUserRules,
+                                                               new Dictionary<string, object>()
+                                                               {
+                                                                   { "groupId", groupId },
+                                                                   { "mediaId", mediaId },
+                                                                   { "assetUserRules", assetUserRuleList.Objects }
+                                                               },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                               new List<string>() { LayeredCacheKeys.GetMediaAssetUserRulesInvalidationKey(groupId, mediaId) }))
+                    {
+                        log.Error(string.Format("GetMediaAssetUserRules - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                        return rules;
+                    }
+
+                    if (mediaAssetUserRuleIds != null && mediaAssetUserRuleIds.Count > 0)
+                    {
+                        // user rules 
+                        var userToAssetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+
+                        // if user has at least one rule applied on him
+                        if (userToAssetUserRuleList != null &&
+                            userToAssetUserRuleList.Status != null &&
+                            userToAssetUserRuleList.Status.Code == (int)eResponseStatus.OK &&
+                            userToAssetUserRuleList.Objects.Count > 0)
+                        {
+                            rules = userToAssetUserRuleList.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Error in GetMediaAssetUserRules: group={0}, user={1}, media={2}", groupId, userId, mediaId), ex);
+                }
+            }
+            
+            return rules;
+        }
+
+        private static List<GroupRule> ConvertAssetUserRuleToGroupRule(List<AssetUserRule> assetUserRules)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            foreach (var assetUserRule in assetUserRules)
+            {
+                GroupRule groupRule = new GroupRule()
+                {
+                    RuleID = (int)assetUserRule.Id,
+                    IsActive = true,
+                    Name = assetUserRule.Name,
+                    GroupRuleType = eGroupRuleType.AssetUser,
+                    BlockType = eBlockType.AssetUserBlock
+                };
+
+                groupRules.Add(groupRule);
+            }
+
+            return groupRules;
         }
     }
 }

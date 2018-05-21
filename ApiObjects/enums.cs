@@ -45,7 +45,8 @@ namespace ApiObjects
         Geo = 3,
         Device = 4,
         UserType = 5,
-        AnonymousAccessBlock = 6
+        AnonymousAccessBlock = 6,
+        AssetUserBlock = 7
     }
 
     public enum RuleType
@@ -53,7 +54,8 @@ namespace ApiObjects
         Parental = 0,
         Geo = 1,
         UserType = 2,
-        Device = 3
+        Device = 3,
+        AssetUser = 4
     }
 
     public enum eMailTemplateType
@@ -84,7 +86,8 @@ namespace ApiObjects
         Parental = 1,
         Purchase = 2,
         Device = 3,
-        EPG = 4
+        EPG = 4,
+        AssetUser = 5
     }
 
     [Serializable]

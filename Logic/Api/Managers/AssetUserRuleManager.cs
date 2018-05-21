@@ -64,17 +64,8 @@ namespace Core.Api.Managers
                 }
                 else
                 {
-                    string key = LayeredCacheKeys.GetUserToAssetUserRuleIdsKey(userId.Value);
-
-                    if (!LayeredCache.Instance.Get<List<long>>(key,
-                                                               ref assetUserRuleIds,
-                                                               GetUserToAssetUserRuleIdsDB,
-                                                               new Dictionary<string, object>() { { "userId", userId.Value } },
-                                                               groupId,
-                                                               LayeredCacheConfigNames.GET_USER_TO_ASSET_USER_RULE_IDS,
-                                                               new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId.Value) }))
+                    if (!TryGetUserAssetUserRuleIds(userId.Value, groupId, out assetUserRuleIds))
                     {
-                        log.ErrorFormat("GetAssetUserRuleList - GetUserToAssetUserRuleIdsDB - Failed get data from cache. groupId: {0}, userId: {1}", groupId, userId.Value);
                         return response;
                     }
                 }
@@ -296,17 +287,9 @@ namespace Core.Api.Managers
 
                 // check user is not attached to this rule
                 List<long> assetUserRuleIds = null;
-                string key = LayeredCacheKeys.GetUserToAssetUserRuleIdsKey(userId);
-
-                if (!LayeredCache.Instance.Get<List<long>>(key,
-                                                           ref assetUserRuleIds,
-                                                           GetUserToAssetUserRuleIdsDB,
-                                                           new Dictionary<string, object>() { { "userId", userId } },
-                                                           groupId,
-                                                           LayeredCacheConfigNames.GET_USER_TO_ASSET_USER_RULE_IDS,
-                                                           new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId) }))
+                
+                if (!TryGetUserAssetUserRuleIds(userId, groupId, out assetUserRuleIds))
                 {
-                    log.ErrorFormat("AddAssetUserRuleToUser - Failed get data from cache. groupId: {0}, userId: {1}", groupId, userId);
                     return response;
                 }
 
@@ -351,6 +334,21 @@ namespace Core.Api.Managers
                 {
                     response.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
                     response.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
+                    return response;
+                }
+
+                // check user is attached to this rule
+                List<long> assetUserRuleIds = null;
+
+                if (!TryGetUserAssetUserRuleIds(userId, groupId, out assetUserRuleIds))
+                {
+                    return response;
+                }
+
+                if (assetUserRuleIds == null || !assetUserRuleIds.Contains(ruleId))
+                {   
+                    response.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
+                    response.Message = "User is not attached to this AssetUserRule";
                     return response;
                 }
 
@@ -484,6 +482,27 @@ namespace Core.Api.Managers
             }
 
             return new Tuple<List<long>, bool>(assetUserRuleIds, assetUserRuleIds != null);
+        }
+
+        private static bool TryGetUserAssetUserRuleIds(long userId, int groupId, out List<long> assetUserRuleIds)
+        {
+            assetUserRuleIds = new List<long>();
+
+            string key = LayeredCacheKeys.GetUserToAssetUserRuleIdsKey(userId);
+
+            if (!LayeredCache.Instance.Get<List<long>>(key,
+                                                       ref assetUserRuleIds,
+                                                       GetUserToAssetUserRuleIdsDB,
+                                                       new Dictionary<string, object>() { { "userId", userId } },
+                                                       groupId,
+                                                       LayeredCacheConfigNames.GET_USER_TO_ASSET_USER_RULE_IDS,
+                                                       new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId) }))
+            {
+                log.ErrorFormat("TryGetUserAssetUserRuleIds - Failed get data from cache. groupId: {0}, userId: {1}", groupId, userId);
+                return false;
+            }
+
+            return true;
         }
     }
 }

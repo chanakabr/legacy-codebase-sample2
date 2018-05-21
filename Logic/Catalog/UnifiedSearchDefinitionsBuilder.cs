@@ -348,7 +348,14 @@ namespace Core.Catalog
 
                 #region Asset User Rule
 
-                var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+                long? userId = null;
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+                {
+                    userId = long.Parse(request.m_sSiteGuid);
+                }
+                //TODO SHIR - talk to irena about this - the Convert.ToInt32(request.m_sSiteGuid) throws exception because request.m_sSiteGuid is string.Empty
+                //var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+                var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, userId);
                 if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)
