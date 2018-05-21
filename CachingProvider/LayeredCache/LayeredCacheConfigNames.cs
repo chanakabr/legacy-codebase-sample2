@@ -29,6 +29,7 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "GroupParentalRules";
         public const string USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "UserParentalRules";
         public const string MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "MediaParentalRules";
+        public const string MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaAssetUserRules";
         public const string EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "EpgParentalRules";
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";

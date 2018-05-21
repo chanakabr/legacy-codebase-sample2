@@ -121,10 +121,15 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("userParentalRules_groupId_{0}_userId_{1}", groupId, siteGuid);
         }
-
+        
         public static string GetMediaParentalRulesKey(int groupId, long mediaId)
         {
             return string.Format("mediaParentalRules_groupId_{0}_mediaId_{1}", groupId, mediaId);
+        }
+
+        public static string GetMediaAssetUserRulesKey(int groupId, long mediaId)
+        {
+            return string.Format("mediaAssetUserRules_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
 
         public static string GetLastUseWithCreditForDomainKey(int groupId, long domainId, int mediaId)
@@ -387,6 +392,11 @@ namespace CachingProvider.LayeredCache
         }
 
         public static string GetMediaInvalidationKey(int groupId, long mediaId)
+        {
+            return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
+        }
+
+        public static string GetMediaAssetUserRulesInvalidationKey(int groupId, long mediaId)
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }

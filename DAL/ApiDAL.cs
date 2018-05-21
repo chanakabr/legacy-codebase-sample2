@@ -1956,6 +1956,8 @@ namespace DAL
                     break;
                 case eGroupRuleType.EPG:
                     break;
+                case eGroupRuleType.AssetUser:
+                    break;
                 default:
                     break;
             }
