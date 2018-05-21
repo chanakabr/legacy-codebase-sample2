@@ -783,7 +783,7 @@ namespace ElasticSearch.Searcher
 
                 #region Media Dates ranges
 
-                FilterCompositeType mediaDatesFilter = BuildMediaDatesComposit();
+                FilterCompositeType mediaDatesFilter = BuildMediaDatesComposite();
 
                 // Geo availability enabled
                 if (SearchDefinitions.countryId > 0)
@@ -2531,11 +2531,13 @@ namespace ElasticSearch.Searcher
             }
         }
 
-        private FilterCompositeType BuildMediaDatesComposit()
+        private FilterCompositeType BuildMediaDatesComposite()
         {
             FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
 
-            string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            DateTime now = DateTime.UtcNow;
+            now = now.AddSeconds(-now.Second);
+            string nowDateString = now.ToString("yyyyMMddHHmmss");
             string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
 
             ESRange mediaStartDateRange = new ESRange(false);

@@ -1115,7 +1115,7 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                log.Debug("Notifier - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl);
+                log.Debug("ElasticSearchApi - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl);
                 if (oWebResponse != null)
                     oWebResponse.Close();
                 if (receiveStream != null)
