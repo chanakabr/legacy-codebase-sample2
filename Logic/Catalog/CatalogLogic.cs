@@ -6626,6 +6626,7 @@ namespace Core.Catalog
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+
                     if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
                     {
                         cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
@@ -6700,6 +6701,11 @@ namespace Core.Catalog
                             return key;
                         }
                         cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    if (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_assetUserRules={0}", string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
                     }
 
                     key = cacheKey.ToString();

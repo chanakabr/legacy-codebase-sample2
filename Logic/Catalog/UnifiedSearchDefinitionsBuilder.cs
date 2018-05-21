@@ -357,6 +357,7 @@ namespace Core.Catalog
                         notQuery.Append("(and ");
                         foreach (var rule in assetUserRulesResponse.Objects)
                         {
+                            definitions.assetUserRuleIds.Add(rule.Id);
                             foreach (var condition in rule.Conditions)
                             {
                                 notQuery.AppendFormat(" {0}", condition.Ksql);

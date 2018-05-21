@@ -383,6 +383,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public BooleanPhraseNode assetUserRulePhrase;
 
+        /// <summary>
+        /// Asset user rule IDs to consider in personal cache
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public List<long> assetUserRuleIds;
+
         [JsonProperty()]
         [DataMember]
         public bool shouldIgnoreEndDate;
