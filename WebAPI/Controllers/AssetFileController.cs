@@ -132,13 +132,13 @@ namespace WebAPI.Controllers
                             else
                             {
                                 dynamicQueryStringParamsNames = dynamicQueryStringParamsConfiguration.Split(',');
+                            }
 
-                                foreach (var dynamicParam in dynamicQueryStringParamsNames)
+                            foreach (var dynamicParam in dynamicQueryStringParamsNames)
+                            {
+                                if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
                                 {
-                                    if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
-                                    {
-                                        response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
-                                    }
+                                    response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
                                 }
                             }
                         }
