@@ -1485,6 +1485,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case RuleType.Device:
                     result = WebAPI.Models.API.KalturaRuleType.device;
                     break;
+                case RuleType.AssetUser:
+                    result = WebAPI.Models.API.KalturaRuleType.assetUser;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");
             }
