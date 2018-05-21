@@ -441,6 +441,9 @@ namespace ApiObjects.SearchObjects
             PersonalData = new List<string>();
 
             countryId = 0;
+
+            assetUserRuleIds = new List<long>();
+
         }
 
         #endregion
