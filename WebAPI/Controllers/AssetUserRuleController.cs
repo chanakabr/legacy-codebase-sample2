@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter != null && filter.AssociatedUserIdEqualCurrent.HasValue && filter.AssociatedUserIdEqualCurrent.Value)
+                if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
                     long userId = long.Parse(KS.GetFromRequest().UserId);
                     response = response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId);
@@ -136,15 +136,16 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Add Asset User Rule To User
+        /// Attach AssetUserRule To User
         /// </summary>
-        /// <param name="ruleId">Asset user rule id to add</param>
-        [Route("addRuleToUser"), HttpPost]
+        /// <param name="ruleId">AssetUserRule id to add</param>
+        [Route("attachUser "), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [Throws(eResponseStatus.UserAlreadyAttachedToAssetUserRule)]
         [SchemeArgument("ruleId", MinLong = 1)]
-        public void AddRuleToUser(long ruleId)
+        public void AttachUser(long ruleId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
@@ -160,15 +161,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Remove asset user rule from user
+        /// Detach AssetUserRule from user
         /// </summary>
-        /// <param name="ruleId">Asset user rule id to remove</param>
-        [Route("removeRuleToUser"), HttpPost]
+        /// <param name="ruleId">AssetUserRule id to remove</param>
+        [Route("detachUser"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [SchemeArgument("ruleId", MinLong = 1)]
-        public void RemoveRuleToUser(long ruleId)
+        public void DetachUser(long ruleId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;

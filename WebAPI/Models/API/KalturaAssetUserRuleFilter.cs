@@ -22,13 +22,13 @@ namespace WebAPI.Models.API
     public class KalturaAssetUserRuleFilter : KalturaFilter<KalturaAssetUserRuleOrderBy>
     {
         /// <summary>
-        /// Indicates if to get the asset user rule list for the associated user or for the entire group
+        /// Indicates if to get the asset user rule list for the attached user or for the entire group
         /// </summary>
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [DataMember(Name = "associatedUserIdEqualCurrent")]
-        [JsonProperty("associatedUserIdEqualCurrent")]
-        [XmlElement(ElementName = "associatedUserIdEqualCurrent", IsNullable = true)]
-        public bool? AssociatedUserIdEqualCurrent { get; set; }
+        [DataMember(Name = "attachedUserIdEqualCurrent")]
+        [JsonProperty("attachedUserIdEqualCurrent")]
+        [XmlElement(ElementName = "attachedUserIdEqualCurrent", IsNullable = true)]
+        public bool? AttachedUserIdEqualCurrent { get; set; }
 
         public override KalturaAssetUserRuleOrderBy GetDefaultOrderByValue()
         {

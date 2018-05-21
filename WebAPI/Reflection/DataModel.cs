@@ -2603,8 +2603,8 @@ namespace WebAPI.Reflection
                 case "KalturaAssetUserRuleFilter":
                     switch(property.Name)
                     {
-                        case "AssociatedUserIdEqualCurrent":
-                            return "associatedUserIdEqualCurrent";
+                        case "AttachedUserIdEqualCurrent":
+                            return "attachedUserIdEqualCurrent";
                     }
                     break;
                     
@@ -3157,6 +3157,8 @@ namespace WebAPI.Reflection
                             return "mainLanguageCode";
                         case "Name":
                             return "name";
+                        case "TimeZoneId":
+                            return "timeZoneId";
                         case "VatPercent":
                             return "vatPercent";
                     }
