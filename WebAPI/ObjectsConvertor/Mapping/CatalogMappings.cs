@@ -1449,8 +1449,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     if (order.SlidingWindowPeriod.HasValue)
                     {
-                        result.m_bIsSlidingWindowField = true;
-                        result.isSlidingWindowFromRestApi = true;
+                        result.m_bIsSlidingWindowField = result.isSlidingWindowFromRestApi = true;
                         result.lu_min_period_id = order.SlidingWindowPeriod.Value;
                     }
                 }
@@ -1534,6 +1533,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case OrderBy.ID:
                 default:
                     break;
+            }
+
+            if (orderObj.isSlidingWindowFromRestApi)
+            {
+                result.SlidingWindowPeriod = orderObj.lu_min_period_id;
             }
 
             return result;
