@@ -285,7 +285,7 @@ namespace Core.Api.Managers
 
             GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
 
-            if (group.isAssetUserRuleEnabled)
+            if (!group.isAssetUserRuleEnabled)
             {
                 response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
@@ -345,7 +345,7 @@ namespace Core.Api.Managers
 
             GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
 
-            if (group.isAssetUserRuleEnabled)
+            if (!group.isAssetUserRuleEnabled)
             {
                 response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
