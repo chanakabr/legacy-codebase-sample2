@@ -36,6 +36,7 @@ namespace Core.Api.Managers
         private const string DELETE_USER_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule from user";
         private const string ASSET_USER_RULE_FAILED_UPDATE = "failed to update Asset user rule";
         private const string ASSET_USER_RULE_NOT_FOUND = "No Asset User Rules found";
+        private const string ASSET_USER_RULES_OPERATIONS_DISABLE = "AssetUserRule operations are disabled for this partner";
 
         internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false)
         {
@@ -45,7 +46,7 @@ namespace Core.Api.Managers
 
             if (userId.HasValue && userId.Value > 0 && !group.isAssetUserRuleEnabled)
             {
-                response.Status = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                response.Status = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
             }
 
@@ -286,7 +287,7 @@ namespace Core.Api.Managers
 
             if (group.isAssetUserRuleEnabled)
             {
-                response = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
             }
 
@@ -346,7 +347,7 @@ namespace Core.Api.Managers
 
             if (group.isAssetUserRuleEnabled)
             {
-                response = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
             }
 

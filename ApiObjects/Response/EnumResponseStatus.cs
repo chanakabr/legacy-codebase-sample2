@@ -233,7 +233,7 @@ namespace ApiObjects.Response
         AssetRuleNotExists = 5030,
         AssetUserRuleDoesNotExists = 5031,
         UserAlreadyAttachedToAssetUserRule = 5031,
-        AccountAssetUserRulesNotEnabled = 5032,
+        AssetUserRulesOperationsDisable = 5032,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
