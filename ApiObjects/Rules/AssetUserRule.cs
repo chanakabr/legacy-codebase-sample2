@@ -21,12 +21,12 @@ namespace ApiObjects.Rules
         {
             if (assetUserRule != null)
             {
-                if (string.IsNullOrEmpty(this.Name))
+                if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
                 {
                     this.Name = assetUserRule.Name;
                 }
 
-                if (string.IsNullOrEmpty(this.Description))
+                if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
                 {
                     this.Description = assetUserRule.Description;
                 }
