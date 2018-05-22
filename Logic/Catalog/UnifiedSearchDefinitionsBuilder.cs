@@ -369,7 +369,7 @@ namespace Core.Catalog
         {
             long? userId = long.Parse(request.m_sSiteGuid);
 
-            var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, userId);
+            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
             if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
             {
                 if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)

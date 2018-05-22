@@ -36,17 +36,24 @@ namespace Core.Api.Managers
         private const string DELETE_USER_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule from user";
         private const string ASSET_USER_RULE_FAILED_UPDATE = "failed to update Asset user rule";
         private const string ASSET_USER_RULE_NOT_FOUND = "No Asset User Rules found";
-        
-        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
+
+        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
 
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+
+            if (userId.HasValue && userId.Value > 0 && !group.isAssetUserRuleEnabled)
+            {
+                response.Status = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                return response;
+            }
+
             try
             {
-
                 List<long> assetUserRuleIds = new List<long>();
 
-                if (!userId.HasValue)
+                if (!userId.HasValue || shouldGetGroupRulesFirst)
                 {
                     string key = LayeredCacheKeys.GetAssetUserRuleIdsGroupKey(groupId);
 
@@ -62,7 +69,8 @@ namespace Core.Api.Managers
                         return response;
                     }
                 }
-                else
+
+                if (userId.HasValue && (!shouldGetGroupRulesFirst || (assetUserRuleIds != null && assetUserRuleIds.Count > 0)))
                 {
                     if (!TryGetUserAssetUserRuleIds(userId.Value, groupId, out assetUserRuleIds))
                     {
@@ -78,7 +86,7 @@ namespace Core.Api.Managers
 
                 Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
                 Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-                
+
                 foreach (long assetUserRuleId in assetUserRuleIds)
                 {
                     string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(assetUserRuleId);
@@ -87,14 +95,14 @@ namespace Core.Api.Managers
                 }
 
                 Dictionary<string, AssetUserRule> fullAssetUserRules = null;
-            
+
                 // try to get full AssetUserRules from cache            
-                if (LayeredCache.Instance.GetValues<AssetUserRule>(keysToOriginalValueMap, 
+                if (LayeredCache.Instance.GetValues<AssetUserRule>(keysToOriginalValueMap,
                                                                    ref fullAssetUserRules,
-                                                                   GetAssetUserRulesCB, 
-                                                                   new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } }, 
-                                                                   groupId, 
-                                                                   LayeredCacheConfigNames.GET_ASSET_USER_RULE, 
+                                                                   GetAssetUserRulesCB,
+                                                                   new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
+                                                                   groupId,
+                                                                   LayeredCacheConfigNames.GET_ASSET_USER_RULE,
                                                                    invalidationKeysMap))
                 {
                     if (fullAssetUserRules != null && fullAssetUserRules.Count > 0)
@@ -274,6 +282,14 @@ namespace Core.Api.Managers
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+
+            if (group.isAssetUserRuleEnabled)
+            {
+                response = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                return response;
+            }
+
             try
             {
                 // check if AssetUserRule exists in CB
@@ -325,6 +341,14 @@ namespace Core.Api.Managers
         internal static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+
+            if (group.isAssetUserRuleEnabled)
+            {
+                response = new Status((int)eResponseStatus.AccountAssetUserRulesNotEnabled, "Account asset user rules not enabled");
+                return response;
+            }
 
             try
             {

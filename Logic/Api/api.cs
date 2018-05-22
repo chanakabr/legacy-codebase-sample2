@@ -10737,7 +10737,7 @@ namespace Core.Api
                         if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
                         {
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
-                            //build serach for each tag and tag values
+                            //build search for each tag and tag values
                             Parallel.ForEach(mediaAssetUserRules, (rule) =>
                             {
                                 if (rule.Conditions != null && rule.Conditions.Count > 0)
