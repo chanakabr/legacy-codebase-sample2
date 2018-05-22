@@ -3917,7 +3917,7 @@ namespace Tvinci.Core.DAL
         public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine,
                                                      out int RelatedRecommendationEngine, out int SearchRecommendationEngine,
                                                      out int RelatedRecommendationEngineEnrichments, out int SearchRecommendationEngineEnrichments,
-                                                     out bool isGeoAvailabilityEnabled)
+                                                     out bool isGeoAvailabilityEnabled, out bool isAssetUserRuleEnabled)
         {
             isRegionalizationEnabled = false;
             defaultRegion = 0;
@@ -3927,6 +3927,7 @@ namespace Tvinci.Core.DAL
             SearchRecommendationEngine = 0;
             SearchRecommendationEngineEnrichments = 0;
             isGeoAvailabilityEnabled = false;
+            isAssetUserRuleEnabled = false;
 
             // Call stored procedure that checks if this group has regionalization or not
             ODBCWrapper.StoredProcedure storedProcedureDefaultRegion = new ODBCWrapper.StoredProcedure("Get_GroupDefaultParameters");
@@ -3951,6 +3952,7 @@ namespace Tvinci.Core.DAL
                     SearchRecommendationEngine = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE");
                     SearchRecommendationEngineEnrichments = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE_ENRICHMENTS");
                     isGeoAvailabilityEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "IS_GEO_AVAILABILITY_ENABLED");
+                    isAssetUserRuleEnabled = ODBCWrapper.Utils.ExtractBoolean(groupRow, "IS_ASSET_USER_RULE_ENABLED");
                 }
             }
         }

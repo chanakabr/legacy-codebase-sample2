@@ -123,6 +123,9 @@ namespace GroupsCacheManager
         [JsonProperty("is_geo_availability_windowing_enabled")]
         public bool isGeoAvailabilityWindowingEnabled;
 
+        [JsonProperty("is_asset_user_rule_enabled")]
+        public bool isAssetUserRuleEnabled;
+
         #endregion
 
         #region CTOR
