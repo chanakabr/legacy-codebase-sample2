@@ -28,6 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
         public KalturaAssetUserRuleListResponse List(KalturaAssetUserRuleFilter filter = null)
         {
             KalturaAssetUserRuleListResponse response = null;
@@ -144,6 +145,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [Throws(eResponseStatus.UserAlreadyAttachedToAssetUserRule)]
+        [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
         [SchemeArgument("ruleId", MinLong = 1)]
         public void AttachUser(long ruleId)
         {
@@ -168,6 +170,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
+        [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
         [SchemeArgument("ruleId", MinLong = 1)]
         public void DetachUser(long ruleId)
         {
