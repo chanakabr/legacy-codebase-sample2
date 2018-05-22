@@ -79,7 +79,7 @@ namespace WebAPI.Models.API
                     else if (condition is KalturaAssetCondition)
                     {
                         KalturaAssetCondition ksqlCondition = condition as KalturaAssetCondition;
-                        if (string.IsNullOrEmpty(ksqlCondition.Ksql))
+                        if (string.IsNullOrEmpty(ksqlCondition.Ksql) || string.IsNullOrWhiteSpace(ksqlCondition.Ksql))
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
                         }

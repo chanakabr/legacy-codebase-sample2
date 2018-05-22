@@ -64,7 +64,7 @@ namespace WebAPI.Models.API
             {
                 foreach (var condition in Conditions)
                 {
-                    if (string.IsNullOrEmpty(condition.Ksql))
+                    if (string.IsNullOrEmpty(condition.Ksql) || string.IsNullOrWhiteSpace(condition.Ksql))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
                     }

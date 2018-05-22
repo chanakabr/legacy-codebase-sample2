@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -25,6 +26,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaRuleActionType Type { get; protected set; }
 
         /// <summary>
