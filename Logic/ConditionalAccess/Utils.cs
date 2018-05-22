@@ -3519,7 +3519,6 @@ namespace Core.ConditionalAccess
 
                 if (cacheResult && fileDatatables != null)
                 {
-
                     // get the media_file_id from key
                     // find keys not exsits in result
                     List<string> missingKeys = fileDatatables.Where(kvp => kvp.Value == null || kvp.Value.Rows == null || kvp.Value.Rows.Count == 0).Select(kvp => kvp.Key).ToList();
@@ -3621,7 +3620,6 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
-
                 }
                 else
                 {
