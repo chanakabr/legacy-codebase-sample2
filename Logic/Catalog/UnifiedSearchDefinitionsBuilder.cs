@@ -370,9 +370,9 @@ namespace Core.Catalog
             long? userId = long.Parse(request.m_sSiteGuid);
 
             var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
-            if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
+            if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
             {
-                if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)
+                if (assetUserRulesResponse.Objects != null && assetUserRulesResponse.Objects.Count > 0)
                 {
                     StringBuilder notQuery = new StringBuilder();
                     notQuery.Append("(and ");
