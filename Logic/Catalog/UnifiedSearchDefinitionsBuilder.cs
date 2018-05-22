@@ -348,44 +348,9 @@ namespace Core.Catalog
 
                 #region Asset User Rule
 
-                long? userId = null;
-                if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
                 {
-                    userId = long.Parse(request.m_sSiteGuid);
-                }
-                //TODO SHIR - talk to irena about this - the Convert.ToInt32(request.m_sSiteGuid) throws exception because request.m_sSiteGuid is string.Empty
-                //var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
-                var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, userId);
-                if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
-                {
-                    if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)
-                    {
-                        StringBuilder notQuery = new StringBuilder();
-                        notQuery.Append("(and ");
-                        foreach (var rule in assetUserRulesResponse.Objects)
-                        {
-                            definitions.assetUserRuleIds.Add(rule.Id);
-                            foreach (var condition in rule.Conditions)
-                            {
-                                notQuery.AppendFormat(" {0}", condition.Ksql);
-                            }
-                        }
-
-                        notQuery.Append(")");
-
-                        string notQueryString = notQuery.ToString();
-
-                        BooleanPhraseNode notPhrase = null;
-                        BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
-
-                        CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group);
-
-                        definitions.assetUserRulePhrase = notPhrase;
-                    }
-                }
-                else
-                {
-                    log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+                    GetUserAssetRulesPhrase(request, group, ref definitions);
                 }
 
                 #endregion
@@ -398,6 +363,44 @@ namespace Core.Catalog
             }
 
             return definitions;
+        }
+
+        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions)
+        {
+            long? userId = long.Parse(request.m_sSiteGuid);
+
+            var assetUserRulesResponse = Core.Api.Module.GetAssetUserRuleList(request.m_nGroupID, userId);
+            if (assetUserRulesResponse.Status.Code != (int)eResponseStatus.OK)
+            {
+                if (assetUserRulesResponse.Objects == null && assetUserRulesResponse.Objects.Count > 0)
+                {
+                    StringBuilder notQuery = new StringBuilder();
+                    notQuery.Append("(and ");
+                    foreach (var rule in assetUserRulesResponse.Objects)
+                    {
+                        definitions.assetUserRuleIds.Add(rule.Id);
+                        foreach (var condition in rule.Conditions)
+                        {
+                            notQuery.AppendFormat(" {0}", condition.Ksql);
+                        }
+                    }
+
+                    notQuery.Append(")");
+
+                    string notQueryString = notQuery.ToString();
+
+                    BooleanPhraseNode notPhrase = null;
+                    BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+
+                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group);
+
+                    definitions.assetUserRulePhrase = notPhrase;
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+            }
         }
 
         private List<string> GetUserRecordings(UnifiedSearchDefinitions definitions, string siteGuid, int groupId, long domainId)
