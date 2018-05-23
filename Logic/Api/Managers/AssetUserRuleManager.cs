@@ -46,7 +46,7 @@ namespace Core.Api.Managers
 
             if (userId.HasValue && userId.Value > 0 && !group.isAssetUserRuleEnabled)
             {
-                response.Status = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
+                response.SetStatus(eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
             }
 
@@ -81,7 +81,7 @@ namespace Core.Api.Managers
 
                 if (assetUserRuleIds == null || assetUserRuleIds.Count == 0)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, ASSET_USER_RULE_NOT_FOUND);
+                    response.SetStatus(eResponseStatus.OK, ASSET_USER_RULE_NOT_FOUND);
                     return response;
                 }
 
@@ -120,6 +120,7 @@ namespace Core.Api.Managers
                 else
                 {
                     response.Status.Message = eResponseStatus.OK.ToString();
+                    response.TotalItems = response.Objects.Count;
                 }
             }
             catch (Exception ex)
@@ -153,8 +154,7 @@ namespace Core.Api.Managers
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
                         
                         response.Object = assetUserRuleToAdd;
-                        response.Status.Code = (int)eResponseStatus.OK;
-                        response.Status.Message = eResponseStatus.OK.ToString();
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
             }
@@ -179,8 +179,7 @@ namespace Core.Api.Managers
                 
                 if (oldAssetUserRule == null || oldAssetUserRule.Id == 0 || oldAssetUserRule.GroupId != groupId)
                 {
-                    response.Status.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
-                    response.Status.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
+                    response.SetStatus(eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
                     return response;
                 }
 
@@ -190,8 +189,7 @@ namespace Core.Api.Managers
                 // update asset user rule in DB
                 if (!ApiDAL.UpdateAssetRule(groupId, assetUserRuleToUpdate.Id, assetUserRuleToUpdate.Name, assetUserRuleToUpdate.Description))
                 {
-                    response.Status.Code = (int)eResponseStatus.Error;
-                    response.Status.Message = ASSET_USER_RULE_FAILED_UPDATE;
+                    response.SetStatus(eResponseStatus.Error, ASSET_USER_RULE_FAILED_UPDATE);
                     return response;
                 }
                 
@@ -206,8 +204,7 @@ namespace Core.Api.Managers
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleToUpdate.Id));
 
                     response.Object = assetUserRuleToUpdate;
-                    response.Status.Code = (int)eResponseStatus.OK;
-                    response.Status.Message = eResponseStatus.OK.ToString();
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)

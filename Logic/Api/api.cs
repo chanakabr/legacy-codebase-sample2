@@ -2651,7 +2651,7 @@ namespace Core.Api
             
             // check if the user have assetUserRules 
             long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
-            var mediaAssetUserRules = GetMediaAssetUserRules(groupId, userId, mediaId);
+            var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
 
             if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
             {
@@ -5515,7 +5515,7 @@ namespace Core.Api
 
                     // get all AssetUserRule for the user
                     long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
-                    var mediaAssetUserRules = GetMediaAssetUserRules(groupId, userId, mediaId);
+                    var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
 
                     if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
                     {
@@ -10716,6 +10716,77 @@ namespace Core.Api
             return false;
         }
 
+        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, GenericListResponse<AssetUserRule> userToAssetUserRules = null)
+        {
+            List<AssetUserRule> rules = new List<AssetUserRule>();
+
+            if (userId > 0)
+            {
+                try
+                {
+                    // check that have AssetUserRule for the group in general and return it
+                    var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
+                    
+                    if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
+                    {
+                        return null;
+                    }
+                    
+                    // get invalidation keys
+                    List<string> assetUserRuleInvalidationKeys = new List<string>(assetUserRuleList.Objects.Count + 1)
+                    {
+                        LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId)
+                    };
+                    assetUserRuleList.Objects.ForEach(assetUserRule => assetUserRuleInvalidationKeys.Add(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRule.Id)));
+
+                    List<long> mediaAssetUserRuleIds = null;
+                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
+
+                    //Get mediaAssetUserRuleIds from cache
+                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
+                                                               ref mediaAssetUserRuleIds,
+                                                               GetMediaAssetUserRules,
+                                                               new Dictionary<string, object>()
+                                                               {
+                                                                   { "groupId", groupId },
+                                                                   { "mediaId", mediaId },
+                                                                   { "assetUserRules", assetUserRuleList.Objects }
+                                                               },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                               assetUserRuleInvalidationKeys))
+                    {
+                        log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                    }
+
+                    if (mediaAssetUserRuleIds == null || mediaAssetUserRuleIds.Count == 0)
+                    {
+                        return rules;
+                    }
+
+                    if (userToAssetUserRules == null)
+                    {
+                        userToAssetUserRules = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+                    }
+
+                    // if user has at least one rule applied on him
+                    if (userToAssetUserRules == null || !userToAssetUserRules.HasObjects())
+                    {
+                        return rules;
+                    }
+
+                    // union userRules with the mediaRules 
+                    rules = userToAssetUserRules.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
+                }
+            }
+
+            return rules;
+        }
+
         private static Tuple<List<long>, bool> GetMediaAssetUserRules(Dictionary<string, object> funcParams)
         {
             bool result = false;
@@ -10764,69 +10835,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-
-        public static List<AssetUserRule> GetMediaAssetUserRules(int groupId, long userId, long mediaId)
-        {
-            List<AssetUserRule> rules = new List<AssetUserRule>();
-
-            if (userId > 0)
-            {
-                try
-                {
-                    var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
-
-                    if (assetUserRuleList == null ||
-                        assetUserRuleList.Status == null ||
-                        assetUserRuleList.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        return rules;
-                    }
-
-                    // media asset user rules id 
-                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
-                    List<long> mediaAssetUserRuleIds = null;
-
-                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
-                                                               ref mediaAssetUserRuleIds,
-                                                               GetMediaAssetUserRules,
-                                                               new Dictionary<string, object>()
-                                                               {
-                                                                   { "groupId", groupId },
-                                                                   { "mediaId", mediaId },
-                                                                   { "assetUserRules", assetUserRuleList.Objects }
-                                                               },
-                                                               groupId,
-                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                               new List<string>() { LayeredCacheKeys.GetMediaAssetUserRulesInvalidationKey(groupId, mediaId) }))
-                    {
-                        log.Error(string.Format("GetMediaAssetUserRules - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
-                        return rules;
-                    }
-
-                    if (mediaAssetUserRuleIds != null && mediaAssetUserRuleIds.Count > 0)
-                    {
-                        // user rules 
-                        var userToAssetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
-
-                        // if user has at least one rule applied on him
-                        if (userToAssetUserRuleList != null &&
-                            userToAssetUserRuleList.Status != null &&
-                            userToAssetUserRuleList.Status.Code == (int)eResponseStatus.OK &&
-                            userToAssetUserRuleList.Objects.Count > 0)
-                        {
-                            rules = userToAssetUserRuleList.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("Error in GetMediaAssetUserRules: group={0}, user={1}, media={2}", groupId, userId, mediaId), ex);
-                }
-            }
-            
-            return rules;
-        }
-
+        
         private static List<GroupRule> ConvertAssetUserRuleToGroupRule(List<AssetUserRule> assetUserRules)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
