@@ -57,10 +57,10 @@ public partial class MethodFinder
                 object[] CallParameters = new object[MethodParameters.Length];
                 for (int i = 0; i < MethodParameters.Length; i++)
                 {
-                    ParameterInfo TargetParameter = MethodParameters[i];
+                    ParameterInfo targetParameter = MethodParameters[i];
 
                     // get the object value of the parameter
-                    CallParameters[i] = executer.InitilizeParameter(TargetParameter.ParameterType, TargetParameter.Name);
+                    CallParameters[i] = executer.InitilizeParameter(targetParameter, targetParameter.Name);
                 }
 
                 // post handle request

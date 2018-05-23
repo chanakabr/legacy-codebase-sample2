@@ -155,11 +155,12 @@ namespace TVPApiServices
         NPVRResponse RecordingWatchStatus(InitializationObject initObj, string recordingId, int alreadyWatched);
 
         [OperationContract]
-        NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId,
-            List<string> lookupCriteria);
+        NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int channelId,
+            int? seasonNumber, int? seasonSeed, int? episodeSeed, List<string> lookupCriteria);
 
         [OperationContract]
         NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<string> byStatus);
+            List<string> byStatus);       
     }
 }
+

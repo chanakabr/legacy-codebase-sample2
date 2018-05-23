@@ -277,8 +277,8 @@ namespace TVPApiServices
             List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int? version);
 
         [OperationContract]
-        List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex,
-            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber, int? version);
+        List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj
+            , int? version, string seriesId, int? seasonNumber);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj,

@@ -1435,7 +1435,7 @@ namespace TVPApiModule.Services
                     SeasonSeed = seasonSeed,
                     EpisodeSeed = episodeSeed,
                     ChannelId = channelId,
-                    LookupCriteria = lookupCriteria.ToArray(),
+                    LookupCriteria = lookupCriteria == null ? new List<string>().ToArray() : lookupCriteria.ToArray(),
                     Version = 2
                 };
 

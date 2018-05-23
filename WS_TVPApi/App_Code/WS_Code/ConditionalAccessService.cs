@@ -1212,12 +1212,11 @@ namespace TVPApiServices
 
             return res;
         }
-
-
+        
         [WebMethod(EnableSession = true, Description = "Issues a record series request by SeriesId")]
         [PrivateMethod]
-        public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, 
-            List<string> lookupCriteria)
+        public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int channelId,
+             int? seasonNumber = -1, int? seasonSeed = -1, int? episodeSeed = -1, List<string> lookupCriteria = null)
         {
             NPVRResponse res = null;
 
@@ -1230,7 +1229,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesBySeriesId(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
-                        seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria);
+                        seriesId, seasonNumber.Value, seasonSeed.Value, episodeSeed.Value, channelId, lookupCriteria);
                 }
                 catch (Exception ex)
                 {
@@ -1260,7 +1259,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
                         seriesRecordingId, version);
                 }
                 catch (Exception ex)
@@ -1328,7 +1327,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CancelSeriesRecording(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
                         seriesRecordingId, version);
                 }
                 catch (Exception ex)
@@ -1358,7 +1357,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).SetAssetProtectionStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, 
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).SetAssetProtectionStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId,
                         isProtect, version);
                 }
                 catch (Exception ex)
@@ -1407,7 +1406,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
         [PrivateMethod]
-        public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, 
+        public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
             string referrer, string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
@@ -1420,7 +1419,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, 
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId,
                         startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode);
                 }
                 catch (Exception ex)

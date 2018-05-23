@@ -3593,8 +3593,8 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
         [PrivateMethod]
-        public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj,
-            string seriesId, int seasonNumber, int? version)
+        public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj
+            ,int? version, string seriesId = null, int? seasonNumber = -1)
         {
             List<RecordedSeriesObject> res = null;
 
@@ -3610,7 +3610,8 @@ namespace TVPApiServices
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
-                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj, seriesId, seasonNumber, version)
+
+                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj, seriesId, seasonNumber.Value, version)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedSeriesObject>;
