@@ -5466,7 +5466,7 @@ namespace Tvinci.Core.DAL
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@ShouldUpdateOtherDescriptions", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
-            sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null && mediaIdsToOrderNum.Count > 0 ? 1 : 0);
+            sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null ? 1 : 0);
             sp.AddKeyValueListParameter<long, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
             sp.AddParameter("@UpdaterID", userId);
 
