@@ -367,7 +367,7 @@ namespace Core.Catalog
 
         internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions)
         {
-            long? userId = long.Parse(request.m_sSiteGuid);
+            long userId = long.Parse(request.m_sSiteGuid);
 
             var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
             if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)

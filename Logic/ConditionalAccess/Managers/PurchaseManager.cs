@@ -1704,6 +1704,14 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                List<ApiObjects.Rules.AssetUserRule> rules = Core.Api.api.GetMediaAssetUserRulesToUser(groupId, long.Parse(siteguid), mediaID);
+                if (rules != null && rules.Count > 0)
+                {
+                    response.Status.Message = "Asset is blocked for user";
+                    log.ErrorFormat("Error: {0}", response.Status.Message);
+                    return response;
+                }
+
                 // validate PPV 
                 PPVModule ppvModule = null;
                 ApiObjects.Response.Status status = Utils.ValidatePPVModuleCode(groupId, productId, contentId, ref ppvModule);

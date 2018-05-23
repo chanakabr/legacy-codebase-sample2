@@ -6529,7 +6529,7 @@ namespace Core.Catalog
             string key = null;
             if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
             {
-                if (personalData != null && personalData.Count > 0)
+                if ((personalData != null && personalData.Count > 0) || !string.IsNullOrEmpty(ksql) || (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0))
                 {
                     StringBuilder cacheKey = new StringBuilder();
                     cacheKey.AppendFormat("channel={0}", channelId);
