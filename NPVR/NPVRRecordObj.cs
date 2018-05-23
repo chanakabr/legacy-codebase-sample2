@@ -14,8 +14,8 @@ namespace NPVR
 
         public int SeasonSeed { get; set; }
 
-        public int EpisodeSeed { get; set; } 
-        
+        public int EpisodeSeed { get; set; }
+
         public List<string> LookupCriteria { get; set; }
 
 
@@ -24,14 +24,9 @@ namespace NPVR
             EpgChannelID = channelId;
             EntityID = domainID;
             SeriesId = seriesId;
-            if (seasonSeed > 0)
-            {
-                SeasonSeed = seasonSeed;
-            }
-            else
-            {
-                SeasonNumber = seasonNumber;
-            }
+            SeasonSeed = seasonSeed;
+            SeasonNumber = seasonNumber;
+
             EpisodeSeed = episodeSeed;
             LookupCriteria = lookupCriteria;
         }
@@ -46,7 +41,7 @@ namespace NPVR
             sb.Append(String.Concat(" EpisodeSeed: ", EpisodeSeed));
             if (LookupCriteria != null && LookupCriteria.Count > 0)
             {
-                sb.Append(String.Concat(" LookupCriteria: ", LookupCriteria!= null ? string.Join(",", LookupCriteria) : string.Empty));
+                sb.Append(String.Concat(" LookupCriteria: ", LookupCriteria != null ? string.Join(",", LookupCriteria) : string.Empty));
             }
 
             return sb.ToString();
