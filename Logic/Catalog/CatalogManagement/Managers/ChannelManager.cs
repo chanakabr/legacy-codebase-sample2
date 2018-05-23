@@ -663,7 +663,7 @@ namespace Core.Catalog.CatalogManagement
 
                 List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
                 // validate medias exist for manual channel only
-                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null && channelToUpdate.m_lManualMedias.Count > 0)
+                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null)
                 {
                     mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
                     List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
