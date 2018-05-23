@@ -395,12 +395,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
-
-        public static string GetMediaAssetUserRulesInvalidationKey(int groupId, long mediaId)
-        {
-            return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
-        }
-
+        
         public static string GetSeriesRemindersInvalidationKey(int groupId, long seriesReminderId)
         {
             return string.Format("invalidationKeySeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
