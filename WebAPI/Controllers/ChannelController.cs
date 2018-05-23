@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
                 }
-                // KalturaChannel (backward compatability)
+                // KalturaChannel (backward comparability)
                 else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
                 {
                     response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);

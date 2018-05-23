@@ -3486,7 +3486,13 @@ namespace WebAPI.Clients
 
             try
             {
+                Type manualChannelType = typeof(KalturaManualChannel);
                 GroupsCacheManager.Channel channelToUpdate = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) && ((KalturaManualChannel)channel).MediaIds == null)
+                {
+                    channelToUpdate.m_lManualMedias = null;
+                }
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.ChannelManager.UpdateChannel(groupId, id, channelToUpdate, userId);
