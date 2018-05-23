@@ -10732,13 +10732,6 @@ namespace Core.Api
                         return null;
                     }
                     
-                    // get invalidation keys
-                    List<string> assetUserRuleInvalidationKeys = new List<string>(assetUserRuleList.Objects.Count + 1)
-                    {
-                        LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId)
-                    };
-                    assetUserRuleList.Objects.ForEach(assetUserRule => assetUserRuleInvalidationKeys.Add(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRule.Id)));
-
                     List<long> mediaAssetUserRuleIds = null;
                     string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
 
@@ -10754,7 +10747,7 @@ namespace Core.Api
                                                                },
                                                                groupId,
                                                                LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                               assetUserRuleInvalidationKeys))
+                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
                     {
                         log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
                     }
