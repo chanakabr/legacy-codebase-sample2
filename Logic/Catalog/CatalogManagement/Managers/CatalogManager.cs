@@ -1868,9 +1868,9 @@ namespace Core.Catalog.CatalogManagement
                         {
                             response.Objects.AddRange(catalogGroupCache.AssetStructsMapById[assetStructId.Value].AssetStructMetas.Values);
                         }
-
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
+
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
