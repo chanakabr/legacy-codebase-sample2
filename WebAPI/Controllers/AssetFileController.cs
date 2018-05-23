@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using ConfigurationManager;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace WebAPI.Controllers
     public class AssetFileController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         /// <summary>
         /// get KalturaAssetFileContext
@@ -94,7 +96,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
-        public void PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
+        public string PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
         {
             if ((assetType == KalturaAssetType.epg && (contextType != KalturaPlaybackContextType.CATCHUP && contextType != KalturaPlaybackContextType.START_OVER)) ||
                 (assetType == KalturaAssetType.media && (contextType != KalturaPlaybackContextType.TRAILER && contextType != KalturaPlaybackContextType.PLAYBACK)) ||
@@ -144,14 +146,34 @@ namespace WebAPI.Controllers
                         }
                     }
 
-                    HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                    HttpContext.Current.Response.Redirect(response);
+                    string responseFormat = HttpContext.Current.Request.QueryString["responseFormat"];
+
+                    if (!string.IsNullOrEmpty(responseFormat))
+                    {
+                        HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        HttpContext.Current.Response.Redirect(response);
+                    }
+                    else if (responseFormat == "jsonp" || responseFormat == "json")
+                    {
+                        KalturaMediaFile file = new KalturaMediaFile() { Url = response };
+                        JObject fileObject = JObject.FromObject(file);
+                        response = fileObject.ToString();
+
+                        string callback = HttpContext.Current.Request.QueryString["callback"];
+                        if (!string.IsNullOrEmpty(callback))
+                        {
+                            response = string.Format("{0}({1})", callback, response);
+                        }
+                        return response;
+                    }
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
         }
     }
 }
