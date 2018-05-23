@@ -1,0 +1,116 @@
+{
+  "name": "permission_item_controller_cdnadapterprofile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Add",
+        "name": "CDNAdapterProfile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Delete",
+        "name": "CDNAdapterProfile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "GenerateSharedSecret",
+        "name": "CDNAdapterProfile_GenerateSharedSecret",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "List",
+        "name": "CDNAdapterProfile_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Update",
+        "name": "CDNAdapterProfile_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Add",
+        "name": "CDNAdapterProfile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Delete",
+        "name": "CDNAdapterProfile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "GenerateSharedSecret",
+        "name": "CDNAdapterProfile_GenerateSharedSecret",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "List",
+        "name": "CDNAdapterProfile_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNAdapterProfile",
+        "action": "Update",
+        "name": "CDNAdapterProfile_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

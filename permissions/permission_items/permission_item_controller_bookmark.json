@@ -1,0 +1,32 @@
+{
+  "name": "permission_item_controller_bookmark",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Bookmark",
+        "action": "Add",
+        "name": "Bookmark_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Bookmark",
+        "action": "List",
+        "name": "Bookmark_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

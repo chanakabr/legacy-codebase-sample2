@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_devicefamily",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "DeviceFamily",
+        "action": "List",
+        "name": "DeviceFamily_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

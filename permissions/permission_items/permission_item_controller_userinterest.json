@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_userinterest",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "UserInterest",
+        "action": "Add",
+        "name": "UserInterest_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "UserInterest",
+        "action": "List",
+        "name": "UserInterest_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "UserInterest",
+        "action": "Delete",
+        "name": "UserInterest_Delete",
+        "is_excluded": false
+      }
+    }
+  ]
+}

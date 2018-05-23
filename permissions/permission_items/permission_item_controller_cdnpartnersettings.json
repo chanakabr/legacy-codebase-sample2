@@ -1,0 +1,28 @@
+{
+  "name": "permission_item_controller_cdnpartnersettings",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDNPartnerSettings",
+        "action": "Get",
+        "name": "CDNPartnerSettings_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "permission_item": {
+        "service": "CDNPartnerSettings",
+        "action": "Update",
+        "name": "CDNPartnerSettings_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

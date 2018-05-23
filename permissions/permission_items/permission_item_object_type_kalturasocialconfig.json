@@ -1,0 +1,34 @@
+{
+  "name": "permission_item_object_type_kalturasocialconfig",
+  "type": "object",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaSocialConfig",
+        "parameter": "",
+        "action": "READ",
+        "name": "KalturaSocialConfig_AppId_Read",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaSocialConfig",
+        "parameter": "",
+        "action": "READ",
+        "name": "KalturaSocialConfig_Permissions_Read",
+        "is_excluded": false
+      }
+    }
+  ]
+}

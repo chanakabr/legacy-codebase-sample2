@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_unifiedpayment",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "UnifiedPayment",
+        "action": "GetNextRenewal",
+        "name": "UnifiedPayment_GetNextRenewal",
+        "is_excluded": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "permission_item_controller_purchasesettings",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PurchaseSettings",
+        "action": "Get",
+        "name": "PurchaseSettings_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PurchaseSettings",
+        "action": "Update",
+        "name": "PurchaseSettings_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

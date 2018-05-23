@@ -1,0 +1,50 @@
+{
+  "name": "permission_item_controller_ossadapterprofilesettings",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfileSettings",
+        "action": "List",
+        "name": "OSSAdapterProfileSettings_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfileSettings",
+        "action": "Delete",
+        "name": "OSSAdapterProfileSettings_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfileSettings",
+        "action": "Add",
+        "name": "OSSAdapterProfileSettings_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfileSettings",
+        "action": "Update",
+        "name": "OSSAdapterProfileSettings_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

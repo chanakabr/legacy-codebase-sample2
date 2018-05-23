@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_householdquota",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HouseholdQuota",
+        "action": "Get",
+        "name": "Household_Quota",
+        "is_excluded": false
+      }
+    }
+  ]
+}

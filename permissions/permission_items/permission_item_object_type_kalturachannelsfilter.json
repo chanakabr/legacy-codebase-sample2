@@ -1,0 +1,30 @@
+{
+  "name": "permission_item_object_type_kalturachannelsfilter",
+  "type": "object",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaChannelsFilter",
+        "parameter": "mediaIdEqual",
+        "action": "READ",
+        "name": "KalturaChannelsFilter_mediaIdEqual_Read",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "SunnyTestPermission"
+      ],
+      "permission_item": {
+        "object": "KalturaChannelsFilter",
+        "parameter": "mediaIdEqual",
+        "action": "READ",
+        "name": "SunnyTestPermissionItem",
+        "is_excluded": false
+      }
+    }
+  ]
+}

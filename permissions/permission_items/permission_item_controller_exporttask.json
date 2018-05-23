@@ -1,0 +1,61 @@
+{
+  "name": "permission_item_controller_exporttask",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ExportTask",
+        "action": "Add",
+        "name": "ExportTask_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ExportTask",
+        "action": "Update",
+        "name": "ExportTask_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ExportTask",
+        "action": "Delete",
+        "name": "ExportTask_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ExportTask",
+        "action": "Get",
+        "name": "ExportTask_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ExportTask",
+        "action": "List",
+        "name": "ExportTask_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

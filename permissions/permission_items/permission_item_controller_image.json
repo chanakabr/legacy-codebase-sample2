@@ -1,0 +1,52 @@
+{
+  "name": "permission_item_controller_image",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Image",
+        "action": "List",
+        "name": "Image_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Image",
+        "action": "Add",
+        "name": "Image_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Image",
+        "action": "Delete",
+        "name": "Image_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Image",
+        "action": "SetContent",
+        "name": "Image_SetContent",
+        "is_excluded": false
+      }
+    }
+  ]
+}

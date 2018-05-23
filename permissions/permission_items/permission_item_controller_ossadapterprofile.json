@@ -1,0 +1,72 @@
+{
+  "name": "permission_item_controller_ossadapterprofile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfile",
+        "action": "List",
+        "name": "OSSAdapterProfile_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfile",
+        "action": "Delete",
+        "name": "OSSAdapterProfile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfile",
+        "action": "Add",
+        "name": "OSSAdapterProfile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfile",
+        "action": "Update",
+        "name": "OSSAdapterProfile_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OSSAdapterProfile",
+        "action": "GenerateSharedSecret",
+        "name": "OSSAdapterProfile_GenerateSharedSecret",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ossAdapterProfile",
+        "action": "Get",
+        "name": "ossAdapterProfile_Get",
+        "is_excluded": false
+      }
+    }
+  ]
+}

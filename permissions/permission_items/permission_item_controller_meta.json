@@ -1,0 +1,52 @@
+{
+  "name": "permission_item_controller_meta",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Meta",
+        "action": "List",
+        "name": "Meta_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Meta",
+        "action": "Update",
+        "name": "Meta_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Meta",
+        "action": "Add",
+        "name": "Meta_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Meta",
+        "action": "Delete",
+        "name": "Meta_Delete",
+        "is_excluded": false
+      }
+    }
+  ]
+}

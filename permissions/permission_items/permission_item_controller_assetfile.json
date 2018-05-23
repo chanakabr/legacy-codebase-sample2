@@ -1,0 +1,20 @@
+{
+  "name": "permission_item_controller_assetfile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "AssetFile",
+        "action": "GetContext",
+        "name": "AssetFile_GetContext",
+        "is_excluded": false
+      }
+    }
+  ]
+}

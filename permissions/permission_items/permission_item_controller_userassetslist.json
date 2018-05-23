@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_userassetslist",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "UserAssetsList",
+        "action": "List",
+        "name": "UserAssetsList_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

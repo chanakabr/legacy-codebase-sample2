@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_country",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Country",
+        "action": "List",
+        "name": "Country_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

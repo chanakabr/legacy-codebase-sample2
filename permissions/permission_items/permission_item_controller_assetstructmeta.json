@@ -1,0 +1,30 @@
+{
+  "name": "permission_item_controller_assetstructmeta",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "AssetStructMeta",
+        "action": "List",
+        "name": "AssetStructMeta_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "AssetStructMeta",
+        "action": "Update",
+        "name": "AssetStructMeta_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

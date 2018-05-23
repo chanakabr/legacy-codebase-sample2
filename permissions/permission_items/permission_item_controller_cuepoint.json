@@ -1,0 +1,17 @@
+{
+  "name": "permission_item_controller_cuepoint",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "CuePoint",
+        "action": "List",
+        "name": "CuePoint_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

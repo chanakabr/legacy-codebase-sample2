@@ -1,0 +1,69 @@
+{
+  "name": "permission_item_controller_householdpaymentmethod",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "permission_item": {
+        "service": "HouseholdPaymentMethod",
+        "action": "SetAsDefault",
+        "name": "HouseholdPaymentMethod_SetAsDefault",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "permission_item": {
+        "service": "HouseholdPaymentMethod",
+        "action": "Remove",
+        "name": "HouseholdPaymentMethod_Remove",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master"
+      ],
+      "permission_item": {
+        "service": "HouseholdPaymentMethod",
+        "action": "List",
+        "name": "HouseholdPaymentMethod_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "permission_item": {
+        "service": "HouseholdPaymentMethod",
+        "action": "Add",
+        "name": "HouseholdPaymentMethod_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HouseholdPaymentMethod",
+        "action": "ForceRemove",
+        "name": "HouseholdPaymentMethod_ForceRemove",
+        "is_excluded": false
+      }
+    }
+  ]
+}

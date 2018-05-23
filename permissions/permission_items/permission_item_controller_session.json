@@ -1,0 +1,58 @@
+{
+  "name": "permission_item_controller_session",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator",
+        "Administrator"
+      ],
+      "permission_item": {
+        "service": "Session",
+        "action": "Get",
+        "name": "Session_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Session",
+        "action": "SwitchUser",
+        "name": "Session_SwitchUser",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Session",
+        "action": "Revoke",
+        "name": "Session_Revoke",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "permission_item": {
+        "service": "Session",
+        "action": "Get",
+        "parameter": "session",
+        "name": "Session_Get_Session",
+        "is_excluded": false
+      }
+    }
+  ]
+}

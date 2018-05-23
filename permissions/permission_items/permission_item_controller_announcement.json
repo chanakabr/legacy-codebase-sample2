@@ -1,0 +1,83 @@
+{
+  "name": "permission_item_controller_announcement",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "Add",
+        "name": "Announcement_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "Update",
+        "name": "Announcement_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "UpdateStatus",
+        "name": "Announcement_UpdateStatus",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "Delete",
+        "name": "Announcement_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "List",
+        "name": "Announcement_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "CreateAnnouncement",
+        "name": "Announcement_CreateAnnouncement",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "permission_item": {
+        "service": "Announcement",
+        "action": "EnableSystemAnnouncements",
+        "name": "Announcement_EnableSystemAnnouncements",
+        "is_excluded": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "roles": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "Guest"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "RENEW_SUBSCRIPTION",
+        "PURCHASE_SERVICE",
+        "LOGIN"
+      ],
+      "name": "User"
+    },
+    {
+      "permissions": [
+        "Master",
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "RENEW_SUBSCRIPTION",
+        "PURCHASE_SERVICE",
+        "LOGIN"
+      ],
+      "name": "Master"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS"
+      ],
+      "name": "Operator"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS"
+      ],
+      "name": "Manager"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS"
+      ],
+      "name": "Administrator"
+    },
+    {
+      "permissions": [
+        "ExternalPaymentGateway"
+      ],
+      "name": "ExternalPaymentGateway"
+    },
+    {
+      "permissions": null,
+      "name": "QaSuspendPurchase"
+    },
+    {
+      "permissions": null,
+      "name": "QaSuspendPlayback"
+    },
+    {
+      "permissions": null,
+      "name": "QaTest1Updated"
+    },
+    {
+      "permissions": null,
+      "name": "QaTest2"
+    },
+    {
+      "permissions": null,
+      "name": "QaTest888"
+    },
+    {
+      "permissions": null,
+      "name": "RenewSuspended"
+    },
+    {
+      "permissions": null,
+      "name": "QaTest888"
+    },
+    {
+      "permissions": null,
+      "name": "PlaybackSuspended"
+    },
+    {
+      "permissions": null,
+      "name": "PurchaseService"
+    },
+    {
+      "permissions": null,
+      "name": "SuspendPurchasePPV"
+    },
+    {
+      "permissions": null,
+      "name": "PurchaseService"
+    },
+    {
+      "permissions": null,
+      "name": "SuspendPurchaseSubscription"
+    },
+    {
+      "permissions": null,
+      "name": "SuspendPlaybackSubscription"
+    },
+    {
+      "permissions": null,
+      "name": "SuspendPlaybackPPV"
+    },
+    {
+      "permissions": null,
+      "name": "LoginSuspended"
+    },
+    {
+      "permissions": null,
+      "name": "CancelSubscriptionSuspended"
+    },
+    {
+      "permissions": null,
+      "name": "QaTest_updated"
+    },
+    {
+      "permissions": [
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "PURCHASE_SERVICE",
+        "RENEW_SUBSCRIPTION",
+        "CANCEL_SUBSCRIPTION",
+        "LOGIN",
+        "OLD_SUSPEND"
+      ],
+      "name": "DefaultSuspendedRole"
+    },
+    {
+      "permissions": [
+        "SunnyTestPermission"
+      ],
+      "name": "SunnyTestRole"
+    },
+    {
+      "permissions": null,
+      "name": "9441"
+    },
+    {
+      "permissions": null,
+      "name": "9148"
+    },
+    {
+      "permissions": null,
+      "name": "9745"
+    },
+    {
+      "permissions": null,
+      "name": "9408"
+    },
+    {
+      "permissions": null,
+      "name": "9581"
+    },
+    {
+      "permissions": null,
+      "name": "SunnyTestRole2"
+    },
+    {
+      "permissions": null,
+      "name": "test"
+    },
+    {
+      "permissions": null,
+      "name": "test"
+    },
+    {
+      "permissions": [
+        "MaxTest00002"
+      ],
+      "name": "MaxTest00002"
+    },
+    {
+      "permissions": null,
+      "name": "MaxTest000021"
+    },
+    {
+      "permissions": [
+        "MaxTest1526998432"
+      ],
+      "name": "MaxTest1526998432"
+    },
+    {
+      "permissions": [
+        "MaxTest1527043029"
+      ],
+      "name": "MaxTest1527043029"
+    },
+    {
+      "permissions": [
+        "MaxTest15270430291"
+      ],
+      "name": "MaxTest15270430291"
+    }
+  ]
+}

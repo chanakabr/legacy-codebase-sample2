@@ -1,0 +1,181 @@
+{
+  "name": "permission_item_controller_household",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Get",
+        "name": "Household_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Add",
+        "name": "Household_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Update",
+        "name": "Household_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Delete",
+        "name": "Household_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "SetChargeID",
+        "name": "Household_SetChargeID",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "GetChargeID",
+        "name": "Household_GetChargeID",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "GetByOperator",
+        "name": "Household_GetByOperator",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "ResetFrequency",
+        "name": "Household_ResetFrequency",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "DeleteByOperator",
+        "name": "Household_DeleteByOperator",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Resume",
+        "name": "Household_Resume",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Suspend",
+        "name": "Household_Suspend",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "SetPaymentMethodExternalId",
+        "name": "Household_SetPaymentMethodExternalId",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Get",
+        "parameter": "id",
+        "name": "Household_Get_id",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Delete",
+        "parameter": "id",
+        "name": "Household_Delete_Id",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Household",
+        "action": "Purge",
+        "name": "Household_Purge",
+        "is_excluded": false
+      }
+    }
+  ]
+}

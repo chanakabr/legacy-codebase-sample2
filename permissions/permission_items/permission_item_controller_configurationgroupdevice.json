@@ -1,0 +1,50 @@
+{
+  "name": "permission_item_controller_configurationgroupdevice",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ConfigurationGroupDevice",
+        "action": "Get",
+        "name": "ConfigurationGroupDevice_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ConfigurationGroupDevice",
+        "action": "List",
+        "name": "ConfigurationGroupDevice_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ConfigurationGroupDevice",
+        "action": "Add",
+        "name": "ConfigurationGroupDevice_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "ConfigurationGroupDevice",
+        "action": "Delete",
+        "name": "ConfigurationGroupDevice_Delete",
+        "is_excluded": false
+      }
+    }
+  ]
+}

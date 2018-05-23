@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_version",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Version",
+        "action": "Get",
+        "name": "Version_Get",
+        "is_excluded": false
+      }
+    }
+  ]
+}

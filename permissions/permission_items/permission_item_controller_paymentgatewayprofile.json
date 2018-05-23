@@ -1,0 +1,72 @@
+{
+  "name": "permission_item_controller_paymentgatewayprofile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "GetConfiguration",
+        "name": "PaymentGatewayProfile_GetConfiguration",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "List",
+        "name": "PaymentGatewayProfile_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "Delete",
+        "name": "PaymentGatewayProfile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "Add",
+        "name": "PaymentGatewayProfile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "Update",
+        "name": "PaymentGatewayProfile_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PaymentGatewayProfile",
+        "action": "GenerateSharedSecret",
+        "name": "PaymentGatewayProfile_GenerateSharedSecret",
+        "is_excluded": false
+      }
+    }
+  ]
+}

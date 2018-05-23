@@ -1,0 +1,74 @@
+{
+  "name": "permission_item_controller_configurations",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "ServeByDevice",
+        "name": "Configurations_ServeByDevice",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "Delete",
+        "name": "Configurations_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "Update",
+        "name": "Configurations_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "Add",
+        "name": "Configurations_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "List",
+        "name": "Configurations_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Configurations",
+        "action": "Get",
+        "name": "Configurations_Get",
+        "is_excluded": false
+      }
+    }
+  ]
+}

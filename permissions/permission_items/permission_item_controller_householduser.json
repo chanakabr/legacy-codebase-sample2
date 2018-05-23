@@ -1,0 +1,58 @@
+{
+  "name": "permission_item_controller_householduser",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "permission_item": {
+        "service": "HouseholdUser",
+        "action": "Add",
+        "name": "HouseholdUser_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "permission_item": {
+        "service": "HouseholdUser",
+        "action": "List",
+        "name": "HouseholdUser_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "permission_item": {
+        "service": "HouseholdUser",
+        "action": "Delete",
+        "name": "HouseholdUser_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HouseholdUser",
+        "action": "AddByOperator",
+        "name": "HouseholdUser_AddByOperator",
+        "is_excluded": false
+      }
+    }
+  ]
+}

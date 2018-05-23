@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_followtvseries",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "FollowTvSeries",
+        "action": "Delete",
+        "name": "FollowTvSeries_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "FollowTvSeries",
+        "action": "List",
+        "name": "FollowTvSeries_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "FollowTvSeries",
+        "action": "Add",
+        "name": "FollowTvSeries_Add",
+        "is_excluded": false
+      }
+    }
+  ]
+}

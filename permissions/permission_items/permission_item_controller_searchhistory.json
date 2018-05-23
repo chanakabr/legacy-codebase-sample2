@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_searchhistory",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SearchHistory",
+        "action": "List",
+        "name": "SearchHistory_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SearchHistory",
+        "action": "Delete",
+        "name": "SearchHistory_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SearchHistory",
+        "action": "Clean",
+        "name": "SearchHistory_Clean",
+        "is_excluded": false
+      }
+    }
+  ]
+}

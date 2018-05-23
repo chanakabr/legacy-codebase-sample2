@@ -1,0 +1,58 @@
+{
+  "name": "permission_item_controller_homenetwork",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HomeNetwork",
+        "action": "Add",
+        "name": "HomeNetwork_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HomeNetwork",
+        "action": "Delete",
+        "name": "HomeNetwork_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HomeNetwork",
+        "action": "Delete",
+        "name": "HomeNetwork_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "HomeNetwork",
+        "action": "List",
+        "name": "HomeNetwork_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

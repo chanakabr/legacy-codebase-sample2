@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_favorite",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Favorite",
+        "action": "Add",
+        "name": "Favorite_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Favorite",
+        "action": "Delete",
+        "name": "Favorite_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Favorite",
+        "action": "List",
+        "name": "Favorite_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

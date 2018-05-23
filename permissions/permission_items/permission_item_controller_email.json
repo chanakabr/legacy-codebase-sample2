@@ -1,0 +1,17 @@
+{
+  "name": "permission_item_controller_email",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Email",
+        "action": "Send",
+        "name": "Email_Send",
+        "is_excluded": false
+      }
+    }
+  ]
+}

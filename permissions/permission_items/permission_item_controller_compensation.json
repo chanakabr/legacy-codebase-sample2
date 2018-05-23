@@ -1,0 +1,39 @@
+{
+  "name": "permission_item_controller_compensation",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Compensation",
+        "action": "Add",
+        "name": "Compensation_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Compensation",
+        "action": "Delete",
+        "name": "Compensation_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Compensation",
+        "action": "Get",
+        "name": "Compensation_Get",
+        "is_excluded": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "name": "permission_item_controller_notification",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "SetDevicePushToken",
+        "name": "Notification_SetDevicePushToken",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "Register",
+        "name": "Notification_Register",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "GetLastCleanupDate",
+        "name": "Notification_GetLastCleanupDate",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "InitiateCleanup",
+        "name": "Notification_InitiateCleanup",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "SendPush",
+        "name": "Notification_SendPush",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Notification",
+        "action": "SendSms",
+        "name": "Notification_SendSms",
+        "is_excluded": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "permission_item_controller_drmprofile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "drmProfile",
+        "action": "List",
+        "name": "drmProfile_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

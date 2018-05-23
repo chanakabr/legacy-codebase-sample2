@@ -12,6 +12,8 @@ namespace PermissionsDeployment
         private const string IMPORT_FILE_NAME = "import";
         private const string EXPORT_FILE_NAME = "export";
         private const string DELETE_FILE_NAME = "delete";
+        private const string INITIALIZE_FOLDER = "initializefolder";
+        private const string LOAD_FOLDER = "loadfolder";
         private const string HELP = "help";
 
         static void Main(string[] args)
@@ -43,9 +45,11 @@ namespace PermissionsDeployment
                 }
 
                 Console.WriteLine("Possible command line arguments, which are not case sensitive:");
-                Console.WriteLine("export: File path to export permissions data into. Shortcut: e");
-                Console.WriteLine("import: File path to import permissions data from. Shortcut: i");
-                Console.WriteLine("delete: File path to delete permissions data from. Shortcut: d");
+                Console.WriteLine("export: File path to export permissions data into in XML format. Shortcut: e");
+                Console.WriteLine("import: File path to import permissions data from in XML format. Shortcut: i");
+                Console.WriteLine("delete: File path to delete permissions data from in XML format. Shortcut: d");
+                Console.WriteLine("initializefolder: Folder path to save all permissions data into in JSON format. Shortcut: n");
+                Console.WriteLine("loadfolder: Folder path to load all permissions data from in JSON format. Shortcut: l");
             }
             if (arguments.ContainsKey(IMPORT_FILE_NAME))
             {
@@ -62,7 +66,17 @@ namespace PermissionsDeployment
                 fileName = arguments[DELETE_FILE_NAME];
                 result = PermissionsManager.PermissionsManager.Delete(fileName);
             }
-            
+            else if (arguments.ContainsKey(INITIALIZE_FOLDER))
+            {
+                string folderName = arguments[INITIALIZE_FOLDER];
+                result = PermissionsManager.PermissionsManager.InitializeFolder(folderName);
+            }
+            else if (arguments.ContainsKey(LOAD_FOLDER))
+            {
+                string folderName = arguments[LOAD_FOLDER];
+                result = PermissionsManager.PermissionsManager.LoadFolder(folderName);
+            }
+
             if (result)
                 Environment.Exit(0);
 
@@ -98,6 +112,18 @@ namespace PermissionsDeployment
                         else if (key == "d")
                         {
                             key = DELETE_FILE_NAME;
+                        }
+                        else if (key == "h")
+                        {
+                            key = HELP;
+                        }
+                        else if (key == "n")
+                        {
+                            key = INITIALIZE_FOLDER;
+                        }
+                        else if (key == "l")
+                        {
+                            key = LOAD_FOLDER;
                         }
                         else if (key == "h")
                         {

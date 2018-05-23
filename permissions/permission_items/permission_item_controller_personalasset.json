@@ -1,0 +1,19 @@
+{
+  "name": "permission_item_controller_personalasset",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "PersonalAsset",
+        "action": "List",
+        "name": "PersonalAsset_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,301 @@
+{
+  "name": "permission_item_controller_ottuser",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "AnonymousLogin",
+        "name": "OTTUser_AnonymousLogin",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "LoginWithPin",
+        "name": "OTTUser_LoginWithPin",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Login",
+        "name": "OTTUser_Login",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "FacebookLogin",
+        "name": "OTTUser_FacebookLogin",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Add",
+        "name": "OTTUser_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "sendPassword",
+        "name": "OTTUser_sendPassword",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "validateToken",
+        "name": "OTTUser_validateToken",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "SilentLogin",
+        "name": "OTTUser_SilentLogin",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "RefreshSession",
+        "name": "OTTUser_RefreshSession",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Logout",
+        "name": "OTTUser_Logout",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Activate",
+        "name": "OTTUser_Activate",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "ResendActivationToken",
+        "name": "OTTUser_ResendActivationToken",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "ChangePassword",
+        "name": "OTTUser_ChangePassword",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Update",
+        "name": "OTTUser_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Get",
+        "name": "OTTUser_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OttUser",
+        "action": "GetEncryptedUserId",
+        "name": "OttUser_GetEncryptedUserId",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "List",
+        "name": "OTTUser_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OttUser",
+        "action": "UpdateLoginData",
+        "name": "OttUser_UpdateLoginData",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "UpdateDynamicData",
+        "name": "OTTUser_UpdateDynamicData",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "resetPassword",
+        "name": "OTTUser_resetPassword",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator",
+        "Administrator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Delete",
+        "name": "OTTUser_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OttUser",
+        "action": "UpdatePassword",
+        "name": "OttUser_UpdatePassword",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "Update",
+        "parameter": "Id",
+        "name": "OTTUser_Update_Id",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "permission_item": {
+        "service": "OTTUser",
+        "action": "AddRole",
+        "name": "OTTUser_AddRole",
+        "is_excluded": false
+      }
+    }
+  ]
+}

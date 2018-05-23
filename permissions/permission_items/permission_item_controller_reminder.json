@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_reminder",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Reminder",
+        "action": "Add",
+        "name": "Reminder_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Reminder",
+        "action": "Delete",
+        "name": "Reminder_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "Reminder",
+        "action": "List",
+        "name": "Reminder_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

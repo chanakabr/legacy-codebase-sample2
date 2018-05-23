@@ -1,0 +1,65 @@
+{
+  "name": "permission_item_controller_subscriptionset",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SubscriptionSet",
+        "action": "List",
+        "name": "SubscriptionSet_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SubscriptionSet",
+        "action": "Get",
+        "name": "SubscriptionSet_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SubscriptionSet",
+        "action": "Add",
+        "name": "SubscriptionSet_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SubscriptionSet",
+        "action": "Delete",
+        "name": "SubscriptionSet_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "SubscriptionSet",
+        "action": "Update",
+        "name": "SubscriptionSet_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

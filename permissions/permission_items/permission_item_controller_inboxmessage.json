@@ -1,0 +1,45 @@
+{
+  "name": "permission_item_controller_inboxmessage",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "InboxMessage",
+        "action": "List",
+        "name": "InboxMessage_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "InboxMessage",
+        "action": "Get",
+        "name": "InboxMessage_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "InboxMessage",
+        "action": "UpdateStatus",
+        "name": "InboxMessage_UpdateStatus",
+        "is_excluded": false
+      }
+    }
+  ]
+}

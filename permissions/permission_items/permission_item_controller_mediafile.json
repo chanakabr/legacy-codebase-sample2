@@ -1,0 +1,52 @@
+{
+  "name": "permission_item_controller_mediafile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "MediaFile",
+        "action": "List",
+        "name": "MediaFile_List",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "MediaFile",
+        "action": "Add",
+        "name": "MediaFile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "MediaFile",
+        "action": "Delete",
+        "name": "MediaFile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "MediaFile",
+        "action": "Update",
+        "name": "MediaFile_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}

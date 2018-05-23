@@ -1,0 +1,90 @@
+{
+  "name": "permission_item_object_type_kalturalinearmediaasset",
+  "type": "object",
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "enableCdvrState",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_enableCdvr_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "enableCatchUpState",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_enableCatchUpState_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "enableStartOverState",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_enableStartOverState_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "bufferCatchUp",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_bufferCatchUp_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "bufferTrickPlay",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_bufferTrickPlay_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "enableRecordingPlaybackNonEntitledChannelState",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_ALL",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "object": "KalturaLinearMediaAsset",
+        "parameter": "enableTrickPlayState",
+        "action": "USAGE",
+        "name": "KalturaLinearMediaAsset_enableTrickPlayState_ALL",
+        "is_excluded": false
+      }
+    }
+  ]
+}

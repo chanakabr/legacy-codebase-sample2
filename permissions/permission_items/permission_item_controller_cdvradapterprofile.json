@@ -1,0 +1,63 @@
+{
+  "name": "permission_item_controller_cdvradapterprofile",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDVRAdapterProfile",
+        "action": "Update",
+        "name": "CDVRAdapterProfile_Update",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDVRAdapterProfile",
+        "action": "Add",
+        "name": "CDVRAdapterProfile_Add",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDVRAdapterProfile",
+        "action": "Delete",
+        "name": "CDVRAdapterProfile_Delete",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDVRAdapterProfile",
+        "action": "GenerateSharedSecret",
+        "name": "CDVRAdapterProfile_GenerateSharedSecret",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "CDVRAdapterProfile",
+        "action": "List",
+        "name": "CDVRAdapterProfile_List",
+        "is_excluded": false
+      }
+    }
+  ]
+}

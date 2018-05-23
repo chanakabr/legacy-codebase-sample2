@@ -1,0 +1,32 @@
+{
+  "name": "permission_item_controller_notificationssettings",
+  "type": "controller",
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "notificationsSettings",
+        "action": "Get",
+        "name": "notificationsSettings_Get",
+        "is_excluded": false
+      }
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "permission_item": {
+        "service": "notificationsSettings",
+        "action": "Update",
+        "name": "notificationsSettings_Update",
+        "is_excluded": false
+      }
+    }
+  ]
+}
