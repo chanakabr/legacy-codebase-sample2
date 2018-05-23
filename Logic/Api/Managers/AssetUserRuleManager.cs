@@ -31,12 +31,18 @@ namespace Core.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        #region Consts
+
         private const string ASSET_USER_RULE_DOES_NOT_EXIST = "Asset user rule does not exist";
         private const string DELETE_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule";
         private const string DELETE_USER_ASSET_USER_RULE_FAILED = "failed to delete Asset user rule from user";
         private const string ASSET_USER_RULE_FAILED_UPDATE = "failed to update Asset user rule";
         private const string ASSET_USER_RULE_NOT_FOUND = "No Asset User Rules found";
         private const string ASSET_USER_RULES_OPERATIONS_DISABLE = "AssetUserRule operations are disabled for this partner";
+
+        #endregion
+
+        #region Public Methods
 
         internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false)
         {
@@ -130,7 +136,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
         {
             GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
@@ -152,7 +158,7 @@ namespace Core.Api.Managers
                     else
                     {
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
-                        
+
                         response.Object = assetUserRuleToAdd;
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
@@ -165,7 +171,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
         {
             GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
@@ -176,7 +182,7 @@ namespace Core.Api.Managers
             {
                 // check if AssetUserRule exists in CB
                 AssetUserRule oldAssetUserRule = ApiDAL.GetAssetUserRuleCB(assetUserRuleToUpdate.Id);
-                
+
                 if (oldAssetUserRule == null || oldAssetUserRule.Id == 0 || oldAssetUserRule.GroupId != groupId)
                 {
                     response.SetStatus(eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
@@ -192,7 +198,7 @@ namespace Core.Api.Managers
                     response.SetStatus(eResponseStatus.Error, ASSET_USER_RULE_FAILED_UPDATE);
                     return response;
                 }
-                
+
                 // update asset user rule in CB           
                 if (!ApiDAL.SaveAssetUserRuleCB(assetUserRuleToUpdate))
                 {
@@ -202,6 +208,7 @@ namespace Core.Api.Managers
                 {
                     // set invalidation keys
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleToUpdate.Id));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
 
                     response.Object = assetUserRuleToUpdate;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -214,11 +221,11 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             try
             {
                 // check if AssetUserRule exists in CB
@@ -229,12 +236,12 @@ namespace Core.Api.Managers
                     response.Message = ASSET_USER_RULE_DOES_NOT_EXIST;
                     return response;
                 }
-                
+
                 // delete asset user rule in DB
                 DataSet ds = ApiDAL.DeleteAssetUserRule(groupId, assetUserRuleId);
-                
-                if (ds == null || 
-                    ds.Tables == null || 
+
+                if (ds == null ||
+                    ds.Tables == null ||
                     ds.Tables.Count != 2 ||
                     ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "result") == 0)
                 {
@@ -242,7 +249,7 @@ namespace Core.Api.Managers
                     response.Message = DELETE_ASSET_USER_RULE_FAILED;
                     return response;
                 }
-               
+
                 // delete assetUserRule from CB
                 if (!ApiDAL.DeleteAssetUserRuleCB(assetUserRuleId))
                 {
@@ -263,9 +270,9 @@ namespace Core.Api.Managers
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(deletedUserId));
                         }
                     }
-                    
+
                     response.Code = (int)eResponseStatus.OK;
-                    response.Message = eResponseStatus.OK.ToString();   
+                    response.Message = eResponseStatus.OK.ToString();
                 }
             }
             catch (Exception ex)
@@ -275,7 +282,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -301,7 +308,7 @@ namespace Core.Api.Managers
 
                 // check user is not attached to this rule
                 List<long> assetUserRuleIds = null;
-                
+
                 if (!TryGetUserAssetUserRuleIds(userId, groupId, out assetUserRuleIds))
                 {
                     return response;
@@ -317,8 +324,8 @@ namespace Core.Api.Managers
                 // add user to asset user rule in DB
                 DataTable dt = ApiDAL.AddAssetUserRuleToUser(userId, ruleId);
 
-                if (dt != null && 
-                    dt.Rows != null && 
+                if (dt != null &&
+                    dt.Rows != null &&
                     dt.Rows.Count > 0 &&
                     ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "USER_ID") > 0)
                 {
@@ -368,7 +375,7 @@ namespace Core.Api.Managers
                 }
 
                 if (assetUserRuleIds == null || !assetUserRuleIds.Contains(ruleId))
-                {   
+                {
                     response.Code = (int)eResponseStatus.AssetUserRuleDoesNotExists;
                     response.Message = "User is not attached to this AssetUserRule";
                     return response;
@@ -395,6 +402,10 @@ namespace Core.Api.Managers
 
             return response;
         }
+
+        #endregion
+
+        #region Private Methods
 
         private static Tuple<Dictionary<string, AssetUserRule>, bool> GetAssetUserRulesCB(Dictionary<string, object> funcParams)
         {
@@ -526,5 +537,8 @@ namespace Core.Api.Managers
 
             return true;
         }
+
+        #endregion
+        
     }
 }
