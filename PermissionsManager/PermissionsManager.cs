@@ -10,6 +10,9 @@ using KLogMonitor;
 using System.Web.Hosting;
 using System.Reflection;
 using System.IO;
+using ApiObjects.Roles;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace PermissionsManager
 {
@@ -846,9 +849,160 @@ namespace PermissionsManager
 
             return result;
         }
+
+        public static bool InitializeFolder(string folderName)
+        {
+            bool result = false;
+
+            try
+            {
+                if (string.IsNullOrEmpty(folderName))
+                {
+                    return result;
+                }
+
+                InitializeLogging();
+                ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+
+                if (!Directory.Exists(folderName))
+                {
+                    Directory.CreateDirectory(folderName);
+                }
+
+                string permissionItemsFolderName = string.Format("{0}\\permission_items", folderName);
+
+                if (!Directory.Exists(permissionItemsFolderName))
+                {
+                    Directory.CreateDirectory(permissionItemsFolderName);
+                }
+
+                Roles roles;
+                Dictionary<string, PermissionItems> permissionItemsFiles;
+                Permissions permissions;
+
+                BuildPermissionsDictionaries(out roles, out permissionItemsFiles, out permissions);
+
+                #region Write files
+
+                JObject rolesObject = JObject.FromObject(roles);
+
+                string rolesString = rolesObject.ToString();
+
+                File.WriteAllText(string.Format("{0}\\roles.json", folderName), rolesString);
+
+                JObject permissionsObject = JObject.FromObject(permissions);
+
+                string permissionsString = permissionsObject.ToString();
+
+                File.WriteAllText(string.Format("{0}\\permissions.json", folderName), permissionsString);
+
+                foreach (var permissionItemFile in permissionItemsFiles.Values)
+                {
+                    JObject permissionItemObject = JObject.FromObject(permissionItemFile);
+
+                    string permissionItemString = permissionItemObject.ToString();
+
+                    string filePath = string.Format("{0}\\{1}.json", permissionItemsFolderName, permissionItemFile.name);
+                    File.WriteAllText(filePath, permissionItemString);
+                }
+
+                #endregion
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Failed initializing folder of permissions. ex = {0}", ex);
+            }
+
+            return result;
+        }
+
+        public static bool LoadFolder(string folderName)
+        {
+            bool result = false;
+
+            string[] allfiles = Directory.GetFiles(folderName, "*.json", SearchOption.AllDirectories);
+
+            return result;
+        }
+
         #endregion
 
         #region Utility Methods
+
+        private static void BuildPermissionsDictionaries(out Roles roles, out Dictionary<string, PermissionItems> permissionItemsFiles, out Permissions permissions)
+        {
+            List<Role> allRoles = ApiDAL.GetRoles(0, null);
+
+            List<SlimRole> slimRoles = allRoles.Select(r => new SlimRole(r)).ToList();
+
+            roles = new Roles()
+            {
+                roles = slimRoles
+            };
+
+            Dictionary<long, Permission> permissionsDictionary = new Dictionary<long, Permission>();
+            Dictionary<long, SlimPermissionItem> permissionItemsDictionary = new Dictionary<long, SlimPermissionItem>();
+            permissionItemsFiles = new Dictionary<string, PermissionItems>();
+
+            // create dictionary of permissions and permission items by their id
+            foreach (var role in allRoles)
+            {
+                if (role != null && role.Permissions != null)
+                {
+                    foreach (var permission in role.Permissions)
+                    {
+                        permissionsDictionary[permission.Id] = permission;
+
+                        if (permission.PermissionItems != null)
+                        {
+                            foreach (var permissionItem in permission.PermissionItems)
+                            {
+                                SlimPermissionItem slimPermissionItem = null;
+
+                                string permissionItemFileName = permissionItem.GetFileName().ToLower();
+
+                                if (!string.IsNullOrEmpty(permissionItemFileName))
+                                {
+                                    if (!permissionItemsFiles.ContainsKey(permissionItemFileName))
+                                    {
+                                        permissionItemsFiles[permissionItemFileName] = new PermissionItems()
+                                        {
+                                            name = permissionItemFileName,
+                                            type = permissionItem.GetPermissionItemType()
+                                        };
+                                    }
+
+                                    if (!permissionItemsDictionary.ContainsKey(permissionItem.Id))
+                                    {
+                                        slimPermissionItem = new SlimPermissionItem(permissionItem);
+
+                                        permissionItemsDictionary[permissionItem.Id] = slimPermissionItem;
+
+                                        permissionItemsFiles[permissionItemFileName].permissionItems.Add(slimPermissionItem);
+                                    }
+                                    else
+                                    {
+                                        slimPermissionItem = permissionItemsDictionary[permissionItem.Id];
+                                    }
+
+                                    slimPermissionItem.permissions.Add(permission.Name);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            var slimPermissions = permissionsDictionary.Values.ToList();
+
+            permissions = new Permissions()
+            {
+                permissions = slimPermissions
+            };
+        }
 
         private static void RenameTables(DataSet dataSet)
         {
