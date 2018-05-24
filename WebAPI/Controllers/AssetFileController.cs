@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
-        public string PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
+        public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
         {
             if ((assetType == KalturaAssetType.epg && (contextType != KalturaPlaybackContextType.CATCHUP && contextType != KalturaPlaybackContextType.START_OVER)) ||
                 (assetType == KalturaAssetType.media && (contextType != KalturaPlaybackContextType.TRAILER && contextType != KalturaPlaybackContextType.PLAYBACK)) ||
@@ -107,19 +107,19 @@ namespace WebAPI.Controllers
 
             KS ksObject = KS.GetFromRequest();
 
-            string response = null;
+            KalturaAssetFile response = new KalturaAssetFile();
 
             try
             {
                 string userId = ksObject != null ? ksObject.UserId : "0";
                 string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
-                response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
+                response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
 
-                if (!string.IsNullOrEmpty(response))
+                if (!string.IsNullOrEmpty(response.Url))
                 {
                     // pass query string params
-                    if (response.ToLower().Contains("playmanifest"))
+                    if (response.Url.ToLower().Contains("playmanifest"))
                     {
                         if (HttpContext.Current.Request.QueryString.Count > 0)
                         {
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
                             {
                                 if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
                                 {
-                                    response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
+                                    response.Url = string.Format("{0}{1}{2}={3}", response.Url, response.Url.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
                                 }
                             }
                         }
@@ -148,23 +148,10 @@ namespace WebAPI.Controllers
 
                     string responseFormat = HttpContext.Current.Request.QueryString["responseFormat"];
 
-                    if (!string.IsNullOrEmpty(responseFormat))
+                    if (string.IsNullOrEmpty(responseFormat))
                     {
                         HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                        HttpContext.Current.Response.Redirect(response);
-                    }
-                    else if (responseFormat == "jsonp" || responseFormat == "json")
-                    {
-                        KalturaMediaFile file = new KalturaMediaFile() { Url = response };
-                        JObject fileObject = JObject.FromObject(file);
-                        response = fileObject.ToString();
-
-                        string callback = HttpContext.Current.Request.QueryString["callback"];
-                        if (!string.IsNullOrEmpty(callback))
-                        {
-                            response = string.Format("{0}({1})", callback, response);
-                        }
-                        return response;
+                        HttpContext.Current.Response.Redirect(response.Url);
                     }
                 }
             }

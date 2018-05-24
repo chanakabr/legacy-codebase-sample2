@@ -887,6 +887,7 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
+    <Compile Include="Utils\JsonPFormatter.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />

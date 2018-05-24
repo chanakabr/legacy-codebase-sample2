@@ -6645,6 +6645,16 @@
             Average score
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetFile">
+            <summary>
+            Asset file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
             <summary>
             Media file details
@@ -6663,11 +6673,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
             <summary>
             Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
-            <summary>
-            URL of the media file to be played
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">

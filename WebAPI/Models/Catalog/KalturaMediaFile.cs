@@ -7,11 +7,27 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+
+    /// <summary>
+    /// Asset file details
+    /// </summary>
+    [Serializable]
+    public class KalturaAssetFile : KalturaOTTObject
+    {
+        /// <summary>
+        /// URL of the media file to be played
+        /// </summary>
+        [DataMember(Name = "url")]
+        [JsonProperty(PropertyName = "url")]
+        [XmlElement(ElementName = "url")]
+        public string Url { get; set; }
+    }
+
     /// <summary>
     /// Media file details
     /// </summary>
     [Serializable]
-    public class KalturaMediaFile : KalturaOTTObject
+    public class KalturaMediaFile : KalturaAssetFile
     {
         /// <summary>
         /// Unique identifier for the asset
@@ -38,15 +54,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
         public string Type { get; set; }
-
-        /// <summary>
-        /// URL of the media file to be played
-        /// </summary>
-        [DataMember(Name = "url")]
-        [JsonProperty(PropertyName = "url")]
-        [XmlElement(ElementName = "url")]
-        public string Url { get; set; }
-
+        
         /// <summary>
         /// Duration of the media file
         /// </summary>
@@ -144,4 +152,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "fileSize")]        
         public long FileSize { get; set; }
     }
+
 }

@@ -2358,6 +2358,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFile":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaAssetFileContext":
                     switch(property.Name)
                     {
@@ -4475,8 +4483,6 @@ namespace WebAPI.Reflection
                             return "quality";
                         case "Type":
                             return "type";
-                        case "Url":
-                            return "url";
                     }
                     break;
                     
