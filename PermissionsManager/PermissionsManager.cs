@@ -13,6 +13,7 @@ using System.IO;
 using ApiObjects.Roles;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using ApiObjects;
 
 namespace PermissionsManager
 {
@@ -923,9 +924,169 @@ namespace PermissionsManager
         {
             bool result = false;
 
+            if (string.IsNullOrEmpty(folderName))
+            {
+                return result;
+            }
+
+            InitializeLogging();
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+
+            #region Get data from files
+
             string[] allfiles = Directory.GetFiles(folderName, "*.json", SearchOption.AllDirectories);
 
+            List<GroupPermission> permissionsFromFiles = new List<GroupPermission>();
+            Dictionary<string, GroupPermission> dictionaryPermissionsFromFiles = new Dictionary<string, GroupPermission>();
+            List<FileRole> rolesFromFiles = new List<FileRole>();
+            Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>();
+            List<SlimPermissionItem> permissionItemsFromFiles = new List<SlimPermissionItem>();
+            Dictionary<string, SlimPermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, SlimPermissionItem>();
+
+            foreach (string filePath in allfiles)
+            {
+                string jsonString = File.ReadAllText(filePath);
+
+                var fileJson = JObject.Parse(jsonString);
+
+                var roles = fileJson["roles"];
+                var permissions = fileJson["permissions"];
+                var permissionItems = fileJson["permission_items"];
+
+                if (roles != null)
+                {
+                    foreach (JObject roleJson in roles)
+                    {
+                        FileRole role = roleJson.ToObject<FileRole>();
+                        rolesFromFiles.Add(role);
+
+                        if (!dictionaryRolesFromFiles.ContainsKey(role.Name))
+                        {
+                            dictionaryRolesFromFiles.Add(role.Name, role);
+                        }
+                    }
+                }
+
+                if (permissions != null)
+                {
+                    foreach (JObject permissionJson in permissions)
+                    {
+                        GroupPermission permission = permissionJson.ToObject<GroupPermission>();
+                        permissionsFromFiles.Add(permission);
+
+                        if (!dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
+                        {
+                            dictionaryPermissionsFromFiles.Add(permission.Name, permission);
+                        }
+                    }
+                }
+
+                if (permissionItems != null)
+                {
+                    foreach (JObject permissionItemJson in permissionItems)
+                    {
+                        SlimPermissionItem permissionItem = permissionItemJson.ToObject<SlimPermissionItem>();
+                        permissionItemsFromFiles.Add(permissionItem);
+
+                        if (!dictionaryPermissionItemsFromFiles.ContainsKey(permissionItem.permissionItem.Name))
+                        {
+                            dictionaryPermissionItemsFromFiles.Add(permissionItem.permissionItem.Name, permissionItem);
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
+            #region Compare to database
+
+            Roles rolesFromDatabase;
+            Dictionary<string, Role> dictionaryRolesFromDatabase = new Dictionary<string, Role>();
+            Dictionary<string, PermissionItems> permissionItemsFromDatabase;
+            Dictionary<string, SlimPermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, SlimPermissionItem>();
+            Permissions permissionsFromDatabase;
+            Dictionary<string, Permission> dictionaryPermissionsFromDatabase = new Dictionary<string, Permission>();
+
+            BuildPermissionsDictionaries(out rolesFromDatabase, out permissionItemsFromDatabase, out permissionsFromDatabase);
+
+            #region Permissions
+
+            // run on all permissions we found in DB
+            foreach (var permission in permissionsFromDatabase.permissions)
+            {
+                // fill dictionary of permission we found in DB
+                dictionaryPermissionsFromDatabase[permission.Name] = permission;
+
+                // check if exists in files
+                if (dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
+                {
+                    var filePermission = dictionaryPermissionsFromFiles[permission.Name];
+
+                    // if permission exists both in file and in DB - check if update is required (only users_group is relevant)
+                    if (permission.UsersGroup != filePermission.UsersGroup)
+                    {
+                        ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup);
+                    }
+                }
+                else
+                {
+                    // if permission exists in DB but not in file - it should be deleted
+                    ApiDAL.DeletePermission((int)permission.Id);
+                }
+            }
+
+            // run on all permissions we have in files
+            foreach (var permission in permissionsFromFiles)
+            {
+                // check if exists in DB
+                if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name))
+                {
+                    // if not, it is new and should be added
+                    int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup);
+                    permission.Id = newId;
+
+                    dictionaryPermissionsFromDatabase[permission.Name] = permission;
+                }
+            }
+
+            #endregion
+
+            // run on all roles we found in DB
+            foreach (var role in rolesFromDatabase.roles)
+            {
+                dictionaryRolesFromDatabase[role.Name] = CreateRole(role);
+
+                if (dictionaryRolesFromFiles.ContainsKey(role.Name))
+                {
+                    List<string> rolePermissionsFromFile = dictionaryRolesFromFiles[role.Name].permissionsNames;
+                    List<string> rolePermissionFromDatabase = role.permissionsNames;
+
+                    foreach (string rolePermission in rolePermissionsFromFile)
+                    {
+                        if (!rolePermissionFromDatabase.Contains(rolePermission))
+                        {
+
+                            //ApiDAL.InsertRolePermission(
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
             return result;
+        }
+
+        private static Role CreateRole(FileRole role)
+        {
+            return null;
+            //return new Role()
+            //{
+            //    GroupId = role.GroupId,
+            //    Id = role.Id,
+            //    Name = role.Name,
+            //    Permissions = role.Permissions
+            //};
         }
 
         #endregion
@@ -936,14 +1097,14 @@ namespace PermissionsManager
         {
             List<Role> allRoles = ApiDAL.GetRoles(0, null);
 
-            List<SlimRole> slimRoles = allRoles.Select(r => new SlimRole(r)).ToList();
+            List<FileRole> slimRoles = allRoles.Select(r => new FileRole(r)).ToList();
 
             roles = new Roles()
             {
                 roles = slimRoles
             };
 
-            Dictionary<long, Permission> permissionsDictionary = new Dictionary<long, Permission>();
+            Dictionary<long, GroupPermission> permissionsDictionary = new Dictionary<long, GroupPermission>();
             Dictionary<long, SlimPermissionItem> permissionItemsDictionary = new Dictionary<long, SlimPermissionItem>();
             permissionItemsFiles = new Dictionary<string, PermissionItems>();
 
@@ -954,7 +1115,7 @@ namespace PermissionsManager
                 {
                     foreach (var permission in role.Permissions)
                     {
-                        permissionsDictionary[permission.Id] = permission;
+                        permissionsDictionary[permission.Id] = permission as GroupPermission;
 
                         if (permission.PermissionItems != null)
                         {

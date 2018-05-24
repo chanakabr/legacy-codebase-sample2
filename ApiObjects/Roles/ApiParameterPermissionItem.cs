@@ -14,7 +14,7 @@ namespace ApiObjects.Roles
         [JsonProperty("parameter")]
         public string Parameter { get; set; }
         //[JsonProperty("action")]
-        [JsonIgnore()]
+        //[JsonIgnore()]
         public string Action { get; set; }
 
         [JsonProperty("action")]

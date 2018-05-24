@@ -9,20 +9,13 @@ namespace ApiObjects.Roles
     [JsonObject()]
     public class Role
     {
-        [JsonIgnore()]
         public long Id { get; set; }
-
-        [JsonProperty("name")]
+        
         public string Name { get; set; }
-
-        //[JsonProperty("permissions")]
-        [JsonIgnore()]
+        
         public List<Permission> Permissions { get; set; }
-
-        [JsonProperty("group_id")]
-        [JsonIgnore()]
-        public int GroupId { get; set;
-        }
+        
+        public int GroupId { get; set; }
     }
 
     public class RolesResponse

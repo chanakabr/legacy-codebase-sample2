@@ -35,6 +35,11 @@ namespace PermissionsManager
         [JsonProperty("permission_item")]
         public PermissionItem permissionItem;
 
+        public SlimPermissionItem()
+        {
+
+        }
+
         public SlimPermissionItem(PermissionItem original)
         {
             this.permissionItem = original;

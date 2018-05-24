@@ -12,11 +12,11 @@ namespace PermissionsManager
     public class Permissions
     {
         [JsonProperty()]
-        public List<Permission> permissions;
+        public List<GroupPermission> permissions;
 
         public Permissions()
         {
-            permissions = new List<Permission>();
+            permissions = new List<GroupPermission>();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ApiObjects.Roles
     [JsonObject()]
     public class PermissionItem
     {
-        [JsonIgnore()]
+        //[JsonIgnore()]
         public long Id { get; set; }
 
         [JsonProperty("name")]

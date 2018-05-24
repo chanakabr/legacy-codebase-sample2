@@ -12,31 +12,51 @@ namespace PermissionsManager
     public class Roles
     {
         [JsonProperty()]
-        public List<SlimRole> roles = null;
+        public List<FileRole> roles = null;
 
         public Roles()
         {
-            roles = new List<SlimRole>();
+            roles = new List<FileRole>();
         }
     }
 
     [JsonObject()]
-    public class SlimRole : Role
+    public class FileRole
     {
+        [JsonIgnore()]
+        public long Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonIgnore()]
+        public List<Permission> Permissions { get; set; }
+
+        [JsonProperty("group_id")]
+        [JsonIgnore()]
+        public int GroupId { get; set; }
 
         [JsonProperty("permissions")]
         public List<string> permissionsNames;
 
-        public SlimRole(Role original)
+        public FileRole()
         {
-            base.Id = original.Id;
-            base.GroupId = original.GroupId;
-            base.Name = original.Name;
-            base.Permissions = original.Permissions;
 
-            if (this.Permissions != null)
+        }
+
+        public FileRole(Role original)
+        {
+            if (original != null)
             {
-                this.permissionsNames = this.Permissions.Select(p => p.Name).ToList();
+                this.Id = original.Id;
+                this.GroupId = original.GroupId;
+                this.Name = original.Name;
+                this.Permissions = original.Permissions;
+
+                if (this.Permissions != null)
+                {
+                    this.permissionsNames = this.Permissions.Select(p => p.Name).ToList();
+                }
             }
         }
     }
