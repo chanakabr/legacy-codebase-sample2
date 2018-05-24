@@ -104,6 +104,16 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (assetUserRule.Conditions != null && assetUserRule.Conditions.Count > 0)
+                {
+                    assetUserRule.ValidateConditions();
+                }
+
+                if (assetUserRule.Actions != null && assetUserRule.Actions.Count > 0)
+                {
+                    assetUserRule.ValidateActions();
+                }
+
                 response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule);
             }
             catch (ClientException ex)
