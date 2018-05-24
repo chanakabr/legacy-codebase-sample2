@@ -230,6 +230,8 @@ namespace QueueWrapper
                     {
                         log.ErrorFormat("Failed publishing message to rabbit2. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
                         IncreaseFailCounter();
+                        ClearConnection();
+                        return Publish(configuration, message);
                     }
                 }
                 else
