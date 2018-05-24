@@ -6548,23 +6548,27 @@ namespace Core.ConditionalAccess
                     {
                         long lUserId = long.Parse(userId);
 
-                        for (int i = 0; i < mapper.Length; i++)
+                        GenericListResponse<AssetUserRule> assetUserRulesToUser = Core.Api.Module.GetAssetUserRuleList(m_nGroupID, lUserId);
+
+                        if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
                         {
-                            List<AssetUserRule> assetUserRules = Core.Api.api.GetMediaAssetUserRules(m_nGroupID, lUserId, mapper[i].m_nMediaID);
-
-                            if (assetUserRules != null && assetUserRules.Count > 0)
+                            for (int i = 0; i < mapper.Length; i++)
                             {
-                                tempItemPricesContainer = new MediaFileItemPricesContainer()
+                                List<AssetUserRule> assetUserRules = Core.Api.api.GetMediaAssetUserRulesToUser(m_nGroupID, lUserId, mapper[i].m_nMediaID, assetUserRulesToUser);
+
+                                if (assetUserRules != null && assetUserRules.Count > 0)
                                 {
-                                    m_nMediaFileID = mapper[i].m_nMediaFileID,
-                                    // TODO SHIR - ASK IRA IF SHOULD CREATE NEW PriceReason "Blocked"
-                                    m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.NotForPurchase } },
-                                    m_sProductCode = string.Empty
-                                };
+                                    tempItemPricesContainer = new MediaFileItemPricesContainer()
+                                    {
+                                        m_nMediaFileID = mapper[i].m_nMediaFileID,
+                                        m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.NotForPurchase } },
+                                        m_sProductCode = string.Empty
+                                    };
 
-                                tempRet.Add(tempItemPricesContainer);
+                                    tempRet.Add(tempItemPricesContainer);
 
-                                mediaFilesForPurchase.Remove(tempItemPricesContainer.m_nMediaFileID);
+                                    mediaFilesForPurchase.Remove(mapper[i].m_nMediaFileID);
+                                }
                             }
                         }
                     }
