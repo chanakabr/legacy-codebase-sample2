@@ -1,0 +1,73 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "HouseholdPaymentMethod_SetAsDefault",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentMethod",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "HouseholdPaymentMethod_Remove",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentMethod",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master"
+      ],
+      "name": "HouseholdPaymentMethod_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentMethod",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "HouseholdPaymentMethod_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentMethod",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "HouseholdPaymentMethod_ForceRemove",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentMethod",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

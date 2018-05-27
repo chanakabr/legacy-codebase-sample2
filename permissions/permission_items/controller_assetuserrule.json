@@ -1,0 +1,105 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "AssetUserRule_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "name": "AssetUserRule_AddRuleToUser",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "name": "AssetUserRule_RemoveRuleToUser",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "AssetUserRule_AttachUser",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "AssetUserRule_DetachUser",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "AssetUserRule_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "AssetUserRule_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "AssetUserRule_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetUserRule",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

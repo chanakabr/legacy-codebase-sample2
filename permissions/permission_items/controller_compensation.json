@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Compensation_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Compensation",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Compensation_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Compensation",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Compensation_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Compensation",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

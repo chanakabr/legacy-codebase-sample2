@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "MessageTemplateGet",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "MessageTemplate",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "MessageTemplate_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "MessageTemplate",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "MessageTemplate_Set",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "MessageTemplate",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

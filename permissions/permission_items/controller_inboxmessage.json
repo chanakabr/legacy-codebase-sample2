@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "InboxMessage_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "InboxMessage",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "InboxMessage_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "InboxMessage",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "InboxMessage_UpdateStatus",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "InboxMessage",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

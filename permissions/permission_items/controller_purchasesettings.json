@@ -1,0 +1,32 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PurchaseSettings_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PurchaseSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "PurchaseSettings_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PurchaseSettings",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

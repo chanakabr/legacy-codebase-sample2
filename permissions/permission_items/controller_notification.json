@@ -1,0 +1,81 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Notification_SetDevicePushToken",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Notification_Register",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Notification_GetLastCleanupDate",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Notification_InitiateCleanup",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Notification_SendPush",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Notification_SendSms",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Notification",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

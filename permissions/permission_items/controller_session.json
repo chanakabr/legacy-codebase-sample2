@@ -1,0 +1,60 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator",
+        "Administrator"
+      ],
+      "name": "Session_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Session",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Session_SwitchUser",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Session",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Session_Revoke",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Session",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "name": "Session_Get_Session",
+      "is_excluded": false,
+      "object": null,
+      "parameter": "session",
+      "service": "Session",
+      "action": null,
+      "type": "Argument"
+    }
+  ],
+  "type": "Action"
+}

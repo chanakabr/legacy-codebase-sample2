@@ -187,32 +187,8 @@
       "name": "test"
     },
     {
-      "permissions": [
-        "MaxTest00002"
-      ],
-      "name": "MaxTest00002"
-    },
-    {
       "permissions": null,
-      "name": "MaxTest000021"
-    },
-    {
-      "permissions": [
-        "MaxTest1526998432"
-      ],
-      "name": "MaxTest1526998432"
-    },
-    {
-      "permissions": [
-        "MaxTest1527043029"
-      ],
-      "name": "MaxTest1527043029"
-    },
-    {
-      "permissions": [
-        "MaxTest15270430291"
-      ],
-      "name": "MaxTest15270430291"
+      "name": "LOGIN"
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Email_Send",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Email",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

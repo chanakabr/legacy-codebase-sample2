@@ -1,0 +1,222 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Search",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Autocomplete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Related",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Channel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_ExternalChannel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_GetPlaybackContext",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_Count",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_GetAdsContext",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_relatedExternal",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Asset_searchExternal",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Asset_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Asset_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Asset_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Asset_RemoveMetasAndTags",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Asset",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

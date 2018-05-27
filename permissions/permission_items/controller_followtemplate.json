@@ -1,0 +1,33 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "FollowTemplate_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "FollowTemplate",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "FollowTemplate_Set",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "FollowTemplate",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

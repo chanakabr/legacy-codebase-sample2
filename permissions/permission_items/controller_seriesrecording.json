@@ -1,0 +1,117 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_Cancel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_CancelByEpgId",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_CancelBySeasonNumber",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_DeleteByEpgId",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SeriesRecording_DeleteBySeasonNumber",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SeriesRecording",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

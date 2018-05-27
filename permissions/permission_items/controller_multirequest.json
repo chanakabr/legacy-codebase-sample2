@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "name": "MultiRequest_Do",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "MultiRequest",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

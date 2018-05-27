@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "UserAssetsListItem_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserAssetsListItem",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "UserAssetsListItem_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserAssetsListItem",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "UserAssetsListItem_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserAssetsListItem",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

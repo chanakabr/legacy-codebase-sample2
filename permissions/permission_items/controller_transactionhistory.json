@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "TransactionHistory_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "TransactionHistory",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

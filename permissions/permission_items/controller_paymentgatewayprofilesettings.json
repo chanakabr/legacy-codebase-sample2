@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PaymentGatewayProfileSettings_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGatewayProfileSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PaymentGatewayProfileSettings_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGatewayProfileSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PaymentGatewayProfileSettings_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGatewayProfileSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PaymentGatewayProfileSettings_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGatewayProfileSettings",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

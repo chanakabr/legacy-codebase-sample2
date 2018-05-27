@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UserLoginPin_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserLoginPin",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UserLoginPin_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserLoginPin",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UserLoginPin_DeleteAll",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserLoginPin",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UserLoginPin_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UserLoginPin",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

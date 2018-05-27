@@ -1,0 +1,65 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "RecommendationProfile_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "RecommendationProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "RecommendationProfile_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "RecommendationProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "RecommendationProfile_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "RecommendationProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "RecommendationProfile_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "RecommendationProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "RecommendationProfile_GenerateSharedSecret",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "RecommendationProfile",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

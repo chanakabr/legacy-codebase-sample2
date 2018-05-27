@@ -1,0 +1,168 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "CANCEL_SUBSCRIPTION"
+      ],
+      "name": "Entitlement_Cancel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_CancelRenewal",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_Buy",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_ExternalReconcile",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_CancelScheduledSubscription",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Entitlement_GetNextRenewal",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Entitlement_Grant",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "ExternalPaymentGateway",
+        "CANCEL_SUBSCRIPTION"
+      ],
+      "name": "Entitlement_ForceCancel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Entitlement_ListExpired",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Entitlement_Swap",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Entitlement",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

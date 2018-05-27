@@ -1,0 +1,69 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Channel_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Channel",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Channel_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Channel",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Channel_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Channel",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Channel_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Channel",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Channel_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Channel",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

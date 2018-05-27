@@ -1,0 +1,136 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdDevice_GeneratePin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdDevice_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdDevice_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdDevice_AddByPin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdDevice_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdDevice_GetStatus",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdDevice_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdDevice_UpdateStatus",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdDevice_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdDevice",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

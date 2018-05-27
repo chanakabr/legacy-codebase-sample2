@@ -1,0 +1,125 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_GenerateSharedSecret",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_GenerateSharedSecret",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDNAdapterProfile_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDNAdapterProfile",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,323 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_AnonymousLogin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_LoginWithPin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_Login",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_FacebookLogin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Operator"
+      ],
+      "name": "OTTUser_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_sendPassword",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_validateToken",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_SilentLogin",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master"
+      ],
+      "name": "OTTUser_RefreshSession",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "name": "OTTUser_Logout",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_Activate",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_ResendActivationToken",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_ChangePassword",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OttUser_GetEncryptedUserId",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OttUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OttUser_UpdateLoginData",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OttUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_UpdateDynamicData",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "OTTUser_resetPassword",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator",
+        "Administrator"
+      ],
+      "name": "OTTUser_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "OttUser_UpdatePassword",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OttUser",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "OTTUser_Update_Id",
+      "is_excluded": false,
+      "object": null,
+      "parameter": "Id",
+      "service": "OTTUser",
+      "action": null,
+      "type": "Argument"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "name": "OTTUser_AddRole",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "OTTUser",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

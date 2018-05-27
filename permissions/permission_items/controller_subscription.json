@@ -1,0 +1,33 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Subscription_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Subscription",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Subscription_ValidateCoupon",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Subscription",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "EngagementAdapterSettings_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "EngagementAdapterSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "EngagementAdapterSettings_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "EngagementAdapterSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "EngagementAdapterSettings_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "EngagementAdapterSettings",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "EngagementAdapterSettings_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "EngagementAdapterSettings",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

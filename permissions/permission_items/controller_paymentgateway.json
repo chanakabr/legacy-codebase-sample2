@@ -1,0 +1,103 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PaymentGateway_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PaymentGateway_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PaymentGateway_Set",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PaymentGateway_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "PaymentGateway_SetPaymentMethod",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "PaymentGateway_RemovePaymentMethod",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PaymentGateway_ForceRemovePaymentMethod",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PaymentGateway",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

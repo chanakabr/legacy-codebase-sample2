@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Report_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Report",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Report_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Report",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

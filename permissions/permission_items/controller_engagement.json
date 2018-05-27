@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Engagement_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Engagement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Engagement_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Engagement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Engagement_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Engagement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Engagement_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Engagement",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

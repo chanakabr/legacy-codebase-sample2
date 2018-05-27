@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdLimitations_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdLimitations",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

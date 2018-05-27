@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "PersonalAsset_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PersonalAsset",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

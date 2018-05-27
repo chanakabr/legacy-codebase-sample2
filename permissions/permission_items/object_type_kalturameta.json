@@ -1,0 +1,101 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Insert",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Update",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Insert",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Update",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Insert",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Update",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Insert",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "KalturaMeta_isProtected_Update",
+      "is_excluded": false,
+      "object": "KalturaMeta",
+      "parameter": "isProtected",
+      "service": null,
+      "action": "UPDATE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

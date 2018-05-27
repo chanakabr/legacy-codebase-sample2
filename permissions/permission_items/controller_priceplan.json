@@ -1,0 +1,31 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "PricePlan_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PricePlan",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "PricePlan_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "PricePlan",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

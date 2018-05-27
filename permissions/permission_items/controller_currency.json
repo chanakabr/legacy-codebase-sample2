@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Currency_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Currency",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SearchHistory_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SearchHistory",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SearchHistory_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SearchHistory",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "SearchHistory_Clean",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "SearchHistory",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,67 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "CDVRAdapterProfile_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDVRAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDVRAdapterProfile_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDVRAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDVRAdapterProfile_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDVRAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDVRAdapterProfile_GenerateSharedSecret",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDVRAdapterProfile",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "CDVRAdapterProfile_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "CDVRAdapterProfile",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

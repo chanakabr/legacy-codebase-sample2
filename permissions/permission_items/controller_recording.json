@@ -1,0 +1,103 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_GetContext",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_Cancel",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Recording_Protect",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Recording",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

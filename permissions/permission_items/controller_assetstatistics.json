@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "AssetStatistics_Query",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AssetStatistics",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "ConfigurationGroupTag_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ConfigurationGroupTag",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "ConfigurationGroupTag_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ConfigurationGroupTag",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "ConfigurationGroupTag_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ConfigurationGroupTag",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "ConfigurationGroupTag_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ConfigurationGroupTag",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UploadToken_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UploadToken",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "UploadToken_Upload",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "UploadToken",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

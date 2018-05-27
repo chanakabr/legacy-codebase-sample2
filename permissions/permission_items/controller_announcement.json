@@ -1,0 +1,89 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Announcement_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Announcement_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Announcement_UpdateStatus",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Announcement_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Announcement_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "name": "Announcement_CreateAnnouncement",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "name": "Announcement_EnableSystemAnnouncements",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Announcement",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

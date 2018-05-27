@@ -1,0 +1,109 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdPaymentGateway_Invoke",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "HouseholdPaymentGateway_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "name": "HouseholdPaymentGateway_Enable",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "HouseholdPaymentGateway_Disable",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Administrator",
+        "ExternalPaymentGateway"
+      ],
+      "name": "HouseholdPaymentGateway_SetChargeId",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "HouseholdPaymentGateway_GetChargeID",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "HouseholdPaymentGateway_Resume",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "HouseholdPaymentGateway_Suspend",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "HouseholdPaymentGateway",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

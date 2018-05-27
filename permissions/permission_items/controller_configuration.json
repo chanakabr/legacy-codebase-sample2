@@ -1,0 +1,79 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "Configuration_Serve",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Configuration_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Configuration_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Configuration_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Configuration_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Configuration_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Configuration",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

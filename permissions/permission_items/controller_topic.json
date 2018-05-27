@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Topic_UpdateStatus",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Topic",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Topic_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Topic",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Topic_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Topic",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Topic_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Topic",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

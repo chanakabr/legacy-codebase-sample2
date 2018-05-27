@@ -1,0 +1,62 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "AppToken_StartSession",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AppToken",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Operator"
+      ],
+      "name": "AppToken_Delete",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AppToken",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "AppToken_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AppToken",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "name": "AppToken_Get",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "AppToken",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

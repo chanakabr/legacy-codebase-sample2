@@ -1,0 +1,43 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "name": "Ratio_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Ratio",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Ratio_Update",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Ratio",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "name": "Ratio_Add",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "Ratio",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,57 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "ParentalRule_List",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ParentalRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "ParentalRule_Enable",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ParentalRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "ParentalRule_Disable",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ParentalRule",
+      "action": null,
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "name": "ParentalRule_DisableDefault",
+      "is_excluded": false,
+      "object": null,
+      "parameter": null,
+      "service": "ParentalRule",
+      "action": null,
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
