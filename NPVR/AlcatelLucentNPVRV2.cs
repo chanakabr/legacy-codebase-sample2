@@ -114,6 +114,7 @@ namespace NPVR
         private static readonly string ALU_LOOKUP_CRITERIA = "lookupCriteria";
         private static readonly string ALU_TYPE = "type";
         private static readonly string ALU_FIELDS = "fields";
+        private static readonly string ALU_ADDITIONAL_FIELDS = "additionalFields";
 
         /********************************************************************************/
         #endregion
@@ -574,6 +575,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ADDITIONAL_FIELDS, "customMetadata"));
 
                     if (args.PageSize > 0)
                     {
@@ -744,16 +746,15 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesId));
 
-                    if (args.SeasonSeed > 0)
+                    if (args.SeasonSeed > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_SEED, args.SeasonSeed.ToString()));
                     }
-                    else
+                    if (args.SeasonNumber > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
                     }
-
-                    if (args.EpisodeSeed > 0)
+                    if (args.EpisodeSeed > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
                     }
@@ -1063,8 +1064,15 @@ namespace NPVR
                         urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
                     }
 
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs != null && args.SeriesIDs.Count > 0 ? args.SeriesIDs[0] : ""));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+                    if (args.SeriesIDs != null && args.SeriesIDs.Count > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs[0]));
+                    }
+
+                    if (args.SeasonNumber > -1)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+                    }
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FIELDS, string.Format("{0},{1},{2},{3},{4},{5}",
                             ALU_SERIES_ID_PARAM, ALU_SEASON_ID, ALU_SEASON_NUMBER, ALU_TYPE, ALU_ID_URL_PARAM, ALU_CHANNEL_ID_URL_PARAM)));
 
