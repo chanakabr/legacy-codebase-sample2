@@ -3986,7 +3986,7 @@ namespace Core.Api
 
             //Check if geo-block applies
             string ruleName;
-            if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
+            if (string.IsNullOrEmpty(ip) || CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
             {
                 groupRules.Add(new GroupRule()
                 {
