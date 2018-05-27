@@ -5376,7 +5376,7 @@ namespace Core.Catalog
                     EntityID = domainID.ToString(),
                     PageIndex = request.m_nPageIndex,
                     PageSize = request.m_nPageSize,
-                    SeriesIDs = new List<string>() { request.seriesID },
+                    SeriesIDs =  string.IsNullOrEmpty(request.seriesID )? new List<string>(): new List<string>() { request.seriesID },
                     SeasonNumber = request.seasonNumber,
                     OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy),
                     Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir)
