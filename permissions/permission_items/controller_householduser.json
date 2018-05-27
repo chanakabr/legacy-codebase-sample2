@@ -10,11 +10,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdUser_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdUser",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -26,11 +25,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdUser_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdUser",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -42,11 +40,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdUser_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdUser",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -55,11 +52,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdUser_AddByOperator",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdUser",
-      "action": null,
+      "action": "AddByOperator",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_GetContext",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "GetContext",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -53,11 +50,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -68,11 +64,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_Cancel",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "Cancel",
       "type": "Action"
     },
     {
@@ -83,11 +78,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -98,11 +92,10 @@
       ],
       "excluded_permissions": [],
       "name": "Recording_Protect",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Recording",
-      "action": null,
+      "action": "Protect",
       "type": "Action"
     }
   ],

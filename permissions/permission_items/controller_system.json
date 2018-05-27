@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "System_GetCountry",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "System",
-      "action": null,
+      "action": "GetCountry",
       "type": "Action"
     }
   ],

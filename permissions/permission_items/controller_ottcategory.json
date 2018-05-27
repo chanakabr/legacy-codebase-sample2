@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "OttCategory_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OttCategory",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

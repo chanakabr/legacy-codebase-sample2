@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "SocialComment_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "SocialComment",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

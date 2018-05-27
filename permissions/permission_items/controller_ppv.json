@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Ppv_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Ppv",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

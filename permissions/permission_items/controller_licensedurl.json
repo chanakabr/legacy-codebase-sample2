@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "LicensedUrl_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "LicensedUrl",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

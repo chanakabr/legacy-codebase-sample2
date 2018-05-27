@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_GetConfiguration",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "GetConfiguration",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -58,11 +54,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -71,11 +66,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfile_GenerateSharedSecret",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfile",
-      "action": null,
+      "action": "GenerateSharedSecret",
       "type": "Action"
     }
   ],

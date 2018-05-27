@@ -6,7 +6,6 @@
       ],
       "excluded_permissions": [],
       "name": "KalturaPrice_countryId_Read",
-      "is_excluded": false,
       "object": "KalturaPrice",
       "parameter": "countryId",
       "service": null,

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Region_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Region",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

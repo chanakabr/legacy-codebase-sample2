@@ -7,11 +7,10 @@
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ParentalRule",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Enable",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ParentalRule",
-      "action": null,
+      "action": "Enable",
       "type": "Action"
     },
     {
@@ -35,11 +33,10 @@
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Disable",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ParentalRule",
-      "action": null,
+      "action": "Disable",
       "type": "Action"
     },
     {
@@ -49,11 +46,10 @@
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_DisableDefault",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ParentalRule",
-      "action": null,
+      "action": "DisableDefault",
       "type": "Action"
     }
   ],

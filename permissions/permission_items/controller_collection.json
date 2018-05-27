@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Collection_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Collection",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "UserLoginPin_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UserLoginPin",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "UserLoginPin_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UserLoginPin",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "UserLoginPin_DeleteAll",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UserLoginPin",
-      "action": null,
+      "action": "DeleteAll",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "UserLoginPin_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UserLoginPin",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     }
   ],

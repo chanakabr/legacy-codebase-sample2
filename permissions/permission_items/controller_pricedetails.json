@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "PriceDetails_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PriceDetails",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

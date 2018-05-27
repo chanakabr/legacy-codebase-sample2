@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdDevice_GeneratePin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "GeneratePin",
       "type": "Action"
     },
     {
@@ -25,11 +24,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdDevice_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -42,11 +40,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -59,11 +56,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_AddByPin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "AddByPin",
       "type": "Action"
     },
     {
@@ -76,11 +72,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -91,11 +86,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdDevice_GetStatus",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "GetStatus",
       "type": "Action"
     },
     {
@@ -106,11 +100,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdDevice_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -123,11 +116,10 @@
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_UpdateStatus",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "UpdateStatus",
       "type": "Action"
     },
     {
@@ -137,11 +129,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdDevice_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdDevice",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

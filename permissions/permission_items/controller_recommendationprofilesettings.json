@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfileSettings_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfileSettings",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfileSettings_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfileSettings",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfileSettings_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfileSettings",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfileSettings_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfileSettings",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

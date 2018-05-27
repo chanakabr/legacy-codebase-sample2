@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "LastPosition_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "LastPosition",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

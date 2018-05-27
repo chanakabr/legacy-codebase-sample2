@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -52,11 +49,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -66,11 +62,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_SetChargeID",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "SetChargeID",
       "type": "Action"
     },
     {
@@ -79,11 +74,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_GetChargeID",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "GetChargeID",
       "type": "Action"
     },
     {
@@ -92,11 +86,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_GetByOperator",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "GetByOperator",
       "type": "Action"
     },
     {
@@ -105,11 +98,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_ResetFrequency",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "ResetFrequency",
       "type": "Action"
     },
     {
@@ -118,11 +110,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_DeleteByOperator",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "DeleteByOperator",
       "type": "Action"
     },
     {
@@ -131,11 +122,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Resume",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Resume",
       "type": "Action"
     },
     {
@@ -144,11 +134,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Suspend",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Suspend",
       "type": "Action"
     },
     {
@@ -157,11 +146,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_SetPaymentMethodExternalId",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "SetPaymentMethodExternalId",
       "type": "Action"
     },
     {
@@ -170,11 +158,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Get_id",
-      "is_excluded": false,
       "object": null,
       "parameter": "id",
       "service": "Household",
-      "action": null,
+      "action": "Get",
       "type": "Argument"
     },
     {
@@ -183,11 +170,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Delete_Id",
-      "is_excluded": false,
       "object": null,
       "parameter": "id",
       "service": "Household",
-      "action": null,
+      "action": "Delete",
       "type": "Argument"
     },
     {
@@ -196,11 +182,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Purge",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Household",
-      "action": null,
+      "action": "Purge",
       "type": "Action"
     }
   ],

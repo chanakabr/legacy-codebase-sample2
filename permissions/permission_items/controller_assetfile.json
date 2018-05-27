@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetFile_GetContext",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetFile",
-      "action": null,
+      "action": "GetContext",
       "type": "Action"
     }
   ],

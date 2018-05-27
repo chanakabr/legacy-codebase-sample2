@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_ServeByDevice",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "ServeByDevice",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -47,11 +44,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -60,11 +56,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -73,11 +68,10 @@
       ],
       "excluded_permissions": [],
       "name": "Configurations_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Configurations",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

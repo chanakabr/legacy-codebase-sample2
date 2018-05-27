@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetStruct_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetStruct",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetStruct_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetStruct",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetStruct_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetStruct",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -47,11 +44,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetStruct_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetStruct",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "MessageTemplateGet",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "MessageTemplate",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "MessageTemplate_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "MessageTemplate",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "MessageTemplate_Set",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "MessageTemplate",
-      "action": null,
+      "action": "Set",
       "type": "Action"
     }
   ],

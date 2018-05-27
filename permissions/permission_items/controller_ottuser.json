@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_AnonymousLogin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "AnonymousLogin",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_LoginWithPin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "LoginWithPin",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Login",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Login",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_FacebookLogin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "FacebookLogin",
       "type": "Action"
     },
     {
@@ -59,11 +55,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -74,11 +69,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_sendPassword",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "sendPassword",
       "type": "Action"
     },
     {
@@ -89,11 +83,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_validateToken",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "validateToken",
       "type": "Action"
     },
     {
@@ -102,11 +95,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_SilentLogin",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "SilentLogin",
       "type": "Action"
     },
     {
@@ -117,11 +109,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_RefreshSession",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "RefreshSession",
       "type": "Action"
     },
     {
@@ -130,11 +121,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Logout",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Logout",
       "type": "Action"
     },
     {
@@ -146,11 +136,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Activate",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Activate",
       "type": "Action"
     },
     {
@@ -162,11 +151,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_ResendActivationToken",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "ResendActivationToken",
       "type": "Action"
     },
     {
@@ -177,11 +165,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_ChangePassword",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "ChangePassword",
       "type": "Action"
     },
     {
@@ -192,11 +179,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -207,11 +193,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -222,11 +207,10 @@
       ],
       "excluded_permissions": [],
       "name": "OttUser_GetEncryptedUserId",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OttUser",
-      "action": null,
+      "action": "GetEncryptedUserId",
       "type": "Action"
     },
     {
@@ -237,11 +221,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -252,11 +235,10 @@
       ],
       "excluded_permissions": [],
       "name": "OttUser_UpdateLoginData",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OttUser",
-      "action": null,
+      "action": "UpdateLoginData",
       "type": "Action"
     },
     {
@@ -267,11 +249,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_UpdateDynamicData",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "UpdateDynamicData",
       "type": "Action"
     },
     {
@@ -281,11 +262,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_resetPassword",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "resetPassword",
       "type": "Action"
     },
     {
@@ -296,11 +276,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -309,11 +288,10 @@
       ],
       "excluded_permissions": [],
       "name": "OttUser_UpdatePassword",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OttUser",
-      "action": null,
+      "action": "UpdatePassword",
       "type": "Action"
     },
     {
@@ -322,11 +300,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Update_Id",
-      "is_excluded": false,
       "object": null,
       "parameter": "Id",
       "service": "OTTUser",
-      "action": null,
+      "action": "Update",
       "type": "Argument"
     },
     {
@@ -335,11 +312,10 @@
       ],
       "excluded_permissions": [],
       "name": "OTTUser_AddRole",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OTTUser",
-      "action": null,
+      "action": "AddRole",
       "type": "Action"
     }
   ],

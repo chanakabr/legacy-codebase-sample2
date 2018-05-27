@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "Report_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Report",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "Report_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Report",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

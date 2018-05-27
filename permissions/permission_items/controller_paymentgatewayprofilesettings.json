@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfileSettings_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfileSettings",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfileSettings_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfileSettings",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfileSettings_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfileSettings",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "PaymentGatewayProfileSettings_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PaymentGatewayProfileSettings",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

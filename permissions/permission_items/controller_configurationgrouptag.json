@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupTag_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupTag",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupTag_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupTag",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupTag_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupTag",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupTag_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupTag",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     }
   ],

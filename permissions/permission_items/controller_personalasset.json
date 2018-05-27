@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "PersonalAsset_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PersonalAsset",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

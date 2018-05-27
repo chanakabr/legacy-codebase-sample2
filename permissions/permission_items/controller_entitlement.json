@@ -10,11 +10,10 @@
         "CANCEL_SUBSCRIPTION"
       ],
       "name": "Entitlement_Cancel",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "Cancel",
       "type": "Action"
     },
     {
@@ -25,11 +24,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_CancelRenewal",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "CancelRenewal",
       "type": "Action"
     },
     {
@@ -40,11 +38,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -55,11 +52,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_Buy",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "Buy",
       "type": "Action"
     },
     {
@@ -70,11 +66,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_ExternalReconcile",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "ExternalReconcile",
       "type": "Action"
     },
     {
@@ -85,11 +80,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -100,11 +94,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_CancelScheduledSubscription",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "CancelScheduledSubscription",
       "type": "Action"
     },
     {
@@ -115,11 +108,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_GetNextRenewal",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "GetNextRenewal",
       "type": "Action"
     },
     {
@@ -128,11 +120,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_Grant",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "Grant",
       "type": "Action"
     },
     {
@@ -144,11 +135,10 @@
         "CANCEL_SUBSCRIPTION"
       ],
       "name": "Entitlement_ForceCancel",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "ForceCancel",
       "type": "Action"
     },
     {
@@ -157,11 +147,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_ListExpired",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "ListExpired",
       "type": "Action"
     },
     {
@@ -170,11 +159,10 @@
       ],
       "excluded_permissions": [],
       "name": "Entitlement_Swap",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Entitlement",
-      "action": null,
+      "action": "Swap",
       "type": "Action"
     }
   ],

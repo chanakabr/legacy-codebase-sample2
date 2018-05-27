@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Register",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Register",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_GetByToken",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "GetByToken",
       "type": "Action"
     },
     {
@@ -37,11 +35,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Config",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Config",
       "type": "Action"
     },
     {
@@ -53,11 +50,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_GetConfiguration",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "GetConfiguration",
       "type": "Action"
     },
     {
@@ -66,11 +62,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Login",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Login",
       "type": "Action"
     },
     {
@@ -82,11 +77,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_UpdateConfiguration",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "UpdateConfiguration",
       "type": "Action"
     },
     {
@@ -97,11 +91,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Merge",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Merge",
       "type": "Action"
     },
     {
@@ -112,11 +105,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Unmerge",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Unmerge",
       "type": "Action"
     },
     {
@@ -127,11 +119,10 @@
       ],
       "excluded_permissions": [],
       "name": "Social_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Social",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Ratio_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Ratio",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "Ratio_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Ratio",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "Ratio_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Ratio",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     }
   ],

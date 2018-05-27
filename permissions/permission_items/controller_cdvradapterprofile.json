@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDVRAdapterProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDVRAdapterProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDVRAdapterProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -47,11 +44,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDVRAdapterProfile_GenerateSharedSecret",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDVRAdapterProfile",
-      "action": null,
+      "action": "GenerateSharedSecret",
       "type": "Action"
     },
     {
@@ -60,11 +56,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDVRAdapterProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDVRAdapterProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

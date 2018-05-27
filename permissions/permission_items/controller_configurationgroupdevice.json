@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupDevice_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupDevice",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupDevice_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupDevice",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupDevice_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupDevice",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroupDevice_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ConfigurationGroupDevice",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Favorite_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Favorite",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Favorite_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Favorite",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "Favorite_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Favorite",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

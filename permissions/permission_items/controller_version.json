@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Version_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Version",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

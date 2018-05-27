@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "HomeNetwork_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HomeNetwork",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "HomeNetwork_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HomeNetwork",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "HomeNetwork_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HomeNetwork",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -53,11 +50,10 @@
       ],
       "excluded_permissions": [],
       "name": "HomeNetwork_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HomeNetwork",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

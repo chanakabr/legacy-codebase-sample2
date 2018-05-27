@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Category_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Category",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

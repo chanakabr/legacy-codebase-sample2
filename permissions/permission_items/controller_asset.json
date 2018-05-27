@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Search",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Search",
       "type": "Action"
     },
     {
@@ -53,11 +50,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Autocomplete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Autocomplete",
       "type": "Action"
     },
     {
@@ -68,11 +64,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Related",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Related",
       "type": "Action"
     },
     {
@@ -83,11 +78,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Channel",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Channel",
       "type": "Action"
     },
     {
@@ -99,11 +93,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_ExternalChannel",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "ExternalChannel",
       "type": "Action"
     },
     {
@@ -114,11 +107,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_GetPlaybackContext",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "GetPlaybackContext",
       "type": "Action"
     },
     {
@@ -129,11 +121,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Count",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Count",
       "type": "Action"
     },
     {
@@ -144,11 +135,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_GetAdsContext",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "GetAdsContext",
       "type": "Action"
     },
     {
@@ -159,11 +149,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_relatedExternal",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "relatedExternal",
       "type": "Action"
     },
     {
@@ -174,11 +163,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_searchExternal",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "searchExternal",
       "type": "Action"
     },
     {
@@ -187,11 +175,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -200,11 +187,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -213,11 +199,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -226,11 +211,10 @@
       ],
       "excluded_permissions": [],
       "name": "Asset_RemoveMetasAndTags",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Asset",
-      "action": null,
+      "action": "RemoveMetasAndTags",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_GenerateSharedSecret",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "GenerateSharedSecret",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -58,11 +54,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -71,11 +66,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -84,11 +78,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -97,11 +90,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_GenerateSharedSecret",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "GenerateSharedSecret",
       "type": "Action"
     },
     {
@@ -110,11 +102,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -123,11 +114,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfile_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "SocialAction_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "SocialAction",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "SocialAction_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "SocialAction",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -38,11 +36,10 @@
       ],
       "excluded_permissions": [],
       "name": "SocialAction_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "SocialAction",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     }
   ],

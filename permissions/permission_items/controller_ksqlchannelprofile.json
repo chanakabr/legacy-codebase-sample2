@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "KSQL Channel Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ksqlChannelProfile",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "KSQL Channel Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ksqlChannelProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "KSQL Channel Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ksqlChannelProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -47,11 +44,10 @@
       ],
       "excluded_permissions": [],
       "name": "KSQL Channel Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "ksqlChannelProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     }
   ],

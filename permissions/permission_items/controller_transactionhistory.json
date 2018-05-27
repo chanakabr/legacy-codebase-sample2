@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "TransactionHistory_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "TransactionHistory",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

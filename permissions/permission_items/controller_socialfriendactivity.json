@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "SocialFriendActivity_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "SocialFriendActivity",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdLimitations_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdLimitations",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

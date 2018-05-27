@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetHistory_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetHistory",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetHistory_Clean",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetHistory",
-      "action": null,
+      "action": "Clean",
       "type": "Action"
     }
   ],

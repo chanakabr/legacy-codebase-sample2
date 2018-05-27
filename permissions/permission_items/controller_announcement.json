@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_UpdateStatus",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "UpdateStatus",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -58,11 +54,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -71,11 +66,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_CreateAnnouncement",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "CreateAnnouncement",
       "type": "Action"
     },
     {
@@ -84,11 +78,10 @@
       ],
       "excluded_permissions": [],
       "name": "Announcement_EnableSystemAnnouncements",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Announcement",
-      "action": null,
+      "action": "EnableSystemAnnouncements",
       "type": "Action"
     }
   ],

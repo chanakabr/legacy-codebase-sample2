@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetStatistics_Query",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetStatistics",
-      "action": null,
+      "action": "Query",
       "type": "Action"
     }
   ],

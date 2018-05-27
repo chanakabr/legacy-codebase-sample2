@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "TimeShiftedTvPartnerSettings",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -22,11 +21,10 @@
       ],
       "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "TimeShiftedTvPartnerSettings",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

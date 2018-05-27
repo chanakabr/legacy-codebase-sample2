@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "OSSAdapterProfileSettings_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OSSAdapterProfileSettings",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "OSSAdapterProfileSettings_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OSSAdapterProfileSettings",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "OSSAdapterProfileSettings_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OSSAdapterProfileSettings",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "OSSAdapterProfileSettings_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "OSSAdapterProfileSettings",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

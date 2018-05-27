@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Channel_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Channel",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Channel_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Channel",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -36,11 +34,10 @@
       ],
       "excluded_permissions": [],
       "name": "Channel_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Channel",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -49,11 +46,10 @@
       ],
       "excluded_permissions": [],
       "name": "Channel_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Channel",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -62,11 +58,10 @@
       ],
       "excluded_permissions": [],
       "name": "Channel_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Channel",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "DeviceFamily_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "DeviceFamily",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

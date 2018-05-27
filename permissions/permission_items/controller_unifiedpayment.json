@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "UnifiedPayment_GetNextRenewal",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UnifiedPayment",
-      "action": null,
+      "action": "GetNextRenewal",
       "type": "Action"
     }
   ],

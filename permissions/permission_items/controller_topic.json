@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "Topic_UpdateStatus",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Topic",
-      "action": null,
+      "action": "UpdateStatus",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "Topic_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Topic",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "Topic_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Topic",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "Topic_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Topic",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

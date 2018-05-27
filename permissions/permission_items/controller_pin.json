@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Pin_Validate",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Pin",
-      "action": null,
+      "action": "Validate",
       "type": "Action"
     },
     {
@@ -22,11 +21,10 @@
       ],
       "excluded_permissions": [],
       "name": "Pin_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Pin",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -36,11 +34,10 @@
       ],
       "excluded_permissions": [],
       "name": "Pin_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Pin",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

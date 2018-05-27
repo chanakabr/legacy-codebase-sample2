@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_AddRuleToUser",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "AddRuleToUser",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_RemoveRuleToUser",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "RemoveRuleToUser",
       "type": "Action"
     },
     {
@@ -48,11 +45,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_AttachUser",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "AttachUser",
       "type": "Action"
     },
     {
@@ -62,11 +58,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_DetachUser",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "DetachUser",
       "type": "Action"
     },
     {
@@ -75,11 +70,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -88,11 +82,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -101,11 +94,10 @@
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "AssetUserRule",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

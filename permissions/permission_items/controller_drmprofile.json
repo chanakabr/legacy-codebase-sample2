@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "drmProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "drmProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "Compensation_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Compensation",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "Compensation_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Compensation",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "Compensation_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Compensation",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

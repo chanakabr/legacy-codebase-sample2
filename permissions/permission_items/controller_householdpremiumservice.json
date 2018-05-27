@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "HouseholdPremiumService_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdPremiumService",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

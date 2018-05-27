@@ -6,7 +6,6 @@
       ],
       "excluded_permissions": [],
       "name": "KalturaHouseholdDevice_HouseholdId_Insert",
-      "is_excluded": false,
       "object": "KalturaHouseholdDevice",
       "parameter": "householdId",
       "service": null,

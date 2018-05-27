@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "PurchaseSettings_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PurchaseSettings",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -22,11 +21,10 @@
       ],
       "excluded_permissions": [],
       "name": "PurchaseSettings_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "PurchaseSettings",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     }
   ],

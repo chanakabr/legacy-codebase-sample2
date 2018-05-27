@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "CDNAdapterProfileControllerAdd",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CDNAdapterProfileController",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     }
   ],

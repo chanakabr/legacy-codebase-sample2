@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "Session_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Session",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -24,11 +23,10 @@
       ],
       "excluded_permissions": [],
       "name": "Session_SwitchUser",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Session",
-      "action": null,
+      "action": "SwitchUser",
       "type": "Action"
     },
     {
@@ -39,11 +37,10 @@
       ],
       "excluded_permissions": [],
       "name": "Session_Revoke",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Session",
-      "action": null,
+      "action": "Revoke",
       "type": "Action"
     },
     {
@@ -52,11 +49,10 @@
       ],
       "excluded_permissions": [],
       "name": "Session_Get_Session",
-      "is_excluded": false,
       "object": null,
       "parameter": "session",
       "service": "Session",
-      "action": null,
+      "action": "Get",
       "type": "Argument"
     }
   ],

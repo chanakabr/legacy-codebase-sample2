@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Household_Quota",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "HouseholdQuota",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

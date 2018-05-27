@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_Generate",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "Generate",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -58,11 +54,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -71,11 +66,10 @@
       ],
       "excluded_permissions": [],
       "name": "CouponsGroup_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CouponsGroup",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     }
   ],

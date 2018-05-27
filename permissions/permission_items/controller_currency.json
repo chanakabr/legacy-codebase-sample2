@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Currency_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Currency",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfile",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfile",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -32,11 +30,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfile",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -45,11 +42,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_Update",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfile",
-      "action": null,
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -58,11 +54,10 @@
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_GenerateSharedSecret",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "RecommendationProfile",
-      "action": null,
+      "action": "GenerateSharedSecret",
       "type": "Action"
     }
   ],

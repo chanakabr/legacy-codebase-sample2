@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Coupon_Get",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Coupon",
-      "action": null,
+      "action": "Get",
       "type": "Action"
     }
   ],

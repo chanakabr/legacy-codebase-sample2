@@ -9,11 +9,10 @@
       ],
       "excluded_permissions": [],
       "name": "UserAssetRule_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UserAssetRule",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "CuePoint_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "CuePoint",
-      "action": null,
+      "action": "List",
       "type": "Action"
     }
   ],

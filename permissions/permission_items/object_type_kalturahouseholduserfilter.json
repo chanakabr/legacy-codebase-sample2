@@ -7,7 +7,6 @@
       ],
       "excluded_permissions": [],
       "name": "KalturaHouseholdUserFilter_HouseholdIdEqual_Read",
-      "is_excluded": false,
       "object": "KalturaHouseholdUserFilter",
       "parameter": "householdIdEqual",
       "service": null,

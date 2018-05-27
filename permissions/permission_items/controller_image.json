@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Image_List",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Image",
-      "action": null,
+      "action": "List",
       "type": "Action"
     },
     {
@@ -21,11 +20,10 @@
       ],
       "excluded_permissions": [],
       "name": "Image_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Image",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -34,11 +32,10 @@
       ],
       "excluded_permissions": [],
       "name": "Image_Delete",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Image",
-      "action": null,
+      "action": "Delete",
       "type": "Action"
     },
     {
@@ -47,11 +44,10 @@
       ],
       "excluded_permissions": [],
       "name": "Image_SetContent",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Image",
-      "action": null,
+      "action": "SetContent",
       "type": "Action"
     }
   ],

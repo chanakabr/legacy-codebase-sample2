@@ -6,11 +6,10 @@
       ],
       "excluded_permissions": [],
       "name": "UploadToken_Add",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UploadToken",
-      "action": null,
+      "action": "Add",
       "type": "Action"
     },
     {
@@ -19,11 +18,10 @@
       ],
       "excluded_permissions": [],
       "name": "UploadToken_Upload",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "UploadToken",
-      "action": null,
+      "action": "Upload",
       "type": "Action"
     }
   ],

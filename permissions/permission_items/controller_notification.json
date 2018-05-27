@@ -8,11 +8,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_SetDevicePushToken",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "SetDevicePushToken",
       "type": "Action"
     },
     {
@@ -23,11 +22,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_Register",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "Register",
       "type": "Action"
     },
     {
@@ -36,11 +34,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_GetLastCleanupDate",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "GetLastCleanupDate",
       "type": "Action"
     },
     {
@@ -49,11 +46,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_InitiateCleanup",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "InitiateCleanup",
       "type": "Action"
     },
     {
@@ -62,11 +58,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_SendPush",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "SendPush",
       "type": "Action"
     },
     {
@@ -75,11 +70,10 @@
       ],
       "excluded_permissions": [],
       "name": "Notification_SendSms",
-      "is_excluded": false,
       "object": null,
       "parameter": null,
       "service": "Notification",
-      "action": null,
+      "action": "SendSms",
       "type": "Action"
     }
   ],
