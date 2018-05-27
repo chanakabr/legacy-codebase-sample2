@@ -4,6 +4,7 @@
       "permissions": [
         "Anonymous"
       ],
+      "excluded_permissions": [],
       "name": "Guest"
     },
     {
@@ -18,6 +19,7 @@
         "PURCHASE_SERVICE",
         "LOGIN"
       ],
+      "excluded_permissions": [],
       "name": "User"
     },
     {
@@ -31,6 +33,7 @@
         "PURCHASE_SERVICE",
         "LOGIN"
       ],
+      "excluded_permissions": [],
       "name": "Master"
     },
     {
@@ -39,6 +42,7 @@
         "LOGIN",
         "DELETE_ALL_APP_TOKENS"
       ],
+      "excluded_permissions": [],
       "name": "Operator"
     },
     {
@@ -48,6 +52,7 @@
         "LOGIN",
         "DELETE_ALL_APP_TOKENS"
       ],
+      "excluded_permissions": [],
       "name": "Manager"
     },
     {
@@ -58,93 +63,114 @@
         "LOGIN",
         "DELETE_ALL_APP_TOKENS"
       ],
+      "excluded_permissions": [],
       "name": "Administrator"
     },
     {
       "permissions": [
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "ExternalPaymentGateway"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaSuspendPurchase"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaSuspendPlayback"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaTest1Updated"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaTest2"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaTest888"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "RenewSuspended"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaTest888"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "PlaybackSuspended"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "PurchaseService"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "SuspendPurchasePPV"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "PurchaseService"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "SuspendPurchaseSubscription"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "SuspendPlaybackSubscription"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "SuspendPlaybackPPV"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "LoginSuspended"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "CancelSubscriptionSuspended"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "QaTest_updated"
     },
     {
       "permissions": [
+        "RENEW_SUBSCRIPTION",
+        "LOGIN",
+        "OLD_SUSPEND"
+      ],
+      "excluded_permissions": [
         "PLAYBACK_SUBSCRIPTION",
         "PLAYBACK_PPV",
         "PURCHASE_SUBSCRIPTION",
         "PURCHASE_PPV",
         "PURCHASE_SERVICE",
-        "RENEW_SUBSCRIPTION",
-        "CANCEL_SUBSCRIPTION",
-        "LOGIN",
-        "OLD_SUSPEND"
+        "CANCEL_SUBSCRIPTION"
       ],
       "name": "DefaultSuspendedRole"
     },
@@ -152,42 +178,52 @@
       "permissions": [
         "SunnyTestPermission"
       ],
+      "excluded_permissions": [],
       "name": "SunnyTestRole"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "9441"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "9148"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "9745"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "9408"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "9581"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "SunnyTestRole2"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "test"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "test"
     },
     {
       "permissions": null,
+      "excluded_permissions": null,
       "name": "LOGIN"
     }
   ]

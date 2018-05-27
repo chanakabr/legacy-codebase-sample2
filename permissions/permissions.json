@@ -2,92 +2,74 @@
   "permissions": [
     {
       "name": "Anonymous",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "User",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "PLAYBACK_SUBSCRIPTION",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "PLAYBACK_PPV",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "PURCHASE_SUBSCRIPTION",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "PURCHASE_PPV",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "RENEW_SUBSCRIPTION",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "PURCHASE_SERVICE",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "LOGIN",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "Master",
-      "is_excluded": false,
       "users_group": "household*"
     },
     {
       "name": "Operator",
-      "is_excluded": false,
       "users_group": "partner*"
     },
     {
       "name": "DELETE_ALL_APP_TOKENS",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "Manager",
-      "is_excluded": false,
       "users_group": "partner*"
     },
     {
       "name": "Administrator",
-      "is_excluded": false,
       "users_group": "partner*"
     },
     {
       "name": "ExternalPaymentGateway",
-      "is_excluded": false,
       "users_group": "partner*"
     },
     {
       "name": "CANCEL_SUBSCRIPTION",
-      "is_excluded": true,
       "users_group": ""
     },
     {
       "name": "OLD_SUSPEND",
-      "is_excluded": false,
       "users_group": ""
     },
     {
       "name": "SunnyTestPermission",
-      "is_excluded": false,
       "users_group": ""
     }
   ]
