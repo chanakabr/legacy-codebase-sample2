@@ -300,6 +300,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Args" type="tns:ArrayOfKeyValuePair" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfSocialActivityDoc">
@@ -918,6 +919,27 @@
           <s:element minOccurs="0" maxOccurs="1" name="ChangedFields" type="tns:ArrayOfString" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="UserDynamicData">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:CoreObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
+              <s:element minOccurs="1" maxOccurs="1" name="UserId" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="UserBasicData">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sFirstName" type="s:string" />
@@ -962,22 +984,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sStateName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStateCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="UserDynamicData">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfUserDynamicDataContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="UserDynamicDataContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="DomainSuspentionStatus">
@@ -2988,13 +2994,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/SOCIAL_V4_7/ws_social_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/SOCIAL_v4_8_2/ws_social_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/SOCIAL_V4_7/ws_social_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/SOCIAL_v4_8_2/ws_social_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://34.249.122.223:8030/SOCIAL_V4_7/ws_social_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/SOCIAL_v4_8_2/ws_social_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -73,6 +73,18 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Args" type="tns:ArrayOfKeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateBulkExportTask">
@@ -291,6 +303,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ActionEnum" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1059,6 +1072,8 @@
           <s:enumeration value="notificationCleanup" />
           <s:enumeration value="reminderCleanup" />
           <s:enumeration value="assetLifeCycleRuleScheduledTasks" />
+          <s:enumeration value="purgeScheduledTasks" />
+          <s:enumeration value="assetRuleScheduledTasks" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetScheduledTaskLastRunResponse">
@@ -1197,6 +1212,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TimeZoneId" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetGroupMetaList">
@@ -1372,12 +1388,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="PpvIds" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="KeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:simpleType name="eCutType">
         <s:restriction base="s:string">
           <s:enumeration value="And" />
@@ -1498,6 +1508,49 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="UpdateLayeredCacheGroupConfigSTResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendDrmAdapterConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendDrmAdapterConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendDrmAdapterConfigurationResult" type="tns:DrmAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DrmAdapterResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adapter" type="tns:DrmAdapter" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DrmAdapter">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Settings" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoActionAssetRules">
+        <s:complexType />
+      </s:element>
+      <s:element name="DoActionAssetRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionAssetRulesResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3102,6 +3155,7 @@
           <s:enumeration value="Device" />
           <s:enumeration value="UserType" />
           <s:enumeration value="AnonymousAccessBlock" />
+          <s:enumeration value="AssetUserBlock" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="eGroupRuleType">
@@ -3111,6 +3165,7 @@
           <s:enumeration value="Purchase" />
           <s:enumeration value="Device" />
           <s:enumeration value="EPG" />
+          <s:enumeration value="AssetUser" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetAutoCompleteList">
@@ -3241,11 +3296,6 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="ColorCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="picURL" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfKeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eOperatorType">
@@ -3736,8 +3786,16 @@
           <s:element minOccurs="1" maxOccurs="1" name="bmId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:eBusinessModule" />
+          <s:element minOccurs="1" maxOccurs="1" name="RestrictionPolicy" type="tns:ConcurrencyRestrictionPolicy" />
+          <s:element minOccurs="1" maxOccurs="1" name="Limitation" type="s:int" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="ConcurrencyRestrictionPolicy">
+        <s:restriction base="s:string">
+          <s:enumeration value="Single" />
+          <s:enumeration value="Group" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetRegions">
         <s:complexType>
           <s:sequence>
@@ -4282,6 +4340,7 @@
           <s:enumeration value="Geo" />
           <s:enumeration value="UserType" />
           <s:enumeration value="Device" />
+          <s:enumeration value="AssetUser" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetEpgRules">
@@ -5030,6 +5089,7 @@
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="Country" nillable="true" type="tns:Country" />
       <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="DrmAdapterResponse" nillable="true" type="tns:DrmAdapterResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="ArrayOfUnifiedSearchResult" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
@@ -5481,6 +5541,18 @@
   </wsdl:message>
   <wsdl:message name="UpdateLayeredCacheGroupConfigSTSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateLayeredCacheGroupConfigSTResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendDrmAdapterConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:SendDrmAdapterConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="SendDrmAdapterConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:SendDrmAdapterConfigurationResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:DoActionAssetRules" />
+  </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:DoActionAssetRulesResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -6516,6 +6588,18 @@
   <wsdl:message name="UpdateLayeredCacheGroupConfigSTHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
+  <wsdl:message name="SendDrmAdapterConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendDrmAdapterConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:DrmAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesHttpPostIn" />
+  <wsdl:message name="DoActionAssetRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -7537,6 +7621,14 @@
       <wsdl:input message="tns:UpdateLayeredCacheGroupConfigSTSoapIn" />
       <wsdl:output message="tns:UpdateLayeredCacheGroupConfigSTSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SendDrmAdapterConfiguration">
+      <wsdl:input message="tns:SendDrmAdapterConfigurationSoapIn" />
+      <wsdl:output message="tns:SendDrmAdapterConfigurationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <wsdl:input message="tns:DoActionAssetRulesSoapIn" />
+      <wsdl:output message="tns:DoActionAssetRulesSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -8186,6 +8278,14 @@
     <wsdl:operation name="UpdateLayeredCacheGroupConfigST">
       <wsdl:input message="tns:UpdateLayeredCacheGroupConfigSTHttpPostIn" />
       <wsdl:output message="tns:UpdateLayeredCacheGroupConfigSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendDrmAdapterConfiguration">
+      <wsdl:input message="tns:SendDrmAdapterConfigurationHttpPostIn" />
+      <wsdl:output message="tns:SendDrmAdapterConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <wsdl:input message="tns:DoActionAssetRulesHttpPostIn" />
+      <wsdl:output message="tns:DoActionAssetRulesHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -9021,6 +9121,24 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateLayeredCacheGroupConfigST">
       <soap:operation soapAction="http://api.tvinci.com/UpdateLayeredCacheGroupConfigST" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendDrmAdapterConfiguration">
+      <soap:operation soapAction="http://api.tvinci.com/SendDrmAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <soap:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -10678,6 +10796,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SendDrmAdapterConfiguration">
+      <soap12:operation soapAction="http://api.tvinci.com/SendDrmAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <soap12:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -12139,6 +12275,24 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SendDrmAdapterConfiguration">
+      <http:operation location="/SendDrmAdapterConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <http:operation location="/DoActionAssetRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <http:operation location="/InsertEPGSchedule" />
       <wsdl:input>
@@ -12934,13 +13088,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
+      <soap:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
+      <http:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
