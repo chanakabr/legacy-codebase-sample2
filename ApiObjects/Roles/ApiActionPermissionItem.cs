@@ -9,26 +9,12 @@ namespace ApiObjects.Roles
     [JsonObject()]
     public class ApiActionPermissionItem : PermissionItem
     {
-        [JsonProperty("service")]
         public string Service { get; set; }
-        [JsonProperty("action")]
         public string Action { get; set; }
 
-        public override string GetPermissionItemType()
+        public override ePermissionItemType GetPermissionItemType()
         {
-            return "controller";
-        }
-
-        public override string GetFileName()
-        {
-            if (string.IsNullOrEmpty(this.Service))
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return string.Format("permission_item_controller_{0}", this.Service);
-            }
+            return ePermissionItemType.Action;
         }
     }
 }

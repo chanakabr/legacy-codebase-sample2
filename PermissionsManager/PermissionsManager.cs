@@ -940,8 +940,8 @@ namespace PermissionsManager
             Dictionary<string, GroupPermission> dictionaryPermissionsFromFiles = new Dictionary<string, GroupPermission>();
             List<FileRole> rolesFromFiles = new List<FileRole>();
             Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>();
-            List<SlimPermissionItem> permissionItemsFromFiles = new List<SlimPermissionItem>();
-            Dictionary<string, SlimPermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, SlimPermissionItem>();
+            List<FilePermissionItem> permissionItemsFromFiles = new List<FilePermissionItem>();
+            Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, FilePermissionItem>();
 
             foreach (string filePath in allfiles)
             {
@@ -985,12 +985,12 @@ namespace PermissionsManager
                 {
                     foreach (JObject permissionItemJson in permissionItems)
                     {
-                        SlimPermissionItem permissionItem = permissionItemJson.ToObject<SlimPermissionItem>();
+                        FilePermissionItem permissionItem = permissionItemJson.ToObject<FilePermissionItem>();
                         permissionItemsFromFiles.Add(permissionItem);
 
-                        if (!dictionaryPermissionItemsFromFiles.ContainsKey(permissionItem.permissionItem.Name))
+                        if (!dictionaryPermissionItemsFromFiles.ContainsKey(permissionItem.Name))
                         {
-                            dictionaryPermissionItemsFromFiles.Add(permissionItem.permissionItem.Name, permissionItem);
+                            dictionaryPermissionItemsFromFiles.Add(permissionItem.Name, permissionItem);
                         }
                     }
                 }
@@ -1003,7 +1003,7 @@ namespace PermissionsManager
             Roles rolesFromDatabase;
             Dictionary<string, Role> dictionaryRolesFromDatabase = new Dictionary<string, Role>();
             Dictionary<string, PermissionItems> permissionItemsFromDatabase;
-            Dictionary<string, SlimPermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, SlimPermissionItem>();
+            Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, FilePermissionItem>();
             Permissions permissionsFromDatabase;
             Dictionary<string, Permission> dictionaryPermissionsFromDatabase = new Dictionary<string, Permission>();
 
@@ -1015,7 +1015,7 @@ namespace PermissionsManager
             foreach (var permission in permissionsFromDatabase.permissions)
             {
                 // fill dictionary of permission we found in DB
-                dictionaryPermissionsFromDatabase[permission.Name] = permission;
+                dictionaryPermissionsFromDatabase[permission.Name] = CreatePermission(permission);
 
                 // check if exists in files
                 if (dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
@@ -1077,6 +1077,11 @@ namespace PermissionsManager
             return result;
         }
 
+        private static Permission CreatePermission(FilePermission permission)
+        {
+            throw new NotImplementedException();
+        }
+
         private static Role CreateRole(FileRole role)
         {
             return null;
@@ -1104,8 +1109,8 @@ namespace PermissionsManager
                 roles = slimRoles
             };
 
-            Dictionary<long, GroupPermission> permissionsDictionary = new Dictionary<long, GroupPermission>();
-            Dictionary<long, SlimPermissionItem> permissionItemsDictionary = new Dictionary<long, SlimPermissionItem>();
+            Dictionary<long, FilePermission> permissionsDictionary = new Dictionary<long, FilePermission>();
+            Dictionary<long, FilePermissionItem> permissionItemsDictionary = new Dictionary<long, FilePermissionItem>();
             permissionItemsFiles = new Dictionary<string, PermissionItems>();
 
             // create dictionary of permissions and permission items by their id
@@ -1115,15 +1120,15 @@ namespace PermissionsManager
                 {
                     foreach (var permission in role.Permissions)
                     {
-                        permissionsDictionary[permission.Id] = permission as GroupPermission;
+                        permissionsDictionary[permission.Id] = new FilePermission(permission as GroupPermission);
 
                         if (permission.PermissionItems != null)
                         {
                             foreach (var permissionItem in permission.PermissionItems)
                             {
-                                SlimPermissionItem slimPermissionItem = null;
+                                FilePermissionItem slimPermissionItem = new FilePermissionItem(permissionItem);
 
-                                string permissionItemFileName = permissionItem.GetFileName().ToLower();
+                                string permissionItemFileName = slimPermissionItem.GetFileName().ToLower();
 
                                 if (!string.IsNullOrEmpty(permissionItemFileName))
                                 {
@@ -1132,14 +1137,12 @@ namespace PermissionsManager
                                         permissionItemsFiles[permissionItemFileName] = new PermissionItems()
                                         {
                                             name = permissionItemFileName,
-                                            type = permissionItem.GetPermissionItemType()
+                                            type = slimPermissionItem.Type
                                         };
                                     }
 
                                     if (!permissionItemsDictionary.ContainsKey(permissionItem.Id))
                                     {
-                                        slimPermissionItem = new SlimPermissionItem(permissionItem);
-
                                         permissionItemsDictionary[permissionItem.Id] = slimPermissionItem;
 
                                         permissionItemsFiles[permissionItemFileName].permissionItems.Add(slimPermissionItem);

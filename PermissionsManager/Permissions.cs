@@ -12,11 +12,43 @@ namespace PermissionsManager
     public class Permissions
     {
         [JsonProperty()]
-        public List<GroupPermission> permissions;
+        public List<FilePermission> permissions;
 
         public Permissions()
         {
-            permissions = new List<GroupPermission>();
+            permissions = new List<FilePermission>();
+        }
+    }
+
+    public class FilePermission
+    {
+        [JsonIgnore()]
+        public long Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonIgnore()]
+        public List<PermissionItem> PermissionItems { get; set; }
+
+        [JsonProperty("group_id")]
+        [JsonIgnore()]
+        public int GroupId { get; set; }
+
+        [JsonProperty("is_excluded")]
+        public bool isExcluded { get; set; }
+
+        [JsonProperty("users_group")]
+        public string UsersGroup { get; set; }
+
+        public FilePermission(GroupPermission original)
+        {
+            this.Id = original.Id;
+            this.Name = original.Name;
+            this.PermissionItems = original.PermissionItems;
+            this.GroupId = original.GroupId;
+            this.isExcluded = original.isExcluded;
+            this.UsersGroup = original.UsersGroup;
         }
     }
 }
