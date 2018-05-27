@@ -1351,13 +1351,13 @@ namespace PermissionsManager
 
                                     if (permissionPermissionItemTable != null)
                                     {
-                                        var rowToDelete = rolePermissionsTable.AsEnumerable().FirstOrDefault(row =>
+                                        var rowToDelete = permissionPermissionItemTable.AsEnumerable().FirstOrDefault(row =>
                                         Convert.ToString(row["permission_item_name"]) == dbPermissionItem.Name &&
                                         Convert.ToString(row["permission_name"]) == permissionName);
 
                                         if (rowToDelete != null)
                                         {
-                                            deleteResult = ApiDAL.DeletePermissionRole(Convert.ToInt32(rowToDelete["id"]));
+                                            deleteResult = ApiDAL.DeletePermissionPermissionItem(Convert.ToInt32(rowToDelete["id"]));
                                         }
                                     }
 
@@ -1372,7 +1372,7 @@ namespace PermissionsManager
                         else
                         {
                             // if permission item exists in DB but not in file - it should be deleted
-                            ApiDAL.DeletePermissionItem((int)dbPermissionItem.Id);
+                            bool deleteResult = ApiDAL.DeletePermissionItem((int)dbPermissionItem.Id);
                         }
                     }
                 }
@@ -1395,14 +1395,14 @@ namespace PermissionsManager
                         foreach (var permissionItemPermissionName in permissionItem.permissionsNames)
                         {
                             int permissionId = (int)dictionaryPermissionsFromDatabase[permissionItemPermissionName].Id;
-                            ApiDAL.InsertPermissionPermissionItem((int)newId, permissionId, 0);
+                            ApiDAL.InsertPermissionPermissionItem(permissionId, (int)newId, 0);
                         }
 
                         // insert permission permission items - excluded
                         foreach (var permissionItemPermissionName in permissionItem.excludedPermissionsNames)
                         {
                             int permissionId = (int)dictionaryPermissionsFromDatabase[permissionItemPermissionName].Id;
-                            ApiDAL.InsertPermissionRole((int)newId, permissionId, 1);
+                            ApiDAL.InsertPermissionPermissionItem(permissionId, (int)newId, 1);
                         }
                     }
                 }
