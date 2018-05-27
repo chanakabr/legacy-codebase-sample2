@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_List",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Get",
       "is_excluded": false,
       "object": null,
@@ -34,6 +36,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Search",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Autocomplete",
       "is_excluded": false,
       "object": null,
@@ -62,6 +66,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Related",
       "is_excluded": false,
       "object": null,
@@ -76,6 +81,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Channel",
       "is_excluded": false,
       "object": null,
@@ -91,6 +97,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_ExternalChannel",
       "is_excluded": false,
       "object": null,
@@ -105,6 +112,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_GetPlaybackContext",
       "is_excluded": false,
       "object": null,
@@ -119,6 +127,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Count",
       "is_excluded": false,
       "object": null,
@@ -133,6 +142,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_GetAdsContext",
       "is_excluded": false,
       "object": null,
@@ -147,6 +157,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_relatedExternal",
       "is_excluded": false,
       "object": null,
@@ -161,6 +172,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_searchExternal",
       "is_excluded": false,
       "object": null,
@@ -173,6 +185,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Add",
       "is_excluded": false,
       "object": null,
@@ -185,6 +198,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Delete",
       "is_excluded": false,
       "object": null,
@@ -197,6 +211,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_Update",
       "is_excluded": false,
       "object": null,
@@ -209,6 +224,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Asset_RemoveMetasAndTags",
       "is_excluded": false,
       "object": null,

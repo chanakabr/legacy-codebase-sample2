@@ -4,6 +4,7 @@
       "permissions": [
         "Manager"
       ],
+      "excluded_permissions": [],
       "name": "PartnerConfiguration_Update",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ExternalChannelProfile_List",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ExternalChannelProfile_Delete",
       "is_excluded": false,
       "object": null,
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ExternalChannelProfile_Add",
       "is_excluded": false,
       "object": null,
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ExternalChannelProfile_Update",
       "is_excluded": false,
       "object": null,

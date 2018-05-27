@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_SetDevicePushToken",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_Register",
       "is_excluded": false,
       "object": null,
@@ -32,6 +34,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_GetLastCleanupDate",
       "is_excluded": false,
       "object": null,
@@ -44,6 +47,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_InitiateCleanup",
       "is_excluded": false,
       "object": null,
@@ -56,6 +60,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_SendPush",
       "is_excluded": false,
       "object": null,
@@ -68,6 +73,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Notification_SendSms",
       "is_excluded": false,
       "object": null,

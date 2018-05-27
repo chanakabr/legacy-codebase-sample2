@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaChannelsFilter_mediaIdEqual_Read",
       "is_excluded": false,
       "object": "KalturaChannelsFilter",
@@ -16,6 +17,7 @@
       "permissions": [
         "SunnyTestPermission"
       ],
+      "excluded_permissions": [],
       "name": "SunnyTestPermissionItem",
       "is_excluded": false,
       "object": "KalturaChannelsFilter",

@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_Purchase",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_ProcessReceipt",
       "is_excluded": false,
       "object": null,
@@ -34,6 +36,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_Waiver",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_PurchaseSessionId",
       "is_excluded": false,
       "object": null,
@@ -62,6 +66,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_GetPurchaseSessionId",
       "is_excluded": false,
       "object": null,
@@ -76,6 +81,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_ValidateReceipt",
       "is_excluded": false,
       "object": null,
@@ -90,6 +96,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_Downgrade",
       "is_excluded": false,
       "object": null,
@@ -104,6 +111,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_Upgrade",
       "is_excluded": false,
       "object": null,
@@ -116,6 +124,7 @@
       "permissions": [
         "Master"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_UpdateStatus",
       "is_excluded": false,
       "object": null,
@@ -128,6 +137,7 @@
       "permissions": [
         "Administrator"
       ],
+      "excluded_permissions": [],
       "name": "Transaction_UpdateState",
       "is_excluded": false,
       "object": null,

@@ -7,6 +7,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UserAssetRule_List",
       "is_excluded": false,
       "object": null,

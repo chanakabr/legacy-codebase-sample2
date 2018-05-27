@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Category_Get",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaOTTUser_ExternalId_Update",
       "is_excluded": false,
       "object": "KalturaOTTUser",

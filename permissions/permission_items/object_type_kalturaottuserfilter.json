@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaOTTUserFilter_IdIn_Read",
       "is_excluded": false,
       "object": "KalturaOTTUserFilter",
@@ -18,6 +19,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaOTTUserFilter_UserNameEqual_Read",
       "is_excluded": false,
       "object": "KalturaOTTUserFilter",
@@ -30,6 +32,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaOTTUserFilter_ExternalIdEqual_Read",
       "is_excluded": false,
       "object": "KalturaOTTUserFilter",

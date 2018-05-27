@@ -7,6 +7,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "AppToken_StartSession",
       "is_excluded": false,
       "object": null,
@@ -21,6 +22,7 @@
         "User",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "AppToken_Delete",
       "is_excluded": false,
       "object": null,
@@ -35,6 +37,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "AppToken_Add",
       "is_excluded": false,
       "object": null,
@@ -49,6 +52,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "AppToken_Get",
       "is_excluded": false,
       "object": null,

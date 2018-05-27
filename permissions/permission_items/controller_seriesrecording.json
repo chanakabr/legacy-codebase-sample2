@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_Cancel",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_Delete",
       "is_excluded": false,
       "object": null,
@@ -34,6 +36,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_List",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_Add",
       "is_excluded": false,
       "object": null,
@@ -62,6 +66,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_CancelByEpgId",
       "is_excluded": false,
       "object": null,
@@ -76,6 +81,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_CancelBySeasonNumber",
       "is_excluded": false,
       "object": null,
@@ -90,6 +96,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_DeleteByEpgId",
       "is_excluded": false,
       "object": null,
@@ -104,6 +111,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "SeriesRecording_DeleteBySeasonNumber",
       "is_excluded": false,
       "object": null,

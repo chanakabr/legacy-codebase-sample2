@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfileControllerAdd",
       "is_excluded": false,
       "object": null,

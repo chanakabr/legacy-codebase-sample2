@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaHouseholdDeviceFilter_HouseholdIdEqual_Read",
       "is_excluded": false,
       "object": "KalturaHouseholdDeviceFilter",

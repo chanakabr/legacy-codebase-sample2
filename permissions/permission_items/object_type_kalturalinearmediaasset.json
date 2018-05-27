@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_enableCdvr_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_enableCatchUpState_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_enableStartOverState_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_bufferCatchUp_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_bufferTrickPlay_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",
@@ -76,6 +82,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaLinearMediaAsset_enableTrickPlayState_ALL",
       "is_excluded": false,
       "object": "KalturaLinearMediaAsset",

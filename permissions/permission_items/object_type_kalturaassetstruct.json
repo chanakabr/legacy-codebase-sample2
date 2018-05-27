@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -76,6 +82,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaAssetStruct",
@@ -88,6 +95,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAssetStruct_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaAssetStruct",

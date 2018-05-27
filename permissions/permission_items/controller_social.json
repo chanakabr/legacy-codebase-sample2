@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_Register",
       "is_excluded": false,
       "object": null,
@@ -18,6 +19,7 @@
       "permissions": [
         "Anonymous"
       ],
+      "excluded_permissions": [],
       "name": "Social_GetByToken",
       "is_excluded": false,
       "object": null,
@@ -33,6 +35,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_Config",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_GetConfiguration",
       "is_excluded": false,
       "object": null,
@@ -60,6 +64,7 @@
       "permissions": [
         "Anonymous"
       ],
+      "excluded_permissions": [],
       "name": "Social_Login",
       "is_excluded": false,
       "object": null,
@@ -75,6 +80,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_UpdateConfiguration",
       "is_excluded": false,
       "object": null,
@@ -89,6 +95,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_Merge",
       "is_excluded": false,
       "object": null,
@@ -103,6 +110,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_Unmerge",
       "is_excluded": false,
       "object": null,
@@ -117,6 +125,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Social_Get",
       "is_excluded": false,
       "object": null,

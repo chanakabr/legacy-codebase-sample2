@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UploadToken_Add",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UploadToken_Upload",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "MessageTemplateGet",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "MessageTemplate_Update",
       "is_excluded": false,
       "object": null,
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "MessageTemplate_Set",
       "is_excluded": false,
       "object": null,

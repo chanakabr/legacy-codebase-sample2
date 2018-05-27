@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Add",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Delete",
       "is_excluded": false,
       "object": null,
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_GenerateSharedSecret",
       "is_excluded": false,
       "object": null,
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_List",
       "is_excluded": false,
       "object": null,
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Update",
       "is_excluded": false,
       "object": null,
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Add",
       "is_excluded": false,
       "object": null,
@@ -76,6 +82,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Delete",
       "is_excluded": false,
       "object": null,
@@ -88,6 +95,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_GenerateSharedSecret",
       "is_excluded": false,
       "object": null,
@@ -100,6 +108,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_List",
       "is_excluded": false,
       "object": null,
@@ -112,6 +121,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDNAdapterProfile_Update",
       "is_excluded": false,
       "object": null,

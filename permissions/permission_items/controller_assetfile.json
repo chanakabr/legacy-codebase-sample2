@@ -7,6 +7,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "AssetFile_GetContext",
       "is_excluded": false,
       "object": null,

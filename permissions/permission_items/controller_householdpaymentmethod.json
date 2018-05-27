@@ -7,6 +7,7 @@
         "Operator",
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_SetAsDefault",
       "is_excluded": false,
       "object": null,
@@ -22,6 +23,7 @@
         "Operator",
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_Remove",
       "is_excluded": false,
       "object": null,
@@ -35,6 +37,7 @@
         "User",
         "Master"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_List",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Operator",
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_Add",
       "is_excluded": false,
       "object": null,
@@ -60,6 +64,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_ForceRemove",
       "is_excluded": false,
       "object": null,

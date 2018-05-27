@@ -4,6 +4,7 @@
       "permissions": [
         "Anonymous"
       ],
+      "excluded_permissions": [],
       "name": "RegistrySettings_List",
       "is_excluded": false,
       "object": null,

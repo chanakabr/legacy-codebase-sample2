@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_GetContext",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_Add",
       "is_excluded": false,
       "object": null,
@@ -34,6 +36,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_Get",
       "is_excluded": false,
       "object": null,
@@ -48,6 +51,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_List",
       "is_excluded": false,
       "object": null,
@@ -62,6 +66,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_Cancel",
       "is_excluded": false,
       "object": null,
@@ -76,6 +81,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_Delete",
       "is_excluded": false,
       "object": null,
@@ -90,6 +96,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Recording_Protect",
       "is_excluded": false,
       "object": null,

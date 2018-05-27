@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaSocialConfig_AppId_Read",
       "is_excluded": false,
       "object": "KalturaSocialConfig",
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaSocialConfig_Permissions_Read",
       "is_excluded": false,
       "object": "KalturaSocialConfig",

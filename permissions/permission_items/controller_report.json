@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Report_Get",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Report_List",
       "is_excluded": false,
       "object": null,

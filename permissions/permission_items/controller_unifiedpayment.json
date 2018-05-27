@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UnifiedPayment_GetNextRenewal",
       "is_excluded": false,
       "object": null,

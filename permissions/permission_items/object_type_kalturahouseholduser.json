@@ -5,6 +5,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaHouseholdUser_UserId_Insert",
       "is_excluded": false,
       "object": "KalturaHouseholdUser",
@@ -17,6 +18,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaHouseholdUser_HouseholdId_Insert",
       "is_excluded": false,
       "object": "KalturaHouseholdUser",

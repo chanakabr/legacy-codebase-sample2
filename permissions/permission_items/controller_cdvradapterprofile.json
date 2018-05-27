@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Update",
       "is_excluded": false,
       "object": null,
@@ -18,6 +19,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Add",
       "is_excluded": false,
       "object": null,
@@ -30,6 +32,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDVRAdapterProfile_Delete",
       "is_excluded": false,
       "object": null,
@@ -42,6 +45,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDVRAdapterProfile_GenerateSharedSecret",
       "is_excluded": false,
       "object": null,
@@ -54,6 +58,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "CDVRAdapterProfile_List",
       "is_excluded": false,
       "object": null,

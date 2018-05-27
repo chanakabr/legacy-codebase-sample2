@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "PricePlan_List",
       "is_excluded": false,
       "object": null,
@@ -18,6 +19,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "PricePlan_Update",
       "is_excluded": false,
       "object": null,

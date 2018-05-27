@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Channel_Get",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Channel_List",
       "is_excluded": false,
       "object": null,
@@ -32,6 +34,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Channel_Add",
       "is_excluded": false,
       "object": null,
@@ -44,6 +47,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Channel_Delete",
       "is_excluded": false,
       "object": null,
@@ -56,6 +60,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Channel_Update",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "OSSAdapterProfile_List",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "OSSAdapterProfile_Delete",
       "is_excluded": false,
       "object": null,
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "OSSAdapterProfile_Add",
       "is_excluded": false,
       "object": null,
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "OSSAdapterProfile_Update",
       "is_excluded": false,
       "object": null,
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "OSSAdapterProfile_GenerateSharedSecret",
       "is_excluded": false,
       "object": null,
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ossAdapterProfile_Get",
       "is_excluded": false,
       "object": null,

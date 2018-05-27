@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UserInterest_Add",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UserInterest_List",
       "is_excluded": false,
       "object": null,
@@ -34,6 +36,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "UserInterest_Delete",
       "is_excluded": false,
       "object": null,

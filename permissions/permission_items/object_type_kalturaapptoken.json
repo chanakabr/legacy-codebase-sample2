@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionUserId_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionPrivileges_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionType_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionUserId_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionPrivileges_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaAppToken_SessionType_Insert",
       "is_excluded": false,
       "object": "KalturaAppToken",

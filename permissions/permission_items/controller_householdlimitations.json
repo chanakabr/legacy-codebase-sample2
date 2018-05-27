@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdLimitations_Get",
       "is_excluded": false,
       "object": null,

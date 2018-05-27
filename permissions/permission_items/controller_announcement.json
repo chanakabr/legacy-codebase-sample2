@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_Add",
       "is_excluded": false,
       "object": null,
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_Update",
       "is_excluded": false,
       "object": null,
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_UpdateStatus",
       "is_excluded": false,
       "object": null,
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_Delete",
       "is_excluded": false,
       "object": null,
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_List",
       "is_excluded": false,
       "object": null,
@@ -64,6 +69,7 @@
       "permissions": [
         "Manager"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_CreateAnnouncement",
       "is_excluded": false,
       "object": null,
@@ -76,6 +82,7 @@
       "permissions": [
         "Manager"
       ],
+      "excluded_permissions": [],
       "name": "Announcement_EnableSystemAnnouncements",
       "is_excluded": false,
       "object": null,

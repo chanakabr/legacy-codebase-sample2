@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -16,6 +17,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -28,6 +30,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -40,6 +43,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -52,6 +56,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -64,6 +69,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -76,6 +82,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Insert",
       "is_excluded": false,
       "object": "KalturaMeta",
@@ -88,6 +95,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "KalturaMeta_isProtected_Update",
       "is_excluded": false,
       "object": "KalturaMeta",

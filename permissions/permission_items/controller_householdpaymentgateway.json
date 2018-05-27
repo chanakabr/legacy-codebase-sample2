@@ -6,6 +6,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_Invoke",
       "is_excluded": false,
       "object": null,
@@ -20,6 +21,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_List",
       "is_excluded": false,
       "object": null,
@@ -32,6 +34,7 @@
       "permissions": [
         "Master"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_Enable",
       "is_excluded": false,
       "object": null,
@@ -46,6 +49,7 @@
         "Operator",
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_Disable",
       "is_excluded": false,
       "object": null,
@@ -60,6 +64,7 @@
         "Administrator",
         "ExternalPaymentGateway"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_SetChargeId",
       "is_excluded": false,
       "object": null,
@@ -72,6 +77,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_GetChargeID",
       "is_excluded": false,
       "object": null,
@@ -84,6 +90,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_Resume",
       "is_excluded": false,
       "object": null,
@@ -96,6 +103,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdPaymentGateway_Suspend",
       "is_excluded": false,
       "object": null,

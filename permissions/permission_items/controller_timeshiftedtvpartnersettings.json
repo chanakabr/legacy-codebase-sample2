@@ -7,6 +7,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Get",
       "is_excluded": false,
       "object": null,
@@ -19,6 +20,7 @@
       "permissions": [
         "Manager"
       ],
+      "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Update",
       "is_excluded": false,
       "object": null,

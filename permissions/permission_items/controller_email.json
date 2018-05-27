@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Email_Send",
       "is_excluded": false,
       "object": null,

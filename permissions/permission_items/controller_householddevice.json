@@ -7,6 +7,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdDevice_GeneratePin",
       "is_excluded": false,
       "object": null,
@@ -22,6 +23,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdDevice_Get",
       "is_excluded": false,
       "object": null,
@@ -34,7 +36,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator",
+        "Operator"
+      ],
+      "excluded_permissions": [
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_Delete",
@@ -49,7 +53,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator",
+        "Operator"
+      ],
+      "excluded_permissions": [
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_AddByPin",
@@ -64,7 +70,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator",
+        "Operator"
+      ],
+      "excluded_permissions": [
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_Add",
@@ -81,6 +89,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdDevice_GetStatus",
       "is_excluded": false,
       "object": null,
@@ -95,6 +104,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdDevice_Update",
       "is_excluded": false,
       "object": null,
@@ -107,7 +117,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator",
+        "Operator"
+      ],
+      "excluded_permissions": [
         "OLD_SUSPEND"
       ],
       "name": "HouseholdDevice_UpdateStatus",
@@ -123,6 +135,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "HouseholdDevice_List",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Administrator"
       ],
+      "excluded_permissions": [],
       "name": "MultiRequest_Do",
       "is_excluded": false,
       "object": null,

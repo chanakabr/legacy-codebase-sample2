@@ -5,6 +5,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ParentalRule_List",
       "is_excluded": false,
       "object": null,
@@ -18,6 +19,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ParentalRule_Enable",
       "is_excluded": false,
       "object": null,
@@ -31,6 +33,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ParentalRule_Disable",
       "is_excluded": false,
       "object": null,
@@ -44,6 +47,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "ParentalRule_DisableDefault",
       "is_excluded": false,
       "object": null,

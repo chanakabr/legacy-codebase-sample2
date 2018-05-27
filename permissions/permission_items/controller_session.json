@@ -7,6 +7,7 @@
         "Operator",
         "Administrator"
       ],
+      "excluded_permissions": [],
       "name": "Session_Get",
       "is_excluded": false,
       "object": null,
@@ -21,6 +22,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Session_SwitchUser",
       "is_excluded": false,
       "object": null,
@@ -35,6 +37,7 @@
         "Master",
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "Session_Revoke",
       "is_excluded": false,
       "object": null,
@@ -47,6 +50,7 @@
       "permissions": [
         "Administrator"
       ],
+      "excluded_permissions": [],
       "name": "Session_Get_Session",
       "is_excluded": false,
       "object": null,

@@ -4,6 +4,7 @@
       "permissions": [
         "Operator"
       ],
+      "excluded_permissions": [],
       "name": "drmProfile_List",
       "is_excluded": false,
       "object": null,
