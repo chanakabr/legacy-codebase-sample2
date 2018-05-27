@@ -653,7 +653,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID);
+                    response = m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID, false);
                 }
             }
             catch (Exception e)
