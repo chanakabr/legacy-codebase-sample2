@@ -936,8 +936,8 @@ namespace PermissionsManager
 
             string[] allfiles = Directory.GetFiles(folderName, "*.json", SearchOption.AllDirectories);
 
-            List<GroupPermission> permissionsFromFiles = new List<GroupPermission>();
-            Dictionary<string, GroupPermission> dictionaryPermissionsFromFiles = new Dictionary<string, GroupPermission>();
+            List<FilePermission> permissionsFromFiles = new List<FilePermission>();
+            Dictionary<string, FilePermission> dictionaryPermissionsFromFiles = new Dictionary<string, FilePermission>();
             List<FileRole> rolesFromFiles = new List<FileRole>();
             Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>();
             List<FilePermissionItem> permissionItemsFromFiles = new List<FilePermissionItem>();
@@ -971,7 +971,7 @@ namespace PermissionsManager
                 {
                     foreach (JObject permissionJson in permissions)
                     {
-                        GroupPermission permission = permissionJson.ToObject<GroupPermission>();
+                        FilePermission permission = permissionJson.ToObject<FilePermission>();
                         permissionsFromFiles.Add(permission);
 
                         if (!dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
@@ -1001,21 +1001,31 @@ namespace PermissionsManager
             #region Compare to database
 
             Roles rolesFromDatabase;
-            Dictionary<string, Role> dictionaryRolesFromDatabase = new Dictionary<string, Role>();
+            Dictionary<string, FileRole> dictionaryRolesFromDatabase = new Dictionary<string, FileRole>();
             Dictionary<string, PermissionItems> permissionItemsFromDatabase;
             Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, FilePermissionItem>();
             Permissions permissionsFromDatabase;
-            Dictionary<string, Permission> dictionaryPermissionsFromDatabase = new Dictionary<string, Permission>();
+            Dictionary<string, FilePermission> dictionaryPermissionsFromDatabase = new Dictionary<string, FilePermission>();
 
             BuildPermissionsDictionaries(out rolesFromDatabase, out permissionItemsFromDatabase, out permissionsFromDatabase);
+            DataSet dataSet = ApiDAL.Get_PermissionsForExport();
+            DataTable rolePermissionsTable = null;
+            DataTable permissionPermissionItemTable = null;
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count >= 5)
+            {
+                RenameTables(dataSet);
+                rolePermissionsTable= dataSet.Tables[ROLE_PERMISSION];
+                permissionPermissionItemTable = dataSet.Tables[PERMISSION_PERMISSION_ITEM];
+            }
 
             #region Permissions
 
-            // run on all permissions we found in DB
-            foreach (var permission in permissionsFromDatabase.permissions)
+                // run on all permissions we found in DB
+                foreach (var permission in permissionsFromDatabase.permissions)
             {
                 // fill dictionary of permission we found in DB
-                dictionaryPermissionsFromDatabase[permission.Name] = CreatePermission(permission);
+                dictionaryPermissionsFromDatabase[permission.Name] = permission;
 
                 // check if exists in files
                 if (dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
@@ -1054,19 +1064,90 @@ namespace PermissionsManager
             // run on all roles we found in DB
             foreach (var role in rolesFromDatabase.roles)
             {
-                dictionaryRolesFromDatabase[role.Name] = CreateRole(role);
+                dictionaryRolesFromDatabase[role.Name] = role;
 
+                // find role in files - if exists it might be an update
                 if (dictionaryRolesFromFiles.ContainsKey(role.Name))
                 {
-                    List<string> rolePermissionsFromFile = dictionaryRolesFromFiles[role.Name].permissionsNames;
-                    List<string> rolePermissionFromDatabase = role.permissionsNames;
+                    // bool = is excluded
+                    Dictionary<string, bool> rolePermissionsFromFile = new Dictionary<string, bool>();
 
-                    foreach (string rolePermission in rolePermissionsFromFile)
+                    if (dictionaryRolesFromFiles[role.Name].permissionsNames != null)
                     {
-                        if (!rolePermissionFromDatabase.Contains(rolePermission))
+                        foreach (var permissionName in dictionaryRolesFromFiles[role.Name].permissionsNames)
                         {
+                            rolePermissionsFromFile[permissionName] = true;
+                        }
+                    }
 
-                            //ApiDAL.InsertRolePermission(
+                    if (dictionaryRolesFromFiles[role.Name].excludedPermissionsNames != null)
+                    {
+                        foreach (var permissionName in dictionaryRolesFromFiles[role.Name].excludedPermissionsNames)
+                        {
+                            rolePermissionsFromFile[permissionName] = false;
+                        }
+                    }
+
+                    // bool = is excluded
+                    Dictionary<string, bool> rolePermissionFromDatabase = new Dictionary<string, bool>();
+
+                    if (role.permissionsNames != null)
+                    {
+                        foreach (var permissionName in role.permissionsNames)
+                        {
+                            rolePermissionFromDatabase[permissionName] = true;
+                        }
+
+                        foreach (var permissionName in role.excludedPermissionsNames)
+                        {
+                            rolePermissionFromDatabase[permissionName] = false;
+                        }
+                    }
+                    
+                    // compare role permissions - start with those written in file
+                    foreach (var permissionFromFile in rolePermissionsFromFile)
+                    {
+                        // if role permission exists in file but not in DB - add it to DB
+                        if (!rolePermissionFromDatabase.ContainsKey(permissionFromFile.Key))
+                        {
+                            int permissionId = (int)dictionaryPermissionsFromDatabase[permissionFromFile.Key].Id;
+                            ApiDAL.InsertPermissionRole((int)role.Id, permissionId, Convert.ToInt32(permissionFromFile.Value));
+                        }
+                        else
+                        {
+                            // if it exist in both, check if is excluded was changed
+
+                            if (permissionFromFile.Value != rolePermissionFromDatabase[permissionFromFile.Key])
+                            {
+                                ApiDAL.UpdatePermissionRole((int)role.Id, Convert.ToInt32(permissionFromFile.Value));
+                            }
+                        }
+                    }
+
+                    // compare role permissions - from DB to files
+                    foreach (string permissionName in rolePermissionFromDatabase.Keys)
+                    {
+                        // if role permission exists in DB but not in file - delete from DB
+                        if (!rolePermissionsFromFile.ContainsKey(permissionName))
+                        {
+                            bool deleteResult = false;
+
+                            if (rolePermissionsTable != null)
+                            {
+                                var rowToDelete = rolePermissionsTable.AsEnumerable().FirstOrDefault(row =>
+                                Convert.ToString(row["role_name"]) == role.Name &&
+                                Convert.ToString(row["permission_name"]) == permissionName);
+
+                                if (rowToDelete != null)
+                                {
+                                    deleteResult = ApiDAL.DeletePermissionRole(Convert.ToInt32(rowToDelete["id"]));
+                                }
+                            }
+
+                            if (!result)
+                            {
+                                log.ErrorFormat("could not delete role permission for role = {0} and permission = {1}", role.Name, permissionName);
+                            }
                         }
                     }
                 }
@@ -1076,24 +1157,7 @@ namespace PermissionsManager
 
             return result;
         }
-
-        private static Permission CreatePermission(FilePermission permission)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Role CreateRole(FileRole role)
-        {
-            return null;
-            //return new Role()
-            //{
-            //    GroupId = role.GroupId,
-            //    Id = role.Id,
-            //    Name = role.Name,
-            //    Permissions = role.Permissions
-            //};
-        }
-
+        
         #endregion
 
         #region Utility Methods

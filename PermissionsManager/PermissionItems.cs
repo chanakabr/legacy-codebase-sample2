@@ -124,43 +124,46 @@ namespace PermissionsManager
 
         public FilePermissionItem(PermissionItem original)
         {
-            permissions = new HashSet<string>();
-
-            this.Id = original.Id;
-            this.Name = original.Name;
-            this.IsExcluded = original.IsExcluded;
-
-            ePermissionItemType type = original.GetPermissionItemType();
-
-            this.Type = type;
-
-            switch (this.Type)
+            if (original != null)
             {
-                case ePermissionItemType.Action:
-                    {
-                        var originalCasted = original as ApiActionPermissionItem;
-                        this.Action = originalCasted.Action;
-                        this.Service = originalCasted.Service;
+                permissions = new HashSet<string>();
+
+                this.Id = original.Id;
+                this.Name = original.Name;
+                this.IsExcluded = original.IsExcluded;
+
+                ePermissionItemType type = original.GetPermissionItemType();
+
+                this.Type = type;
+
+                switch (this.Type)
+                {
+                    case ePermissionItemType.Action:
+                        {
+                            var originalCasted = original as ApiActionPermissionItem;
+                            this.Action = originalCasted.Action;
+                            this.Service = originalCasted.Service;
+                            break;
+                        }
+                    case ePermissionItemType.Parameter:
+                        {
+                            var originalCasted = original as ApiParameterPermissionItem;
+                            this.Action = originalCasted.Action;
+                            this.Object = originalCasted.Object;
+                            this.Parameter = originalCasted.Parameter;
+                            break;
+                        }
+                    case ePermissionItemType.Argument:
+                        {
+                            var originalCasted = original as ApiArgumentPermissionItem;
+                            this.Action = originalCasted.Action;
+                            this.Service = originalCasted.Service;
+                            this.Parameter = originalCasted.Parameter;
+                            break;
+                        }
+                    default:
                         break;
-                    }
-                case ePermissionItemType.Parameter:
-                    {
-                        var originalCasted = original as ApiParameterPermissionItem;
-                        this.Action = originalCasted.Action;
-                        this.Object = originalCasted.Object;
-                        this.Parameter = originalCasted.Parameter;
-                        break;
-                    }
-                case ePermissionItemType.Argument:
-                    {
-                        var originalCasted = original as ApiArgumentPermissionItem;
-                        this.Action = originalCasted.Action;
-                        this.Service = originalCasted.Service;
-                        this.Parameter = originalCasted.Parameter;
-                        break;
-                    }
-                default:
-                    break;
+                }
             }
         }
         

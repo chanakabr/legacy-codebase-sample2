@@ -34,21 +34,20 @@ namespace PermissionsManager
         [JsonProperty("group_id")]
         [JsonIgnore()]
         public int GroupId { get; set; }
-
-        [JsonProperty("is_excluded")]
-        public bool isExcluded { get; set; }
-
+        
         [JsonProperty("users_group")]
         public string UsersGroup { get; set; }
 
         public FilePermission(GroupPermission original)
         {
-            this.Id = original.Id;
-            this.Name = original.Name;
-            this.PermissionItems = original.PermissionItems;
-            this.GroupId = original.GroupId;
-            this.isExcluded = original.isExcluded;
-            this.UsersGroup = original.UsersGroup;
+            if (original != null)
+            {
+                this.Id = original.Id;
+                this.Name = original.Name;
+                this.PermissionItems = original.PermissionItems;
+                this.GroupId = original.GroupId;
+                this.UsersGroup = original.UsersGroup;
+            }
         }
     }
 }

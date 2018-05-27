@@ -9,17 +9,14 @@ namespace ApiObjects.Roles
     [JsonObject()]
     public class Permission
     {
-        //[JsonIgnore()]
         public long Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
         
-        //[JsonIgnore()]
         public List<PermissionItem> PermissionItems { get; set; }
 
         [JsonProperty("group_id")]
-        //[JsonIgnore()]
         public int GroupId { get; set; }
 
         [JsonProperty("is_excluded")]

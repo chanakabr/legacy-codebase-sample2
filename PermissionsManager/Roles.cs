@@ -39,6 +39,9 @@ namespace PermissionsManager
         [JsonProperty("permissions")]
         public List<string> permissionsNames;
 
+        [JsonProperty("excluded_permissions")]
+        public List<string> excludedPermissionsNames;
+
         public FileRole()
         {
 
@@ -55,7 +58,8 @@ namespace PermissionsManager
 
                 if (this.Permissions != null)
                 {
-                    this.permissionsNames = this.Permissions.Select(p => p.Name).ToList();
+                    this.permissionsNames = this.Permissions.Where(p => !p.isExcluded).Select(p => p.Name).ToList();
+                    this.excludedPermissionsNames = this.Permissions.Where(p => p.isExcluded).Select(p => p.Name).ToList();
                 }
             }
         }

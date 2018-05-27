@@ -15,7 +15,6 @@ namespace ApiObjects.Roles
 
         public string Action { get; set; }
 
-
         public override ePermissionItemType GetPermissionItemType()
         {
             return ePermissionItemType.Parameter;
