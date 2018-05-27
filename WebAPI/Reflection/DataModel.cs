@@ -1218,6 +1218,13 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaFollowWishList":
+                    ret = new Dictionary<string, string>() { 
+                        {"announcementId", "announcement_id"},
+                        {"followPhrase", "follow_phrase"},
+                    };
+                    break;
+                    
                 case "KalturaGenericRule":
                     ret = new Dictionary<string, string>() { 
                         {"ruleType", "rule_type"},
@@ -3891,6 +3898,16 @@ namespace WebAPI.Reflection
                     {
                         case "FollowDataList":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaFollowWishList":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
                     }
                     break;
                     

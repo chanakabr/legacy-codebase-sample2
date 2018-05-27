@@ -1519,7 +1519,7 @@
             <param name="assetId">Asset identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowTvSeries)">
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowDataBase)">
             <summary>
             Add a user's tv series follow.
             <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
@@ -8797,6 +8797,16 @@
         <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeries.AssetId">
             <summary>
             Asset Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowWishList.Ksql">
+            <summary>
+            Ksql
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowWishList.Name">
+            <summary>
+            name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">

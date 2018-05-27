@@ -11,8 +11,9 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFollowDataBase : KalturaOTTObject
+    public abstract class KalturaFollowDataBase : KalturaOTTObject
     {
+        // TODO SHIR - ASK TAN TAN ABOUT THE NAME (ID - WE DO IT Deprecated(4.9) OR AS IS)
         /// <summary>
         /// Announcement Id
         /// </summary>
@@ -23,6 +24,7 @@ namespace WebAPI.Models.Notification
         [OldStandardProperty("announcement_id")]
         public long AnnouncementId { get; set; }
 
+        // TODO SHIR - CHECK IF NOT RETURN 2 FROM DB SO WE Deprecated(4.9) IT + OR AS IS
         /// <summary>
         /// Status
         /// </summary>
@@ -32,6 +34,7 @@ namespace WebAPI.Models.Notification
         [SchemeProperty(ReadOnly = true)]
         public int Status { get; set; }
 
+        // TODO SHIR - ASK TAN TAN ABOUT THE NAME (NAME - WE DO IT Deprecated(4.9) + STOP READONLY OR AS IS)
         /// <summary>
         /// Title
         /// </summary>
@@ -41,6 +44,7 @@ namespace WebAPI.Models.Notification
         [SchemeProperty(ReadOnly = true)]
         public string Title { get; set; }
 
+        // TODO SHIR - ASK TAN TAN ABOUT THE NAME (CREATE_DATE - WE DO IT Deprecated(4.9) OR AS IS)
         /// <summary>
         /// Timestamp
         /// </summary>
@@ -50,6 +54,7 @@ namespace WebAPI.Models.Notification
         [SchemeProperty(ReadOnly = true)]
         public long Timestamp { get; set; }
 
+        // TODO SHIR - ASK TAN TAN ABOUT THE NAME (KSQL - WE DO IT Deprecated(4.9) OR AS IS)
         /// <summary>
         /// Follow Phrase
         /// </summary>

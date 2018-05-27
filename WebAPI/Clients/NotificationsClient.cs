@@ -685,7 +685,7 @@ namespace WebAPI.Clients
 
         internal KalturaFollowTvSeries AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
         {
-            FollowResponse response = null;
+            GenericResponse<FollowDataBase> response = null;
             FollowDataTvSeries followDataNotification = null;
             KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
             followData.AssetId = asset_id;
@@ -699,7 +699,7 @@ namespace WebAPI.Clients
 
             // get asset name
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
-                                            0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
+                                                                                    0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
             
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
@@ -724,7 +724,37 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            KalturaFollowTvSeries result = AutoMapper.Mapper.Map<KalturaFollowTvSeries>(response.Follow);
+            KalturaFollowTvSeries result = AutoMapper.Mapper.Map<KalturaFollowTvSeries>(response.Object);
+            return result;
+        }
+
+        internal KalturaFollowWishList AddUserWishListFollow(int groupId, int userID, KalturaFollowWishList kalturaFollowWishList)
+        {
+            GenericResponse<FollowDataBase> response = null;
+
+            FollowDataBase followWishList = Mapper.Map<FollowDataBase>(kalturaFollowWishList);
+            followWishList.GroupId = groupId;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.AddUserWishListFollow(userID, followWishList);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddUserWishListFollow.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaFollowWishList result = AutoMapper.Mapper.Map<KalturaFollowWishList>(response.Object);
             return result;
         }
 
@@ -1222,9 +1252,7 @@ namespace WebAPI.Clients
             AnnouncementsResponse response = null;
             List<KalturaTopic> result = null;
             KalturaTopicResponse ret = null;
-
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1260,8 +1288,7 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncementsOlderThan()
         {
             Status response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1385,8 +1412,6 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1454,8 +1479,7 @@ namespace WebAPI.Clients
         internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
         {
             Status response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

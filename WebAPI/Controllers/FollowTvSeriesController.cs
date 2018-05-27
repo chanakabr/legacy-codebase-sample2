@@ -114,6 +114,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        // TODO SHIR - REMOVE [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)] && [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         /// <summary>
         /// Add a user's tv series follow.
         /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
@@ -124,14 +125,33 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
-        public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        public KalturaFollowDataBase Add(KalturaFollowDataBase followTvSeries)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
             try
             {
-                return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries.AssetId);
+                if (followTvSeries is KalturaFollowTvSeries)
+                {
+                    KalturaFollowTvSeries followTvSeries1 = followTvSeries as KalturaFollowTvSeries;
+                    return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries1.AssetId);
+                }
+                else if (followTvSeries is KalturaFollowWishList)
+                {
+                    int userId = 0;
+                    if (!int.TryParse(userID, out userId))
+                    {
+                        throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
+                    }
+
+                    // TODO SHIR
+                    KalturaFollowWishList followWishList = followTvSeries as KalturaFollowWishList;
+                    return ClientsManager.NotificationClient().AddUserWishListFollow(groupId, userId, followWishList);
+                }
+                
             }
             catch (ClientException ex)
             {

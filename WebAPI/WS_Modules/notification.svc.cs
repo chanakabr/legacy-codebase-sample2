@@ -639,7 +639,14 @@ namespace WS_Notification
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.Follow(groupID, userId, followData);
+                    GenericResponse<FollowDataBase> responseGeneric = Core.Notification.Module.Follow(groupID, userId, followData);
+                    response = new FollowResponse()
+                    {
+                        Follow = responseGeneric.Object,
+                        Status = responseGeneric.Status
+                    };
+
+                    return response;
                 }
             }
             catch (Exception ex)
