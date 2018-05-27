@@ -45,7 +45,10 @@ namespace PermissionsManager
     {
         [JsonProperty("permissions")]
         public HashSet<string> permissions;
-        
+
+        [JsonProperty("excluded_permissions")]
+        public HashSet<string> excludedPermissions;
+
         [JsonIgnore()]
         public long Id { get; set; }
 
@@ -120,14 +123,16 @@ namespace PermissionsManager
         public FilePermissionItem()
         {
             permissions = new HashSet<string>();
+            excludedPermissions = new HashSet<string>();
         }
 
         public FilePermissionItem(PermissionItem original)
         {
+            permissions = new HashSet<string>();
+            excludedPermissions = new HashSet<string>();
+
             if (original != null)
             {
-                permissions = new HashSet<string>();
-
                 this.Id = original.Id;
                 this.Name = original.Name;
                 this.IsExcluded = original.IsExcluded;
