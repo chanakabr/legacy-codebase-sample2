@@ -606,9 +606,9 @@ namespace Core.Notification
             return response;
         }
 
-        public static FollowResponse Follow(int nGroupID, int userId, FollowDataBase followData)
+        public static GenericResponse<FollowDataBase> Follow(int nGroupID, int userId, FollowDataBase followData)
         {
-            FollowResponse response = null;
+            GenericResponse<FollowDataBase> response = null;
             followData.GroupId = nGroupID;
 
             try
@@ -621,6 +621,11 @@ namespace Core.Notification
             }
 
             return response;
+        }
+
+        public static GenericResponse<FollowDataBase> AddUserWishListFollow(int userId, FollowDataBase followWishList)
+        {
+            return FollowManager.AddUserWishListFollow(userId, followWishList);
         }
 
         public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
