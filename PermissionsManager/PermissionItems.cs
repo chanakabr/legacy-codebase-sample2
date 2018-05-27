@@ -44,20 +44,17 @@ namespace PermissionsManager
     public class FilePermissionItem
     {
         [JsonProperty("permissions")]
-        public HashSet<string> permissions;
+        public HashSet<string> permissionsNames;
 
         [JsonProperty("excluded_permissions")]
-        public HashSet<string> excludedPermissions;
+        public HashSet<string> excludedPermissionsNames;
 
         [JsonIgnore()]
         public long Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
-
-        [JsonProperty("is_excluded")]
-        public bool IsExcluded { get; set; }
-
+        
         [JsonProperty("object")]
         public string Object { get; set; }
 
@@ -75,17 +72,19 @@ namespace PermissionsManager
         {
             get
             {
-                string result = string.Empty;
+                string result = this.Action;
 
-                int actionNumeric = 0;
-                int.TryParse(this.Action, out actionNumeric);
-
-                if (actionNumeric > 0)
+                if (!string.IsNullOrEmpty(this.Object))
                 {
-                    ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
-                }
+                    int actionNumeric = 0;
+                    int.TryParse(this.Action, out actionNumeric);
 
-                result = Enum.GetName(typeof(ParameterPermissionItemAction), actionNumeric);
+                    if (actionNumeric > 0)
+                    {
+                        ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
+                        result = Enum.GetName(typeof(ParameterPermissionItemAction), actionNumeric);
+                    }
+                }
 
                 return result;
 
@@ -97,6 +96,10 @@ namespace PermissionsManager
                 {
                     this.Action = ((int)actionEnum).ToString();
                 }
+                else
+                {
+                    this.Action = value;
+                }
             }
         }
 
@@ -104,7 +107,7 @@ namespace PermissionsManager
         public ePermissionItemType Type { get; set; }
 
         [JsonProperty("type")]
-        public string enumType
+        public string TypeString
         {
             get
             {
@@ -122,20 +125,19 @@ namespace PermissionsManager
 
         public FilePermissionItem()
         {
-            permissions = new HashSet<string>();
-            excludedPermissions = new HashSet<string>();
+            permissionsNames = new HashSet<string>();
+            excludedPermissionsNames = new HashSet<string>();
         }
 
         public FilePermissionItem(PermissionItem original)
         {
-            permissions = new HashSet<string>();
-            excludedPermissions = new HashSet<string>();
+            permissionsNames = new HashSet<string>();
+            excludedPermissionsNames = new HashSet<string>();
 
             if (original != null)
             {
                 this.Id = original.Id;
                 this.Name = original.Name;
-                this.IsExcluded = original.IsExcluded;
 
                 ePermissionItemType type = original.GetPermissionItemType();
 
