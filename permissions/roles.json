@@ -74,88 +74,54 @@
       "name": "ExternalPaymentGateway"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaSuspendPurchase"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaSuspendPlayback"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaTest1Updated"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaTest2"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaTest888"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "RenewSuspended"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaTest888"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "PlaybackSuspended"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "PurchaseService"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "SuspendPurchasePPV"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "PurchaseService"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "SuspendPurchaseSubscription"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "SuspendPlaybackSubscription"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "SuspendPlaybackPPV"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "LoginSuspended"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "CancelSubscriptionSuspended"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "QaTest_updated"
     },
     {
@@ -182,49 +148,76 @@
       "name": "SunnyTestRole"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "9441"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "9148"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "9745"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "9408"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "9581"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "SunnyTestRole2"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "test"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "test"
     },
     {
-      "permissions": null,
-      "excluded_permissions": null,
       "name": "LOGIN"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
     }
   ]
 }

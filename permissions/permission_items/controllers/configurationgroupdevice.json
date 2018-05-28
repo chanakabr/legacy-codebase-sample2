@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ConfigurationGroupDevice_Get",
+      "service": "ConfigurationGroupDevice",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ConfigurationGroupDevice_List",
+      "service": "ConfigurationGroupDevice",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ConfigurationGroupDevice_Add",
+      "service": "ConfigurationGroupDevice",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ConfigurationGroupDevice_Delete",
+      "service": "ConfigurationGroupDevice",
+      "action": "Delete",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

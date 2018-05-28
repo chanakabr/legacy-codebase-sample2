@@ -1,0 +1,16 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaHouseholdDevice_HouseholdId_Insert",
+      "object": "KalturaHouseholdDevice",
+      "parameter": "householdId",
+      "action": "INSERT",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "MediaFileType_List",
+      "service": "MediaFileType",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "MediaFileType_Add",
+      "service": "MediaFileType",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "MediaFileType_Delete",
+      "service": "MediaFileType",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "MediaFileType_Update",
+      "service": "MediaFileType",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

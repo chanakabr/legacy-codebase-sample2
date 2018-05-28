@@ -1,0 +1,112 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Register",
+      "service": "Social",
+      "action": "Register",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_GetByToken",
+      "service": "Social",
+      "action": "GetByToken",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Config",
+      "service": "Social",
+      "action": "Config",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_GetConfiguration",
+      "service": "Social",
+      "action": "GetConfiguration",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Login",
+      "service": "Social",
+      "action": "Login",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_UpdateConfiguration",
+      "service": "Social",
+      "action": "UpdateConfiguration",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Merge",
+      "service": "Social",
+      "action": "Merge",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Unmerge",
+      "service": "Social",
+      "action": "Unmerge",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Social_Get",
+      "service": "Social",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

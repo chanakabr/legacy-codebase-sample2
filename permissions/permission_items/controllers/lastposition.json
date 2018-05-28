@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "LastPosition_List",
+      "service": "LastPosition",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

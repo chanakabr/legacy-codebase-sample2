@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "FollowTvSeries_Delete",
+      "service": "FollowTvSeries",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "FollowTvSeries_List",
+      "service": "FollowTvSeries",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "FollowTvSeries_Add",
+      "service": "FollowTvSeries",
+      "action": "Add",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,59 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SubscriptionSet_List",
+      "service": "SubscriptionSet",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SubscriptionSet_Get",
+      "service": "SubscriptionSet",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SubscriptionSet_Add",
+      "service": "SubscriptionSet",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SubscriptionSet_Delete",
+      "service": "SubscriptionSet",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SubscriptionSet_Update",
+      "service": "SubscriptionSet",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

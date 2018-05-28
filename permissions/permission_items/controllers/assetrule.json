@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetRule_Add",
+      "service": "AssetRule",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetRule_Delete",
+      "service": "AssetRule",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetRule_List",
+      "service": "AssetRule",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetRule_Update",
+      "service": "AssetRule",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

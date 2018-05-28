@@ -1,0 +1,65 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfile_List",
+      "service": "OSSAdapterProfile",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfile_Delete",
+      "service": "OSSAdapterProfile",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfile_Add",
+      "service": "OSSAdapterProfile",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfile_Update",
+      "service": "OSSAdapterProfile",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfile_GenerateSharedSecret",
+      "service": "OSSAdapterProfile",
+      "action": "GenerateSharedSecret",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ossAdapterProfile_Get",
+      "service": "ossAdapterProfile",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfileControllerAdd",
+      "service": "CDNAdapterProfileController",
+      "action": "Add",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
