@@ -432,7 +432,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
@@ -2639,6 +2639,37 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, List<int> assetTypes, string kSql, KalturaAssetOrderBy orderBy, 
+            KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize)
+        {
+            KalturaAssetListResponse response = new KalturaAssetListResponse();
+
+            Models.Notification.KalturaFollowTvSeriesListResponse personalListsRespnse = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, 0, 0, Models.Notification.KalturaFollowTvSeriesOrderBy.START_DATE_ASC);
+            if (personalListsRespnse.TotalCount > 0)
+            {
+                StringBuilder ksqlBuilder = new StringBuilder();
+
+                ksqlBuilder.AppendFormat("(or");
+                foreach (var personalList in personalListsRespnse.FollowDataList)
+                {
+                    ksqlBuilder.AppendFormat(" {0}", personalList.FollowPhrase);
+                }
+                ksqlBuilder.AppendFormat(")");
+
+                if (!string.IsNullOrEmpty(kSql))
+                {
+                    ksqlBuilder.AppendFormat("(and {0} {1})", kSql, ksqlBuilder);
+                }
+
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlBuilder.ToString(),
+                        orderBy, assetTypes, null, false, dynamicOrderBy,
+                        groupBy, null);
+
+            }
+
+            return response;
         }
     }
 }
