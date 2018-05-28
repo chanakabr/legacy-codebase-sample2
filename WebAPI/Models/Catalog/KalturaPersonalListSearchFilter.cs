@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaPersonalListFilter : KalturaBaseSearchAssetFilter
+    public class KalturaPersonalListSearchFilter : KalturaBaseSearchAssetFilter
     {
         /// <summary>
         /// Comma separated list of asset types to search within. 

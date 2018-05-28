@@ -5101,6 +5101,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalListSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
+                        case "TypeIn":
+                            return "typeIn";
+                    }
+                    break;
+                    
                 case "KalturaPin":
                     switch(property.Name)
                     {

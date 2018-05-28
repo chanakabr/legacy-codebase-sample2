@@ -327,9 +327,9 @@ namespace WebAPI.Controllers
                         pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
                         scheduledRecordingFilter.DynamicOrderBy);
                 }
-                else if (filter is KalturaPersonalListFilter)
+                else if (filter is KalturaPersonalListSearchFilter)
                 {
-                    KalturaPersonalListFilter pesrsonalListFilter = (KalturaPersonalListFilter)filter;
+                    KalturaPersonalListSearchFilter pesrsonalListFilter = (KalturaPersonalListSearchFilter)filter;
                     response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language, 
                         pesrsonalListFilter.getTypeIn(), pesrsonalListFilter.KSql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
                         pager.getPageIndex(), pager.getPageSize());
