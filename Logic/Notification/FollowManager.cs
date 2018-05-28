@@ -249,66 +249,73 @@ namespace Core.Notification
             return validationStatus;
         }
 
-        public static Status CreateFollowAnnouncement(FollowDataBase followData, ref DbAnnouncement newAnnouncement)
+        public static GenericResponse<DbAnnouncement> CreateFollowAnnouncement(FollowDataBase followItem)
         {
+            GenericResponse<DbAnnouncement> response = new GenericResponse<DbAnnouncement>();
+
             try
             {
                 int announcementId = 0;
-                string announcementName = followData.Title;
+                string announcementName = followItem.Title;
 
                 // create Amazon topic 
                 string externalAnnouncementId = string.Empty;
-                if (NotificationSettings.IsPartnerPushEnabled(followData.GroupId))
+                if (NotificationSettings.IsPartnerPushEnabled(followItem.GroupId))
                 {
-                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(followData.GroupId, announcementName);
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(followItem.GroupId, announcementName);
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
-                        log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", followData.GroupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                        log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", followItem.GroupId, announcementName);
+                        response.SetStatus(eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                        return response;
                     }
                 }
 
                 string mailExternalAnnouncementId = string.Empty;
-                if (NotificationSettings.IsPartnerMailNotificationEnabled(followData.GroupId))
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(followItem.GroupId))
                 {
-                    mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(followData.GroupId, announcementName);
+                    mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(followItem.GroupId, announcementName);
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
-                        log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", followData.GroupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                        log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", followItem.GroupId, announcementName);
+                        response.SetStatus(eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                        return response;
                     }
                 }
 
                 // create DB announcement
-                announcementId = DAL.NotificationDal.Insert_Announcement(followData.GroupId, announcementName, externalAnnouncementId, (int)eMessageType.Push,
-                    (int)eAnnouncementRecipientsType.Other, mailExternalAnnouncementId, followData.FollowPhrase, followData.FollowReference);
+                announcementId = DAL.NotificationDal.Insert_Announcement(followItem.GroupId, announcementName, externalAnnouncementId, (int)eMessageType.Push,
+                    (int)eAnnouncementRecipientsType.Other, mailExternalAnnouncementId, followItem.FollowPhrase, followItem.FollowReference);
                 if (announcementId == 0)
                 {
-                    log.DebugFormat("failed to insert announcement to DB groupID = {0}, announcementName = {1}", followData.GroupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    log.DebugFormat("failed to insert announcement to DB groupID = {0}, announcementName = {1}", followItem.GroupId, announcementName);
+                    response.SetStatus(eResponseStatus.Error, "fail insert guest announcement to DB");
                 }
                 else
                 {
-                    NotificationCache.Instance().RemoveAnnouncementsFromCache(followData.GroupId);
+                    NotificationCache.Instance().RemoveAnnouncementsFromCache(followItem.GroupId);
 
-                    newAnnouncement = new DbAnnouncement()
+                    response.Object = new DbAnnouncement()
                     {
                         ExternalId = externalAnnouncementId,
-                        FollowPhrase = followData.FollowPhrase,
-                        FollowReference = followData.FollowReference,
+                        FollowPhrase = followItem.FollowPhrase,
+                        FollowReference = followItem.FollowReference,
                         ID = announcementId,
                         Name = announcementName,
                         RecipientsType = eAnnouncementRecipientsType.Other,
                         MailExternalId = mailExternalAnnouncementId
                     };
+
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("CreateFollowAnnouncement failed groupId = {0}, ex = {1}", followData.GroupId, ex.Message), ex);
-                return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("CreateFollowAnnouncement failed groupId = {0}, ex = {1}", followItem.GroupId, ex.Message), ex);
+                return response;
             }
-            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); ;
+
+            return response;
         }
 
         public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
@@ -536,9 +543,9 @@ namespace Core.Notification
             }
         }
 
-        internal static GenericResponse<FollowDataBase> AddUserWishListFollow(int userId, FollowDataBase followWishList)
+        internal static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
         {
-            return Follow(userId, followWishList);
+            return AddFollowItemToUser(userId, personalListItemToFollow);
         }
 
         public static GenericResponse<FollowDataBase> Follow(int groupId, int userId, FollowDataBase followData)
@@ -552,7 +559,7 @@ namespace Core.Notification
                 return response;
             }
 
-            response = Follow(userId, followData);
+            response = AddFollowItemToUser(userId, followData);
             
             return response;
         }
@@ -575,13 +582,13 @@ namespace Core.Notification
             return isFollowDataValidate;
         }
         
-        private static GenericResponse<FollowDataBase> Follow(int userId, FollowDataBase followData)
+        private static GenericResponse<FollowDataBase> AddFollowItemToUser(int userId, FollowDataBase followItem)// string followName, int followGroupId, string followPhrase, string followReference, long followId)
         {
             GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
 
             // get user notifications
             UserNotification userNotificationData = null;
-            Status getUserNotificationDataStatus = Utils.GetUserNotificationData(followData.GroupId, userId, out userNotificationData);
+            Status getUserNotificationDataStatus = Utils.GetUserNotificationData(followItem.GroupId, userId, out userNotificationData);
             if (getUserNotificationDataStatus.Code != (int)eResponseStatus.OK || userNotificationData == null)
             {
                 response.SetStatus((eResponseStatus)getUserNotificationDataStatus.Code, getUserNotificationDataStatus.Message);
@@ -594,35 +601,38 @@ namespace Core.Notification
                 DbAnnouncement announcementToFollow = null;
                 List<DbAnnouncement> dbAnnouncements = null;
 
-                if (NotificationCache.TryGetAnnouncements(followData.GroupId, ref dbAnnouncements))
-                    announcementToFollow = dbAnnouncements.FirstOrDefault(ann => ann.FollowPhrase == followData.FollowPhrase);
+                if (NotificationCache.TryGetAnnouncements(followItem.GroupId, ref dbAnnouncements))
+                    announcementToFollow = dbAnnouncements.FirstOrDefault(ann => ann.FollowPhrase == followItem.FollowPhrase);
 
                 if (announcementToFollow == null)
                 {
                     // follow announcement doesn't exists - first time the series is being followed - create a new one
-                    Status createAnnStatus = CreateFollowAnnouncement(followData, ref announcementToFollow);
-                    if (createAnnStatus.Code != (int)eResponseStatus.OK)
+                    GenericResponse<DbAnnouncement> announcementToFollowResponse = CreateFollowAnnouncement(followItem);
+                    
+                    if (announcementToFollowResponse.Status.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("user notification data not found group: {0}, user: {1}", followData.GroupId, userId);
-                        response.SetStatus((eResponseStatus)createAnnStatus.Code, createAnnStatus.Message);
+                        log.ErrorFormat("user notification data not found group: {0}, user: {1}", followItem.GroupId, userId);
+                        response.SetStatus((eResponseStatus)announcementToFollowResponse.Status.Code, announcementToFollowResponse.Status.Message);
                         return response;
                     }
+
+                    announcementToFollow = announcementToFollowResponse.Object;
                 }
 
                 // validate existence of db follow announcement
                 if (announcementToFollow == null)
                 {
-                    log.ErrorFormat("announcement not found group: {0}, user: {1}, phrase: {2}", 
-                                    followData.GroupId, userId, followData.FollowPhrase);
+                    log.ErrorFormat("announcement not found group: {0}, user: {1}, phrase: {2}",
+                                    followItem.GroupId, userId, followItem.FollowPhrase);
                     return response;
                 }
 
-                followData.AnnouncementId = announcementToFollow.ID;
-                if (userNotificationData.Announcements.Count(x => x.AnnouncementId == followData.AnnouncementId) > 0)
+                followItem.AnnouncementId = announcementToFollow.ID;
+                if (userNotificationData.Announcements.Count(x => x.AnnouncementId == followItem.AnnouncementId) > 0)
                 {
                     // user already follows the series
-                    log.DebugFormat("User is already following announcement. PID: {0}, UID: {1}, Announcement ID: {2}", 
-                                    followData.GroupId, userId, followData.AnnouncementId);
+                    log.DebugFormat("User is already following announcement. PID: {0}, UID: {1}, Announcement ID: {2}",
+                                    followItem.GroupId, userId, followItem.AnnouncementId);
                     response.SetStatus(eResponseStatus.UserAlreadyFollowing, "User already following");
                     return response;
                 }
@@ -634,28 +644,28 @@ namespace Core.Notification
                     userNotificationData.Settings.EnableMail.Value &&
                     !string.IsNullOrEmpty(userNotificationData.UserData.Email))
                 {
-                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(followData.GroupId, 
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(followItem.GroupId, 
                                                                                new List<string>() { announcementToFollow.MailExternalId }, 
                                                                                userNotificationData.UserData, 
                                                                                userId))
                     {
-                        log.ErrorFormat("Failed subscribing user to email announcement. group: {0}, userId: {1}, email: {2}", 
-                                        followData.GroupId, userId, userNotificationData.UserData.Email);
+                        log.ErrorFormat("Failed subscribing user to email announcement. group: {0}, userId: {1}, email: {2}",
+                                        followItem.GroupId, userId, userNotificationData.UserData.Email);
                     }
                 }
 
-                HandleFollowSms(userId, followData, userNotificationData, announcementToFollow, addedSecs);
-                HandleFollowPush(userId, followData, userNotificationData, announcementToFollow, addedSecs);
+                HandleFollowSms(userId, followItem, userNotificationData, announcementToFollow, addedSecs);
+                HandleFollowPush(userId, followItem, userNotificationData, announcementToFollow, addedSecs);
 
                 // update user notification object
                 userNotificationData.Announcements.Add(new Announcement()
                 {
-                    AnnouncementId = followData.AnnouncementId,
+                    AnnouncementId = followItem.AnnouncementId,
                     AnnouncementName = announcementToFollow.Name,
                     AddedDateSec = addedSecs
                 });
 
-                response.Object = new FollowDataBase(followData.GroupId, announcementToFollow.FollowPhrase)
+                response.Object = new FollowDataBase(followItem.GroupId, announcementToFollow.FollowPhrase)
                 {
                     AnnouncementId = announcementToFollow.ID,
                     Status = 1,                         // only enabled status in this phase
@@ -665,17 +675,17 @@ namespace Core.Notification
                     Timestamp = addedSecs
                 };
 
-                if (!DAL.NotificationDal.SetUserNotificationData(followData.GroupId, userId, userNotificationData))
-                    log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", followData.GroupId, userId);
+                if (!DAL.NotificationDal.SetUserNotificationData(followItem.GroupId, userId, userNotificationData))
+                    log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", followItem.GroupId, userId);
                 else
                 {
                     // update user following items
-                    if (!NotificationDal.SetUserFollowNotificationData(followData.GroupId, userId, (int)followData.AnnouncementId))
-                        log.ErrorFormat("Error updating the user following notification data. GID :{0}, user ID: {1}, Announcement ID: {2}", followData.GroupId, userId, followData.AnnouncementId);
+                    if (!NotificationDal.SetUserFollowNotificationData(followItem.GroupId, userId, (int)followItem.AnnouncementId))
+                        log.ErrorFormat("Error updating the user following notification data. GID :{0}, user ID: {1}, Announcement ID: {2}", followItem.GroupId, userId, followItem.AnnouncementId);
                     else
-                        log.DebugFormat("successfully set notification announcements inbox mapping. group: {0}, user id: {1}, Announcements ID: {2}", followData.GroupId, userId, (int)followData.AnnouncementId);
+                        log.DebugFormat("successfully set notification announcements inbox mapping. group: {0}, user id: {1}, Announcements ID: {2}", followItem.GroupId, userId, (int)followItem.AnnouncementId);
 
-                    log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", followData.GroupId, userId);
+                    log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", followItem.GroupId, userId);
                 }
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -689,11 +699,11 @@ namespace Core.Notification
             return response;
         }
 
-        private static void HandleFollowPush(int userId, FollowDataBase followData, UserNotification userNotificationData, DbAnnouncement announcementToFollow, long addedSecs)
+        private static void HandleFollowPush(int userId, FollowDataBase followItem, UserNotification userNotificationData, DbAnnouncement announcementToFollow, long addedSecs)
         {
             if (userNotificationData.devices != null &&
                 userNotificationData.devices.Count > 0 &&
-                NotificationSettings.IsPartnerPushEnabled(followData.GroupId) &&
+                NotificationSettings.IsPartnerPushEnabled(followItem.GroupId) &&
                 NotificationSettings.IsUserFollowPushEnabled(userNotificationData.Settings))
             {
                 bool docExists = false;
@@ -707,32 +717,32 @@ namespace Core.Notification
                         continue;
                     }
 
-                    log.DebugFormat("adding announcement to device group: {0}, user: {1}, UDID: {2}, announcementId: {3}", followData.GroupId, userId, udid, followData.AnnouncementId);
+                    log.DebugFormat("adding announcement to device group: {0}, user: {1}, UDID: {2}, announcementId: {3}", followItem.GroupId, userId, udid, followItem.AnnouncementId);
 
                     // get device notification data
                     docExists = false;
-                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(followData.GroupId, udid, ref docExists);
+                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(followItem.GroupId, udid, ref docExists);
                     if (deviceNotificationData == null)
                     {
-                        log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", followData.GroupId, device.Udid);
+                        log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", followItem.GroupId, device.Udid);
                         continue;
                     }
 
                     try
                     {
                         // validate device doesn't already have the announcement
-                        var subscribedAnnouncements = deviceNotificationData.SubscribedAnnouncements.Where(x => x.Id == followData.AnnouncementId);
-                        if (subscribedAnnouncements != null && subscribedAnnouncements.Count() > 0)
+                        var isSubscribedAnnouncements = deviceNotificationData.SubscribedAnnouncements.Count(x => x.Id == followItem.AnnouncementId) > 0;
+                        if (isSubscribedAnnouncements)
                         {
-                            log.ErrorFormat("user already following announcement on device. group: {0}, UDID: {1}", followData.GroupId, device.Udid);
+                            log.ErrorFormat("user already following announcement on device. group: {0}, UDID: {1}", followItem.GroupId, device.Udid);
                             continue;
                         }
 
                         // get push data
-                        PushData pushData = PushAnnouncementsHelper.GetPushData(followData.GroupId, udid, string.Empty);
+                        PushData pushData = PushAnnouncementsHelper.GetPushData(followItem.GroupId, udid, string.Empty);
                         if (pushData == null)
                         {
-                            log.ErrorFormat("push data not found. group: {0}, UDID: {1}", followData.GroupId, device.Udid);
+                            log.ErrorFormat("push data not found. group: {0}, UDID: {1}", followItem.GroupId, device.Udid);
                             continue;
                         }
 
@@ -746,10 +756,10 @@ namespace Core.Notification
                         };
 
                         List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
-                        subs = NotificationAdapter.SubscribeToAnnouncement(followData.GroupId, subs);
+                        subs = NotificationAdapter.SubscribeToAnnouncement(followItem.GroupId, subs);
                         if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
                         {
-                            log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", followData.GroupId, device.Udid);
+                            log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", followItem.GroupId, device.Udid);
                             continue;
                         }
 
@@ -757,16 +767,16 @@ namespace Core.Notification
                         NotificationSubscription sub = new NotificationSubscription()
                         {
                             ExternalId = subs.First().SubscriptionArnResult,
-                            Id = followData.AnnouncementId,
+                            Id = followItem.AnnouncementId,
                             SubscribedAtSec = addedSecs
                         };
                         deviceNotificationData.SubscribedAnnouncements.Add(sub);
 
-                        if (!DAL.NotificationDal.SetDeviceNotificationData(followData.GroupId, udid, deviceNotificationData))
-                            log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", followData.GroupId, device.Udid, subData.EndPointArn);
+                        if (!DAL.NotificationDal.SetDeviceNotificationData(followItem.GroupId, udid, deviceNotificationData))
+                            log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", followItem.GroupId, device.Udid, subData.EndPointArn);
                         else
                         {
-                            log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", followData.GroupId, device.Udid, subData.EndPointArn);
+                            log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", followItem.GroupId, device.Udid, subData.EndPointArn);
                         }
                     }
                     catch (Exception ex)
@@ -777,24 +787,23 @@ namespace Core.Notification
             }
         }
 
-        private static void HandleFollowSms(int userId, FollowDataBase followData, UserNotification userNotificationData, DbAnnouncement announcementToFollow, long addedSecs)
+        private static void HandleFollowSms(int userId, FollowDataBase followItem, UserNotification userNotificationData, DbAnnouncement announcementToFollow, long addedSecs)
         {
-            if (NotificationSettings.IsPartnerSmsNotificationEnabled(followData.GroupId) &&
+            if (NotificationSettings.IsPartnerSmsNotificationEnabled(followItem.GroupId) &&
                 userNotificationData.Settings.EnableSms.HasValue &&
                 userNotificationData.Settings.EnableSms.Value &&
                 !string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
             {
                 try
                 {
-                    SmsNotificationData userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(followData.GroupId, userNotificationData.UserId);
+                    SmsNotificationData userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(followItem.GroupId, userNotificationData.UserId);
                     if (userSmsNotificationData == null)
                     {
                         log.DebugFormat("user sms notification data is empty {0}", userId);
                         return;
                     }
-
-
-                    var subscribedAnnouncements = userSmsNotificationData.SubscribedAnnouncements.Where(x => x.Id == followData.AnnouncementId);
+                    
+                    var subscribedAnnouncements = userSmsNotificationData.SubscribedAnnouncements.Where(x => x.Id == followItem.AnnouncementId);
                     if (subscribedAnnouncements != null && subscribedAnnouncements.Count() > 0)
                     {
                         log.ErrorFormat("user already following announcement on sms. userId: {0}", userId);
@@ -810,7 +819,7 @@ namespace Core.Notification
                     };
 
                     List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
-                    subs = NotificationAdapter.SubscribeToAnnouncement(followData.GroupId, subs);
+                    subs = NotificationAdapter.SubscribeToAnnouncement(followItem.GroupId, subs);
                     if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
                     {
                         log.ErrorFormat("Error registering sms to announcement. userId: {0}, PhoneNumber: {1}", userId, userNotificationData.UserData.PhoneNumber);
@@ -821,18 +830,18 @@ namespace Core.Notification
                     NotificationSubscription sub = new NotificationSubscription()
                     {
                         ExternalId = subs.First().SubscriptionArnResult,
-                        Id = followData.AnnouncementId,
+                        Id = followItem.AnnouncementId,
                         SubscribedAtSec = addedSecs
                     };
                     userSmsNotificationData.SubscribedAnnouncements.Add(sub);
 
-                    if (!DAL.NotificationDal.SetUserSmsNotificationData(followData.GroupId, userId, userSmsNotificationData))
+                    if (!DAL.NotificationDal.SetUserSmsNotificationData(followItem.GroupId, userId, userSmsNotificationData))
                     {
-                        log.ErrorFormat("error setting sms notification data. group: {0}, userId: {1}, topic: {2}", followData.GroupId, userId, subData.EndPointArn);
+                        log.ErrorFormat("error setting sms notification data. group: {0}, userId: {1}, topic: {2}", followItem.GroupId, userId, subData.EndPointArn);
                     }
                     else
                     {
-                        log.DebugFormat("Successfully registered device to announcement. group: {0}, userId: {1}, topic: {2}", followData.GroupId, userId, subData.EndPointArn);
+                        log.DebugFormat("Successfully registered device to announcement. group: {0}, userId: {1}, topic: {2}", followItem.GroupId, userId, subData.EndPointArn);
                     }
                 }
                 catch (Exception ex)

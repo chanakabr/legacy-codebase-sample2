@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
-    // TODO SHIR - EDIT
     [DataContract]
     public class FollowDataBase
     {

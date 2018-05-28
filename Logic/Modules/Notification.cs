@@ -622,10 +622,10 @@ namespace Core.Notification
 
             return response;
         }
-
-        public static GenericResponse<FollowDataBase> AddUserWishListFollow(int userId, FollowDataBase followWishList)
+        
+        public static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
         {
-            return FollowManager.AddUserWishListFollow(userId, followWishList);
+            return FollowManager.AddPersonalListItemToUser(userId, personalListItemToFollow);
         }
 
         public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)

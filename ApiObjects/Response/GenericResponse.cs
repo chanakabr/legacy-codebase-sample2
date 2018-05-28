@@ -17,5 +17,14 @@ namespace ApiObjects.Response
             this.Status.Code = (int)responseStatus;
             this.Status.Message = message;
         }
+
+        public void SetStatus(Status status)
+        {
+            if (status != null)
+            {
+                this.Status.Code = status.Code;
+                this.Status.Message = status.Message;
+            }
+        }
     }
 }
