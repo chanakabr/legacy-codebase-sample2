@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
         /// Attach AssetUserRule To User
         /// </summary>
         /// <param name="ruleId">AssetUserRule id to add</param>
-        [Route("attachUser "), HttpPost]
+        [Route("attachUser"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
