@@ -623,9 +623,15 @@ namespace Core.Notification
             return response;
         }
         
-        public static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
+        public static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, int groupId, FollowDataBase personalListItemToFollow)
         {
+            personalListItemToFollow.GroupId = groupId;
             return FollowManager.AddPersonalListItemToUser(userId, personalListItemToFollow);
+        }
+
+        public static Status DeletePersonalListItemFromUser(int groupId, int userId, string ksql)
+        {
+            return FollowManager.DeletePersonalListItemFromUser(groupId, userId, ksql);
         }
 
         public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
