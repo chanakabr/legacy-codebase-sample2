@@ -828,17 +828,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "PersonalListController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
                 case "RecommendationProfileController":
                     switch(action.Name)
                     {
@@ -6948,15 +6937,6 @@ namespace WebAPI.Reflection
                             break;
                             
                         case "validateToken":
-                            return;
-                            
-                    }
-                    break;
-                    
-                case "PersonalListController":
-                    switch(action.Name)
-                    {
-                        case "DeleteWithToken":
                             return;
                             
                     }
