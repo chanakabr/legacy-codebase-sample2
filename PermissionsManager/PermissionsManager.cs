@@ -876,11 +876,26 @@ namespace PermissionsManager
                 }
 
                 string permissionItemsFolderName = string.Format("{0}\\permission_items", folderName);
+                string permissionItemsControllersFolderName = string.Format("{0}\\controllers", permissionItemsFolderName);
+                string permissionItemsObjectsFolderName = string.Format("{0}\\objects", permissionItemsFolderName);
 
                 if (!Directory.Exists(permissionItemsFolderName))
                 {
                     Directory.CreateDirectory(permissionItemsFolderName);
                 }
+
+                if (!Directory.Exists(permissionItemsControllersFolderName))
+                {
+                    Directory.CreateDirectory(permissionItemsControllersFolderName);
+                }
+
+                if (!Directory.Exists(permissionItemsObjectsFolderName))
+                {
+                    Directory.CreateDirectory(permissionItemsObjectsFolderName);
+                }
+
+                JsonSerializer jsonSerlizer = JsonSerializer.CreateDefault();
+                jsonSerlizer.NullValueHandling = NullValueHandling.Ignore;
 
                 Roles roles;
                 Dictionary<string, PermissionItems> permissionItemsFiles;
@@ -890,13 +905,13 @@ namespace PermissionsManager
 
                 #region Write files
 
-                JObject rolesObject = JObject.FromObject(roles);
+                JObject rolesObject = JObject.FromObject(roles, jsonSerlizer);
 
                 string rolesString = rolesObject.ToString();
 
                 File.WriteAllText(string.Format("{0}\\roles.json", folderName), rolesString);
 
-                JObject permissionsObject = JObject.FromObject(permissions);
+                JObject permissionsObject = JObject.FromObject(permissions, jsonSerlizer);
 
                 string permissionsString = permissionsObject.ToString();
 
@@ -904,12 +919,38 @@ namespace PermissionsManager
 
                 foreach (var permissionItemFile in permissionItemsFiles.Values)
                 {
-                    JObject permissionItemObject = JObject.FromObject(permissionItemFile);
+                    JObject permissionItemObject = JObject.FromObject(permissionItemFile, jsonSerlizer);
 
                     string permissionItemString = permissionItemObject.ToString();
 
-                    string filePath = string.Format("{0}\\{1}.json", permissionItemsFolderName, permissionItemFile.name);
-                    File.WriteAllText(filePath, permissionItemString);
+                    string currentFolder = string.Empty;
+
+                    switch (permissionItemFile.type)
+                    {
+                        case ePermissionItemType.Parameter:
+                            {
+                                currentFolder = permissionItemsObjectsFolderName;
+                                break;
+                            }
+                        case ePermissionItemType.Action:
+                        case ePermissionItemType.Argument:
+                            {
+                                currentFolder = permissionItemsControllersFolderName;
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+
+                    if (string.IsNullOrEmpty(currentFolder))
+                    {
+                        log.ErrorFormat("Could not find folder for permission item {0}", permissionItemFile.name);
+                    }
+                    else
+                    {
+                        string filePath = string.Format("{0}\\{1}.json", currentFolder, permissionItemFile.name);
+                        File.WriteAllText(filePath, permissionItemString);
+                    }
                 }
 
                 #endregion
