@@ -206,22 +206,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
-            // TODO SHIR - MAPPING KalturaFollowWishList
-            //Mapper.CreateMap<KalturaFollowWishList, FollowDataBase>()
-            //     .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
-            //     .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
-            //     .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId))
-            //     .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-            //     .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-            //     .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+            // KalturaPersonalList <-> FollowDataBase
+            Mapper.CreateMap<KalturaPersonalList, FollowDataBase>()
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.Ksql))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.CreateDate))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name));
 
-            //Mapper.CreateMap<FollowDataBase, KalturaFollowWishList>()
-            //    .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
-            //    .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
-            //    .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
-            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-            //    .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-            //    .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+            Mapper.CreateMap<FollowDataBase, KalturaPersonalList>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnouncementId))
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FollowPhrase))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title));
 
             Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
