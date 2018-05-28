@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling client service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

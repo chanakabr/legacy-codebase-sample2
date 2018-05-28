@@ -51,43 +51,41 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete a user's tv series follow.
-        /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
+        /// Remove followed item from user's personal list 
         /// </summary>
-        /// <param name="assetId">Asset identifier</param>
+        /// <param name="ksql">ksql identifier</param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandardArgument("assetId", "asset_id")]
-        [SchemeArgument("assetId", MinInteger = 1)]
+        [SchemeArgument("ksql", MinLength = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
-        [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.AnnouncementNotFound)]
-        public bool Delete(int assetId)
+        [Throws(eResponseStatus.InvalidUser)]
+        public void Delete(string ksql)
         {
-            // TODO SHIR
-            bool response = false;
-
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
             try
             {
-                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, assetId);
+                int userId = 0;
+                if (!int.TryParse(userID, out userId))
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
+                }
+
+                ClientsManager.NotificationClient().DeletePersonalListItemFromUser(groupId, userId, ksql);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return response;
         }
 
         /// <summary>
-        /// Add a user's tv series follow.
-        /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
+        /// Add a user's personal list item to follow.
         /// </summary>
-        /// <param name="personalList">Follow series request parameters</param>
+        /// <param name="personalList">Follow personal list item request parameters</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -106,7 +104,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
 
-                return ClientsManager.NotificationClient().AddUserPersonalList(groupId, userId, personalList);
+                return ClientsManager.NotificationClient().AddPersonalListItemToUser(groupId, userId, personalList);
             }
             catch (ClientException ex)
             {
@@ -114,35 +112,6 @@ namespace WebAPI.Controllers
             }
 
             return null;
-        }
-        
-        /// <summary>
-        /// Delete a user's tv series follow.
-        /// </summary>
-        /// <param name="assetId">Asset identifier</param>
-        /// <param name="token">User's token identifier</param>
-        /// <param name="partnerId">Partner identifier</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Route("deleteWithToken"), HttpPost]
-        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.InvalidToken)]
-        public void DeleteWithToken(int assetId, string token, int partnerId)
-        {
-            //TODO SHIR
-            HttpContext.Current.Items.Add(Filters.RequestParser.REQUEST_GROUP_ID, partnerId);
-
-            try
-            {
-                int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
-
-                ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(partnerId, userId.ToString(), assetId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
         }
     }
 }

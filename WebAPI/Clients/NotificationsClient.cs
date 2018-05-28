@@ -728,33 +728,21 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaPersonalList AddUserPersonalList(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
+        internal void DeletePersonalListItemFromUser(int groupId, int userID, string ksql)
         {
-            GenericResponse<FollowDataBase> response = null;
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, ksql);
+            ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
+        }
 
-            FollowDataBase personalListItemToFollow = Mapper.Map<FollowDataBase>(kalturaPersonalList);
-            personalListItemToFollow.GroupId = groupId;
 
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Notification.Module.AddPersonalListItemToUser(userID, personalListItemToFollow);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while AddUserPersonalList.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
+        {
+            Func<FollowDataBase, GenericResponse<FollowDataBase>> addPersonalListItemToUserFunc = (FollowDataBase personalListItemToFollow) =>
+                Core.Notification.Module.AddPersonalListItemToUser(userID, groupId, personalListItemToFollow);
 
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                // Bad response received from WS
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
+            KalturaPersonalList result =
+                ClientUtils.GetResponseFromWS<KalturaPersonalList, FollowDataBase>(kalturaPersonalList, addPersonalListItemToUserFunc);
 
-            KalturaPersonalList result = AutoMapper.Mapper.Map<KalturaPersonalList>(response.Object);
             return result;
         }
 

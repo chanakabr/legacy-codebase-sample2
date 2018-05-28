@@ -794,31 +794,19 @@
             <param name="pager">pager</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.String)">
             <summary>
-            Delete a user's tv series follow.
-            <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
+            Remove followed item from user's personal list 
             </summary>
-            <param name="assetId">Asset identifier</param>
+            <param name="ksql">ksql identifier</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.PersonalListController.Add(WebAPI.Models.Notification.KalturaPersonalList)">
             <summary>
-            Add a user's tv series follow.
-            <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
+            Add a user's personal list item to follow.
             </summary>
-            <param name="personalList">Follow series request parameters</param>
+            <param name="personalList">Follow personal list item request parameters</param>
             <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.PersonalListController.DeleteWithToken(System.Int32,System.String,System.Int32)">
-            <summary>
-            Delete a user's tv series follow.
-            </summary>
-            <param name="assetId">Asset identifier</param>
-            <param name="token">User's token identifier</param>
-            <param name="partnerId">Partner identifier</param>
-            <returns></returns>
-            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
             <summary>
