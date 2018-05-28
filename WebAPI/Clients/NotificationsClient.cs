@@ -728,23 +728,23 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaFollowWishList AddUserWishListFollow(int groupId, int userID, KalturaFollowWishList kalturaFollowWishList)
+        internal KalturaPersonalList AddUserPersonalList(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
         {
             GenericResponse<FollowDataBase> response = null;
 
-            FollowDataBase followWishList = Mapper.Map<FollowDataBase>(kalturaFollowWishList);
-            followWishList.GroupId = groupId;
+            FollowDataBase personalListItemToFollow = Mapper.Map<FollowDataBase>(kalturaPersonalList);
+            personalListItemToFollow.GroupId = groupId;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.AddUserWishListFollow(userID, followWishList);
+                    response = Core.Notification.Module.AddPersonalListItemToUser(userID, personalListItemToFollow);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while AddUserWishListFollow.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                log.ErrorFormat("Error while AddUserPersonalList.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -754,7 +754,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            KalturaFollowWishList result = AutoMapper.Mapper.Map<KalturaFollowWishList>(response.Object);
+            KalturaPersonalList result = AutoMapper.Mapper.Map<KalturaPersonalList>(response.Object);
             return result;
         }
 

@@ -828,6 +828,17 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "PersonalListController":
+                    switch(action.Name)
+                    {
+                        case "Delete":
+                            ret = new Dictionary<string, string>() { 
+                                 {"assetId", "asset_id"},
+                            };
+                            break;
+                    }
+                    break;
+                    
                 case "RecommendationProfileController":
                     switch(action.Name)
                     {
@@ -1212,13 +1223,6 @@ namespace WebAPI.Reflection
                     break;
                     
                 case "KalturaFollowTvSeries":
-                    ret = new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
-                        {"followPhrase", "follow_phrase"},
-                    };
-                    break;
-                    
-                case "KalturaFollowWishList":
                     ret = new Dictionary<string, string>() { 
                         {"announcementId", "announcement_id"},
                         {"followPhrase", "follow_phrase"},
@@ -3901,16 +3905,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaFollowWishList":
-                    switch(property.Name)
-                    {
-                        case "Ksql":
-                            return "ksql";
-                        case "Name":
-                            return "name";
-                    }
-                    break;
-                    
                 case "KalturaGenericListResponse`1":
                     switch(property.Name)
                     {
@@ -5081,6 +5075,28 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "PersonalFollowFeed":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPersonalList":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListListResponse":
+                    switch(property.Name)
+                    {
+                        case "PersonalListList":
                             return "objects";
                     }
                     break;
@@ -6922,6 +6938,15 @@ namespace WebAPI.Reflection
                             break;
                             
                         case "validateToken":
+                            return;
+                            
+                    }
+                    break;
+                    
+                case "PersonalListController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
                             return;
                             
                     }

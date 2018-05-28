@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/followTvSeries/action")]
-    public class FollowTvSeriesController : ApiController
+    [RoutePrefix("_service/personalList/action")]
+    public class PersonalListController : ApiController
     {
         /// <summary>
         /// List user's tv series follows.
@@ -27,9 +27,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaFollowTvSeriesListResponse List(KalturaFollowTvSeriesFilter filter, KalturaFilterPager pager = null)
+        public KalturaPersonalListListResponse List(KalturaPersonalListFilter filter, KalturaFilterPager pager = null)
         {
-            KalturaFollowTvSeriesListResponse response = null;
+            KalturaPersonalListListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
@@ -39,40 +39,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// List user's tv series follows.
-        /// <remarks>Possible status codes:</remarks>
-        /// </summary>
-        /// <param name="order_by"></param>
-        /// <param name="pager"></param>
-        /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
-        [ApiAuthorize]
-        [OldStandardAction("list")]
-        [Obsolete]
-        public KalturaListFollowDataTvSeriesResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
-        {
-            KalturaListFollowDataTvSeriesResponse response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
-
-            if (pager == null)
-                pager = new KalturaFilterPager();
-
-            try
-            {
-                response = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, order_by);
+                // TODO IRENA
+                //response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
             }
             catch (ClientException ex)
             {
@@ -97,6 +65,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AnnouncementNotFound)]
         public bool Delete(int assetId)
         {
+            // TODO SHIR
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -113,25 +82,31 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Add a user's tv series follow.
         /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
         /// </summary>
-        /// <param name="followTvSeries">Follow series request parameters</param>
+        /// <param name="personalList">Follow series request parameters</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
-        [Throws(eResponseStatus.InvalidAssetId)]
-        public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
+        [Throws(eResponseStatus.InvalidUser)]
+        public KalturaPersonalList Add(KalturaPersonalList personalList)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
             try
             {
-                return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries.AssetId);
+                int userId = 0;
+                if (!int.TryParse(userID, out userId))
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
+                }
+
+                return ClientsManager.NotificationClient().AddUserPersonalList(groupId, userId, personalList);
             }
             catch (ClientException ex)
             {
@@ -140,37 +115,7 @@ namespace WebAPI.Controllers
 
             return null;
         }
-
-        /// <summary>
-        /// Add a user's tv series follow.
-        /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
-        /// </summary>
-        /// <param name="asset_id"></param>
-        /// <returns></returns>
-        [Route("addOldStandard"), HttpPost]
-        [ApiAuthorize]
-        [OldStandardAction("add")]
-        [Obsolete]
-        [SchemeArgument("assetId", MinInteger = 1)]
-        [Throws(eResponseStatus.UserAlreadyFollowing)]
-        [Throws(eResponseStatus.InvalidAssetId)]
-        public bool AddOldStandard(int asset_id)
-        {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
-
-            try
-            {
-                ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, asset_id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return true;
-        }
-
+        
         /// <summary>
         /// Delete a user's tv series follow.
         /// </summary>
@@ -185,6 +130,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidToken)]
         public void DeleteWithToken(int assetId, string token, int partnerId)
         {
+            //TODO SHIR
             HttpContext.Current.Items.Add(Filters.RequestParser.REQUEST_GROUP_ID, partnerId);
 
             try

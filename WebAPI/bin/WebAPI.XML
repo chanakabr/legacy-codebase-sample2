@@ -785,6 +785,41 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.List(WebAPI.Models.Notification.KalturaPersonalListFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List user's tv series follows.
+            <remarks>Possible status codes:</remarks>
+            </summary>
+            <param name="filter">Follow TV series filter</param>
+            <param name="pager">pager</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.Int32)">
+            <summary>
+            Delete a user's tv series follow.
+            <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
+            </summary>
+            <param name="assetId">Asset identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.Add(WebAPI.Models.Notification.KalturaPersonalList)">
+            <summary>
+            Add a user's tv series follow.
+            <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
+            </summary>
+            <param name="personalList">Follow series request parameters</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.DeleteWithToken(System.Int32,System.String,System.Int32)">
+            <summary>
+            Delete a user's tv series follow.
+            </summary>
+            <param name="assetId">Asset identifier</param>
+            <param name="token">User's token identifier</param>
+            <param name="partnerId">Partner identifier</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
             <summary>
             Returns the data about the next renewal 
@@ -1519,7 +1554,7 @@
             <param name="assetId">Asset identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowDataBase)">
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowTvSeries)">
             <summary>
             Add a user's tv series follow.
             <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
@@ -8551,6 +8586,36 @@
             extra parameters
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.CreateDate">
+            <summary>
+            Create Date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Ksql">
+            <summary>
+            Ksql
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPersonalListListResponse">
+            <summary>
+            List of KalturaPersonalList.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalListListResponse.PersonalListList">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
             <summary>
             Engagement type: Churn=1
@@ -8797,16 +8862,6 @@
         <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeries.AssetId">
             <summary>
             Asset Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowWishList.Ksql">
-            <summary>
-            Ksql
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowWishList.Name">
-            <summary>
-            name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">

@@ -36,28 +36,6 @@ namespace WebAPI.Models.Notification
         public int AssetId { get; set; }
     }
 
-    public class KalturaFollowWishList : KalturaFollowDataBase
-    {
-        /// <summary>
-        /// Ksql
-        /// </summary>
-        [DataMember(Name = "ksql")]
-        [JsonProperty(PropertyName = "ksql")]
-        [XmlElement(ElementName = "ksql")]
-        [SchemeProperty(MinLength = 1)]
-        public string Ksql { get; set; }
-
-        // TODO SHIR - TALK WITH TAN TAN ABOUT THIS..
-        /// <summary>
-        /// name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        [SchemeProperty(MinLength = 1)]
-        public string Name { get; set; }
-    }
-
     public enum KalturaFollowTvSeriesOrderBy
     {
         START_DATE_DESC,
