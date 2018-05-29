@@ -19,28 +19,37 @@ namespace WebAPI.Controllers
     public class PersonalListController : ApiController
     {
         /// <summary>
-        /// List user's tv series follows.
+        /// List user's tv personal item to follow.
         /// <remarks>Possible status codes:</remarks>
         /// </summary>
-        /// <param name="filter">Follow TV series filter</param>
+        /// <param name="filter">Personal list filter</param>
         /// <param name="pager">pager</param>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaPersonalListListResponse List(KalturaPersonalListFilter filter, KalturaFilterPager pager = null)
+        [Throws(eResponseStatus.InvalidUser)]
+        public KalturaPersonalListListResponse List(KalturaPersonalListFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaPersonalListListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
+            if (filter == null)
+                filter = new KalturaPersonalListFilter();
+
             if (pager == null)
                 pager = new KalturaFilterPager();
 
             try
             {
-                // TODO IRENA
-                //response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
+                int userId = 0;
+                if (!int.TryParse(userID, out userId))
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid userId");
+                }
+
+                response = ClientsManager.NotificationClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
             }
             catch (ClientException ex)
             {
@@ -48,6 +57,38 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+        
+        /// <summary>
+        /// Add a user's personal list item to follow.
+        /// </summary>
+        /// <param name="personalList">Follow personal list item request parameters</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.UserAlreadyFollowing)]
+        [Throws(eResponseStatus.InvalidUser)]
+        public KalturaPersonalList Add(KalturaPersonalList personalList)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+
+            try
+            {
+                int userId = 0;
+                if (!int.TryParse(userID, out userId))
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
+                }
+
+                return ClientsManager.NotificationClient().AddPersonalListItemToUser(groupId, userId, personalList);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -80,38 +121,6 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-        }
-
-        /// <summary>
-        /// Add a user's personal list item to follow.
-        /// </summary>
-        /// <param name="personalList">Follow personal list item request parameters</param>
-        /// <returns></returns>
-        [Route("add"), HttpPost]
-        [ApiAuthorize]
-        [Throws(eResponseStatus.UserAlreadyFollowing)]
-        [Throws(eResponseStatus.InvalidUser)]
-        public KalturaPersonalList Add(KalturaPersonalList personalList)
-        {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
-
-            try
-            {
-                int userId = 0;
-                if (!int.TryParse(userID, out userId))
-                {
-                    throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
-                }
-
-                return ClientsManager.NotificationClient().AddPersonalListItemToUser(groupId, userId, personalList);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return null;
         }
     }
 }

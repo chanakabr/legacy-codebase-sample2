@@ -569,8 +569,7 @@ namespace WebAPI.Clients
             OrderDir order = OrderDir.DESC;
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
-
-
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -728,12 +727,47 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy)
+        {
+            GetUserFollowsResponse response = null;
+
+            // create order object
+            OrderDir order = OrderDir.DESC;
+            if (orderBy == KalturaPersonalListOrderBy.START_DATE_ASC)
+                order = OrderDir.ASC;
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPersonalListItems.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse()
+            {
+                PersonalListList = Mapper.Map<List<KalturaPersonalList>>(response.Follows),
+                TotalCount = response.TotalCount
+            };
+            
+            return result;
+        }
+
         internal void DeletePersonalListItemFromUser(int groupId, int userID, string ksql)
         {
             Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, ksql);
             ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
         }
-
 
         internal KalturaPersonalList AddPersonalListItemToUser(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
         {
