@@ -1398,7 +1398,7 @@ namespace TVPApiModule.Services
                     ChannelId = channelId,
                     SeriesId = seriesId,
                     SeasonNumber = seasonNumber,
-                    Status = status.ToArray(),
+                    Status = status == null ? new List<NPVRRecordingStatus>().ToArray() : status.ToArray(),
                     Version = 2
                 };
 

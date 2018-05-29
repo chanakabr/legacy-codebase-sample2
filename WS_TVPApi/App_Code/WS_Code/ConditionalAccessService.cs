@@ -1212,7 +1212,7 @@ namespace TVPApiServices
 
             return res;
         }
-        
+
         [WebMethod(EnableSession = true, Description = "Issues a record series request by SeriesId")]
         [PrivateMethod]
         public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int channelId,
@@ -1277,8 +1277,8 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
-        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<string> byStatus)
+        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId = null, string bySeasonNumber = null, string byChannelId = null,
+            List<string> byStatus = null)
         {
             NPVRResponse res = null;
 
@@ -1291,10 +1291,17 @@ namespace TVPApiServices
                 try
                 {
                     List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status = new List<NPVRRecordingStatus>();
-                    status = byStatus.ConvertAll(delegate (string x)
+                    if (byStatus == null || byStatus.Count == 0)
                     {
-                        return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x);
-                    });
+                        status = null;
+                    }
+                    else
+                    {
+                        status = byStatus.ConvertAll(delegate (string x)
+                        {
+                            return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x);
+                        });
+                    }
 
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, bySeriesId,
                       bySeasonNumber, byChannelId, status);
