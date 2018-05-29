@@ -2646,24 +2646,26 @@ namespace WebAPI.Clients
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
-            Models.Notification.KalturaFollowTvSeriesListResponse personalListsRespnse = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, 0, 0, Models.Notification.KalturaFollowTvSeriesOrderBy.START_DATE_ASC);
-            if (personalListsRespnse.TotalCount > 0)
+            Models.Notification.KalturaPersonalListListResponse personalListRespnse = ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.START_DATE_ASC);
+            if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();
 
                 ksqlBuilder.AppendFormat("(or");
-                foreach (var personalList in personalListsRespnse.FollowDataList)
+                foreach (var personalList in personalListRespnse.PersonalListList)
                 {
-                    ksqlBuilder.AppendFormat(" {0}", personalList.FollowPhrase);
+                    ksqlBuilder.AppendFormat(" {0}", personalList.Ksql);
                 }
                 ksqlBuilder.AppendFormat(")");
 
+                string ksqlFilter = ksqlBuilder.ToString();
+
                 if (!string.IsNullOrEmpty(kSql))
                 {
-                    ksqlBuilder.AppendFormat("(and {0} {1})", kSql, ksqlBuilder);
+                    ksqlFilter = string.Format("(and {0} {1})", kSql, ksqlFilter);
                 }
 
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlBuilder.ToString(),
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
                         orderBy, assetTypes, null, false, dynamicOrderBy,
                         groupBy, null);
 
