@@ -9,10 +9,10 @@ RUN MkDir Ingest
 
 RUN Import-Module WebAdministration; \
 	cd IIS:\AppPools\; \
-	$appPool = New-Item RestfulApi; \
+	$appPool = New-Item Ingest; \
 	$appPool | Set-ItemProperty -Name managedRuntimeVersion -Value v4.0
 
-RUN New-Website -Name Ingest -Port 80 -PhysicalPath 'C:\Ingest' -ApplicationPool RestfulApi
+RUN New-Website -Name Ingest -Port 80 -PhysicalPath 'C:\Ingest' -ApplicationPool Ingest
 
 RUN Import-Module WebAdministration; \
 	Set-ItemProperty 'IIS:\Sites\Ingest' -Name logFile.enabled -Value True; \

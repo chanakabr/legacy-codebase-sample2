@@ -8,5 +8,9 @@
 	```
 2) Run docker
 	```
-	docker run kaltura/ingest
+	docker run -d ^
+		-p 80:80 ^
+		-v iis_log:C:\log\iis ^
+		-v ingest_log:C:\log\ws_ingest ^
+		kaltura/ingest
 	```
