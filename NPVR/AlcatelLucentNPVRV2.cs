@@ -1396,6 +1396,15 @@ namespace NPVR
                                 case ALU_THUMBNAIL:
                                     obj.PIC_URL = item.Value.ToString();
                                     break;
+                                case "customMetadata":
+                                    bool errorWhenNoMatch = false;
+                                    var newValue = item.Value.SelectToken("contentTags", errorWhenNoMatch);
+                                    obj.EPG_TAGS.Add(new EPGDictionary()
+                                    {
+                                        Key = "contentTags",
+                                        Value = !errorWhenNoMatch ? item.Value.SelectToken("contentTags").ToString() : string.Empty
+                                    });
+                                    break;
                                 /* in case this data is not needed at the response object remove the remark 
                                   case ALU_ACTUAL_START_TIME:
                                 case ALU_ACTUAL_END_TIME:
@@ -2350,7 +2359,6 @@ namespace NPVR
                 }
             }
         }
-
 
         #endregion
     }
