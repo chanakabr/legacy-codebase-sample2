@@ -282,7 +282,7 @@ namespace Core.Notification
             DbAnnouncement announcement = null;
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
-                announcement = announcements.Where(x => x.ID == announcementId).FirstOrDefault();
+                announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
 
             if (announcement == null)
             {
@@ -598,7 +598,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn) == null)
                 {
                     // create logged-in topic
                     announcementName = "LoggedIn";
@@ -618,7 +618,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail) == null)
                 {
                     announcementName = "Mail";
                     string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
@@ -635,7 +635,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms) == null)
                 {
                     announcementName = "Sms";
                     string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
@@ -778,7 +778,7 @@ namespace Core.Notification
                     {
                         DbAnnouncement announcementGuest = null;
                         if (announcements != null)
-                            announcementGuest = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
+                            announcementGuest = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
                         if (announcementGuest != null)
                             topicExternalIds.Add(announcementGuest.ExternalId);
@@ -810,7 +810,7 @@ namespace Core.Notification
                         // get topic push external id's of logged-in users
                         DbAnnouncement announcementLoggedIn = null;
                         if (announcements != null)
-                            announcementLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault();
+                            announcementLoggedIn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
 
                         if (announcementLoggedIn != null)
                             topicExternalIds.Add(announcementLoggedIn.ExternalId);
@@ -1021,7 +1021,7 @@ namespace Core.Notification
             DbAnnouncement smsAnnouncement = null;
 
             if (announcements != null)
-                smsAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault();
+                smsAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms);
 
             if (smsAnnouncement != null)
             {
@@ -1050,7 +1050,7 @@ namespace Core.Notification
             DbAnnouncement mailAnnouncement = null;
 
             if (announcements != null)
-                mailAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
+                mailAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail);
 
             if (mailAnnouncement != null)
             {

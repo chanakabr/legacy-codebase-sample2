@@ -71,7 +71,7 @@ namespace APILogic.Notification
 
                 bool isRegistrationNeeded = true;
                 // get relevant topic 
-                Meta topicInterest = partnerTopicInterests.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
+                Meta topicInterest = partnerTopicInterests.FirstOrDefault(x => x.Id == newUserInterest.Topic.MetaId);
 
                 if (userInterests == null)
                 {
@@ -356,7 +356,7 @@ namespace APILogic.Notification
                         {
                             if (unsubscibe.Success)
                             {
-                                if (smsNotificationData.SubscribedUserInterests.Remove(smsNotificationData.SubscribedUserInterests.Where(i => i.Id == unsubscibe.ExternalId).FirstOrDefault()))
+                                if (smsNotificationData.SubscribedUserInterests.Remove(smsNotificationData.SubscribedUserInterests.FirstOrDefault(i => i.Id == unsubscibe.ExternalId)))
                                     log.DebugFormat("Successfully unregistered SMS from interest. user ID: {0}, interest ID", userId, unsubscibe.ExternalId);
                                 else
                                     log.ErrorFormat("Failed to remove SMS from interest. user ID: {0}, interest ID", userId, unsubscibe.ExternalId);
@@ -606,7 +606,7 @@ namespace APILogic.Notification
             interestNotificationToCancel = new List<KeyValuePair>();
 
             // validate feature is ENABLED_NOTIFICATION   
-            Meta topicInterest = groupsTopics.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
+            Meta topicInterest = groupsTopics.FirstOrDefault(x => x.Id == newUserInterest.Topic.MetaId);
             if (!topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
             {
                 log.DebugFormat("Interest is not notification enabled - not adding notification");
@@ -782,7 +782,7 @@ namespace APILogic.Notification
             }
 
             //  Meta must be recognized as partner topic
-            Meta topicUserInterest = groupsTopics.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
+            Meta topicUserInterest = groupsTopics.FirstOrDefault(x => x.Id == newUserInterest.Topic.MetaId);
             if (topicUserInterest == null)
             {
                 log.ErrorFormat("Error partner topic not configured as UserInterest. userInterest :{0}", JsonConvert.SerializeObject(newUserInterest));
