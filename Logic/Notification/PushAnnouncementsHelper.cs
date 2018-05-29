@@ -156,7 +156,7 @@ namespace Core.Notification
             DbAnnouncement guestAnnouncement = null;
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
-                guestAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
+                guestAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
             // build announcements adapter object
             if (guestAnnouncement == null)

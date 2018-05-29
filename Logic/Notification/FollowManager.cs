@@ -895,7 +895,7 @@ namespace Core.Notification
             return isFollowDataValidate;
         }
 
-        private static GenericResponse<FollowDataBase> AddFollowItemToUser(int userId, FollowDataBase followItem)// string followName, int followGroupId, string followPhrase, string followReference, long followId)
+        private static GenericResponse<FollowDataBase> AddFollowItemToUser(int userId, FollowDataBase followItem)
         {
             GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
 
