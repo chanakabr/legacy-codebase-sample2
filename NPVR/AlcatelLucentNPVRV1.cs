@@ -990,7 +990,7 @@ namespace NPVR
                                     obj.EPG_TAGS.Add(new EPGDictionary()
                                     {
                                         Key = "contentTags",
-                                        Value = !errorWhenNoMatch ? item.Value.SelectToken("contentTags").ToString() : string.Empty
+                                        Value = !errorWhenNoMatch ? newValue[0].ToString() : string.Empty
                                     });
                                     break;
                                 /* in case this data is not needed at the response object remove the remark 
