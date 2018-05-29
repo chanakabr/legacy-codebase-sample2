@@ -249,8 +249,11 @@ namespace Core.Notification
                 // update total results
                 userFollowResponse.TotalCount = userFollowResponse.Follows.Count;
 
-                // paging
-                userFollowResponse.Follows = userFollowResponse.Follows.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                // paging - pageSize = 0 return everything
+                if (pageSize > 0)
+                {
+                    userFollowResponse.Follows = userFollowResponse.Follows.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                }
             }
 
             return userFollowResponse;
