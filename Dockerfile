@@ -3,6 +3,7 @@ SHELL ["powershell"]
 
 RUN Install-WindowsFeature NET-Framework-45-ASPNET
 RUN Install-WindowsFeature Web-Asp-Net45
+RUN Add-WindowsFeature NET-WCF-HTTP-Activation45
 
 RUN Remove-WebSite -Name 'Default Web Site'
 RUN MkDir Ingest
