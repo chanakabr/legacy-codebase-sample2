@@ -1649,5 +1649,19 @@ namespace Core.Pricing
 
             return response;
         }
+
+        public static GenericListResponse<DiscountDetails> GetDiscountsByCurrency(int groupId, List<long> discountIds, string currencyCode)
+        {
+            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetDiscountsByCurrency");
+            if (t != null)
+            {
+                return t.GetDiscountsByCurrency(discountIds, currencyCode);
+            }
+
+            return response;
+        }
     }
 }

@@ -1869,5 +1869,85 @@ namespace Core.Pricing
 
             return new Tuple<List<PriceDetails>, bool>(priceCodes, res);
         }
+
+        public override GenericListResponse<DiscountDetails> GetDiscountsByCurrency(List<long> discountIds, string currencyCode)
+        {
+            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
+
+            // get discounts with specific currency 
+
+            if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
+            {
+                if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                {
+                    response.SetStatus(eResponseStatus.InvalidCurrency, "Invalid currency");
+                    return response;
+                }
+            }
+
+            if (string.IsNullOrEmpty(currencyCode) && !Core.ConditionalAccess.Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+            {
+                return response;
+            }
+
+            string key = LayeredCacheKeys.GetDiscountsKey(m_nGroupID);
+
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
+            List<DiscountDetails> discountDetails = null;
+            bool res = LayeredCache.Instance.Get<List<DiscountDetails>>(key, ref discountDetails, GetGroupDiscounts, funcParams, m_nGroupID,
+                LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDiscountsInvalidationKey(m_nGroupID) });
+
+            if (discountDetails != null)
+            {
+                response.Objects = new List<DiscountDetails>();
+
+                foreach (var d in discountDetails)
+                {
+                    // filter by IDs
+                    if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(d.Id))
+                        continue;
+
+                    // filter by currency 
+                    if (!currencyCode.Trim().Equals("*"))
+                    {
+                        d.MultiCurrencyDiscounts = d.MultiCurrencyDiscounts != null ? d.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                    }
+
+                    response.Objects.Add(d);
+                }
+
+                response.Objects.OrderBy(pc => pc.Name);
+            }
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
+        }
+
+        private Tuple<List<DiscountDetails>, bool> GetGroupDiscounts(Dictionary<string, object> funcParams)
+        {
+            List<DiscountDetails> discountDetails = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    DataTable discountsDt = PricingDAL.GetGroupDiscounts(m_nGroupID);
+                    if (discountsDt != null)
+                    {
+                        discountDetails = Utils.BuildDiscountsFromDataTable(discountsDt);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDiscounts failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            bool res = discountDetails != null;
+
+            return new Tuple<List<DiscountDetails>, bool>(discountDetails, res);
+        }
     }
 }
