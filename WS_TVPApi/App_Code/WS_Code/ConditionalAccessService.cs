@@ -1299,7 +1299,7 @@ namespace TVPApiServices
                     {
                         status = byStatus.ConvertAll(delegate (string x)
                         {
-                            return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x);
+                            return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x, true);
                         });
                     }
 
