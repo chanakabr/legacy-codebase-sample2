@@ -437,7 +437,7 @@ namespace Core.ConditionalAccess
                     {
                         NPVRCancelDeleteResponse response = null;
                         response = npvr.DeleteSeries(new NPVRDeleteObj() { EntityID = domainID.ToString(),  Status = status , SeriesID = seriesId ,
-                            ChannelId = channelId.ToString(), SeasonNumber = seasonNumber});
+                            ChannelId = channelId, SeasonNumber = seasonNumber});
                         if (response != null)
                         {
                             switch (response.status)
