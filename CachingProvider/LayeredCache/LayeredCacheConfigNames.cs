@@ -62,6 +62,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_ASSET_USER_RULE_IDS_BY_GROUP = "GetAssetUserRuleIdsByGroupDB";
         public const string GET_ASSET_USER_RULE = "GetAssetUserRulesCB";
         public const string GET_USER_TO_ASSET_USER_RULE_IDS = "GetUserToAssetUserRuleIdsDB";
+        public const string GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME = "GetGroupDiscounts";
 
         #endregion
 

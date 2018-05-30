@@ -307,6 +307,10 @@ namespace CachingProvider.LayeredCache
             return "allCountryList";
         }
 
+        public static string GetDiscountsKey(int groupId)
+        {
+            return string.Format("discounts_groupId_{0}", groupId);
+        }
         #endregion
 
         public static string GetAllAssetRulesKey()
@@ -538,7 +542,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_user_asset_user_rule_ids_userId_{0}", userId);
         }
-        
+
+        public static string GetGroupDiscountsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Domains

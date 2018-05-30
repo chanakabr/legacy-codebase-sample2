@@ -1714,5 +1714,13 @@ namespace DAL
             sp.AddParameter("@discountCodeId", discountCode);
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataTable GetGroupDiscounts(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupDiscounts");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            return sp.Execute();
+        }
     }
 }
