@@ -689,8 +689,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));                    
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SERIES, urlParams);
 
@@ -1402,7 +1401,7 @@ namespace NPVR
                                     obj.EPG_TAGS.Add(new EPGDictionary()
                                     {
                                         Key = "contentTags",
-                                        Value = !errorWhenNoMatch ? item.Value.SelectToken("contentTags").ToString() : string.Empty
+                                        Value = !errorWhenNoMatch ? newValue[0].ToString() : string.Empty
                                     });
                                     break;
                                 /* in case this data is not needed at the response object remove the remark 
