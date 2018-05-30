@@ -105,7 +105,17 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("discountCode")]
         [XmlElement(ElementName = "discountCode", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
+        [Deprecated("4.8.2.0")]
         public long? DiscountCode { get; set; }
+
+        /// <summary>
+        /// Discount ID
+        /// </summary>
+        [DataMember(Name = "discountId")]
+        [JsonProperty("discountId")]
+        [XmlElement(ElementName = "discountId", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public long? DiscountId { get; set; }
     }
 
     /// <summary>

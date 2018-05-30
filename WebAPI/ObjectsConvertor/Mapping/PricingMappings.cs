@@ -36,6 +36,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
                .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
                ;
 
             Mapper.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
@@ -327,6 +328,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oCollectionPriceCode != null ? src.m_oCollectionPriceCode.m_nObjectID : 0))
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
+               ;
+
+            // DiscountDetails
+            Mapper.CreateMap<DiscountDetails, KalturaDiscountDetails>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+               .ForMember(dest => dest.EndtDate, opt => opt.MapFrom(src => src.EndDate))
+               .ForMember(dest => dest.MultiCurrencyDiscount, opt => opt.MapFrom(src => src.MultiCurrencyDiscounts))
+               ;
+
+            // Discount
+            Mapper.CreateMap<Discount, KalturaDiscount>()
+               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
+               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
+               .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign))
+               .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.countryId != 0 ? (long?)src.countryId : null))
+               .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage))
                ;
         }
 

@@ -1096,5 +1096,38 @@ namespace WebAPI.Clients
 
             return kalturaCouponsGroup;
         }
+
+        internal List<KalturaDiscountDetails> GetDiscounts(int groupId, List<long> discountIds, string currency)
+        {
+            GenericListResponse<DiscountDetails> response = null;
+            List<KalturaDiscountDetails> discounts = new List<KalturaDiscountDetails>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetDiscountsByCurrency(groupId, discountIds, currency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            discounts = AutoMapper.Mapper.Map<List<KalturaDiscountDetails>>(response.Objects);
+
+            return discounts;
+        }
     }
 }
