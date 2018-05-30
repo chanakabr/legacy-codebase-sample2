@@ -1266,7 +1266,7 @@ namespace NPVR
 
         private bool IsSetAssetAlreadyWatchedInputValid(NPVRParamsObj args)
         {
-            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID) && (args.Value == 0 || args.Value == 1);
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
         }
 
         private void GetSetAssetProtectionStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
