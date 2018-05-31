@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,6 +9,8 @@ using TVinciShared;
 
 public partial class adm_discounts_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -53,6 +56,13 @@ public partial class adm_discounts_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("pricing_connection");
+
+                string invalidationKey = LayeredCacheKeys.GetGroupDiscountsInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
