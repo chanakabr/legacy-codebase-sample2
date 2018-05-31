@@ -260,7 +260,7 @@ namespace Core.Notification
                 string externalAnnouncementId = string.Empty;
                 if (NotificationSettings.IsPartnerPushEnabled(groupId))
                 {
-                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName, followData.AnnouncementId);
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
                         log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
