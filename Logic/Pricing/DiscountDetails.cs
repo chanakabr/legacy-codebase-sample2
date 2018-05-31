@@ -10,7 +10,6 @@ namespace Core.Pricing
         public string Name { get; set; }
         public long Id { get; set; }
         public List<Discount> MultiCurrencyDiscounts { get; set; }
-        public Discount Discount { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
