@@ -7200,6 +7200,7 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
+                    definitions.shouldUseSearchEndDate = CatalogCache.Instance().IsTstvSettingsExists(request.m_nGroupID);
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -7209,6 +7210,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
+                    definitions.shouldUseSearchEndDate = CatalogCache.Instance().IsTstvSettingsExists(request.m_nGroupID);
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
