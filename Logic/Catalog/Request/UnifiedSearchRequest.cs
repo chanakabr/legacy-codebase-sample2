@@ -329,8 +329,7 @@ namespace Core.Catalog.Request
 
         internal virtual bool GetShouldUseSearchEndDate()
         {
-            CatalogCache catalogCache = CatalogCache.Instance();
-            return catalogCache.IsTstvSettingsExists(m_nGroupID);
+            return CatalogCache.Instance().IsTstvSettingsExists(this.m_nGroupID);
         }
     }
 }
