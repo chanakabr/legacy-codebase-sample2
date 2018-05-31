@@ -3423,8 +3423,6 @@ namespace WebAPI.Reflection
                 case "KalturaDiscountDetails":
                     switch(property.Name)
                     {
-                        case "Discount":
-                            return "discount";
                         case "EndtDate":
                             return "endDate";
                         case "Id":

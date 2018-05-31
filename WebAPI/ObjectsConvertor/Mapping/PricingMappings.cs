@@ -334,9 +334,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DiscountDetails, KalturaDiscountDetails>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
-               .ForMember(dest => dest.EndtDate, opt => opt.MapFrom(src => src.EndDate))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
+               .ForMember(dest => dest.EndtDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
                .ForMember(dest => dest.MultiCurrencyDiscount, opt => opt.MapFrom(src => src.MultiCurrencyDiscounts))
                ;
 

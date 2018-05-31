@@ -49,15 +49,6 @@ namespace WebAPI.Models.Pricing
         public string name { get; set; }
 
         /// <summary>
-        /// The discount 
-        /// </summary>
-        [DataMember(Name = "discount")]
-        [JsonProperty("discount")]
-        [XmlElement(ElementName = "discount", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaDiscount Discount { get; set; }
-
-        /// <summary>
         /// Multi currency discounts for all countries and currencies
         /// </summary>
         [DataMember(Name = "multiCurrencyDiscount")]

@@ -9311,11 +9311,6 @@
             The price code name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.Discount">
-            <summary>
-            The discount 
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.MultiCurrencyDiscount">
             <summary>
             Multi currency discounts for all countries and currencies
