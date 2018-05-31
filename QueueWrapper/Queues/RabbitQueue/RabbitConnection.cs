@@ -186,6 +186,14 @@ namespace QueueWrapper
                             IncreaseFailCounter();
                             return Publish(configuration, message);
                         }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}, fail counter = {2}",
+                                message, ex, this.m_FailCounter);
+                            IncreaseFailCounter();
+                            ClearConnection();
+                            return Publish(configuration, message);
+                        }
 
                         if (this.m_Model != null)
                         {
@@ -231,7 +239,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit2. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
                         IncreaseFailCounter();
                         ClearConnection();
                         return Publish(configuration, message);
