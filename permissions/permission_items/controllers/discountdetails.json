@@ -2,7 +2,7 @@
   "permission_items": [
     {
       "permissions": [
-        "User",
+        "Anonymous",
         "Master",
         "Operator"
       ],
