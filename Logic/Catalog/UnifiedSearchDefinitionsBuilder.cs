@@ -46,8 +46,7 @@ namespace Core.Catalog
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
 
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                int parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
