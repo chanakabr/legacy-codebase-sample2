@@ -423,8 +423,8 @@ namespace CouchbaseManager
 
                 IOperationResult insertResult = null;
 
-                string action = string.Format("Action: Insert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })
                 {
                     if (!asJson)
                         insertResult = bucket.Insert(key, value, expiration);
@@ -447,7 +447,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (!asJson)
                                 insertResult = bucket.Insert(key, value, expiration);
@@ -485,8 +485,8 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Insert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })                
                 {
                     if (!asJson)
                         insertResult = bucket.Insert<T>(key, value, expiration);
@@ -509,7 +509,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (!asJson)
                                 insertResult = bucket.Insert<T>(key, value, expiration);
@@ -547,8 +547,8 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
                 {
                     if (!asJson)
                         insertResult = bucket.Upsert(key, value, expiration);
@@ -571,7 +571,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (!asJson)
                                 insertResult = bucket.Upsert(key, value, expiration);
@@ -609,8 +609,8 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
                 {
                     if (!asJson)
                         insertResult = bucket.Upsert<T>(key, value, expiration);
@@ -633,7 +633,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (!asJson)
                                 insertResult = bucket.Upsert<T>(key, value, expiration);
@@ -664,8 +664,8 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
                 {
                     if (cas > 0)
                     {
@@ -704,7 +704,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (cas > 0)
                                 insertResult = bucket.Upsert<T>(key, value, cas, expiration);
@@ -747,8 +747,8 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
                 {
                     if (cas > 0)
                     {
@@ -774,7 +774,7 @@ namespace CouchbaseManager
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
                             if (cas > 0)
                                 insertResult = bucket.Upsert<T>(key, value, cas, expiration);
@@ -836,8 +836,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(key);
                 }
@@ -878,8 +878,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(key);
                 }
@@ -934,8 +934,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(key);
                 }
@@ -973,8 +973,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: GetWithLock; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     if (withLock)
                     {
@@ -1020,8 +1020,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
 
                 IOperationResult removeResult;
-                string action = string.Format("Action: Remove; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.DELETE, Database = cbDescription })
                 {
                     if (cas == 0)
                         removeResult = bucket.Remove(key);
@@ -1065,8 +1065,8 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(key);
                 }
@@ -1130,8 +1130,8 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(key);
                 }
@@ -1178,8 +1178,8 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
             {
                 if (!asJson)
                     setResult = bucket.Upsert(key, value, version, expiration);
@@ -1202,7 +1202,7 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                     {
                         if (!asJson)
                             setResult = bucket.Upsert(key, value, version, expiration);
@@ -1227,8 +1227,8 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
             {
                 if (!asJson)
                     setResult = bucket.Upsert(key, value, version, expiration);
@@ -1254,7 +1254,7 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                     {
                         if (!asJson)
                             setResult = bucket.Upsert(key, value, version, expiration);
@@ -1290,8 +1290,8 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
             {
                 if (!asJson)
                     setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1314,7 +1314,7 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                     {
                         if (!asJson)
                             setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1339,8 +1339,8 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
             {
                 if (!asJson)
                     setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1366,7 +1366,7 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                     {
                         if (!asJson)
                             setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1442,8 +1442,8 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IDictionary<string, IOperationResult<T>> getResult;
 
-                string action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(keys);
                 }
@@ -1806,8 +1806,8 @@ namespace CouchbaseManager
             var bucket = ClusterHelper.GetBucket(bucketName);
             IOperationResult<ulong> incrementResult = null;
 
-            string action = string.Format("Action: Increment; bucket: {0}; key: {1}", bucketName, key);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.COMMAND, Database = cbDescription })
             {
                 if (ttl == null)
                     incrementResult = bucket.Increment(key, delta);
