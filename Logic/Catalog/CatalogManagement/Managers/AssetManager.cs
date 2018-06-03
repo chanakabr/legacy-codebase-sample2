@@ -1547,9 +1547,10 @@ namespace Core.Catalog.CatalogManagement
             long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "TRICK_PLAY_BUFFER", 0);
             string externalIngestId = ODBCWrapper.Utils.GetSafeStr(dr, "CHANNEL_ID");
             string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
+            LinearChannelType channelType = (LinearChannelType)ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_channel_type");
             TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
             result = new LinearMediaAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
-                                                catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings);
+                                                catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
 
             return result;
         }
@@ -1561,7 +1562,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
                                                                 linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.BufferCatchUp, linearMediaAssetToAdd.BufferTrickPlay,
-                                                                linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalEpgIngestId, mediaAsset.Id, userId);
+                                                                linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalEpgIngestId, mediaAsset.Id, linearMediaAssetToAdd.ChannelType, userId);
                 result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
                 if (result.Object != null)
                 {
@@ -1589,8 +1590,9 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataTable dt = CatalogDAL.UpdateLinearMediaAsset(groupId, mediaAsset.Id, linearMediaAssetToUpdate.EnableCdvrState, linearMediaAssetToUpdate.EnableCatchUpState,
-                                                                linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState, linearMediaAssetToUpdate.EnableTrickPlayState,
-                                                                linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay, linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalEpgIngestId, userId);
+                                                                linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState,
+                                                                linearMediaAssetToUpdate.EnableTrickPlayState, linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay,
+                                                                linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalEpgIngestId, linearMediaAssetToUpdate.ChannelType, userId);
                 result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
 
                 if (result.Object != null)

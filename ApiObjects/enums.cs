@@ -1037,4 +1037,13 @@ namespace ApiObjects
         Media = 0,
         Linear = 1
     }
+
+    public enum LinearChannelType
+    {
+        Unknown = 0,
+        Dtt = 1,
+        Ott = 2,
+        Dtt_and_ott = 3
+    }
+
 }

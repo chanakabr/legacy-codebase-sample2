@@ -26,6 +26,7 @@ namespace Core.Catalog.CatalogManagement
         public long SummedCatchUpBuffer { get; set; }
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
+        public LinearChannelType ChannelType { get; set; }
 
         public LinearMediaAsset()
             :base()
@@ -47,10 +48,11 @@ namespace Core.Catalog.CatalogManagement
             this.SummedTrickPlayBuffer = 0;
             this.RecordingPlaybackNonEntitledChannelEnabled = false;
             this.MediaAssetType = MediaAssetType.Linear;
+            this.ChannelType = LinearChannelType.Unknown;
         }
 
         public LinearMediaAsset(TstvState enableCdvr, TstvState enableCatchUp, TstvState enableStartOver, TstvState enableTrickPlay, TstvState enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
-                                long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings)
+                                long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
             : base(mediaAsset)
         {
             this.MediaAssetType = MediaAssetType.Linear;
@@ -63,6 +65,7 @@ namespace Core.Catalog.CatalogManagement
             this.BufferTrickPlay = trickPlayBuffer;
             this.ExternalEpgIngestId = externalIngestId;
             this.ExternalCdvrId = externalCdvrId;
+            this.ChannelType = channelType;
             FillEnabledAndBufferProperties(accountTstvSettings);
         }
 
