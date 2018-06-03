@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
             string lowerActionName = actionName.ToLower();
             if (oldStandardActions != null && oldStandardActions.ContainsValue(lowerActionName))
                 actionName = oldStandardActions.FirstOrDefault(value => value.Value == lowerActionName).Key;
-            
+
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
@@ -100,9 +100,14 @@ namespace WebAPI.Controllers
             CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
-            {                
+            {
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
-                
+
+                // add action to log
+                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                    string.IsNullOrEmpty(service_name) ? "null" : service_name,
+                    string.IsNullOrEmpty(action_name) ? "null" : action_name);
+
                 // generic methods handling
                 if (methodInfo.IsGenericMethod)
                 {
@@ -167,8 +172,8 @@ namespace WebAPI.Controllers
         [Route(""), HttpPost]
         public async Task<object> _NoRoute()
         {
-            string service = (string) HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
-            string action = (string) HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
+            string service = (string)HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
+            string action = (string)HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
             return await Action(service, action);
         }
 
@@ -203,7 +208,7 @@ namespace WebAPI.Controllers
                 log.Error("Failed to perform action", ex);
 
                 var failureHttpCode = methodInfo.GetCustomAttribute(typeof(FailureHttpCodeAttribute));
-            
+
 
                 if (ex.InnerException is ApiException)
                 {
