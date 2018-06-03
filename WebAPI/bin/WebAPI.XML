@@ -6141,6 +6141,11 @@
             Is trick-play enabled for this asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ChannelType">
+            <summary>
+            channel type, possible values: UNKNOWN, DTT, OTT, DTT_AND_OTT
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
             <summary>
             Media-asset info

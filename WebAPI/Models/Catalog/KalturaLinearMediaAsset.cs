@@ -162,6 +162,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public bool TrickPlayEnabled { get; set; }
 
+        /// <summary>
+        /// channel type, possible values: UNKNOWN, DTT, OTT, DTT_AND_OTT
+        /// </summary>
+        [DataMember(Name = "channelType")]
+        [JsonProperty(PropertyName = "channelType")]
+        [XmlElement(ElementName = "channelType")]        
+        public KalturaLinearChannelType? ChannelType { get; set; }
+
         internal void ValidateForInsert()
         {
             if (EnableCatchUpState == null)
@@ -225,6 +233,15 @@ namespace WebAPI.Models.Catalog
         INHERITED = 0,
         ENABLED = 1,
         DISABLED = 2
+    }
+
+    [Serializable]
+    public enum KalturaLinearChannelType
+    {
+        UNKNOWN = 0,
+        DTT = 1,
+        OTT = 2,
+        DTT_AND_OTT = 3
     }
 
 }

@@ -4768,6 +4768,8 @@ namespace WebAPI.Reflection
                             return "catchUpEnabled";
                         case "CdvrEnabled":
                             return "cdvrEnabled";
+                        case "ChannelType":
+                            return "channelType";
                         case "EnableCatchUpState":
                             return "enableCatchUpState";
                         case "EnableCdvrState":
