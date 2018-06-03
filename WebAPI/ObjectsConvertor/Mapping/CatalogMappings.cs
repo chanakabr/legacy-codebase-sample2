@@ -583,7 +583,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
+                .ForMember(dest => dest.ChannelType, opt => opt.MapFrom(src => ConvertToLinearChannelType(src.ChannelType)));
 
             // Asset to KalturaAsset
             Mapper.CreateMap<Asset, KalturaAsset>()
@@ -650,7 +651,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
+                .ForMember(dest => dest.ChannelType, opt => opt.MapFrom(src => ConvertToKalturaLinearChannelType(src.ChannelType)));
 
             // AssetStructMeta to KalturaAssetStructMeta
             Mapper.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()
@@ -1636,7 +1638,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        internal static TstvState? ConvertToTstvState(KalturaTimeShiftedTvState? timeShiftedTvState)
+        private static TstvState? ConvertToTstvState(KalturaTimeShiftedTvState? timeShiftedTvState)
         {
             TstvState? response = null;
             if (timeShiftedTvState.HasValue)
@@ -1654,6 +1656,61 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown KalturaTimeShiftedTvState");
+                        break;
+                }
+            }
+
+            return response;
+        }
+
+        private static KalturaLinearChannelType? ConvertToKalturaLinearChannelType(LinearChannelType? channelType)
+        {
+            KalturaLinearChannelType? response = null;
+            if (channelType.HasValue)
+            {
+                switch (channelType.Value)
+                {
+                    case LinearChannelType.Dtt:
+                        response = KalturaLinearChannelType.DTT;
+                        break;
+                    case LinearChannelType.Dtt_and_ott:
+                        response = KalturaLinearChannelType.DTT_AND_OTT;
+                        break;
+                    case LinearChannelType.Ott:
+                        response = KalturaLinearChannelType.OTT;
+                        break;
+                    case LinearChannelType.Unknown:
+                        response = KalturaLinearChannelType.UNKNOWN;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown LinearChannelType");
+                }
+            }
+
+            return response;
+        }
+
+        private static LinearChannelType? ConvertToLinearChannelType(KalturaLinearChannelType? channelType)
+        {
+            LinearChannelType? response = null;
+            if (channelType.HasValue)
+            {
+                switch (channelType.Value)
+                {
+                    case KalturaLinearChannelType.DTT:
+                        response = LinearChannelType.Dtt;
+                        break;
+                    case KalturaLinearChannelType.DTT_AND_OTT:
+                        response = LinearChannelType.Dtt_and_ott;
+                        break;
+                    case KalturaLinearChannelType.OTT:
+                        response = LinearChannelType.Ott;
+                        break;
+                    case KalturaLinearChannelType.UNKNOWN:
+                        response = LinearChannelType.Unknown;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaLinearChannelType");
                         break;
                 }
             }
