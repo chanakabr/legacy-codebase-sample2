@@ -785,6 +785,13 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
+        <member name="M:WebAPI.Controllers.DiscountDetailsController.List(WebAPI.Models.Pricing.KalturaDiscountDetailsFilter)">
+            <summary>
+            Returns the list of available discounts details, can be filtered by discount codes
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
             <summary>
             Returns the data about the next renewal 
@@ -9279,6 +9286,56 @@
             Indicates whether to use special characters in the generated codes(default is true)
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscount">
+            <summary>
+            Discount
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscount.Percentage">
+            <summary>
+            The discount percentage
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscountDetails">
+            <summary>
+            Discount details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.Id">
+            <summary>
+            The discount ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.name">
+            <summary>
+            The price code name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.MultiCurrencyDiscount">
+            <summary>
+            Multi currency discounts for all countries and currencies
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.StartDate">
+            <summary>
+            Start date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.EndtDate">
+            <summary>
+            End date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsListResponse.Discounts">
+            <summary>
+            A list of price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsFilter.IdIn">
+            <summary>
+            Comma separated discount codes
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
             <summary>
             Comma separated price plans identifiers 
@@ -9747,6 +9804,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountCode">
             <summary>
             Discount code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountId">
+            <summary>
+            Discount ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
