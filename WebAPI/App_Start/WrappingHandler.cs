@@ -51,6 +51,8 @@ namespace WebAPI.App_Start
                             request.RequestUri.OriginalString,            // 0
                             await request.Content.ReadAsStringAsync());   // 1 
 
+            ExtractActionToLog(request.RequestUri);
+
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
                 //let other handlers process the request
@@ -119,6 +121,43 @@ namespace WebAPI.App_Start
 
             return newResponse;
         }
+
+        private static void ExtractActionToLog(Uri uri)
+        {
+            var segments = uri.Segments;
+            bool isActionExtracted = false;
+            try
+            {
+                if (segments != null && segments.Length > 0)
+                {
+                    for (int i = 0; i < segments.Length; i++)
+                    {
+                        if (segments[i].ToLower() == "service/")
+                        {
+                            if (i + 3 < segments.Length)
+                            {
+                                string service = segments[i + 1].Replace("/", string.Empty);
+                                string action = segments[i + 3].Replace("/", string.Empty); ;
+
+                                // add action to log
+                                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                                    string.IsNullOrEmpty(service) ? "null" : service,
+                                    string.IsNullOrEmpty(action) ? "null" : action);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to extract action+service from request URL. Original request: {0}, ex: {1}", uri.OriginalString, ex);
+            }
+
+            if (!isActionExtracted)
+                log.WarnFormat("Could not extract action + service from request query. Original request: {0}", uri.OriginalString);
+        }
+
 
         [DataContract(Name = "error")]
         public class KalturaAPIExceptionWrapper
