@@ -16,6 +16,10 @@ namespace KLogMonitor
         public const string USER_ID = "kmon_user_id";
         public const string TOPIC = "kmon_topic";
 
+        // same key as in REST solution  WebAPI.Filters.RequestParser 
+        // in-case changing this  - you must change there  as well
+        public const string KS = "global_ks";
+
         // event names (for monitor)
         public const string EVENT_API_START = "start";
         public const string EVENT_API_END = "end";

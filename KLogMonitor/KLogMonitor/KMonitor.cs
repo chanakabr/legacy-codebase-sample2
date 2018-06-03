@@ -272,16 +272,17 @@ namespace KLogMonitor
                 {
                     /* We are firing the END event, so we just overriding the START */
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
+                    // check if data from context was updated (needed to add action to end_api log)
+                    UpdateMonitorData();
                 }
 
                 if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
                 {
                     /* We are firing the END event, so we just overriding the START */
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
+                    // check if data from context was updated (needed to add action to end_api log)
+                    UpdateMonitorData();
                 }
-
-                // check if data from context was updated
-                //UpdateMonitorData();
 
                 logger.Monitor(this.ToString());
             }
