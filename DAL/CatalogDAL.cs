@@ -5496,7 +5496,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
-                                                    long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, long userId)
+                                                    long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, LinearChannelType? channelType, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5511,13 +5511,19 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
             sp.AddParameter("@ExternalIngestId", externalIngestId);
             sp.AddParameter("@MediaId", mediaId);
+            if (channelType.HasValue)
+            {
+                sp.AddParameter("@EpgChannelType", channelType);
+            }
+
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.Execute();
         }
 
         public static DataTable UpdateLinearMediaAsset(int groupId, long mediaId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
-                                                        TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long userId)
+                                                        TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, LinearChannelType? channelType,
+                                                        long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5551,7 +5557,12 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
             sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
             sp.AddParameter("@ExternalCdvrId", externalCdvrId);
-            sp.AddParameter("@ExternalIngestId", externalIngestId);      
+            sp.AddParameter("@ExternalIngestId", externalIngestId);
+            if (channelType.HasValue)
+            {
+                sp.AddParameter("@EpgChannelType", channelType);
+            }
+
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.Execute();
