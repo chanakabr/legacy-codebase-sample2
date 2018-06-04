@@ -702,7 +702,7 @@ namespace Core.Notification
                 if (string.IsNullOrEmpty(dbReminder.ExternalPushId))
                 {
                     // Create topic
-                    string externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name, dbReminder.ID);
+                    string externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name, true);
                     if (string.IsNullOrEmpty(externalTopicId))
                     {
                         log.DebugFormat("failed to create topic groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
