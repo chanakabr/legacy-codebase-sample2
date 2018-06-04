@@ -382,8 +382,8 @@ namespace APILogic.Notification
             if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
-                {
-                    string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue));
+                {               
+                    string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue), true);
                     if (string.IsNullOrEmpty(externalId))
                     {
                         log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, interestNotification.TopicNameValue);

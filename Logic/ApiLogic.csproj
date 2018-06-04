@@ -483,6 +483,7 @@
     <Compile Include="Pricing\CollectionsResponse.cs" />
     <Compile Include="Pricing\CouponsGroupResponse.cs" />
     <Compile Include="Pricing\CouponGroupGenerationResponse.cs" />
+    <Compile Include="Pricing\DiscountDetails.cs" />
     <Compile Include="Pricing\PriceDetails.cs" />
     <Compile Include="Pricing\DependencySet.cs" />
     <Compile Include="Pricing\SubscriptionSetsResponse.cs" />

@@ -183,12 +183,12 @@ namespace PermissionsManager
                 case ePermissionItemType.Action:
                 case ePermissionItemType.Argument:
                     {
-                        result = string.Format("controller_{0}", this.Service);
+                        result = this.Service; //string.Format("controller_{0}", this.Service);
                         break;
                     }
                 case ePermissionItemType.Parameter:
                     {
-                        result = string.Format("object_type_{0}", this.Object);
+                        result = this.Object; //string.Format("object_type_{0}", this.Object);
                         break;
                     }
                 default:

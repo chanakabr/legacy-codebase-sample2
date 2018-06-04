@@ -661,9 +661,10 @@ namespace Core.Catalog
                 DateTime endDate = epgSearch.m_dEndDate;
                 
                 CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
+
+                int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);                
                 epgSearch.m_bSearchEndDate = catalogCache.IsTstvSettingsExists(nParentGroupID);
-                
+
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
