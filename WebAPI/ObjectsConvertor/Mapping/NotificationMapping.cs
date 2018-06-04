@@ -212,13 +212,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.Ksql))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.CreateDate))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                 .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
             
             Mapper.CreateMap<FollowDataBase, KalturaPersonalList>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnouncementId))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FollowPhrase))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
 
             Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));

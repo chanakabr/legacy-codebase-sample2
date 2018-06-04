@@ -48,6 +48,14 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "ksql")]
         [SchemeProperty(MinLength = 1)]
         public string Ksql { get; set; }
+
+        /// <summary>
+        /// Partner List Type (optional)
+        /// </summary>
+        [DataMember(Name = "partnerListType")]
+        [JsonProperty(PropertyName = "partnerListType")]
+        [XmlElement(ElementName = "partnerListType")]
+        public int PartnerListType { get; set; }
     }
 
     /// <summary>
@@ -75,6 +83,15 @@ namespace WebAPI.Models.Notification
 
     public class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
     {
+        /// <summary>
+        /// partnerListType
+        /// </summary>
+        [DataMember(Name = "partnerListTypeEqual")]
+        [JsonProperty(PropertyName = "partnerListTypeEqual")]
+        [XmlElement(ElementName = "partnerListTypeEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PartnerListTypeEqual { get; set; }
+
         public override KalturaPersonalListOrderBy GetDefaultOrderByValue()
         {
             return KalturaPersonalListOrderBy.START_DATE_DESC;

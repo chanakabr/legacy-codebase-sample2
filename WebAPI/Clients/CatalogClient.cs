@@ -2641,12 +2641,13 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, List<int> assetTypes, string kSql, KalturaAssetOrderBy orderBy, 
-            KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize)
+        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, List<int> assetTypes, string kSql, KalturaAssetOrderBy orderBy,
+                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, int? partnerListType)
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
-            Models.Notification.KalturaPersonalListListResponse personalListRespnse = ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.START_DATE_ASC);
+            Models.Notification.KalturaPersonalListListResponse personalListRespnse = 
+                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.START_DATE_ASC, partnerListType);
             if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();
@@ -2668,7 +2669,6 @@ namespace WebAPI.Clients
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
                         orderBy, assetTypes, null, false, dynamicOrderBy,
                         groupBy, null);
-
             }
 
             return response;

@@ -43,6 +43,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
+        
+        /// <summary>
+        /// partnerListType
+        /// </summary>
+        [DataMember(Name = "partnerListTypeEqual")]
+        [JsonProperty(PropertyName = "partnerListTypeEqual")]
+        [XmlElement(ElementName = "partnerListTypeEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PartnerListTypeEqual{ get; set; }
 
         internal List<int> getTypeIn()
         {

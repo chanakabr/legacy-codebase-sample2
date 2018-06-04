@@ -5079,6 +5079,16 @@ namespace WebAPI.Reflection
                             return "ksql";
                         case "Name":
                             return "name";
+                        case "PartnerListType":
+                            return "partnerListType";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeEqual":
+                            return "partnerListTypeEqual";
                     }
                     break;
                     
@@ -5095,6 +5105,8 @@ namespace WebAPI.Reflection
                     {
                         case "KSql":
                             return "kSql";
+                        case "PartnerListTypeEqual":
+                            return "partnerListTypeEqual";
                         case "TypeIn":
                             return "typeIn";
                     }
