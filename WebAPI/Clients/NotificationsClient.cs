@@ -763,9 +763,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal void DeletePersonalListItemFromUser(int groupId, int userID, string ksql)
+        internal void DeletePersonalListItemFromUser(int groupId, int userID, long personalListId)
         {
-            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, ksql);
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, personalListId);
             ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
         }
 

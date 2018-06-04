@@ -813,11 +813,11 @@
             <param name="personalList">Follow personal list item request parameters</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.String)">
+        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.Int64)">
             <summary>
             Remove followed item from user's personal list 
             </summary>
-            <param name="ksql">ksql identifier</param>
+            <param name="personalListId">personalListId identifier</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">

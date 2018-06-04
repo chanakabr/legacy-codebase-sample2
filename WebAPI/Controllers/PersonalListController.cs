@@ -94,15 +94,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove followed item from user's personal list 
         /// </summary>
-        /// <param name="ksql">ksql identifier</param>
+        /// <param name="personalListId">personalListId identifier</param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [SchemeArgument("ksql", MinLength = 1)]
+        [SchemeArgument("personalListId", MinLong = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.AnnouncementNotFound)]
         [Throws(eResponseStatus.InvalidUser)]
-        public void Delete(string ksql)
+        public void Delete(long personalListId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
 
-                ClientsManager.NotificationClient().DeletePersonalListItemFromUser(groupId, userId, ksql);
+                ClientsManager.NotificationClient().DeletePersonalListItemFromUser(groupId, userId, personalListId);
             }
             catch (ClientException ex)
             {
