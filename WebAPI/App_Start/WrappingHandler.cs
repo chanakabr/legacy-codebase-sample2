@@ -143,6 +143,7 @@ namespace WebAPI.App_Start
                                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                                     string.IsNullOrEmpty(service) ? "null" : service,
                                     string.IsNullOrEmpty(action) ? "null" : action);
+                                isActionExtracted = true;
                                 break;
                             }
                         }
