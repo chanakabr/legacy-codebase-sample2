@@ -74,57 +74,6 @@
       "name": "ExternalPaymentGateway"
     },
     {
-      "name": "QaSuspendPurchase"
-    },
-    {
-      "name": "QaSuspendPlayback"
-    },
-    {
-      "name": "QaTest1Updated"
-    },
-    {
-      "name": "QaTest2"
-    },
-    {
-      "name": "QaTest888"
-    },
-    {
-      "name": "RenewSuspended"
-    },
-    {
-      "name": "QaTest888"
-    },
-    {
-      "name": "PlaybackSuspended"
-    },
-    {
-      "name": "PurchaseService"
-    },
-    {
-      "name": "SuspendPurchasePPV"
-    },
-    {
-      "name": "PurchaseService"
-    },
-    {
-      "name": "SuspendPurchaseSubscription"
-    },
-    {
-      "name": "SuspendPlaybackSubscription"
-    },
-    {
-      "name": "SuspendPlaybackPPV"
-    },
-    {
-      "name": "LoginSuspended"
-    },
-    {
-      "name": "CancelSubscriptionSuspended"
-    },
-    {
-      "name": "QaTest_updated"
-    },
-    {
       "permissions": [
         "RENEW_SUBSCRIPTION",
         "LOGIN",
