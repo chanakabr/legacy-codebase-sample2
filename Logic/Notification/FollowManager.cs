@@ -187,7 +187,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
+        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, int? partnerListType, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse userFollowResponse = new GetUserFollowsResponse();
             userFollowResponse.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -226,16 +226,38 @@ namespace Core.Notification
                     }
                 }
 
-                // create response object
-                userFollowResponse.Follows = dbAnnouncements.Select(x => new FollowDataBase(groupId, x.FollowPhrase)
+                // filter Announcements by PartnerListType
+                List<Announcement> userAnnouncements = userNotificationData.Announcements;
+                if (partnerListType.HasValue)
                 {
-                    AnnouncementId = x.ID,
-                    Status = 1,                         // only enabled status in this phase
-                    Title = x.Name,
-                    FollowReference = x.FollowReference,
-                    Timestamp = userNotificationData.Announcements.FirstOrDefault(userAnn => userAnn.AnnouncementId == x.ID).AddedDateSec
-                })
-                .OrderBy(x => x.Timestamp).ToList();
+                    userAnnouncements = userNotificationData.Announcements.Where(x => x.PartnerListType == partnerListType.Value).ToList();
+                }
+
+                if (userAnnouncements != null && userAnnouncements.Count > 0)
+                {
+                    // create response object
+                    foreach (var currDBAnnouncement in dbAnnouncements)
+                    {
+                        Announcement currAnnouncement = userAnnouncements.FirstOrDefault(userAnn => userAnn.AnnouncementId == currDBAnnouncement.ID);
+
+                        if (currAnnouncement != null)
+                        {
+                            FollowDataBase currFollowDataBase = new FollowDataBase(groupId, currDBAnnouncement.FollowPhrase)
+                            {
+                                AnnouncementId = currDBAnnouncement.ID,
+                                Status = 1,                         // only enabled status in this phase
+                                Title = currDBAnnouncement.Name,
+                                FollowReference = currDBAnnouncement.FollowReference,
+                                Timestamp = currAnnouncement.AddedDateSec,
+                                PartnerListType = currAnnouncement.PartnerListType
+                            };
+
+                            userFollowResponse.Follows.Add(currFollowDataBase);
+                        }
+                    }
+
+                    userFollowResponse.Follows = userFollowResponse.Follows.OrderBy(x => x.Timestamp).ToList();
+                }
             }
             else
                 log.DebugFormat("User doesn't have any follow notifications. PID: {0}, UID: {1}", groupId, userId);
@@ -544,7 +566,7 @@ namespace Core.Notification
         {
             IdsResponse response = new IdsResponse(new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()), new List<int>());
 
-            var userFollows = Get_UserFollows(groupId, userId, 1000, 0, OrderDir.ASC);
+            var userFollows = Get_UserFollows(groupId, userId, 1000, 0, OrderDir.ASC, null);
             if (userFollows == null ||
                 userFollows.Status == null ||
                 userFollows.Status.Code != (int)eResponseStatus.OK ||
@@ -1008,7 +1030,8 @@ namespace Core.Notification
                 {
                     AnnouncementId = followItem.AnnouncementId,
                     AnnouncementName = announcementToFollow.Name,
-                    AddedDateSec = addedSecs
+                    AddedDateSec = addedSecs,
+                    PartnerListType = followItem.PartnerListType
                 });
 
                 response.Object = new FollowDataBase(followItem.GroupId, announcementToFollow.FollowPhrase)
@@ -1018,7 +1041,8 @@ namespace Core.Notification
                     Title = announcementToFollow.Name,
                     //Type = FollowType.TV_Series_VOD,  // only TV series in this phase
                     FollowReference = announcementToFollow.FollowReference,
-                    Timestamp = addedSecs
+                    Timestamp = addedSecs,
+                    PartnerListType = followItem.PartnerListType
                 };
 
                 if (!DAL.NotificationDal.SetUserNotificationData(followItem.GroupId, userId, userNotificationData))

@@ -634,12 +634,12 @@ namespace Core.Notification
             return FollowManager.DeletePersonalListItemFromUser(groupId, userId, personalListId);
         }
 
-        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
+        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, int? partnerListType, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse response = null;
             try
             {
-                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order, isFollowTvSeriesRequest);
+                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order, partnerListType, isFollowTvSeriesRequest);
             }
             catch (Exception ex)
             {
