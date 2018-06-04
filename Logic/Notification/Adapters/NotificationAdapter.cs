@@ -14,12 +14,12 @@ namespace Core.Notification.Adapters
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static string CreateAnnouncement(int groupId, string announcementName, long announcemenId = 0)
+        public static string CreateAnnouncement(int groupId, string announcementName, bool isUniqueName = false)
         {
             // create Amazon topic name (without special characters + announcemenId + GID)
-            if (announcemenId > 0)
+            if (isUniqueName)
             {
-                announcementName = string.Format("{0}_{1}_{2}", Utils.Base64ForUrlEncode(announcementName), announcemenId.ToString(), groupId);
+                announcementName = string.Format("{0}_{1}_{2}", Utils.Base64ForUrlEncode(announcementName), Guid.NewGuid().ToString(), groupId);
             }
             else
             {
@@ -41,14 +41,14 @@ namespace Core.Notification.Adapters
 
                         externalAnnouncementId = client.CreateTopic(announcementName);
                         if (string.IsNullOrEmpty(externalAnnouncementId))
-                            log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, announcement Id: {1}", announcementName, announcemenId);
+                            log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, isUniqueName: {1}", announcementName, isUniqueName);
                         else
-                            log.DebugFormat("successfully created announcement. announcement Name: {0}, announcement Id: {1}", announcementName, announcemenId);
+                            log.DebugFormat("successfully created announcement. announcement Name: {0}, isUniqueName: {1}", announcementName, isUniqueName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, announcement Id: {1}, ex: {2}", announcementName, announcemenId, ex);
+                    log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, isUniqueName: {1}, ex: {2}", announcementName, isUniqueName, ex);
                 }
             }
             return externalAnnouncementId;
