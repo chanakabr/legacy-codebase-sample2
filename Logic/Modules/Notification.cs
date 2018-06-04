@@ -629,9 +629,9 @@ namespace Core.Notification
             return FollowManager.AddPersonalListItemToUser(userId, personalListItemToFollow);
         }
 
-        public static Status DeletePersonalListItemFromUser(int groupId, int userId, string ksql)
+        public static Status DeletePersonalListItemFromUser(int groupId, int userId, long personalListId)
         {
-            return FollowManager.DeletePersonalListItemFromUser(groupId, userId, ksql);
+            return FollowManager.DeletePersonalListItemFromUser(groupId, userId, personalListId);
         }
 
         public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)

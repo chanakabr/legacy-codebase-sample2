@@ -264,15 +264,45 @@ namespace Core.Notification
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             // populate follow phrase
             followData.FollowPhrase = GetSeriesFollowPhrase(groupId, followData.Title);
-            
-            statusResult = RemoveFollowItemFromUser(groupId, userId, followData.FollowPhrase);
+
+            // get announcement from DB
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+            // get user announcement
+            DbAnnouncement userDbAnnouncement = null;
+            if (announcements != null)
+                userDbAnnouncement = announcements.FirstOrDefault(ann => ann.FollowPhrase == followData.FollowPhrase);
+
+            if (userDbAnnouncement == null)
+            {
+                log.ErrorFormat("user is not following any asset. group: {0}, user: {1}, phrase: {2}", groupId, userId, followData.FollowPhrase);
+                return new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
+            }
+
+            statusResult = RemoveFollowItemFromUser(groupId, userId, userDbAnnouncement);
 
             return statusResult;
         }
         
-        internal static Status DeletePersonalListItemFromUser(int groupId, int userId, string ksql)
+        internal static Status DeletePersonalListItemFromUser(int groupId, int userId, long personalListId)
         {
-            return RemoveFollowItemFromUser(groupId, userId, ksql);
+            // get announcement from DB
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+            // get user announcement
+            DbAnnouncement userDbAnnouncement = null;
+            if (announcements != null)
+                userDbAnnouncement = announcements.FirstOrDefault(ann => ann.ID == personalListId);
+
+            if (userDbAnnouncement == null)
+            {
+                log.ErrorFormat("user is not following any asset. group: {0}, user: {1}, personalListId: {2}", groupId, userId, personalListId);
+                return new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
+            }
+
+            return RemoveFollowItemFromUser(groupId, userId, userDbAnnouncement);
         }
 
         internal static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
@@ -1015,33 +1045,17 @@ namespace Core.Notification
             return response;
         }
 
-        private static Status RemoveFollowItemFromUser(int groupId, int userId, string followPhrase)
+        private static Status RemoveFollowItemFromUser(int groupId, int userId, DbAnnouncement userDbAnnouncement)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
+            
             // get user notification data
             bool docExists = false;
             UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
 
-            // get announcement from DB
-            List<DbAnnouncement> announcements = null;
-            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
-
-            if (announcements != null)
-                announcements = announcements.Where(ann => ann.FollowPhrase == followPhrase).ToList();
-
-            if (announcements.Count == 0)
-            {
-                log.ErrorFormat("user is not following any asset. group: {0}, user: {1}, phrase: {2}", groupId, userId, followPhrase);
-                statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
-                return statusResult;
-            }
-
-            // get user announcement
-            long announcementId = announcements.FirstOrDefault().ID;
             if (userNotificationData == null ||
                 userNotificationData.Announcements == null ||
-                userNotificationData.Announcements.Count(x => x.AnnouncementId == announcementId) == 0)
+                userNotificationData.Announcements.Count(x => x.AnnouncementId == userDbAnnouncement.ID) == 0)
             {
                 log.DebugFormat("user notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
                 statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
@@ -1052,19 +1066,19 @@ namespace Core.Notification
                 userNotificationData.Settings.EnableMail.HasValue &&
                 userNotificationData.Settings.EnableMail.Value)
             {
-                MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.FirstOrDefault().MailExternalId }, userNotificationData.UserData, userId);
+                MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { userDbAnnouncement.MailExternalId }, userNotificationData.UserData, userId);
             }
 
-            HandleUnfollowSms(groupId, userId, announcementId);
-            HandleUnfollowPush(groupId, userId, userNotificationData, announcementId);
+            HandleUnfollowSms(groupId, userId, userDbAnnouncement.ID);
+            HandleUnfollowPush(groupId, userId, userNotificationData, userDbAnnouncement.ID);
 
             // remove announcement from user announcement list
-            Announcement announcement = userNotificationData.Announcements.FirstOrDefault(x => x.AnnouncementId == announcementId);
+            Announcement announcement = userNotificationData.Announcements.FirstOrDefault(x => x.AnnouncementId == userDbAnnouncement.ID);
             if (!userNotificationData.Announcements.Remove(announcement) ||
                 !NotificationDal.RemoveUserFollowNotification(groupId, userId, announcement.AnnouncementId) ||
                 !DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
             {
-                log.DebugFormat("an error while trying to remove announcement. GID: {0}, UID: {1}, announcementId: {2}", groupId, userId, announcementId);
+                log.DebugFormat("an error while trying to remove announcement. GID: {0}, UID: {1}, announcementId: {2}", groupId, userId, userDbAnnouncement.ID);
                 statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             else
