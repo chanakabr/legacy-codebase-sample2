@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SocialFriendActivity_List",
+      "service": "SocialFriendActivity",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

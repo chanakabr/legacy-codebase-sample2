@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Session_Get",
+      "service": "Session",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Session_SwitchUser",
+      "service": "Session",
+      "action": "SwitchUser",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Session_Revoke",
+      "service": "Session",
+      "action": "Revoke",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Session_Get_Session",
+      "parameter": "session",
+      "service": "Session",
+      "action": "Get",
+      "type": "Argument"
+    }
+  ],
+  "type": "Action"
+}

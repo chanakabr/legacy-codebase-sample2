@@ -600,6 +600,13 @@ namespace WebAPI.Managers
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
         {
+            // Check if KS already validated by gateway
+            string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
+            if(ksRandomHeader == ks.Random)
+            {
+                return true;
+            }
+
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
             {
                 return false;

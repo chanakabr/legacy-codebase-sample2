@@ -1,0 +1,16 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_ExternalId_Update",
+      "object": "KalturaOTTUser",
+      "parameter": "externalId",
+      "action": "UPDATE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

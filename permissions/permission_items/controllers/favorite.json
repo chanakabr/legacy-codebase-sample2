@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Favorite_Add",
+      "service": "Favorite",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Favorite_Delete",
+      "service": "Favorite",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Favorite_List",
+      "service": "Favorite",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

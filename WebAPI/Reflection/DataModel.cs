@@ -38,6 +38,8 @@ namespace WebAPI.Reflection
                     {
                         case "Descriptions":
                             return DeprecatedAttribute.IsDeprecated("4.8.0.0");
+                        case "DiscountCode":
+                            return DeprecatedAttribute.IsDeprecated("4.8.2.0");
                     };
                     break;
                     
@@ -1095,6 +1097,12 @@ namespace WebAPI.Reflection
                     ret = new Dictionary<string, string>() { 
                         {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                    };
+                    break;
+                    
+                case "KalturaDiscount":
+                    ret = new Dictionary<string, string>() { 
+                        {"currencySign", "currency_sign"},
                     };
                     break;
                     
@@ -3225,6 +3233,8 @@ namespace WebAPI.Reflection
                             return "descriptions";
                         case "DiscountCode":
                             return "discountCode";
+                        case "DiscountId":
+                            return "discountId";
                         case "EndDate":
                             return "endDate";
                         case "Id":
@@ -3399,6 +3409,44 @@ namespace WebAPI.Reflection
                     {
                         case "LastAccessDateGreaterThanOrEqual":
                             return "lastAccessDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaDiscount":
+                    switch(property.Name)
+                    {
+                        case "Percentage":
+                            return "percentage";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "EndtDate":
+                            return "endDate";
+                        case "Id":
+                            return "id";
+                        case "MultiCurrencyDiscount":
+                            return "multiCurrencyDiscount";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Discounts":
+                            return "objects";
                     }
                     break;
                     

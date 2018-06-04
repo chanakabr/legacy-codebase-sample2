@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfileSettings_List",
+      "service": "OSSAdapterProfileSettings",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfileSettings_Delete",
+      "service": "OSSAdapterProfileSettings",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfileSettings_Add",
+      "service": "OSSAdapterProfileSettings",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OSSAdapterProfileSettings_Update",
+      "service": "OSSAdapterProfileSettings",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

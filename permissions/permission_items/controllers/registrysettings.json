@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "excluded_permissions": [],
+      "name": "RegistrySettings_List",
+      "service": "RegistrySettings",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -4,9 +4,9 @@
 
 1) Build docker
 	```
-	docker build -t phoenix .
+	docker build -t kaltura/phoenix .
 	```
 2) Run docker
 	```
-	docker run phoenix
+	docker run kaltura/phoenix
 	```

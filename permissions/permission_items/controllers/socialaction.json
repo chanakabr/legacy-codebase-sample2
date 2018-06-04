@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SocialAction_Add",
+      "service": "SocialAction",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SocialAction_List",
+      "service": "SocialAction",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SocialAction_Delete",
+      "service": "SocialAction",
+      "action": "Delete",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

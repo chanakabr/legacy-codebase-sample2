@@ -1,0 +1,69 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_SetDevicePushToken",
+      "service": "Notification",
+      "action": "SetDevicePushToken",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_Register",
+      "service": "Notification",
+      "action": "Register",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_GetLastCleanupDate",
+      "service": "Notification",
+      "action": "GetLastCleanupDate",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_InitiateCleanup",
+      "service": "Notification",
+      "action": "InitiateCleanup",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_SendPush",
+      "service": "Notification",
+      "action": "SendPush",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Notification_SendSms",
+      "service": "Notification",
+      "action": "SendSms",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

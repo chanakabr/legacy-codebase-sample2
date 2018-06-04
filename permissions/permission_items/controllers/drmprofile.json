@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "drmProfile_List",
+      "service": "drmProfile",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

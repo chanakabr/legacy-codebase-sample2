@@ -1,0 +1,190 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_List",
+      "service": "Asset",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Get",
+      "service": "Asset",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Autocomplete",
+      "service": "Asset",
+      "action": "Autocomplete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Related",
+      "service": "Asset",
+      "action": "Related",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Channel",
+      "service": "Asset",
+      "action": "Channel",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_ExternalChannel",
+      "service": "Asset",
+      "action": "ExternalChannel",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_GetPlaybackContext",
+      "service": "Asset",
+      "action": "GetPlaybackContext",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Count",
+      "service": "Asset",
+      "action": "Count",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_GetAdsContext",
+      "service": "Asset",
+      "action": "GetAdsContext",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Search",
+      "service": "Asset",
+      "action": "Search",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_relatedExternal",
+      "service": "Asset",
+      "action": "relatedExternal",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_searchExternal",
+      "service": "Asset",
+      "action": "searchExternal",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Add",
+      "service": "Asset",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Delete",
+      "service": "Asset",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_Update",
+      "service": "Asset",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_RemoveMetasAndTags",
+      "service": "Asset",
+      "action": "RemoveMetasAndTags",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

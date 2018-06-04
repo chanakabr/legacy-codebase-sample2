@@ -1,0 +1,27 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "NotificationsPartnerSettings_Get",
+      "service": "NotificationsPartnerSettings",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "excluded_permissions": [],
+      "name": "notificationsPartnerSettings_Update",
+      "service": "notificationsPartnerSettings",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

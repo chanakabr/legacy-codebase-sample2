@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalChannelProfile_List",
+      "service": "ExternalChannelProfile",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalChannelProfile_Delete",
+      "service": "ExternalChannelProfile",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalChannelProfile_Add",
+      "service": "ExternalChannelProfile",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalChannelProfile_Update",
+      "service": "ExternalChannelProfile",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
