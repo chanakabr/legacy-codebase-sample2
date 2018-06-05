@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Tvinci.Core.DAL;
 
 namespace Core.Notification
 {
@@ -187,7 +188,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, int? partnerListType, bool isFollowTvSeriesRequest = false)
+        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, HashSet<int> partnerListTypes, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse userFollowResponse = new GetUserFollowsResponse();
             userFollowResponse.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -226,11 +227,12 @@ namespace Core.Notification
                     }
                 }
 
-                // filter Announcements by PartnerListType
                 List<Announcement> userAnnouncements = userNotificationData.Announcements;
-                if (partnerListType.HasValue)
+                
+                // filter Announcements by PartnerListTypes
+                if (partnerListTypes != null && partnerListTypes.Count > 0)
                 {
-                    userAnnouncements = userNotificationData.Announcements.Where(x => x.PartnerListType == partnerListType.Value).ToList();
+                    userAnnouncements = userNotificationData.Announcements.Where(x => partnerListTypes.Contains(x.PartnerListType)).ToList();
                 }
 
                 if (userAnnouncements != null && userAnnouncements.Count > 0)
@@ -249,7 +251,8 @@ namespace Core.Notification
                                 Title = currDBAnnouncement.Name,
                                 FollowReference = currDBAnnouncement.FollowReference,
                                 Timestamp = currAnnouncement.AddedDateSec,
-                                PartnerListType = currAnnouncement.PartnerListType
+                                PartnerListType = currAnnouncement.PartnerListType,
+                                AssetTypes = currAnnouncement.AssetTypes
                             };
 
                             userFollowResponse.Follows.Add(currFollowDataBase);
@@ -329,6 +332,13 @@ namespace Core.Notification
 
         internal static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
         {
+            // Validate asset types
+            Status validateAssetTypesStatus = ValidateAssetTypes(personalListItemToFollow.AssetTypes, personalListItemToFollow.GroupId);
+            if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
+            {
+                return new GenericResponse<FollowDataBase>(validateAssetTypesStatus);
+            }
+
             return AddFollowItemToUser(userId, personalListItemToFollow);
         }
 
@@ -702,6 +712,39 @@ namespace Core.Notification
 
         #region Private Methods
 
+        private static Status ValidateAssetTypes(List<int> assetTypes, int groupID)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+
+            if (assetTypes != null)
+            {
+                Dictionary<int, string> mediaTypesIdToName;
+                Dictionary<string, int> mediaTypesNameToId;
+                Dictionary<int, int> mediaTypeParents;
+                List<int> linearMediaTypes;
+
+                CatalogDAL.GetMediaTypes(groupID,
+                    out mediaTypesIdToName,
+                    out mediaTypesNameToId,
+                    out mediaTypeParents,
+                    out linearMediaTypes);
+
+                HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
+
+                foreach (int assetType in assetTypes)
+                {
+                    if (!groupMediaTypes.Contains(assetType))
+                    {
+                        status.Code = (int)eResponseStatus.InvalidMediaType;
+                        status.Message = string.Format("Media type {0} does not belong to group", assetType);
+                        return status;
+                    }
+                }
+            }
+
+            return status;
+        }
+
         /// <summary>
         /// Add/Update group's Message template
         /// </summary>
@@ -1031,7 +1074,8 @@ namespace Core.Notification
                     AnnouncementId = followItem.AnnouncementId,
                     AnnouncementName = announcementToFollow.Name,
                     AddedDateSec = addedSecs,
-                    PartnerListType = followItem.PartnerListType
+                    PartnerListType = followItem.PartnerListType,
+                    AssetTypes = followItem.AssetTypes
                 });
 
                 response.Object = new FollowDataBase(followItem.GroupId, announcementToFollow.FollowPhrase)
@@ -1042,7 +1086,8 @@ namespace Core.Notification
                     //Type = FollowType.TV_Series_VOD,  // only TV series in this phase
                     FollowReference = announcementToFollow.FollowReference,
                     Timestamp = addedSecs,
-                    PartnerListType = followItem.PartnerListType
+                    PartnerListType = followItem.PartnerListType,
+                    AssetTypes = followItem.AssetTypes
                 };
 
                 if (!DAL.NotificationDal.SetUserNotificationData(followItem.GroupId, userId, userNotificationData))
