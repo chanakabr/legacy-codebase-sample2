@@ -10,22 +10,20 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelFilter : KalturaAssetFilter
+    public class KalturaPersonalListSearchFilter : KalturaBaseSearchAssetFilter
     {
-
-        private bool shouldUseChannelDefault = true;
-
         /// <summary>
-        ///Channel Id
+        /// Comma separated list of asset types to search within. 
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.
         /// </summary>
-        [DataMember(Name = "idEqual")]
-        [JsonProperty("idEqual")]
-        [XmlElement(ElementName = "idEqual")]
-        [SchemeProperty(MinInteger = 1)]
-        public int IdEqual { get; set; }
+        [DataMember(Name = "typeIn")]
+        [JsonProperty("typeIn")]
+        [XmlElement(ElementName = "typeIn", IsNullable = true)]
+        public string TypeIn { get; set; }
 
         /// <summary>
-        ///  /// <![CDATA[
+        /// <![CDATA[
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
         /// epg_id, media_id - for specific asset IDs.
@@ -45,41 +43,37 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
-
+        
         /// <summary>
-        /// Exclude watched asset. 
+        /// partnerListType
         /// </summary>
-        [DataMember(Name = "excludeWatched")]
-        [JsonProperty("excludeWatched")]
-        [XmlElement(ElementName = "excludeWatched", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public bool ExcludeWatched { get; set; }
+        [DataMember(Name = "partnerListTypeEqual")]
+        [JsonProperty(PropertyName = "partnerListTypeEqual")]
+        [XmlElement(ElementName = "partnerListTypeEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PartnerListTypeEqual{ get; set; }
 
-        /// <summary>
-        /// order by
-        /// </summary>
-        [DataMember(Name = "orderBy")]
-        [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy")]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public KalturaAssetOrderBy OrderBy
+        internal List<int> getTypeIn()
         {
-            get { return base.OrderBy; }
-            set
-            {
-                base.OrderBy = value;
-                shouldUseChannelDefault = false;
-            }
-        }
+            if (string.IsNullOrEmpty(TypeIn))
+                return null;
 
-        public bool GetShouldUseChannelDefault()
-        {
-            if (DynamicOrderBy != null)
+            List<int> values = new List<int>();
+            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
             {
-                return false;
+                int value;
+                if (int.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaBundleFilter.typeIn");
+                }
             }
-            return shouldUseChannelDefault;
-        }
 
+            return values;
+        }
     }
 }

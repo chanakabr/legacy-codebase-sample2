@@ -241,7 +241,8 @@
     <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
-    <Compile Include="Controllers\DiscountDetailsController.cs" />
+	<Compile Include="Controllers\DiscountDetailsController.cs" />
+	<Compile Include="Controllers\PersonalListController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -297,6 +298,7 @@
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\API\KalturaAssetRule.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaPersonalListSearchFilter.cs" />
     <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
@@ -308,6 +310,7 @@
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
     <Compile Include="Models\Notification\KalturaEmailMessage.cs" />
+    <Compile Include="Models\Notification\KalturaPersonalList.cs" />
     <Compile Include="Models\Pricing\KalturaCollectionPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCollection.cs" />
     <Compile Include="Models\Pricing\KalturaCouponGenerationOptions.cs" />

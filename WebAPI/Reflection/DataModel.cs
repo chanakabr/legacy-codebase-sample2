@@ -5116,6 +5116,50 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalList":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
+                        case "PartnerListType":
+                            return "partnerListType";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeEqual":
+                            return "partnerListTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListListResponse":
+                    switch(property.Name)
+                    {
+                        case "PersonalListList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
+                        case "PartnerListTypeEqual":
+                            return "partnerListTypeEqual";
+                        case "TypeIn":
+                            return "typeIn";
+                    }
+                    break;
+                    
                 case "KalturaPin":
                     switch(property.Name)
                     {
