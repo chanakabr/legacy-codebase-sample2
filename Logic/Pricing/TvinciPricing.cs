@@ -1901,19 +1901,20 @@ namespace Core.Pricing
             {
                 response.Objects = new List<DiscountDetails>();
 
-                foreach (var d in discountDetails)
+                foreach (DiscountDetails discountDitails in discountDetails)
                 {
+                    DiscountDetails dd = new DiscountDetails(discountDitails);
                     // filter by IDs
-                    if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(d.Id))
+                    if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(discountDitails.Id))
                         continue;
 
                     // filter by currency 
                     if (!currencyCode.Trim().Equals("*"))
                     {
-                        d.MultiCurrencyDiscounts = d.MultiCurrencyDiscounts != null ? d.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                        dd.MultiCurrencyDiscounts = discountDitails.MultiCurrencyDiscounts != null ? new List<Discount>(discountDitails.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList()) : null;
                     }
 
-                    response.Objects.Add(d);
+                    response.Objects.Add(dd);
                 }
 
                 response.Objects.OrderBy(pc => pc.Name);
