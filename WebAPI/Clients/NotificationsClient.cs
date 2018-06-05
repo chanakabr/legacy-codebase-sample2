@@ -727,7 +727,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, int? partnerListType)
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
         {
             GetUserFollowsResponse response = null;
 
@@ -740,7 +740,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListType, true);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListTypes, true);
                 }
             }
             catch (Exception ex)

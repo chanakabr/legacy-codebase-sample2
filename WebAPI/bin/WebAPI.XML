@@ -5551,9 +5551,10 @@
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaPersonalListSearchFilter.PartnerListTypeEqual">
+        <member name="P:WebAPI.Models.Catalog.KalturaPersonalListSearchFilter.PartnerListTypeIn">
             <summary>
-            partnerListType
+            Comma separated list of partner list types to search within. 
+            If omitted – all types should be included.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetListFilter.ExcludeWatched">
@@ -8648,6 +8649,11 @@
             Partner List Type (optional)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.AssetTypes">
+            <summary>
+            Asset types
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalListListResponse">
             <summary>
             List of KalturaPersonalList.
@@ -8658,9 +8664,10 @@
             Follow data list
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPersonalListFilter.PartnerListTypeEqual">
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalListFilter.PartnerListTypeIn">
             <summary>
-            partnerListType
+            Comma separated list of partner list types to search within. 
+            If omitted – all types should be included.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementType">

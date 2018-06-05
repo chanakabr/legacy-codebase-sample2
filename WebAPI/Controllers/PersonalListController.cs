@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid userId");
                 }
 
-                response = ClientsManager.NotificationClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.PartnerListTypeEqual);
+                response = ClientsManager.NotificationClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.GetPartnerListTypeIn());
             }
             catch (ClientException ex)
             {

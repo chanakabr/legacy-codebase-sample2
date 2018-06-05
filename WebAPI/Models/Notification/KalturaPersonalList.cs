@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -56,6 +57,29 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "partnerListType")]
         [XmlElement(ElementName = "partnerListType")]
         public int PartnerListType { get; set; }
+
+        /// <summary>
+        /// Asset types
+        /// </summary>
+        [DataMember(Name = "assetTypes")]
+        [JsonProperty(PropertyName = "assetTypes")]
+        [XmlArray(ElementName = "assetTypes", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaIntegerValue> AssetTypes { get; set; }
+
+        public int[] GetAssetTypes()
+        {
+            if (AssetTypes == null)
+                return null;
+
+            int[] assetTypes = new int[AssetTypes.Count];
+            for (int i = 0; i < AssetTypes.Count; i++)
+            {
+                assetTypes[i] = AssetTypes[i].value;
+            }
+
+            return assetTypes;
+        }
     }
 
     /// <summary>
@@ -84,13 +108,36 @@ namespace WebAPI.Models.Notification
     public class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
     {
         /// <summary>
-        /// partnerListType
+        /// Comma separated list of partner list types to search within. 
+        /// If omitted – all types should be included.
         /// </summary>
-        [DataMember(Name = "partnerListTypeEqual")]
-        [JsonProperty(PropertyName = "partnerListTypeEqual")]
-        [XmlElement(ElementName = "partnerListTypeEqual", IsNullable = true)]
-        [SchemeProperty(MinInteger = 1)]
-        public int? PartnerListTypeEqual { get; set; }
+        [DataMember(Name = "partnerListTypeIn")]
+        [JsonProperty("partnerListTypeIn")]
+        [XmlElement(ElementName = "partnerListTypeIn", IsNullable = true)]
+        public string PartnerListTypeIn { get; set; }
+
+        internal HashSet<int> GetPartnerListTypeIn()
+        {
+            if (string.IsNullOrEmpty(PartnerListTypeIn))
+                return null;
+
+            HashSet<int> values = new HashSet<int>();
+            string[] stringValues = PartnerListTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value) && value != 0)
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPersonalListFilter.PartnerListTypeIn");
+                }
+            }
+
+            return values;
+        }
 
         public override KalturaPersonalListOrderBy GetDefaultOrderByValue()
         {

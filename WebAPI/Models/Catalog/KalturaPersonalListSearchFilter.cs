@@ -7,6 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -45,13 +46,36 @@ namespace WebAPI.Models.Catalog
         public string KSql { get; set; }
         
         /// <summary>
-        /// partnerListType
+        /// Comma separated list of partner list types to search within. 
+        /// If omitted – all types should be included.
         /// </summary>
-        [DataMember(Name = "partnerListTypeEqual")]
-        [JsonProperty(PropertyName = "partnerListTypeEqual")]
-        [XmlElement(ElementName = "partnerListTypeEqual", IsNullable = true)]
-        [SchemeProperty(MinInteger = 1)]
-        public int? PartnerListTypeEqual{ get; set; }
+        [DataMember(Name = "partnerListTypeIn")]
+        [JsonProperty("partnerListTypeIn")]
+        [XmlElement(ElementName = "partnerListTypeIn", IsNullable = true)]
+        public string PartnerListTypeIn { get; set; }
+
+        internal HashSet<int> GetPartnerListTypeIn()
+        {
+            if (string.IsNullOrEmpty(PartnerListTypeIn))
+                return null;
+
+            HashSet<int> values = new HashSet<int>();
+            string[] stringValues = PartnerListTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value) && value != 0)
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPersonalListSearchFilter.PartnerListTypeIn");
+                }
+            }
+
+            return values;
+        }
 
         internal List<int> getTypeIn()
         {

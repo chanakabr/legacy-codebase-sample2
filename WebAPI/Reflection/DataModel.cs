@@ -5119,6 +5119,8 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalList":
                     switch(property.Name)
                     {
+                        case "AssetTypes":
+                            return "assetTypes";
                         case "CreateDate":
                             return "createDate";
                         case "Id":
@@ -5135,8 +5137,8 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalListFilter":
                     switch(property.Name)
                     {
-                        case "PartnerListTypeEqual":
-                            return "partnerListTypeEqual";
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
                     }
                     break;
                     
@@ -5153,8 +5155,8 @@ namespace WebAPI.Reflection
                     {
                         case "KSql":
                             return "kSql";
-                        case "PartnerListTypeEqual":
-                            return "partnerListTypeEqual";
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
                         case "TypeIn":
                             return "typeIn";
                     }
