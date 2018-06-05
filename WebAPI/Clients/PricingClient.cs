@@ -1075,7 +1075,7 @@ namespace WebAPI.Clients
                     response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name, startDate, endDate,
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
                         PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
-                        kCouponsGroup.DiscountCode);
+                        kCouponsGroup.DiscountId.HasValue ? kCouponsGroup.DiscountId.Value : kCouponsGroup.DiscountCode.Value);
                 }
             }
             catch (Exception ex)
