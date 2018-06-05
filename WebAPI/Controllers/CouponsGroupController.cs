@@ -226,14 +226,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty( couponsGroup.Name))
+                if (string.IsNullOrEmpty(couponsGroup.Name))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
 
-                if (!couponsGroup.DiscountCode.HasValue)
+                if (!couponsGroup.DiscountId.HasValue && !couponsGroup.DiscountCode.HasValue)
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountCode");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountId");
                 }
 
                 if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate )
