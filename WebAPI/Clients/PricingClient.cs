@@ -994,7 +994,7 @@ namespace WebAPI.Clients
                         kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
                         PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
-                        kCouponsGroup.DiscountCode);
+                        kCouponsGroup.DiscountId.HasValue ? kCouponsGroup.DiscountId : kCouponsGroup.DiscountCode);
                 }
             }
             catch (Exception ex)
