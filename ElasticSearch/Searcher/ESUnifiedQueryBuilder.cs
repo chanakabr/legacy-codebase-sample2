@@ -24,6 +24,7 @@ namespace ElasticSearch.Searcher
         public const string GEO_BLOCK_FIELD = "geo_block";
         public const string PARENTAL_RULES_FIELD = "parental_rules";
         public const string USER_INTERESTS_FIELD = "user_interests";
+        public const string ASSET_TYPE = "asset_type";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -1710,6 +1711,10 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildUserInterestsQuery();
                 }
+                else if (leaf.field == ASSET_TYPE)
+                {
+                    term = BuildAssetTypeQuery(leaf);
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
@@ -1844,7 +1849,7 @@ namespace ElasticSearch.Searcher
 
                         (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
                     }
-                    else if (leaf.operand ==  ApiObjects.ComparisonOperator.Exists)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Exists)
                     {
                         term = new ESExists()
                         {
@@ -1965,6 +1970,41 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildAssetTypeQuery(BooleanLeaf leaf)
+        {
+            IESTerm result = null;
+
+            string loweredValue = leaf.value.ToString().ToLower();
+
+            if (loweredValue == "media")
+            {
+                result = mediaPrefixTerm;
+            }
+            else if (loweredValue == "epg")
+            {
+                result = epgPrefixTerm;
+            }
+            else if (loweredValue == "recording")
+            {
+                result = recordingPrefixTerm;
+            }
+            else
+            {
+                int assetType;
+
+                if (int.TryParse(loweredValue, out assetType))
+                {
+                    result = new ESTerm(true)
+                    {
+                        Key = "media_type_id",
+                        Value = loweredValue
+                    };
+                }
+            }
+
+            return result;
         }
 
         private IESTerm BuildUserInterestsQuery()
