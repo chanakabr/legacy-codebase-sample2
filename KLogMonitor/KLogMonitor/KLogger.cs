@@ -86,14 +86,20 @@ namespace KLogMonitor
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
-            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            if (!log4net.LogManager.GetRepository().Configured)
+            {
+                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            }
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueID)
         {
             AppType = appType;
             UniqueStaticId = UniqueID;
-            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            if (!log4net.LogManager.GetRepository().Configured)
+            {
+                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            }
         }
 
         private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
