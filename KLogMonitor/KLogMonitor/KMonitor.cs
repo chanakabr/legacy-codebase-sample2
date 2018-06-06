@@ -23,6 +23,10 @@ namespace KLogMonitor
         private bool disposed = false;
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "m")]
+        [DataMember(Name = "m")]
+        public string TimeInTicks { get; set; }
+
         [Newtonsoft.Json.JsonProperty(PropertyName = "e")]
         [DataMember(Name = "e")]
         public string Event { get; set; }
@@ -95,6 +99,7 @@ namespace KLogMonitor
                 // start counter
                 this.Watch = new Stopwatch();
                 this.Watch.Start();
+                this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
 
                 this.Event = Events.GetEventString(eventName);
                 this.Server = Environment.MachineName;
@@ -129,6 +134,7 @@ namespace KLogMonitor
 
         private void UpdateMonitorData()
         {
+            this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
             switch (AppType)
             {
                 case KLogEnums.AppType.WCF:
@@ -190,14 +196,20 @@ namespace KLogMonitor
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
-            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            if (!log4net.LogManager.GetRepository().Configured)
+            {
+                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            }
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueId)
         {
             AppType = appType;
             UniqueStaticId = UniqueId;
-            log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            if (!log4net.LogManager.GetRepository().Configured)
+            {
+                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+            }
         }
 
         public override string ToString()
@@ -272,16 +284,17 @@ namespace KLogMonitor
                 {
                     /* We are firing the END event, so we just overriding the START */
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
+                    // check if data from context was updated (needed to add action to end_api log)
+                    UpdateMonitorData();
                 }
 
                 if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
                 {
                     /* We are firing the END event, so we just overriding the START */
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
+                    // check if data from context was updated (needed to add action to end_api log)
+                    UpdateMonitorData();
                 }
-
-                // check if data from context was updated
-                //UpdateMonitorData();
 
                 logger.Monitor(this.ToString());
             }
