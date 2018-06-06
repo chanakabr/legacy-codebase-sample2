@@ -209,8 +209,8 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
                 {
                     queryResult = bucket.Query<object>(query);
                 }
@@ -234,8 +234,8 @@ namespace CouchbaseManager
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                     {
                         getResults = bucket.Get<T>(ids);
                     }
@@ -265,8 +265,8 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
                 {
                     queryResult = bucket.Query<T>(query);
                 }
@@ -301,8 +301,8 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<T1> queryResult = null;
 
-            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
             {
                 queryResult = bucket.Query<T1>(query);
             }
@@ -336,8 +336,8 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<object> queryResult = null;
 
-            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
             {
                 queryResult = bucket.Query<object>(query);
             }
@@ -374,8 +374,8 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
                 {
                     queryResult = bucket.Query<object>(query);
                     totalNumOfResults = queryResult.TotalRows;
@@ -406,8 +406,8 @@ namespace CouchbaseManager
 
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToArray()));
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                    cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToList()));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                     {
                         getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
                     }
@@ -443,8 +443,8 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
                 {
                     queryResult = bucket.Query<T>(query);
                     totalNumOfResults = queryResult.TotalRows;
@@ -485,8 +485,8 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<object> queryResult = null;
 
-            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            string cbDescription = string.Format("ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.EXECUTE, Database = cbDescription })
             {
                 queryResult = bucket.Query<object>(query);
             }
