@@ -93,7 +93,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaBundleFilter.typeIn");
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPersonalListSearchFilter.TypeIn");
                 }
             }
 

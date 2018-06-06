@@ -8649,11 +8649,6 @@
             Partner List Type (optional)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.AssetTypes">
-            <summary>
-            Asset types
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalListListResponse">
             <summary>
             List of KalturaPersonalList.

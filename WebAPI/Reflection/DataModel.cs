@@ -5119,8 +5119,6 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalList":
                     switch(property.Name)
                     {
-                        case "AssetTypes":
-                            return "assetTypes";
                         case "CreateDate":
                             return "createDate";
                         case "Id":

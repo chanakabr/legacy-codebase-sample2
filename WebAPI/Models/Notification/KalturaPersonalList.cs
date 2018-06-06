@@ -57,29 +57,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "partnerListType")]
         [XmlElement(ElementName = "partnerListType")]
         public int PartnerListType { get; set; }
-
-        /// <summary>
-        /// Asset types
-        /// </summary>
-        [DataMember(Name = "assetTypes")]
-        [JsonProperty(PropertyName = "assetTypes")]
-        [XmlArray(ElementName = "assetTypes", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> AssetTypes { get; set; }
-
-        public int[] GetAssetTypes()
-        {
-            if (AssetTypes == null)
-                return null;
-
-            int[] assetTypes = new int[AssetTypes.Count];
-            for (int i = 0; i < AssetTypes.Count; i++)
-            {
-                assetTypes[i] = AssetTypes[i].value;
-            }
-
-            return assetTypes;
-        }
     }
 
     /// <summary>
