@@ -82,32 +82,11 @@ namespace APILogic.CRUD
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null)
+                Status validateAssetTypesStatus = ValidateAssetTypes(channel.AssetTypes, groupID);
+                if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
                 {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupID,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
-                    {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
-                    }
+                    response.Status = validateAssetTypesStatus;
+                    return response;
                 }
 
                 channel.GroupID = groupID;
@@ -236,32 +215,11 @@ namespace APILogic.CRUD
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null)
+                Status validateAssetTypesStatus = ValidateAssetTypes(channel.AssetTypes, groupID);
+                if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
                 {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupID,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
-                    {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
-                    }
+                    response.Status = validateAssetTypesStatus;
+                    return response;
                 }
 
                 //check channel exist
@@ -382,6 +340,41 @@ namespace APILogic.CRUD
         #endregion
 
         #region Private Methods
+
+        private static Status ValidateAssetTypes(List<int> assetTypes, int groupID)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+
+            if (assetTypes != null)
+            {
+                Dictionary<int, string> mediaTypesIdToName;
+                Dictionary<string, int> mediaTypesNameToId;
+                Dictionary<int, int> mediaTypeParents;
+                List<int> linearMediaTypes;
+
+                CatalogDAL.GetMediaTypes(groupID,
+                    out mediaTypesIdToName,
+                    out mediaTypesNameToId,
+                    out mediaTypeParents,
+                    out linearMediaTypes);
+
+                HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
+
+                var channelsMediaTypes = assetTypes.Where(type => type != EPG_ASSET_TYPE);
+
+                foreach (int assetType in channelsMediaTypes)
+                {
+                    if (!groupMediaTypes.Contains(assetType))
+                    {
+                        status.Code = (int)eResponseStatus.InvalidMediaType;
+                        status.Message = string.Format("KSQL Channel media type {0} does not belong to group", assetType);
+                        return status;
+                    }
+                }
+            }
+
+            return status;
+        }
 
         private static string BuildChannelCacheKey(int groupId, int channelId)
         {

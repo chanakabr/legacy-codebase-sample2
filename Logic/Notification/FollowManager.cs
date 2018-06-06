@@ -251,8 +251,7 @@ namespace Core.Notification
                                 Title = currDBAnnouncement.Name,
                                 FollowReference = currDBAnnouncement.FollowReference,
                                 Timestamp = currAnnouncement.AddedDateSec,
-                                PartnerListType = currAnnouncement.PartnerListType,
-                                AssetTypes = currAnnouncement.AssetTypes
+                                PartnerListType = currAnnouncement.PartnerListType
                             };
 
                             userFollowResponse.Follows.Add(currFollowDataBase);
@@ -332,13 +331,6 @@ namespace Core.Notification
 
         internal static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, FollowDataBase personalListItemToFollow)
         {
-            // Validate asset types
-            Status validateAssetTypesStatus = ValidateAssetTypes(personalListItemToFollow.AssetTypes, personalListItemToFollow.GroupId);
-            if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
-            {
-                return new GenericResponse<FollowDataBase>(validateAssetTypesStatus);
-            }
-
             return AddFollowItemToUser(userId, personalListItemToFollow);
         }
 
@@ -712,39 +704,6 @@ namespace Core.Notification
 
         #region Private Methods
 
-        private static Status ValidateAssetTypes(List<int> assetTypes, int groupID)
-        {
-            Status status = new Status((int)eResponseStatus.OK);
-
-            if (assetTypes != null)
-            {
-                Dictionary<int, string> mediaTypesIdToName;
-                Dictionary<string, int> mediaTypesNameToId;
-                Dictionary<int, int> mediaTypeParents;
-                List<int> linearMediaTypes;
-
-                CatalogDAL.GetMediaTypes(groupID,
-                    out mediaTypesIdToName,
-                    out mediaTypesNameToId,
-                    out mediaTypeParents,
-                    out linearMediaTypes);
-
-                HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                foreach (int assetType in assetTypes)
-                {
-                    if (!groupMediaTypes.Contains(assetType))
-                    {
-                        status.Code = (int)eResponseStatus.InvalidMediaType;
-                        status.Message = string.Format("Media type {0} does not belong to group", assetType);
-                        return status;
-                    }
-                }
-            }
-
-            return status;
-        }
-
         /// <summary>
         /// Add/Update group's Message template
         /// </summary>
@@ -1074,8 +1033,7 @@ namespace Core.Notification
                     AnnouncementId = followItem.AnnouncementId,
                     AnnouncementName = announcementToFollow.Name,
                     AddedDateSec = addedSecs,
-                    PartnerListType = followItem.PartnerListType,
-                    AssetTypes = followItem.AssetTypes
+                    PartnerListType = followItem.PartnerListType
                 });
 
                 response.Object = new FollowDataBase(followItem.GroupId, announcementToFollow.FollowPhrase)
@@ -1086,8 +1044,7 @@ namespace Core.Notification
                     //Type = FollowType.TV_Series_VOD,  // only TV series in this phase
                     FollowReference = announcementToFollow.FollowReference,
                     Timestamp = addedSecs,
-                    PartnerListType = followItem.PartnerListType,
-                    AssetTypes = followItem.AssetTypes
+                    PartnerListType = followItem.PartnerListType
                 };
 
                 if (!DAL.NotificationDal.SetUserNotificationData(followItem.GroupId, userId, userNotificationData))
