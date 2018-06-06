@@ -2679,6 +2679,8 @@ namespace WebAPI.Reflection
                     {
                         case "GroupBy":
                             return "groupBy";
+                        case "Ksql":
+                            return "ksql";
                     }
                     break;
                     
@@ -5151,12 +5153,8 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalListSearchFilter":
                     switch(property.Name)
                     {
-                        case "KSql":
-                            return "kSql";
                         case "PartnerListTypeIn":
                             return "partnerListTypeIn";
-                        case "TypeIn":
-                            return "typeIn";
                     }
                     break;
                     
@@ -5841,8 +5839,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -5939,8 +5935,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }

@@ -208,13 +208,13 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
                         }
 
-                        response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                        response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData,
                             regularAssetFilter.DynamicOrderBy);
                     }
                     else
                     {
-                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
                         regularAssetFilter.getGroupByValue(), responseProfile);
                     }
@@ -246,13 +246,13 @@ namespace WebAPI.Controllers
                         }
 
                         response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(groupId, userId, domainId, udid,
-                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(),
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
                             relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
                     }
                     else
                     {
                         response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(),
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
                             relatedFilter.OrderBy, relatedFilter.DynamicOrderBy, relatedFilter.getGroupByValue(), responseProfile);
                     }
                 }
@@ -330,8 +330,7 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaPersonalListSearchFilter)
                 {
                     KalturaPersonalListSearchFilter pesrsonalListFilter = (KalturaPersonalListSearchFilter)filter;
-                    response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language,
-                        pesrsonalListFilter.getTypeIn(), pesrsonalListFilter.KSql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
+                    response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language, pesrsonalListFilter.Ksql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
                         pager.getPageIndex(), pager.getPageSize(), pesrsonalListFilter.GetPartnerListTypeIn());
                 }
                 else
@@ -1051,7 +1050,7 @@ namespace WebAPI.Controllers
             try
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
+                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
                     regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
             }
             catch (ClientException ex)
