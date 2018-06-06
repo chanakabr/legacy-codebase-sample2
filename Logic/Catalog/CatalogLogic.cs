@@ -122,6 +122,13 @@ namespace Core.Catalog
             "crid"
         };
 
+        private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
+        {
+            "media",
+            "epg",
+            "recording"
+        };
+
         private static int maxNGram = -1;
 
         /*Get All Relevant Details About Media (by id) , 
@@ -7483,6 +7490,24 @@ namespace Core.Catalog
                             // I mock a "contains" operator so that the query builder will know it is a not-exact search
                             leaf.operand = ComparisonOperator.Contains;
                             definitions.shouldGetUserPreferences = true;
+                        }
+                    }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ASSET_TYPE)
+                    {
+                        string loweredValue = leaf.value.ToString().ToLower();
+                        int assetType;
+
+                        // asset type - accepts only "equals", only predefined types (epg, media, recording) and numbers
+                        if (leaf.operand != ComparisonOperator.Equals ||
+                            (!predefinedAssetTypes.Contains(loweredValue) &&
+                            !int.TryParse(loweredValue, out assetType)))
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for asset_type", (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.Contains;
                         }
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
