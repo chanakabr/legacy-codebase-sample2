@@ -2647,7 +2647,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
             Models.Notification.KalturaPersonalListListResponse personalListRespnse = 
-                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.START_DATE_ASC, partnerListTypes);
+                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
             if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();

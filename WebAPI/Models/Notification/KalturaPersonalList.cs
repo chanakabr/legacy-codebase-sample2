@@ -92,8 +92,8 @@ namespace WebAPI.Models.Notification
 
     public enum KalturaPersonalListOrderBy
     {
-        START_DATE_DESC,
-        START_DATE_ASC
+        CREATE_DATE_DESC,
+        CREATE_DATE_ASC
     }
 
     public class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
@@ -132,7 +132,7 @@ namespace WebAPI.Models.Notification
 
         public override KalturaPersonalListOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPersonalListOrderBy.START_DATE_DESC;
+            return KalturaPersonalListOrderBy.CREATE_DATE_DESC;
         }
     }
 }

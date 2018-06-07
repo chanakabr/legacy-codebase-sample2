@@ -733,7 +733,7 @@ namespace WebAPI.Clients
 
             // create order object
             OrderDir order = OrderDir.DESC;
-            if (orderBy == KalturaPersonalListOrderBy.START_DATE_ASC)
+            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
                 order = OrderDir.ASC;
             
             try
