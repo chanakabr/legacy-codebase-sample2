@@ -2230,6 +2230,7 @@ namespace Core.ConditionalAccess
                     {
                         if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                         {
+                            lstFileIDs.Add(nMediaFileID);
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
                                                             ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary);
                         }
