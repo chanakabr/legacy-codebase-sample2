@@ -3594,7 +3594,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
         [PrivateMethod]
         public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj
-            ,int? version, string seriesId = null, int? seasonNumber = -1)
+            ,int? version, string seriesId = "", int? seasonNumber = -1)
         {
             List<RecordedSeriesObject> res = null;
 
@@ -3606,10 +3606,12 @@ namespace TVPApiServices
                 {
                     Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
                     {
-
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
+
+                    if (!seasonNumber.HasValue)
+                        seasonNumber = -1;
 
                     res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj, seriesId, seasonNumber.Value, version)
                     {
