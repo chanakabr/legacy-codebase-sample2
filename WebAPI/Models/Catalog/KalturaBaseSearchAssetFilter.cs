@@ -32,9 +32,9 @@ namespace WebAPI.Models.Catalog
         /// Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
         /// (maximum length of entire filter is 2048 characters)]]>
         /// </summary>
-        [DataMember(Name = "ksql")]
-        [JsonProperty("ksql")]
-        [XmlElement(ElementName = "ksql", IsNullable = true)]
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
 
