@@ -10,6 +10,8 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using System;
+using ApiObjects.SSOAdapter;
+using System.Linq;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -215,6 +217,17 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
+
+            Mapper.CreateMap<SSOAdapter, KalturaSSOAdapter>()
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings.ToDictionary(k => k.Key, v => v.Value)));
+
+            Mapper.CreateMap<KalturaSSOAdapter, SSOAdapter>()
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings.Select(s => new SSOAdapterParam
+                {
+                    Key = s.Key,
+                    Value = s.Value.value,
+                    AdapterId = src.Id.Value,
+                })));
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)

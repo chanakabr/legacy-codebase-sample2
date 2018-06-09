@@ -241,8 +241,9 @@
     <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
-	<Compile Include="Controllers\DiscountDetailsController.cs" />
-	<Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\DiscountDetailsController.cs" />
+    <Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\SSOAdapterController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -323,6 +324,7 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
+    <Compile Include="Models\Users\KalturaSSOAdapter.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />

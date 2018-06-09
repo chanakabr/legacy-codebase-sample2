@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.SSOAdapter;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -1429,6 +1430,60 @@ namespace WebAPI.Clients
             response = UsersMappings.ConvertOTTUserDynamicData(userId, key, value);
 
             return response;
+        }
+
+        public List<KalturaSSOAdapter> GetSSOAdapters(int groupId)
+        {
+            List<KalturaSSOAdapter> KalturaSSOAdaptersList = null;
+            SSOAdapterResponse response = null;
+
+
+            try
+            {
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.GetSSOAdapters(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetSSOAdapters. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.RespStatus.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.RespStatus.Code, response.RespStatus.Message);
+            }
+
+            KalturaSSOAdaptersList = Mapper.Map<List<KalturaSSOAdapter>>(response.SSOAdapters);
+
+            return KalturaSSOAdaptersList;
+        }
+
+        public KalturaSSOAdapter InsertSSOAdapter(int groupId, KalturaSSOAdapter ssoAdapater)
+        {
+            throw new NotImplementedException();
+        }
+
+        public KalturaSSOAdapter SetSSOAdapter(int groupId, int ssoAdapterId, KalturaSSOAdapter ssoAdapater)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DeleteSSOAdapater(int groupId, int ssoAdapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public KalturaSSOAdapter GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
