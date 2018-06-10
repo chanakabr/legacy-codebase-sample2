@@ -39,6 +39,7 @@ namespace WebAPI.App_Start
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string MUTLIREQUEST = "multirequest";
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -134,18 +135,25 @@ namespace WebAPI.App_Start
                     {
                         if (segments[i].ToLower() == "service/")
                         {
+                            string service = string.Empty;
+                            string action = string.Empty;
                             if (i + 3 < segments.Length)
                             {
-                                string service = segments[i + 1].Replace("/", string.Empty);
-                                string action = segments[i + 3].Replace("/", string.Empty); ;
-
-                                // add action to log
-                                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
-                                    string.IsNullOrEmpty(service) ? "null" : service,
-                                    string.IsNullOrEmpty(action) ? "null" : action);
-                                isActionExtracted = true;
-                                break;
+                                service = segments[i + 1].Replace("/", string.Empty);
+                                action = segments[i + 3].Replace("/", string.Empty);
                             }
+                            else
+                            {
+                                service = MUTLIREQUEST;
+                                action = MUTLIREQUEST;
+                            }
+
+                            // add action to log
+                            HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                                string.IsNullOrEmpty(service) ? "null" : service,
+                                string.IsNullOrEmpty(action) ? "null" : action);
+                            isActionExtracted = true;
+                            break;
                         }
                     }
                 }

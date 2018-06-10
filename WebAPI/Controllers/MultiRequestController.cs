@@ -196,6 +196,9 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
+                        // add action to log
+                        HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", string.IsNullOrEmpty(request[i].Service) ? "null" : request[i].Service,
+                                                                                                string.IsNullOrEmpty(request[i].Action) ? "null" : request[i].Action);
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
