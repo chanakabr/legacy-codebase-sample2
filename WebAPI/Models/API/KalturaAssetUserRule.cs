@@ -37,9 +37,9 @@ namespace WebAPI.Models.API
         {
             if (Actions != null && Actions.Count > 0)
             {
-                var duplicates = Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
+                var duplicates = Actions.GroupBy(x => x.Type).Count(t => t.Count() >= 2);
                 
-                if (duplicates != null && duplicates.ToList().Count > 1)
+                if (duplicates > 1)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
                 }

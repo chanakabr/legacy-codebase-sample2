@@ -22,19 +22,28 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Get the list of asset rules for the partner
+        ///  Get the list of asset rules for the partner
         /// </summary>
+        /// <param name="filter">filter by condition name</param>
+        /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetRuleListResponse List()
+        public KalturaAssetRuleListResponse List(KalturaAssetRuleFilter filter = null)
         {
             KalturaAssetRuleListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (filter == null)
+            {
+                filter = new KalturaAssetRuleFilter();
+            }
+
             try
             {
-                response = ClientsManager.ApiClient().GetAssetRules(groupId);
+                filter.Validate();
+
+                response = ClientsManager.ApiClient().GetAssetRules(groupId, filter);
             }
             catch (ClientException ex)
             {
@@ -63,9 +72,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
 
-                assetRule.ValidateActions();
-                assetRule.ValidateConditions();
-
+                assetRule.Validate();
                 response = ClientsManager.ApiClient().AddAssetRule(groupId, assetRule);
             }
             catch (ClientException ex)
@@ -92,7 +99,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                assetRule.ValidateConditions();
+                // TODO SHIR - ASK TAN TAN HOW TO VALIDATE???
+                if (assetRule.Conditions != null)
+                {
+                    assetRule.ValidateConditions();
+                }
 
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }

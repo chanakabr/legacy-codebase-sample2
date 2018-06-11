@@ -10,11 +10,27 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    public enum KalturaRuleConditionType
+    {
+        ASSET,
+        COUNTRY,
+        CONCURRENCY
+    }
+    
     /// <summary>
     /// Condition
     /// </summary>
     public abstract class KalturaCondition : KalturaOTTObject
     {
+        /// <summary>
+        /// The type of the condition
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaRuleConditionType Type { get; protected set; }
+
         /// <summary>
         /// Description
         /// </summary>
@@ -51,6 +67,11 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string Countries { get; set; }
 
+        public KalturaCountryCondition()
+        {
+            this.Type = KalturaRuleConditionType.COUNTRY;
+        }
+
         public List<int> getCountries()
         {
             List<int> countries = new List<int>();
@@ -59,6 +80,7 @@ namespace WebAPI.Models.API
             {
                 string[] splitted = Countries.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 int countryId = 0;
+
                 foreach (var country in splitted)
                 {
                     if (int.TryParse(country, out countryId) && countryId > 0)
@@ -84,5 +106,43 @@ namespace WebAPI.Models.API
         [JsonProperty("ksql")]
         [XmlElement(ElementName = "ksql")]
         public string Ksql { get; set; }
-    }  
+
+        public KalturaAssetCondition()
+        {
+            this.Type = KalturaRuleConditionType.ASSET;
+        }
+    }
+
+    /// <summary>
+    /// Asset Condition
+    /// </summary>
+    public class KalturaConcurrencyCondition : KalturaAssetCondition
+    {
+        /// <summary>
+        /// Concurrency limitation  
+        /// </summary>
+        [DataMember(Name = "limit")]
+        [JsonProperty("limit")]
+        [XmlElement(ElementName = "limit")]
+        public int Limit { get; set; }
+        
+        /// <summary>
+        /// Concurrency limitation type
+        /// </summary>
+        [DataMember(Name = "concurrencyLimitationType")]
+        [JsonProperty("concurrencyLimitationType")]
+        [XmlElement(ElementName = "concurrencyLimitationType")]
+        public KalturaConcurrencyLimitationType ConcurrencyLimitationType { get; set; }
+
+        public KalturaConcurrencyCondition()
+        {
+            this.Type = KalturaRuleConditionType.CONCURRENCY;
+        }
+    }
+
+    public enum KalturaConcurrencyLimitationType
+    {
+        Single = 0,
+        Group = 1
+    }
 }

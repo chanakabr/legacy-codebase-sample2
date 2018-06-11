@@ -241,8 +241,8 @@
     <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
-	<Compile Include="Controllers\DiscountDetailsController.cs" />
-	<Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\DiscountDetailsController.cs" />
+    <Compile Include="Controllers\PersonalListController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -290,6 +290,7 @@
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
     <Compile Include="Models\API\KalturaAssetUserRule.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />
     <Compile Include="Models\API\KalturaAssetUserRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
