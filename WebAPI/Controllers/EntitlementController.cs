@@ -337,6 +337,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
         [Throws(eResponseStatus.UnKnownPPVModule)]
         [Throws(eResponseStatus.MissingBasePackage)]
+        [Throws(eResponseStatus.InvalidProductType)]
+        [Throws(eResponseStatus.InvalidContentId)]
+        [Throws(eResponseStatus.UnknownPriceReason)]
+        [Throws(eResponseStatus.PurchaseFailed)]
+        [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
+        [Throws(eResponseStatus.IncorrectPrice)]
+        [Throws(eResponseStatus.NoMediaRelatedToFile)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;

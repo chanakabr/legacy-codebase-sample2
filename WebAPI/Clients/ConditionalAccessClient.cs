@@ -641,40 +641,17 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
+        internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id,
+            KalturaTransactionType product_type, bool history, string deviceName)
         {
-            Status response = null;
+            // convert local enumerator, to web service enumerator
+            eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(product_type);
 
-            // get group ID
-            
-            try
-            {
-                // convert local enumerator, to web service enumerator
-                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(product_type);
-
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    // fire request
-                    response = Core.ConditionalAccess.Module.GrantEntitlements
+            Func<Status> grantEntitlementsFunc = () => Core.ConditionalAccess.Module.GrantEntitlements
                         (groupId, user_id, household_id, content_id, product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
+            ClientUtils.GetResponseStatusFromWS(grantEntitlementsFunc);
+            
             return true;
         }
 
