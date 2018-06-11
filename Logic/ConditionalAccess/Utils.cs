@@ -8254,15 +8254,10 @@ namespace Core.ConditionalAccess
 
         internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, Subscription subscription)
         {
-
             ApiObjects.Response.Status Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             try
             {
-                if (subscription == null)
-                {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Subscription is null");
-                    return Status;
-                }
                 List<long> setIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
                 DomainEntitlements domainEntitlements = null;
 
@@ -8270,7 +8265,7 @@ namespace Core.ConditionalAccess
                 List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
                 if (!TryGetSubscriptionSets(groupId, setIds, ref subscriptionSets))
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No Sets found");
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionSetDoesNotExist, "No Sets found");
                     return Status;
                 }
 

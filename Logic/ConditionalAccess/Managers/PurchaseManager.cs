@@ -23,10 +23,8 @@ namespace Core.ConditionalAccess
     public class PurchaseManager
     {
         #region Consts
-
-        private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
+        
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-
 
         #endregion
 
@@ -100,7 +98,7 @@ namespace Core.ConditionalAccess
             // validate siteguid
             if (string.IsNullOrEmpty(userId))
             {
-                response.Message = "Illegal user ID";
+                response.Set((int)eResponseStatus.InvalidUser, "Illegal user ID");
                 log.ErrorFormat("Error: {0}, data: {1}", response.Message, logString);
                 return response;
             }
@@ -477,7 +475,7 @@ namespace Core.ConditionalAccess
                             else
                             {
                                 // purchase passed, entitlement failed
-                                transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                transactionResponse.Status = new Status((int)eResponseStatus.PurchasePassedEntitlementFailed, BaseConditionalAccess.PURCHASE_PASSED_ENTITLEMENT_FAILED);
                                 log.ErrorFormat("Error: {0}, data: {1}", transactionResponse.Status.Message, logString);
                             }
                         }
@@ -490,14 +488,14 @@ namespace Core.ConditionalAccess
                     else
                     {
                         // purchase failed - no status error
-                        transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                        transactionResponse.Status = new Status((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                         log.ErrorFormat("Error: {0}, data: {1}", transactionResponse.Status.Message, logString);
                     }
                 }
                 else
                 {
                     // incorrect price
-                    transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The price of the request is not the actual price");
+                    transactionResponse.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                     log.ErrorFormat("Error: {0}, data: {1}", transactionResponse.Status.Message, logString);
                 }
             }
@@ -766,7 +764,7 @@ namespace Core.ConditionalAccess
             // validate siteguid
             if (string.IsNullOrEmpty(siteguid))
             {
-                response.Status.Message = "Illegal user ID";
+                response.Status.Set((int)eResponseStatus.InvalidUser, "Illegal user ID");
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 return response;
             }
@@ -992,14 +990,14 @@ namespace Core.ConditionalAccess
                         else
                         {
                             // purchase failed - no status error
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                            response.Status = new Status((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
                     }
                     else
                     {
                         // incorrect price
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The price of the request is not the actual price");
+                        response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     }
                 }
@@ -1367,7 +1365,7 @@ namespace Core.ConditionalAccess
                                 else
                                 {
                                     // purchase passed, entitlement failed
-                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                    response.Status = new Status((int)eResponseStatus.PurchasePassedEntitlementFailed, BaseConditionalAccess.PURCHASE_PASSED_ENTITLEMENT_FAILED);
                                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                                 }
                             }
@@ -1380,14 +1378,14 @@ namespace Core.ConditionalAccess
                         else
                         {
                             // purchase failed - no status error
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                            response.Status = new Status((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
                     }
                     else
                     {
                         // incorrect price
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The price of the request is not the actual price");
+                        response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     }
                 }
@@ -1690,7 +1688,7 @@ namespace Core.ConditionalAccess
                 // validate content ID
                 if (contentId < 1)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, ILLEGAL_CONTENT_ID);
+                    response.Status.Set((int)eResponseStatus.InvalidContentId, BaseConditionalAccess.ILLEGAL_CONTENT_ID);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
@@ -1699,7 +1697,7 @@ namespace Core.ConditionalAccess
                 int mediaID = Utils.GetMediaIDFromFileID(contentId, groupId);
                 if (mediaID < 1)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "Content ID with no related media");
+                    response.Status.Set((int)eResponseStatus.NoMediaRelatedToFile, BaseConditionalAccess.CONTENT_ID_WITH_NO_RELATED_MEDIA);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
@@ -1795,8 +1793,7 @@ namespace Core.ConditionalAccess
                                 eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId, adapterData);
                         }
 
-                        if (response != null &&
-                            response.Status != null)
+                        if (response != null && response.Status != null)
                         {
                             // Status OK + (State OK || State Pending) = grant entitlement
                             if (response.Status.Code == (int)eResponseStatus.OK &&
@@ -1856,14 +1853,14 @@ namespace Core.ConditionalAccess
                         else
                         {
                             // purchase failed - no status error
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                            response.Status = new Status((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                             log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         }
                     }
                     else
                     {
                         // incorrect price
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The request price is incorrect");
+                        response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                     }
                 }

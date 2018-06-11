@@ -45,8 +45,7 @@ namespace Core.ConditionalAccess
             // validate siteguid
             if (string.IsNullOrEmpty(userId))
             {
-                status.Message = "Illegal user ID";
-                status.Code = (int)eResponseStatus.InvalidUser;
+                status.Set((int)eResponseStatus.InvalidUser, "Illegal user ID");
                 log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 return status;
             }
@@ -76,7 +75,7 @@ namespace Core.ConditionalAccess
                         status = GrantCollection(cas, groupId, userId, householdId, productId, ip, udid, history);
                         break;
                     default:
-                        status = new Status((int)eResponseStatus.Error, "Illegal product Type");
+                        status.Set((int)eResponseStatus.InvalidProductType, "Illegal product Type");
                         log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                         break;
                 }
@@ -118,7 +117,7 @@ namespace Core.ConditionalAccess
                 // validate content ID
                 if (contentId < 1)
                 {
-                    status = new Status((int)eResponseStatus.Error, BaseConditionalAccess.ILLEGAL_CONTENT_ID);
+                    status.Set((int)eResponseStatus.InvalidContentId, BaseConditionalAccess.ILLEGAL_CONTENT_ID);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -127,7 +126,7 @@ namespace Core.ConditionalAccess
                 int mediaID = Utils.GetMediaIDFromFileID(contentId, groupId);
                 if (mediaID < 1)
                 {
-                    status = new Status((int)eResponseStatus.Error, BaseConditionalAccess.CONTENT_ID_WITH_A_RELATED_MEDIA);
+                    status.Set((int)eResponseStatus.NoMediaRelatedToFile, BaseConditionalAccess.CONTENT_ID_WITH_NO_RELATED_MEDIA);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -177,7 +176,7 @@ namespace Core.ConditionalAccess
                 
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
-                    status = new Status((int)eResponseStatus.Error, "purchase failed");
+                    status.Set((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     cas.WriteToUserLog(userId, "While trying to purchase media file id(CC): " + contentId.ToString() + " error returned: " + billingResponse.m_sStatusDescription);
                     return status;
@@ -253,7 +252,7 @@ namespace Core.ConditionalAccess
 
                 if (priceReason == PriceReason.UnKnown)
                 {
-                    status = new Status((int)eResponseStatus.Error, "The subscription is unknown");
+                    status.Set((int)eResponseStatus.UnknownPriceReason, "The subscription is unknown");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -271,8 +270,7 @@ namespace Core.ConditionalAccess
                 // item is for purchase
                 if (priceResponse == null)
                 {
-                    // incorrect price
-                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status.Set((int)eResponseStatus.Error, BaseConditionalAccess.GET_PRICE_ERROR);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -310,7 +308,7 @@ namespace Core.ConditionalAccess
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
                     // no status error
-                    status = new Status((int)eResponseStatus.Error, "purchase failed");
+                    status.Set((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -333,7 +331,7 @@ namespace Core.ConditionalAccess
 
                 if (!result)
                 {
-                    status = new Status((int)eResponseStatus.Error, "Failed to insert subscription purchase.");
+                       status.Set((int)eResponseStatus.PurchasePassedEntitlementFailed, "Failed to insert subscription purchase.");
                 }
                 else
                 {
@@ -429,7 +427,7 @@ namespace Core.ConditionalAccess
 
                 if (priceReason == PriceReason.UnKnown)
                 {
-                    status = new Status((int)eResponseStatus.Error, "The collection is unknown");
+                    status.Set((int)eResponseStatus.UnknownPriceReason, "The collection is unknown");
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -444,8 +442,7 @@ namespace Core.ConditionalAccess
 
                 if (priceResponse == null)
                 {
-                    // incorrect price
-                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status.Set((int)eResponseStatus.Error, BaseConditionalAccess.GET_PRICE_ERROR);
                     log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
 
                     return status;
@@ -461,7 +458,7 @@ namespace Core.ConditionalAccess
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
                     // purchase failed - no status error
-                    status = new Status((int)eResponseStatus.Error, "purchase failed");
+                    status.Set((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
