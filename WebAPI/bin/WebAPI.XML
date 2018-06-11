@@ -4448,6 +4448,12 @@
             List of actions for the rule
             </summary>
         </member>
+        <member name="M:WebAPI.Models.API.KalturaAssetRule.FillEmpty(WebAPI.Models.API.KalturaAssetRule)">
+            <summary>
+            Fill current AssetRule data members with givven assetRule only if they are empty\null
+            </summary>
+            <param name="oldAssetRule">givven assetRule to fill with</param>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaAssetRuleListResponse.Objects">
             <summary>
             Asset rules

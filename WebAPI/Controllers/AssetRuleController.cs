@@ -99,12 +99,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                // TODO SHIR - ASK TAN TAN HOW TO VALIDATE???
-                if (assetRule.Conditions != null)
-                {
-                    assetRule.ValidateConditions();
-                }
-
+                var oldAssetRule = ClientsManager.ApiClient().GetAssetRule(groupId, id);
+                // before updating AssetRule fill properties in case they are empty so it will be possible to validate the new properties
+                assetRule.FillEmpty(oldAssetRule);
+                assetRule.Validate();
+                
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }
             catch (ClientException ex)

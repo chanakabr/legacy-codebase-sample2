@@ -3838,6 +3838,8 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
+        #region AssetRule
+
         internal KalturaAssetRule UpdateAssetRule(int groupId, long id, KalturaAssetRule assetRule)
         {
             assetRule.Id = id;
@@ -3887,6 +3889,19 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaAssetRule GetAssetRule(int groupId, long assetRuleId)
+        {
+            Func<GenericResponse<AssetRule>> getAssetRuleFunc = () => 
+                Core.Api.Module.GetAssetRule(groupId, assetRuleId);
+
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(getAssetRuleFunc);
+
+            return result;
+        }
+
+        #endregion
 
         #region AssetUserRule
 

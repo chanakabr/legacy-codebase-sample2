@@ -33,13 +33,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "actions")]
         public List<KalturaAssetRuleAction> Actions { get; set; }
 
-        public void Validate()
-        {
-            bool concurrencyConditionExist = ValidateConditions();
-            ValidateActions(concurrencyConditionExist);
-        }
-
-        public bool ValidateConditions()
+        internal void Validate()
         {
             if (this.Conditions == null || this.Conditions.Count == 0)
             {
@@ -112,7 +106,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
 
-            return concurrencyConditionExist;
+            ValidateActions(concurrencyConditionExist);
         }
 
         private void ValidateActions(bool concurrencyConditionExist)
@@ -150,6 +144,36 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(ksql) || string.IsNullOrWhiteSpace(ksql))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+            }
+        }
+
+        /// <summary>
+        /// Fill current AssetRule data members with givven assetRule only if they are empty\null
+        /// </summary>
+        /// <param name="oldAssetRule">givven assetRule to fill with</param>
+        internal void FillEmpty(KalturaAssetRule oldAssetRule)
+        {
+            if (oldAssetRule != null)
+            {
+                if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+                {
+                    this.Name = oldAssetRule.Name;
+                }
+
+                if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
+                {
+                    this.Description = oldAssetRule.Description;
+                }
+
+                if (this.Actions == null || this.Actions.Count == 0)
+                {
+                    this.Actions = oldAssetRule.Actions;
+                }
+
+                if (this.Conditions == null || this.Conditions.Count == 0)
+                {
+                    this.Conditions = oldAssetRule.Conditions;
+                }
             }
         }
     }
