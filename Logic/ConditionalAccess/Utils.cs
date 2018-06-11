@@ -2202,11 +2202,11 @@ namespace Core.ConditionalAccess
                 if (blockEntitlement != BlockEntitlementType.BLOCK_PPV)
                 {
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes != null ? ppvModule.m_relatedFileTypes.ToArray() : null;
-                    List<int> lstFileIDs;
+                    List<int> lstFileIDs = new List<int>();
                     // get list of mediaFileIDs
                     if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper != null)
                     {
-                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper);
+                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper, nMediaFileID);
                     }
                     else
                     {
@@ -2228,7 +2228,6 @@ namespace Core.ConditionalAccess
                     {
                         if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                         {
-                            lstFileIDs.Add(nMediaFileID);
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
                                                             ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary);
                         }
@@ -3860,9 +3859,9 @@ namespace Core.ConditionalAccess
             return domainPpvEntitlements;
         }
 
-        private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, List<int>> mediaIdGroupFileTypeMappings)
+        private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, List<int>> mediaIdGroupFileTypeMappings, int mediaFileId)
         {
-            List<int> relatedFileTypes = new List<int>();
+            List<int> relatedFileTypes = new List<int>() { mediaFileId };
             if (ppvGroupFileTypes != null && ppvGroupFileTypes.Length > 0 && mediaIdGroupFileTypeMappings.Count > 0)
             {
                 foreach (int groupFileTypeID in ppvGroupFileTypes)
@@ -3880,9 +3879,9 @@ namespace Core.ConditionalAccess
                 {
                     relatedFileTypes.Add(mediaFileID);
                 }
-                relatedFileTypes = relatedFileTypes.Distinct().ToList();
             }
-            return relatedFileTypes;
+
+            return relatedFileTypes.Distinct().ToList();
         }
 
         internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, DomainEntitlements.BundleEntitlements userBundleEntitlements)
