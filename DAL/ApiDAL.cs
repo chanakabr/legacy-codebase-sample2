@@ -4679,24 +4679,11 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable GetAssetRules()
+        public static DataTable GetAssetRulesDB()
         {
-            DataTable dt = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRules");
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables.Count > 0)
-                {
-                    dt = ds.Tables[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetAssetRules in DB, ex:{0} ", ex);
-            }
+            StoredProcedure sp = new StoredProcedure("Get_AssetRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            DataTable dt = sp.Execute();
 
             return dt;
         }
@@ -4706,7 +4693,7 @@ namespace DAL
             return string.Format("asset_rule:{0}", assetRuleId);
         }
 
-        public static AssetRule GetAssetRule(long assetRuleId)
+        public static AssetRule GetAssetRuleCB(long assetRuleId)
         {
             AssetRule assetRule = null;
             eResultStatus status = eResultStatus.ERROR;
@@ -4726,7 +4713,7 @@ namespace DAL
                         if (status != eResultStatus.SUCCESS)
                         {
                             numOfTries++;
-                            log.ErrorFormat("Error while GetAssetRule. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
+                            log.ErrorFormat("Error while GetAssetRuleCB. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
 
                             Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
@@ -4746,7 +4733,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to GetAssetRule. key: {0}, ex: {1}", key, ex);
+                log.ErrorFormat("Error while trying to GetAssetRuleCB. key: {0}, ex: {1}", key, ex);
             }
 
             return assetRule;

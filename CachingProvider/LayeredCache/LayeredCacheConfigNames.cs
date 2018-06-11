@@ -56,8 +56,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME = "GetUserWatchedMediaIds";
         public const string UNIFIED_SEARCH_WITH_PERSONAL_DATA = "UnifiedSearchWithPersonalData";
         public const string GET_COUPONS_GROUP = "GetCouponsGroup";
-        public const string GET_ALL_ASSET_RULES = "GetAllAssetRules";
-        public const string GET_ASSET_RULE = "GetAssetRule";
+        public const string GET_ALL_ASSET_RULES = "GetAllAssetRulesDB";
+        public const string GET_ASSET_RULE = "GetFullAssetRulesCB";
         public const string GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllCountryList";
         public const string GET_ASSET_USER_RULE_IDS_BY_GROUP = "GetAssetUserRuleIdsByGroupDB";
         public const string GET_ASSET_USER_RULE = "GetAssetUserRulesCB";
