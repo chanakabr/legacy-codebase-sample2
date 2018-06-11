@@ -122,6 +122,13 @@ namespace Core.Catalog
             "crid"
         };
 
+        private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
+        {
+            "media",
+            "epg",
+            "recording"
+        };
+
         private static int maxNGram = -1;
 
         /*Get All Relevant Details About Media (by id) , 
@@ -341,7 +348,10 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+                if (group.isGeoAvailabilityWindowingEnabled)
+                    sEndDate = "GEO";
+                else
+                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
                 if (filter != null)
                 {
@@ -375,6 +385,8 @@ namespace Core.Catalog
                     if (!languagesIds.Contains(languageId))
                         languagesIds.Add(languageId);
                 }
+
+
 
                 DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languagesIds, sEndDate, bUseStartDate);
 
@@ -5371,7 +5383,7 @@ namespace Core.Catalog
                     EntityID = domainID.ToString(),
                     PageIndex = request.m_nPageIndex,
                     PageSize = request.m_nPageSize,
-                    SeriesIDs = new List<string>() { request.seriesID },
+                    SeriesIDs =  string.IsNullOrEmpty(request.seriesID )? new List<string>(): new List<string>() { request.seriesID },
                     SeasonNumber = request.seasonNumber,
                     OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy),
                     Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir)
@@ -6524,7 +6536,7 @@ namespace Core.Catalog
             string key = null;
             if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
             {
-                if (personalData != null && personalData.Count > 0)
+                if ((personalData != null && personalData.Count > 0) || !string.IsNullOrEmpty(ksql) || (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0))
                 {
                     StringBuilder cacheKey = new StringBuilder();
                     cacheKey.AppendFormat("channel={0}", channelId);
@@ -6603,6 +6615,11 @@ namespace Core.Catalog
                         cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
                     }
 
+                    if (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_assetUserRules={0}", string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
+                    }
+
                     key = cacheKey.ToString();
                 }
             }
@@ -6621,6 +6638,7 @@ namespace Core.Catalog
                     cacheKey.AppendFormat("_gId={0}", groupId);
                     cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+
                     if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
                     {
                         cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
@@ -6695,6 +6713,11 @@ namespace Core.Catalog
                             return key;
                         }
                         cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    if (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_assetUserRules={0}", string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
                     }
 
                     key = cacheKey.ToString();
@@ -7030,7 +7053,23 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Geo Availability
 
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
+
+            #endregion
+
+            #region Asset User Rule
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            {
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions);
+            }
+
+            #endregion
 
             return status;
         }
@@ -7453,6 +7492,24 @@ namespace Core.Catalog
                             definitions.shouldGetUserPreferences = true;
                         }
                     }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ASSET_TYPE)
+                    {
+                        string loweredValue = leaf.value.ToString().ToLower();
+                        int assetType;
+
+                        // asset type - accepts only "equals", only predefined types (epg, media, recording) and numbers
+                        if (leaf.operand != ComparisonOperator.Equals ||
+                            (!predefinedAssetTypes.Contains(loweredValue) &&
+                            !int.TryParse(loweredValue, out assetType)))
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for asset_type", (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.Contains;
+                        }
+                    }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
@@ -7683,6 +7740,7 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
+                    definitions.shouldUseSearchEndDate = CatalogCache.Instance().IsTstvSettingsExists(request.m_nGroupID);
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -7692,6 +7750,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
+                    definitions.shouldUseSearchEndDate = CatalogCache.Instance().IsTstvSettingsExists(request.m_nGroupID);
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
@@ -7924,6 +7983,23 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Geo Availability
+
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
+
+            #endregion
+
+            #region Asset User Rule
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            {
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions);
+            }
+
+            #endregion
             return definitions;
         }
 

@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,6 +122,11 @@ namespace Core.Pricing
         }
 
         public virtual PriceDetailsResponse GetPriceCodesDataByCurrency(List<long> priceCodeIds, string currencyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual GenericListResponse<DiscountDetails> GetDiscountsByCurrency(List<long> priceCodeIds, string currencyCode)
         {
             throw new NotImplementedException();
         }

@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
+using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog.Response;
 using Core.Pricing;
@@ -1646,7 +1647,7 @@ namespace Core.Api
 
         public static ApiObjects.CountryLocaleResponse GetCountryList(int groupId, List<int> countryIds)
         {
-            return Core.Api.api.GetCountryList(countryIds, groupId);
+            return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
         }
 
         public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
@@ -1878,5 +1879,39 @@ namespace Core.Api
 
             return result;
         }
+
+        #region AssetUserRule
+        
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
+        {
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+        }
+        
+        public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
+        {
+            return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
+        }
+        
+        public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
+        {
+            return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+        }
+        
+        public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId);
+        }
+        
+        public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.AddAssetUserRuleToUser(userId, ruleId, groupId);
+        }
+        
+        public static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
+        }
+
+        #endregion
     }
 }

@@ -1072,5 +1072,44 @@ namespace Core.Pricing
             }
             return priceDetailsMap != null ? priceDetailsMap.Values.ToList() : null;
         }
+
+        internal static List<DiscountDetails> BuildDiscountsFromDataTable(DataTable discounts)
+        {
+            Dictionary<long, DiscountDetails> discountsMap = new Dictionary<long, DiscountDetails>();
+
+            if (discounts != null && discounts.Rows != null && discounts.Rows.Count > 0)
+            {
+                foreach (DataRow dr in discounts.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+
+                    if (!discountsMap.ContainsKey(id))
+                    {
+                        DiscountDetails pd = new DiscountDetails()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "code"),
+                            StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "start_date"),
+                            EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date"),
+                            MultiCurrencyDiscounts = new List<Discount>()
+                        };
+                        discountsMap.Add(id, pd);
+                    }
+                    Discount discount = new Discount()
+                    {
+                        countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "country_id"),
+                        m_dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "price"),
+                        m_oCurrency = new Currency(),
+                        Percentage = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "DISCOUNT_PERCENT"),
+                    };
+
+                    discount.m_oCurrency.InitializeById(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD"));
+
+                    discountsMap[id].MultiCurrencyDiscounts.Add(discount);
+
+                }
+            }
+            return discountsMap != null ? discountsMap.Values.ToList() : null;
+        }
     }
 }

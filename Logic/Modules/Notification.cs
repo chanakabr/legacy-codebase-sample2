@@ -606,9 +606,9 @@ namespace Core.Notification
             return response;
         }
 
-        public static FollowResponse Follow(int nGroupID, int userId, FollowDataBase followData)
+        public static GenericResponse<FollowDataBase> Follow(int nGroupID, int userId, FollowDataBase followData)
         {
-            FollowResponse response = null;
+            GenericResponse<FollowDataBase> response = null;
             followData.GroupId = nGroupID;
 
             try
@@ -622,13 +622,24 @@ namespace Core.Notification
 
             return response;
         }
+        
+        public static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, int groupId, FollowDataBase personalListItemToFollow)
+        {
+            personalListItemToFollow.GroupId = groupId;
+            return FollowManager.AddPersonalListItemToUser(userId, personalListItemToFollow);
+        }
 
-        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
+        public static Status DeletePersonalListItemFromUser(int groupId, int userId, long personalListId)
+        {
+            return FollowManager.DeletePersonalListItemFromUser(groupId, userId, personalListId);
+        }
+
+        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, HashSet<int> partnerListTypes, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse response = null;
             try
             {
-                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order, isFollowTvSeriesRequest);
+                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order, partnerListTypes, isFollowTvSeriesRequest);
             }
             catch (Exception ex)
             {

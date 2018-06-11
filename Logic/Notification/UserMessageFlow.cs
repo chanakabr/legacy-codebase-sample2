@@ -1359,7 +1359,7 @@ namespace Core.Notification
                 NotificationCache.TryGetAnnouncements(groupId, ref announcements);
                 if (announcements != null)
                 {
-                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
+                    DbAnnouncement mailAnnouncement = announcements.FirstOrDefault(a => a.RecipientsType == eAnnouncementRecipientsType.Mail);
                     if (mailAnnouncement == null)
                     {
                         log.ErrorFormat("Failed to get mail announcement.");

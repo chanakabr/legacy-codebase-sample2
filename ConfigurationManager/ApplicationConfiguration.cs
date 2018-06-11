@@ -122,7 +122,6 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PwlalPMaxResultsSize;
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
 
-
         #endregion
 
         #region Private Members
@@ -131,12 +130,17 @@ namespace ConfigurationManager
         private static string logPath = string.Empty;
         private static StringBuilder logBuilder;
         private static List<ConfigurationValue> configurationValuesWithOriginalKeys;
+        private static bool isSilent = false;
+
         #endregion
+
 
         #region Public Static Methods
 
-        public static void Initialize(bool shouldLoadDefaults = false, string application = "", string host = "", string environment = "")
+        public static void Initialize(bool shouldLoadDefaults = false, bool silent = false, string application = "", string host = "", string environment = "")
         {
+            isSilent = silent;
+
             if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
             {
                 TCMClient.TCMConfiguration config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
@@ -163,7 +167,7 @@ namespace ConfigurationManager
             {
                 TCMClient.Settings.Instance.Init();
             }
-
+            
             #region Remote tasks configuration values
 
             CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
@@ -660,7 +664,7 @@ namespace ConfigurationManager
 
             try
             {
-                Initialize(false, application, host, environment);
+                Initialize(false, false, application, host, environment);
 
                 foreach (var configurationValue in allConfigurationValues)
                 {
@@ -770,7 +774,10 @@ namespace ConfigurationManager
         {
             if (string.IsNullOrEmpty(logPath))
             {
-                Console.WriteLine(log);
+                if (!isSilent)
+                {
+                    Console.WriteLine(log);
+                }
             }
             else
             {

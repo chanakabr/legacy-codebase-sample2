@@ -45,7 +45,8 @@ namespace ApiObjects
         Geo = 3,
         Device = 4,
         UserType = 5,
-        AnonymousAccessBlock = 6
+        AnonymousAccessBlock = 6,
+        AssetUserBlock = 7
     }
 
     public enum RuleType
@@ -53,7 +54,8 @@ namespace ApiObjects
         Parental = 0,
         Geo = 1,
         UserType = 2,
-        Device = 3
+        Device = 3,
+        AssetUser = 4
     }
 
     public enum eMailTemplateType
@@ -84,7 +86,8 @@ namespace ApiObjects
         Parental = 1,
         Purchase = 2,
         Device = 3,
-        EPG = 4
+        EPG = 4,
+        AssetUser = 5
     }
 
     [Serializable]
@@ -494,7 +497,8 @@ namespace ApiObjects
         MigrateStatistics,
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks,
-        ReminderCleanupIteration
+        ReminderCleanupIteration,
+        PurgeUsers
     }
 
 
@@ -748,7 +752,8 @@ namespace ApiObjects
         notificationCleanup = 3,
         reminderCleanup = 4,
         assetLifeCycleRuleScheduledTasks = 5,
-        assetRuleScheduledTasks = 6
+        purgeScheduledTasks = 6,
+        assetRuleScheduledTasks = 7
     }
 
     public enum SearchSeriesRecordingsTimeOptions
@@ -1016,6 +1021,7 @@ namespace ApiObjects
         Block,
         StartDateOffset,
         EndDateOffset,
+        UserBlock
     }
 
     public enum AssetRuleConditionType
@@ -1028,5 +1034,11 @@ namespace ApiObjects
     {
         LifeCycle = 0,
         Asset = 1
+    }
+
+    public enum AssetRuleType
+    {
+        AssetRule = 0,
+        AssetUserRule = 1
     }
 }

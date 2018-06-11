@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 
+using System.ComponentModel;
 
 namespace ApiObjects.Response
 {
@@ -56,8 +57,7 @@ namespace ApiObjects.Response
                 message = value;
             }
         }
-
-
+        
         [DataMember]
         public List<KeyValuePair> Args
         {

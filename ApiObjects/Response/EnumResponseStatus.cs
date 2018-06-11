@@ -231,6 +231,9 @@ namespace ApiObjects.Response
         PermissionNameNotExists = 5028,
         RoleAlreadyExists = 5029,
         AssetRuleNotExists = 5030,
+        AssetUserRuleDoesNotExists = 5031,
+        UserAlreadyAttachedToAssetUserRule = 5031,
+        AssetUserRulesOperationsDisable = 5032,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

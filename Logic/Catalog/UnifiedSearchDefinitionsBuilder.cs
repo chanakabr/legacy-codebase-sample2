@@ -47,8 +47,7 @@ namespace Core.Catalog
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
 
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                int parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
@@ -79,6 +78,8 @@ namespace Core.Catalog
                         definitions.deviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
                     }
                 }
+
+                definitions.shouldIgnoreEndDate = request.shouldIgnoreEndDate;
 
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
@@ -336,6 +337,24 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region Geo Availability
+
+                if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
+                {
+                    definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+                }
+
+                #endregion
+
+                #region Asset User Rule
+
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+                {
+                    GetUserAssetRulesPhrase(request, group, ref definitions);
+                }
+
+                #endregion
+
             }
             catch (Exception ex)
             {
@@ -344,6 +363,44 @@ namespace Core.Catalog
             }
 
             return definitions;
+        }
+
+        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions)
+        {
+            long userId = long.Parse(request.m_sSiteGuid);
+
+            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
+            if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
+            {
+                if (assetUserRulesResponse.HasObjects())
+                {
+                    StringBuilder notQuery = new StringBuilder();
+                    notQuery.Append("(and ");
+                    foreach (var rule in assetUserRulesResponse.Objects)
+                    {
+                        definitions.assetUserRuleIds.Add(rule.Id);
+                        foreach (var condition in rule.Conditions)
+                        {
+                            notQuery.AppendFormat(" {0}", condition.Ksql);
+                        }
+                    }
+
+                    notQuery.Append(")");
+
+                    string notQueryString = notQuery.ToString();
+
+                    BooleanPhraseNode notPhrase = null;
+                    BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+
+                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group);
+
+                    definitions.assetUserRulePhrase = notPhrase;
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+            }
         }
 
         private List<string> GetUserRecordings(UnifiedSearchDefinitions definitions, string siteGuid, int groupId, long domainId)

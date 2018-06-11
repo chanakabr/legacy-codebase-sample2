@@ -142,7 +142,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty ,true, string.Empty, string.Empty, string.Empty, null, blockEntitlement);
+                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty ,true, string.Empty, string.Empty, ip, null, blockEntitlement);
                         if (prices != null && prices.Length > 0)
                         {
                             AdsControlData adsData;

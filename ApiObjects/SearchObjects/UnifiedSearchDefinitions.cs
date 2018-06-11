@@ -369,6 +369,31 @@ namespace ApiObjects.SearchObjects
 
         public List<string> PersonalData { get; set; }
 
+        /// <summary>
+        /// The country Id of the calling user for geo availability 
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public int countryId;
+
+        /// <summary>
+        /// Asset user rule phrase to append to main query with not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public BooleanPhraseNode assetUserRulePhrase;
+
+        /// <summary>
+        /// Asset user rule IDs to consider in personal cache
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public List<long> assetUserRuleIds;
+
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldIgnoreEndDate;
+
         #endregion
 
         #region Ctor
@@ -414,8 +439,12 @@ namespace ApiObjects.SearchObjects
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
 
             PersonalData = new List<string>();
-        }
 
+            countryId = 0;
+
+            assetUserRuleIds = new List<long>();
+
+        }
 
         #endregion
 

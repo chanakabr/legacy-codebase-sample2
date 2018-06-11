@@ -11,6 +11,7 @@ using ApiObjects.PlayCycle;
 using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
@@ -6437,41 +6438,52 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Items Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, string ip, string currencyCode = null,
-            BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, 
+                                                                     string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
-            string sFirstDeviceNameFound = string.Empty;
             MediaFileItemPricesContainer[] ret = null;
-            bool bCancellationWindow = false;
+            
             try
             {
-                MediaFilePPVContainer[] oModules = null;
-
                 // get details about files + media (validity about files)    
                 Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID);
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID, Utils.GetIP2CountryId(m_nGroupID, ip));
+                
+                List<int> mediaFilesNotForPurchase = new List<int>();
+                List<int> mediaFilesForPurchase = new List<int>();
 
-                //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
-                List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
-                MediaFileItemPricesContainer tempItemPricesContainer = null;
-
-                List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
-                mediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
-
+                foreach (var validMediaFile in validMediaFiles)
+                {
+                    if (validMediaFile.Value == MediaFileStatus.NotForPurchase)
+                    {
+                        mediaFilesNotForPurchase.Add(validMediaFile.Key);
+                    }
+                    else
+                    {
+                        mediaFilesForPurchase.Add(validMediaFile.Key);
+                    }
+                }
+                
                 bool isValidCurrencyCode = false;
+                MediaFileItemPricesContainer tempItemPricesContainer = null;
+                
+                //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase
+                List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
+
                 // Validate currencyCode if it was passed in the request
                 if (!string.IsNullOrEmpty(currencyCode))
                 {
                     if (!Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
                     {
-                        foreach (int mf in mediaFiles)
+                        foreach (int mf in mediaFilesForPurchase)
                         {
-                            tempItemPricesContainer = new MediaFileItemPricesContainer();
-                            tempItemPricesContainer.m_nMediaFileID = mf;
-                            tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
-                            tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
-                            tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.InvalidCurrency;
-                            tempItemPricesContainer.m_sProductCode = string.Empty;
+                            tempItemPricesContainer = new MediaFileItemPricesContainer()
+                            {
+                                m_nMediaFileID = mf,
+                                m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.InvalidCurrency } },
+                                m_sProductCode = string.Empty
+                            };
+                            
                             tempRet.Add(tempItemPricesContainer);
                         }
 
@@ -6484,61 +6496,97 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                foreach (int mf in notForPurchaseFiles)
+                // add NotForPurchase files
+                foreach (int mfNotForPurchase in mediaFilesNotForPurchase)
                 {
-                    tempItemPricesContainer = new MediaFileItemPricesContainer();
-                    tempItemPricesContainer.m_nMediaFileID = mf;
-                    tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
-                    tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
-                    tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
-                    tempItemPricesContainer.m_sProductCode = string.Empty;
+                    tempItemPricesContainer = new MediaFileItemPricesContainer()
+                    {
+                        m_nMediaFileID = mfNotForPurchase,
+                        m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.NotForPurchase } },
+                        m_sProductCode = string.Empty
+                    };
+
                     tempRet.Add(tempItemPricesContainer);
                 }
-                if (mediaFiles.Count() == 0) // all file not for purchase - return
+
+                if (mediaFilesForPurchase.Count() == 0) // all file not for purchase - return
                 {
                     ret = tempRet.ToArray();
                     return ret;
                 }
 
-                string countryCode = !string.IsNullOrEmpty(ip) ? Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
-                oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFiles, countryCode, languageCode, udid);
+                int domainID = 0;
+                DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
 
-                if (oModules != null && oModules.Length > 0)
+                // check if user is valid
+                if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
                 {
-                    ret = new MediaFileItemPricesContainer[oModules.Length];
-                    MeidaMaper[] mapper = null;
-                    int domainID = 0;
-                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
-                    DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
-                    DomainEntitlements domainEntitlements = null;
-
-                    // check if user is valid
-                    if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
-                    {
-                        if (userSuspendStatus == DomainSuspentionStatus.Suspended && blockEntitlement == BlockEntitlementType.NONE)
-                        {
-                            userId = string.Empty;
-                        }
-                        else
-                        {
-                            userSuspendStatus = DomainSuspentionStatus.OK;
-                        }
-                    }
-                    // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
-                    else
+                    if (userSuspendStatus == DomainSuspentionStatus.Suspended &&
+                        blockEntitlement == BlockEntitlementType.NONE)
                     {
                         userId = string.Empty;
                     }
-
-                    if (!string.IsNullOrEmpty(userId))
+                    else
                     {
-                        // create mapper
-                        mapper = Utils.GetMediaMapper(m_nGroupID, mediaFiles);
-                        // Get all user entitlements
-                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, mapper, ref domainEntitlements))
+                        userSuspendStatus = DomainSuspentionStatus.OK;
+                    }
+                }
+                // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
+                else
+                {
+                    userId = string.Empty;
+                }
+
+                MeidaMaper[] mapper = null;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // create mapper
+                    mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesForPurchase.ToArray());
+                    
+                    if (mapper != null)
+                    {
+                        long lUserId = long.Parse(userId);
+
+                        GenericListResponse<AssetUserRule> assetUserRulesToUser = Core.Api.Module.GetAssetUserRuleList(m_nGroupID, lUserId);
+
+                        if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
                         {
-                            log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                            for (int i = 0; i < mapper.Length; i++)
+                            {
+                                List<AssetUserRule> assetUserRules = Core.Api.api.GetMediaAssetUserRulesToUser(m_nGroupID, lUserId, mapper[i].m_nMediaID, assetUserRulesToUser);
+
+                                if (assetUserRules != null && assetUserRules.Count > 0)
+                                {
+                                    tempItemPricesContainer = new MediaFileItemPricesContainer()
+                                    {
+                                        m_nMediaFileID = mapper[i].m_nMediaFileID,
+                                        m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.NotForPurchase } },
+                                        m_sProductCode = string.Empty
+                                    };
+
+                                    tempRet.Add(tempItemPricesContainer);
+
+                                    mediaFilesForPurchase.Remove(mapper[i].m_nMediaFileID);
+                                }
+                            }
                         }
+                    }
+                }
+
+                string countryCode = !string.IsNullOrEmpty(ip) ? Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
+                MediaFilePPVContainer[] oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFilesForPurchase.ToArray(), countryCode, languageCode, udid);
+
+                // run over all media files for purchase
+                if (oModules != null && oModules.Length > 0)
+                {
+                    ret = new MediaFileItemPricesContainer[oModules.Length];
+
+                    // Get all user entitlements
+                    DomainEntitlements domainEntitlements = null;
+                    if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, mapper, ref domainEntitlements))
+                    {
+                        log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
                     }
 
                     // loop on all files
@@ -6546,14 +6594,18 @@ namespace Core.ConditionalAccess
                     {
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         int mediaID = 0;
+
                         //get mediaID
                         if (mapper != null)
                         {
                             mediaID = Utils.ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
                         }
-                        PPVModuleWithExpiry[] ppvModules = oModules[i].m_oPPVModules;
+                        
                         MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
                         int nMediaFileTypeID = Utils.GetMediaFileTypeID(m_nGroupID, nMediaFileID);
+
+                        PPVModuleWithExpiry[] ppvModules = oModules[i].m_oPPVModules;
+
                         if (ppvModules != null && ppvModules.Length > 0)
                         {
                             List<ItemPriceContainer> itemPriceCont = new List<ItemPriceContainer>();
@@ -6574,6 +6626,7 @@ namespace Core.ConditionalAccess
                             DateTime? dtLowestStartDate = null;
                             DateTime? dtLowestEndDate = null;
                             bool isUserSuspended = false;
+                            string sFirstDeviceNameFound = string.Empty;
 
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
@@ -6582,12 +6635,14 @@ namespace Core.ConditionalAccess
                                 // Get PPV price code according to country and currency (if exists on the request)
                                 if (!string.IsNullOrEmpty(countryCode) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
                                 {
-                                    PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
+                                    PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency
+                                        (m_nGroupID, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
                                     bool shouldUpdateDiscountModule = false;
                                     DiscountModule discountModuleWithCurrency = null;
                                     if (ppvModules[j].PPVModule.m_oDiscountModule != null)
                                     {
-                                        discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                                        discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency
+                                            (m_nGroupID, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
                                         shouldUpdateDiscountModule = discountModuleWithCurrency != null;
                                     }
 
@@ -6618,22 +6673,24 @@ namespace Core.ConditionalAccess
                                 DateTime? dtEntitlementStartDate = null;
                                 DateTime? dtEntitlementEndDate = null;
                                 DateTime? dtDiscountEndDate = null;
-
-                                Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
-                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, countryCode, languageCode, udid,
-                                    ip, null, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid,
-                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, domainEntitlements, mediaID, userSuspendStatus, false,
-                                    false, blockEntitlement);
+                                bool bCancellationWindow = false;
+                                List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
+                                
+                                Price price = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
+                                                                       ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, 
+                                                                       ref sFirstDeviceNameFound, countryCode, languageCode, udid, ip, null, allUsersInDomain, nMediaFileTypeID, 
+                                                                       ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, 
+                                                                       ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, domainEntitlements, 
+                                                                       mediaID, userSuspendStatus, false, false, blockEntitlement);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
                                 var tempItemPriceContainer = new ItemPriceContainer();
-                                tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
-                                    theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-                                    sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, ppvModules[j].PPVModule.m_Product_Code, dtEntitlementStartDate,
-                                    dtEntitlementEndDate, dtDiscountEndDate);
-
-
+                                tempItemPriceContainer.Initialize(price, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
+                                                                  theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
+                                                                  sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, 
+                                                                  ppvModules[j].PPVModule.m_Product_Code, dtEntitlementStartDate, dtEntitlementEndDate, dtDiscountEndDate);
+                                
                                 if (theReason == PriceReason.UserSuspended)
                                 {
                                     isUserSuspended = true;
@@ -6642,12 +6699,9 @@ namespace Core.ConditionalAccess
                                     {
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
-                                    else
+                                    else if (j == 0)//insert only the first ppvModule (when the user is suspended we cannot compare prices)
                                     {
-                                        if (j == 0)//insert only the first ppvModule (when the user is suspended we cannot compare prices)
-                                        {
-                                            itemPriceCont.Insert(0, tempItemPriceContainer);
-                                        }
+                                        itemPriceCont.Insert(0, tempItemPriceContainer);
                                     }
                                 }
                                 else //user is not suspended
@@ -6659,26 +6713,23 @@ namespace Core.ConditionalAccess
                                         {
                                             itemPriceCont.Add(tempItemPriceContainer);
                                         }
-                                        else
+                                        else if(price != null && price.m_dPrice < dLowest)
                                         {
-                                            if (p != null && p.m_dPrice < dLowest)
-                                            {
-                                                #region insert lowest price parameters
-                                                nLowestIndex = j;
-                                                dLowest = p.m_dPrice;
-                                                pLowest = p;
-                                                theLowestReason = theReason;
-                                                relevantLowestSub = relevantSub;
-                                                relevantLowestCol = relevantCol;
-                                                relevantLowestPrePaid = relevantPrePaid;
-                                                tempCancellationWindow = bCancellationWindow;
-                                                lowestPurchasedBySiteGuid = purchasedBySiteGuid;
-                                                lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
-                                                lowestRelatedMediaFileIDs = relatedMediaFileIDs;
-                                                dtLowestStartDate = dtEntitlementStartDate;
-                                                dtLowestEndDate = dtEntitlementEndDate;
-                                                #endregion
-                                            }
+                                            #region insert lowest price parameters
+                                            nLowestIndex = j;
+                                            dLowest = price.m_dPrice;
+                                            pLowest = price;
+                                            theLowestReason = theReason;
+                                            relevantLowestSub = relevantSub;
+                                            relevantLowestCol = relevantCol;
+                                            relevantLowestPrePaid = relevantPrePaid;
+                                            tempCancellationWindow = bCancellationWindow;
+                                            lowestPurchasedBySiteGuid = purchasedBySiteGuid;
+                                            lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
+                                            lowestRelatedMediaFileIDs = relatedMediaFileIDs;
+                                            dtLowestStartDate = dtEntitlementStartDate;
+                                            dtLowestEndDate = dtEntitlementEndDate;
+                                            #endregion
                                         }
                                     }
                                 }
@@ -6712,7 +6763,6 @@ namespace Core.ConditionalAccess
                                     priceContainer[0] = GetFreeItemPriceContainer();
 
                                     itemPriceCont.Insert(0, priceContainer[0]);
-
                                 }
                             }
 
@@ -6729,16 +6779,17 @@ namespace Core.ConditionalAccess
                         ret[i] = mf;
                     }
                 }
+                // all the media file are Free
                 else
                 {
                     ret = new MediaFileItemPricesContainer[1];
                     MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
-                    foreach (int mediaFileID in mediaFiles)
+                    foreach (int mediaFileID in mediaFilesForPurchase)
                     {
-                        ItemPriceContainer freeContainer = new ItemPriceContainer();
-                        freeContainer.m_PriceReason = PriceReason.Free;
-                        ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-                        priceContainer[0] = freeContainer;
+                        ItemPriceContainer[] priceContainer = new ItemPriceContainer[1] 
+                        {
+                            new ItemPriceContainer() { m_PriceReason = PriceReason.Free }
+                        };
 
                         mc.Initialize(mediaFileID, priceContainer);
                     }
@@ -6779,9 +6830,7 @@ namespace Core.ConditionalAccess
 
             return ret;
         }
-
-
-
+        
         /*
          * 1. This method is a helper function for GetItemsPrices.
          * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
@@ -6914,8 +6963,7 @@ namespace Core.ConditionalAccess
             }
             return sRet;
         }
-
-
+        
         /*
         /// <summary>
         /// Get Safe Double

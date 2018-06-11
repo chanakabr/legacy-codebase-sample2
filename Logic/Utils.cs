@@ -880,5 +880,48 @@ namespace APILogic
             }            
         }
 
+        internal static Tuple<List<ApiObjects.Country>, bool> GetAllCountryList(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ApiObjects.Country> countriesResult = null;
+
+            try
+            {
+                DataTable dt = DAL.ApiDAL.GetAllCountries();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    countriesResult = new List<ApiObjects.Country>(dt.Rows.Count);
+
+                    ApiObjects.Country country;
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow dr = dt.Rows[i];
+                        if (dr != null)
+                        {
+                            country = new ApiObjects.Country()
+                            {
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_NAME"),
+                                Code = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_CD2"),
+                                TimeZoneId = ODBCWrapper.Utils.GetSafeStr(dr, "TIME_ZONE_ID"),
+                            };
+
+                            if (country.Id > 0)
+                            {
+                                countriesResult.Add(country);
+                            }
+                        }
+                    }
+                }
+
+                res = countriesResult != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetAllCountryList failed", ex);
+            }
+
+            return new Tuple<List<ApiObjects.Country>, bool>(countriesResult, res);
+        }
     }
 }
