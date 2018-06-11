@@ -1912,6 +1912,11 @@ namespace Core.Api
             return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
         }
 
+        public static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            return Core.Api.api.GetAssetRule(groupId, assetRuleId);
+        }
+        
         #endregion
     }
 }

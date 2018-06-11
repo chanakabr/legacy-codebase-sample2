@@ -555,24 +555,14 @@ namespace Core.Api.Managers
             GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
             try
             {
-                //check AssetRule exists
-                AssetRule oldAssetRule = ApiDAL.GetAssetRuleCB(assetRule.Id);
                 assetRule.GroupId = groupId;
-                if (assetRule == null || assetRule.Id == 0 || groupId != oldAssetRule.GroupId)
-                {
-                    response.SetStatus(eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
-                    return response;
-                }
                 
                 if (!ApiDAL.UpdateAssetRule(groupId, assetRule.Id, assetRule.Name, assetRule.Description))
                 {
                     response.SetStatus(eResponseStatus.Error, ASSET_RULE_FAILED_UPDATE);
                     return response;
                 }
-
-                // before saving AssetRule complete name,actions,conditions in case they are empty
-                assetRule.FillEmpty(oldAssetRule);
-
+                
                 if (assetRule.HasCountryConditions())
                 {
                     ResetMediaCountries(groupId, assetRule.Id);
@@ -695,6 +685,30 @@ namespace Core.Api.Managers
             }
 
             return new Tuple<Dictionary<string, AssetRule>, bool>(result, res);
+        }
+
+        internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
+            try
+            {
+                AssetRule assetRule = ApiDAL.GetAssetRuleCB(assetRuleId);
+
+                if (assetRule == null || assetRule.Id == 0 || groupId != assetRule.GroupId)
+                {
+                    response.SetStatus(eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
+                    return response;
+                }
+                
+                response.Object = assetRule;
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, assetRuleId);
+            }
+
+            return response;
         }
     }
 }

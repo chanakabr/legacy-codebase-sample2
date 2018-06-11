@@ -1650,6 +1650,11 @@ namespace Core.Api
             }
         }
 
+        internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            return AssetRuleManager.GetAssetRule(groupId, assetRuleId);
+        }
+
         static private Dictionary<string, List<EPGDictionary>> GetAllEPGMetaProgram(int nGroupID, DataTable ProgramID)
         {
             Dictionary<string, List<EPGDictionary>> EPG_ResponseMeta = new Dictionary<string, List<EPGDictionary>>();
