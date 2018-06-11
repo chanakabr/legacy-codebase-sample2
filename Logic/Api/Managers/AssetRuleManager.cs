@@ -641,11 +641,12 @@ namespace Core.Api.Managers
                     {
                         long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(assetRuleRow, "ID");
                         int groupId = ODBCWrapper.Utils.GetIntSafeVal(assetRuleRow, "GROUP_ID");
-                        int assetRuleType = ODBCWrapper.Utils.GetIntSafeVal(assetRuleRow, "ASSET_RULE_TYPE");
+                        //int assetRuleType = ODBCWrapper.Utils.GetIntSafeVal(assetRuleRow, "ASSET_RULE_TYPE");
 
                         AssetRule assetRule = new AssetRule()
                         {
                             Id = assetRuleId,
+                            GroupId = groupId
                         };
 
                         assetRules.Add(assetRule);
