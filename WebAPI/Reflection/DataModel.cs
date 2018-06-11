@@ -2532,6 +2532,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "ConditionTypeEqual":
+                            return "conditionTypeEqual";
+                    }
+                    break;
+                    
                 case "KalturaAssetRuleListResponse":
                     switch(property.Name)
                     {
@@ -3016,11 +3024,23 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaConcurrencyCondition":
+                    switch(property.Name)
+                    {
+                        case "ConcurrencyLimitationType":
+                            return "concurrencyLimitationType";
+                        case "Limit":
+                            return "limit";
+                    }
+                    break;
+                    
                 case "KalturaCondition":
                     switch(property.Name)
                     {
                         case "Description":
                             return "description";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
