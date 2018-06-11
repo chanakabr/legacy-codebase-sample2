@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "excluded_permissions": [],
+      "name": "CuePoint_List",
+      "service": "CuePoint",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

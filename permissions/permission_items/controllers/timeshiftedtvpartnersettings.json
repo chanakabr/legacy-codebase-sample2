@@ -1,0 +1,28 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "TimeShiftedTvPartnerSettings_Get",
+      "service": "TimeShiftedTvPartnerSettings",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "excluded_permissions": [],
+      "name": "TimeShiftedTvPartnerSettings_Update",
+      "service": "TimeShiftedTvPartnerSettings",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

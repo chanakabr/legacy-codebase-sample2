@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using ConfigurationManager;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace WebAPI.Controllers
     public class AssetFileController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         /// <summary>
         /// get KalturaAssetFileContext
@@ -94,7 +96,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
-        public void PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
+        public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
         {
             if ((assetType == KalturaAssetType.epg && (contextType != KalturaPlaybackContextType.CATCHUP && contextType != KalturaPlaybackContextType.START_OVER)) ||
                 (assetType == KalturaAssetType.media && (contextType != KalturaPlaybackContextType.TRAILER && contextType != KalturaPlaybackContextType.PLAYBACK)) ||
@@ -105,19 +107,19 @@ namespace WebAPI.Controllers
 
             KS ksObject = KS.GetFromRequest();
 
-            string response = null;
+            KalturaAssetFile response = new KalturaAssetFile();
 
             try
             {
                 string userId = ksObject != null ? ksObject.UserId : "0";
                 string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
-                response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
+                response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
 
-                if (!string.IsNullOrEmpty(response))
+                if (!string.IsNullOrEmpty(response.Url))
                 {
                     // pass query string params
-                    if (response.ToLower().Contains("playmanifest"))
+                    if (response.Url.ToLower().Contains("playmanifest"))
                     {
                         if (HttpContext.Current.Request.QueryString.Count > 0)
                         {
@@ -132,26 +134,33 @@ namespace WebAPI.Controllers
                             else
                             {
                                 dynamicQueryStringParamsNames = dynamicQueryStringParamsConfiguration.Split(',');
+                            }
 
-                                foreach (var dynamicParam in dynamicQueryStringParamsNames)
+                            foreach (var dynamicParam in dynamicQueryStringParamsNames)
+                            {
+                                if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
                                 {
-                                    if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
-                                    {
-                                        response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
-                                    }
+                                    response.Url = string.Format("{0}{1}{2}={3}", response.Url, response.Url.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
                                 }
                             }
                         }
                     }
 
-                    HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                    HttpContext.Current.Response.Redirect(response);
+                    string responseFormat = HttpContext.Current.Request.QueryString["responseFormat"];
+
+                    if (string.IsNullOrEmpty(responseFormat))
+                    {
+                        HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        HttpContext.Current.Response.Redirect(response.Url);
+                    }
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
         }
     }
 }

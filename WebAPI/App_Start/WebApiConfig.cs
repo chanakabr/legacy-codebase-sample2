@@ -38,6 +38,7 @@ namespace WebAPI
             config.Formatters.RemoveAt(0);
             config.Formatters.Insert(0, new JilFormatter());
             config.Formatters.Add(new CustomXmlFormatter());
+            config.Formatters.Add(new JsonPFormatter());
 
             // add asset XML formatter
             config.Formatters.Add(new AssetXmlFormatter());

@@ -432,7 +432,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
@@ -2639,6 +2639,39 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, string kSql, KalturaAssetOrderBy orderBy,
+                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes)
+        {
+            KalturaAssetListResponse response = new KalturaAssetListResponse();
+
+            Models.Notification.KalturaPersonalListListResponse personalListRespnse = 
+                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
+            if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
+            {
+                StringBuilder ksqlBuilder = new StringBuilder();
+
+                ksqlBuilder.AppendFormat("(or");
+                foreach (var personalList in personalListRespnse.PersonalListList)
+                {
+                    ksqlBuilder.AppendFormat(" {0}", personalList.Ksql);
+                }
+                ksqlBuilder.AppendFormat(")");
+
+                string ksqlFilter = ksqlBuilder.ToString();
+
+                if (!string.IsNullOrEmpty(kSql))
+                {
+                    ksqlFilter = string.Format("(and {0} {1})", kSql, ksqlFilter);
+                }
+
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
+                        orderBy, null, null, false, dynamicOrderBy,
+                        groupBy, null);
+            }
+
+            return response;
         }
     }
 }

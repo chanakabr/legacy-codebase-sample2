@@ -23,13 +23,19 @@ namespace WebAPI
 
         protected void Application_Start()
         {
+            InitializeLogging();
+
             // Configuration
-            ConfigurationManager.ApplicationConfiguration.Initialize(true);
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+        }
+
+        private static void InitializeLogging()
+        {
             // build log4net partial file name
             string partialLogName = string.Empty;
 

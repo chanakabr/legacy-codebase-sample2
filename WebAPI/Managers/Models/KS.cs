@@ -67,6 +67,8 @@ namespace WebAPI.Managers.Models
             }
         }
 
+        public string Random { get; set; }
+
         public string OriginalUserId { get; set; }
 
         public KalturaSessionType SessionType
@@ -174,6 +176,7 @@ namespace WebAPI.Managers.Models
             }
 
             //parse fields
+            ks.Random = string.Concat(Array.ConvertAll(fieldsWithRandom.Take(BLOCK_SIZE).ToArray(), b => b.ToString("X2"))); // byte array to hex string
             string fieldsString = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
             string[] fields = fieldsString.Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 

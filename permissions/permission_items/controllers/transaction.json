@@ -1,0 +1,121 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_Purchase",
+      "service": "Transaction",
+      "action": "Purchase",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_ProcessReceipt",
+      "service": "Transaction",
+      "action": "ProcessReceipt",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_Waiver",
+      "service": "Transaction",
+      "action": "setWaiver",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_PurchaseSessionId",
+      "service": "Transaction",
+      "action": "PurchaseSessionId",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_GetPurchaseSessionId",
+      "service": "Transaction",
+      "action": "GetPurchaseSessionId",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_ValidateReceipt",
+      "service": "Transaction",
+      "action": "ValidateReceipt",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_Downgrade",
+      "service": "Transaction",
+      "action": "Downgrade",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_Upgrade",
+      "service": "Transaction",
+      "action": "Upgrade",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_UpdateStatus",
+      "service": "Transaction",
+      "action": "UpdateStatus",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Transaction_UpdateState",
+      "service": "Transaction",
+      "action": "UpdateState",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

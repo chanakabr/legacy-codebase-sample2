@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Image_List",
+      "service": "Image",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Image_Add",
+      "service": "Image",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Image_Delete",
+      "service": "Image",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Image_SetContent",
+      "service": "Image",
+      "action": "SetContent",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

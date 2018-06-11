@@ -1,0 +1,72 @@
+{
+  "permissions": [
+    {
+      "name": "Anonymous",
+      "users_group": ""
+    },
+    {
+      "name": "User",
+      "users_group": ""
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PLAYBACK_PPV",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_PPV",
+      "users_group": ""
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_SERVICE",
+      "users_group": ""
+    },
+    {
+      "name": "LOGIN",
+      "users_group": ""
+    },
+    {
+      "name": "Master",
+      "users_group": "household*"
+    },
+    {
+      "name": "Operator",
+      "users_group": "partner*"
+    },
+    {
+      "name": "DELETE_ALL_APP_TOKENS",
+      "users_group": ""
+    },
+    {
+      "name": "Manager",
+      "users_group": "partner*"
+    },
+    {
+      "name": "Administrator",
+      "users_group": "partner*"
+    },
+    {
+      "name": "ExternalPaymentGateway",
+      "users_group": "partner*"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "OLD_SUSPEND",
+      "users_group": ""
+    }
+  ]
+}

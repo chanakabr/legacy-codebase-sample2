@@ -38,6 +38,8 @@ namespace WebAPI.Reflection
                     {
                         case "Descriptions":
                             return DeprecatedAttribute.IsDeprecated("4.8.0.0");
+                        case "DiscountCode":
+                            return DeprecatedAttribute.IsDeprecated("4.8.2.0");
                     };
                     break;
                     
@@ -1095,6 +1097,12 @@ namespace WebAPI.Reflection
                     ret = new Dictionary<string, string>() { 
                         {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                    };
+                    break;
+                    
+                case "KalturaDiscount":
+                    ret = new Dictionary<string, string>() { 
+                        {"currencySign", "currency_sign"},
                     };
                     break;
                     
@@ -2358,6 +2366,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFile":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaAssetFileContext":
                     switch(property.Name)
                     {
@@ -2501,6 +2517,12 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleBase":
+                    switch(property.Name)
+                    {
                         case "Description":
                             return "description";
                         case "Id":
@@ -2584,6 +2606,32 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetUserRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "AttachedUserIdEqualCurrent":
+                            return "attachedUserIdEqualCurrent";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaBaseAssetInfo":
                     switch(property.Name)
                     {
@@ -2631,6 +2679,8 @@ namespace WebAPI.Reflection
                     {
                         case "GroupBy":
                             return "groupBy";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -3125,6 +3175,8 @@ namespace WebAPI.Reflection
                             return "mainLanguageCode";
                         case "Name":
                             return "name";
+                        case "TimeZoneId":
+                            return "timeZoneId";
                         case "VatPercent":
                             return "vatPercent";
                     }
@@ -3183,6 +3235,8 @@ namespace WebAPI.Reflection
                             return "descriptions";
                         case "DiscountCode":
                             return "discountCode";
+                        case "DiscountId":
+                            return "discountId";
                         case "EndDate":
                             return "endDate";
                         case "Id":
@@ -3357,6 +3411,44 @@ namespace WebAPI.Reflection
                     {
                         case "LastAccessDateGreaterThanOrEqual":
                             return "lastAccessDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaDiscount":
+                    switch(property.Name)
+                    {
+                        case "Percentage":
+                            return "percentage";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "EndtDate":
+                            return "endDate";
+                        case "Id":
+                            return "id";
+                        case "MultiCurrencyDiscount":
+                            return "multiCurrencyDiscount";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Discounts":
+                            return "objects";
                     }
                     break;
                     
@@ -3848,6 +3940,14 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "FollowDataList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaGenericListResponse`1":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;
@@ -4433,8 +4533,6 @@ namespace WebAPI.Reflection
                             return "quality";
                         case "Type":
                             return "type";
-                        case "Url":
-                            return "url";
                     }
                     break;
                     
@@ -5017,6 +5115,46 @@ namespace WebAPI.Reflection
                     {
                         case "PersonalFollowFeed":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPersonalList":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
+                        case "PartnerListType":
+                            return "partnerListType";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListListResponse":
+                    switch(property.Name)
+                    {
+                        case "PersonalListList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
                     }
                     break;
                     
@@ -5701,8 +5839,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -5799,8 +5935,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }

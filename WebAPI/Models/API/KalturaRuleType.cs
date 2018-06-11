@@ -10,6 +10,7 @@ namespace WebAPI.Models.API
         parental = 0, 
         geo = 1, 
         user_type = 2, 
-        device = 3
+        device = 3,
+        assetUser = 4
     }
 }

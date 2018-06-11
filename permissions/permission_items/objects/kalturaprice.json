@@ -1,0 +1,16 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaPrice_countryId_Read",
+      "object": "KalturaPrice",
+      "parameter": "countryId",
+      "action": "READ",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

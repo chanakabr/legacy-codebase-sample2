@@ -83,7 +83,7 @@ namespace WebAPI.Clients
 
             return roles;
         }
-
+        
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)
@@ -120,7 +120,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
@@ -155,7 +155,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
             ParentalRulesResponse response = null;
@@ -190,7 +190,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
             KalturaUserRole userRole = new KalturaUserRole();
@@ -2449,8 +2449,6 @@ namespace WebAPI.Clients
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3976,10 +3974,72 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            kAssetRuleListResponse.Objects = AutoMapper.Mapper.Map<List<KalturaAssetRule>>(response.AssetRules);
-            kAssetRuleListResponse.TotalCount = kAssetRuleListResponse.Objects != null ? kAssetRuleListResponse.Objects.Count : 0;
+            if (response.AssetRules != null && response.AssetRules.Count > 0)
+            {
+                kAssetRuleListResponse.Objects = AutoMapper.Mapper.Map<List<KalturaAssetRule>>(response.AssetRules);
+                kAssetRuleListResponse.TotalCount = kAssetRuleListResponse.Objects != null ? kAssetRuleListResponse.Objects.Count : 0;
+            }
 
             return kAssetRuleListResponse;
         }
+
+        #region AssetUserRule
+
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null)
+        {
+            KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
+
+            Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
+               Core.Api.Module.GetAssetUserRuleList(groupId, userId);
+
+            KalturaGenericListResponse<KalturaAssetUserRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule AddAssetUserRule(int groupId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> addAssetUserRuleFunc = (AssetUserRule assetUserRuleToAdd) =>
+                Core.Api.Module.AddAssetUserRule(groupId, assetUserRuleToAdd);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, addAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> updateAssetUserRuleFunc = (AssetUserRule assetUserRuleToUpdate) =>
+                Core.Api.Module.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, updateAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal void DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
+        }
+
+        internal void AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> addAssetUserRuleToUserFunc = () => Core.Api.Module.AddAssetUserRuleToUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(addAssetUserRuleToUserFunc);
+        }
+        
+        internal void DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> deleteAssetUserRuleFromUserFunc = () => Core.Api.Module.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFromUserFunc);
+        }
+        #endregion
     }
 }

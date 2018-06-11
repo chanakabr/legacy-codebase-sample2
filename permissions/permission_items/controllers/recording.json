@@ -1,0 +1,89 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_GetContext",
+      "service": "Recording",
+      "action": "GetContext",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Add",
+      "service": "Recording",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Get",
+      "service": "Recording",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_List",
+      "service": "Recording",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Cancel",
+      "service": "Recording",
+      "action": "Cancel",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Delete",
+      "service": "Recording",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Protect",
+      "service": "Recording",
+      "action": "Protect",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

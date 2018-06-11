@@ -25,6 +25,15 @@
             Argument value
             </summary>
         </member>
+        <member name="M:WebAPI.Clients.ClientUtils.GetResponseListFromWS``2(System.Func{ApiObjects.Response.GenericListResponse{``1}})">
+            <summary>
+            Get result list from CatalogManager (without ordering the list)
+            </summary>
+            <typeparam name="U">The Kaltura object from\for the client</typeparam>
+            <typeparam name="T">The internal representation of the Kaltura object</typeparam>
+            <param name="funcInWS"></param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
             Add a new future scheduled system announcement push notification
@@ -196,16 +205,21 @@
             <param name="filter_types">List of asset types to search within. 
             Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.</param>
-            <param name="filter"> <![CDATA[
+            <param name="filter">      
+            <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
             Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
             parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
             For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-            Search values are limited to 20 characters each.
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
             (maximum length of entire filter is 2048 characters)]]></param>
             <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
             Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
@@ -276,11 +290,20 @@
             <param name="pager">Paging the request</param>
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-            <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+            <param name="filter_query"> /// <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
             For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-            Search values are limited to 20 characters each.
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
             (maximum length of entire filter is 2048 characters)]]></param>
             <remarks>Possible status codes: 
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
@@ -344,6 +367,44 @@
             <param name="ks">Kaltura session for the user, not mandatory for anonymous user</param>
             <param name="partnerId">Partner identifier</param>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.List(WebAPI.Models.API.KalturaAssetUserRuleFilter)">
+            <summary>
+             Get the list of asset user rules for the partner
+            </summary>
+            <param name="filter">AssetUserRule Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.Add(WebAPI.Models.API.KalturaAssetUserRule)">
+            <summary>
+            Add asset user rule
+            </summary>
+            <param name="assetUserRule">Asset user rule</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.Update(System.Int64,WebAPI.Models.API.KalturaAssetUserRule)">
+            <summary>
+            Update asset user rule
+            </summary>
+            <param name="assetUserRule">Asset user rule</param>
+            <param name="id">Asset user rule ID to update</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.Delete(System.Int64)">
+            <summary>
+            Delete asset user rule
+            </summary>
+            <param name="id">Asset user rule ID</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.AttachUser(System.Int64)">
+            <summary>
+            Attach AssetUserRule To User
+            </summary>
+            <param name="ruleId">AssetUserRule id to add</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetUserRuleController.DetachUser(System.Int64)">
+            <summary>
+            Detach AssetUserRule from user
+            </summary>
+            <param name="ruleId">AssetUserRule id to remove</param>
         </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
@@ -737,6 +798,36 @@
             Possible status codes:       
             </remarks>        
             <param name="emailMessage">email details</param>     
+        </member>
+        <member name="M:WebAPI.Controllers.DiscountDetailsController.List(WebAPI.Models.Pricing.KalturaDiscountDetailsFilter)">
+            <summary>
+            Returns the list of available discounts details, can be filtered by discount codes
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.List(WebAPI.Models.Notification.KalturaPersonalListFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List user's tv personal item to follow.
+            <remarks>Possible status codes:</remarks>
+            </summary>
+            <param name="filter">Personal list filter</param>
+            <param name="pager">pager</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.Add(WebAPI.Models.Notification.KalturaPersonalList)">
+            <summary>
+            Add a user's personal list item to follow.
+            </summary>
+            <param name="personalList">Follow personal list item request parameters</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PersonalListController.Delete(System.Int64)">
+            <summary>
+            Remove followed item from user's personal list 
+            </summary>
+            <param name="personalListId">personalListId identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
             <summary>
@@ -1448,6 +1539,7 @@
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(WebAPI.Models.Notification.KalturaFollowTvSeriesFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
+            (Deprecated - use personalList.list)
             List user's tv series follows.
             <remarks>Possible status codes:</remarks>
             </summary>
@@ -1466,6 +1558,7 @@
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.Delete(System.Int32)">
             <summary>
+            (Deprecated - use personalList.delete)
             Delete a user's tv series follow.
             <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
             </summary>
@@ -1474,6 +1567,7 @@
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowTvSeries)">
             <summary>
+            (Deprecated - use personalList.add)
             Add a user's tv series follow.
             <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
             </summary>
@@ -4182,6 +4276,46 @@
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetRuleBase">
+            <summary>
+            Asset rule base
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Id">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetUserRule">
+            <summary>
+            Asset user rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetUserRule.Conditions">
+            <summary>
+            List of Ksql conditions for the user rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetUserRule.Actions">
+            <summary>
+            List of actions for the user rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetUserRuleListResponse.Objects">
+            <summary>
+            Asset user rules
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaCondition">
             <summary>
             Condition
@@ -4190,16 +4324,6 @@
         <member name="P:WebAPI.Models.API.KalturaCondition.Description">
             <summary>
             Description
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.API.KalturaAssetCondition">
-            <summary>
-            Asset Condition
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetCondition.Ksql">
-            <summary>
-            KSQL  
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaCountryCondition">
@@ -4215,6 +4339,26 @@
         <member name="P:WebAPI.Models.API.KalturaCountryCondition.Countries">
             <summary>
             Comma separated countries IDs list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetCondition">
+            <summary>
+            Asset Condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetCondition.Ksql">
+            <summary>
+            KSQL  
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetUserRuleFilter">
+            <summary>
+            Asset user rule filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetUserRuleFilter.AttachedUserIdEqualCurrent">
+            <summary>
+            Indicates if to get the asset user rule list for the attached user or for the entire group
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCurrencyListResponse.Objects">
@@ -4260,21 +4404,6 @@
         <member name="T:WebAPI.Models.API.KalturaAssetRule">
             <summary>
             Asset rule
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRule.Id">
-            <summary>
-            ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRule.Name">
-            <summary>
-            Name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRule.Description">
-            <summary>
-            Description
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaAssetRule.Conditions">
@@ -5397,9 +5526,34 @@
             </summary>
         </member>
         <!-- Badly formed XML comment ignored for member "T:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter" -->
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.Ksql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupBy">
             <summary>
             groupBy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaPersonalListSearchFilter.PartnerListTypeIn">
+            <summary>
+            Comma separated list of partner list types to search within. 
+            If omitted – all types should be included.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetListFilter.ExcludeWatched">
@@ -5937,19 +6091,20 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.KSql">
             <summary>
-            <![CDATA[
+             /// <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
             Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
             epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
             parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
             For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
@@ -5973,24 +6128,6 @@
             Assets
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.KSql">
-            <summary>
-            <![CDATA[
-            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
-            entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
-            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-            Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
-            (maximum length of entire filter is 2048 characters)]]>
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.IdEqual">
             <summary>
             the ID of the asset for which to return related assets
@@ -5998,6 +6135,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.TypeIn">
             <summary>
+            (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
             Comma separated list of asset types to search within. 
             Possible values: any media type ID (according to media type IDs defined dynamically in the system).
             If omitted –   same type as the provided asset.
@@ -6030,26 +6168,9 @@
             FreeText
              </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.KSql">
-            <summary>
-            <![CDATA[
-            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
-            entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
-            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-            Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
-            (maximum length of entire filter is 2048 characters)]]>
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.TypeIn">
             <summary>
+            (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
             Comma separated list of asset types to search within. 
             Possible values: 0 – EPG linear programs entries; 1 - Recordings; Any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.
@@ -6563,6 +6684,16 @@
             Average score
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetFile">
+            <summary>
+            Asset file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
             <summary>
             Media file details
@@ -6581,11 +6712,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
             <summary>
             Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
-            <summary>
-            URL of the media file to be played
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
@@ -7983,6 +8109,16 @@
             The Identifier of the purchasing household
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
+            <summary>
+            Generic response list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.Objects">
+            <summary>
+            A list of objects
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
             <summary>
             Kaltura Aggregation CountFilter
@@ -8454,6 +8590,61 @@
             extra parameters
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.CreateDate">
+            <summary>
+            Create Date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.Ksql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalList.PartnerListType">
+            <summary>
+            Partner List Type (optional)
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPersonalListListResponse">
+            <summary>
+            List of KalturaPersonalList.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalListListResponse.PersonalListList">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalListFilter.PartnerListTypeIn">
+            <summary>
+            Comma separated list of partner list types to search within. 
+            If omitted – all types should be included.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
             <summary>
             Engagement type: Churn=1
@@ -8615,15 +8806,16 @@
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
             Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
             epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
             parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
             For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
+            Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
@@ -9182,6 +9374,56 @@
             Indicates whether to use special characters in the generated codes(default is true)
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscount">
+            <summary>
+            Discount
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscount.Percentage">
+            <summary>
+            The discount percentage
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscountDetails">
+            <summary>
+            Discount details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.Id">
+            <summary>
+            The discount ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.name">
+            <summary>
+            The price code name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.MultiCurrencyDiscount">
+            <summary>
+            Multi currency discounts for all countries and currencies
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.StartDate">
+            <summary>
+            Start date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.EndtDate">
+            <summary>
+            End date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsListResponse.Discounts">
+            <summary>
+            A list of price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsFilter.IdIn">
+            <summary>
+            Comma separated discount codes
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
             <summary>
             Comma separated price plans identifiers 
@@ -9650,6 +9892,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountCode">
             <summary>
             Discount code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountId">
+            <summary>
+            Discount ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
@@ -10430,6 +10677,11 @@
         <member name="P:WebAPI.Models.Users.KalturaCountry.VatPercent">
              <summary>
             Vat Percent in the country
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.TimeZoneId">
+             <summary>
+            Time zone ID
              </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserLoginPin">

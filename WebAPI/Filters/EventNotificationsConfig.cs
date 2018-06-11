@@ -67,6 +67,9 @@ namespace WebAPI.Filters
                             consumerAssembly = Assembly.GetCallingAssembly();
                         }
 
+                        log.DebugFormat("Loading event notification consumer from assembly {0} in location {1} and type {2}",
+                            consumerAssembly.FullName, consumerAssembly.Location, setting.Type);
+
                         Type consumerType = consumerAssembly.GetType(setting.Type);
 
                         var newConsumer = (BaseEventConsumer)Activator.CreateInstance(consumerType);

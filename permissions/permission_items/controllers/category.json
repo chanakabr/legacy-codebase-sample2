@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Category_Get",
+      "service": "Category",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

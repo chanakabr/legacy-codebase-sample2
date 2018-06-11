@@ -215,11 +215,13 @@
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
+    <Compile Include="Controllers\AssetUserRuleController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
@@ -239,6 +241,8 @@
     <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
+	<Compile Include="Controllers\DiscountDetailsController.cs" />
+	<Compile Include="Controllers\PersonalListController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -284,26 +288,34 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
+    <Compile Include="Models\API\KalturaAssetUserRule.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />
+    <Compile Include="Models\API\KalturaAssetUserRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\API\KalturaAssetRule.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaPersonalListSearchFilter.cs" />
     <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
+    <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
     <Compile Include="Models\General\KalturaAggregationCountOrderBy.cs" />
     <Compile Include="Models\General\KalturaDetachedResponseProfile.cs" />
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
     <Compile Include="Models\Notification\KalturaEmailMessage.cs" />
+    <Compile Include="Models\Notification\KalturaPersonalList.cs" />
     <Compile Include="Models\Pricing\KalturaCollectionPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCollection.cs" />
     <Compile Include="Models\Pricing\KalturaCouponGenerationOptions.cs" />
+    <Compile Include="Models\Pricing\KalturaDiscount.cs" />
+    <Compile Include="Models\Pricing\KalturaDiscountDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlanFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPriceDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
@@ -881,6 +893,7 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
+    <Compile Include="Utils\JsonPFormatter.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
