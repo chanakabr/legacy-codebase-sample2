@@ -171,7 +171,12 @@ namespace ApiObjects.Response
         BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3072,
         WrongSubscriptionType = 3073,
         SubscriptionCancellationIsBlocked = 3074,
-
+        InvalidProductType = 3075,
+        InvalidContentId = 3076,
+        UnknownPriceReason = 3077,
+        PurchaseFailed = 3078,
+        PurchasePassedEntitlementFailed = 3079,
+        
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,
