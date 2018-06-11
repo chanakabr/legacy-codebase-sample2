@@ -150,7 +150,6 @@
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="Rules\AssetUserRule.cs" />
     <Compile Include="Rules\AssetRule.cs" />
-    <Compile Include="Rules\AssetRulesResponse.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />

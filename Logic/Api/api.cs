@@ -10530,9 +10530,8 @@ namespace Core.Api
             return ruleIds;
         }
 
-        internal static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
         {
-
             return AssetRuleManager.AddAssetRule(groupId, assetRule);
         }
 
@@ -10541,12 +10540,12 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static AssetRulesResponse GetAssetRules(int groupId = 0)
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0)
         {
-            return AssetRuleManager.GetAssetRules(groupId);
+            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId);
         }
 
-        internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRule)
+        internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)
         {
             return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
         }

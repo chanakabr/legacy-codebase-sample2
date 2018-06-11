@@ -12,8 +12,48 @@ namespace ApiObjects.Rules
         public List<AssetRuleCondition> Conditions { get; set; }
         public List<AssetRuleAction> Actions { get; set; }
         public int GroupId { get; set; }
-    }
 
+        /// <summary>
+        /// Fill current AssetRule data members with givven assetRule only if they are empty\null
+        /// </summary>
+        /// <param name="oldAssetRule">givven assetRule to fill with</param>
+        public void FillEmpty(AssetRule oldAssetRule)
+        {
+            if (oldAssetRule != null)
+            {
+                if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+                {
+                    this.Name = oldAssetRule.Name;
+                }
+
+                if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
+                {
+                    this.Description = oldAssetRule.Description;
+                }
+
+                if (this.Actions == null || this.Actions.Count == 0)
+                {
+                    this.Actions = oldAssetRule.Actions;
+                }
+
+                if (this.Conditions == null || this.Conditions.Count == 0)
+                {
+                    this.Conditions = oldAssetRule.Conditions;
+                }
+            }
+        }
+
+        public bool HasCountryConditions()
+        {
+            if (this.Conditions != null && this.Conditions.Count > 0)
+            {
+                return this.Conditions.Exists(x => x.Type == AssetRuleConditionType.Country);
+            }
+
+            return false;
+        }
+    }
+    
     #region Actions
 
     public abstract class RuleAction
@@ -72,7 +112,7 @@ namespace ApiObjects.Rules
 
     #region Conditions
 
-    public class AssetRuleCondition
+    public abstract class AssetRuleCondition
     {
         public AssetRuleConditionType Type { get; protected set; }
         public string Description { get; set; }
@@ -99,5 +139,17 @@ namespace ApiObjects.Rules
         }
     }
 
+    public class ConcurrencyCondition : AssetCondition
+    {
+        public int Limit { get; set; }
+        public ConcurrencyRestrictionPolicy RestrictionPolicy { get; set; }
+        
+        public ConcurrencyCondition()
+        {
+            this.Type = AssetRuleConditionType.Concurrency;
+        }
+    }
+    
     #endregion
+
 }

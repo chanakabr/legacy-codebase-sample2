@@ -32,6 +32,7 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
+        private const string NO_ASSET_RULES_FOUND = "No Asset Rules found";
 
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
@@ -127,7 +128,7 @@ namespace Core.Api.Managers
             try
             {
                 List<int> modifiedAssetIds = new List<int>();
-
+                
                 // separate the country conditions and the ksql, 
                 List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
                 List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
@@ -314,16 +315,16 @@ namespace Core.Api.Managers
         {
             Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
 
-            AssetRulesResponse ruleResponse = GetAssetRules();
-            if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.AssetRules != null)
+            GenericListResponse<AssetRule> ruleResponse = GetAssetRules(AssetRuleConditionType.Country);
+            if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.Objects != null)
             {
                 if (groupId != 0)
                 {
-                    rules.Add(groupId, ruleResponse.AssetRules);
+                    rules.Add(groupId, ruleResponse.Objects);
                 }
                 else
                 {
-                    foreach (var rule in ruleResponse.AssetRules)
+                    foreach (var rule in ruleResponse.Objects)
                     {
                         if (!rules.ContainsKey(rule.GroupId))
                         {
@@ -382,11 +383,94 @@ namespace Core.Api.Managers
         }
 
         /******************************/
-
-        internal static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0)
         {
+            GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
+            try
+            {
+                List<AssetRule> assetRules = new List<AssetRule>();
+                string key = LayeredCacheKeys.GetAllAssetRulesKey();
 
-            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+                if (!LayeredCache.Instance.Get<List<AssetRule>>(key,
+                                                                ref assetRules,
+                                                                GetAllAssetRulesDB,
+                                                                null,
+                                                                groupId,
+                                                                LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
+                                                                new List<string>() { LayeredCacheKeys.GetAllAssetRulesInvalidationKey() }))
+                {
+                    log.ErrorFormat("GetAssetRules - GetAllAssetRulesDB - Failed get data from cache. groupId: {0}", groupId);
+                    return response;
+                }
+
+                if (assetRules == null || assetRules.Count == 0)
+                {
+                    response.SetStatus(eResponseStatus.OK, NO_ASSET_RULES_FOUND);
+                    return response;
+                }
+
+                IEnumerable<AssetRule> filteredAssetRules = assetRules;
+
+                if (groupId > 0)
+                {
+                    filteredAssetRules = assetRules.Where(x => x.GroupId == groupId);
+                }
+
+                if (filteredAssetRules == null)
+                {
+                    log.ErrorFormat("GetAssetRules - filteredAssetRules is empty. groupId: {0}", groupId);
+                    return null;
+                }
+
+                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+                foreach (AssetRule assetRule in filteredAssetRules)
+                {
+                    string assetRuleKey = LayeredCacheKeys.GetAssetRuleKey(assetRule.Id);
+
+                    keysToOriginalValueMap.Add(assetRuleKey, assetRule.Id.ToString());
+                    invalidationKeysMap.Add(assetRuleKey, new List<string>() { LayeredCacheKeys.GetAssetRuleInvalidationKey(assetRule.Id) });
+                }
+
+                Dictionary<string, AssetRule> fullAssetRules = null;
+
+                // try to get full AssetRules from cache            
+                if (LayeredCache.Instance.GetValues<AssetRule>(keysToOriginalValueMap,
+                                                               ref fullAssetRules,
+                                                               GetFullAssetRulesCB,
+                                                               new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.GET_ASSET_RULE,
+                                                               invalidationKeysMap))
+                {
+                    if (fullAssetRules != null && fullAssetRules.Count > 0)
+                    {
+                        response.Objects = fullAssetRules.Values.Where(x => x.Conditions.All(y => y.Type == assetRuleConditionType)).ToList();                            
+                    }
+                }
+
+                if (response.Objects == null || response.Objects.Count == 0)
+                {
+                    response.SetStatus(eResponseStatus.OK, NO_ASSET_RULES_FOUND);
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed GetAssetRules groupID: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+        
+        internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
+        {
+            GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
             try
             {
                 if (assetRule == null)
@@ -396,7 +480,7 @@ namespace Core.Api.Managers
                 }
 
                 assetRule.GroupId = groupId;
-                DataTable dt = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
+                DataTable dt = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, (int)AssetRuleType.AssetRule);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
@@ -406,15 +490,13 @@ namespace Core.Api.Managers
                     if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
                     {
                         log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
+                        return response;
                     }
-                    else
-                    {
-                        response.Status.Code = (int)eResponseStatus.OK;
-                        response.Status.Message = eResponseStatus.OK.ToString();
-                        response.AssetRules = new List<AssetRule>() { assetRule };
 
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetRulesInvalidationKey());
-                    }
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetRulesInvalidationKey());
+
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Object = assetRule;
                 }
             }
             catch (Exception ex)
@@ -431,20 +513,21 @@ namespace Core.Api.Managers
             try
             {
                 //check AssetRule exists
-                AssetRule assetRule = ApiDAL.GetAssetRule(assetRuleId);
+                AssetRule assetRule = ApiDAL.GetAssetRuleCB(assetRuleId);
                 if (assetRule == null || assetRule.Id == 0 || groupId != assetRule.GroupId)
                 {
-                    response.Code = (int)eResponseStatus.AssetRuleNotExists;
-                    response.Message = ASSET_RULE_NOT_EXIST;
+                    response.Set((int)eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
                     return response;
                 }
 
-                ResetMediaCountries(groupId, assetRule.Id);
-
+                if (assetRule.HasCountryConditions())
+                {
+                    ResetMediaCountries(groupId, assetRule.Id);
+                }
+                
                 if (!ApiDAL.DeleteAssetRule(groupId, assetRuleId))
                 {
-                    response.Code = (int)eResponseStatus.Error;
-                    response.Message = ASSET_RULE_FAILED_DELETE;
+                    response.Set((int)eResponseStatus.Error, ASSET_RULE_FAILED_DELETE);
                     return response;
                 }
 
@@ -457,10 +540,7 @@ namespace Core.Api.Managers
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetRulesInvalidationKey());
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetRuleInvalidationKey(assetRuleId));
 
-                response.Code = (int)eResponseStatus.OK;
-                response.Message = eResponseStatus.OK.ToString();
-                return response;
-
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -469,183 +549,34 @@ namespace Core.Api.Managers
 
             return response;
         }
-
-        internal static AssetRulesResponse GetAssetRules(int groupId = 0)
+        
+        internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)
         {
-            AssetRulesResponse response = new AssetRulesResponse();
-            try
-            {
-                DataTable assetRules = new DataTable();
-                string key = LayeredCacheKeys.GetAllAssetRulesKey();
-                bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref assetRules, GetAllAssetRules, null, groupId,
-                    LayeredCacheConfigNames.GET_ALL_ASSET_RULES, new List<string>() { LayeredCacheKeys.GetAllAssetRulesInvalidationKey() });
-
-                if (!cacheResult)
-                {
-                    log.ErrorFormat("GetAssetRules - GetAllAssetRules - Failed get data from cache. groupId: {0}", groupId);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-
-                if (assetRules == null || assetRules.Rows == null || assetRules.Rows.Count == 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No Asset Rules found");
-                    return response;
-                }
-
-                DataRow[] filteredAssetRules = null;
-
-                if (groupId > 0)
-                {
-                    filteredAssetRules = assetRules.Select("GROUP_ID = " + groupId);
-                }
-                else
-                {
-                    filteredAssetRules = assetRules.Select();
-                }
-
-                if (filteredAssetRules == null)
-                {
-                    log.ErrorFormat("GetAssetRules - filteredAssetRules is empty. groupId: {0}", groupId);
-                    return null;
-                }
-
-                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
-                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-
-
-                long ruleId = 0;
-                foreach (DataRow row in filteredAssetRules)
-                {
-                    ruleId = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
-                    keysToOriginalValueMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), ruleId.ToString());
-                    invalidationKeysMap.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), new List<string>() { LayeredCacheKeys.GetAssetRuleInvalidationKey(ruleId) });
-                }
-
-                Dictionary<string, string> fullAssetRules = null;
-
-                // try to get from cache            
-                if (LayeredCache.Instance.GetValues<string>(keysToOriginalValueMap, ref fullAssetRules, GetAssetRules, new Dictionary<string, object>() {
-                                                            { "ruleIds", keysToOriginalValueMap.Values.ToList() } }, groupId, LayeredCacheConfigNames.GET_ASSET_RULE, invalidationKeysMap))
-                {
-                    JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                    if (fullAssetRules != null && fullAssetRules.Count > 0)
-                    {
-                        response.AssetRules = fullAssetRules.Values.Select(x => JsonConvert.DeserializeObject<AssetRule>(x, jsonSerializerSettings)).ToList();
-                    }
-                }
-
-                if (response.AssetRules == null || response.AssetRules.Count == 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No Asset Rules found");
-                }
-                else
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed GetAssetRules groupID: {0}, ex: {1}", groupId, ex);
-            }
-
-            return response;
-        }
-
-        private static Tuple<DataTable, bool> GetAllAssetRules(Dictionary<string, object> funcParams)
-        {
-            DataTable dtAssetRules = DAL.ApiDAL.GetAssetRules();
-            return new Tuple<DataTable, bool>(dtAssetRules, dtAssetRules != null);
-        }
-
-        private static Tuple<Dictionary<string, string>, bool> GetAssetRules(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
-                {
-                    List<string> ids = null;
-                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
-                    {
-                        ids = funcParams[LayeredCache.MISSING_KEYS] as List<string>;
-                    }
-                    else
-                    {
-                        ids = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
-                    }
-
-                    if (ids != null && ids.Count > 0)
-                    {
-                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                        long ruleId = 0;
-                        AssetRule assetRule = null;
-
-                        foreach (string key in ids)
-                        {
-                            ruleId = long.Parse(key);
-                            assetRule = ApiDAL.GetAssetRule(ruleId);
-                            if (assetRule != null)
-                            {
-                                result.Add(LayeredCacheKeys.GetAssetRuleKey(ruleId), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
-                            }
-                        }
-                    }
-
-                    res = result.Keys.Count() == ids.Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAssetRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<Dictionary<string, string>, bool>(result, res);
-        }
-
-        internal static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRule)
-        {
-            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
             try
             {
                 //check AssetRule exists
-                AssetRule oldAssetRule = ApiDAL.GetAssetRule(assetRule.Id);
+                AssetRule oldAssetRule = ApiDAL.GetAssetRuleCB(assetRule.Id);
                 assetRule.GroupId = groupId;
                 if (assetRule == null || assetRule.Id == 0 || groupId != oldAssetRule.GroupId)
                 {
-                    response.Status.Code = (int)eResponseStatus.AssetRuleNotExists;
-                    response.Status.Message = ASSET_RULE_NOT_EXIST;
+                    response.SetStatus(eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
                     return response;
                 }
-
+                
                 if (!ApiDAL.UpdateAssetRule(groupId, assetRule.Id, assetRule.Name, assetRule.Description))
                 {
-                    response.Status.Code = (int)eResponseStatus.Error;
-                    response.Status.Message = ASSET_RULE_FAILED_UPDATE;
+                    response.SetStatus(eResponseStatus.Error, ASSET_RULE_FAILED_UPDATE);
                     return response;
                 }
 
-                ResetMediaCountries(groupId, assetRule.Id);
-                //Irena run rule after update
-
                 // before saving AssetRule complete name,actions,conditions in case they are empty
-                if (string.IsNullOrEmpty(assetRule.Name))
-                {
-                    assetRule.Name = oldAssetRule.Name;
-                }
+                assetRule.FillEmpty(oldAssetRule);
 
-                if (assetRule.Actions == null || assetRule.Actions.Count == 0)
+                if (assetRule.HasCountryConditions())
                 {
-                    assetRule.Actions = oldAssetRule.Actions;
-                }
-
-                if (assetRule.Conditions == null || assetRule.Conditions.Count == 0)
-                {
-                    assetRule.Conditions = oldAssetRule.Conditions;
+                    ResetMediaCountries(groupId, assetRule.Id);
+                    //TODO Irena - run rule after update
                 }
 
                 // upsert dtUpdatedAssetRulesActions            
@@ -655,13 +586,11 @@ namespace Core.Api.Managers
                 }
                 else
                 {
-                    response.AssetRules = new List<AssetRule>();
-                    response.AssetRules.Add(assetRule);
-                    response.Status.Code = (int)eResponseStatus.OK;
-                    response.Status.Message = eResponseStatus.OK.ToString();
-
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllAssetRulesInvalidationKey());
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetRuleInvalidationKey(assetRule.Id));
+
+                    response.Object = assetRule;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -695,6 +624,76 @@ namespace Core.Api.Managers
                     log.InfoFormat("Failed to update index after asset rule update for assets", string.Join(",", mediaIds));
                 }
             }
+        }
+
+        private static Tuple<List<AssetRule>, bool> GetAllAssetRulesDB(Dictionary<string, object> funcParams)
+        {
+            List<AssetRule> assetRules = null;
+
+            try
+            {
+                DataTable dtAssetRules = ApiDAL.GetAssetRulesDB();
+                assetRules = new List<AssetRule>();
+
+                if (dtAssetRules != null && dtAssetRules.Rows != null && dtAssetRules.Rows.Count > 0)
+                {
+                    foreach (DataRow assetRuleRow in dtAssetRules.Rows)
+                    {
+                        long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(assetRuleRow, "ID");
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(assetRuleRow, "GROUP_ID");
+                        int assetRuleType = ODBCWrapper.Utils.GetIntSafeVal(assetRuleRow, "ASSET_RULE_TYPE");
+
+                        AssetRule assetRule = new AssetRule()
+                        {
+                            Id = assetRuleId,
+                        };
+
+                        assetRules.Add(assetRule);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllAssetRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<AssetRule>, bool>(assetRules, assetRules != null);
+        }
+
+        private static Tuple<Dictionary<string, AssetRule>, bool> GetFullAssetRulesCB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, AssetRule> result = new Dictionary<string, AssetRule>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
+                {
+                    List<string> ruleIds = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
+
+                    if (ruleIds != null && ruleIds.Count > 0)
+                    {
+                        foreach (string sRuleId in ruleIds)
+                        {
+                            long ruleId = long.Parse(sRuleId);
+                            AssetRule assetRule = ApiDAL.GetAssetRuleCB(ruleId);
+
+                            if (assetRule != null)
+                            {
+                                string assetRuleKey = LayeredCacheKeys.GetAssetRuleKey(assetRule.Id);
+                                result.Add(assetRuleKey, assetRule);
+                            }
+                        }
+
+                        res = result.Count == ruleIds.Count();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFullAssetRulesCB failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, AssetRule>, bool>(result, res);
         }
     }
 }

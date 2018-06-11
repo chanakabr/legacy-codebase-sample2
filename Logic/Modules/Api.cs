@@ -1843,7 +1843,7 @@ namespace Core.Api
             return Core.Api.api.GetUserWatchedMediaIds(groupId, userId);
         }
 
-        public static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        public static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
         {
             return Core.Api.api.AddAssetRule(groupId, assetRule);
         }
@@ -1853,12 +1853,12 @@ namespace Core.Api
             return Core.Api.api.DeleteAssetRule(groupId, id);
         }
 
-        public static AssetRulesResponse GetAssetRules(int groupId)
+        public static GenericListResponse<AssetRule> GetAssetRules(int groupId, AssetRuleConditionType assetRuleConditionType)
         {
-            return Core.Api.api.GetAssetRules(groupId);
+            return Core.Api.api.GetAssetRules(assetRuleConditionType, groupId);
         }
 
-        public static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        public static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
         {
             return Core.Api.api.UpdateAssetRule(groupId, assetRuleRequest);
         }
