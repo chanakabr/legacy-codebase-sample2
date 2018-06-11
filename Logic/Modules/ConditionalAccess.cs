@@ -2012,7 +2012,6 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
-        
         public static Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,
             int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
         {

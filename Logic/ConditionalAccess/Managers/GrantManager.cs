@@ -29,7 +29,7 @@ namespace Core.ConditionalAccess
             eTransactionType transactionType, string ip, string udid, bool history)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
+            
             // log request
             string logString = string.Format("GrantEntitlements request: siteguid {0}, contentId {1}, productId {2}, productType {3}, userIp {4}, deviceName {5}",
                 !string.IsNullOrEmpty(userId) ? userId : string.Empty,     // {0}
@@ -46,6 +46,7 @@ namespace Core.ConditionalAccess
             if (string.IsNullOrEmpty(userId))
             {
                 status.Message = "Illegal user ID";
+                status.Code = (int)eResponseStatus.InvalidUser;
                 log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 return status;
             }
@@ -159,7 +160,7 @@ namespace Core.ConditionalAccess
 
                 if (priceResponse == null)
                 {
-                    status = new Status((int)eResponseStatus.Error, "Error");
+                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -218,9 +219,10 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                status = new Status((int)eResponseStatus.Error);
+                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error("Exception occurred. data: " + logString, ex);
             }
+
             return status;
         }
 
@@ -270,7 +272,7 @@ namespace Core.ConditionalAccess
                 if (priceResponse == null)
                 {
                     // incorrect price
-                    status = new Status((int)eResponseStatus.Error, "Error");
+                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
@@ -344,7 +346,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // update Quota
-                    if (context != GrantContext.Renew && subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
+                    if (context != GrantContext.Renew && subscription.m_lServices != null && subscription.m_lServices.Count(x => x.ID == (int)eService.NPVR) > 0)
                     {
                         Utils.HandleNPVRQuota(groupId, subscription, householdId, context == GrantContext.Grant);
                     }
@@ -443,7 +445,7 @@ namespace Core.ConditionalAccess
                 if (priceResponse == null)
                 {
                     // incorrect price
-                    status = new Status((int)eResponseStatus.Error, "Error");
+                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
 
                     return status;
@@ -504,7 +506,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error("Exception occurred. data: " + logString, ex);
-                status = new Status((int)eResponseStatus.Error);
+                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return status;
         }
