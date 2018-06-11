@@ -24,20 +24,21 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Indicates if to get the asset user rule list for the attached user or for the entire group
         /// </summary>
-        [DataMember(Name = "conditionTypeEqual")]
-        [JsonProperty("conditionTypeEqual")]
-        [XmlElement(ElementName = "conditionTypeEqual", IsNullable = true)]
-        public KalturaRuleConditionType ConditionTypeEqual { get; set; }
+        [DataMember(Name = "conditionsContainType")]
+        [JsonProperty("conditionsContainType")]
+        [XmlElement(ElementName = "conditionsContainType", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaRuleConditionType ConditionsContainType { get; set; }
 
         public KalturaAssetRuleFilter()
         {
-            this.ConditionTypeEqual = KalturaRuleConditionType.COUNTRY;
+            this.ConditionsContainType = KalturaRuleConditionType.COUNTRY;
         }
 
         internal void Validate()
         {
-            if (!KalturaRuleConditionType.CONCURRENCY.Equals(ConditionTypeEqual) &&
-                !KalturaRuleConditionType.COUNTRY.Equals(ConditionTypeEqual))
+            if (!KalturaRuleConditionType.CONCURRENCY.Equals(ConditionsContainType) &&
+                !KalturaRuleConditionType.COUNTRY.Equals(ConditionsContainType))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionTypeEqual");
             }

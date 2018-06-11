@@ -3872,7 +3872,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetRuleListResponse GetAssetRules(int groupId, KalturaAssetRuleFilter filter)
         {
-            AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionTypeEqual);
+            AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
 
             KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 

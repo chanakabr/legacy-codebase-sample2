@@ -2535,8 +2535,8 @@ namespace WebAPI.Reflection
                 case "KalturaAssetRuleFilter":
                     switch(property.Name)
                     {
-                        case "ConditionTypeEqual":
-                            return "conditionTypeEqual";
+                        case "ConditionsContainType":
+                            return "conditionsContainType";
                     }
                     break;
                     

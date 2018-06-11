@@ -4323,7 +4323,7 @@
             Asset rule filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.ConditionTypeEqual">
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.ConditionsContainType">
             <summary>
             Indicates if to get the asset user rule list for the attached user or for the entire group
             </summary>
