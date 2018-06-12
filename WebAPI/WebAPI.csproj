@@ -291,6 +291,7 @@
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
     <Compile Include="Models\API\KalturaAssetUserRule.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />
     <Compile Include="Models\API\KalturaAssetUserRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />

@@ -1994,6 +1994,8 @@ namespace WebAPI.Clients
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
 
+                CatalogUtils.UpdateEpgTags(result.Objects, assetsBaseDataList);
+
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 
@@ -2001,7 +2003,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId,
             List<int> mediaTypes, int utcOffset, string freeParam)
         {
@@ -2641,13 +2643,14 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, List<int> assetTypes, string kSql, KalturaAssetOrderBy orderBy,
-                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, int? partnerListType)
+        internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, string kSql, KalturaAssetOrderBy orderBy,
+                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes,
+                                                                KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
             Models.Notification.KalturaPersonalListListResponse personalListRespnse = 
-                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.START_DATE_ASC, partnerListType);
+                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
             if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();
@@ -2667,8 +2670,8 @@ namespace WebAPI.Clients
                 }
 
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
-                        orderBy, assetTypes, null, false, dynamicOrderBy,
-                        groupBy, null);
+                        orderBy, null, null, false, dynamicOrderBy,
+                        groupBy, responseProfile);
             }
 
             return response;

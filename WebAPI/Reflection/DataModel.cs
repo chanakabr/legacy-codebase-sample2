@@ -2532,6 +2532,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "ConditionsContainType":
+                            return "conditionsContainType";
+                    }
+                    break;
+                    
                 case "KalturaAssetRuleListResponse":
                     switch(property.Name)
                     {
@@ -2679,6 +2687,8 @@ namespace WebAPI.Reflection
                     {
                         case "GroupBy":
                             return "groupBy";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -3014,11 +3024,23 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaConcurrencyCondition":
+                    switch(property.Name)
+                    {
+                        case "ConcurrencyLimitationType":
+                            return "concurrencyLimitationType";
+                        case "Limit":
+                            return "limit";
+                    }
+                    break;
+                    
                 case "KalturaCondition":
                     switch(property.Name)
                     {
                         case "Description":
                             return "description";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -5135,8 +5157,8 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalListFilter":
                     switch(property.Name)
                     {
-                        case "PartnerListTypeEqual":
-                            return "partnerListTypeEqual";
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
                     }
                     break;
                     
@@ -5151,12 +5173,8 @@ namespace WebAPI.Reflection
                 case "KalturaPersonalListSearchFilter":
                     switch(property.Name)
                     {
-                        case "KSql":
-                            return "kSql";
-                        case "PartnerListTypeEqual":
-                            return "partnerListTypeEqual";
-                        case "TypeIn":
-                            return "typeIn";
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
                     }
                     break;
                     
@@ -5841,8 +5859,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -5939,8 +5955,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }

@@ -214,7 +214,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                  .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
-            
+
             Mapper.CreateMap<FollowDataBase, KalturaPersonalList>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnouncementId))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FollowPhrase))

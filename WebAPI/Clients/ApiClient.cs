@@ -3838,150 +3838,70 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
+        #region AssetRule
+
         internal KalturaAssetRule UpdateAssetRule(int groupId, long id, KalturaAssetRule assetRule)
         {
-            AssetRulesResponse response = null;
+            assetRule.Id = id;
 
-            AssetRule assetRuleRequest = AutoMapper.Mapper.Map<AssetRule>(assetRule);
-            assetRuleRequest.Id = id;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.UpdateAssetRule(groupId, assetRuleRequest);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            Func<AssetRule, GenericResponse<AssetRule>> updateAssetRuleFunc = (AssetRule assetRuleToUpdate) =>
+                Core.Api.Module.UpdateAssetRule(groupId, assetRuleToUpdate);
 
-            if (response == null)
-            {
-                // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, updateAssetRuleFunc);
 
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            KalturaAssetRule kAssetRule = null;
-            if (response.AssetRules != null && response.AssetRules.Count > 0)
-            {
-                // convert response
-                kAssetRule = AutoMapper.Mapper.Map<KalturaAssetRule>(response.AssetRules[0]);
-            }
-
-            return kAssetRule;
+            return result;
         }
 
         internal KalturaAssetRule AddAssetRule(int groupId, KalturaAssetRule assetRule)
         {
-            AssetRulesResponse response = null;
+            Func<AssetRule, GenericResponse<AssetRule>> addAssetRuleFunc = (AssetRule assetRuleToAdd) =>
+                Core.Api.Module.AddAssetRule(groupId, assetRuleToAdd);
 
-            try
-            {
-                AssetRule assetRuleRequest = AutoMapper.Mapper.Map<AssetRule>(assetRule);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.AddAssetRule(groupId, assetRuleRequest);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, addAssetRuleFunc);
 
-            KalturaAssetRule kAssetRule = null; 
-
-            if (response.AssetRules != null && response.AssetRules.Count > 0)
-            {
-                kAssetRule = AutoMapper.Mapper.Map<KalturaAssetRule>(response.AssetRules[0]);
-            }
-
-            return kAssetRule;
+            return result;
         }
 
         internal bool DeleteAssetRule(int groupId, long id)
         {
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    // fire request
-                    response = Core.Api.Module.DeleteAssetRule(groupId, id);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                // internal web service exception
-                throw new ClientException(response.Code, response.Message);
-            }
+            Func<Status> deleteAssetRuleFunc = () => Core.Api.Module.DeleteAssetRule(groupId, id);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetRuleFunc);
 
             return true;
         }
 
-        internal KalturaAssetRuleListResponse GetAssetRules(int groupId)
+        internal KalturaAssetRuleListResponse GetAssetRules(int groupId, KalturaAssetRuleFilter filter)
         {
-            AssetRulesResponse response = null;
-            KalturaAssetRuleListResponse kAssetRuleListResponse = new KalturaAssetRuleListResponse();
+            AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
 
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetAssetRules(groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
+            KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 
-            if (response.AssetRules != null && response.AssetRules.Count > 0)
-            {
-                kAssetRuleListResponse.Objects = AutoMapper.Mapper.Map<List<KalturaAssetRule>>(response.AssetRules);
-                kAssetRuleListResponse.TotalCount = kAssetRuleListResponse.Objects != null ? kAssetRuleListResponse.Objects.Count : 0;
-            }
+            Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
+               Core.Api.Module.GetAssetRules(groupId, assetRuleConditionType);
 
-            return kAssetRuleListResponse;
+            KalturaGenericListResponse<KalturaAssetRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetRule, AssetRule>(getAssetRulesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
+
+        internal KalturaAssetRule GetAssetRule(int groupId, long assetRuleId)
+        {
+            Func<GenericResponse<AssetRule>> getAssetRuleFunc = () => 
+                Core.Api.Module.GetAssetRule(groupId, assetRuleId);
+
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(getAssetRuleFunc);
+
+            return result;
+        }
+
+        #endregion
 
         #region AssetUserRule
 

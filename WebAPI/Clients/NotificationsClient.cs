@@ -727,20 +727,20 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, int? partnerListType)
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
         {
             GetUserFollowsResponse response = null;
 
             // create order object
             OrderDir order = OrderDir.DESC;
-            if (orderBy == KalturaPersonalListOrderBy.START_DATE_ASC)
+            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
                 order = OrderDir.ASC;
             
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListType, true);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListTypes, true);
                 }
             }
             catch (Exception ex)
