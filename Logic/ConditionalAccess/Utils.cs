@@ -2227,7 +2227,12 @@ namespace Core.ConditionalAccess
                     if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                     {
                         bool isRelated = lstFileIDs.Contains(nMediaFileID);
-                        List<int> mediaFiles = domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper.Where(dic => dic.Key.StartsWith(mediaID.ToString())).SelectMany(dic => dic.Value).ToList();
+                        HashSet<int> mediaFiles = new HashSet<int>();
+                        if (isRelated)
+                        {
+                            mediaFiles = new HashSet<int>(domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper.Where(dic => dic.Key.StartsWith(mediaID.ToString())).SelectMany(dic => dic.Value));
+                        }
+
                         isEntitled = IsUserEntitled(isRelated, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid,
                                                     ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary, nMediaFileID, mediaFiles);
                     }
@@ -3812,7 +3817,7 @@ namespace Core.ConditionalAccess
 
         private static bool IsUserEntitled(bool isRelated, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode, ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate,
                                             ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate,
-                                            Dictionary<string, EntitlementObject> entitlements, int mediaFileId, List<int> files)
+                                            Dictionary<string, EntitlementObject> entitlements, int mediaFileId, HashSet<int> files)
         {
             bool res = false;
             int ppvId;
