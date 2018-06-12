@@ -40,4 +40,13 @@ namespace Core.Catalog.Response
         }
     }
 
+    [DataContract]
+    public class RecommendationSearchResult : UnifiedSearchResult
+    {
+        [DataMember]
+        public List<KeyValuePair<string, string>> TagsExtraData { get; set; }
+
+        public RecommendationSearchResult() : base() { }
+    }
+
 }
