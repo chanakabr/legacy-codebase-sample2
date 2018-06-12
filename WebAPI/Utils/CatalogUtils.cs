@@ -858,5 +858,39 @@ namespace WebAPI.Utils
 
             return searchResponse;
         }
+
+        internal static void UpdateEpgTags(List<KalturaAsset> assets, List<BaseObject> searchResults)
+        {
+            if (assets == null)
+            {
+                return;
+            }
+
+            BaseObject unifiedSearchResult = null;
+            RecommendationSearchResult recommendationSearchResult = null;
+
+            foreach (var asset in assets)
+            {
+                unifiedSearchResult = searchResults.FirstOrDefault(x => x.AssetId == asset.Id.Value.ToString());
+                if (unifiedSearchResult is RecommendationSearchResult)
+                {
+                    recommendationSearchResult = unifiedSearchResult as RecommendationSearchResult;
+                    if (recommendationSearchResult.TagsExtraData != null)
+                    {
+                        if (asset.Tags == null)
+                        {
+                            asset.Tags = new SerializableDictionary<string, KalturaMultilingualStringValueArray>();
+                        }
+
+                        foreach (var extraData in recommendationSearchResult.TagsExtraData)
+                        {
+                            asset.Tags.Add(extraData.Key, new KalturaMultilingualStringValueArray());
+                            LanguageContainer lc = new LanguageContainer() { m_sValue = extraData.Value };
+                            asset.Tags[extraData.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(new LanguageContainer[] { lc }) });
+                        }
+                    }
+                }
+            }
+        }
     }
 }

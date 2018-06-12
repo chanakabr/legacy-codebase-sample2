@@ -1994,6 +1994,8 @@ namespace WebAPI.Clients
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
 
+                CatalogUtils.UpdateEpgTags(result.Objects, assetsBaseDataList);
+
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 
@@ -2001,7 +2003,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId,
             List<int> mediaTypes, int utcOffset, string freeParam)
         {
