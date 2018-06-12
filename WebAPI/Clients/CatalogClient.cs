@@ -2644,7 +2644,8 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, string kSql, KalturaAssetOrderBy orderBy,
-                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes)
+                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes,
+                                                                KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
@@ -2670,7 +2671,7 @@ namespace WebAPI.Clients
 
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
                         orderBy, null, null, false, dynamicOrderBy,
-                        groupBy, null);
+                        groupBy, responseProfile);
             }
 
             return response;
