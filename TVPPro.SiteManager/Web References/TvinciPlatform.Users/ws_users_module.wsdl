@@ -90,6 +90,27 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="UserDynamicData">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:CoreObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
+              <s:element minOccurs="1" maxOccurs="1" name="UserId" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="UserBasicData">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sFirstName" type="s:string" />
@@ -134,22 +155,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sStateName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStateCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="UserDynamicData">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfUserDynamicDataContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="UserDynamicDataContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="DomainSuspentionStatus">
@@ -367,6 +372,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Args" type="tns:ArrayOfKeyValuePair" />
         </s:sequence>
       </s:complexType>
       <s:element name="AddChannelMediaToFavorites">
@@ -1805,6 +1811,13 @@
           <s:enumeration value="ChangeUsers" />
           <s:enumeration value="EnableUserNotifications" />
           <s:enumeration value="DisableUserNotifications" />
+          <s:enumeration value="DeleteDevice" />
+          <s:enumeration value="EnableUserMailNotifications" />
+          <s:enumeration value="DisableUserMailNotifications" />
+          <s:enumeration value="UpdateUser" />
+          <s:enumeration value="Signup" />
+          <s:enumeration value="EnableUserSmsNotifications" />
+          <s:enumeration value="DisableUserSmsNotifications" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddInitiateNotificationActionResponse">
@@ -1913,6 +1926,16 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetUserByNameResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Purge">
+        <s:complexType />
+      </s:element>
+      <s:element name="PurgeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="PurgeResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2478,6 +2501,12 @@
   </wsdl:message>
   <wsdl:message name="GetUserByNameSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserByNameResponse" />
+  </wsdl:message>
+  <wsdl:message name="PurgeSoapIn">
+    <wsdl:part name="parameters" element="tns:Purge" />
+  </wsdl:message>
+  <wsdl:message name="PurgeSoapOut">
+    <wsdl:part name="parameters" element="tns:PurgeResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3100,6 +3129,10 @@
   <wsdl:message name="GetUserByNameHttpPostOut">
     <wsdl:part name="Body" element="tns:UserResponse" />
   </wsdl:message>
+  <wsdl:message name="PurgeHttpPostIn" />
+  <wsdl:message name="PurgeHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -3453,6 +3486,10 @@
       <wsdl:input message="tns:GetUserByNameSoapIn" />
       <wsdl:output message="tns:GetUserByNameSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="Purge">
+      <wsdl:input message="tns:PurgeSoapIn" />
+      <wsdl:output message="tns:PurgeSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3726,6 +3763,10 @@
     <wsdl:operation name="GetUserByName">
       <wsdl:input message="tns:GetUserByNameHttpPostIn" />
       <wsdl:output message="tns:GetUserByNameHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Purge">
+      <wsdl:input message="tns:PurgeHttpPostIn" />
+      <wsdl:output message="tns:PurgeHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -4515,6 +4556,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserByName">
       <soap:operation soapAction="http://users.tvinci.com/GetUserByName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Purge">
+      <soap:operation soapAction="http://users.tvinci.com/Purge" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5317,6 +5367,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Purge">
+      <soap12:operation soapAction="http://users.tvinci.com/Purge" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5924,16 +5983,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Purge">
+      <http:operation location="/Purge" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://34.249.122.223:8030/USERS_V4_7/ws_users_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://34.249.122.223:8030/USERS_V4_7/ws_users_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://34.249.122.223:8030/USERS_V4_7/ws_users_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
