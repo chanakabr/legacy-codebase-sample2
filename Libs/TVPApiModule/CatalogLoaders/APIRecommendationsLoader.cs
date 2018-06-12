@@ -1,20 +1,17 @@
 ﻿using KLogMonitor;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
-using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
 
 namespace TVPApiModule.CatalogLoaders
 {
     public class APIRecommendationsLoader : APIUnifiedSearchLoader
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         #region Data Members
 
         protected string deviceType;
@@ -27,8 +24,8 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Ctor
 
-        public APIRecommendationsLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
-            string localeLanguage, List<string> with, string udid, 
+        public APIRecommendationsLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid,
+            string localeLanguage, List<string> with, string udid,
             string deviceType, string externalChannelId, string utcOffset, string filterQuery, string internalChannelId, string free)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
@@ -72,7 +69,7 @@ namespace TVPApiModule.CatalogLoaders
                 free = this.free
             };
         }
-        
+
         /// <summary>
         /// Correct casting of response object to include request ID
         /// </summary>
@@ -105,34 +102,58 @@ namespace TVPApiModule.CatalogLoaders
 
         protected override object Process()
         {
-            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId response = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse result = null;
 
-            var baseProcess = base.Process();
+            string cacheKey = GetLoaderCachekey();
 
-            if (baseProcess is TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId)
+            if (m_oResponse == null)// No response from Catalog, gets medias from cache
             {
-                response = baseProcess as TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId;
-            }
-            else if (baseProcess is TVPApiModule.Objects.Responses.UnifiedSearchResponse)
-            {
-                var unifiedResponse = baseProcess as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
 
-                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId()
+                if (m_oResponse == null)// No response from Catalog and no response from cache
                 {
-                    Assets = unifiedResponse.Assets,
-                    RequestId = string.Empty,
-                    Status = unifiedResponse.Status,
-                    TotalItems = unifiedResponse.TotalItems
-                };
+                    result = new Objects.Responses.UnifiedSearchResponse();
+                    result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                    return result;
+                }
             }
 
-            // If we have request id from catalog response - use it
-            if (m_oResponse is UnifiedSearchExternalResponse)
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+
+            if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {
-                response.RequestId = (m_oResponse as UnifiedSearchExternalResponse).requestId;
+                result = new Objects.Responses.UnifiedSearchResponse();
+                result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
+                return result;
             }
 
-            return response;
+            // Add the status and the number of total items to the response
+            result = new Objects.Responses.UnifiedSearchResponse();
+            result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
+            result.TotalItems = response.m_nTotalItems;
+            // also add the request identifier to the response
+            result.RequestId = response.requestId;
+
+            if (response.searchResults != null && response.searchResults.Count > 0)
+            {
+                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
+
+                List<MediaObj> medias;
+                List<ProgramObj> epgs;
+
+                GetAssets(cacheKey, response, out medias, out epgs);
+
+                // add extraData to tags only for EPG
+                Util.UpdateEPGTags(epgs, response.searchResults);
+
+                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
+            }
+            else
+            {
+                result.Assets = new List<AssetInfo>();
+            }
+
+            return result;
         }
 
         public override string GetLoaderCachekey()

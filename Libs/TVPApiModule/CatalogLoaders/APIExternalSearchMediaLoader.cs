@@ -1,19 +1,18 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using TVPApi;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Responses;
+using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.DataEntities;
-using TVPApi;
-using TVPPro.Configuration.Technical;
-using TVPApiModule.Manager;
-using Tvinci.Data.Loaders;
-using TVPApiModule.Objects.Responses;
-using KLogMonitor;
-using System.Reflection;
-using System.Configuration;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -94,7 +93,7 @@ namespace TVPApiModule.CatalogLoaders
             return response;
         }
 
-        protected override object Process()
+        protected override object Process()            
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse result = null;
 
@@ -135,6 +134,9 @@ namespace TVPApiModule.CatalogLoaders
                 List<ProgramObj> epgs;
 
                 GetAssets(cacheKey, response, out medias, out epgs);
+
+                // add extraData to tags only for EPG
+                Util.UpdateEPGTags(epgs, response.assetIds);
 
                 result.Assets = OrderAndCompleteResults(response.assetIds, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
             }
