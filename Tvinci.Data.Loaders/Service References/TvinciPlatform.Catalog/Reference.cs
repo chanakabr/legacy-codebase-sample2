@@ -3541,6 +3541,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private bool hasPredefinedRecordingsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isInternalSearchField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string nameAndDescriptionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -3560,6 +3563,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool shouldIgnoreDeviceRuleIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool shouldIgnoreEndDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes, long>> specificAssetsField;
@@ -3638,6 +3644,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((this.hasPredefinedRecordingsField.Equals(value) != true)) {
                     this.hasPredefinedRecordingsField = value;
                     this.RaisePropertyChanged("hasPredefinedRecordings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isInternalSearch {
+            get {
+                return this.isInternalSearchField;
+            }
+            set {
+                if ((this.isInternalSearchField.Equals(value) != true)) {
+                    this.isInternalSearchField = value;
+                    this.RaisePropertyChanged("isInternalSearch");
                 }
             }
         }
@@ -3729,6 +3748,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((this.shouldIgnoreDeviceRuleIDField.Equals(value) != true)) {
                     this.shouldIgnoreDeviceRuleIDField = value;
                     this.RaisePropertyChanged("shouldIgnoreDeviceRuleID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool shouldIgnoreEndDate {
+            get {
+                return this.shouldIgnoreEndDateField;
+            }
+            set {
+                if ((this.shouldIgnoreEndDateField.Equals(value) != true)) {
+                    this.shouldIgnoreEndDateField = value;
+                    this.RaisePropertyChanged("shouldIgnoreEndDate");
                 }
             }
         }
@@ -6826,6 +6858,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaFileObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordingSearchResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecommendationSearchResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.ExtendedSearchResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.UserWatchHistory))]
     public partial class BaseObject : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -7542,6 +7575,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchResult", Namespace="http://schemas.datacontract.org/2004/07/Core.Catalog.Response")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordingSearchResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecommendationSearchResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.ExtendedSearchResult))]
     public partial class UnifiedSearchResult : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseObject {
     }
@@ -7580,6 +7614,29 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((this.RecordingTypeField.Equals(value) != true)) {
                     this.RecordingTypeField = value;
                     this.RaisePropertyChanged("RecordingType");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RecommendationSearchResult", Namespace="http://schemas.datacontract.org/2004/07/Core.Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class RecommendationSearchResult : Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResult {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> TagsExtraDataField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> TagsExtraData {
+            get {
+                return this.TagsExtraDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TagsExtraDataField, value) != true)) {
+                    this.TagsExtraDataField = value;
+                    this.RaisePropertyChanged("TagsExtraData");
                 }
             }
         }

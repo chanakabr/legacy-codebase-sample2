@@ -23,7 +23,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://domains.tvinci.com/")]
@@ -132,7 +132,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/DOMAINS_V4_7/ws_domains_module.asmx";
+            this.Url = "http://34.249.122.223:8030/DOMAINS_v4_9/ws_domains_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -391,28 +391,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID) {
+        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID, bool purge) {
             object[] results = this.Invoke("RemoveDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        nDomainID});
+                        nDomainID,
+                        purge});
             return ((DomainResponseStatus)(results[0]));
         }
         
         /// <remarks/>
-        public void RemoveDomainAsync(string sWSUserName, string sWSPassword, int nDomainID) {
-            this.RemoveDomainAsync(sWSUserName, sWSPassword, nDomainID, null);
+        public void RemoveDomainAsync(string sWSUserName, string sWSPassword, int nDomainID, bool purge) {
+            this.RemoveDomainAsync(sWSUserName, sWSPassword, nDomainID, purge, null);
         }
         
         /// <remarks/>
-        public void RemoveDomainAsync(string sWSUserName, string sWSPassword, int nDomainID, object userState) {
+        public void RemoveDomainAsync(string sWSUserName, string sWSPassword, int nDomainID, bool purge, object userState) {
             if ((this.RemoveDomainOperationCompleted == null)) {
                 this.RemoveDomainOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDomainOperationCompleted);
             }
             this.InvokeAsync("RemoveDomain", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        nDomainID}, this.RemoveDomainOperationCompleted, userState);
+                        nDomainID,
+                        purge}, this.RemoveDomainOperationCompleted, userState);
         }
         
         private void OnRemoveDomainOperationCompleted(object arg) {
@@ -1866,22 +1868,24 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId) {
+        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId, string userId, string ip) {
             object[] results = this.Invoke("GetDevice", new object[] {
                         sWSUserName,
                         sWSPassword,
                         udid,
-                        domainId});
+                        domainId,
+                        userId,
+                        ip});
             return ((DeviceResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId) {
-            this.GetDeviceAsync(sWSUserName, sWSPassword, udid, domainId, null);
+        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId, string userId, string ip) {
+            this.GetDeviceAsync(sWSUserName, sWSPassword, udid, domainId, userId, ip, null);
         }
         
         /// <remarks/>
-        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId, object userState) {
+        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId, string userId, string ip, object userState) {
             if ((this.GetDeviceOperationCompleted == null)) {
                 this.GetDeviceOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDeviceOperationCompleted);
             }
@@ -1889,7 +1893,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                         sWSUserName,
                         sWSPassword,
                         udid,
-                        domainId}, this.GetDeviceOperationCompleted, userState);
+                        domainId,
+                        userId,
+                        ip}, this.GetDeviceOperationCompleted, userState);
         }
         
         private void OnGetDeviceOperationCompleted(object arg) {
@@ -1901,28 +1907,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomainById", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID) {
+        public Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID, bool purge) {
             object[] results = this.Invoke("RemoveDomainById", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        nDomainID});
+                        nDomainID,
+                        purge});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID) {
-            this.RemoveDomainByIdAsync(sWSUserName, sWSPassword, nDomainID, null);
+        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID, bool purge) {
+            this.RemoveDomainByIdAsync(sWSUserName, sWSPassword, nDomainID, purge, null);
         }
         
         /// <remarks/>
-        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID, object userState) {
+        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID, bool purge, object userState) {
             if ((this.RemoveDomainByIdOperationCompleted == null)) {
                 this.RemoveDomainByIdOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDomainByIdOperationCompleted);
             }
             this.InvokeAsync("RemoveDomainById", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        nDomainID}, this.RemoveDomainByIdOperationCompleted, userState);
+                        nDomainID,
+                        purge}, this.RemoveDomainByIdOperationCompleted, userState);
         }
         
         private void OnRemoveDomainByIdOperationCompleted(object arg) {
@@ -1934,28 +1942,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomainByCoGuid", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid) {
+        public Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid, bool purge) {
             object[] results = this.Invoke("RemoveDomainByCoGuid", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        coGuid});
+                        coGuid,
+                        purge});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid) {
-            this.RemoveDomainByCoGuidAsync(sWSUserName, sWSPassword, coGuid, null);
+        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid, bool purge) {
+            this.RemoveDomainByCoGuidAsync(sWSUserName, sWSPassword, coGuid, purge, null);
         }
         
         /// <remarks/>
-        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid, object userState) {
+        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid, bool purge, object userState) {
             if ((this.RemoveDomainByCoGuidOperationCompleted == null)) {
                 this.RemoveDomainByCoGuidOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDomainByCoGuidOperationCompleted);
             }
             this.InvokeAsync("RemoveDomainByCoGuid", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        coGuid}, this.RemoveDomainByCoGuidOperationCompleted, userState);
+                        coGuid,
+                        purge}, this.RemoveDomainByCoGuidOperationCompleted, userState);
         }
         
         private void OnRemoveDomainByCoGuidOperationCompleted(object arg) {
@@ -2104,7 +2114,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2137,7 +2147,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2170,7 +2180,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2480,7 +2490,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2549,7 +2559,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2581,6 +2591,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private string m_sStreamTypeField;
         
         private string m_sProfileField;
+        
+        private string licenseDataField;
         
         /// <remarks/>
         public string m_id {
@@ -2711,10 +2723,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                 this.m_sProfileField = value;
             }
         }
+        
+        /// <remarks/>
+        public string LicenseData {
+            get {
+                return this.licenseDataField;
+            }
+            set {
+                this.licenseDataField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DeviceState {
@@ -2739,7 +2761,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2772,7 +2794,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DeviceRegistrationStatus {
@@ -2791,7 +2813,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2801,6 +2823,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private int codeField;
         
         private string messageField;
+        
+        private KeyValuePair[] argsField;
         
         /// <remarks/>
         public int Code {
@@ -2821,10 +2845,53 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                 this.messageField = value;
             }
         }
+        
+        /// <remarks/>
+        public KeyValuePair[] Args {
+            get {
+                return this.argsField;
+            }
+            set {
+                this.argsField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2893,7 +2960,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3046,7 +3113,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3079,7 +3146,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3124,7 +3191,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3157,7 +3224,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainResponseStatus {
@@ -3248,7 +3315,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3281,7 +3348,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3350,7 +3417,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3383,7 +3450,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3416,7 +3483,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum NetworkResponseStatus {
@@ -3444,7 +3511,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3477,7 +3544,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3510,7 +3577,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3543,7 +3610,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DeviceResponseStatus {
@@ -3568,7 +3635,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3601,61 +3668,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class UserDynamicDataContainer {
-        
-        private string m_sDataTypeField;
-        
-        private string m_sValueField;
-        
-        /// <remarks/>
-        public string m_sDataType {
-            get {
-                return this.m_sDataTypeField;
-            }
-            set {
-                this.m_sDataTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sValue {
-            get {
-                return this.m_sValueField;
-            }
-            set {
-                this.m_sValueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class UserDynamicData {
-        
-        private UserDynamicDataContainer[] m_sUserDataField;
-        
-        /// <remarks/>
-        public UserDynamicDataContainer[] m_sUserData {
-            get {
-                return this.m_sUserDataField;
-            }
-            set {
-                this.m_sUserDataField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3712,7 +3725,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3757,7 +3770,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3803,7 +3816,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4052,9 +4065,43 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class UserDynamicDataContainer {
+        
+        private string m_sDataTypeField;
+        
+        private string m_sValueField;
+        
+        /// <remarks/>
+        public string m_sDataType {
+            get {
+                return this.m_sDataTypeField;
+            }
+            set {
+                this.m_sDataTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sValue {
+            get {
+                return this.m_sValueField;
+            }
+            set {
+                this.m_sValueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(User))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(UserDynamicData))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Domain))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4099,7 +4146,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4216,7 +4263,40 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class UserDynamicData : CoreObject {
+        
+        private UserDynamicDataContainer[] m_sUserDataField;
+        
+        private int userIdField;
+        
+        /// <remarks/>
+        public UserDynamicDataContainer[] m_sUserData {
+            get {
+                return this.m_sUserDataField;
+            }
+            set {
+                this.m_sUserDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int UserId {
+            get {
+                return this.userIdField;
+            }
+            set {
+                this.userIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainSuspentionStatus {
@@ -4229,7 +4309,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum UserState {
@@ -4251,7 +4331,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainStatus {
@@ -4306,7 +4386,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum DomainRestriction {
@@ -4325,7 +4405,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public enum ValidationType {
@@ -4341,11 +4421,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddDomainCompletedEventHandler(object sender, AddDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4367,11 +4447,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddDomainWithCoGuidCompletedEventHandler(object sender, AddDomainWithCoGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddDomainWithCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4393,11 +4473,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDomainCompletedEventHandler(object sender, RemoveDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4419,11 +4499,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDomainInfoCompletedEventHandler(object sender, SetDomainInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDomainInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4445,11 +4525,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddUserToDomainCompletedEventHandler(object sender, AddUserToDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddUserToDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4471,11 +4551,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SubmitAddUserToDomainRequestCompletedEventHandler(object sender, SubmitAddUserToDomainRequestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SubmitAddUserToDomainRequestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4497,11 +4577,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainUserListCompletedEventHandler(object sender, GetDomainUserListCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainUserListCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4523,11 +4603,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveUserFromDomainCompletedEventHandler(object sender, RemoveUserFromDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveUserFromDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4549,11 +4629,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddDeviceToDomainCompletedEventHandler(object sender, AddDeviceToDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddDeviceToDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4575,11 +4655,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddDeviceCompletedEventHandler(object sender, AddDeviceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4601,11 +4681,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDeviceFromDomainCompletedEventHandler(object sender, RemoveDeviceFromDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDeviceFromDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4627,11 +4707,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ChangeDeviceDomainStatusCompletedEventHandler(object sender, ChangeDeviceDomainStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangeDeviceDomainStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4653,11 +4733,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainInfoCompletedEventHandler(object sender, GetDomainInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4679,11 +4759,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainIDByCoGuidCompletedEventHandler(object sender, GetDomainIDByCoGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainIDByCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4705,11 +4785,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainByCoGuidCompletedEventHandler(object sender, GetDomainByCoGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainByCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4731,11 +4811,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDeviceDomainsCompletedEventHandler(object sender, GetDeviceDomainsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDeviceDomainsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4757,11 +4837,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetPINForDeviceCompletedEventHandler(object sender, GetPINForDeviceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPINForDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4783,11 +4863,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RegisterDeviceToDomainWithPINCompletedEventHandler(object sender, RegisterDeviceToDomainWithPINCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RegisterDeviceToDomainWithPINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4809,11 +4889,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDeviceInfoCompletedEventHandler(object sender, SetDeviceInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDeviceInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4835,11 +4915,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ResetDomainCompletedEventHandler(object sender, ResetDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ResetDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4861,11 +4941,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ResetDomainFrequencyCompletedEventHandler(object sender, ResetDomainFrequencyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ResetDomainFrequencyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4887,11 +4967,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ChangeDomainMasterCompletedEventHandler(object sender, ChangeDomainMasterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangeDomainMasterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4913,11 +4993,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainIDsByOperatorCoGuidCompletedEventHandler(object sender, GetDomainIDsByOperatorCoGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainIDsByOperatorCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4939,11 +5019,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDeviceInfoCompletedEventHandler(object sender, GetDeviceInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDeviceInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4965,11 +5045,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SubmitAddDeviceToDomainRequestCompletedEventHandler(object sender, SubmitAddDeviceToDomainRequestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SubmitAddDeviceToDomainRequestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4991,11 +5071,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ConfirmDeviceByDomainMasterCompletedEventHandler(object sender, ConfirmDeviceByDomainMasterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ConfirmDeviceByDomainMasterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5017,11 +5097,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDomainRestrictionCompletedEventHandler(object sender, SetDomainRestrictionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDomainRestrictionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5043,11 +5123,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddHomeNetworkToDomainCompletedEventHandler(object sender, AddHomeNetworkToDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddHomeNetworkToDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5069,11 +5149,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void UpdateDomainHomeNetworkCompletedEventHandler(object sender, UpdateDomainHomeNetworkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5095,11 +5175,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDomainHomeNetworkCompletedEventHandler(object sender, SetDomainHomeNetworkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5121,11 +5201,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDomainHomeNetworkCompletedEventHandler(object sender, RemoveDomainHomeNetworkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5147,11 +5227,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainHomeNetworksCompletedEventHandler(object sender, GetDomainHomeNetworksCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainHomeNetworksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5173,11 +5253,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ValidateLimitationModuleCompletedEventHandler(object sender, ValidateLimitationModuleCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ValidateLimitationModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5199,11 +5279,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ValidateLimitationNpvrCompletedEventHandler(object sender, ValidateLimitationNpvrCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ValidateLimitationNpvrCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5225,11 +5305,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDLMCompletedEventHandler(object sender, RemoveDLMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5251,11 +5331,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ChangeDLMCompletedEventHandler(object sender, ChangeDLMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangeDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5277,11 +5357,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDLMCompletedEventHandler(object sender, GetDLMCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDLMCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5303,11 +5383,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SuspendDomainCompletedEventHandler(object sender, SuspendDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SuspendDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5329,11 +5409,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void ResumeDomainCompletedEventHandler(object sender, ResumeDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ResumeDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5355,11 +5435,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDomainRegionCompletedEventHandler(object sender, SetDomainRegionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDomainRegionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5381,11 +5461,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDomainByUserCompletedEventHandler(object sender, GetDomainByUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainByUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5407,11 +5487,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDeviceRegistrationStatusCompletedEventHandler(object sender, GetDeviceRegistrationStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDeviceRegistrationStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5433,11 +5513,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SetDeviceCompletedEventHandler(object sender, SetDeviceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5459,11 +5539,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void GetDeviceCompletedEventHandler(object sender, GetDeviceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5485,11 +5565,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDomainByIdCompletedEventHandler(object sender, RemoveDomainByIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDomainByIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5511,11 +5591,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void RemoveDomainByCoGuidCompletedEventHandler(object sender, RemoveDomainByCoGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemoveDomainByCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5537,11 +5617,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void AddDomainHomeNetworkCompletedEventHandler(object sender, AddDomainHomeNetworkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5563,11 +5643,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void SubmitAddDeviceToDomainCompletedEventHandler(object sender, SubmitAddDeviceToDomainCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SubmitAddDeviceToDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5589,11 +5669,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     public delegate void VerifyDRMDeviceCompletedEventHandler(object sender, VerifyDRMDeviceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2053.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class VerifyDRMDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {

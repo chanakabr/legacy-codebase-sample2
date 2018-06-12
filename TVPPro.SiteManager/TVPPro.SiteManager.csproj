@@ -811,10 +811,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/domains_v4_7/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/domains_v4_9/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Domains\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/domains_v4_7/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/domains_v4_9/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
