@@ -1432,10 +1432,10 @@ namespace WebAPI.Clients
             return response;
         }
 
-        public List<KalturaSSOAdapter> GetSSOAdapters(int groupId)
+        public List<KalturaSsoAdapterProfile> GetSSOAdapters(int groupId)
         {
-            List<KalturaSSOAdapter> KalturaSSOAdaptersList = null;
-            SSOAdapterResponse response = null;
+            List<KalturaSsoAdapterProfile> KalturaSSOAdaptersList = null;
+            SSOAdaptersResponse response = null;
 
 
             try
@@ -1461,17 +1461,29 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.RespStatus.Code, response.RespStatus.Message);
             }
 
-            KalturaSSOAdaptersList = Mapper.Map<List<KalturaSSOAdapter>>(response.SSOAdapters);
+            KalturaSSOAdaptersList = Mapper.Map<List<KalturaSsoAdapterProfile>>(response.SSOAdapters);
 
             return KalturaSSOAdaptersList;
         }
 
-        public KalturaSSOAdapter InsertSSOAdapter(int groupId, KalturaSSOAdapter ssoAdapater)
+        public KalturaSsoAdapterProfile InsertSSOAdapter(int groupId, KalturaSsoAdapterProfile kalturaSsoAdapater, int updaterId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var adapterDetails = Mapper.Map<SSOAdapter>(kalturaSsoAdapater);
+                adapterDetails.GroupId = groupId;
+                var response = Core.Users.Module.InsertSSOAdapter(adapterDetails, updaterId);
+                return Mapper.Map<KalturaSsoAdapterProfile>(response);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+                return null;
+            }
         }
 
-        public KalturaSSOAdapter SetSSOAdapter(int groupId, int ssoAdapterId, KalturaSSOAdapter ssoAdapater)
+        public KalturaSsoAdapterProfile SetSSOAdapter(int groupId, int ssoAdapterId, KalturaSsoAdapterProfile ssoAdapater)
         {
             throw new NotImplementedException();
         }
@@ -1481,7 +1493,7 @@ namespace WebAPI.Clients
             throw new NotImplementedException();
         }
 
-        public KalturaSSOAdapter GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId)
+        public KalturaSsoAdapterProfile GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId)
         {
             throw new NotImplementedException();
         }

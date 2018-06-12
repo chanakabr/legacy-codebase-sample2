@@ -218,10 +218,10 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
 
-            Mapper.CreateMap<SSOAdapter, KalturaSSOAdapter>()
+            Mapper.CreateMap<SSOAdapter, KalturaSsoAdapterProfile>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings.ToDictionary(k => k.Key, v => v.Value)));
 
-            Mapper.CreateMap<KalturaSSOAdapter, SSOAdapter>()
+            Mapper.CreateMap<KalturaSsoAdapterProfile, SSOAdapter>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings.Select(s => new SSOAdapterParam
                 {
                     Key = s.Key,

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -13,7 +12,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// SSO adapter configuration
     /// </summary>
-    public class KalturaSSOAdapter : KalturaOTTObject
+    public class KalturaSsoAdapterProfile : KalturaOTTObject
     {
         /// <summary>
         /// SSO Adapter id
@@ -77,22 +76,5 @@ namespace WebAPI.Models.Users
         [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
 
-    }
-
-    /// <summary>
-    /// ssoAdapterProfile list
-    /// </summary>
-    [DataContract(Name = "SSOAdapters", Namespace = "")]
-    [XmlRoot("SSOAdapters")]
-    public class KalturaSSOAdapterListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of payment-gateway profiles
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaSSOAdapter> SSOAdapters { get; set; }
     }
 }

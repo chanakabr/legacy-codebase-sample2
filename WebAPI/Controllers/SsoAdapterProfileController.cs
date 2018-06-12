@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ssoAdapter/action")]
-    public class SsoAdapterController : ApiController
+    [RoutePrefix("_service/ssoAdapterProfile/action")]
+    public class SsoAdapterProfileController : ApiController
     {
         /// <summary>
         /// Returns all sso adapters for partner : id + name
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaSSOAdapterListResponse List()
+        public KalturaSsoAdapterProfileListResponse List()
         {
-            var response = new KalturaSSOAdapterListResponse();
+            var response = new KalturaSsoAdapterProfileListResponse();
             var groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
                 // call client
                 response.SSOAdapters = ClientsManager.UsersClient().GetSSOAdapters(groupId);
                 response.TotalCount = response.SSOAdapters.Count;
+                return response;
             }
             catch (ClientException ex)
             {
@@ -90,15 +91,17 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.NoSSOAdapaterToInsert)]
-        public KalturaSSOAdapter Add(KalturaSSOAdapter ssoAdapater)
+        public KalturaSsoAdapterProfile Add(KalturaSsoAdapterProfile ssoAdapater)
         {
-            KalturaSSOAdapter response = null;
-            var groupId = KS.GetFromRequest().GroupId;
+            KalturaSsoAdapterProfile response = null;
+            var ks = KS.GetFromRequest();
+            var groupId = ks.GroupId;
+            var userId = ks.UserId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().InsertSSOAdapter(groupId, ssoAdapater);
+                response = ClientsManager.UsersClient().InsertSSOAdapter(groupId, ssoAdapater, int.Parse(userId));
             }
             catch (ClientException ex)
             {
@@ -126,9 +129,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaSSOAdapter Update(int ssoAdapterId, KalturaSSOAdapter ssoAdapater)
+        public KalturaSsoAdapterProfile Update(int ssoAdapterId, KalturaSsoAdapterProfile ssoAdapater)
         {
-            KalturaSSOAdapter response = null;
+            KalturaSsoAdapterProfile response = null;
             var groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -158,9 +161,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
         [Throws(eResponseStatus.SSOAdapaterNotExist)]
-        public KalturaSSOAdapter GenerateSharedSecret(int ssoAdapterId)
+        public KalturaSsoAdapterProfile GenerateSharedSecret(int ssoAdapterId)
         {
-            KalturaSSOAdapter response = null;
+            KalturaSsoAdapterProfile response = null;
             var groupId = KS.GetFromRequest().GroupId;
 
             try
