@@ -4271,20 +4271,8 @@ namespace WS_API
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                if (layeredCacheSettingsToExclude == null)
-                {
-                    layeredCacheSettingsToExclude = new string[0];
-                }
-
-                string[] layeredCacheInvalidationKeySettingsToExclude = layeredCacheInvalidationKeySettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                if (layeredCacheInvalidationKeySettingsToExclude == null)
-                {
-                    layeredCacheInvalidationKeySettingsToExclude = new string[0];
-                }
-
-                response = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings,
-                                                                        new List<string>(layeredCacheInvalidationKeySettingsToExclude), shouldOverrideExistingInvalidationKeyExcludeSettings);
+                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings,
+                                                                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, shouldOverrideExistingInvalidationKeyExcludeSettings);
             }
             else
             {
