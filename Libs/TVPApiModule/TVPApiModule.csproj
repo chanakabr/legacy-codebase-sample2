@@ -151,6 +151,7 @@
     <Compile Include="CatalogLoaders\APIUnifiedSearchLoader.cs" />
     <Compile Include="CatalogLoaders\APIUserSocialMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIWatchHistoryLoader.cs" />
+    <Compile Include="CatalogLoaders\Util.cs" />
     <Compile Include="Configuration\ApiOrcaRecommendationsConfiguration.cs" />
     <Compile Include="Configuration\ApiPlatformServicesConfiguration.cs" />
     <Compile Include="Configuration\ApiSiteConfiguration.cs" />
