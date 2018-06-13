@@ -313,14 +313,24 @@ namespace CachingProvider.LayeredCache
         }
         #endregion
 
-        public static string GetAllAssetRulesKey()
+        public static string GetAllAssetRulesKey(int groupId, int conditionType)
         {
-            return string.Format("all_asset_rules");
+            return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+        }
+
+        public static string GetAllAssetRulesFromDBKey()
+        {
+            return string.Format("all_asset_rules_from_db");
         }
 
         public static string GetAssetRuleKey(long ruleId)
         {
             return string.Format("asset_rules_{0}", ruleId);
+        }
+
+        public static string GetAssetRulesByAssetKey(string assetId, int assetType)
+        {
+            return string.Format("asset_rules_by_assetId_{0}_assetType_{1}", assetId, assetType);
         }
 
         public static string GetAssetUserRuleIdsGroupKey(int groupId)
@@ -523,6 +533,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_all_asset_rules");
         }
 
+        public static string GetAllAssetRulesGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_all_asset_rules_groupId_{0}", groupId);
+        }
+
         public static string GetAssetRuleInvalidationKey(long ruleId)
         {
             return string.Format("invalidationKey_asset_rule_{0}", ruleId);
@@ -548,6 +563,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
         }
 
+        public static string GetEpgInvalidationKey(int groupId, long epgId)
+        {
+            return string.Format("invalidationKeyEpg_groupId_{0}_epgId_{1}", groupId, epgId);
+        }
+
         #endregion
 
         #region Domains
@@ -561,7 +581,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
         }
         
-
         public static string GetRoleIdInvalidationKey(int roleId)
         {
             return string.Format("invalidationKey_roleId_{0}", roleId);
