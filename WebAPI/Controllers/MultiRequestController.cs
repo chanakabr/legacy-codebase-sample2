@@ -197,8 +197,10 @@ namespace WebAPI.Controllers
                     try
                     {
                         // add action to log
-                        HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", string.IsNullOrEmpty(request[i].Service) ? "null" : request[i].Service,
-                                                                                                string.IsNullOrEmpty(request[i].Action) ? "null" : request[i].Action);
+                        string action = string.IsNullOrEmpty(request[i].Action) ? "null" : request[i].Action;
+                        HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", string.IsNullOrEmpty(request[i].Service) ? "null" : request[i].Service, action);
+                        bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
+                        HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {

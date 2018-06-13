@@ -141,6 +141,8 @@ namespace WebAPI.App_Start
                             {
                                 service = segments[i + 1].Replace("/", string.Empty);
                                 action = segments[i + 3].Replace("/", string.Empty);
+                                bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
+                                HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
                             }
                             else
                             {
