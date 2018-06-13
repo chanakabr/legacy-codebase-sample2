@@ -4325,7 +4325,12 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.ConditionsContainType">
             <summary>
-            Indicates if to get the asset user rule list for the attached user or for the entire group
+            Indicates which asset rule list to return by it KalturaRuleConditionType 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.AssetApplied">
+            <summary>
+            Indicates if to return an asset rule list that related to specific asset
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaCondition">

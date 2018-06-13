@@ -68,9 +68,9 @@ namespace WebAPI.ObjectsConvertor
                     if (withList.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                            assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.FirstOrDefault(mas => mas.AssetId == assetInfo.Id) : null;
                         else
-                            assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                            assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.FirstOrDefault(eas => eas.AssetId == assetInfo.Id) : null;
                     }
                 }
                 finalResults.Add(assetInfo);
@@ -172,9 +172,9 @@ namespace WebAPI.ObjectsConvertor
                     if (with.Contains(KalturaCatalogWith.stats))
                     {
                         if (item.AssetType == eAssetTypes.MEDIA)
-                            assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.Where(mas => mas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                            assetInfo.Statistics = mediaAssetsStats != null ? mediaAssetsStats.FirstOrDefault(mas => mas.AssetId == assetInfo.Id) : null;
                         else
-                            assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.Where(eas => eas.AssetId == assetInfo.Id).FirstOrDefault() : null;
+                            assetInfo.Statistics = epgAssetsStats != null ? epgAssetsStats.FirstOrDefault(eas => eas.AssetId == assetInfo.Id) : null;
                     }
                 }
                 result.Add(assetInfo);

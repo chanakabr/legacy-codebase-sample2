@@ -48,22 +48,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<AssetType, StatsType>().ConstructUsing((AssetType type) =>
-            {
-                StatsType result;
-                switch (type)
-                {
-                    case AssetType.media:
-                        result = StatsType.MEDIA;
-                        break;
-                    case AssetType.epg:
-                        result = StatsType.EPG;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown asset type");
-                }
-                return result;
-            });
+            Mapper.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);
 
             #region Parental Rules
 
@@ -546,6 +531,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
+            // KalturaSlimAsset to SlimAsset
+            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.Type)));
+
             #endregion
 
             #region AssetUserRule
@@ -567,8 +557,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
+        internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
+        {
+            StatsType result;
+            switch (type)
+            {
+                case AssetType.media:
+                    result = StatsType.MEDIA;
+                    break;
+                case AssetType.epg:
+                    result = StatsType.EPG;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown AssetType");
+            }
+
+            return result;
+        }
+
         #region AssetRule Conditions
-        
+
         private static List<AssetRuleCondition> ConvertConditions(List<KalturaCondition> conditions)
         {
             List<AssetRuleCondition> result = null;
@@ -2063,7 +2071,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         response = eAssetTypes.MEDIA;
                         break;
                     default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaAssetType");
                 }
             }
             return response;
