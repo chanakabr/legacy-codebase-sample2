@@ -31,7 +31,6 @@ namespace Core.ConditionalAccess
     {
         #region Consts
 
-        private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string MAX_USAGE_MODULE = "mumlc";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         private const int PENDING_THRESHOLD_DAYS = 180;

@@ -70,5 +70,11 @@ namespace ApiObjects.Response
                 args = value;
             }
         }
+
+        public void Set(int newCode, string newMessage)
+        {
+            this.code = newCode;
+            this.message = newMessage;
+        }
     }
 }

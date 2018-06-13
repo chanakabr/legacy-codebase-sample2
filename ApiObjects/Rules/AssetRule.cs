@@ -1,103 +1,39 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace ApiObjects.Rules
 {
+    [Serializable]
     public class AssetRule
     {
+        [JsonProperty("Id")]
         public long Id { get; set; }
+
+        [JsonProperty("Name")]
         public string Name { get; set; }
+
+        [JsonProperty("Description")]
         public string Description { get; set; }
+
+        [JsonProperty("Conditions")]
         public List<AssetRuleCondition> Conditions { get; set; }
+
+        [JsonProperty("Actions")]
         public List<AssetRuleAction> Actions { get; set; }
+
+        [JsonProperty("GroupId")]
         public int GroupId { get; set; }
-    }
-
-    #region Actions
-
-    public abstract class RuleAction
-    {
-        public RuleActionType Type { get; protected set; }
-        public string Description { get; set; }
-    }
-
-    public abstract class AssetRuleAction : RuleAction
-    {
-    }
-
-    public abstract class AssetUserRuleAction : RuleAction
-    {
-    }
-
-    public class AssetBlockAction : AssetRuleAction
-    {
-        public AssetBlockAction()
+        
+        public bool HasCountryConditions()
         {
-            this.Type = RuleActionType.Block;
+            if (this.Conditions != null && this.Conditions.Count > 0)
+            {
+                return this.Conditions.Exists(x => x.Type == AssetRuleConditionType.Country);
+            }
+
+            return false;
         }
     }
-
-    public abstract class TimeOffsetRuleAction : AssetRuleAction
-    {
-        public int Offset { get; set; }
-        public bool TimeZone { get; set; }
-    }
-
-    public class EndDateOffsetRuleAction : TimeOffsetRuleAction
-    {
-        public EndDateOffsetRuleAction()
-        {
-            Type = RuleActionType.EndDateOffset;
-        }
-    }
-
-    public class StartDateOffsetRuleAction : TimeOffsetRuleAction
-    {
-        public StartDateOffsetRuleAction()
-        {
-            Type = RuleActionType.StartDateOffset;
-        }
-    }
-
-    public class AssetUserRuleBlockAction : AssetUserRuleAction
-    {
-        public AssetUserRuleBlockAction()
-        {
-            this.Type = RuleActionType.UserBlock;
-        }
-    }
-
-    #endregion
-
-    #region Conditions
-
-    public class AssetRuleCondition
-    {
-        public AssetRuleConditionType Type { get; protected set; }
-        public string Description { get; set; }
-    }
-
-    public class AssetCondition : AssetRuleCondition
-    {
-        public string Ksql { get; set; }
-
-        public AssetCondition()
-        {
-            Type = AssetRuleConditionType.Asset;
-        }
-    }
-
-    public class CountryCondition : AssetRuleCondition
-    {
-        public bool Not { get; set; }
-        public List<int> Countries { get; set; }
-
-        public CountryCondition()
-        {
-            this.Type = AssetRuleConditionType.Country;
-        }
-    }
-
-    #endregion
 }

@@ -1027,7 +1027,8 @@ namespace ApiObjects
     public enum AssetRuleConditionType
     {
         Asset,
-        Country        
+        Country,
+        Concurrency
     }
 
     public enum RuleActionTaskType

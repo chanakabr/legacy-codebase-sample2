@@ -21,7 +21,7 @@ namespace ApiObjects.Response
             this.Status.Code = (int)responseStatus;
             this.Status.Message = message;
         }
-
+        
         public bool HasObjects()
         {
             return (Status.Code == (int)eResponseStatus.OK && Objects != null && Objects.Count > 0);

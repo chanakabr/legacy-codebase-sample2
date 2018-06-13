@@ -2972,6 +2972,10 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
+                        foreach (long id in ids)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetEpgInvalidationKey(groupId, id));
+                        }
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -5743,16 +5747,17 @@ namespace Core.Catalog
             {
                 int tempTotalItems = 0;
                 var allRecommendations = recommendations.Select(result =>
-                    new UnifiedSearchResult()
+                    new RecommendationSearchResult()
                     {
                         AssetId = result.id,
                         AssetType = (eAssetTypes)result.type,
-                        m_dUpdateDate = DateTime.MinValue
+                        m_dUpdateDate = DateTime.MinValue,
+                        TagsExtraData = result.TagsExtarData,
                     }
                     ).ToList();
 
                 searchResultsList =
-                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
+                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
             }
             // If there is, go to ES and perform further filter
             else

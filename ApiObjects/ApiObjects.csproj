@@ -148,9 +148,11 @@
     <Compile Include="Response\GenericListResponse.cs" />
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
+    <Compile Include="Rules\AssetRuleCondition.cs" />
+    <Compile Include="Rules\RuleAction.cs" />
+    <Compile Include="Rules\SlimAsset.cs" />
     <Compile Include="Rules\AssetUserRule.cs" />
     <Compile Include="Rules\AssetRule.cs" />
-    <Compile Include="Rules\AssetRulesResponse.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />

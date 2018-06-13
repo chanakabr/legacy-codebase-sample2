@@ -1843,7 +1843,7 @@ namespace Core.Api
             return Core.Api.api.GetUserWatchedMediaIds(groupId, userId);
         }
 
-        public static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        public static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
         {
             return Core.Api.api.AddAssetRule(groupId, assetRule);
         }
@@ -1853,12 +1853,12 @@ namespace Core.Api
             return Core.Api.api.DeleteAssetRule(groupId, id);
         }
 
-        public static AssetRulesResponse GetAssetRules(int groupId)
+        public static GenericListResponse<AssetRule> GetAssetRules(int groupId, AssetRuleConditionType assetRuleConditionType, SlimAsset slimAsset)
         {
-            return Core.Api.api.GetAssetRules(groupId);
+            return Core.Api.api.GetAssetRules(assetRuleConditionType, slimAsset, groupId);
         }
 
-        public static AssetRulesResponse UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        public static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
         {
             return Core.Api.api.UpdateAssetRule(groupId, assetRuleRequest);
         }
@@ -1912,6 +1912,11 @@ namespace Core.Api
             return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
         }
 
+        public static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            return Core.Api.api.GetAssetRule(groupId, assetRuleId);
+        }
+        
         #endregion
     }
 }
