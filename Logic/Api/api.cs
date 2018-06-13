@@ -10545,9 +10545,9 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0)
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, SlimAsset slimAsset, int groupId = 0)
         {
-            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId);
+            return AssetRuleManager.GetAssetRules(assetRuleConditionType, slimAsset, groupId);
         }
 
         internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)

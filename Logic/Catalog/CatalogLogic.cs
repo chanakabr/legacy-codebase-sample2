@@ -2972,6 +2972,10 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
+                        foreach (long id in ids)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetEpgInvalidationKey(groupId, id));
+                        }
                         break;
                     case eObjectType.EpgChannel:
                         break;
