@@ -1750,11 +1750,12 @@ namespace TvinciImporter
 
                 Int32 nItemType = GetItemTypeIdByName(nGroupID, sItemType);
 
-                if (nItemType == 0 && sEraseFiles != "false")
+                if (nItemType == 0 && nMediaID == 0)
                 {
                     AddError(ref sErrorMessage, "Item type not recognized");
                     log.DebugFormat("ProcessItem - Item type not recognized. mediaId:{0}", nMediaID);
                     ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
+                    return false;
                 }
 
                 string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
@@ -4556,6 +4557,13 @@ namespace TvinciImporter
                 if (string.IsNullOrEmpty(sName))
                     continue;
 
+                Int32 tagTypeID = GetTagTypeID(nGroupID, sName);
+                if (tagTypeID == 0 && sName.ToLower().Trim() != "free")
+                {
+                    AddError(ref sError, string.Format("meta \"{0}\" does not exist) :", sName));
+                    continue;
+                }
+
                 TranslatorStringHolder metaHolder = new TranslatorStringHolder();
                 XmlNodeList theContainers = theItem.SelectNodes("container");
                 Int32 nCount1 = theContainers.Count;
@@ -4583,12 +4591,13 @@ namespace TvinciImporter
                         GetSubLangMetaData(nGroupID, sMainLang, ref metaHolder, ref theContainer, j.ToString());  ///i->j
                     }
                 }
-                Int32 nTagTypeID = GetTagTypeID(nGroupID, sName);
-                ClearMediaTags(nMediaID, nTagTypeID);
+
+                
+                ClearMediaTags(nMediaID, tagTypeID);
                 if (nCount1 > 0)
                 {
-                    if (nTagTypeID != 0 || sName.ToLower().Trim() == "free")
-                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
+                    if (tagTypeID != 0 || sName.ToLower().Trim() == "free")
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
                             sMainLang, metaHolder, nGroupID, nMediaID);
 
                 }
@@ -4600,6 +4609,7 @@ namespace TvinciImporter
         {
             if (sTagName.ToLower().Trim() == "free")
                 return 0;
+
             Int32 nRet = 0;
             string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
