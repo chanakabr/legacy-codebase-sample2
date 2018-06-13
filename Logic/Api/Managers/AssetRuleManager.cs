@@ -32,8 +32,7 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
-        private const string NO_ASSET_RULES_FOUND = "No Asset Rules found";
-
+        
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -412,12 +411,12 @@ namespace Core.Api.Managers
                                                                 LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
                                                                 new List<string>() { allAssetRulesInvalidationKey }))
                 {
-                    response.SetStatus(eResponseStatus.OK, NO_ASSET_RULES_FOUND);
+                    log.ErrorFormat("GetAssetRules - GetAllAssetRules - Failed get data from cache. groupId: {0}", groupId);
                     return response;
                 }
                 
                 response.Objects = allAssetRules;
-
+                
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
@@ -441,14 +440,14 @@ namespace Core.Api.Managers
                                                                     LayeredCacheConfigNames.GET_ASSET_RULES_BY_ASSET,
                                                                     new List<string>()
                                                                     {
-                                                                        LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(groupId),
+                                                                        allAssetRulesInvalidationKey,
                                                                         assetTypeInvalidationKey
                                                                     }))
                     {
-                        response.SetStatus(eResponseStatus.OK, NO_ASSET_RULES_FOUND);
+                        log.ErrorFormat("GetAssetRules - GetAssetRulesByAsset - Failed get data from cache. groupId: {0}", groupId);
                         return response;
                     }
-                    
+
                     response.Objects = assetRulesByAsset;
                 }
 
@@ -617,7 +616,7 @@ namespace Core.Api.Managers
         /// 
         /// </summary>
         /// <param name="funcParams">assetRuleConditionType, groupId</param>
-        /// <returns>true if assetRules is not null and assetRules.count > 0, otherwise false</returns>
+        /// <returns>true if assetRules is not null, otherwise false</returns>
         private static Tuple<List<AssetRule>, bool> GetAllAssetRules(Dictionary<string, object> funcParams)
         {
             List<AssetRule> allAssetRules = new List<AssetRule>();
@@ -636,7 +635,7 @@ namespace Core.Api.Managers
                             List<AssetRule> allAssetRulesDB = new List<AssetRule>();
                             string allAssetRulesFromDBKey = LayeredCacheKeys.GetAllAssetRulesFromDBKey();
 
-                            if (LayeredCache.Instance.Get<List<AssetRule>>(allAssetRulesFromDBKey,
+                            if (!LayeredCache.Instance.Get<List<AssetRule>>(allAssetRulesFromDBKey,
                                                                             ref allAssetRulesDB,
                                                                             GetAllAssetRulesDB,
                                                                             null,
@@ -644,23 +643,25 @@ namespace Core.Api.Managers
                                                                             LayeredCacheConfigNames.GET_ALL_ASSET_RULES_FROM_DB,
                                                                             new List<string>() { LayeredCacheKeys.GetAllAssetRulesInvalidationKey() }))
                             {
-                                if (allAssetRulesDB.Count > 0)
+                                allAssetRules = null;
+                                log.ErrorFormat("GetAllAssetRules - GetAllAssetRulesDB - Failed get data from cache. groupId: {0}", groupId);
+                            }
+                            else if (allAssetRulesDB.Count > 0)
+                            {
+                                IEnumerable<AssetRule> filteredAssetRules = allAssetRulesDB;
+
+                                if (groupId > 0)
                                 {
-                                    IEnumerable<AssetRule> filteredAssetRules = allAssetRulesDB;
+                                    filteredAssetRules = allAssetRulesDB.Where(x => x.GroupId == groupId);
+                                }
 
-                                    if (groupId > 0)
+                                if (filteredAssetRules != null)
+                                {
+                                    var assetRulesCB = ApiDAL.GetAssetRulesCB(filteredAssetRules.Select(x => x.Id));
+
+                                    if (assetRulesCB != null && assetRulesCB.Count > 0)
                                     {
-                                        filteredAssetRules = allAssetRulesDB.Where(x => x.GroupId == groupId);
-                                    }
-
-                                    if (filteredAssetRules != null)
-                                    {
-                                        var assetRulesCB = ApiDAL.GetAssetRulesCB(filteredAssetRules.Select(x => x.Id));
-
-                                        if (assetRulesCB != null && assetRulesCB.Count > 0)
-                                        {
-                                            allAssetRules.AddRange(assetRulesCB.Where(x => x.Conditions.Any(y => y.Type == assetRuleConditionType)));
-                                        }
+                                        allAssetRules.AddRange(assetRulesCB.Where(x => x.Conditions.Any(y => y.Type == assetRuleConditionType)));
                                     }
                                 }
                             }
@@ -670,17 +671,18 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
+                allAssetRules = null;
                 log.Error(string.Format("GetAllAssetRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<List<AssetRule>, bool>(allAssetRules, (allAssetRules != null && allAssetRules.Count > 0));
+            return new Tuple<List<AssetRule>, bool>(allAssetRules, allAssetRules != null);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="funcParams">allAssetRules, slimAsset, groupId</param>
-        /// <returns>true if assetRulesByAsset is not null and assetRulesByAsset.count > 0, otherwise false</returns>
+        /// <returns>true if assetRulesByAsset is not null, otherwise false</returns>
         private static Tuple<List<AssetRule>, bool> GetAssetRulesByAsset(Dictionary<string, object> funcParams)
         {
             List<AssetRule> assetRulesByAsset = new List<AssetRule>();
@@ -738,10 +740,11 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
+                assetRulesByAsset = null;
                 log.Error(string.Format("GetAssetRulesByAsset faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<List<AssetRule>, bool>(assetRulesByAsset, (assetRulesByAsset != null && assetRulesByAsset.Count > 0));
+            return new Tuple<List<AssetRule>, bool>(assetRulesByAsset, assetRulesByAsset != null);
         }
         
         /// <summary>
