@@ -1754,7 +1754,8 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Item type not recognized");
                     log.DebugFormat("ProcessItem - Item type not recognized. mediaId:{0}", nMediaID);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Status.Code = (int)eResponseStatus.InvalidMediaType;
+                    ingestAssetStatus.Status.Message = string.Format("Invalid media type \"{0}\"", sItemType);
                     return false;
                 }
 
