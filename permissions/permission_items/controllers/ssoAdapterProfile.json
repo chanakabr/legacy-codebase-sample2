@@ -5,8 +5,8 @@
         "Administrator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_GetConfiguration",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_GetConfiguration",
+      "service":  "SsoAdapterProfile",
       "action": "GetConfiguration",
       "type": "Action"
     },
@@ -15,8 +15,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_List",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_List",
+      "service":  "SsoAdapterProfile",
       "action": "List",
       "type": "Action"
     },
@@ -25,8 +25,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_Delete",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_Delete",
+      "service":  "SsoAdapterProfile",
       "action": "Delete",
       "type": "Action"
     },
@@ -35,8 +35,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_Add",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_Add",
+      "service":  "SsoAdapterProfile",
       "action": "Add",
       "type": "Action"
     },
@@ -45,8 +45,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_Update",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_Update",
+      "service":  "SsoAdapterProfile",
       "action": "Update",
       "type": "Action"
     },
@@ -55,8 +55,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "SSOAdapter_GenerateSharedSecret",
-      "service": "SSOAdapter",
+      "name": "SsoAdapterProfile_GenerateSharedSecret",
+      "service":  "SsoAdapterProfile",
       "action": "GenerateSharedSecret",
       "type": "Action"
     }
