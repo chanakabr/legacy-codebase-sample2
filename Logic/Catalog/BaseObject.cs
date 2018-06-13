@@ -18,6 +18,7 @@ namespace Core.Catalog
     [KnownType(typeof(MediaFileObj))]
     [KnownType(typeof(UnifiedSearchResult))]
     [KnownType(typeof(RecordingSearchResult))]
+    [KnownType(typeof(RecommendationSearchResult))]
     [DataContract]
     [Serializable]
     public class BaseObject

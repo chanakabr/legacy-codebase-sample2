@@ -2206,7 +2206,7 @@ namespace Core.ConditionalAccess
                 if (blockEntitlement != BlockEntitlementType.BLOCK_PPV)
                 {
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes != null ? ppvModule.m_relatedFileTypes.ToArray() : null;
-                    List<int> lstFileIDs;
+                    List<int> lstFileIDs = new List<int>();
                     // get list of mediaFileIDs
                     if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper != null)
                     {
@@ -2228,19 +2228,22 @@ namespace Core.ConditionalAccess
                     string sPPCode = string.Empty;
                     bool isEntitled = false;
 
-                    if (lstFileIDs.Count > 0)
+                    if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                     {
-                        if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
+                        bool isRelated = lstFileIDs.Contains(nMediaFileID);
+                        HashSet<int> mediaFiles = new HashSet<int>();
+                        if (isRelated)
                         {
-                            lstFileIDs.Add(nMediaFileID);
-                            isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
-                                                            ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary);
+                            mediaFiles = new HashSet<int>(domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper.Where(dic => dic.Key.StartsWith(mediaID.ToString())).SelectMany(dic => dic.Value));
                         }
-                        else
-                        {
-                            isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
-                                                                                ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainID);
-                        }
+
+                        isEntitled = IsUserEntitled(isRelated, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid,
+                                                    ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary, nMediaFileID, mediaFiles);
+                    }
+                    else
+                    {
+                        isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
+                                                                            ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainID);
                     }
 
                     // user or domain users have entitlements \ purchases
@@ -3757,28 +3760,28 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        private static bool IsUserEntitled(List<int> p_lstFileIds, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate,
-            Dictionary<string, EntitlementObject> entitlements)
+        private static bool IsUserEntitled(bool isRelated, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode, ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate,
+                                            ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate,
+                                            Dictionary<string, EntitlementObject> entitlements, int mediaFileId, HashSet<int> files)
         {
             bool res = false;
-            if (entitlements.Count > 0)
+            int ppvId;
+
+            if (entitlements.Count > 0 && int.TryParse(p_sPPVCode, out ppvId) && ppvId > 0)
             {
-                foreach (int mediaFileID in p_lstFileIds)
+                foreach (EntitlementObject ppv in entitlements.Values)
                 {
-                    string entitlementKey = mediaFileID + "_" + p_sPPVCode;
-                    if (entitlements.ContainsKey(entitlementKey))
+                    if (ppv.ppvCode == ppvId && (ppv.purchasedAsMediaFileID == mediaFileId || (isRelated && files.Contains(ppv.purchasedAsMediaFileID))))
                     {
-                        EntitlementObject entitlement = entitlements[entitlementKey];
-                        p_nPPVID = entitlement.ID;
-                        p_sSubCode = entitlement.subscriptionCode;
-                        p_sPPCode = entitlement.relPP.ToString();
-                        p_nWaiver = entitlement.waiver;
-                        p_dtStartDate = entitlement.startDate;
-                        p_dtEndDate = entitlement.endDate;
-                        p_dCreateDate = entitlement.createDate;
-                        p_sPurchasedBySiteGuid = entitlement.purchasedBySiteGuid;
-                        p_nPurchasedAsMediaFileID = entitlement.purchasedAsMediaFileID;
+                        p_nPPVID = ppv.ID;
+                        p_sSubCode = ppv.subscriptionCode;
+                        p_sPPCode = ppv.relPP.ToString();
+                        p_nWaiver = ppv.waiver;
+                        p_dtStartDate = ppv.startDate;
+                        p_dtEndDate = ppv.endDate;
+                        p_dCreateDate = ppv.createDate;
+                        p_sPurchasedBySiteGuid = ppv.purchasedBySiteGuid;
+                        p_nPurchasedAsMediaFileID = ppv.purchasedAsMediaFileID;
                         res = true;
                         break;
                     }
@@ -3825,9 +3828,9 @@ namespace Core.ConditionalAccess
                 {
                     relatedFileTypes.Add(mediaFileID);
                 }
-                relatedFileTypes = relatedFileTypes.Distinct().ToList();
             }
-            return relatedFileTypes;
+
+            return relatedFileTypes.ToList();
         }
 
         internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, DomainEntitlements.BundleEntitlements userBundleEntitlements)
