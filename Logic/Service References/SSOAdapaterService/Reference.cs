@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace APILogic.SSOAdapter {
+namespace APILogic.SSOAdapaterService {
     using System.Runtime.Serialization;
     using System;
     
@@ -40,13 +40,13 @@ namespace APILogic.SSOAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.eSSOMethods[] ImplementedMethodsField;
+        private APILogic.SSOAdapaterService.eSSOMethods[] ImplementedMethodsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool SendWelcomeEmailField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.AdapterStatusCode StatusField;
+        private APILogic.SSOAdapaterService.AdapterStatusCode StatusField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -59,7 +59,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.eSSOMethods[] ImplementedMethods {
+        public APILogic.SSOAdapaterService.eSSOMethods[] ImplementedMethods {
             get {
                 return this.ImplementedMethodsField;
             }
@@ -85,7 +85,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.AdapterStatusCode Status {
+        public APILogic.SSOAdapaterService.AdapterStatusCode Status {
             get {
                 return this.StatusField;
             }
@@ -339,7 +339,7 @@ namespace APILogic.SSOAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.AdapterStatusCode AdapterStatusField;
+        private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string PasswordField;
@@ -348,7 +348,7 @@ namespace APILogic.SSOAdapter {
         private System.Collections.Generic.Dictionary<string, string> PriviligesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.SSOResponseStatus SSOResponseStatusField;
+        private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
@@ -367,7 +367,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.AdapterStatusCode AdapterStatus {
+        public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus {
             get {
                 return this.AdapterStatusField;
             }
@@ -406,7 +406,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.SSOResponseStatus SSOResponseStatus {
+        public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus {
             get {
                 return this.SSOResponseStatusField;
             }
@@ -470,7 +470,7 @@ namespace APILogic.SSOAdapter {
         private string ExternalMessageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.eSSOUserResponseStatus ResponseStatusField;
+        private APILogic.SSOAdapaterService.eSSOUserResponseStatus ResponseStatusField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -509,7 +509,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.eSSOUserResponseStatus ResponseStatus {
+        public APILogic.SSOAdapaterService.eSSOUserResponseStatus ResponseStatus {
             get {
                 return this.ResponseStatusField;
             }
@@ -630,7 +630,7 @@ namespace APILogic.SSOAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.User AuthenticatedUserField;
+        private APILogic.SSOAdapaterService.User AuthenticatedUserField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.Dictionary<string, string> CustomParamsField;
@@ -646,7 +646,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.User AuthenticatedUser {
+        public APILogic.SSOAdapaterService.User AuthenticatedUser {
             get {
                 return this.AuthenticatedUserField;
             }
@@ -727,13 +727,13 @@ namespace APILogic.SSOAdapter {
         private string PhoneField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.eHouseholdSuspensionState SuspensionStateField;
+        private APILogic.SSOAdapaterService.eHouseholdSuspensionState SuspensionStateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.eUserState UserStateField;
+        private APILogic.SSOAdapaterService.eUserState UserStateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.UserType UserTypeField;
+        private APILogic.SSOAdapaterService.UserType UserTypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UsernameField;
@@ -908,7 +908,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.eHouseholdSuspensionState SuspensionState {
+        public APILogic.SSOAdapaterService.eHouseholdSuspensionState SuspensionState {
             get {
                 return this.SuspensionStateField;
             }
@@ -921,7 +921,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.eUserState UserState {
+        public APILogic.SSOAdapaterService.eUserState UserState {
             get {
                 return this.UserStateField;
             }
@@ -934,7 +934,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.UserType UserType {
+        public APILogic.SSOAdapaterService.UserType UserType {
             get {
                 return this.UserTypeField;
             }
@@ -1081,13 +1081,13 @@ namespace APILogic.SSOAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.AdapterStatusCode AdapterStatusField;
+        private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.SSOResponseStatus SSOResponseStatusField;
+        private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private APILogic.SSOAdapter.User UserField;
+        private APILogic.SSOAdapaterService.User UserField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1100,7 +1100,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.AdapterStatusCode AdapterStatus {
+        public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus {
             get {
                 return this.AdapterStatusField;
             }
@@ -1113,7 +1113,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.SSOResponseStatus SSOResponseStatus {
+        public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus {
             get {
                 return this.SSOResponseStatusField;
             }
@@ -1126,7 +1126,7 @@ namespace APILogic.SSOAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapter.User User {
+        public APILogic.SSOAdapaterService.User User {
             get {
                 return this.UserField;
             }
@@ -1149,53 +1149,53 @@ namespace APILogic.SSOAdapter {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="SSOAdapter.IService")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="SSOAdapaterService.IService")]
     public interface IService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        APILogic.SSOAdapter.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
+        APILogic.SSOAdapaterService.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetImplementedMethods", ReplyAction="http://tempuri.org/IService/GetImplementedMethodsResponse")]
-        APILogic.SSOAdapter.SSOImplementationsResponse GetImplementedMethods(int adapterId);
+        APILogic.SSOAdapaterService.SSOImplementationsResponse GetImplementedMethods(int adapterId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetImplementedMethods", ReplyAction="http://tempuri.org/IService/GetImplementedMethodsResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreSignIn", ReplyAction="http://tempuri.org/IService/PreSignInResponse")]
-        APILogic.SSOAdapter.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapter.PreSignInModel preSignInData, string signature);
+        APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreSignIn", ReplyAction="http://tempuri.org/IService/PreSignInResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapter.PreSignInModel preSignInData, string signature);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostSignIn", ReplyAction="http://tempuri.org/IService/PostSignInResponse")]
-        APILogic.SSOAdapter.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapter.PostSignInModel postSignInData, string signature);
+        APILogic.SSOAdapaterService.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostSignIn", ReplyAction="http://tempuri.org/IService/PostSignInResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapter.PostSignInModel postSignInData, string signature);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreGetUserData", ReplyAction="http://tempuri.org/IService/PreGetUserDataResponse")]
-        APILogic.SSOAdapter.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+        APILogic.SSOAdapaterService.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreGetUserData", ReplyAction="http://tempuri.org/IService/PreGetUserDataResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostGetUserData", ReplyAction="http://tempuri.org/IService/PostGetUserDataResponse")]
-        APILogic.SSOAdapter.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapter.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+        APILogic.SSOAdapaterService.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostGetUserData", ReplyAction="http://tempuri.org/IService/PostGetUserDataResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapter.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IServiceChannel : APILogic.SSOAdapter.IService, System.ServiceModel.IClientChannel {
+    public interface IServiceChannel : APILogic.SSOAdapaterService.IService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class ServiceClient : System.ServiceModel.ClientBase<APILogic.SSOAdapter.IService>, APILogic.SSOAdapter.IService {
+    public partial class ServiceClient : System.ServiceModel.ClientBase<APILogic.SSOAdapaterService.IService>, APILogic.SSOAdapaterService.IService {
         
         public ServiceClient() {
         }
@@ -1216,51 +1216,51 @@ namespace APILogic.SSOAdapter {
                 base(binding, remoteAddress) {
         }
         
-        public APILogic.SSOAdapter.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature) {
+        public APILogic.SSOAdapaterService.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature) {
             return base.Channel.SetConfiguration(adapterId, partnerId, configuration, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature) {
             return base.Channel.SetConfigurationAsync(adapterId, partnerId, configuration, signature);
         }
         
-        public APILogic.SSOAdapter.SSOImplementationsResponse GetImplementedMethods(int adapterId) {
+        public APILogic.SSOAdapaterService.SSOImplementationsResponse GetImplementedMethods(int adapterId) {
             return base.Channel.GetImplementedMethods(adapterId);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId) {
             return base.Channel.GetImplementedMethodsAsync(adapterId);
         }
         
-        public APILogic.SSOAdapter.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapter.PreSignInModel preSignInData, string signature) {
+        public APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature) {
             return base.Channel.PreSignIn(adapterId, preSignInData, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapter.PreSignInModel preSignInData, string signature) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature) {
             return base.Channel.PreSignInAsync(adapterId, preSignInData, signature);
         }
         
-        public APILogic.SSOAdapter.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapter.PostSignInModel postSignInData, string signature) {
+        public APILogic.SSOAdapaterService.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature) {
             return base.Channel.PostSignIn(adapterId, postSignInData, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapter.PostSignInModel postSignInData, string signature) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature) {
             return base.Channel.PostSignInAsync(adapterId, postSignInData, signature);
         }
         
-        public APILogic.SSOAdapter.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
+        public APILogic.SSOAdapaterService.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
             return base.Channel.PreGetUserData(adapterId, userId, ipAddress, customParams, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
             return base.Channel.PreGetUserDataAsync(adapterId, userId, ipAddress, customParams, signature);
         }
         
-        public APILogic.SSOAdapter.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapter.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
+        public APILogic.SSOAdapaterService.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
             return base.Channel.PostGetUserData(adapterId, userData, customParams, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapter.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapter.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature) {
             return base.Channel.PostGetUserDataAsync(adapterId, userData, customParams, signature);
         }
     }

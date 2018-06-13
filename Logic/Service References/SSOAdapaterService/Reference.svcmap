@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="0eade0a9-0714-4c7c-a209-1812f3d68ebb" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://arthur.adapters.com/SSOAdapter/Service.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="6efb8086-f9eb-49bd-854f-2eaa6e928e99" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="9177f03e-8efb-4eea-bf85-ff6b1a27e860" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="f8f0e934-1799-401a-bfc5-770f9d9de614" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="3d6f65ba-1928-40ed-99fe-61ce09552677" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?wsdl" />
+    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="8b82472a-4b9c-4a9b-8c2a-e82684ab5c17" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="f05c8918-2cc9-464f-a1d5-753cd8d2c6c5" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="22cb78e0-6c7d-489c-8fc3-c380ec6bb9e5" SourceId="1" SourceUrl="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

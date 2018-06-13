@@ -100,7 +100,10 @@ namespace ApiObjects.Response
         ParentTopicMetaIdNotEqualToMetaParentMetaID = 2052,
         ParentTopicValueIsMissing = 2053,
         ExternalIdAlreadyExists = 2054,
-        UserExternalError = 2055,        
+        UserExternalError = 2055,
+        SSOAdapaterNotExist = 2056,
+        NoSSOAdapaterToInsert = 2057,
+        SSOAdapterIdRequired =2058,
 
 
         // CAS Section 3000 - 3999

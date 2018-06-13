@@ -10,9 +10,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects.SSOAdapter;
-using APILogic.SSOAdapter;
-using SSOAdapaterUser = APILogic.SSOAdapter.User;
-using SSOAdapterUserType = APILogic.SSOAdapter.UserType;
+using APILogic.SSOAdapaterService;
+using SSOAdapaterUser = APILogic.SSOAdapaterService.User;
+using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
 
 namespace Core.Users
 {
