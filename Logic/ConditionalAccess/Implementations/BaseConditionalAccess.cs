@@ -771,9 +771,9 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// InApp Charge User For Media File
         /// </summary>
-        protected BillingResponse InApp_BaseChargeUserForMediaFile(string sSiteGUID, double dPrice, string sCurrency,
-            Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sRecieptCode)
+        protected BillingResponse InApp_BaseChargeUserForMediaFile(string siteGUID, double price, string currency,
+            Int32 mediaFileID, Int32 nMediaID, string sPPVModuleCode, string couponCode, string sUserIP, string sExtraParameters,
+            string countryCode, string languageCode, string deviceName, string recieptCode)
         {
             InAppBillingResponse InAppRes = new InAppBillingResponse();
             InAppRes.m_oBillingResponse = new BillingResponse();
@@ -785,7 +785,7 @@ namespace Core.ConditionalAccess
             ODBCWrapper.UpdateQuery updateQuery = null;
             try
             {
-                if (string.IsNullOrEmpty(sSiteGUID))
+                if (string.IsNullOrEmpty(siteGUID))
                 {
                     InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UnKnownUser;
                     InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -795,7 +795,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     //get user data
-                    UserResponseObject uObj = Core.Users.Module.GetUserData(m_nGroupID, sSiteGUID, string.Empty);
+                    UserResponseObject uObj = Core.Users.Module.GetUserData(m_nGroupID, siteGUID, string.Empty);
                     if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         //return UnKnownUser 
@@ -809,7 +809,7 @@ namespace Core.ConditionalAccess
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cannot charge a suspended user";
-                        WriteToUserLog(sSiteGUID, "while trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                        WriteToUserLog(siteGUID, "while trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                         return InAppRes.m_oBillingResponse;
                     }
                     else
@@ -821,7 +821,7 @@ namespace Core.ConditionalAccess
                             InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "Charge must have ppv module code";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
 
@@ -829,13 +829,13 @@ namespace Core.ConditionalAccess
                         long ppvModuleCode = 0;
                         long.TryParse(sPPVModuleCode, out ppvModuleCode);
 
-                        PPVModule thePPVModule = Pricing.Module.ValidatePPVModuleForMediaFile(m_nGroupID, nMediaFileID, ppvModuleCode);
+                        PPVModule thePPVModule = Pricing.Module.ValidatePPVModuleForMediaFile(m_nGroupID, mediaFileID, ppvModuleCode);
                         if (thePPVModule == null || thePPVModule.m_oUsageModule == null)
                         {
                             InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "The ppv module is unknown";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
                         else if (thePPVModule.m_sObjectCode != ppvModuleCode.ToString())
@@ -843,7 +843,7 @@ namespace Core.ConditionalAccess
                             InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UnKnownPPVModule;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                             InAppRes.m_oBillingResponse.m_sStatusDescription = "This PPVModule does not belong to item";
-                            WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                            WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             return InAppRes.m_oBillingResponse;
                         }
                         PriceReason theReason = PriceReason.UnKnown;
@@ -852,28 +852,28 @@ namespace Core.ConditionalAccess
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
 
-                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(mediaFileID, thePPVModule, siteGUID, couponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, countryCode, languageCode, deviceName);
                         if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                         {
-                            if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
+                            if (p.m_dPrice == price && p.m_oCurrency.m_sCurrencyCD3 == currency)
                             {
-                                string sCustomData = "";
+                                string customData = "";
                                 if (p.m_dPrice != 0)
                                 {
-                                    if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
+                                    if (string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(sUserIP))
                                     {
-                                        sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
+                                        countryCode = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                     }
 
                                     //Create the Custom Data
-                                    sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
-                                        nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
+                                    customData = GetCustomData(relevantSub, thePPVModule, null, siteGUID, price, currency,
+                                        mediaFileID, nMediaID, sPPVModuleCode, string.Empty, couponCode, sUserIP,
+                                        countryCode, languageCode, deviceName, domainId);
 
-                                    log.Debug("CustomData - " + sCustomData);
+                                    log.Debug("CustomData - " + customData);
 
                                     //customdata id
-                                    InAppRes = Billing.Module.InApp_ChargeUser(m_nGroupID, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sRecieptCode);
+                                    InAppRes = Billing.Module.InApp_ChargeUser(m_nGroupID, siteGUID, price, currency, sUserIP, customData, 1, 1, recieptCode);
                                 }
 
                                 if (InAppRes.m_oBillingResponse.m_oStatus == BillingResponseStatus.Success)
@@ -884,14 +884,44 @@ namespace Core.ConditionalAccess
                                         nReciptCode = int.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
                                     }
 
-                                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
+                                    HandleCouponUses(relevantSub, string.Empty, siteGUID, p.m_dPrice, currency, mediaFileID, couponCode, sUserIP,
+                                        countryCode, languageCode, deviceName, true, 0, 0, domainId);
 
                                     DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                                    long purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, nMediaFileID, sSiteGUID, dPrice, sCurrency,
-                                                                                                 thePPVModule.m_oUsageModule != null ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
-                                                                                                 relevantSub != null ? relevantSub.m_sObjectCode : string.Empty, nReciptCode, DateTime.UtcNow, endDate,
-                                                                                                 DateTime.UtcNow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
+
+                                    int maxNumOfViews = thePPVModule.m_oUsageModule != null ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
+                                    string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : string.Empty;
+                                    long billingTransactionId = nReciptCode;
+                                    DateTime startDate = DateTime.UtcNow;
+                                    DateTime entitlementDate = DateTime.UtcNow;
+
+                                    PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
+                                    {
+                                        contentId = mediaFileID,
+                                        siteGuid = siteGUID,
+                                        price = price,
+                                        currency = currency,
+                                        maxNumOfViews = maxNumOfViews,
+                                        customData = customData,
+                                        subscriptionCode = subscriptionCode,
+                                        billingTransactionId = billingTransactionId,
+                                        startDate = startDate,
+                                        endDate = endDate,
+                                        entitlementDate = entitlementDate,
+                                        country = countryCode,
+                                        deviceName = deviceName,
+                                        houseHoldId = domainId,
+                                        billingGuid = null
+                                    };
+
+                                    ppvPurchase.Insert();
+
+                                    long purchaseID = ppvPurchase.purchaseId;
+
+                                    //long purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, nMediaFileID, sSiteGUID, dPrice, sCurrency,
+                                    //                         thePPVModule.m_oUsageModule != null ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
+                                    //                         relevantSub != null ? relevantSub.m_sObjectCode : string.Empty, nReciptCode, DateTime.UtcNow, endDate,
+                                    //                         DateTime.UtcNow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                     //Should update the PURCHASE_ID
 
@@ -911,24 +941,24 @@ namespace Core.ConditionalAccess
                                         // Event data: username/ID, subscription details, is-free-trial, start and end-date
                                         Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
                                             {
-                                                {"MediaFileId", nMediaFileID},
-                                                {"SiteGUID", sSiteGUID},
+                                                {"MediaFileId", mediaFileID},
+                                                {"SiteGUID", siteGUID},
                                                 {"PurchaseId", purchaseID},
-                                                {"CustomData", sCustomData},
+                                                {"CustomData", customData},
                                                 {"BillingTransactionID", sReciept},
                                                 {"PPVModuleCode", sPPVModuleCode},
-                                                {"CouponCode", sCouponCode},
+                                                {"CouponCode", couponCode},
                                             };
 
                                         if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, eventRecordData))
                                         {
                                             log.ErrorFormat("Error while enqueue media file purchase record: mediaFile = {0}" +
-                                            "siteGuid = {1}", nMediaFileID, sSiteGUID);
+                                            "siteGuid = {1}", mediaFileID, siteGUID);
                                         }
                                     }
                                     else
                                     {
-                                        WriteToUserLog(sSiteGUID, "While trying to purchase media file id(CC): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                        WriteToUserLog(siteGUID, "While trying to purchase media file id(CC): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                                     }
                                 }
                             }
@@ -937,7 +967,7 @@ namespace Core.ConditionalAccess
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.PriceNotCorrect;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The price of the request is not the actual price";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InAPP): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InAPP): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                         }
                         else
@@ -947,35 +977,35 @@ namespace Core.ConditionalAccess
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.Free)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is free";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.ForPurchaseSubscriptionOnly)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is for purchase with subscription only";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.SubscriptionPurchased)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = "";
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is already purchased (subscription)";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                             else if (theReason == PriceReason.NotForPurchase)
                             {
                                 InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.Fail;
                                 InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
                                 InAppRes.m_oBillingResponse.m_sStatusDescription = "The media file is not valid for purchased";
-                                WriteToUserLog(sSiteGUID, "While trying to purchase media file id(InApp): " + nMediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
+                                WriteToUserLog(siteGUID, "While trying to purchase media file id(InApp): " + mediaFileID.ToString() + " error returned: " + InAppRes.m_oBillingResponse.m_sStatusDescription);
                             }
                         }
                     }
@@ -986,12 +1016,12 @@ namespace Core.ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at InApp_BaseChargeUserForMediaFile. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                sb.Append(String.Concat(" Price: ", dPrice));
-                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
+                sb.Append(String.Concat(" Site Guid: ", siteGUID));
+                sb.Append(String.Concat(" Price: ", price));
+                sb.Append(String.Concat(" MF ID: ", mediaFileID));
                 sb.Append(String.Concat(" M ID: ", nMediaID));
                 sb.Append(String.Concat(" PPV M C: ", sPPVModuleCode));
-                sb.Append(String.Concat(" Coupon: ", sCouponCode));
+                sb.Append(String.Concat(" Coupon: ", couponCode));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
