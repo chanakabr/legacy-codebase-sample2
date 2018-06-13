@@ -331,7 +331,7 @@ namespace WebAPI.Controllers
                 {
                     KalturaPersonalListSearchFilter pesrsonalListFilter = (KalturaPersonalListSearchFilter)filter;
                     response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language, pesrsonalListFilter.Ksql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
-                        pager.getPageIndex(), pager.getPageSize(), pesrsonalListFilter.GetPartnerListTypeIn());
+                        pager.getPageIndex(), pager.getPageSize(), pesrsonalListFilter.GetPartnerListTypeIn(), responseProfile);
                 }
                 else
                 {

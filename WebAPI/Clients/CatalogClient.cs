@@ -1994,6 +1994,8 @@ namespace WebAPI.Clients
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
 
+                CatalogUtils.UpdateEpgTags(result.Objects, assetsBaseDataList);
+
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 
@@ -2001,7 +2003,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId,
             List<int> mediaTypes, int utcOffset, string freeParam)
         {
@@ -2642,7 +2644,8 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, string kSql, KalturaAssetOrderBy orderBy,
-                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes)
+                                                                KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes,
+                                                                KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
@@ -2668,7 +2671,7 @@ namespace WebAPI.Clients
 
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
                         orderBy, null, null, false, dynamicOrderBy,
-                        groupBy, null);
+                        groupBy, responseProfile);
             }
 
             return response;
