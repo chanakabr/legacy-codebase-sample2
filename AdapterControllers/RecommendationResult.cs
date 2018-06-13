@@ -1,9 +1,5 @@
 ﻿using ApiObjects;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdapterControllers
 {
@@ -11,5 +7,6 @@ namespace AdapterControllers
     {
         public string id;
         public eAssetTypes type;
+        public List<KeyValuePair<string, string>> TagsExtarData;
     }
 }
