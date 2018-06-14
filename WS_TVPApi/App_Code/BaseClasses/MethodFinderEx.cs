@@ -619,9 +619,9 @@ public partial class MethodFinder
 
                 return ret;
             }
-            else if (!isOptional && !(parameterType.Equals(typeof(string))) && (HttpContext.Current.Items.Keys.Cast<string>().ToList()).Contains(methodName, StringComparer.OrdinalIgnoreCase))
+            else if (!isOptional && (HttpContext.Current.Items.Keys.Cast<object>().Where(k => k is string).Cast<string>().Contains(methodName, StringComparer.OrdinalIgnoreCase)))
             {
-                string paramValues = (from key in HttpContext.Current.Items.Keys.Cast<string>().ToList()
+                string paramValues = (from key in HttpContext.Current.Items.Keys.Cast<object>().Where(k => k is string).Cast<string>().ToList()
                                       where string.Compare(key, methodName, true) == 0
                                       select HttpContext.Current.Items[key]).FirstOrDefault<object>().ToString();
 
