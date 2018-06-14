@@ -411,18 +411,18 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
-            Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLanguageCode, string sDeviceName, BillingResponse br, string sCustomData,
-            PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, 
+        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string siteGuid, int householdId,
+            Subscription relevantSub, double price, string currency, string couponCode, string userIP,
+            string countryCode, string languageCode, string deviceName, BillingResponse br, string customData,
+            PPVModule thePPVModule, long mediaFileId, ref long billingTransactionId, ref long purchaseId, bool isDummy, 
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            bool res = true;
+            bool result = true;
 
-            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, dPrice, sCurrency, (int)lMediaFileID, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0, 0, (long)domianID);
+            HandleCouponUses(relevantSub, string.Empty, siteGuid, price, currency, (int)mediaFileId, couponCode, userIP,
+                countryCode, languageCode, deviceName, true, 0, 0, (long)householdId);
 
-            lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
+            billingTransactionId = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
             bool bIsPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
             if (!startDate.HasValue)
@@ -436,55 +436,75 @@ namespace Core.ConditionalAccess
                     endDate = Utils.GetEndDateTime(startDate.Value, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
             }
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, lMediaFileID, sSiteGUID, dPrice, sCurrency,
-                bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
-                relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, startDate.Value, endDate.Value,
-                DateTime.UtcNow, sCountryCd, sLanguageCode, sDeviceName, domianID, billingGuid);
-
-            if (lPurchaseID > 0)
+            int maxNumOfViews = bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
+            
+            PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
             {
+                billingGuid = billingGuid,
+                billingTransactionId = billingTransactionId,
+                contentId = (int)mediaFileId,
+                country = countryCode,
+                couponCode = couponCode,
+                currency = currency,
+                customData = customData,
+                deviceName = deviceName,
+                endDate = endDate,
+                entitlementDate = DateTime.UtcNow,
+                houseHoldId = householdId,
+                maxNumOfViews = maxNumOfViews,
+                price = price,
+                siteGuid = siteGuid,
+                startDate = startDate
+            };
 
-                WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. PPV purchase inserted into ppv_purchases. Purchase ID: {0}", lPurchaseID));
-                if (lBillingTransactionID > 0)
+            bool insertResult = ppvPurchase.Insert();
+
+            purchaseId = ppvPurchase.purchaseId;
+
+            if (purchaseId > 0)
+            {
+                WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. PPV purchase inserted into ppv_purchases. Purchase ID: {0}", purchaseId));
+
+                if (billingTransactionId > 0)
                 {
-                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
+                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId))
                     {
                         // failed to update purchase id in billing_transactions. log
                         #region Logging
                         StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
-                        sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                        sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
-                        sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
-                        sb.Append(String.Concat(" Media File ID: ", lMediaFileID));
+                        sb.Append(String.Concat(" Site Guid: ", siteGuid));
+                        sb.Append(String.Concat(" Purchase ID: ", purchaseId));
+                        sb.Append(String.Concat(" Billing transaction ID: ", billingTransactionId));
+                        sb.Append(String.Concat(" Media File ID: ", mediaFileId));
                         sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                        sb.Append(String.Concat(" Custom Data: ", sCustomData));
+                        sb.Append(String.Concat(" Custom Data: ", customData));
                         log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + sb.ToString());
                         #endregion
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                        UpdatePurchaseIDInExternalBillingTable(billingTransactionId, purchaseId);
                     }
                 }
                 else
                 {
-                    res = false;
+                    result = false;
                     #region Logging
-                    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", lPurchaseID, sSiteGUID, lMediaFileID, sCouponCode));
-                    WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No billing_transactions id. Purchase ID: {0}", lPurchaseID));
+                    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", purchaseId, siteGuid, mediaFileId, couponCode));
+                    WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. No billing_transactions id. Purchase ID: {0}", purchaseId));
                     #endregion
                 }
             }
             else
             {
-                res = false;
+                result = false;
                 #region Logging
-                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", lBillingTransactionID, sSiteGUID, sCouponCode, lMediaFileID));
-                WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No purchase id. Media File ID:  {0} , Coupon Code: {1}", lMediaFileID, sCouponCode));
+                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", billingTransactionId, siteGuid, couponCode, mediaFileId));
+                WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. No purchase id. Media File ID:  {0} , Coupon Code: {1}", mediaFileId, couponCode));
                 #endregion
             }
 
-            return res;
+            return result;
         }
 
         /*
