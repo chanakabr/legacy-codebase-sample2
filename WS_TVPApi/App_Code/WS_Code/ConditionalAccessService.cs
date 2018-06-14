@@ -1216,7 +1216,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Issues a record series request by SeriesId")]
         [PrivateMethod]
         public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int channelId,
-             int? seasonNumber = -1, int? seasonSeed = -1, int? episodeSeed = -1, List<string> lookupCriteria = null)
+             int? seasonNumber, int? seasonSeed, int? episodeSeed, List<string> lookupCriteria = null)
         {
             NPVRResponse res = null;
 
@@ -1228,6 +1228,15 @@ namespace TVPApiServices
             {
                 try
                 {
+                    if (!seasonNumber.HasValue)
+                        seasonNumber = -1;
+
+                    if (!seasonSeed.HasValue)
+                        seasonSeed = -1;
+
+                    if (!episodeSeed.HasValue)
+                        episodeSeed = -1;
+
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesBySeriesId(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
                         seriesId, seasonNumber.Value, seasonSeed.Value, episodeSeed.Value, channelId, lookupCriteria);
                 }
@@ -1277,7 +1286,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
-        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId = null, string bySeasonNumber = null, string byChannelId = null,
+        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId = "", string bySeasonNumber = "", string byChannelId = "",
             List<string> byStatus = null)
         {
             NPVRResponse res = null;
@@ -1299,7 +1308,7 @@ namespace TVPApiServices
                     {
                         status = byStatus.ConvertAll(delegate (string x)
                         {
-                            return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x);
+                            return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x, true);
                         });
                     }
 

@@ -34,10 +34,10 @@ public partial class MethodFinder
         /// <summary>
         /// Method to be execute when load parameters object values
         /// </summary>
-        /// <param name="targetParameter">the parameter info</param>
+        /// <param name="parameterType">the type of the parameter</param>
         /// <param name="methodName">the parameter name</param>
         /// <returns>return the object representing the value for the parameter</returns>
-        public abstract object InitilizeParameter(ParameterInfo targetParameter, string methodName);
+        public abstract object InitilizeParameter(Type parameterType, String methodName);
         /// <summary>
         /// Method to be executed when finished loading all values for all parameter.
         /// </summary>
@@ -455,16 +455,15 @@ public partial class MethodFinder
 
     private class ParameterDefaultInit : ParameterInitBase
     {
-
-        public override object InitilizeParameter(ParameterInfo targetParameter, string methodName)
+        public override object InitilizeParameter(Type parameterType, String methodName)
         {
-            object requeredObjectToThisParam = CreateObjectInstance(targetParameter.ParameterType);
-            if (!targetParameter.ParameterType.Namespace.StartsWith("System") && targetParameter.ParameterType.IsClass && !targetParameter.ParameterType.IsArray)
+            object requeredObjectToThisParam = CreateObjectInstance(parameterType);
+            if (!parameterType.Namespace.StartsWith("System") && parameterType.IsClass && !parameterType.IsArray)
             {
                 foreach (PropertyInfo propInfo in requeredObjectToThisParam.GetType().GetProperties())//check if object and properties of type objects and create them as well
                 {
                     if (propInfo.PropertyType.Name == "String") propInfo.SetValue(requeredObjectToThisParam, String.Empty, null);
-                    else if (propInfo.PropertyType.IsClass) propInfo.SetValue(requeredObjectToThisParam, InitilizeParameter(targetParameter, ""), null);
+                    else if (propInfo.PropertyType.IsClass) propInfo.SetValue(requeredObjectToThisParam, InitilizeParameter(propInfo.PropertyType, ""), null);
                 }
             }
 
@@ -607,46 +606,37 @@ public partial class MethodFinder
             } while (false);
         }
 
-        public override object InitilizeParameter(ParameterInfo targetParameter, String methodName)
+        public override object InitilizeParameter(Type parameterType, String methodName)
         {
+            bool isOptional = (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Nullable<>));
             if (HttpContext.Current.Items.Contains(methodName))
             {
                 string paramValues = HttpContext.Current.Items[methodName].ToString();//.Replace("'","\"");
 
-                InspectObjectForEnums(ref paramValues, targetParameter.ParameterType, methodName);//replace enum values before deserialize
+                InspectObjectForEnums(ref paramValues, parameterType, methodName);//replace enum values before deserialize
 
-                object ret = TypeDeSerialize(paramValues, targetParameter.ParameterType);
+                object ret = TypeDeSerialize(paramValues, parameterType);
 
                 return ret;
             }
-            else if (!targetParameter.IsOptional && (HttpContext.Current.Items.Keys.Cast<string>().ToList()).Contains(methodName, StringComparer.OrdinalIgnoreCase))
+            else if (!isOptional && (HttpContext.Current.Items.Keys.Cast<object>().Where(k => k is string).Cast<string>().Contains(methodName, StringComparer.OrdinalIgnoreCase)))
             {
-                string paramValues = (from key in HttpContext.Current.Items.Keys.Cast<string>().ToList()
+                string paramValues = (from key in HttpContext.Current.Items.Keys.Cast<object>().Where(k => k is string).Cast<string>().ToList()
                                       where string.Compare(key, methodName, true) == 0
                                       select HttpContext.Current.Items[key]).FirstOrDefault<object>().ToString();
 
-                InspectObjectForEnums(ref paramValues, targetParameter.ParameterType, methodName);//replace enum values before deserialize
+                InspectObjectForEnums(ref paramValues, parameterType, methodName);//replace enum values before deserialize
 
-                object ret = TypeDeSerialize(paramValues, targetParameter.ParameterType);
-
-
+                object ret = TypeDeSerialize(paramValues, parameterType);
 
                 return ret;
             }
             else
             {
-                if (targetParameter.ParameterType.Equals(typeof(int))) return 0;
-                if (targetParameter.IsOptional)
-                    if (targetParameter.HasDefaultValue)
-                    {
-                        return targetParameter.DefaultValue;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                if (targetParameter.ParameterType.Equals(typeof(string))) return string.Empty;
-                if (targetParameter.ParameterType.IsValueType && targetParameter.ParameterType.IsPrimitive) return Activator.CreateInstance(targetParameter.ParameterType, false);
+                if (isOptional) return null;
+                if (parameterType.Equals(typeof(int))) return 0;                
+                if (parameterType.Equals(typeof(string))) return string.Empty;
+                if (parameterType.IsValueType && parameterType.IsPrimitive) return Activator.CreateInstance(parameterType, false);
                 //throw new Exception(string.Format("Error with '{0}' parameter.", methodName));
                 return null;
             }
