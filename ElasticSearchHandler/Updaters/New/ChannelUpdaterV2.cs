@@ -227,7 +227,6 @@ namespace ElasticSearchHandler.Updaters
                                 result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQuery);
                             }
                         }
-
                     }
                 }
             }

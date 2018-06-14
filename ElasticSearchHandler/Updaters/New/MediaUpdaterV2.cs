@@ -151,22 +151,34 @@ namespace ElasticSearchHandler.Updaters
 
                                 if (media != null)
                                 {
-                                    string serializedMedia;
-
-                                    serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
-
-                                    string type = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
-
-                                    if (!string.IsNullOrEmpty(serializedMedia))
+                                    // check if the media is turned off and the requested action is on/update
+                                    // in this case there is no point in indexing the media - it is probably caused by some lag in remote tasks/rabbit
+                                    if ((this.Action == ApiObjects.eAction.On ||
+                                        this.Action == ApiObjects.eAction.Update) &&
+                                        media.m_nIsActive == 0)
                                     {
-                                        tempResult = esApi.InsertRecord(groupID.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
-                                        result &= tempResult;
+                                        log.WarnFormat("Did not update media in ElasticSearch: media has is_active=0 but action is On/Update" +
+                                            " groupId = {0}, mediaId = {1}", groupID, media.m_nMediaID);
+                                    }
+                                    else
+                                    {
+                                        string serializedMedia;
 
-                                        if (!tempResult)
+                                        serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
+
+                                        string type = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+
+                                        if (!string.IsNullOrEmpty(serializedMedia))
                                         {
-                                            log.Error("Error - " + string.Format(
-                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
-                                                groupID, type, media.m_nMediaID, serializedMedia));
+                                            tempResult = esApi.InsertRecord(groupID.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
+                                            result &= tempResult;
+
+                                            if (!tempResult)
+                                            {
+                                                log.Error("Error - " + string.Format(
+                                                    "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                                    groupID, type, media.m_nMediaID, serializedMedia));
+                                            }
                                         }
                                     }
                                 }
