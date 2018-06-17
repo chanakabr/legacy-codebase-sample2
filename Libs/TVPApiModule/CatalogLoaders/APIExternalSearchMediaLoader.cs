@@ -111,22 +111,22 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            MediaIdsStatusResponse response = (MediaIdsStatusResponse)m_oResponse;
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
 
-            if (response.Status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
+            if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {
                 result = new Objects.Responses.UnifiedSearchResponse();
-                result.Status = new Objects.Responses.Status((int)response.Status.Code, response.Status.Message);
+                result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
                 return result;
             }
 
             // Add the status and the number of total items to the response
             result = new Objects.Responses.UnifiedSearchResponse();
-            result.Status = new Objects.Responses.Status((int)response.Status.Code, response.Status.Message);
+            result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
             result.TotalItems = response.m_nTotalItems;
-            result.RequestId = response.RequestId;
+            result.RequestId = response.requestId;
 
-            if (response.assetIds != null && response.assetIds.Count > 0)
+            if (response.searchResults != null && response.searchResults.Count > 0)
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
 
@@ -136,9 +136,9 @@ namespace TVPApiModule.CatalogLoaders
                 GetAssets(cacheKey, response, out medias, out epgs);
 
                 // add extraData to tags only for EPG
-                Util.UpdateEPGTags(epgs, response.assetIds);
+                Util.UpdateEPGTags(epgs, response.searchResults);
 
-                result.Assets = OrderAndCompleteResults(response.assetIds, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
+                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
             }
             else
             {
@@ -148,7 +148,7 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsStatusResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
+        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
             CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
@@ -158,7 +158,7 @@ namespace TVPApiModule.CatalogLoaders
             List<long> missingMediaIds = null;
             List<long> missingEpgIds = null;
 
-            if (!GetAssetsFromCache(response.assetIds, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+            if (!GetAssetsFromCache(response.searchResults, out medias, out epgs, out missingMediaIds, out missingEpgIds))
             {
                 List<MediaObj> mediasFromCatalog;
                 List<ProgramObj> epgsFromCatalog;
