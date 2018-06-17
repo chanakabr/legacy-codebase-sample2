@@ -28,6 +28,11 @@ namespace WebAPI.Managers.Scheme
 
         internal void Validate(string typeName, string parameterName, object value)
         {
+            if (value == null)
+            {
+                return;
+            }
+
             string name = string.Format("{0}.{1}", typeName, parameterName);
 
             base.Validate(name, value);

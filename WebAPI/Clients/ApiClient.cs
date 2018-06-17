@@ -6,6 +6,8 @@ using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -3876,10 +3878,17 @@ namespace WebAPI.Clients
         {
             AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
 
+            SlimAsset slimAsset = null;
+
+            if (filter.AssetApplied != null)
+            {
+                slimAsset = Mapper.Map<SlimAsset>(filter.AssetApplied);
+            }
+            
             KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 
             Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
-               Core.Api.Module.GetAssetRules(groupId, assetRuleConditionType);
+               Core.Api.Module.GetAssetRules(groupId, assetRuleConditionType, slimAsset);
 
             KalturaGenericListResponse<KalturaAssetRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetRule, AssetRule>(getAssetRulesFunc);

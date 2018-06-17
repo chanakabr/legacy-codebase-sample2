@@ -81,6 +81,16 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
 
+                if (string.IsNullOrEmpty(personalList.Name) || string.IsNullOrWhiteSpace(personalList.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+
+                if (string.IsNullOrEmpty(personalList.Ksql) || string.IsNullOrWhiteSpace(personalList.Ksql))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+                }
+
                 return ClientsManager.NotificationClient().AddPersonalListItemToUser(groupId, userId, personalList);
             }
             catch (ClientException ex)

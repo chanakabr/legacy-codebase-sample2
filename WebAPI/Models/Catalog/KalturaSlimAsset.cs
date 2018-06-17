@@ -17,7 +17,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaSlimAsset : KalturaOTTObject
     {
-
         /// <summary>
         /// Internal identifier of the asset
         /// </summary>
