@@ -5288,5 +5288,83 @@ namespace DAL
         }
 
         #endregion
+
+        public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
+
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var response = cbManager.Get<string>(deviceConcurrencyPriorityKey, true);
+
+                    if (response != null)
+                    {
+                        log.DebugFormat("successfully received DeviceConcurrencyPriority. number of tries: {0}/{1}. key {2}",
+                                        numOfTries, NUM_OF_TRIES, string.Join(", ", deviceConcurrencyPriorityKey));
+                        return JsonConvert.DeserializeObject<DeviceConcurrencyPriority>(response, jsonSerializerSettings);
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while GetDeviceConcurrencyPriorityCB. number of tries: {0}/{1}. keys: {2}",
+                                    numOfTries, NUM_OF_TRIES, string.Join(", ", deviceConcurrencyPriorityKey));
+                    Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetDeviceConcurrencyPriorityCB. keys: {0}, ex: {1}",
+                                string.Join(", ", deviceConcurrencyPriorityKey), ex);
+            }
+
+            return null;
+        }
+
+        public static bool SaveDeviceConcurrencyPriorityCB(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriority)
+        {
+            if (deviceConcurrencyPriority != null)
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                int numOfTries = 0;
+                string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
+
+                try
+                {
+                    var serializeObject = JsonConvert.SerializeObject(deviceConcurrencyPriority, jsonSerializerSettings);
+
+                    while (numOfTries < NUM_OF_INSERT_TRIES)
+                    {
+                        if (cbManager.Set<string>(deviceConcurrencyPriorityKey, serializeObject))
+                        {
+                            log.DebugFormat("successfully set DeviceConcurrencyPriority. number of tries: {0}/{1}. groupId: {2}.",
+                                                numOfTries, NUM_OF_INSERT_TRIES, groupId);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while set DeviceConcurrencyPriority. number of tries: {0}/{1}. groupId: {2}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, groupId);
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to set DeviceConcurrencyPriority. groupId: {0}, ex: {1}", groupId, ex);
+                }
+            }
+
+            return false;
+        }
+
+        public static string GetDeviceConcurrencyPriorityKey(int groupId)
+        {
+            return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
+        }
     }
 }

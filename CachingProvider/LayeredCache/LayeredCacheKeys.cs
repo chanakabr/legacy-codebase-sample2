@@ -332,7 +332,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("asset_rules_by_assetId_{0}_assetType_{1}", assetId, assetType);
         }
-
+        
         public static string GetAssetUserRuleIdsGroupKey(int groupId)
         {
             return string.Format("asset_user_rule_ids_groupId_{0}", groupId);
@@ -566,6 +566,16 @@ namespace CachingProvider.LayeredCache
         public static string GetEpgInvalidationKey(int groupId, long epgId)
         {
             return string.Format("invalidationKeyEpg_groupId_{0}_epgId_{1}", groupId, epgId);
+        }
+        
+        public static string GetDeviceConcurrencyPriorityKey(int groupId)
+        {
+            return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
+        }
+
+        public static string GetDeviceConcurrencyPriorityInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_device_concurrency_Priority_groupId_{0}", groupId);
         }
 
         #endregion
