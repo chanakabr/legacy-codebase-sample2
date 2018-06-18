@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
 using ODBCWrapper;
 using Tvinci.Core.DAL;
@@ -2200,7 +2201,6 @@ namespace DAL
         {
             var sp = new StoredProcedure("Insert_SSOAdapter");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", adapterDetails.GroupId);
             sp.AddParameter("@name", adapterDetails.Name);
             sp.AddParameter("@isActive", adapterDetails.IsActive);
@@ -2217,7 +2217,7 @@ namespace DAL
             return adapterDetails;
         }
 
-        public static bool UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        public static SSOAdapter UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
         {
             var updateAdapterSp = new StoredProcedure("Update_SSOAdapter");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -2231,21 +2231,64 @@ namespace DAL
             updateAdapterSp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
             updateAdapterSp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
 
-            updateAdapterSp.ExecuteNonQuery();
+            var resp = updateAdapterSp.ExecuteDataSet();
+            var updatedSettings = MergeSSOAdapaterSettings(adapterDetails.GroupId, adapterDetails.Id.Value, updaterId, adapterDetails.Settings);
 
-            MergeSSOAdapaterSettings(adapterDetails.GroupId, adapterDetails.Id.Value, updaterId, adapterDetails.Settings);
+            var updatedAdapater = resp.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
+            if (updatedAdapater == null) { return null; }
 
-            return true;
+            updatedAdapater.Settings = updatedSettings;
+            return updatedAdapater;
         }
 
-        private static void MergeSSOAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<SSOAdapterParam> settings)
+        private static IList<SSOAdapterParam> MergeSSOAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<SSOAdapterParam> settings)
         {
-            var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList(); var mergeAdapterSettingsSp = new StoredProcedure("MergeSSOAdapterSettings");
+            var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+            var mergeAdapterSettingsSp = new StoredProcedure("Merge_SSOAdapterSettings");
             mergeAdapterSettingsSp.SetConnectionKey("USERS_CONNECTION_STRING");
             mergeAdapterSettingsSp.AddParameter("@groupId", groupId);
             mergeAdapterSettingsSp.AddParameter("@adapterId", adapaterId);
             mergeAdapterSettingsSp.AddParameter("@updaterId", updaterId);
             mergeAdapterSettingsSp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+            var resp = mergeAdapterSettingsSp.ExecuteDataSet();
+            var ssoParams = resp.Tables[0].ToList<SSOAdapterParam>();
+            return ssoParams;
+        }
+
+        public static bool DeleteSSOAdapter(int ssoAdapterId, int updaterId)
+        {
+            var updateAdapterSp = new StoredProcedure("Delete_SSOAdapter");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var updatedRows = updateAdapterSp.ExecuteReturnValue<int>();
+            return updatedRows > 0;
+        }
+
+        public static SSOAdapter SetSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        {
+            var updateAdapterSp = new StoredProcedure("Set_SSOAdapterSecret");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
+            updateAdapterSp.AddParameter("@sharedSecret", sharedSecret);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var dsResult = updateAdapterSp.ExecuteDataSet();
+            var updatedAdapater = dsResult.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
+            return updatedAdapater;
+        }
+
+        public static SSOAdapter GetSSOAdapterByExternalId(string ssoAdapterExternalId)
+        {
+            var updateAdapterSp = new StoredProcedure("Get_SSOAdapterByExternalId");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@externalId", ssoAdapterExternalId);
+
+            var dsResult = updateAdapterSp.ExecuteDataSet();
+            var updatedAdapater = dsResult.Tables[0]?.ToList<SSOAdapter>().FirstOrDefault();
+            return updatedAdapater;
+
         }
     }
 
