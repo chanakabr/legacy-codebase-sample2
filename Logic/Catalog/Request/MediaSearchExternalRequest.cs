@@ -45,7 +45,7 @@ namespace Core.Catalog.Request
         {
             m_sQuery = query;
             m_sSiteGuid = sSiteGuid;
-            m_nUtcOffset = utcOffset;            
+            m_nUtcOffset = utcOffset;
             m_sDeviceID = filter.m_sDeviceId;
             m_nMediaTypes = filterTypeIDs;
             m_nMediaTypes = filterTypeIDs;
@@ -65,7 +65,7 @@ namespace Core.Catalog.Request
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             MediaSearchExternalRequest mediaSearchRequest = oBaseRequest as MediaSearchExternalRequest;
-            MediaIdsStatusResponse mediaResponse = new MediaIdsStatusResponse();
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
 
             try
             {
@@ -80,34 +80,35 @@ namespace Core.Catalog.Request
                 int totalItems;
                 List<RecommendationResult> results;
 
-                Status status = CatalogLogic.GetExternalSearchAssets(mediaSearchRequest, out totalItems, out results, out mediaResponse.RequestId);
+                Status status = CatalogLogic.GetExternalSearchAssets(mediaSearchRequest, out totalItems, out results, out response.requestId);
                 if (status.Code != 0)
                 {
-                    mediaResponse.Status = status;
-                    return mediaResponse;
+                    response.status = status;
+                    return response;
                 }
 
                 ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
                 var allRecommendations = results.Select(result =>
-                    new UnifiedSearchResult()
-                    {
-                        AssetId = result.id,
-                        AssetType = (eAssetTypes)result.type,
-                        m_dUpdateDate = DateTime.MinValue
-                    }
-                    ).ToList();
+                new RecommendationSearchResult()
+                {
+                    AssetId = result.id,
+                    AssetType = (eAssetTypes)result.type,
+                    m_dUpdateDate = DateTime.MinValue,
+                    TagsExtraData = result.TagsExtarData,
+                }
+                ).ToList();
 
                 List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
                 int tempTotalItems = 0;
                 if (allRecommendations != null && allRecommendations.Count > 0)
                     searchResultsList =
-                        searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations, ref tempTotalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
+                        searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
 
-                mediaResponse.m_nTotalItems = totalItems;
-                mediaResponse.assetIds = searchResultsList;
+                response.m_nTotalItems = totalItems;
+                response.searchResults = searchResultsList;
 
-                return mediaResponse;
+                return response;
             }
             catch (Exception ex)
             {
