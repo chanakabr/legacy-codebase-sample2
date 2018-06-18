@@ -187,8 +187,8 @@ namespace KLogMonitor
                             if (HttpContext.Current.Items[Constants.TOPIC] != null)
                                 this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
 
-                            if (HttpContext.Current.Items[Constants.KS] != null)
-                                this.Ks = HttpContext.Current.Items[Constants.KS].ToString();
+                            //if (HttpContext.Current.Items[Constants.KS] != null)
+                            //    this.Ks = HttpContext.Current.Items[Constants.KS].ToString();
                         }
                         break;
                 }
