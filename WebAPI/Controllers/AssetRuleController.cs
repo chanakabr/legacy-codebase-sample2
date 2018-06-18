@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(assetRule.Name))
+                if (string.IsNullOrEmpty(assetRule.Name) || string.IsNullOrWhiteSpace(assetRule.Name))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }

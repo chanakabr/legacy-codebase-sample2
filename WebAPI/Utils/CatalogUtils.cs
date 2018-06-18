@@ -1,26 +1,26 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Catalog.Response;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
 using System.Web;
-using AutoMapper;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
-using WebAPI.ObjectsConvertor;
 using WebAPI.Models.General;
-using KLogMonitor;
-using WebAPI.Managers.Models;
-using WebAPI.Managers;
-using Core.Catalog;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using ApiObjects.SearchObjects;
-using ApiObjects;
-using Catalog.Response;
+using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Utils
@@ -266,7 +266,7 @@ namespace WebAPI.Utils
 
             return result;
         }
-        
+
         internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
             var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
@@ -585,7 +585,7 @@ namespace WebAPI.Utils
             result = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
             return result;
         }
-        
+
         //internal static KalturaAssetListResponse GetBundleAssets(BundleAssetsRequest request, string key, int cacheDuration)
         //{
 
@@ -724,7 +724,7 @@ namespace WebAPI.Utils
                 assetTypes = assetTypes,
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId
-            };           
+            };
 
             // fire unified search request
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
@@ -814,14 +814,14 @@ namespace WebAPI.Utils
             return channelResponse;
         }
 
-        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, 
-            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group, 
+        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language,
+            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group,
             string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
             // build request
-             request = new MediaRelatedRequest()
+            request = new MediaRelatedRequest()
             {
                 m_sSignature = signature,
                 m_sSignString = signString,
@@ -884,9 +884,12 @@ namespace WebAPI.Utils
 
                         foreach (var extraData in recommendationSearchResult.TagsExtraData)
                         {
-                            asset.Tags.Add(extraData.Key, new KalturaMultilingualStringValueArray());
-                            LanguageContainer lc = new LanguageContainer() { m_sValue = extraData.Value };
-                            asset.Tags[extraData.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(new LanguageContainer[] { lc }) });
+                            if (!asset.Tags.ContainsKey(extraData.Key))
+                            {
+                                asset.Tags.Add(extraData.Key, new KalturaMultilingualStringValueArray());
+                                LanguageContainer lc = new LanguageContainer() { m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(), m_sValue = extraData.Value };
+                                asset.Tags[extraData.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(new LanguageContainer[1] { lc }) });
+                            }
                         }
                     }
                 }

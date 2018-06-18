@@ -889,12 +889,6 @@ namespace WebAPI.Filters
                         }
                     }
 
-                    //// TODO SHIR - DONT FORGET IT
-                    //if (value == null)
-                    //{
-                    //    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, name);
-                    //}
-
                     foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
                     {
                         if (schemaArgument.Name.Equals(name))

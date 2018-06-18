@@ -7,6 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -22,13 +23,22 @@ namespace WebAPI.Models.API
     public class KalturaAssetRuleFilter : KalturaFilter<KalturaAssetRuleOrderBy>
     {
         /// <summary>
-        /// Indicates if to get the asset user rule list for the attached user or for the entire group
+        /// Indicates which asset rule list to return by it KalturaRuleConditionType 
         /// </summary>
         [DataMember(Name = "conditionsContainType")]
         [JsonProperty("conditionsContainType")]
-        [XmlElement(ElementName = "conditionsContainType", IsNullable = true)]
+        [XmlElement(ElementName = "conditionsContainType")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaRuleConditionType ConditionsContainType { get; set; }
+
+        /// <summary>
+        /// Indicates if to return an asset rule list that related to specific asset
+        /// </summary>
+        [DataMember(Name = "assetApplied")]
+        [JsonProperty("assetApplied")]
+        [XmlElement(ElementName = "assetApplied", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaSlimAsset AssetApplied { get; set; }
 
         public KalturaAssetRuleFilter()
         {
@@ -40,7 +50,21 @@ namespace WebAPI.Models.API
             if (!KalturaRuleConditionType.CONCURRENCY.Equals(ConditionsContainType) &&
                 !KalturaRuleConditionType.COUNTRY.Equals(ConditionsContainType))
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionTypeEqual");
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
+            }
+
+            if (AssetApplied != null)
+            {
+                long assetId;
+                if (!long.TryParse(AssetApplied.Id, out assetId))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.assetApplied.id");
+                }
+
+                if (!KalturaAssetType.epg.Equals(AssetApplied.Type) && !KalturaAssetType.media.Equals(AssetApplied.Type))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.assetApplied.type");
+                }
             }
         }
 

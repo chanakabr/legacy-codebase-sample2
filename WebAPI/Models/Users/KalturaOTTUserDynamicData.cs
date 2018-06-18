@@ -42,5 +42,27 @@ namespace WebAPI.Models.Users
         [XmlElement(ElementName = "value")]
         public  KalturaStringValue Value { get; set; }
     }
+
+    [DataContract(Name = "userDynamicData")]
+    public class KalturaOTTUserDynamicDataList : KalturaOTTObject
+    {
+        /// <summary>
+        /// User identifier
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string UserId { get; set; }
+
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlArray(ElementName = "dynamicData", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public Dictionary<string, KalturaStringValue> DynamicData { get; set; }
+    }
 }
 

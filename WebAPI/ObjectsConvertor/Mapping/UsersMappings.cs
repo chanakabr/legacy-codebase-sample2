@@ -218,14 +218,19 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
 
-            Mapper.CreateMap<SSOAdapter, KalturaSSOAdapterProfile>()
+
+            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicDataList>()
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+            
+ 			Mapper.CreateMap<SSOAdapter, KalturaSSOAdapterProfile>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.ToDictionary(k => k.Key, v => v.Value) : null));
 
             Mapper.CreateMap<KalturaSSOAdapterProfile, SSOAdapter>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertSsoAdapterSettings(src)));
         }
 
-        private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)
+		private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)
         {
             if (src.Settings == null) { return new List<SSOAdapterParam>(); }
             var settingsList = src.Settings.Select(s => new SSOAdapterParam
