@@ -10493,6 +10493,16 @@
             Value
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicDataList.UserId">
+            <summary>
+            User identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicDataList.DynamicData">
+            <summary>
+            Dynamic data
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaUserInterestListResponse">
             <summary>
             User interest list

@@ -117,7 +117,7 @@ namespace WebAPI.Models.Notification
             foreach (string stringValue in stringValues)
             {
                 int value;
-                if (int.TryParse(stringValue, out value) && value != 0)
+                if (int.TryParse(stringValue, out value))
                 {
                     values.Add(value);
                 }
