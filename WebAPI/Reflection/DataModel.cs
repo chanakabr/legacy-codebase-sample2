@@ -3036,6 +3036,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaConcurrencyPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DeviceFamilyIds":
+                            return "deviceFamilyIds";
+                        case "PriorityByFIFO":
+                            return "priorityByFIFO";
+                    }
+                    break;
+                    
                 case "KalturaCondition":
                     switch(property.Name)
                     {
@@ -4914,6 +4924,14 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "ParentalRule":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPartnerConfigurationListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;

@@ -584,12 +584,12 @@ namespace WebAPI.Clients
         {
             Status response = null;
             
-
             try
             {
+                PartnerConfiguration request = Mapper.Map<PartnerConfiguration>(partnerConfig);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    PartnerConfiguration request = Mapper.Map<PartnerConfiguration>(partnerConfig);
                     response = Core.Billing.Module.SetPartnerConfiguration(groupId, request);
                 }
             }

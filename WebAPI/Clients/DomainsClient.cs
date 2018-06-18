@@ -13,6 +13,10 @@ using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using WebAPI.Models.Partner;
+using ApiObjects.Rules;
+using ApiObjects.Response;
+using WebAPI.Models.General;
 
 namespace WebAPI.Clients
 {
@@ -62,7 +66,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         internal void EnrichHouseHold(List<KalturaHouseholdWithHolder> with, KalturaHousehold household, int groupId)
         {
             // get users ids lists

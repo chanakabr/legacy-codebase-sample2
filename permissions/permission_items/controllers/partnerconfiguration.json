@@ -9,6 +9,16 @@
       "service": "PartnerConfiguration",
       "action": "Update",
       "type": "Action"
+    },
+	{
+      "permissions": [
+        "Manager"
+      ],
+      "excluded_permissions": [],
+      "name": "PartnerConfiguration_List",
+      "service": "PartnerConfiguration",
+      "action": "List",
+      "type": "Action"
     }
   ],
   "type": "Action"

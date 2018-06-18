@@ -289,6 +289,8 @@
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
+    <Compile Include="Models\Partner\KalturaConcurrencyPartnerConfig.cs" />
+    <Compile Include="Models\Partner\KalturaPartnerConfigurationFilter.cs" />
     <Compile Include="Models\API\KalturaAssetUserRule.cs" />
     <Compile Include="Models\API\KalturaAssetRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />

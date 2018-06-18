@@ -2248,6 +2248,13 @@
             </remarks>
             <param name="external_channel">External channel Object</param>       
         </member>
+        <member name="M:WebAPI.Controllers.PartnerConfigurationController.List(WebAPI.Models.Partner.KalturaPartnerConfigurationFilter)">
+            <summary>
+            Get the list of PartnerConfiguration
+            </summary>
+            <param name="filter">filter by PartnerConfiguration type</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.PartnerConfigurationController.Update(WebAPI.Models.Partner.KalturaPartnerConfiguration)">
             <summary>
             Update Partner Configuration
@@ -5566,6 +5573,71 @@
         <member name="P:WebAPI.Models.API.KalturaPinResponse.Type">
             <summary>
             PIN type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig">
+            <summary>
+            Partner concurrency configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.DeviceFamilyIds">
+            <summary>
+            Comma separated list of device Family Ids order by their priority.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.PriorityByFIFO">
+            <summary>
+            Priority By FIFO
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
+            <summary>
+            Partner configuration filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.partnerConfigurationType">
+            <summary>
+            Indicates which partner configuration list to return
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
+            <summary>
+            Partner billing configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
+            <summary>
+            configuration value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
+            <summary>
+            Holder object for channel enrichment enum
+            </summary>    
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
+            <summary>
+            Partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
+            <summary>
+            Partner  base configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationListResponse.Objects">
+            <summary>
+            Partner Configurations
             </summary>
         </member>
         <!-- Badly formed XML comment ignored for member "T:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter" -->
@@ -11986,41 +12058,6 @@
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
-            <summary>
-            Partner billing configuration
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
-            <summary>
-            configuration value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
-            <summary>
-            partner configuration type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
-            <summary>
-            partner configuration type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
-            <summary>
-            Holder object for channel enrichment enum
-            </summary>    
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
-            <summary>
-            Partner configuration type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
-            <summary>
-            Partner  base configuration
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">

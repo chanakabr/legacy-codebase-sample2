@@ -555,6 +555,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             #endregion
+            
         }
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)

@@ -22,6 +22,7 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using WebAPI.Models.Partner;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
@@ -3969,6 +3970,34 @@ namespace WebAPI.Clients
             Func<Status> deleteAssetUserRuleFromUserFunc = () => Core.Api.Module.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
             ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFromUserFunc);
         }
+
         #endregion
+
+        internal KalturaPartnerConfigurationListResponse GetConcurrencyPartner(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<DeviceConcurrencyPriority>> getConcurrencyPartnerFunc = () =>
+                Core.Api.Module.GetConcurrencyPartner(groupId);
+
+            KalturaGenericListResponse<KalturaConcurrencyPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>(getConcurrencyPartnerFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal bool UpdateConcurrencyPartner(int groupId, KalturaConcurrencyPartnerConfig partnerConfig)
+        {
+            Func<DeviceConcurrencyPriority, Status> updateConcurrencyPartnerFunc = 
+                (DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate) => 
+                    Core.Api.Module.UpdateConcurrencyPartner(groupId, deviceConcurrencyPriorityToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>(updateConcurrencyPartnerFunc, partnerConfig);
+
+            return true;
+        }
     }
 }
