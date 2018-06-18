@@ -1704,7 +1704,7 @@ namespace Core.Api
             }
             return EPG_ResponseMeta;
         }
-
+        
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
             List<EPGDictionary> EPG_ResponseMeta = new List<EPGDictionary>();
@@ -10852,6 +10852,77 @@ namespace Core.Api
             }
 
             return groupRules;
+        }
+
+        internal static DeviceConcurrencyPriority GetDeviceConcurrencyPriority(int groupId)
+        {
+            DeviceConcurrencyPriority deviceConcurrencyPriority = null;
+            string deviceConcurrencyPriorityKey = LayeredCacheKeys.GetDeviceConcurrencyPriorityKey(groupId);
+
+            if (!LayeredCache.Instance.Get<DeviceConcurrencyPriority>(deviceConcurrencyPriorityKey,
+                                                                    ref deviceConcurrencyPriority,
+                                                                    GetDeviceConcurrencyPriorityCB,
+                                                                    new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                    groupId,
+                                                                    LayeredCacheConfigNames.GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB,
+                                                                    new List<string>() { LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId) }))
+            {
+                log.ErrorFormat("GetDeviceConcurrencyPriority - GetDeviceConcurrencyPriorityCB - Failed get data from cache. groupId: {0}", groupId);
+                return null;
+            }
+
+            return deviceConcurrencyPriority;
+        }
+
+        internal static Status UpdateDeviceConcurrencyPriority(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // upsert DeviceConcurrencyPriority            
+                if (!ApiDAL.SaveDeviceConcurrencyPriorityCB(groupId, deviceConcurrencyPriorityToUpdate))
+                {
+                    log.ErrorFormat("Error while saving DeviceConcurrencyPriority. groupId: {0}", groupId);
+                    return response;
+                }
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateDeviceConcurrencyPriority failed ex={0}, groupId={1}", ex, groupId);
+            }
+
+            return response;
+        }
+
+        private static Tuple<DeviceConcurrencyPriority, bool> GetDeviceConcurrencyPriorityCB(Dictionary<string, object> funcParams)
+        {
+            DeviceConcurrencyPriority deviceConcurrencyPriority = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            deviceConcurrencyPriority = ApiDAL.GetDeviceConcurrencyPriorityCB(groupId.Value);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDeviceConcurrencyPriorityCB faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DeviceConcurrencyPriority, bool>(deviceConcurrencyPriority, deviceConcurrencyPriority != null);
         }
     }
 }

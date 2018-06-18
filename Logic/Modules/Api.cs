@@ -1916,7 +1916,26 @@ namespace Core.Api
         {
             return Core.Api.api.GetAssetRule(groupId, assetRuleId);
         }
-        
+
         #endregion
+
+        public static GenericListResponse<DeviceConcurrencyPriority> GetConcurrencyPartner(int groupId)
+        {
+            GenericListResponse<DeviceConcurrencyPriority> response = new GenericListResponse<DeviceConcurrencyPriority>();
+            var deviceConcurrencyPriority = Core.Api.api.GetDeviceConcurrencyPriority(groupId);
+
+            if (deviceConcurrencyPriority != null)
+            {
+                response.Objects.Add(deviceConcurrencyPriority);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        public static Status UpdateConcurrencyPartner(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
+        {
+            return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
+        }
     }
 }

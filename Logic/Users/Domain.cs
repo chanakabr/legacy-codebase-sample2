@@ -2,6 +2,7 @@
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Users.Cache;
@@ -1321,6 +1322,12 @@ namespace Core.Users
                         {
                             if (nTotalStreams >= m_oLimitationsManager.Concurrency)
                             {
+                                DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(GroupId);
+                                // TODO SHIR - finish
+                                if (deviceConcurrencyPriority == null)
+                                {
+
+                                }
                                 // Cannot allow a new stream. Domain reached its max limitation
                                 result = DomainResponseStatus.ConcurrencyLimitation;
                             }
@@ -1360,7 +1367,7 @@ namespace Core.Users
 
             return result;
         }
-
+        
         public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
             // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy

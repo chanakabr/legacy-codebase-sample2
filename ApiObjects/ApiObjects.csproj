@@ -149,6 +149,7 @@
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="Rules\AssetRuleCondition.cs" />
+    <Compile Include="Rules\DeviceConcurrencyPriority.cs" />
     <Compile Include="Rules\RuleAction.cs" />
     <Compile Include="Rules\SlimAsset.cs" />
     <Compile Include="Rules\AssetUserRule.cs" />

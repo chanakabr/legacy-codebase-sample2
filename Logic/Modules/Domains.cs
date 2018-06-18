@@ -5,6 +5,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
+using ApiObjects.Rules;
 
 namespace Core.Domains
 {

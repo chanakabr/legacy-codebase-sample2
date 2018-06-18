@@ -776,7 +776,6 @@ namespace Core.Users
                             {
                                 res.m_eStatus = domain.ValidateAssetConcurrency(ruleIds, res.m_lDomainID, mediaID, udid);
                             }
-
                             if (res.m_eStatus == DomainResponseStatus.OK || res.m_eStatus == DomainResponseStatus.UnKnown) // if it's MediaConcurrencyLimitation no need to check this one 
                             {
                                 res.m_eStatus = domain.ValidateConcurrency(udid, deviceBrandID, res.m_lDomainID);
