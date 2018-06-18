@@ -5301,7 +5301,7 @@ namespace DAL
             {
                 while (numOfTries < NUM_OF_TRIES)
                 {
-                    var response = cbManager.Get<string>(deviceConcurrencyPriorityKey, true);
+                    var response = cbManager.Get<string>(deviceConcurrencyPriorityKey);
 
                     if (response != null)
                     {
