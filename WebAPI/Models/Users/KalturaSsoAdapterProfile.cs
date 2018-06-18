@@ -37,7 +37,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
-        [OldStandardProperty("is_active")]
         public int? IsActive { get; set; }
 
         /// <summary>
@@ -46,7 +45,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "adapterUrl")]
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
-        [OldStandardProperty("adapter_url")]
         public string AdapterUrl { get; set; }
 
         /// <summary>
@@ -54,8 +52,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "ssoAdapterSettings")]
         [JsonProperty("ssoAdapterSettings")]
-        [XmlElement(ElementName = "ssoAdapterSettings", IsNullable = true)]
-        [OldStandardProperty("sso_adapter_settings")]
+        [XmlElement(ElementName = "settings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -64,7 +61,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
-        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
@@ -73,7 +69,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "sharedSecret")]
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
-        [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
 
     }

@@ -56,7 +56,6 @@ namespace WebAPI.Controllers
         /// <param name="ssoAdapterId">SSO Adapter Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandardArgument("ssoAdapterId", "sso_adapter_id")]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
         public bool Delete(int ssoAdapterId)
         {
@@ -165,7 +164,6 @@ namespace WebAPI.Controllers
         /// <param name="ssoAdapterId">SSO Adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        [OldStandardArgument("ssoAdapterId", "sso_adapter_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
