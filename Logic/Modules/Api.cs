@@ -1823,9 +1823,9 @@ namespace Core.Api
             return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
         }
 
-        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, string externalFileId, string ip, string udid)
+        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, string externalFileId, string ip, string udid, int deviceBrandId)
         {
-            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid);
+            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, deviceBrandId);
         }
 
         public static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip)
