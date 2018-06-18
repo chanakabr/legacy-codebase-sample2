@@ -108,7 +108,11 @@ public partial class adm_users_list_excel : System.Web.UI.Page
         gv.DataBind();
         HttpContext.Current.Response.Clear();
         HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
-        HttpContext.Current.Response.Charset = "UTF-8";
+        HttpContext.Current.Response.Charset = "";
+        // addition to solve the Hebrew - gibberish issue
+        HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.Unicode;
+        HttpContext.Current.Response.BinaryWrite(System.Text.Encoding.Unicode.GetPreamble());
+
         HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
         System.IO.StringWriter stringWrite = new System.IO.StringWriter();
         HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
