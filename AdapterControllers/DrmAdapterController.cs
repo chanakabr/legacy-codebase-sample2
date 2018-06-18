@@ -149,7 +149,8 @@ namespace AdapterControllers
                 adapterId, groupId, userId, deviceFamily, deviceBrandId, udid, ip);
                 log.DebugFormat("Sending request to DRM adapter, GetDeviceLicenseData. {0}", inputParameters);
 
-                drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, adapter, adapterClient, unixTimestamp, signature);
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, adapter, adapterClient,
+                    unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -184,7 +185,8 @@ namespace AdapterControllers
             return licenseData;
         }
 
-        public string GetAssetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId, string ip, string udid)
+        public string GetAssetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId, string ip,
+            string udid, int deviceBrandId)
         {
             string licenseData = null;
 
@@ -210,11 +212,11 @@ namespace AdapterControllers
 
             try
             {
-                string inputParameters = string.Format("adapterId = {0}, groupId = {1}, userId = {2}, assetId = {3}, assetType = {4}, fileId = {5}, externalFileId = {6}, ip = {7}, udid = {8}",
-                adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid);
+                string inputParameters = string.Format("adapterId = {0}, groupId = {1}, userId = {2}, assetId = {3}, assetType = {4}, fileId = {5}, externalFileId = {6}, ip = {7}, udid = {8}, deviceBrandId = {9}",
+                adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, deviceBrandId);
                 log.DebugFormat("Sending request to DRM adapter. {0}", inputParameters);
 
-                drmAdapter.DrmAdapterResponse adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, deviceBrandId, adapter, adapterClient, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -233,7 +235,8 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                    adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, deviceBrandId, adapter, adapterClient, 
+                        unixTimestamp, signature);
 
                 }
 
@@ -293,15 +296,16 @@ namespace AdapterControllers
             return adapterResponse.Data;
         }
 
-        private static drmAdapter.DrmAdapterResponse CallGetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId, string ip, string udid, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
+        private static drmAdapter.DrmAdapterResponse CallGetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId,
+            string ip, string udid, int deviceBrandId, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
         {
             drmAdapter.DrmAdapterResponse adapterResponse;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, partnerId, userId, assetId, (drmAdapter.AssetType)assetType, fileId, externalFileId, ip, udid, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, partnerId, userId, assetId, (drmAdapter.AssetType)assetType, fileId,
+                    externalFileId, ip, udid, deviceBrandId, unixTimestamp, System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
             }
 
             if (adapterResponse != null)

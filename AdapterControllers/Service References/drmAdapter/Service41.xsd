@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/DRMAdapter" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/DRMAdapter" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/DrmAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
   <xs:simpleType name="AssetType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="EPG" />
