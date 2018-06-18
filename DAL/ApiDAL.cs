@@ -4739,6 +4739,44 @@ namespace DAL
             return assetRule;
         }
 
+        public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            List<string> assetRuleKeys = new List<string>();
+
+            foreach (var assetRuleId in assetRuleIds)
+            {
+                assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
+            }
+
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var cbValues = cbManager.GetValues<string>(assetRuleKeys, true);
+                    
+                    if (cbValues != null)
+                    {
+                        log.DebugFormat("successfully received AssetRules. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", assetRuleKeys));
+                        return new List<AssetRule>(cbValues.Select(x => JsonConvert.DeserializeObject<AssetRule>(x.Value, jsonSerializerSettings)));
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while GetAssetRulesCB. number of tries: {0}/{1}. keys: {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", assetRuleKeys));
+                    Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetAssetRulesCB. keys: {0}, ex: {1}", string.Join(", ", assetRuleKeys), ex);
+            }
+            
+            return null;
+        }
+        
         public static bool DeleteAssetRule(int groupId, long id)
         {
             try
