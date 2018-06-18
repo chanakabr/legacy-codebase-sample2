@@ -449,7 +449,8 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType
+                                    type = (eAssetTypes)result.AssetType,
+                                    TagsExtarData = ConvertAdapterTagsExtarData(result.TagsExtraData)
                                 }).ToList();
                     }
                     totalItems = adapterResponse.TotalResults;
