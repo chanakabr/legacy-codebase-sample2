@@ -3802,7 +3802,8 @@ namespace WebAPI.Clients
             }
         }
 
-        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId, string udid, out string code, out string message)
+        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId, 
+            string udid, int deviceBrandId, out string code, out string message)
         {
             StringResponse drmAdapterResponse = null;
             message = null;
@@ -3812,7 +3813,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId, externalFileId, Utils.Utils.GetClientIP(), udid);
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId, 
+                        externalFileId, Utils.Utils.GetClientIP(), udid, deviceBrandId);
                 }
             }
             catch (Exception ex)
