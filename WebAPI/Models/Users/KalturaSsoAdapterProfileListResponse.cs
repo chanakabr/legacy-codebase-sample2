@@ -11,7 +11,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "SSOAdapters", Namespace = "")]
     [XmlRoot("SSOAdapters")]
-    public class KalturaSsoAdapterProfileListResponse : KalturaListResponse
+    public class KalturaSSOAdapterProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of payment-gateway profiles
@@ -20,6 +20,6 @@ namespace WebAPI.Models.Users
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaSsoAdapterProfile> SSOAdapters { get; set; }
+        public List<KalturaSSOAdapterProfile> SSOAdapters { get; set; }
     }
 }

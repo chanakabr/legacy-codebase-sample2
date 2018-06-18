@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaSsoAdapterProfileListResponse List()
+        public KalturaSSOAdapterProfileListResponse List()
         {
-            var response = new KalturaSsoAdapterProfileListResponse();
+            var response = new KalturaSSOAdapterProfileListResponse();
             var groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -57,23 +57,28 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandardArgument("ssoAdapterId", "sso_adapter_id")]
-        [Throws(eResponseStatus.SSOAdapaterNotExist)]
+        [Throws(eResponseStatus.SSOAdapterNotExist)]
         public bool Delete(int ssoAdapterId)
         {
-            var response = false;
-            var groupId = KS.GetFromRequest().GroupId;
+            var ks = KS.GetFromRequest();
+            var groupId = ks.GroupId;
+            var userId = ks.UserId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().DeleteSSOAdapater(groupId, ssoAdapterId);
+                var response = ClientsManager.UsersClient().DeleteSSOAdapater(groupId, ssoAdapterId, int.Parse(userId));
+                if (response.Code != (int)eResponseStatus.OK) { throw new ClientException(response.Code); }
+                return true;
+
+
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return false;
         }
 
         /// <summary>
@@ -83,17 +88,17 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///   External identifier is required = 6016, Name is required = 5005, Shared secret is required = 5006, External identifier must be unique = 6040, No sso adapter to insert = 2057
         /// </remarks>
-        /// <param name="ssoAdapater">SSO Adapter Object</param>
+        /// <param name="ssoAdapter">SSO Adapter Object to be added</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.SharedSecretRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.NoSSOAdapaterToInsert)]
-        public KalturaSsoAdapterProfile Add(KalturaSsoAdapterProfile ssoAdapater)
+        public KalturaSSOAdapterProfile Add(KalturaSSOAdapterProfile ssoAdapter)
         {
-            KalturaSsoAdapterProfile response = null;
+            KalturaSSOAdapterProfile response = null;
             var ks = KS.GetFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
@@ -101,7 +106,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().InsertSSOAdapter(groupId, ssoAdapater, int.Parse(userId));
+                response = ClientsManager.UsersClient().InsertSSOAdapter(groupId, ssoAdapter, int.Parse(userId));
             }
             catch (ClientException ex)
             {
@@ -120,7 +125,7 @@ namespace WebAPI.Controllers
         /// External identifier must be unique = 6040            
         /// </remarks>
         /// <param name="ssoAdapterId">SSO Adapter Identifier</param> 
-        /// <param name="ssoAdapater">SSO Adapter Object</param>       
+        /// <param name="ssoAdapter">SSO Adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
@@ -129,22 +134,25 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaSsoAdapterProfile Update(int ssoAdapterId, KalturaSsoAdapterProfile ssoAdapater)
+        public KalturaSSOAdapterProfile Update(int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapter)
         {
-            KalturaSsoAdapterProfile response = null;
-            var groupId = KS.GetFromRequest().GroupId;
 
+            var ks = KS.GetFromRequest();
+            var groupId = ks.GroupId;
+            var userId = ks.UserId;
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SetSSOAdapter(groupId, ssoAdapterId, ssoAdapater);
+                var response = ClientsManager.UsersClient().SetSSOAdapter(groupId, ssoAdapterId, ssoAdapter, int.Parse(userId));
+
+                return response;
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return null;
         }
 
         /// <summary>
@@ -160,16 +168,20 @@ namespace WebAPI.Controllers
         [OldStandardArgument("ssoAdapterId", "sso_adapter_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
-        [Throws(eResponseStatus.SSOAdapaterNotExist)]
-        public KalturaSsoAdapterProfile GenerateSharedSecret(int ssoAdapterId)
+        [Throws(eResponseStatus.SSOAdapterNotExist)]
+        public KalturaSSOAdapterProfile GenerateSharedSecret(int ssoAdapterId)
         {
-            KalturaSsoAdapterProfile response = null;
-            var groupId = KS.GetFromRequest().GroupId;
+            KalturaSSOAdapterProfile response = null;
+            var ks = KS.GetFromRequest();
+            var groupId = ks.GroupId;
+            var userId = ks.UserId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GenerateSSOAdapaterSharedSecret(groupId, ssoAdapterId);
+                response = ClientsManager.UsersClient().GenerateSSOAdapaterSharedSecret(groupId, ssoAdapterId, int.Parse(userId));
+
+                if (response == null) { throw new ClientException((int)eResponseStatus.SSOAdapterNotExist); }
             }
             catch (ClientException ex)
             {

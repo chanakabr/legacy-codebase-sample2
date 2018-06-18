@@ -850,7 +850,7 @@
             </remarks>
             <param name="ssoAdapterId">SSO Adapter Identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.SsoAdapterProfileController.Add(WebAPI.Models.Users.KalturaSsoAdapterProfile)">
+        <member name="M:WebAPI.Controllers.SsoAdapterProfileController.Add(WebAPI.Models.Users.KalturaSSOAdapterProfile)">
             <summary>
             Insert new sso adapter for partner
             </summary>
@@ -858,9 +858,9 @@
             Possible status codes:       
               External identifier is required = 6016, Name is required = 5005, Shared secret is required = 5006, External identifier must be unique = 6040, No sso adapter to insert = 2057
             </remarks>
-            <param name="ssoAdapater">SSO Adapter Object</param>
+            <param name="ssoAdapter">SSO Adapter Object to be added</param>
         </member>
-        <member name="M:WebAPI.Controllers.SsoAdapterProfileController.Update(System.Int32,WebAPI.Models.Users.KalturaSsoAdapterProfile)">
+        <member name="M:WebAPI.Controllers.SsoAdapterProfileController.Update(System.Int32,WebAPI.Models.Users.KalturaSSOAdapterProfile)">
             <summary>
             Update sso adapter details
             </summary>
@@ -870,7 +870,7 @@
             External identifier must be unique = 6040            
             </remarks>
             <param name="ssoAdapterId">SSO Adapter Identifier</param> 
-            <param name="ssoAdapater">SSO Adapter Object</param>       
+            <param name="ssoAdapter">SSO Adapter Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.SsoAdapterProfileController.GenerateSharedSecret(System.Int32)">
             <summary>
@@ -10467,52 +10467,52 @@
             Value
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Users.KalturaSsoAdapterProfile">
+        <member name="T:WebAPI.Models.Users.KalturaSSOAdapterProfile">
             <summary>
             SSO adapter configuration
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.Id">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.Id">
             <summary>
             SSO Adapter id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.Name">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.Name">
             <summary>
             SSO Adapter name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.IsActive">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.IsActive">
             <summary>
             SSO Adapter is active status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.AdapterUrl">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.AdapterUrl">
             <summary>
             SSO Adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.Settings">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.Settings">
             <summary>
             SSO Adapter extra parameters
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.ExternalIdentifier">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.ExternalIdentifier">
             <summary>
             SSO Adapter external identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfile.SharedSecret">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfile.SharedSecret">
             <summary>
             Shared Secret
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Users.KalturaSsoAdapterProfileListResponse">
+        <member name="T:WebAPI.Models.Users.KalturaSSOAdapterProfileListResponse">
             <summary>
             ssoAdapterProfile list
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSsoAdapterProfileListResponse.SSOAdapters">
+        <member name="P:WebAPI.Models.Users.KalturaSSOAdapterProfileListResponse.SSOAdapters">
             <summary>
             A list of payment-gateway profiles
             </summary>

@@ -1072,7 +1072,7 @@ namespace WebAPI.Clients
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
 
             return listItem;
-        }       
+        }
 
         [Obsolete]
         internal KalturaUserAssetsListItem GetItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
@@ -1412,7 +1412,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    success = Core.Users.Module.SetUserDynamicData(groupId, userId, key,value.value);
+                    success = Core.Users.Module.SetUserDynamicData(groupId, userId, key, value.value);
                 }
             }
             catch (Exception ex)
@@ -1432,12 +1432,9 @@ namespace WebAPI.Clients
             return response;
         }
 
-        public List<KalturaSsoAdapterProfile> GetSSOAdapters(int groupId)
+        internal List<KalturaSSOAdapterProfile> GetSSOAdapters(int groupId)
         {
-            List<KalturaSsoAdapterProfile> KalturaSSOAdaptersList = null;
-            SSOAdaptersResponse response = null;
-
-
+            var response = new SSOAdaptersResponse();
             try
             {
                 using (var km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1451,51 +1448,123 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
             if (response.RespStatus.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.RespStatus.Code, response.RespStatus.Message);
+                log.ErrorFormat("Error while GetSSOAdapters. groupID: {0}, message: {1}", groupId, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
             }
 
-            KalturaSSOAdaptersList = Mapper.Map<List<KalturaSsoAdapterProfile>>(response.SSOAdapters);
-
-            return KalturaSSOAdaptersList;
+            return Mapper.Map<List<KalturaSSOAdapterProfile>>(response.SSOAdapters);
         }
 
-        public KalturaSsoAdapterProfile InsertSSOAdapter(int groupId, KalturaSsoAdapterProfile kalturaSsoAdapater, int updaterId)
+        internal KalturaSSOAdapterProfile InsertSSOAdapter(int groupId, KalturaSSOAdapterProfile kalturaSsoAdapater, int updaterId)
         {
+            var response = new SSOAdapterResponse();
             try
             {
-                var adapterDetails = Mapper.Map<SSOAdapter>(kalturaSsoAdapater);
-                adapterDetails.GroupId = groupId;
-                var response = Core.Users.Module.InsertSSOAdapter(adapterDetails, updaterId);
-                return Mapper.Map<KalturaSsoAdapterProfile>(response);
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var adapterDetails = Mapper.Map<SSOAdapter>(kalturaSsoAdapater);
+                    adapterDetails.GroupId = groupId;
+                    response = Core.Users.Module.InsertSSOAdapter(adapterDetails, updaterId);
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.RespStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0} message: {1}", groupId, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+            }
+
+            return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
+
+        }
+
+        internal KalturaSSOAdapterProfile SetSSOAdapter(int groupId, int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapater, int updaterId)
+        {
+            var response = new SSOAdapterResponse();
+            try
+            {
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var adapterDetails = Mapper.Map<SSOAdapter>(ssoAdapater);
+                    adapterDetails.GroupId = groupId;
+                    adapterDetails.Id = ssoAdapterId;
+                    response = Core.Users.Module.UpdateSSOAdapter(adapterDetails, updaterId);
+                    response.SSOAdapter = adapterDetails;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateSSOAdapter. groupID: {0}, adapterId:{1}, exception: {2}", groupId, ssoAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
                 return null;
             }
+
+            if (response.RespStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Error while UpdateSSOAdapter. groupID: {0} adapterId:{1}", groupId, ssoAdapterId);
+                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+            }
+
+            return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
         }
 
-        public KalturaSsoAdapterProfile SetSSOAdapter(int groupId, int ssoAdapterId, KalturaSsoAdapterProfile ssoAdapater)
+        internal ApiObjects.Response.Status DeleteSSOAdapater(int groupId, int ssoAdapterId, int updaterId)
         {
-            throw new NotImplementedException();
+            var response = new ApiObjects.Response.Status((int) eResponseStatus.Error, "Could not delete SSO adapter");
+            try
+            {
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteSSOAdapater. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                log.ErrorFormat("Error while DeleteSSOAdapater. groupID: {0}, message: {1}", groupId, response.Message);
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return response;
         }
 
-        public bool DeleteSSOAdapater(int groupId, int ssoAdapterId)
+        internal KalturaSSOAdapterProfile GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId, int updaterId)
         {
-            throw new NotImplementedException();
-        }
+            var response = new SSOAdapterResponse();
+            try
+            {
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                    response = Core.Users.Module.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
-        public KalturaSsoAdapterProfile GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId)
-        {
-            throw new NotImplementedException();
+            if (response.RespStatus.Code != (int)StatusCode.OK)
+            {
+                log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0}, message: {1}", groupId, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+            }
+
+            return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
         }
     }
 }

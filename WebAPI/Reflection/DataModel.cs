@@ -857,6 +857,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "SsoAdapterProfileController":
+                    switch(action.Name)
+                    {
+                        case "Delete":
+                            ret = new Dictionary<string, string>() { 
+                                 {"ssoAdapterId", "sso_adapter_id"},
+                            };
+                            break;
+                        case "GenerateSharedSecret":
+                            ret = new Dictionary<string, string>() { 
+                                 {"ssoAdapterId", "sso_adapter_id"},
+                            };
+                            break;
+                    }
+                    break;
+                    
                 case "TransactionController":
                     switch(action.Name)
                     {
@@ -1640,6 +1656,16 @@ namespace WebAPI.Reflection
                         {"firstName", "first_name"},
                         {"lastName", "last_name"},
                         {"userId", "user_id"},
+                    };
+                    break;
+                    
+                case "KalturaSSOAdapterProfile":
+                    ret = new Dictionary<string, string>() { 
+                        {"adapterUrl", "adapter_url"},
+                        {"externalIdentifier", "external_identifier"},
+                        {"isActive", "is_active"},
+                        {"ssoAdapterSettings", "sso_adapter_settings"},
+                        {"sharedSecret", "shared_secret"},
                     };
                     break;
                     
@@ -6305,6 +6331,34 @@ namespace WebAPI.Reflection
                     {
                         case "PermissionItems":
                             return "actionPermissionItems";
+                    }
+                    break;
+                    
+                case "KalturaSSOAdapterProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "ExternalIdentifier":
+                            return "externalIdentifier";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "ssoAdapterSettings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                    }
+                    break;
+                    
+                case "KalturaSSOAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "SSOAdapters":
+                            return "objects";
                     }
                     break;
                     
