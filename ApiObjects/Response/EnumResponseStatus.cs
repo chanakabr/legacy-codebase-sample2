@@ -101,7 +101,7 @@ namespace ApiObjects.Response
         ParentTopicValueIsMissing = 2053,
         ExternalIdAlreadyExists = 2054,
         UserExternalError = 2055,
-        SSOAdapaterNotExist = 2056,
+        SSOAdapterNotExist = 2056,
         NoSSOAdapaterToInsert = 2057,
         SSOAdapterIdRequired =2058,
 

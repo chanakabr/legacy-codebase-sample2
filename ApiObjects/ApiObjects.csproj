@@ -155,6 +155,7 @@
     <Compile Include="SSOAdapter\SSOAdapter.cs" />
     <Compile Include="SSOAdapter\SSOAdapterParam.cs" />
     <Compile Include="SSOAdapter\SSOAdaptersResponse.cs" />
+    <Compile Include="SSOAdapter\SSOAdapterResponse.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
     <Compile Include="QueueObjects\MessageInterestData.cs" />

@@ -1960,9 +1960,24 @@ namespace Core.Users
             return SSOAdaptersManager.GetSSOAdapters(groupId);
         }
 
-        public static SSOAdapter InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        public static SSOAdapterResponse InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
         {
             return SSOAdaptersManager.InsertSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static SSOAdapterResponse UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            return SSOAdaptersManager.UpdateSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static ApiObjects.Response.Status DeleteSSOAdapter(int groupId, int ssoAdapterId, int updaterId)
+        {
+            return SSOAdaptersManager.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
+        }
+
+        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        {
+            return SSOAdaptersManager.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
         }
     }
 }
