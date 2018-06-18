@@ -34,19 +34,19 @@ namespace WebAPI.Controllers
             
             try
             {
-                if (filter.partnerConfigurationType == KalturaPartnerConfigurationType.Concurrency)
+                if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Concurrency)
                 {
                     response = ClientsManager.ApiClient().GetConcurrencyPartner(groupId);
                 }
-                else if (filter.partnerConfigurationType == KalturaPartnerConfigurationType.DefaultPaymentGateway)
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.DefaultPaymentGateway)
                 {
                     throw new NotImplementedException();
                 }
-                else if (filter.partnerConfigurationType == KalturaPartnerConfigurationType.EnablePaymentGatewaySelection)
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.EnablePaymentGatewaySelection)
                 {
                     throw new NotImplementedException();
                 }
-                else if (filter.partnerConfigurationType == KalturaPartnerConfigurationType.OSSAdapter)
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.OSSAdapter)
                 {
                     throw new NotImplementedException();
                 }

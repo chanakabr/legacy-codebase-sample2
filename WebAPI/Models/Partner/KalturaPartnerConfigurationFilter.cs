@@ -26,11 +26,10 @@ namespace WebAPI.Models.Partner
         /// <summary>
         /// Indicates which partner configuration list to return
         /// </summary>
-        [DataMember(Name = "partnerConfigurationType")]
-        [JsonProperty("partnerConfigurationType")]
-        [XmlElement(ElementName = "partnerConfigurationType")]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public KalturaPartnerConfigurationType partnerConfigurationType { get; set; }
+        [DataMember(Name = "partnerConfigurationTypeEqual")]
+        [JsonProperty("partnerConfigurationTypeEqual")]
+        [XmlElement(ElementName = "partnerConfigurationTypeEqual")]
+        public KalturaPartnerConfigurationType PartnerConfigurationTypeEqual { get; set; }
         
         public override KalturaPartnerConfigurationOrderBy GetDefaultOrderByValue()
         {

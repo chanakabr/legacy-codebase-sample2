@@ -5585,9 +5585,9 @@
             Comma separated list of device Family Ids order by their priority.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.PriorityByFIFO">
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.EvictionPolicy">
             <summary>
-            Priority By FIFO
+            Policy of eviction devices
             </summary>
         </member>
         <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
@@ -5595,7 +5595,7 @@
             Partner configuration filter 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.partnerConfigurationType">
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.PartnerConfigurationTypeEqual">
             <summary>
             Indicates which partner configuration list to return
             </summary>

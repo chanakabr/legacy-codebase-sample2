@@ -21,14 +21,14 @@ namespace WebAPI.Models.Partner
         [JsonProperty("deviceFamilyIds")]
         [XmlElement(ElementName = "deviceFamilyIds")]
         public string DeviceFamilyIds { get; set; }
-        
+
         /// <summary>
-        /// Priority By FIFO
+        /// Policy of eviction devices
         /// </summary>
-        [DataMember(Name = "priorityByFIFO")]
-        [JsonProperty("priorityByFIFO")]
-        [XmlElement(ElementName = "priorityByFIFO")]
-        public bool PriorityByFIFO { get; set; }
+        [DataMember(Name = "evictionPolicy")]
+        [JsonProperty("evictionPolicy")]
+        [XmlElement(ElementName = "evictionPolicy")]
+        public KalturaEvictionPolicyType EvictionPolicy { get; set; }
         
         internal HashSet<int> GetDeviceFamilyIds()
         {
@@ -55,5 +55,11 @@ namespace WebAPI.Models.Partner
 
             return values;
         }
+    }
+    
+    public enum KalturaEvictionPolicyType
+    {
+        FIFO,
+        LIFO
     }
 }
