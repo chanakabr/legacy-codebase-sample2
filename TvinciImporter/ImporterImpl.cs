@@ -586,7 +586,7 @@ namespace TvinciImporter
             updateQuery = null;
         }
 
-        static protected void ClearImages(long nGroupID, Int32 nImageID)
+        static public void ClearImages(long nGroupID, Int32 nMediaID)
         {
             int version = 0;
             string baseUrl = string.Empty;
@@ -596,7 +596,8 @@ namespace TvinciImporter
             // use new image server
             if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nImageID, eAssetImageType.Media);
+                log.DebugFormat("Delete images for media id:{0}",nMediaID);
+                DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
 
                 if (picsDataRows != null && picsDataRows.Count > 0) 
                 {    
@@ -607,12 +608,11 @@ namespace TvinciImporter
                         baseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
                         picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
 
-                        log.DebugFormat("Delete pic id:{0}", picId);
-
                         // Call to imageSerever->Delete
                         int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
                         ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
-                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)nGroupID, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, URL:{3}", parentGroupId, picId, version, baseUrl);
+                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)nGroupID, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
                         if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                         {
                             log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));
