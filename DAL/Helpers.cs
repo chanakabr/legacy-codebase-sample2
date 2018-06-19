@@ -98,7 +98,7 @@ namespace DAL
                 }
                 catch (Exception e)
                 {
-                    _Logger.Warn($"Failed to convert DB field to object for object type: [{obj.GetType().Name}] prop:[{prop.Name}]", e);
+                    _Logger.WarnFormat("Failed to convert DB field to object for object type: [{0}] prop:[{1}], ex:{2}", obj.GetType().Name, prop.Name, e);
                 }
             }
             return obj;
