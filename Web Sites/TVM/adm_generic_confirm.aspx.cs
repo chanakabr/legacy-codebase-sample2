@@ -268,6 +268,10 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             switch (m_sTable.ToLower())
             {
                 case "media":
+
+                    log.DebugFormat("TVM Call to clear images for Media id:{0} ", m_nID);
+                    ImporterImpl.ClearImages(nGroupId, m_nID);
+
                     if (!ImporterImpl.UpdateIndex(lIds, nGroupId, action))
                     {
                         log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", lIds, nGroupId));
