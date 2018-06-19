@@ -138,7 +138,7 @@ namespace APILogic.Users
 
         private static Status ValidateSSOAdapterModel(SSOAdapter adapterDetails)
         {
-            _Logger.DebugFormat("Validating adapaterDetails model. id:[{0}] name:[{1}]", adapterDetails?.Id, adapterDetails?.Name);
+
             if (adapterDetails == null) { return new Status((int)eResponseStatus.NoSSOAdapaterToInsert, NO_SSO_ADAPATER_TO_INSERT); }
             if (string.IsNullOrEmpty(adapterDetails.Name)) { return new Status((int)eResponseStatus.NameRequired, NAME_REQUIRED); }
             if (string.IsNullOrEmpty(adapterDetails.SharedSecret)) { return new Status((int)eResponseStatus.SharedSecretRequired, SHARED_SECRET_REQUIRED); }
@@ -147,7 +147,7 @@ namespace APILogic.Users
 
             // Check ExternalIdentifierMustBeUnique
             var ssoAdapaterByExternalId = DAL.UsersDal.GetSSOAdapterByExternalId(adapterDetails.ExternalIdentifier);
-            _Logger.DebugFormat("Checking if sso adapter external id already exist externalId:[{0}], found sso adapater id:[{1}], externalId:[{2}]", adapterDetails?.ExternalIdentifier, ssoAdapaterByExternalId?.Id, ssoAdapaterByExternalId?.ExternalIdentifier);
+            _Logger.DebugFormat("Checking if sso adapter external id already exist externalId:[{0}], found sso adapater id:[{1}], externalId:[{2}]", adapterDetails.ExternalIdentifier, ssoAdapaterByExternalId != null ? ssoAdapaterByExternalId.Id : null, ssoAdapaterByExternalId != null ? ssoAdapaterByExternalId.ExternalIdentifier : null);
 
             if (ssoAdapaterByExternalId != null && ssoAdapaterByExternalId.Id != adapterDetails.Id) { return new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, EXTERNAL_IDENTIFIER_MUST_BE_UNIQUE); }
 

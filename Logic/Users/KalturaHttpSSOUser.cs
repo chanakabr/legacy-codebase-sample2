@@ -142,7 +142,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:{2}", authenticatedUser?.m_user?.m_oBasicData.m_sUserName, authenticatedUser?.m_user?.GroupId, e);
+                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:{2}", authenticatedUser.m_user != null? authenticatedUser.m_user.m_oBasicData.m_sUserName:"user is null", _GroupId, e);
                 // TODO: should we throw an error here ? or return the normal user data ? 
             }
 
@@ -219,7 +219,14 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:[{2}]", userResponse?.m_user?.m_oBasicData.m_sUserName, userResponse?.m_user?.GroupId, e);
+                if (userResponse != null && userResponse.m_user != null && userResponse.m_user.m_oBasicData != null)
+                {
+                    _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:[{2}]", userResponse.m_user.m_oBasicData.m_sUserName, userResponse.m_user.GroupId, e);
+                }
+                else
+                {
+                    _Logger.ErrorFormat("Unexpected error during PostSignIn for group:[{0}], ex:{1}",_GroupId, e);
+                }
                 // TODO: should we throw an error here ? or return the normal user data ? 
             }
 
@@ -238,7 +245,7 @@ namespace Core.Users
             user.LastName = userData.m_oBasicData.m_sLastName;
             user.Email = userData.m_oBasicData.m_sEmail;
             user.City = userData.m_oBasicData.m_sCity;
-            user.CountryId = userData.m_oBasicData.m_Country?.m_nObjecrtID;
+            user.CountryId = userData.m_oBasicData.m_Country != null ? userData.m_oBasicData.m_Country.m_nObjecrtID : (int?) null;
             user.Zip = userData.m_oBasicData.m_sZip;
             user.Phone = userData.m_oBasicData.m_sPhone;
             user.Address = userData.m_oBasicData.m_sAddress;

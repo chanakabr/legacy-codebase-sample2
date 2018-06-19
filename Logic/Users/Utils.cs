@@ -141,8 +141,17 @@ namespace Core.Users
 
                 if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
                 {
-                    var httpSSOAdapters = SSOAdaptersManager.GetSSOAdapters(nGroupID)?.SSOAdapters?.FirstOrDefault();
-                    user = httpSSOAdapters != null ? new KalturaHttpSSOUser(nGroupID, httpSSOAdapters) : new KalturaUsers(nGroupID);
+                    var response = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                    if (response != null && response.SSOAdapters != null && response.SSOAdapters.Any())
+                    {
+                        var httpSSOAdapter = response.SSOAdapters.First();
+                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
+                    }
+                    else
+                    {
+                        user = new KalturaUsers(nGroupID);
+                    }
+
                 }
                 else
                 {
