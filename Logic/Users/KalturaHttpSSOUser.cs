@@ -64,12 +64,15 @@ namespace Core.Users
                     UserId = siteGuid,
                     UserName = userName,
                     Password = password,
+                    // TODO: Remove from pre sign in 
                     MaxFailCount = maxFailCount,
+                    // TODO: Remove from pre sign in 
                     LockMin = lockMin,
                     GroupId = groupId,
                     SessionId = sessionId,
                     IPAddress = ip,
                     DeviceId = deviceId,
+                    // TODO: Remove from pre sign in 
                     PreventDoubleLogin = preventDoubleLogin,
                     CustomParams = keyValueList.ToDictionary(k => k.key, v => v.value),
                 };
