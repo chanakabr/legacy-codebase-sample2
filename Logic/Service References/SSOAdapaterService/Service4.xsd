@@ -20,17 +20,17 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetImplementedMethods">
+  <xs:element name="GetConfiguration">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="adapterId" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetImplementedMethodsResponse">
+  <xs:element name="GetConfigurationResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="GetImplementedMethodsResult" nillable="true" type="q3:SSOImplementationsResponse" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="GetConfigurationResult" nillable="true" type="q3:SSOImplementationsResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

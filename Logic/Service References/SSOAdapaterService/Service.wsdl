@@ -15,11 +15,11 @@
   <wsdl:message name="IService_SetConfiguration_OutputMessage">
     <wsdl:part name="parameters" element="tns:SetConfigurationResponse" />
   </wsdl:message>
-  <wsdl:message name="IService_GetImplementedMethods_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetImplementedMethods" />
+  <wsdl:message name="IService_GetConfiguration_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetConfiguration" />
   </wsdl:message>
-  <wsdl:message name="IService_GetImplementedMethods_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetImplementedMethodsResponse" />
+  <wsdl:message name="IService_GetConfiguration_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetConfigurationResponse" />
   </wsdl:message>
   <wsdl:message name="IService_PreSignIn_InputMessage">
     <wsdl:part name="parameters" element="tns:PreSignIn" />
@@ -50,9 +50,9 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IService/SetConfiguration" message="tns:IService_SetConfiguration_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IService/SetConfigurationResponse" message="tns:IService_SetConfiguration_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="GetImplementedMethods">
-      <wsdl:input wsaw:Action="http://tempuri.org/IService/GetImplementedMethods" message="tns:IService_GetImplementedMethods_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IService/GetImplementedMethodsResponse" message="tns:IService_GetImplementedMethods_OutputMessage" />
+    <wsdl:operation name="GetConfiguration">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/GetConfiguration" message="tns:IService_GetConfiguration_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/GetConfigurationResponse" message="tns:IService_GetConfiguration_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="PreSignIn">
       <wsdl:input wsaw:Action="http://tempuri.org/IService/PreSignIn" message="tns:IService_PreSignIn_InputMessage" />
@@ -82,8 +82,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetImplementedMethods">
-      <soap:operation soapAction="http://tempuri.org/IService/GetImplementedMethods" style="document" />
+    <wsdl:operation name="GetConfiguration">
+      <soap:operation soapAction="http://tempuri.org/IService/GetConfiguration" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

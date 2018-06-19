@@ -1158,11 +1158,11 @@ namespace APILogic.SSOAdapaterService {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetImplementedMethods", ReplyAction="http://tempuri.org/IService/GetImplementedMethodsResponse")]
-        APILogic.SSOAdapaterService.SSOImplementationsResponse GetImplementedMethods(int adapterId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetConfiguration", ReplyAction="http://tempuri.org/IService/GetConfigurationResponse")]
+        APILogic.SSOAdapaterService.SSOImplementationsResponse GetConfiguration(int adapterId);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetImplementedMethods", ReplyAction="http://tempuri.org/IService/GetImplementedMethodsResponse")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetConfiguration", ReplyAction="http://tempuri.org/IService/GetConfigurationResponse")]
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetConfigurationAsync(int adapterId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreSignIn", ReplyAction="http://tempuri.org/IService/PreSignInResponse")]
         APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature);
@@ -1224,12 +1224,12 @@ namespace APILogic.SSOAdapaterService {
             return base.Channel.SetConfigurationAsync(adapterId, partnerId, configuration, signature);
         }
         
-        public APILogic.SSOAdapaterService.SSOImplementationsResponse GetImplementedMethods(int adapterId) {
-            return base.Channel.GetImplementedMethods(adapterId);
+        public APILogic.SSOAdapaterService.SSOImplementationsResponse GetConfiguration(int adapterId) {
+            return base.Channel.GetConfiguration(adapterId);
         }
         
-        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetImplementedMethodsAsync(int adapterId) {
-            return base.Channel.GetImplementedMethodsAsync(adapterId);
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetConfigurationAsync(int adapterId) {
+            return base.Channel.GetConfigurationAsync(adapterId);
         }
         
         public APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature) {

@@ -37,10 +37,10 @@ namespace Core.Users
                 _AdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(_AdapterConfig.AdapterUrl);
             }
 
-            var implementationsResponse = _AdapterClient.GetImplementedMethods(_AdapterId);
+            var implementationsResponse = _AdapterClient.GetConfiguration(_AdapterId);
             if (!ValidateConfigurationIsSet(implementationsResponse.Status))
             {
-                implementationsResponse = _AdapterClient.GetImplementedMethods(_AdapterId);
+                implementationsResponse = _AdapterClient.GetConfiguration(_AdapterId);
             }
 
             _ImplementedMethods = implementationsResponse.ImplementedMethods;
