@@ -2209,7 +2209,8 @@ namespace DAL
             sp.AddParameter("@adapterUrl", adapterDetails.AdapterUrl);
             sp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
             sp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
-            var adapterId = sp.ExecuteReturnValue<int>();
+            var result = sp.ExecuteDataSet();
+            var adapterId = (int)result.Tables[0].Rows[0][0];
             adapterDetails.Id = adapterId;
 
             MergeSSOAdapaterSettings(adapterDetails.GroupId, adapterId, updaterId, adapterDetails.Settings);
