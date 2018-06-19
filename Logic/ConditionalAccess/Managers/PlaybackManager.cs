@@ -26,7 +26,7 @@ namespace Core.ConditionalAccess
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
-            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds)
+            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -203,7 +203,44 @@ namespace Core.ConditionalAccess
                                 file.AdsParam = assetFileAds.AdsParam;
                                 file.AdsPolicy = assetFileAds.AdsPolicy;
                             }
+                            
+                            if (urlType == UrlType.direct)
+                            {
+                                // get adapter
+                                bool isDefaultAdapter = false;
+                                CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
+                                PlayManifestResponse playManifestResponse = null;
+                                int assetIdInt = int.Parse(assetId);
+
+                                switch (assetType)
+                                {
+                                    case eAssetTypes.EPG:
+                                        playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context);
+                                        break;
+                                    case eAssetTypes.NPVR:
+                                        playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
+                                        break;
+                                    case eAssetTypes.MEDIA:
+                                        playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if (response.Status.Code == (int)eResponseStatus.OK)
+                                {
+                                    file.DirectUrl = playManifestResponse.Url;
+
+                                    // HandlePlayUses
+                                    if (domainId > 0 && Utils.IsItemPurchased(filePrice))
+                                    {
+                                        PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
+                                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId);
+                                    }
+                                }
+                            }
                         }
+
                     }
                     else if (assetType == eAssetTypes.NPVR)
                     {
@@ -311,7 +348,7 @@ namespace Core.ConditionalAccess
                 MediaFileItemPricesContainer price;
                 List<int> mediaConcurrencyRuleIds = null;
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
-                    file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, ip, udid, out price, out mediaConcurrencyRuleIds);
+                    file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, ip, udid, out price, out mediaConcurrencyRuleIds, UrlType.playmanifest);
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;

@@ -1042,4 +1042,10 @@ namespace ApiObjects
         AssetRule = 0,
         AssetUserRule = 1
     }
+
+    public enum UrlType
+    {
+        playmanifest,
+        direct
+    }
 }
