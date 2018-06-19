@@ -275,7 +275,7 @@ namespace TvinciImporter
                 return 0;
         }
 
-        static protected void DeleteMedia(Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
+        static protected void DeleteMedia(long nGroupID, Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
@@ -292,6 +292,7 @@ namespace TvinciImporter
             if (deleteMediaPolicy == DeleteMediaPolicy.Delete)
             {
                 ClearMediaFiles(nMediaID);
+                ClearImages(nGroupID, nMediaID);
             }
         }
 
@@ -585,6 +586,56 @@ namespace TvinciImporter
             updateQuery = null;
         }
 
+        static public void ClearImages(long nGroupID, Int32 nMediaID)
+        {
+            int version = 0;
+            string baseUrl = string.Empty;
+            int picId = 0;
+            int picRatioId = 0;
+
+            // use new image server
+            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            {
+                log.DebugFormat("Delete images for media id:{0}",nMediaID);
+                DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
+
+                if (picsDataRows != null && picsDataRows.Count > 0) 
+                {    
+                    foreach (DataRow row in picsDataRows)
+                    {
+                        picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION");
+                        baseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                        picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
+
+                        // Call to imageSerever->Delete
+                        int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
+                        ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
+                        log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, BASE_URL:{3}", parentGroupId, picId, version, baseUrl);
+                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)parentGroupId, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                        {
+                            log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));
+                        }
+
+                        //Update pic status to 2 with updater_id 999
+                        var queryRes = ApiDAL.UpdateImageState((int)nGroupID, picId, version, eTableStatus.Failed, 999);
+                        if(queryRes > 0)
+                        {
+                            log.DebugFormat("Update status in database finish with Success. pic:{0}, version:{1}", picId, version);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Update status in database finish with Error. pic:{0}, version:{1}", picId, version);
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("Delete images for media id:{0}, found no images to delete", nMediaID);
+                }
+            }
+        }
         static protected void ClearMediaTranslateValues(Int32 nMediaID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_translate");
@@ -1730,7 +1781,7 @@ namespace TvinciImporter
                 // according to groupDeleteMediaPolicy  set the index action
                 action = groupDeleteMediaPolicy == DeleteMediaPolicy.Delete ? eAction.Delete : eAction.Update;
 
-                DeleteMedia(nMediaID, groupDeleteMediaPolicy);
+                DeleteMedia(nGroupID, nMediaID, groupDeleteMediaPolicy);
             }
             else if (sAction == "insert" || sAction == "update")
             {

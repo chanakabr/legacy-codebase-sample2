@@ -24,11 +24,21 @@ namespace TvinciImporter
 
         public static string HttpPost(string uri, string parameters, string contentType = null)
         {
+            return HttpBase(uri, parameters, "POST", contentType);
+        }
+
+        public static string HttpDelete(string uri, string parameters, string contentType = null)
+        {
+            return HttpBase(uri, parameters, "DELETE", contentType);
+        }
+
+        private static string HttpBase(string uri, string parameters, string method, string contentType = null)
+        {
             try
             {
                 WebRequest request = WebRequest.Create(uri);
 
-                request.Method = "POST";
+                request.Method = method;
                 string postData = parameters;
                 byte[] byteArray = Encoding.UTF8.GetBytes(postData);
 
