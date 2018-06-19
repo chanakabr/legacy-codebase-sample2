@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiObjects.SSOAdapter;
+using APILogic.Users;
 
 namespace Core.Users
 {
@@ -1951,6 +1953,31 @@ namespace Core.Users
         {
             bool result = Utils.Purge();
             return result;
+        }
+
+        public static SSOAdaptersResponse GetSSOAdapters(int groupId)
+        {
+            return SSOAdaptersManager.GetSSOAdapters(groupId);
+        }
+
+        public static SSOAdapterResponse InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            return SSOAdaptersManager.InsertSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static SSOAdapterResponse UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            return SSOAdaptersManager.UpdateSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static ApiObjects.Response.Status DeleteSSOAdapter(int groupId, int ssoAdapterId, int updaterId)
+        {
+            return SSOAdaptersManager.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
+        }
+
+        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        {
+            return SSOAdaptersManager.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
         }
     }
 }

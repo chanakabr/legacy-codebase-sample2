@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" />
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" />
+  <xs:element name="SetConfiguration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="partnerId" type="xs:int" />
+        <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="configuration" nillable="true" type="q1:ArrayOfKeyValueOfstringstring" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetConfigurationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" minOccurs="0" name="SetConfigurationResult" type="q2:AdapterStatusCode" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetImplementedMethods">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetImplementedMethodsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="GetImplementedMethodsResult" nillable="true" type="q3:SSOImplementationsResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PreSignIn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="preSignInData" nillable="true" type="q4:PreSignInModel" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PreSignInResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="PreSignInResult" nillable="true" type="q5:PreSignInResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PostSignIn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="postSignInData" nillable="true" type="q6:PostSignInModel" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PostSignInResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="PostSignInResult" nillable="true" type="q7:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PreGetUserData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="userId" type="xs:int" />
+        <xs:element minOccurs="0" name="ipAddress" nillable="true" type="xs:string" />
+        <xs:element xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="customParams" nillable="true" type="q8:ArrayOfKeyValueOfstringstring" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PreGetUserDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="PreGetUserDataResult" nillable="true" type="q9:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PostGetUserData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="userData" nillable="true" type="q10:User" />
+        <xs:element xmlns:q11="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="customParams" nillable="true" type="q11:ArrayOfKeyValueOfstringstring" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PostGetUserDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" minOccurs="0" name="PostGetUserDataResult" nillable="true" type="q12:UserResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
