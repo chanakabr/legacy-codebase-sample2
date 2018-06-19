@@ -43,7 +43,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
+        public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string,string> privileges = null)
         {
             string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
             RefreshToken = Utils.Utils.Generate32LengthGuid();
@@ -81,7 +81,7 @@ namespace WebAPI.Managers.Models
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
                 isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
-                null, 
+                privileges,
                 Models.KS.KSVersion.V2);
 
             KS = KsObject.ToString();
