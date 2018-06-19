@@ -237,7 +237,7 @@ namespace ObjectsConvertor.Mapping
             {
                 AdapterId = src.Id ?? 0,
                 Key = s.Key,
-                Value = s.Value?.value
+                Value = s.Value != null ? s.Value.value : null,
             });
 
             return settingsList.ToList();
