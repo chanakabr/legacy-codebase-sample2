@@ -90,8 +90,8 @@ namespace DAL
                 try
                 {
                     var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                    var fieldName = prop.GetCustomAttribute<DBFieldMappingAttribute>(inherit: true)?.DbFieldName;
-                    fieldName = fieldName ?? prop.Name;
+                    var propAttribute = prop.GetCustomAttribute<DBFieldMappingAttribute>(true);
+                    var fieldName = propAttribute != null ? propAttribute.DbFieldName : prop.Name;
                     var safeValue = row[fieldName] == null ? null : Convert.ChangeType(row[fieldName], propType);
 
                     prop.SetValue(obj, safeValue, null);

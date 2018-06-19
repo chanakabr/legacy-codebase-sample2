@@ -2287,7 +2287,7 @@ namespace DAL
             updateAdapterSp.AddParameter("@externalId", ssoAdapterExternalId);
 
             var dsResult = updateAdapterSp.ExecuteDataSet();
-            var updatedAdapater = dsResult.Tables[0]?.ToList<SSOAdapter>().FirstOrDefault();
+            var updatedAdapater = dsResult.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
             return updatedAdapater;
 
         }
