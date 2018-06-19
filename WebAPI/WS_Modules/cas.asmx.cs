@@ -3280,7 +3280,7 @@ namespace WS_ConditionalAccess
 
         [WebMethod]
         public PlaybackContextResponse GetPlaybackContext(string sWSUserName, string sWSPassword, string userId, string udid, string ip, string assetId, eAssetTypes assetType, 
-            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             BaseConditionalAccess t = null;
@@ -3288,7 +3288,7 @@ namespace WS_ConditionalAccess
             if (groupId != 0 && t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType);
             }
             else
             {

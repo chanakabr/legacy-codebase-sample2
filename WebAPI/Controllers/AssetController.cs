@@ -965,19 +965,22 @@ namespace WebAPI.Controllers
                     //if sources left after building DRM data, build the manifest URL
                     if (response.Sources.Count > 0)
                     {
-                        string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
-
-                        foreach (var source in response.Sources)
+                        if (contextDataParams.UrlType != KalturaUrlType.DIRECT)
                         {
-                            StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                                baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                            string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
-                            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                            foreach (var source in response.Sources)
                             {
-                                url.AppendFormat("/ks/{0}", ks.ToString());
-                            }
+                                StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                                    baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
 
-                            source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                                if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                                {
+                                    url.AppendFormat("/ks/{0}", ks.ToString());
+                                }
+
+                                source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                            }
                         }
 
                         if (response.Messages == null)

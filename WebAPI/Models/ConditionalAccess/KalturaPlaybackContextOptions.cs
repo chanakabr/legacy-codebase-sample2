@@ -46,6 +46,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "context")]
         public KalturaPlaybackContextType? Context { get; set; }
 
+        /// <summary>
+        /// Url type
+        /// </summary>
+        [DataMember(Name = "urlType")]
+        [JsonProperty("urlType")]
+        [XmlElement(ElementName = "urlType")]
+        public KalturaUrlType UrlType { get; set; }
+
         public List<long> GetMediaFileIds()
         {
             List<long> list = new List<long>();

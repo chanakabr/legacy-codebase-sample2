@@ -303,6 +303,7 @@
     <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaUrlType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
