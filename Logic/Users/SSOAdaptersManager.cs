@@ -39,7 +39,7 @@ namespace APILogic.Users
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed groupID={groupId}", ex);
+                _Logger.ErrorFormat("Failed groupID={0}, ex:{1}", groupId, ex);
             }
 
             return response;
@@ -51,7 +51,7 @@ namespace APILogic.Users
             try
             {
                 response.RespStatus = ValidateSSOAdapterModel(adapterDetails);
-                _Logger.Debug($"Validation Response is code:[{response.RespStatus.Code}] msg:[{response.RespStatus.Message}]");
+                _Logger.DebugFormat("Validation Response is code:[{0}] msg:[{1}]", response.RespStatus.Code, response.RespStatus.Message);
                 if (response.RespStatus.Code != (int)eResponseStatus.OK) { return response; }
 
                 response.SSOAdapter = DAL.UsersDal.AddSSOAdapters(adapterDetails, updaterId);
@@ -59,7 +59,7 @@ namespace APILogic.Users
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed InsertSSOAdapter groupID={adapterDetails.GroupId}", ex);
+                _Logger.ErrorFormat("Failed InsertSSOAdapter groupID={0}, ex:{1}", adapterDetails.GroupId, ex);
             }
             return response;
 
@@ -72,12 +72,12 @@ namespace APILogic.Users
             try
             {
                 response.RespStatus = ValidateSSOAdapterModel(adapterDetails);
-                _Logger.Debug($"Validation Response is code:[{response.RespStatus.Code}] msg:[{response.RespStatus.Message}]");
+                _Logger.DebugFormat("Validation Response is code:[{0}] msg:[{1}]", response.RespStatus.Code, response.RespStatus.Message);
 
                 // Only for update we need to check an id is provided
                 if (adapterDetails.Id == 0) { response.RespStatus = new Status((int)eResponseStatus.SSOAdapterIdRequired, SSO_ADAPTER_ID_REQUIRED); }
                 if (response.RespStatus.Code != (int)eResponseStatus.OK) { return response; }
-                _Logger.Debug($"Validation Response is code:[{response.RespStatus.Code}] msg:[{response.RespStatus.Message}]");
+                _Logger.DebugFormat("Validation Response is code:[{0}] msg:[{1}]", response.RespStatus.Code, response.RespStatus.Message);
 
 
 
@@ -86,7 +86,7 @@ namespace APILogic.Users
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed UpdateSSOAdapter groupID={adapterDetails.GroupId}", ex);
+                _Logger.ErrorFormat("Failed UpdateSSOAdapter groupID={0}, ex:{1}", response.RespStatus.Message, ex);
             }
             return response;
 
@@ -108,7 +108,7 @@ namespace APILogic.Users
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed DeleteSSOAdapter groupID={groupId}, adapterId={ssoAdapterId}", ex);
+                _Logger.ErrorFormat("Failed DeleteSSOAdapter groupID={0}, adapterId={1}, ex:{2}", groupId, ssoAdapterId, ex);
             }
             return response;
 
@@ -116,7 +116,7 @@ namespace APILogic.Users
 
         public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
         {
-            var response = new SSOAdapterResponse { RespStatus = new Status((int)eResponseStatus.Error,"Could not generate shared secret.") };
+            var response = new SSOAdapterResponse { RespStatus = new Status((int)eResponseStatus.Error, "Could not generate shared secret.") };
             try
             {
                 if (ssoAdapterId == 0)
@@ -130,7 +130,7 @@ namespace APILogic.Users
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed SetSSOAdapterSharedSecret adapterId={ssoAdapterId}", ex);
+                _Logger.ErrorFormat("Failed SetSSOAdapterSharedSecret adapterId={0} ex:{1}", ssoAdapterId, ex);
             }
             return response;
 
@@ -138,7 +138,7 @@ namespace APILogic.Users
 
         private static Status ValidateSSOAdapterModel(SSOAdapter adapterDetails)
         {
-            _Logger.Debug($"Validating adapaterDetails model. id:[{adapterDetails?.Id}] name:[{adapterDetails?.Name}]");
+            _Logger.DebugFormat("Validating adapaterDetails model. id:[{0}] name:[{1}]", adapterDetails?.Id, adapterDetails?.Name);
             if (adapterDetails == null) { return new Status((int)eResponseStatus.NoSSOAdapaterToInsert, NO_SSO_ADAPATER_TO_INSERT); }
             if (string.IsNullOrEmpty(adapterDetails.Name)) { return new Status((int)eResponseStatus.NameRequired, NAME_REQUIRED); }
             if (string.IsNullOrEmpty(adapterDetails.SharedSecret)) { return new Status((int)eResponseStatus.SharedSecretRequired, SHARED_SECRET_REQUIRED); }
@@ -147,7 +147,7 @@ namespace APILogic.Users
 
             // Check ExternalIdentifierMustBeUnique
             var ssoAdapaterByExternalId = DAL.UsersDal.GetSSOAdapterByExternalId(adapterDetails.ExternalIdentifier);
-            _Logger.Debug($"Checking if sso adapter external id already exist externalId:[{adapterDetails?.ExternalIdentifier}], found sso adapater id:[{ssoAdapaterByExternalId?.Id}], externalId:[{ssoAdapaterByExternalId?.ExternalIdentifier}]");
+            _Logger.DebugFormat("Checking if sso adapter external id already exist externalId:[{0}], found sso adapater id:[{1}], externalId:[{2}]", adapterDetails?.ExternalIdentifier, ssoAdapaterByExternalId?.Id, ssoAdapaterByExternalId?.ExternalIdentifier);
 
             if (ssoAdapaterByExternalId != null && ssoAdapaterByExternalId.Id != adapterDetails.Id) { return new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, EXTERNAL_IDENTIFIER_MUST_BE_UNIQUE); }
 

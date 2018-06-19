@@ -78,7 +78,7 @@ namespace Core.Users
                 };
 
                 // TODO: signature from object
-                var customParamsStr = string.Concat(preSignInModel.CustomParams.Select(c => $"{c.Key}{c.Value}"));
+                var customParamsStr = string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, preSignInModel.UserId, preSignInModel.UserName, preSignInModel.Password, customParamsStr);
                 _Logger.InfoFormat("Calling sso adapter PreSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 var response = _AdapterClient.PreSignIn(_AdapterId, preSignInModel, signature);
@@ -100,7 +100,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.Error($"Unexpected error during PreSignIn for user:[{userName}] group:[{groupId}]", e);
+                _Logger.ErrorFormat("Unexpected error during PreSignIn for user:[{0}] group:[{1}], ex:{2}", userName, groupId, e);
                 return new UserResponseObject { m_RespStatus = ResponseStatus.InternalError };
             }
         }
@@ -120,7 +120,7 @@ namespace Core.Users
                 };
 
                 // TODO: signature from object
-                var customParamsStr = string.Concat(postSignInModel.CustomParams.Select(c => $"{c.Key}{c.Value}"));
+                var customParamsStr = string.Concat(postSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, postSignInModel.AuthenticatedUser.Id, postSignInModel.AuthenticatedUser.Username, postSignInModel.AuthenticatedUser.Email, customParamsStr);
                 var response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
 
@@ -142,7 +142,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.Error($"Unexpected error during PostSignIn for user:[{authenticatedUser?.m_user?.m_oBasicData.m_sUserName}] group:[{authenticatedUser?.m_user?.GroupId}]", e);
+                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:{2}", authenticatedUser?.m_user?.m_oBasicData.m_sUserName, authenticatedUser?.m_user?.GroupId, e);
                 // TODO: should we throw an error here ? or return the normal user data ? 
             }
 
@@ -157,7 +157,7 @@ namespace Core.Users
             {
                 var userId = int.Parse(sSiteGUID);
                 var customParams = keyValueList.ToDictionary(k => k.key, v => v.value);
-                var customParamsSrt = string.Concat(keyValueList.Select(kv => $"{kv.key}{kv.value}"));
+                var customParamsSrt = string.Concat(keyValueList.Select(kv => kv.key + kv.value));
                 var signature = GenerateSignature(_AdapterId, userId, userIP, customParamsSrt);
 
                 _Logger.InfoFormat("Calling sso adapter PreGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
@@ -180,7 +180,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.Error($"Unexpected error during PostSignIn for userId:[{sSiteGUID}] userIP:[{userIP}]", e);
+                _Logger.ErrorFormat("Unexpected error during PostSignIn for userId:[{0}] userIP:[{1}], ex:{2}", sSiteGUID, userIP, e);
                 return new UserResponseObject { m_RespStatus = ResponseStatus.InternalError };
             }
 
@@ -197,7 +197,7 @@ namespace Core.Users
                 var customParams = keyValueList.ToDictionary(k => k.key, v => v.value);
 
                 //TODO: signature from object
-                var customParamsStr = string.Concat(customParams.Select(c => $"{c.Key}{c.Value}"));
+                var customParamsStr = string.Concat(customParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, userData.Id, userData.Username, userData.Email, customParamsStr);
 
                 _Logger.InfoFormat("Calling sso adapter PostGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
@@ -219,7 +219,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.Error($"Unexpected error during PostSignIn for user:[{userResponse?.m_user?.m_oBasicData.m_sUserName}] group:[{userResponse?.m_user?.GroupId}]", e);
+                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:[{2}]", userResponse?.m_user?.m_oBasicData.m_sUserName, userResponse?.m_user?.GroupId, e);
                 // TODO: should we throw an error here ? or return the normal user data ? 
             }
 
@@ -302,10 +302,11 @@ namespace Core.Users
             {
 
                 var configDict = _AdapterConfig.Settings.ToDictionary(k => k.Key, v => v.Value);
-                var settingsString = string.Concat(configDict.Select(kv => $"{kv.Key}{kv.Value}"));
+                var settingsString = string.Concat(configDict.Select(kv => kv.Key + kv.Value));
                 var signature = GenerateSignature(_AdapterId, _GroupId, settingsString);
 
-                _Logger.InfoFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", _AdapterConfig.Name, string.Concat(configDict.Select(kv => $"[{kv.Key}|{kv.Value}], ")));
+
+                _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", _AdapterConfig.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
                 _AdapterClient.SetConfiguration(_AdapterId, _GroupId, configDict, signature);
                 return false;
             }
