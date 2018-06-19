@@ -611,21 +611,29 @@ namespace TvinciImporter
                         // Call to imageSerever->Delete
                         int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
                         ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
-                        log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, URL:{3}", parentGroupId, picId, version, baseUrl);
-                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)nGroupID, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, BASE_URL:{3}", parentGroupId, picId, version, baseUrl);
+                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)parentGroupId, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
                         if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                         {
                             log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));
                         }
 
-                        //Update status of pic in database
-                        ImageUtils.UpdateImageState((int)nGroupID, picId, version, eMediaType.VOD, eTableStatus.Failed, 999);
-
+                        //Update pic status to 2 with updater_id 999
+                        var queryRes = ApiDAL.UpdateImageState((int)nGroupID, picId, version, eTableStatus.Failed, 999);
+                        if(queryRes > 0)
+                        {
+                            log.DebugFormat("Update status in database finish with Success. pic:{0}, version:{1}", picId, version);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Update status in database finish with Error. pic:{0}, version:{1}", picId, version);
+                        }
                     }
-
                 }
-                    
-
+                else
+                {
+                    log.DebugFormat("Delete images for media id:{0}, found no images to delete", nMediaID);
+                }
             }
         }
         static protected void ClearMediaTranslateValues(Int32 nMediaID)
