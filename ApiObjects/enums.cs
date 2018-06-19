@@ -7,7 +7,8 @@ namespace ApiObjects
     public enum eHttpRequestType
     {
         Post,
-        Get
+        Get,
+        Delete
     }
 
     public enum UserStatus
