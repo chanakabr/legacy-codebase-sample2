@@ -216,7 +216,6 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
 
-
             Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicDataList>()
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
