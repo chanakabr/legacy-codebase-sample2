@@ -26,25 +26,25 @@ namespace ApiObjects
         /// Rule order within the full list of rules
         /// </summary>
         [JsonProperty()]
-        public int order;
+        public int? order;
 
         [JsonProperty()]
-        public int mediaTagTypeId;
+        public int? mediaTagTypeId;
 
         [JsonProperty()]
-        public int epgTagTypeId;
+        public int? epgTagTypeId;
 
         /// <summary>
         /// Content that correspond to this rule is not available for guests
         /// </summary>
         [JsonProperty()]
-        public bool blockAnonymousAccess;
+        public bool? blockAnonymousAccess;
 
         /// <summary>
         /// Rule type – Movies, TV series or both
         /// </summary>
         [JsonProperty()]
-        public eParentalRuleType ruleType;
+        public eParentalRuleType? ruleType;
         
         [JsonProperty()]
         public List<string> mediaTagValues;
@@ -53,7 +53,7 @@ namespace ApiObjects
         public List<string> epgTagValues;
 
         [JsonProperty()]
-        public bool isDefault;
+        public bool? isDefault;
 
         [JsonProperty()]
         public eRuleLevel level;

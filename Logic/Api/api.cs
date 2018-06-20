@@ -831,8 +831,7 @@ namespace Core.Api
             }
             return bRet;
         }
-
-
+    
         static public List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
         {
             List<int> nMedias = new List<int>();
@@ -889,6 +888,7 @@ namespace Core.Api
 
             return nMedias.Distinct().ToList();
         }
+
         static public Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice)
         {
 
@@ -1357,7 +1357,6 @@ namespace Core.Api
             return ret;
         }
 
-
         static public ApiObjects.MediaMarkObject GetMediaMark(Int32 nGroupID, Int32 nMediaID, string sSiteGUID)
         {
             MediaMarkObject mmo = new MediaMarkObject();
@@ -1535,7 +1534,6 @@ namespace Core.Api
             }
             return retVal;
         }
-
 
         static public int InserEPGScheduleToChannel(int groupID, int channelID, string xml, bool deleteOld)
         {
@@ -2526,7 +2524,6 @@ namespace Core.Api
             return isBlocked;
         }
 
-
         static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
         {
             bool result = true;
@@ -3207,11 +3204,11 @@ namespace Core.Api
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.mediaTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.mediaTagTypeId.HasValue ? parentalRule.mediaTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.Parental,
                         AllTagValues = parentalRule.mediaTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 
@@ -3226,11 +3223,11 @@ namespace Core.Api
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.epgTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.epgTagTypeId.HasValue ? parentalRule.epgTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.EPG,
                         AllTagValues = parentalRule.epgTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 
@@ -4369,7 +4366,6 @@ namespace Core.Api
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
 
-
         internal static Tuple<List<int>, bool> Get_MCRulesIdsByDeviceLimitationModule(Dictionary<string, object> funcParams)
         {
             bool result = false;
@@ -4638,8 +4634,9 @@ namespace Core.Api
             {
                 List<ParentalRule> rules = null;
                 string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
                 bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref rules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                        groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                                                                                groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey });
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetParentalRules - Failed get data from cache groupId = {0}", groupId));
@@ -5390,7 +5387,7 @@ namespace Core.Api
                         if ((userParentalRules == null || userParentalRules.Count == 0) && groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault).ToList();
+                            rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
                         }
                     }
 
@@ -5632,7 +5629,7 @@ namespace Core.Api
                         else if (groupParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault).ToList();
+                            rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
                         }
                     }
 
@@ -5800,7 +5797,6 @@ namespace Core.Api
             return response;
         }
 
-
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
             ParentalRulesTagsResponse response = new ParentalRulesTagsResponse();
@@ -5821,14 +5817,14 @@ namespace Core.Api
                         response.mediaTags.AddRange(
                             rule.mediaTagValues.Select(tag => (new IdValuePair()
                             {
-                                id = rule.mediaTagTypeId,
+                                id = rule.mediaTagTypeId.HasValue ? rule.mediaTagTypeId.Value : 0,
                                 value = tag
                             })));
 
                         response.epgTags.AddRange(
                             rule.epgTagValues.Select(tag => (new IdValuePair()
                             {
-                                id = rule.epgTagTypeId,
+                                id = rule.epgTagTypeId.HasValue ? rule.epgTagTypeId.Value : 0,
                                 value = tag
                             })));
                     }
@@ -5845,6 +5841,176 @@ namespace Core.Api
                         string.Format("Error in GetUserParentalRuleTags: group = {0}, user = {3}, ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace, siteGuid),
                         ex);
                 }
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> AddParentalRule(int groupId, ParentalRule parentalRuleToAdd, long userId)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId);
+                if (result.status.Code != (int)eResponseStatus.OK && result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.name == parentalRuleToAdd.name) > 0)
+                {
+                    response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                DataSet ds = ApiDAL.AddParentalRule(groupId, parentalRuleToAdd.name, parentalRuleToAdd.description, parentalRuleToAdd.order.Value, parentalRuleToAdd.mediaTagTypeId,
+                                                    parentalRuleToAdd.mediaTagValues, parentalRuleToAdd.epgTagTypeId, parentalRuleToAdd.epgTagValues, parentalRuleToAdd.blockAnonymousAccess.Value,
+                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isDefault.Value, userId);
+                List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
+                if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id > 0)
+                {
+                    response.Object = rules[0];
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after AddParentalRule", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddParentalRule for groupId: {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> UpdateParentalRule(int groupId, long id, ParentalRule parentalRuleToUpdate, long userId)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new Status((int)result.status.Code, result.status.Message);
+                    return response;
+                }
+
+                if (result.rules == null || result.rules.Count == 0 || result.rules.Count(x => x.id == id) != 1)
+                {
+                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (!string.IsNullOrEmpty(parentalRuleToUpdate.name) && result.rules.Count(x => x.name == parentalRuleToUpdate.name) > 0)
+                {
+                    response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    ParentalRule currentParentalRule = result.rules.Where(x => x.id == id).First();
+                    bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
+                    if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
+                    {
+                        shouldUpdateMediaTagValues = false;
+                    }
+
+                    bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
+                    if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
+                    {
+                        shouldUpdateEpgTagValues = false;
+                    }
+
+                    DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
+                                                            shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
+                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isDefault,
+                                                            userId);                    
+                    List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
+                    if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
+                    {
+                        response.Object = rules[0];
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after UpdateParentalRule", invalidationKey);
+                        }
+                    }
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateParentalRule with groupId: {0} and id: {1}", groupId, id), ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new Status((int)result.status.Code, result.status.Message);
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    response.Object = result.rules.Where(x => x.id == id).First();
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetParentalRule with groupId: {0} and id: {1}", groupId, id), ex);
+            }
+
+            return response;
+        }
+
+        public static Status DeleteParentalRule(int groupId, long id, long userId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response = new Status((int)result.status.Code, result.status.Message);
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    if (ApiDAL.DeleteParentalRule(groupId, id, userId))
+                    {
+                        response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {                            
+                            log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after DeleteParentalRule", invalidationKey);
+                        }
+                    }
+                }
+                else
+                {
+                    response = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteParentalRule for groupId: {0} and id: {1}", groupId, id), ex);
             }
 
             return response;
