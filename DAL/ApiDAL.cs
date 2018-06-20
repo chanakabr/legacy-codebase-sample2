@@ -1613,7 +1613,7 @@ namespace DAL
         /// </summary>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        private static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
+        public  static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
         {
             List<ParentalRule> result = null;
 
@@ -1709,12 +1709,33 @@ namespace DAL
             newRule.name = ODBCWrapper.Utils.ExtractString(row, "NAME");
             newRule.description = ODBCWrapper.Utils.ExtractString(row, "DESCRIPTION");
             newRule.order = ODBCWrapper.Utils.ExtractInteger(row, "ORDER_NUM");
-            newRule.mediaTagTypeId = ODBCWrapper.Utils.ExtractInteger(row, "MEDIA_TAG_TYPE_ID");
-            newRule.epgTagTypeId = ODBCWrapper.Utils.ExtractInteger(row, "EPG_TAG_TYPE_ID");
+            newRule.mediaTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TAG_TYPE_ID", -1);
+            bool isTopic = false;
+            if (newRule.mediaTagTypeId == -1)
+            {
+                newRule.mediaTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TOPIC_ID");
+                isTopic = newRule.mediaTagTypeId > 0;
+            }
+
+            newRule.epgTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "EPG_TAG_TYPE_ID", -1);
+            if (newRule.epgTagTypeId == -1)
+            {
+                newRule.epgTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "EPG_TOPIC_ID");
+                isTopic = isTopic || newRule.epgTagTypeId > 0;
+            }
+
             newRule.blockAnonymousAccess = ODBCWrapper.Utils.ExtractBoolean(row, "BLOCK_ANONYMOUS_ACCESS");
             newRule.ruleType = (eParentalRuleType)ODBCWrapper.Utils.ExtractInteger(row, "RULE_TYPE");
-            newRule.mediaTagType = ODBCWrapper.Utils.ExtractString(row, "media_tag_type_name");
-            newRule.epgTagType = ODBCWrapper.Utils.ExtractString(row, "epg_tag_type_name");
+            if (!isTopic)
+            {
+                newRule.mediaTagType = ODBCWrapper.Utils.ExtractString(row, "media_tag_type_name");
+                newRule.epgTagType = ODBCWrapper.Utils.ExtractString(row, "epg_tag_type_name");
+            }
+            else
+            {
+                newRule.mediaTagType = ODBCWrapper.Utils.GetSafeStr(row, "media_topic_system_name");
+                newRule.epgTagType = ODBCWrapper.Utils.GetSafeStr(row, "epg_topic_system_name");
+            }
 
             int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
 
@@ -4525,5 +4546,71 @@ namespace DAL
 
             return result;
         }
+
+        #region New Catalog Management
+
+        public static bool DeleteParentalRule(int groupId, long id, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteParentalRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataSet AddParentalRule(int groupId, string name, string description, int order, int? mediaTopicId, List<string> mediaTagValues, int? epgTopicId, List<string> epgTagValues,
+                                                bool blockAnonymousAccess, eParentalRuleType ruleType, bool isDefault, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddParentalRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@Description", description);
+            sp.AddParameter("@Order", order);
+            sp.AddParameter("@MediaTopicId", mediaTopicId);
+            bool shouldInsertMediaTagValues = mediaTagValues != null && mediaTagValues.Count > 0;
+            sp.AddParameter("@MediaTagValuesExists", shouldInsertMediaTagValues ? 1 : 0);
+            sp.AddIDListParameter("@MediaTagValues", shouldInsertMediaTagValues ? mediaTagValues : null, "STR");
+            sp.AddParameter("@EpgTopicId", epgTopicId);
+            bool shouldInsertEpgTagValues = epgTagValues != null && epgTagValues.Count > 0;            
+            sp.AddParameter("@EpgTagValuesExists", shouldInsertEpgTagValues ? 1 : 0);
+            sp.AddIDListParameter("@EpgTagValues", shouldInsertEpgTagValues ? epgTagValues : null, "STR");
+            sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
+            sp.AddParameter("@RuleType", (int)ruleType);
+            sp.AddParameter("@IsDefault", isDefault);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateParentalRule(int groupId, long id, string name, string description, int? order, int? mediaTopicId, bool shouldUpdateMediaTagValues, List<string> mediaTagValues,
+                                                int? epgTopicId, bool shouldUpdateEpgTagValues, List<string> epgTagValues, bool? blockAnonymousAccess, eParentalRuleType? ruleType, bool? isDefault,
+                                                long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateParentalRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@Description", description);
+            sp.AddParameter("@Order", order);
+            sp.AddParameter("@MediaTopicId", mediaTopicId);            
+            sp.AddParameter("@ShouldUpdateMediaTagValues", shouldUpdateMediaTagValues ? 1 : 0);
+            sp.AddIDListParameter("@MediaTagValues", shouldUpdateMediaTagValues ? mediaTagValues : null, "STR");
+            sp.AddParameter("@EpgTopicId", epgTopicId);            
+            sp.AddParameter("@ShouldUpdateEpgTagValues", shouldUpdateEpgTagValues ? 1 : 0);
+            sp.AddIDListParameter("@EpgTagValues", shouldUpdateEpgTagValues ? epgTagValues : null, "STR");
+            sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
+            sp.AddParameter("@RuleType", (int)ruleType);
+            sp.AddParameter("@IsDefault", isDefault);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        #endregion
+
     }
 }

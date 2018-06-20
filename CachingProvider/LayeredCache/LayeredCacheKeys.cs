@@ -651,6 +651,11 @@ namespace CachingProvider.LayeredCache
 
         #endregion
 
+        public static string GetGroupParentalRulesInvalidationKey(int groupId)
+        {
+            return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation keys functions
