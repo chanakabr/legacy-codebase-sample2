@@ -86,7 +86,8 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 if (((Context.Value == KalturaPlaybackContextType.CATCHUP || Context.Value == KalturaPlaybackContextType.START_OVER) && assetType != Catalog.KalturaAssetType.epg) ||
                     (Context.Value == KalturaPlaybackContextType.TRAILER && assetType != Catalog.KalturaAssetType.media) ||
-                    (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg))
+                    (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg)||
+                    (Context.Value == KalturaPlaybackContextType.DOWNLOAD && assetType == Catalog.KalturaAssetType.epg))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
                 }
