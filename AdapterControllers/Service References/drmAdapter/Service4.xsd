@@ -32,7 +32,7 @@
         <xs:element minOccurs="0" name="externalFileId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="udid" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="deviceBrandId" type="xs:int" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="context" type="q3:ContextType" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
         <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
       </xs:sequence>
@@ -41,7 +41,7 @@
   <xs:element name="GetAssetLicenseDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetAssetLicenseDataResult" nillable="true" type="q3:DrmAdapterResponse" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetAssetLicenseDataResult" nillable="true" type="q4:DrmAdapterResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -63,7 +63,7 @@
   <xs:element name="GetDeviceLicenseDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetDeviceLicenseDataResult" nillable="true" type="q4:DrmAdapterResponse" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetDeviceLicenseDataResult" nillable="true" type="q5:DrmAdapterResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

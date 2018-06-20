@@ -9,6 +9,13 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="AssetType" nillable="true" type="tns:AssetType" />
+  <xs:simpleType name="ContextType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STREAMING" />
+      <xs:enumeration value="DOWNLOAD" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ContextType" nillable="true" type="tns:ContextType" />
   <xs:complexType name="DrmAdapterResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="Data" nillable="true" type="xs:string" />
