@@ -3509,7 +3509,16 @@ namespace DAL
                     updateQuery += " AND ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
                 }
-
+                
+                if (status == eTableStatus.Failed && updaterId == 999)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                    updateQuery += " WHERE ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                }
+                else
                 if (status == eTableStatus.Failed)
                 {
                     // update image upload failed only if current status is "Pending"
@@ -3521,15 +3530,6 @@ namespace DAL
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
-                }
-
-                if (status == eTableStatus.Failed && updaterId == 999)
-                {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
-                    updateQuery += " WHERE ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                 }
 
                 updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
