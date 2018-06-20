@@ -50,8 +50,8 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// SSO Adapter extra parameters
         /// </summary>
-        [DataMember(Name = "ssoAdapterSettings")]
-        [JsonProperty("ssoAdapterSettings")]
+        [DataMember(Name = "settings")]
+        [JsonProperty("settings")]
         [XmlElement(ElementName = "settings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
