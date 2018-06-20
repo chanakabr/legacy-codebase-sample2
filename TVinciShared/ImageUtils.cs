@@ -679,13 +679,13 @@ namespace TVinciShared
 
                     case eHttpRequestType.Delete:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else
                         {
                             imageServerUrl = imageServerUrlObj.ToString();
-                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "DeleteImage/" : imageServerUrl + "/DeleteImage/";
+                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "DeleteImage/" : imageServerUrl + "/DeleteImage";
                         }
                         break;
                     default:
