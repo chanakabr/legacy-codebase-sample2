@@ -975,6 +975,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaPlaybackContextType.PLAYBACK:
                     result = PlayContextType.Playback;
                     break;
+                case KalturaPlaybackContextType.DOWNLOAD:
+                    result = PlayContextType.Download;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown KalturaContextType type");
                     break;

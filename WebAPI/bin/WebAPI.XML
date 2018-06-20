@@ -7223,6 +7223,11 @@
             Playback context type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.UrlType">
+            <summary>
+            Url type
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
             <summary>
             Source format according to delivery profile streamer type (applehttp, mpegdash etc.)

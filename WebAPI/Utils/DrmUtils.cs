@@ -180,10 +180,8 @@ namespace WebAPI.Utils
                 {
                     string code, message;
 
-                    int brandId = GetDeviceBrandId(ks);
-
                     string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value,
-                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, brandId, contextDataParams.Context, out code, out message);
+                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))
@@ -227,28 +225,6 @@ namespace WebAPI.Utils
                 }
                 response.Actions.Add(new KalturaAccessControlBlockAction());
             }
-        }
-
-        private static int GetDeviceBrandId(KS ks)
-        {
-            int brandId = 0;
-
-            var domainResponse = Core.Domains.Module.GetDomainInfo(ks.GroupId, (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId));
-
-            if (domainResponse.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
-            {
-                Device device = null;
-                foreach (var deviceFamily in domainResponse.Domain.m_deviceFamilies)
-                {
-                    device = deviceFamily.DeviceInstances.Where(d => d.m_deviceUDID == KSUtils.ExtractKSPayload().UDID).FirstOrDefault();
-                    if (device != null)
-                    {
-                        brandId = device.m_deviceBrandID;
-                    }
-                }
-            }
-
-            return brandId;
-        }
+        }      
     }
 }
