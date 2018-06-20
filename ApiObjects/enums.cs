@@ -855,7 +855,8 @@ namespace ApiObjects
         Trailer,
         CatchUp,
         StartOver,
-        Playback
+        Playback,
+        Download
     }
 
     public enum StreamerType
