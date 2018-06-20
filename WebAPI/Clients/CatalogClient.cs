@@ -47,7 +47,7 @@ namespace WebAPI.Clients
             }
         }
         
-        #region New Catalog Management        
+        #region New Catalog Management    
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {

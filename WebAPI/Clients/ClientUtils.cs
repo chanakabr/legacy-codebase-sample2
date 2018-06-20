@@ -54,6 +54,43 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal static U GetResponseFromWS<U, T>(Func<GenericResponse<T>> funcInWS)
+            where U : KalturaOTTObject
+        {
+            U result = null;
+            GenericResponse<T> response = null;
+
+            try
+            {                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Object != null)
+            {
+                result = AutoMapper.Mapper.Map<U>(response.Object);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Get result list from CatalogManager (without ordering the list)
         /// </summary>

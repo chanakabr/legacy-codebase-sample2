@@ -3928,6 +3928,35 @@
             <param name="entityReference">Reference type to filter by</param>
             <returns>Success / fail</returns>
         </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Add(WebAPI.Models.API.KalturaParentalRule)">
+            <summary>
+            Add a new parentalRule
+            </summary>
+            <param name="parentalRule">parentalRule object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Update(System.Int64,WebAPI.Models.API.KalturaParentalRule)">
+            <summary>
+            Update an existing parentalRule
+            </summary>
+            <param name="id">parentalRule identifier</param>
+            <param name="parentalRule">parentalRule object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Get(System.Int64)">
+            <summary>
+            Get an existing parentalRule by identifier
+            </summary>
+            <param name="id">parentalRule identifier</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Delete(System.Int64)">
+            <summary>
+            Delete an existing parentalRule
+            </summary>
+            <param name="id">parentalRule identifier</param>        
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionHistoryController.List(WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Gets user or household transaction history.        

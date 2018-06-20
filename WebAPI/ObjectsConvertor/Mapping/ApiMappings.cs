@@ -67,7 +67,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Parental Rules
 
-            // ParentalRule
+            // ParentalRule to KalturaParentalRule
             Mapper.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
@@ -80,7 +80,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
+                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType.Value)));
+
+            // KalturaParentalRule to ParentalRule
+            Mapper.CreateMap<KalturaParentalRule, ParentalRule>()
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues))                
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))               
+                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)))
+                .ForMember(dest => dest.id, opt => opt.Ignore())
+                .ForMember(dest => dest.level, opt => opt.Ignore());
 
             // PinResponse
             Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
@@ -981,7 +996,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = WebAPI.Models.API.KalturaParentalRuleType.TV_SERIES;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown parental rule type");
+            }
+
+            return result;
+        }
+
+        private static eParentalRuleType? ConvertParentalRuleType(KalturaParentalRuleType? ruleType)
+        {
+            eParentalRuleType? result = null;
+            if (ruleType.HasValue)
+            {
+                switch (ruleType.Value)
+                {
+                    case KalturaParentalRuleType.ALL:
+                        result = eParentalRuleType.All;
+                        break;
+                    case KalturaParentalRuleType.MOVIES:
+                        result = eParentalRuleType.Movies;
+                        break;
+                    case KalturaParentalRuleType.TV_SERIES:
+                        result = eParentalRuleType.TVSeries;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaParentalRuleType");
+                }
             }
 
             return result;

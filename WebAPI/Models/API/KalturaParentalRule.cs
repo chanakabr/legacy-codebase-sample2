@@ -23,7 +23,7 @@ namespace WebAPI.Models.API
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public long? id { get; set; }
+        public long id { get; set; }
 
         /// <summary>
         /// Rule display name
@@ -83,7 +83,7 @@ namespace WebAPI.Models.API
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
         [OldStandardProperty("rule_type")]
-        public KalturaParentalRuleType ruleType { get; set; }
+        public KalturaParentalRuleType? ruleType { get; set; }
 
         /// <summary>
         /// Media tag values that trigger rule
@@ -120,6 +120,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
         [XmlElement(ElementName = "origin")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaRuleLevel Origin { get; set; }
 
     }

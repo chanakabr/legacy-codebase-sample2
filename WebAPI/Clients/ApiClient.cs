@@ -1422,6 +1422,31 @@ namespace WebAPI.Clients
 
             return rules;
         }
+
+        internal KalturaParentalRule AddParentalRule(int groupId, KalturaParentalRule parentalRule, long userId)
+        {
+            Func<ParentalRule, GenericResponse<ParentalRule>> addParentalRuleFunc = (ParentalRule parentalRuleToAdd) => Core.Api.api.AddParentalRule(groupId, parentalRuleToAdd, userId);
+            return ClientUtils.GetResponseFromWS<KalturaParentalRule, ParentalRule>(parentalRule, addParentalRuleFunc);
+        }
+
+        internal KalturaParentalRule UpdateParentalRule(int groupId, long id, KalturaParentalRule parentalRule, long userId)
+        {
+            Func<ParentalRule, GenericResponse<ParentalRule>> updateParentalRuleFunc = (ParentalRule parentalRuleToUpdate) => Core.Api.api.UpdateParentalRule(groupId, id, parentalRuleToUpdate, userId);
+            return ClientUtils.GetResponseFromWS<KalturaParentalRule, ParentalRule>(parentalRule, updateParentalRuleFunc);
+        }
+
+        internal KalturaParentalRule GetParentalRule(int groupId, long id)
+        {
+            Func<GenericResponse<ParentalRule>> getParentalRuleFunc = () => Core.Api.api.GetParentalRule(groupId, id);
+            return ClientUtils.GetResponseFromWS<KalturaParentalRule, ParentalRule>(getParentalRuleFunc);
+        }
+
+        internal bool DeleteParentalRule(int groupId, long id, long userId)
+        {
+            Func<Status> deleteAssetStructFunc = () => Core.Api.api.DeleteParentalRule(groupId, id, userId);
+            return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
+        }
+
         #endregion
 
         internal Dictionary<string, int> GetErrorCodesDictionary()
@@ -3416,7 +3441,6 @@ namespace WebAPI.Clients
 
             return result;
         }
-
 
         internal void SaveSearchHistory(string name, string service, string action, string language, int groupId, string userId, string deviceId, JObject persistedFilter)
         {

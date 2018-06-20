@@ -1036,9 +1036,7 @@ namespace WebAPI.Controllers
         /// <param name="asset">Asset object</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [ApiAuthorize]                
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
         [Throws(eResponseStatus.InvalidMetaType)]
