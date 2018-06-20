@@ -612,7 +612,7 @@ namespace TvinciImporter
                         int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
                         ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
                         log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, BASE_URL:{3}", parentGroupId, picId, version, baseUrl);
-                        string result = Utils.HttpDelete(ImageUtils.GetImageServerUrl((int)parentGroupId, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        string result = Utils.HttpPost(ImageUtils.GetImageServerUrl((int)parentGroupId, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
                         if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                         {
                             log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));
@@ -634,6 +634,10 @@ namespace TvinciImporter
                 {
                     log.DebugFormat("Delete images for media id:{0}, found no images to delete", nMediaID);
                 }
+            }
+            else
+            {
+                log.Debug("use OLD image server");
             }
         }
         static protected void ClearMediaTranslateValues(Int32 nMediaID)
