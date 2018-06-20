@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -75,6 +76,7 @@
     <Compile Include="CrowdsourceDAL.cs" />
     <Compile Include="EngagementDal.cs" />
     <Compile Include="enums.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="InterestDal.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="RecordingsDAL.cs" />
