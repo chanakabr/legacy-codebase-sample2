@@ -600,7 +600,9 @@ namespace TvinciImporter
                 DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
 
                 if (picsDataRows != null && picsDataRows.Count > 0) 
-                {    
+                {
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
+                    string url = ImageUtils.GetImageServerUrl(parentGroupId, eHttpRequestType.Delete);
                     foreach (DataRow row in picsDataRows)
                     {
                         picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
@@ -609,10 +611,9 @@ namespace TvinciImporter
                         picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
 
                         // Call to imageSerever->Delete
-                        int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
                         ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
                         log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, BASE_URL:{3}", parentGroupId, picId, version, baseUrl);
-                        string result = Utils.HttpPost(ImageUtils.GetImageServerUrl((int)parentGroupId, eHttpRequestType.Delete), JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        string result = Utils.HttpPost(url, JsonConvert.SerializeObject(imageServerReq), "application/json");
                         if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                         {
                             log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));

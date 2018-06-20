@@ -3493,6 +3493,7 @@ namespace DAL
         public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId)
         {
             int result = -1;
+
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
             try
             {
@@ -3523,13 +3524,16 @@ namespace DAL
                 {
                     // update image upload failed only if current status is "Pending"
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     if (updaterId.HasValue)
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
-                    updateQuery += " AND ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                    if (!updaterId.HasValue || updaterId != 999)
+                    {
+                        updateQuery += " AND ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                    }
                 }
 
                 updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
