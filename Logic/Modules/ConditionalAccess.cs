@@ -173,8 +173,9 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
+                string drmData = string.Empty;
                 return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, 
-                    sDeviceName, string.Empty, PlayContextType.Playback);
+                    sDeviceName, string.Empty, PlayContextType.Playback, out drmData);
             }
             else
             {

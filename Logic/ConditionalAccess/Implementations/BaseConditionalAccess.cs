@@ -3476,8 +3476,10 @@ namespace Core.ConditionalAccess
         }
 
         public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink,
-            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType)
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, 
+            out string drmData)
         {
+            drmData = string.Empty;
             return new LicensedLinkResponse();
         }
 
@@ -11089,8 +11091,10 @@ namespace Core.ConditionalAccess
         }
 
         protected virtual string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid, PlayContextType contextType)
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid, 
+            PlayContextType contextType, out string drmData)
         {
+            drmData = string.Empty;
             return string.Empty;
         }
 

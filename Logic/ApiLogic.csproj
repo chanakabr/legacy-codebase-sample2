@@ -381,6 +381,7 @@
     <Compile Include="ConditionalAccess\Response\BillingTransactions.cs" />
     <Compile Include="ConditionalAccess\Response\CancelDeleteResponse.cs" />
     <Compile Include="ConditionalAccess\Response\DomainServicesResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\DrmPlaybackPluginData.cs" />
     <Compile Include="ConditionalAccess\Response\Entitlement.cs" />
     <Compile Include="ConditionalAccess\Response\EntitlementResponse.cs" />
     <Compile Include="ConditionalAccess\Response\LicensedLinkNPVRResponse.cs" />

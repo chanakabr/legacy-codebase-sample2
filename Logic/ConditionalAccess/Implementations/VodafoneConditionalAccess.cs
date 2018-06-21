@@ -807,10 +807,13 @@ namespace Core.ConditionalAccess
         }
 
         protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink,
-            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmAdapterId, string fileCoGuid, PlayContextType contextType)
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmAdapterId, string fileCoGuid, 
+            PlayContextType contextType, out string drmData)
         {
             // don't catch exceptions in this function!
             string res = string.Empty;
+            drmData = string.Empty;
+
             if (!IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
                 log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Input not valid. Either user id, device udid or program id not supplied.", sSiteGUID, sProgramId, false, null));
@@ -865,7 +868,7 @@ namespace Core.ConditionalAccess
                     fileCoGuid, sUserIP, sDEVICE_NAME, contextType);
                 if (drmResponse != null && drmResponse.Status != null && drmResponse.Status.Code == (int)eResponseStatus.OK)
                 {
-                    return drmResponse.Value;
+                    drmData = drmResponse.Value;
                 }
                 else
                 {

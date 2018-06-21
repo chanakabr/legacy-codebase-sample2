@@ -21,12 +21,15 @@ namespace Core.ConditionalAccess
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
             LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
-            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd, udid,
-                couponCode, contextType);
+            string drmData = string.Empty;
+
+            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd,
+                langCd, udid, couponCode, contextType, out drmData);
             if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(licensedLinkResponse.mainUrl))
             {
                 res.status = NPVRStatus.OK.ToString();
-                res.mainUrl = licensedLinkResponse.mainUrl;                
+                res.mainUrl = licensedLinkResponse.mainUrl;
+                res.drm = new DrmPlaybackPluginData() { scheme = DrmSchemeName.CUSTOM_DRM, data = drmData };
             }
             else if (licensedLinkResponse.status == "ServiceNotAllowed")
             {

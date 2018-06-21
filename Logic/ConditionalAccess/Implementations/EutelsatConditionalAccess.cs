@@ -837,9 +837,11 @@ namespace Core.ConditionalAccess
         }
 
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType)
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
+            drmData = string.Empty;
+
             try
             {
                 // Validate inputs
