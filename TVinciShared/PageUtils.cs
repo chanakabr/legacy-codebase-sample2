@@ -1649,6 +1649,16 @@ namespace TVinciShared
                 version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
                 int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId.Value);
 
+                if (ratioId == 0 && width == 90 && height == 65)
+                {
+                    //get default ratio from group
+                    object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId.Value);
+                    if (ratio != null && ratio == DBNull.Value)
+                    {
+                        ratioId = int.Parse(ratio.ToString());
+                    }
+                }
+
                 imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
             }
             else
@@ -1680,17 +1690,7 @@ namespace TVinciShared
                 baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
                 ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
                 version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
-                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
-
-                if (ratioId == 0 && width == 90 && height == 65)
-                {
-                    //get default ratio from group
-                    object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
-                    if (ratio != null && ratio == DBNull.Value)
-                    {
-                        ratioId = int.Parse(ratio.ToString());
-                    }
-                }
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);               
 
                 imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
             }
