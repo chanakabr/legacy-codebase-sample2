@@ -1682,12 +1682,25 @@ namespace TVinciShared
                 version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
                 int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
+                if (ratioId == 0 && width == 90 && height == 65)
+                {
+                    //get default ratio from group
+                    object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
+                    if (ratio != null && ratio == DBNull.Value)
+                    {
+                        ratioId = int.Parse(ratio.ToString());
+                    }
+                }
+
                 imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
             }
             else
             {
                 log.ErrorFormat("GetPicImageUrlByRatio imageUrl is empty. AssetId {0}, AsssetImageType {1}", assetId, (int)asssetImageType);
             }
+
+            selectQuery.Finish();
+            selectQuery = null;
 
             return imageUrl;
         }
