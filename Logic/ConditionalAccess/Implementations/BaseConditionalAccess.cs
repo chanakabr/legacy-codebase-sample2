@@ -3475,9 +3475,8 @@ namespace Core.ConditionalAccess
             return isDeviceRecognized;
         }
 
-
-
-        public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink,
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType)
         {
             return new LicensedLinkResponse();
         }
@@ -10546,7 +10545,8 @@ namespace Core.ConditionalAccess
         }
 
         private bool TryGetFileUrlLinks(int groupId, int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
-            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID)
+            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID, ref string fileCoGuid)
+
         {
             bool res = false;
 
@@ -10563,34 +10563,43 @@ namespace Core.ConditionalAccess
                 mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
                 altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
                 mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                fileCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID");
                 res = true;
             }
             return res;
         }
 
-
-        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCountryCode,
+            string sLanguageCode, string sDeviceName, string sCouponCode)
         {
             int fileMainStreamingCoID = 0;
             int mediaId = 0;
             string fileType = string.Empty;
+            int drmId = 0;
+            string fileCoGuid = string.Empty;
+
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
+
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID, ref string fileType)
         {
             int mediaId = 0;
+            int drmId = 0;
+            string fileCoGuid = string.Empty;
+
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
         }
 
-        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId, ref string fileType)
+        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCountryCode,
+            string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId, ref string fileType,
+            out int drmId, ref string fileCoGuid)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
+            drmId = 0;
 
             try
             {
@@ -10598,7 +10607,7 @@ namespace Core.ConditionalAccess
                 int streamingCoID = 0;
                 if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                 {
-                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID, out fileType);
+                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID, out fileType, out drmId);
                 }
 
                 // validate parameters
@@ -10650,7 +10659,8 @@ namespace Core.ConditionalAccess
                     }
 
                     // validate file parameters
-                    if (!TryGetFileUrlLinks(m_nGroupID, nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID, ref nMediaID))
+                    if (!TryGetFileUrlLinks(m_nGroupID, nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID,
+                        ref nMediaID, ref fileCoGuid))
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -11079,7 +11089,7 @@ namespace Core.ConditionalAccess
         }
 
         protected virtual string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid, PlayContextType contextType)
         {
             return string.Empty;
         }
@@ -16299,10 +16309,11 @@ namespace Core.ConditionalAccess
         }
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
-            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice)
+            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType)
         {
             List<int> mediaConcurrencyRuleIds = null;
-            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out filePrice, out mediaConcurrencyRuleIds);
+            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out filePrice,
+                out mediaConcurrencyRuleIds, urlType);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)

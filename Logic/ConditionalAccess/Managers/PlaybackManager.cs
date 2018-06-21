@@ -16,8 +16,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess
 {
@@ -26,7 +24,7 @@ namespace Core.ConditionalAccess
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
-            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds)
+            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -63,7 +61,7 @@ namespace Core.ConditionalAccess
                     validationStatus = Utils.ValidateDomain(groupId, (int)domainId, out domain);
                 }
 
-                if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG) 
+                if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
                 {
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
@@ -142,7 +140,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty ,true, string.Empty, string.Empty, ip, null, blockEntitlement);
+                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty, true, string.Empty, string.Empty, ip, null, blockEntitlement);
                         if (prices != null && prices.Length > 0)
                         {
                             AdsControlData adsData;
@@ -154,16 +152,16 @@ namespace Core.ConditionalAccess
                                 ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
 
                                 if (Utils.IsItemPurchased(price, ref priceReason))
-                                {                                    
+                                {
                                     if (priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased || priceReason == ApiObjects.ConditionalAccess.PriceReason.SubscriptionPurchased)
                                     {
                                         RolePermissions rolePermission = priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
                                         if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
-                                            continue; 
+                                            continue;
                                         }
                                     }
-                                   
+
                                     adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
                                     if (adsData != null)
                                     {
@@ -186,12 +184,16 @@ namespace Core.ConditionalAccess
 
                     if (assetFileIdsAds.Count > 0)
                     {
-                        int domainID = 0;
-                        DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId), ip, ref mediaConcurrencyRuleIds, ref domainID);
-                        if (mediaConcurrencyResponse != DomainResponseStatus.OK)
+                        // in case of direct Url no need for Concurrency check
+                        if (context != PlayContextType.Download)
                         {
-                            response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
-                            return response;
+                            int domainID = 0;
+                            DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId), ip, ref mediaConcurrencyRuleIds, ref domainID);
+                            if (mediaConcurrencyResponse != DomainResponseStatus.OK)
+                            {
+                                response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                                return response;
+                            }
                         }
 
                         response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
@@ -203,7 +205,47 @@ namespace Core.ConditionalAccess
                                 file.AdsParam = assetFileAds.AdsParam;
                                 file.AdsPolicy = assetFileAds.AdsPolicy;
                             }
+
+                            if (urlType == UrlType.direct)
+                            {
+                                // get adapter
+                                bool isDefaultAdapter = false;
+                                CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
+                                PlayManifestResponse playManifestResponse = null;
+                                int assetIdInt = int.Parse(assetId);
+
+                                switch (assetType)
+                                {
+                                    case eAssetTypes.EPG:
+                                        playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context);
+                                        break;
+                                    case eAssetTypes.NPVR:
+                                        playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
+                                        break;
+                                    case eAssetTypes.MEDIA:
+                                        playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if (response.Status.Code == (int)eResponseStatus.OK)
+                                {
+                                    file.DirectUrl = playManifestResponse.Url;
+
+                                    if (context != PlayContextType.Download)
+                                    {
+                                        // HandlePlayUses
+                                        if (domainId > 0 && Utils.IsItemPurchased(filePrice))
+                                        {
+                                            PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
+                                            cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId);
+                                        }
+                                    }
+                                }
+                            }
                         }
+
                     }
                     else if (assetType == eAssetTypes.NPVR)
                     {
@@ -243,7 +285,7 @@ namespace Core.ConditionalAccess
             {
                 Subscription subscription = null;
                 ItemPriceContainer itemPrice = price.m_oItemPrices[0];
-                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null) 
+                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null)
                 {
                     if (subscription.m_lServices != null && subscription.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null && subscription.AdsPolicy != null)
                     {
@@ -291,7 +333,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
+                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.ErrorFormat("Failed to get media ID for assetId = {0}, assetType = {1}", assetId, assetType);
@@ -311,7 +353,7 @@ namespace Core.ConditionalAccess
                 MediaFileItemPricesContainer price;
                 List<int> mediaConcurrencyRuleIds = null;
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
-                    file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, ip, udid, out price, out mediaConcurrencyRuleIds);
+                    file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, ip, udid, out price, out mediaConcurrencyRuleIds, UrlType.playmanifest);
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;
@@ -544,7 +586,7 @@ namespace Core.ConditionalAccess
             {
                 string key = LayeredCacheKeys.GetGroupAdsControlKey(groupId);
 
-                if (!LayeredCache.Instance.Get<AdsControlData>(key, ref adsData, Pricing.Utils.GetGetGroupAdsControl, new Dictionary<string, object>() { 
+                if (!LayeredCache.Instance.Get<AdsControlData>(key, ref adsData, Pricing.Utils.GetGetGroupAdsControl, new Dictionary<string, object>() {
                                                        { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME, new List<string>() {
                                                        LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
                 {
@@ -604,7 +646,7 @@ namespace Core.ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
-                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
+                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response;

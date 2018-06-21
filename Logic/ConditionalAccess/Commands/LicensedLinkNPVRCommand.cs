@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects.Response;
+﻿using ApiObjects;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.Response;
+using System;
 
 namespace Core.ConditionalAccess
 {
@@ -18,15 +16,17 @@ namespace Core.ConditionalAccess
         public string countryCd;
         public string langCd;
         public string couponCode;
+        public PlayContextType contextType;
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
             LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
-            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd, udid, couponCode);
+            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd, langCd, udid,
+                couponCode, contextType);
             if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(licensedLinkResponse.mainUrl))
             {
                 res.status = NPVRStatus.OK.ToString();
-                res.mainUrl = licensedLinkResponse.mainUrl;
+                res.mainUrl = licensedLinkResponse.mainUrl;                
             }
             else if (licensedLinkResponse.status == "ServiceNotAllowed")
             {

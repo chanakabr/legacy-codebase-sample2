@@ -2732,11 +2732,12 @@ namespace Core.ConditionalAccess
             return Pricing.Module.GetSubscriptionDataByProductCode(nGroupID, sProductCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
         }
 
-        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID, out string fileType)
+        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID, out string fileType, out int drmId)
         {
             MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
             nStreamingCompanyID = 0;
             fileType = string.Empty;
+            drmId = 0;
             int mediaID = 0;
             if (mapper != null && mapper.Length > 0)
             {
@@ -2746,9 +2747,9 @@ namespace Core.ConditionalAccess
             if (sBasicLink.Equals(string.Format("{0}||{1}", mediaID, nMediaFileID)))
             {
                 string sBaseURL = string.Empty;
-                string sStreamID = string.Empty;
+                string sStreamID = string.Empty;                
 
-                ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID, ref fileType);
+                ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID, ref fileType, out drmId);
 
                 sBasicLink = string.Format("{0}{1}", sBaseURL, sStreamID);
                 if (sStreamID.Length > 0)
@@ -6725,7 +6726,7 @@ namespace Core.ConditionalAccess
                 {
                     files = allMediafiles.Where(f => (!streamerType.HasValue || streamerType.Value == f.StreamerType) &&
                         ((context == PlayContextType.Trailer && f.IsTrailer) ||
-                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.StartOver) && !f.IsTrailer)) &&
+                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.StartOver || context == PlayContextType.Download) && !f.IsTrailer)) && // check with Ira
                         (string.IsNullOrEmpty(mediaProtocol) || string.IsNullOrEmpty(f.Url) || f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
