@@ -7120,6 +7120,64 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DrmPlaybackPluginData {
+        
+        private DrmSchemeName schemeField;
+        
+        private string dataField;
+        
+        /// <remarks/>
+        public DrmSchemeName scheme {
+            get {
+                return this.schemeField;
+            }
+            set {
+                this.schemeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string data {
+            get {
+                return this.dataField;
+            }
+            set {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum DrmSchemeName {
+        
+        /// <remarks/>
+        PLAYREADY_CENC,
+        
+        /// <remarks/>
+        WIDEVINE_CENC,
+        
+        /// <remarks/>
+        FAIRPLAY,
+        
+        /// <remarks/>
+        WIDEVINE,
+        
+        /// <remarks/>
+        PLAYREADY,
+        
+        /// <remarks/>
+        CUSTOM_DRM,
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
@@ -7229,6 +7287,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private string mainUrlField;
         
+        private DrmPlaybackPluginData drmField;
+        
         /// <remarks/>
         public string mainUrl {
             get {
@@ -7236,6 +7296,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.mainUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DrmPlaybackPluginData drm {
+            get {
+                return this.drmField;
+            }
+            set {
+                this.drmField = value;
             }
         }
     }
