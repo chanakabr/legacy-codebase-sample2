@@ -480,12 +480,20 @@ function ChangeVid(theID , theVal , theTable)
 
 function callback_ChangeActiveStateRow(result)
 {
-    var split_array=result.split("~~|~~");
-    if (split_array.length = 2)
-    {
+    var split_array = result.split("~~|~~");
+
+    window.document.getElementById(split_array[0]).innerHTML = "On / Off";
+
+    if (split_array.length == 2) {
         //document.getElementById(split_array[0]).innerHTML = split_array[1];
         window.document.getElementById(split_array[0]).innerHTML = split_array[1];
-        
+
+    }
+    else if (split_array.length == 3) {
+        setTimeout(function () {
+            window.document.getElementById(split_array[0]).innerHTML = split_array[1];
+        },
+        parseInt(split_array[2]));
     }
 }
 

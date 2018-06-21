@@ -271,6 +271,12 @@ public partial class adm_utils : System.Web.UI.Page
             }
         }
 
+        // add delay to result so that switch of HTML won't happen immediately for these two cases
+        if (sTableName.ToLower() == "media" || sTableName.ToLower() == "epg")
+        {
+            sRet += "~~|~~3000";
+        }
+
         return sRet;
     }
 
@@ -456,6 +462,13 @@ public partial class adm_utils : System.Web.UI.Page
                 sRet += "On";
                 sRet += "</a>";
             }
+
+            // add delay to result so that switch of HTML won't happen immediately for these two cases
+            if (sTable.ToLower() == "media" || sTable.ToLower() == "epg")
+            {
+                sRet += "~~|~~3000";
+            }
+
             return sRet;
         }
     }
