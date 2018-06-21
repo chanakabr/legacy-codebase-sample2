@@ -1594,13 +1594,14 @@ namespace DAL
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static List<ParentalRule> Get_Group_ParentalRules(int groupId)
+        public static List<ParentalRule> Get_Group_ParentalRules(int groupId, bool shouldGetOnlyActive)
         {
             // Perform stored procedure
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Group_ParentalRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@ShouldGetOnlyActive", shouldGetOnlyActive ? 1 : 0);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
@@ -1749,6 +1750,11 @@ namespace DAL
             }
 
             newRule.isDefault = ODBCWrapper.Utils.ExtractBoolean(row, "IS_DEFAULT");
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE", -1);
+            // isActive == -1 is for backward compatability in case is_active coulmn isn't returned at all, then it must be only active
+            newRule.isActive = isActive == -1 || isActive == 1 ? true : false;
+            newRule.CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"));
+            newRule.UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"));
 
             return newRule;
         }
@@ -4560,26 +4566,27 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet AddParentalRule(int groupId, string name, string description, int order, int? mediaTopicId, List<string> mediaTagValues, int? epgTopicId, List<string> epgTagValues,
-                                                bool blockAnonymousAccess, eParentalRuleType ruleType, bool isDefault, long userId)
+        public static DataSet InsertParentalRule(int groupId, string name, string description, int order, int? mediaTopicId, List<string> mediaTagValues, int? epgTopicId, List<string> epgTagValues,
+                                                bool blockAnonymousAccess, eParentalRuleType ruleType, bool isDefault, bool? isActive, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddParentalRule");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertParentalRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@Description", description);
-            sp.AddParameter("@Order", order);
-            sp.AddParameter("@MediaTopicId", mediaTopicId);
+            sp.AddParameter("@OrderNum", order);
+            sp.AddParameter("@MediaTopicId", mediaTopicId.HasValue ? mediaTopicId.Value : 0);
             bool shouldInsertMediaTagValues = mediaTagValues != null && mediaTagValues.Count > 0;
             sp.AddParameter("@MediaTagValuesExists", shouldInsertMediaTagValues ? 1 : 0);
             sp.AddIDListParameter("@MediaTagValues", shouldInsertMediaTagValues ? mediaTagValues : null, "STR");
-            sp.AddParameter("@EpgTopicId", epgTopicId);
+            sp.AddParameter("@EpgTopicId", epgTopicId.HasValue ? epgTopicId.Value : 0);
             bool shouldInsertEpgTagValues = epgTagValues != null && epgTagValues.Count > 0;            
             sp.AddParameter("@EpgTagValuesExists", shouldInsertEpgTagValues ? 1 : 0);
             sp.AddIDListParameter("@EpgTagValues", shouldInsertEpgTagValues ? epgTagValues : null, "STR");
             sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
             sp.AddParameter("@RuleType", (int)ruleType);
             sp.AddParameter("@IsDefault", isDefault);
+            sp.AddParameter("@IsActive", isActive.HasValue && isActive.Value ? 1 : 0);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
@@ -4587,7 +4594,7 @@ namespace DAL
 
         public static DataSet UpdateParentalRule(int groupId, long id, string name, string description, int? order, int? mediaTopicId, bool shouldUpdateMediaTagValues, List<string> mediaTagValues,
                                                 int? epgTopicId, bool shouldUpdateEpgTagValues, List<string> epgTagValues, bool? blockAnonymousAccess, eParentalRuleType? ruleType, bool? isDefault,
-                                                long userId)
+                                                bool? isActive, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateParentalRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4605,6 +4612,7 @@ namespace DAL
             sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
             sp.AddParameter("@RuleType", (int)ruleType);
             sp.AddParameter("@IsDefault", isDefault);
+            sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();

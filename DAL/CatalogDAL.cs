@@ -4833,7 +4833,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@DeviceRuleId", deviceRuleId);
             sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);
             sp.AddParameter("@MediaTypeId", assetStructId);
-            sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
+            sp.AddParameter("@IsActive", isActive.HasValue && isActive.Value ? 1 : 0);
             sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@CatalogStartDate", catalogStartDate);
