@@ -965,7 +965,7 @@ namespace WebAPI.Controllers
                     //if sources left after building DRM data, build the manifest URL
                     if (response.Sources.Count > 0)
                     {
-                        if (contextDataParams.UrlType != KalturaUrlType.DIRECT)
+                        if (contextDataParams.UrlType != KalturaUrlType.DIRECT) // no need to built Url in case of urlType us direct
                         {
                             string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
