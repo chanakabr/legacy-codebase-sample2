@@ -58,10 +58,20 @@ namespace ApiObjects
         [JsonProperty()]
         public eRuleLevel level;
 
+        [JsonProperty()]
+        public bool? isActive { get; set; }
+
+        [JsonProperty()]
         public string mediaTagType;
 
-        
+        [JsonProperty()]
         public string epgTagType;
+
+        [JsonProperty()]
+        public long CreateDate { get; set; }
+
+        [JsonProperty()]
+        public long UpdateDate { get; set; }
 
         #endregion
 

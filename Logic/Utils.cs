@@ -556,7 +556,7 @@ namespace APILogic
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
-                        result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value);
+                        result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value, false);
 
                         res = result != null ? true : false;
                     }

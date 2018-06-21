@@ -40,6 +40,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Api
 {
@@ -4623,7 +4624,7 @@ namespace Core.Api
 
         #region Parental Rules
 
-        public static ParentalRulesResponse GetParentalRules(int groupId)
+        public static ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true)
         {
             ParentalRulesResponse response = new ParentalRulesResponse()
             {
@@ -4632,10 +4633,10 @@ namespace Core.Api
 
             try
             {
-                List<ParentalRule> rules = null;
+                List<ParentalRule> tempRules = null;
                 string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
-                bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref rules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
+                bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref tempRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
                                                                                 groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey });
                 if (!cacheResult)
                 {
@@ -4643,12 +4644,12 @@ namespace Core.Api
                     response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-
-                response.rules = rules;
-                response.status = new ApiObjects.Response.Status()
+                else if (shouldGetOnlyActive)
                 {
-                    Code = (int)eResponseStatus.OK
-                };
+                    
+                }
+
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -5311,31 +5312,20 @@ namespace Core.Api
             {
                 try
                 {
-                    List<ParentalRule> groupsParentalRules = null;
-                    List<long> mediaRuleIds = new List<long>();
-                    Dictionary<long, eRuleLevel> userParentalRules = null;
-
-                    // group rules                 
-                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
-                    // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key,
-                        ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules,
-                        new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
-
-                    if (!cacheResult || groupsParentalRules == null)
-                    {
-                        log.Error(string.Format("GetParentalMediaRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
-                        return null;
-                    }
-
-                    if (groupsParentalRules.Count == 0)
+                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
+                        || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
                         return response;
                     }
 
+                    List<ParentalRule> groupsParentalRules = new List<ParentalRule>(prResponse.rules);
+                    List<long> mediaRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
+
                     // media rules id 
-                    key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
-                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
+                    string key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
                         new Dictionary<string, object>()
                             {
                                 { "groupId", groupId },
@@ -5559,34 +5549,25 @@ namespace Core.Api
             {
                 try
                 {
-                    List<ParentalRule> groupParentalRules = null;
-                    List<long> epgRuleIds = new List<long>();
-                    Dictionary<long, eRuleLevel> userParentalRules = null;
-
-                    // group rules                 
-                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
-                    // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref groupParentalRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                            groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
-                    if (!cacheResult || groupParentalRules == null)
-                    {
-                        log.Error(string.Format("GetParentalEPGRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
-                        return null;
-                    }
-
-                    if (groupParentalRules.Count == 0)
+                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
+                        || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
                         return response;
                     }
 
+                    List<ParentalRule> groupsParentalRules = new List<ParentalRule>(prResponse.rules);
+                    List<long> epgRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
+
                     // epg rules id 
-                    key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
-                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
+                    string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
                         new Dictionary<string, object>()
                             {
                                 { "groupId", groupId },
                                 { "epgId", epgId },
-                                { "groupParentalRules", groupParentalRules }
+                                { "groupParentalRules", groupsParentalRules }
                             },
                         groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
@@ -5623,13 +5604,13 @@ namespace Core.Api
                             else
                             {
                                 // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
-                                rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
+                                rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
                             }
                         }
-                        else if (groupParentalRules.Count > 0) // check on group rules 
+                        else if (groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
+                            rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
                         }
                     }
 
@@ -5851,16 +5832,34 @@ namespace Core.Api
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId);
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK && result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.name == parentalRuleToAdd.name) > 0)
                 {
                     response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
                     return response;
                 }
 
-                DataSet ds = ApiDAL.AddParentalRule(groupId, parentalRuleToAdd.name, parentalRuleToAdd.description, parentalRuleToAdd.order.Value, parentalRuleToAdd.mediaTagTypeId,
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddParentalRule", groupId);
+                }
+
+                if (parentalRuleToAdd.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.mediaTagTypeId.Value))
+                {
+                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (parentalRuleToAdd.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.epgTagTypeId.Value))
+                {
+                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                DataSet ds = ApiDAL.InsertParentalRule(groupId, parentalRuleToAdd.name, parentalRuleToAdd.description, parentalRuleToAdd.order.Value, parentalRuleToAdd.mediaTagTypeId,
                                                     parentalRuleToAdd.mediaTagValues, parentalRuleToAdd.epgTagTypeId, parentalRuleToAdd.epgTagValues, parentalRuleToAdd.blockAnonymousAccess.Value,
-                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isDefault.Value, userId);
+                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isDefault.Value, parentalRuleToAdd.isActive, userId);
                 List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
                 if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id > 0)
                 {
@@ -5886,7 +5885,7 @@ namespace Core.Api
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId);
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = new Status((int)result.status.Code, result.status.Message);
@@ -5902,6 +5901,24 @@ namespace Core.Api
                 if (!string.IsNullOrEmpty(parentalRuleToUpdate.name) && result.rules.Count(x => x.name == parentalRuleToUpdate.name) > 0)
                 {
                     response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateParentalRule", groupId);
+                }
+
+                if (parentalRuleToUpdate.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.mediaTagTypeId.Value))
+                {
+                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (parentalRuleToUpdate.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.epgTagTypeId.Value))
+                {
+                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
@@ -5923,7 +5940,7 @@ namespace Core.Api
                     DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
                                                             shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
                                                             parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isDefault,
-                                                            userId);                    
+                                                            parentalRuleToUpdate.isActive, userId);                    
                     List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
                     if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
                     {
@@ -5949,12 +5966,12 @@ namespace Core.Api
             return response;
         }
 
-        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id)
+        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id, bool isOperatorSearch)
         {
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId);
+                ParentalRulesResponse result = GetParentalRules(groupId, !isOperatorSearch);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = new Status((int)result.status.Code, result.status.Message);
@@ -5984,7 +6001,7 @@ namespace Core.Api
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId);
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response = new Status((int)result.status.Code, result.status.Message);
