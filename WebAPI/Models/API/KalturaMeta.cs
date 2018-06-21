@@ -137,7 +137,7 @@ namespace WebAPI.Models.API
         public int? PartnerId { get; set; }
 
         /// <summary>
-        /// Specifies when was the meta was created. Date and time represented as epoch.
+        /// Specifies when was the meta created. Date and time represented as epoch.
         /// </summary>
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]

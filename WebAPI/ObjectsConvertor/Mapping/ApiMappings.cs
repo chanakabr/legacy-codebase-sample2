@@ -80,6 +80,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType.Value)));
 
             // KalturaParentalRule to ParentalRule
@@ -92,7 +95,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
                 .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))               
+                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)))
                 .ForMember(dest => dest.id, opt => opt.Ignore())
                 .ForMember(dest => dest.level, opt => opt.Ignore());

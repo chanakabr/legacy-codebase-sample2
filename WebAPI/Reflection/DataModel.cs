@@ -5348,12 +5348,18 @@ namespace WebAPI.Reflection
                 case "KalturaParentalRule":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "epgTagTypeId":
                             return "epgTag";
+                        case "IsActive":
+                            return "isActive";
                         case "mediaTagTypeId":
                             return "mediaTag";
                         case "Origin":
                             return "origin";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     

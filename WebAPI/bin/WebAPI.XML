@@ -4631,7 +4631,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.CreateDate">
             <summary>
-            Specifies when was the meta was created. Date and time represented as epoch.
+            Specifies when was the meta created. Date and time represented as epoch.
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.UpdateDate">
@@ -5581,6 +5581,21 @@
         <member name="P:WebAPI.Models.API.KalturaParentalRule.Origin">
             <summary>
             Where was this rule defined account, household or user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.IsActive">
+            <summary>
+            active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.CreateDate">
+            <summary>
+            Specifies when was the parental rule created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.UpdateDate">
+            <summary>
+            Specifies when was the parental rule last updated. Date and time represented as epoch.
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRuleType">

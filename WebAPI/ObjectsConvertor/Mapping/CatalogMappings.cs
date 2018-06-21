@@ -201,7 +201,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.Order.Value)))
                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
 
@@ -241,7 +241,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
-               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
+               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
                .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
                .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.KSQL))
@@ -272,7 +272,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.m_lManualMedias, opt => opt.MapFrom(src => ConvertToManualMedias(src.MediaIds)))
-               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
+               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
                .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
                .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.Manual))

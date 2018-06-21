@@ -31,6 +31,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1, MaxLength = 100)]
         public string name { get; set; }
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
+        [SchemeProperty(MaxLength = 1024)]
         public string description { get; set; }
 
         /// <summary>
@@ -122,6 +124,32 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "origin")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaRuleLevel Origin { get; set; }
+
+        /// <summary>
+        /// active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive", IsNullable = true)]
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
 
     }
 

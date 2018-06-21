@@ -85,14 +85,15 @@ namespace WebAPI.Controllers
         public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
                 if (!filter.EntityReferenceEqual.HasValue)
                 {
-                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId);
+                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
+                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId, isOperatorSearch);
                 }
                 else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.user)
                 {
@@ -265,6 +266,7 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
+        [Throws(eResponseStatus.TagDoesNotExist)]
         public KalturaParentalRule Add(KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
@@ -337,6 +339,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
+        [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
         {
@@ -389,11 +392,13 @@ namespace WebAPI.Controllers
         public KalturaParentalRule Get(long id)
         {
             KalturaParentalRule response = null;
-            int groupId = KS.GetFromRequest().GroupId;            
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
-                response = ClientsManager.ApiClient().GetParentalRule(groupId, id);
+                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
+                response = ClientsManager.ApiClient().GetParentalRule(groupId, id, isOperatorSearch);
             }
             catch (ClientException ex)
             {
