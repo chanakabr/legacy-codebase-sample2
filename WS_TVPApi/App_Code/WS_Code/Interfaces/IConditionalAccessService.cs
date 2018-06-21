@@ -127,7 +127,7 @@ namespace TVPApiServices
 
         [OperationContract]
         LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
-            string referrer, string couponCode);
+            string referrer, string couponCode, PlayContextType contextType);
 
         [OperationContract]
         ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel);

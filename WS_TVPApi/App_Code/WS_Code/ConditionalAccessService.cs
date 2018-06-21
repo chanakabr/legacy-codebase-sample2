@@ -1421,9 +1421,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
-        [PrivateMethod]
+        [PrivateMethod]        
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
-            string referrer, string couponCode)
+            string referrer, string couponCode, PlayContextType contextType)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1436,7 +1436,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).GetNPVRLicensedLink(initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId,
-                        startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode);
+                        startTime, mediaFileID, basicLink, clientIp, referrer, initObj.Locale.LocaleCountry, initObj.Locale.LocaleLanguage, couponCode, contextType);
                 }
                 catch (Exception ex)
                 {
