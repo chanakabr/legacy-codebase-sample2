@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ODBCWrapper;
-using ApiObjects;
-using System.Text.RegularExpressions;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.TimeShiftedTv;
+﻿using ApiObjects;
 using ApiObjects.SubscriptionSet;
 using ConfigurationManager;
+using KLogMonitor;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace DAL
 {
@@ -1567,8 +1564,9 @@ namespace DAL
             }
         }
 
-        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType)
+        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType, out int drmId)
         {
+            drmId = 0;            
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1586,6 +1584,7 @@ namespace DAL
                     streamingCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["STREAMING_CODE"]);
                     streamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["STREAMING_SUPLIER_ID"]);
                     fileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["DESCRIPTION"]);
+                    drmId= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["DRM_ID"]);
                 }
             }
 
