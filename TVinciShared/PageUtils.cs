@@ -1656,6 +1656,9 @@ namespace TVinciShared
                 log.ErrorFormat("GetPicImageUrlByRatio imageUrl is empty. PicId {0}", picId);
             }
 
+            selectQuery.Finish();
+            selectQuery = null;
+
             return imageUrl;
         }
 
