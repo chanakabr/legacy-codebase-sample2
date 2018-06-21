@@ -173,7 +173,8 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
+                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, 
+                    sDeviceName, string.Empty, PlayContextType.Playback);
             }
             else
             {
@@ -1890,7 +1891,7 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
-            {
+            {                
                 return t.GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
             }
             else

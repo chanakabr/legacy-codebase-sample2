@@ -836,7 +836,8 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType)
         {
             LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
             try
@@ -853,8 +854,11 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 int mediaId = 0;
                 string fileType = string.Empty;
+                int drmId = 0;
+                string fileCoGuid = string.Empty;
+
                 oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG,
-                    ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                    ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
