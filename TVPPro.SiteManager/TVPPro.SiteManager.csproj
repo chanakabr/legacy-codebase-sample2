@@ -625,6 +625,7 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\CampaignActionInfo.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\cas.wsdl" />
     <None Include="Web References\TvinciPlatform.ConditionalAccess\DomainBillingTransactionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -662,7 +663,6 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\UserPrePaidContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Domains\DeviceResponseObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -767,10 +767,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/cas_v4_8_2/module.asmx">
+    <WebReferenceUrl Include="http://localhost/tvpapi_rest/WS_Modules/cas.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/cas_v4_8_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/tvpapi_rest/WS_Modules/cas.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1286,7 +1286,7 @@
     <None Include="Web References\TvinciPlatform.Users\ws_users_module.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.disco" />
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\cas.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
