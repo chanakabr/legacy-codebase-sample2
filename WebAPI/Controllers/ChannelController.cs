@@ -36,16 +36,11 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
             KS ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
-            List<long> userRoles = RolesManager.GetRoleIds(ks);
-            bool isOperatorSearch = false;
-            if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-            {
-                isOperatorSearch = true;
-            }
+            int groupId = ks.GroupId;            
 
             try
-            {                                                
+            {
+                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
                 response = ClientsManager.CatalogClient().GetChannel(groupId, id, isOperatorSearch);
             }
             catch (ClientException ex)
@@ -337,12 +332,7 @@ namespace WebAPI.Controllers
 
                 KS ks = KS.GetFromRequest();
                 int groupId = ks.GroupId;
-                List<long> userRoles = RolesManager.GetRoleIds(ks);
-                bool isOperatorSearch = false;
-                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-                {
-                    isOperatorSearch = true;
-                }
+                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
 
                 if (filter.MediaIdEqual > 0)
                 {

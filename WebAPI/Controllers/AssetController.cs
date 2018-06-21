@@ -193,13 +193,7 @@ namespace WebAPI.Controllers
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
-                    bool isOperatorSearch = false;
-                    List<long> userRoles = RolesManager.GetRoleIds(ks);
-                    if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-                    {
-                        isOperatorSearch = true;
-                    }
-
+                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
@@ -248,13 +242,7 @@ namespace WebAPI.Controllers
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
                 {
-                    bool isOperatorSearch = false;
-                    List<long> userRoles = RolesManager.GetRoleIds(ks);
-                    if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-                    {
-                        isOperatorSearch = true;
-                    }
-
+                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (pager == null)
                         pager = new KalturaFilterPager();
@@ -314,13 +302,7 @@ namespace WebAPI.Controllers
                 int groupId = ks.GroupId;
                 string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = Utils.Utils.GetLanguageFromRequest();
-                bool isOperatorSearch = false;
-                List<long> userRoles = RolesManager.GetRoleIds(ks);
-                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-                {
-                    isOperatorSearch = true;
-                }
+                string language = Utils.Utils.GetLanguageFromRequest();                
 
                 switch (assetReferenceType)
                 {
@@ -332,6 +314,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
+                            bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
                             response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isOperatorSearch);
                         }
                         break;

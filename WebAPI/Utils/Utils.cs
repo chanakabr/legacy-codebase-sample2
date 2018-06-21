@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -227,6 +228,18 @@ namespace WebAPI.Utils
             {
                 return 0;
             }
+        }
+
+        public static bool IsOperatorKs(KS ks)
+        {
+            bool res = false;
+            List<long> userRoles = RolesManager.GetRoleIds(ks);            
+            if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+            {
+                res = true;
+            }
+
+            return res;
         }
 
     }
