@@ -31,7 +31,7 @@
         "PURCHASE_PPV",
         "RENEW_SUBSCRIPTION",
         "PURCHASE_SERVICE",
-        "LOGIN"
+        "LOGIN"		
       ],
       "excluded_permissions": [],
       "name": "Master"
@@ -40,7 +40,8 @@
       "permissions": [
         "Operator",
         "LOGIN",
-        "DELETE_ALL_APP_TOKENS"
+        "DELETE_ALL_APP_TOKENS",
+		"VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -50,7 +51,8 @@
         "Operator",
         "Manager",
         "LOGIN",
-        "DELETE_ALL_APP_TOKENS"
+        "DELETE_ALL_APP_TOKENS",
+		"VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -61,7 +63,8 @@
         "Manager",
         "Administrator",
         "LOGIN",
-        "DELETE_ALL_APP_TOKENS"
+        "DELETE_ALL_APP_TOKENS",
+		"VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Administrator"
