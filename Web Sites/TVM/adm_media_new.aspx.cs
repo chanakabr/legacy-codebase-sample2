@@ -576,6 +576,16 @@ public partial class adm_media_new : System.Web.UI.Page
             version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
+            if (ratioId == 0)
+            {
+                //get default ratio from group
+                object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
+                if (ratio != null && ratio == DBNull.Value)
+                {
+                    ratioId = int.Parse(ratio.ToString());
+                }
+            }
+
             imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
         }
 
