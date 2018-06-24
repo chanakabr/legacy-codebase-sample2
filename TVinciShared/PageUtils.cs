@@ -1630,10 +1630,7 @@ namespace TVinciShared
         public static string GetPicImageUrlByRatio(int picId, int width = 0, int height = 0, int? groupId = null)
         {
             string imageUrl = string.Empty;
-            string baseUrl = string.Empty;
-            int ratioId = 0;
-            int version = 0;
-
+            
             if (!groupId.HasValue)
             {
                 groupId = LoginManager.GetLoginGroupID();
@@ -1644,22 +1641,7 @@ namespace TVinciShared
 
             if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
             {
-                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
-                ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
-                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
-                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId.Value);
-
-                if (ratioId == 0 && width == 90 && height == 65)
-                {
-                    //get default ratio from group
-                    object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId.Value);
-                    if (ratio != null && ratio == DBNull.Value)
-                    {
-                        ratioId = int.Parse(ratio.ToString());
-                    }
-                }
-
-                imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
+                imageUrl = GetImageUrl(width, height, groupId.Value, selectQuery);
             }
             else
             {
@@ -1670,13 +1652,11 @@ namespace TVinciShared
             selectQuery = null;
 
             return imageUrl;
-        }
+        }       
 
         public static string GetPicImageUrlByRatio(int assetId, eAssetImageType asssetImageType, int ratioId, int width = 0, int height = 0)
         {
-            string imageUrl = string.Empty;
-            string baseUrl = string.Empty;
-            int version = 0;
+            string imageUrl = string.Empty;            
             int groupId = LoginManager.GetLoginGroupID();
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1687,12 +1667,7 @@ namespace TVinciShared
 
             if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
             {
-                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
-                ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
-                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
-                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);               
-
-                imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
+                imageUrl = GetImageUrl(width, height, groupId, selectQuery);
             }
             else
             {
@@ -1703,6 +1678,26 @@ namespace TVinciShared
             selectQuery = null;
 
             return imageUrl;
+        }
+
+        private static string GetImageUrl(int width, int height, int groupId, ODBCWrapper.DataSetSelectQuery selectQuery)
+        {
+            string baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            int ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            int version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            if (ratioId == 0 && width == 90 && height == 65)
+            {
+                //get default ratio from group
+                object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
+                if (ratio != null && ratio == DBNull.Value)
+                {
+                    ratioId = int.Parse(ratio.ToString());
+                }
+            }
+
+            return PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
         }
 
         public static string GetEpgPicImageUrl(int picId, int width = 0, int height = 0)
