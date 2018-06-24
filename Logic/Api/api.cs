@@ -5377,7 +5377,7 @@ namespace Core.Api
                         if ((userParentalRules == null || userParentalRules.Count == 0) && groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
+                            rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault).ToList();
                         }
                     }
 
@@ -5610,7 +5610,7 @@ namespace Core.Api
                         else if (groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault.Value).ToList();
+                            rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault).ToList();
                         }
                     }
 
@@ -5859,7 +5859,7 @@ namespace Core.Api
 
                 DataSet ds = ApiDAL.InsertParentalRule(groupId, parentalRuleToAdd.name, parentalRuleToAdd.description, parentalRuleToAdd.order.Value, parentalRuleToAdd.mediaTagTypeId,
                                                     parentalRuleToAdd.mediaTagValues, parentalRuleToAdd.epgTagTypeId, parentalRuleToAdd.epgTagValues, parentalRuleToAdd.blockAnonymousAccess.Value,
-                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isDefault.Value, parentalRuleToAdd.isActive, userId);
+                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isActive, userId);
                 List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
                 if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id > 0)
                 {
@@ -5939,8 +5939,7 @@ namespace Core.Api
 
                     DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
                                                             shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
-                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isDefault,
-                                                            parentalRuleToUpdate.isActive, userId);                    
+                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);                    
                     List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
                     if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
                     {

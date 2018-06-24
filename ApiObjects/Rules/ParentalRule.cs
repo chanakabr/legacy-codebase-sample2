@@ -53,7 +53,7 @@ namespace ApiObjects
         public List<string> epgTagValues;
 
         [JsonProperty()]
-        public bool? isDefault;
+        public bool isDefault;
 
         [JsonProperty()]
         public eRuleLevel level;
