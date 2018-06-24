@@ -311,12 +311,6 @@ namespace WebAPI.Controllers
                 parentalRule.blockAnonymousAccess = false;
             }
 
-            if (!parentalRule.isDefault.HasValue)
-            {
-                // set isDefault default value to FALSE if not sent
-                parentalRule.isDefault = false;
-            }
-
             try
             {
                 response = ClientsManager.ApiClient().AddParentalRule(groupId, parentalRule, userId);

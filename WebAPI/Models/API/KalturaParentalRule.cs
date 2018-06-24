@@ -114,7 +114,8 @@ namespace WebAPI.Models.API
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
         [OldStandardProperty("is_default")]
-        public bool? isDefault { get; set; }
+        [SchemeProperty(ReadOnly = true)]
+        public bool isDefault { get; set; }
 
         /// <summary>
         /// Where was this rule defined account, household or user
