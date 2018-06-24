@@ -398,7 +398,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (channel == null)
                 {
-                    // isOperatorSearch = true because only operator can cause upsert of channel
+                    // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
                     channel = ChannelManager.GetChannelById(groupId, channelId, true);
                     if (channel == null)
                     {

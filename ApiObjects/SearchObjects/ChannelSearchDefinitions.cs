@@ -16,7 +16,7 @@ namespace ApiObjects.SearchObjects
         public List<int> SpecificChannelIds { get; set; }
         public ChannelOrderBy OrderBy { get; set; }
         public OrderDir OrderDirection { get; set; }
-        public bool IsOperatorSearch { get; set; }
+        public bool isAllowedToViewInactiveAssets { get; set; }
     }
 
     public enum ChannelOrderBy

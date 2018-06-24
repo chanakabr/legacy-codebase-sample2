@@ -823,9 +823,9 @@ namespace Core.Api
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static ParentalRulesResponse GetParentalRules(int groupId, bool isOperatorSearch = false)
+        public static ParentalRulesResponse GetParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
         {            
-            return Core.Api.api.GetParentalRules(groupId, !isOperatorSearch);
+            return Core.Api.api.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
         }
 
         /// <summary>

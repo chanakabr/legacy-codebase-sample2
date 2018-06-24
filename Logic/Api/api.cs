@@ -4646,7 +4646,11 @@ namespace Core.Api
                 }
                 else if (shouldGetOnlyActive)
                 {
-                    
+                    response.rules = new List<ParentalRule>(tempRules.Where(x => x.isActive.HasValue && x.isActive.Value));
+                }
+                else
+                {
+                    response.rules = new List<ParentalRule>(tempRules);
                 }
 
                 response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -5965,12 +5969,12 @@ namespace Core.Api
             return response;
         }
 
-        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id, bool isOperatorSearch)
+        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId, !isOperatorSearch);
+                ParentalRulesResponse result = GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = new Status((int)result.status.Code, result.status.Message);

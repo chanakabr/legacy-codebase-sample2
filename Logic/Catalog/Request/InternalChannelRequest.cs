@@ -24,7 +24,7 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
         [DataMember]
-        public bool IsOperatorSearch;
+        public bool isAllowedToViewInactiveAssets;
 
         #endregion
 

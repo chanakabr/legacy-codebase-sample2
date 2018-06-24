@@ -696,7 +696,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
                 {
-                    // isOperatorSearch = true becuase only operator can add image
+                    // isAllowedToViewInactiveAssets = true because only operator can add image
                     GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA, true);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
@@ -708,7 +708,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
-                    //isOperatorSearch = true becuase only operator can add image
+                    //isAllowedToViewInactiveAssets = true becuase only operator can add image
                     GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {

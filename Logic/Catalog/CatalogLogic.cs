@@ -6266,7 +6266,7 @@ namespace Core.Catalog
             CatalogManagement.CatalogGroupCache catalogGroupCache = null;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
             {
-                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.IsOperatorSearch);
+                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets);
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
@@ -6288,7 +6288,7 @@ namespace Core.Catalog
             }
 
             // continue pnly for existing active channel or with inactive channels only for operators
-            if (channel == null || (!request.IsOperatorSearch && channel.m_nIsActive != 1))
+            if (channel == null || (!request.isAllowedToViewInactiveAssets && channel.m_nIsActive != 1))
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
             }
@@ -6972,12 +6972,12 @@ namespace Core.Catalog
 
                         leaf.shouldLowercase = false;
 
-                        bool mustBeOperator = false;
+                        bool mustBeAllowedToViewInactiveAssets = false;
                         if (searchKeyLowered == CREATIONDATE)
                         {
                             searchKeys.Clear();
                             searchKeys.Add(CREATE_DATE);
-                            mustBeOperator = true;
+                            mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == PLAYBACKSTARTDATETIME)
                         {
@@ -6988,13 +6988,13 @@ namespace Core.Catalog
                         {
                             searchKeys.Clear();
                             searchKeys.Add(FINAL_DATE);
-                            mustBeOperator = true;
+                            mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == CATALOGSTARTDATETIME)
                         {
                             searchKeys.Clear();
                             searchKeys.Add(CATALOG_START_DATE);
-                            mustBeOperator = true;
+                            mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == CATALOGENDDATETIME)
                         {
@@ -7007,7 +7007,7 @@ namespace Core.Catalog
                             searchKeys.Add(UPDATE_DATE);
                         }
 
-                        if (mustBeOperator && !definitions.isOperatorSearch)
+                        if (mustBeAllowedToViewInactiveAssets && !definitions.isAllowedToViewInactiveAssets)
                         {
                             throw new KalturaException(string.Format("Unauthorized use of field {0}", searchKeyLowered), (int)eResponseStatus.BadSearchRequest);
                         }
@@ -7195,7 +7195,7 @@ namespace Core.Catalog
                         if (searchKeyLowered == STATUS)
                         {
                             // We will allow KSQL to contain "status" field only for operators.
-                            if (definitions.isOperatorSearch)
+                            if (definitions.isAllowedToViewInactiveAssets)
                             {
                                 searchKeys.Clear();
                                 searchKeys.Add(IS_ACTIVE);
@@ -7339,10 +7339,10 @@ namespace Core.Catalog
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
-            definitions.shouldDateSearchesApplyToAllTypes = request.IsOperatorSearch;
+            definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
-            definitions.isOperatorSearch = request.IsOperatorSearch;
-            if (definitions.isOperatorSearch)
+            definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
+            if (definitions.isAllowedToViewInactiveAssets)
             {
                 definitions.shouldAddIsActiveTerm = false;
                 definitions.shouldIgnoreDeviceRuleID = true;
@@ -7406,8 +7406,8 @@ namespace Core.Catalog
             }
 
             // in case operator is searching we override the existing value
-            definitions.shouldUseStartDateForMedia = !request.IsOperatorSearch;
-            definitions.shouldUseEndDateForMedia = !request.IsOperatorSearch;
+            definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
+            definitions.shouldUseEndDateForMedia = !request.isAllowedToViewInactiveAssets;
 
             #endregion
 

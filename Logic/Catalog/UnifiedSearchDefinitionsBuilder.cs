@@ -45,8 +45,8 @@ namespace Core.Catalog
             try
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
-                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.IsOperatorSearch;
-                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
+                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
                 int parentGroupID = request.m_nGroupID;
                 GroupManager groupManager = null;
@@ -66,8 +66,8 @@ namespace Core.Catalog
                     group = groupManager.GetGroup(parentGroupID);
                 }                                    
 
-                definitions.isOperatorSearch = request.IsOperatorSearch;
-                if (definitions.isOperatorSearch)
+                definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
+                if (definitions.isAllowedToViewInactiveAssets)
                 {
                     definitions.shouldAddIsActiveTerm = false;
                     definitions.shouldIgnoreDeviceRuleID = true;
@@ -95,8 +95,8 @@ namespace Core.Catalog
                 }
 
                 // in case operator is searching we override the existing value
-                definitions.shouldUseStartDateForMedia = !request.IsOperatorSearch;
-                definitions.shouldUseEndDateForMedia = !request.IsOperatorSearch;
+                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
+                definitions.shouldUseEndDateForMedia = !request.isAllowedToViewInactiveAssets;
 
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;

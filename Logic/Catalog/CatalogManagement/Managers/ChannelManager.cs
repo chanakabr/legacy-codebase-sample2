@@ -251,7 +251,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isOperatorSearch)
+        private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
         {
             List<Channel> channels = new List<Channel>();
             try
@@ -266,7 +266,8 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetChannelsInvalidationKeysMap(groupId, channelIds);
 
                 if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, GetChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "channelIds", channelIds },
-                                                                { "isOperatorSearch", isOperatorSearch } }, groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                                                                { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } }, groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME,
+                                                                invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", groupId, string.Join(",", channelIds));
                 }
@@ -289,12 +290,12 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<string, Channel> result = new Dictionary<string, Channel>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("isOperatorSearch") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("isAllowedToViewInactiveAssets") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     List<int> channelIds;
                     int? groupId = funcParams["groupId"] as int?;
-                    bool? isOperatorSearch = funcParams["isOperatorSearch"] as bool?;
+                    bool? isAllowedToViewInactiveAssets = funcParams["isAllowedToViewInactiveAssets"] as bool?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         channelIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
@@ -305,11 +306,11 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<Channel> channels = new List<Channel>();
-                    if (channelIds != null && groupId.HasValue && isOperatorSearch.HasValue)
+                    if (channelIds != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
-                        DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isOperatorSearch.Value);
+                        DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
                         channels = GetChannelListFromDs(ds);
-                        res = channels.Count() == channelIds.Count() || !isOperatorSearch.Value;
+                        res = channels.Count() == channelIds.Count() || !isAllowedToViewInactiveAssets.Value;
                     }
 
                     if (res)
@@ -331,12 +332,12 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        private static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isOperatorSearch, int totalItems)
+        private static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int totalItems)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isOperatorSearch);
+                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isAllowedToViewInactiveAssets);
                 if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
                 {
                     log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
@@ -368,10 +369,10 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static Channel GetChannelById(int groupId, int channelId, bool isOperatorSearch)
+        internal static Channel GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
         {
             Channel channel = null;
-            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isOperatorSearch);
+            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
             if (channels != null && channels.Count == 1)
             {
                 channel = channels.First();
@@ -401,7 +402,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
-            ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -416,13 +417,13 @@ namespace Core.Catalog.CatalogManagement
                     SpecificChannelIds = specificChannelIds != null && specificChannelIds.Count > 0 ? new List<int>(specificChannelIds) : null,
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
-                    IsOperatorSearch = isOperatorSearch
+                    isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
                 };
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                 int totalItems = 0;
                 List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
-                result = GetChannelsListResponseByChannelIds(groupId, channelIds, isOperatorSearch, totalItems);
+                result = GetChannelsListResponseByChannelIds(groupId, channelIds, isAllowedToViewInactiveAssets, totalItems);
             }
             catch (Exception ex)
             {
@@ -513,7 +514,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (assets.Count > 0)
                     {
-                        // isOperatorSearch = true becuase only operator can add channel
+                        // isAllowedToViewInactiveAssets = true becuase only operator can add channel
                         List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
                         {
@@ -607,7 +608,7 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                //isOperatorSearch = true becuase only operator can update channel
+                //isAllowedToViewInactiveAssets = true becuase only operator can update channel
                 Channel currentChannel = GetChannelById(groupId, channelId, true);
                 if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                 {
@@ -679,7 +680,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (assets.Count > 0)
                     {
-                        // isOperatorSearch = true becuase only operator can update channel
+                        // isAllowedToViewInactiveAssets = true becuase only operator can update channel
                         List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
                         {
@@ -779,13 +780,13 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isOperatorSearch)
+        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
-                response.Object = GetChannelById(groupId, channelId, isOperatorSearch);
+                response.Object = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets);
                 if (response.Object != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -814,7 +815,7 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                //check if channel exists - isOperatorSearch = true becuase only operator can delete channel
+                //check if channel exists - isAllowedToViewInactiveAssets = true becuase only operator can delete channel
                 GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true);                
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -854,7 +855,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
+        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -862,7 +863,7 @@ namespace Core.Catalog.CatalogManagement
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
                 if (channelIds != null && channelIds.Count > 0)
                 {
-                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
                 }
                 else
                 {

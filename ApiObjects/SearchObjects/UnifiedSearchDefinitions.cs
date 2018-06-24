@@ -365,7 +365,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public bool isOperatorSearch { get; set; }
+        public bool isAllowedToViewInactiveAssets { get; set; }
 
         #endregion
 

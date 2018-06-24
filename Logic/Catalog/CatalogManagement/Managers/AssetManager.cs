@@ -836,12 +836,12 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<string, JObject> result = new Dictionary<string, JObject>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("isOperatorSearch") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("isAllowedToViewInactiveAssets") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     List<long> ids;
                     int? groupId = funcParams["groupId"] as int?;
-                    bool? isOperatorSearch = funcParams["isOperatorSearch"] as bool?;
+                    bool? isAllowedToViewInactiveAssets = funcParams["isAllowedToViewInactiveAssets"] as bool?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
@@ -852,7 +852,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<object> assets = new List<object>();
-                    if (ids != null && groupId.HasValue && isOperatorSearch.HasValue)
+                    if (ids != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         CatalogGroupCache catalogGroupCache;
                         if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
@@ -861,11 +861,11 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isOperatorSearch.Value);
+                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);
                             assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
                         }
 
-                        res = assets.Count() == ids.Count() || !isOperatorSearch.Value;
+                        res = assets.Count() == ids.Count() || !isAllowedToViewInactiveAssets.Value;
                     }
 
                     if (res)
@@ -882,7 +882,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, JObject>, bool>(result, res);
         }
 
-        private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids, bool isOperatorSearch)
+        private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids, bool isAllowedToViewInactiveAssets)
         {
             List<MediaAsset> mediaAssets = null;
             try
@@ -898,7 +898,8 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
 
                 if (!LayeredCache.Instance.GetValues<JObject>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
-                                                                { "isOperatorSearch", isOperatorSearch } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
+                                                                { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
+                                                                invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString());
                 }
@@ -956,7 +957,7 @@ namespace Core.Catalog.CatalogManagement
             throw new NotImplementedException();
         }
 
-        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isOperatorSearch)
+        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
         {
             List<Asset> result = null;
             try
@@ -969,7 +970,7 @@ namespace Core.Catalog.CatalogManagement
                     List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).ToList();
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
-                        List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds, isOperatorSearch);
+                        List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds, isAllowedToViewInactiveAssets);
                         if (mediaAssets == null || mediaAssets.Count != mediaIds.Count)
                         {
                             List<long> missingMediaIds = mediaAssets == null ? mediaIds : mediaIds.Except(mediaAssets.Select(x => x.Id)).ToList();
@@ -1632,8 +1633,8 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);
                         return result;
                     }
-                    
-                    // isOperatorSearch = false due to backward compatibility 
+
+                    // isAllowedToViewInactiveAssets = false due to backward compatibility 
                     List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, false);
                     if (assets != null && assets.Count == 1)
                     {
@@ -1649,14 +1650,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        public static GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isOperatorSearch)
+        public static GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
                 {
-                    List<Asset> assets = GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, isOperatorSearch);
+                    List<Asset> assets = GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, isAllowedToViewInactiveAssets);
                     if (assets == null || assets.Count != 1 || assets[0] == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
@@ -1677,14 +1678,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isOperatorSearch)
+        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
         {
             List<Asset> result = null;
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result= GetAssetsFromCache(groupId, assets, isOperatorSearch);
+                    result= GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets);
                     if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
@@ -1701,7 +1702,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<Asset> GetOrderedAssets(int groupId, List<BaseObject> assets, bool isOperatorSearch)
+        public static GenericListResponse<Asset> GetOrderedAssets(int groupId, List<BaseObject> assets, bool isAllowedToViewInactiveAssets)
         {
             GenericListResponse<Asset> result = new GenericListResponse<Asset>();
 
@@ -1710,8 +1711,8 @@ namespace Core.Catalog.CatalogManagement
                 if (assets != null && assets.Count > 0)
                 {
                     List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
-                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isOperatorSearch);
-                    if (!isOperatorSearch && (unOrderedAssets == null || unOrderedAssets.Count == 0))
+                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
+                    if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
                         result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;
@@ -1728,7 +1729,7 @@ namespace Core.Catalog.CatalogManagement
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
                     foreach (BaseObject baseAsset in assets)
                     {                        
-                        if (!isOperatorSearch || Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
+                        if (!isAllowedToViewInactiveAssets || Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
                         {
                             result.Objects.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
                         }
@@ -1891,7 +1892,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate that asset exist
-                // isOperatorSearch = true because only operator can update asset
+                // isAllowedToViewInactiveAssets = true because only operator can update asset
                 List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
                 if (assets == null || assets.Count != 1)
                 {
@@ -1952,7 +1953,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                // isOperatorSearch = true because only operator can delete asset
+                // isAllowedToViewInactiveAssets = true because only operator can delete asset
                 List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
                 if (assets == null || assets.Count != 1)
                 {
@@ -2007,7 +2008,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                // isOperatorSearch = true because only operator can remove topics from asset asset
+                // isAllowedToViewInactiveAssets = true because only operator can remove topics from asset asset
                 List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
                 if (assets == null || assets.Count != 1)
                 {

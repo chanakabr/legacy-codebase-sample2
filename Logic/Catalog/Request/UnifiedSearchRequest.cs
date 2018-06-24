@@ -87,7 +87,7 @@ namespace Core.Catalog.Request
         public SearchAggregationGroupBy searchGroupBy;
 
         [DataMember]
-        public bool IsOperatorSearch;
+        public bool isAllowedToViewInactiveAssets;
 
         #endregion
 
@@ -128,7 +128,7 @@ namespace Core.Catalog.Request
             this.nameAndDescription = nameAndDescription;
             this.shouldIgnoreDeviceRuleID = false;
             this.exactGroupId = 0;
-            this.IsOperatorSearch = false;
+            this.isAllowedToViewInactiveAssets = false;
         }
 
         #endregion

@@ -3155,7 +3155,7 @@ namespace Core.Catalog
             }
 
             QueryFilter queryFilter = null;
-            if (!definitions.IsOperatorSearch)
+            if (!definitions.isAllowedToViewInactiveAssets)
             {
                 BaseFilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
                 filterSettings.AddChild(new ESTerm(true)
