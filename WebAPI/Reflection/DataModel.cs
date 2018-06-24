@@ -5237,6 +5237,8 @@ namespace WebAPI.Reflection
                             return "mediaProtocol";
                         case "StreamerType":
                             return "streamerType";
+                        case "UrlType":
+                            return "urlType";
                     }
                     break;
                     

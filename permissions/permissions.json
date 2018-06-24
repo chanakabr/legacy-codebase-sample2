@@ -67,6 +67,10 @@
     {
       "name": "OLD_SUSPEND",
       "users_group": ""
-    }
+    },
+    {
+      "name": "VIEW_INACTIVE_ASSETS",
+      "users_group": ""
+    }	
   ]
 }

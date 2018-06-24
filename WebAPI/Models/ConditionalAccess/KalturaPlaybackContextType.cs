@@ -10,6 +10,7 @@ namespace WebAPI.Models.ConditionalAccess
         TRAILER,
         CATCHUP,
         START_OVER,
-        PLAYBACK
+        PLAYBACK,
+        DOWNLOAD
     }
 }
