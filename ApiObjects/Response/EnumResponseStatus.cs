@@ -277,6 +277,7 @@ namespace ApiObjects.Response
         RoleAlreadyExists = 5029,
         ParentalRuleNameAlreadyInUse = 5030,
         ParentalRuleDoesNotExist = 5031,
+        CanNotDeleteDefaultParentalRule = 5032,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

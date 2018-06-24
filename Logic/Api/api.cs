@@ -6013,6 +6013,12 @@ namespace Core.Api
 
                 if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
                 {
+                    if (result.rules.Where(x => x.id == id).First().isDefault)
+                    {
+                        response = new Status((int)eResponseStatus.CanNotDeleteDefaultParentalRule, eResponseStatus.CanNotDeleteDefaultParentalRule.ToString());
+                        return response;
+                    }
+
                     if (ApiDAL.DeleteParentalRule(groupId, id, userId))
                     {
                         response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
