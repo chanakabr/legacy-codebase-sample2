@@ -960,7 +960,8 @@ namespace ApiObjects
         RENEW_SUBSCRIPTION = 4,
         PURCHASE_SERVICE = 5,
         LOGIN = 6,
-        DELETE_ALL_APP_TOKENS = 7
+        DELETE_ALL_APP_TOKENS = 7,
+        VIEW_INACTIVE_ASSETS = 8
     }
 
     public enum PermissionItems
