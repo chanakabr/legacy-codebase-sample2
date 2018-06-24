@@ -92,8 +92,8 @@ namespace WebAPI.Controllers
             {
                 if (!filter.EntityReferenceEqual.HasValue)
                 {
-                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
-                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId, isOperatorSearch);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId, isAllowedToViewInactiveAssets);
                 }
                 else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.user)
                 {
@@ -391,8 +391,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
-                response = ClientsManager.ApiClient().GetParentalRule(groupId, id, isOperatorSearch);
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                response = ClientsManager.ApiClient().GetParentalRule(groupId, id, isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {

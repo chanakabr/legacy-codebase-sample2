@@ -87,7 +87,7 @@ namespace WebAPI.Clients
 
         #region Parental Rules
 
-        internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isOperatorSearch = false)
+        internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
         {
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
@@ -98,7 +98,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetParentalRules(groupId, isOperatorSearch);
+                    response = Core.Api.Module.GetParentalRules(groupId, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)
@@ -1435,9 +1435,9 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseFromWS<KalturaParentalRule, ParentalRule>(parentalRule, updateParentalRuleFunc);
         }
 
-        internal KalturaParentalRule GetParentalRule(int groupId, long id, bool isOperatorSearch)
+        internal KalturaParentalRule GetParentalRule(int groupId, long id, bool isAllowedToViewInactiveAssets)
         {
-            Func<GenericResponse<ParentalRule>> getParentalRuleFunc = () => Core.Api.api.GetParentalRule(groupId, id, isOperatorSearch);
+            Func<GenericResponse<ParentalRule>> getParentalRuleFunc = () => Core.Api.api.GetParentalRule(groupId, id, isAllowedToViewInactiveAssets);
             return ClientUtils.GetResponseFromWS<KalturaParentalRule, ParentalRule>(getParentalRuleFunc);
         }
 

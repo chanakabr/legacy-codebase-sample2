@@ -313,7 +313,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
         }        
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isOperatorSearch)
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
         {
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
@@ -326,7 +326,7 @@ namespace WebAPI.Clients
                     if (doesGroupUsesTemplates)
                     {
                         assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isOperatorSearch);
+                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
                     }
                     else
                     {
@@ -498,12 +498,12 @@ namespace WebAPI.Clients
             return true;
         }        
 
-        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList, bool isOperatorSearch)
+        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
             {
-                GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isOperatorSearch);
+                GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     result.Objects = new List<KalturaAsset>();
@@ -552,7 +552,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isOperatorSearch,
+        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -572,7 +572,7 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isOperatorSearch);
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
@@ -587,7 +587,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
                 if (doesGroupUsesTemplates)
                 {                    
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isOperatorSearch);
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
@@ -746,7 +746,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isOperatorSearch = false)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -793,7 +793,7 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                IsOperatorSearch = isOperatorSearch
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -820,7 +820,7 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isOperatorSearch, managementData, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isAllowedToViewInactiveAssets, managementData, responseProfile);
 
             return result;
         }
@@ -2492,7 +2492,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isOperatorSearch = false)
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2534,7 +2534,7 @@ namespace WebAPI.Clients
                 filterQuery = filterQuery,
                 m_dServerTime = getServerTime(),
                 m_bIgnoreDeviceRuleID = false,
-                IsOperatorSearch = isOperatorSearch
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             // build failover cache key
@@ -2556,7 +2556,7 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isOperatorSearch, false, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
 
             return result;
         }
@@ -3269,7 +3269,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, List<int> specificChannelIds, int pageIndex, int pageSize,
-                                                            KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
+                                                            KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             GenericListResponse<GroupsCacheManager.Channel> response = null;
@@ -3318,7 +3318,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)
@@ -3361,7 +3361,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel GetChannel(int groupId, int channelId, bool isOperatorSearch)
+        internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<GroupsCacheManager.Channel> response = null;
             KalturaChannel result = null;
@@ -3370,7 +3370,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isOperatorSearch);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)
@@ -3641,7 +3641,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc);;
         }
 
-        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             GenericListResponse<GroupsCacheManager.Channel> response = null;
@@ -3690,7 +3690,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)

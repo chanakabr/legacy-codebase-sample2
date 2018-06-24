@@ -38,7 +38,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                if(Utils.Utils.IsOperatorKs(ks))
+                var userRoles = RolesManager.GetRoleIds(ks);
+                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
                 {
                     return ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
                 }

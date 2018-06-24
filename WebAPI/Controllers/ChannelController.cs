@@ -40,8 +40,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
-                response = ClientsManager.CatalogClient().GetChannel(groupId, id, isOperatorSearch);
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {
@@ -332,27 +332,27 @@ namespace WebAPI.Controllers
 
                 KS ks = KS.GetFromRequest();
                 int groupId = ks.GroupId;
-                bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);                
 
                 if (filter.MediaIdEqual > 0)
                 {
-                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
+                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
                 }
                 else if (filter.IdEqual > 0)
                 {
                     // get by id
-                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isOperatorSearch);
+                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isAllowedToViewInactiveAssets);
                     response = new KalturaChannelListResponse() { TotalCount = 1, Channels = new List<KalturaChannel>() { channel } };
                 }                
                 else if (!string.IsNullOrEmpty(filter.NameEqual))
                 {
                     //search using ChannelEqual
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
                     //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
                 }
             }
             catch (ClientException ex)

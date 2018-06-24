@@ -230,16 +230,9 @@ namespace WebAPI.Utils
             }
         }
 
-        public static bool IsOperatorKs(KS ks)
+        public static bool IsAllowedToViewInactiveAssets(int groupId, string userId)
         {
-            bool res = false;
-            List<long> userRoles = RolesManager.GetRoleIds(ks);            
-            if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
-            {
-                res = true;
-            }
-
-            return res;
+            return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS);
         }
 
     }

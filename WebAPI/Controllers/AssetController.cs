@@ -193,11 +193,11 @@ namespace WebAPI.Controllers
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
-                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
-                        regularAssetFilter.getGroupByValue(), responseProfile, isOperatorSearch);
+                        regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
@@ -242,13 +242,13 @@ namespace WebAPI.Controllers
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
                 {
-                    bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (pager == null)
                         pager = new KalturaFilterPager();
 
                     response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
-                                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isOperatorSearch);
+                                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
                 }
                 else if (filter is KalturaBundleFilter)
                 {
@@ -314,8 +314,8 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            bool isOperatorSearch = Utils.Utils.IsOperatorKs(ks);
-                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isOperatorSearch);
+                            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         }
                         break;
                     case KalturaAssetReferenceType.epg_internal:
