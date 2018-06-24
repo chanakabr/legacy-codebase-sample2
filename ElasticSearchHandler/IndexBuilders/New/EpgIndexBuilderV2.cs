@@ -136,7 +136,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
                 List<string> tags = null;
-                if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache))
+                if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache, true))
                 {
                     log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
                     return false;
