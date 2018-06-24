@@ -4567,7 +4567,7 @@ namespace DAL
         }
 
         public static DataSet InsertParentalRule(int groupId, string name, string description, int order, int? mediaTopicId, List<string> mediaTagValues, int? epgTopicId, List<string> epgTagValues,
-                                                bool blockAnonymousAccess, eParentalRuleType ruleType, bool isDefault, bool? isActive, long userId)
+                                                bool blockAnonymousAccess, eParentalRuleType ruleType, bool? isActive, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertParentalRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4585,7 +4585,6 @@ namespace DAL
             sp.AddIDListParameter("@EpgTagValues", shouldInsertEpgTagValues ? epgTagValues : null, "STR");
             sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
             sp.AddParameter("@RuleType", (int)ruleType);
-            sp.AddParameter("@IsDefault", isDefault);
             sp.AddParameter("@IsActive", isActive.HasValue && isActive.Value ? 1 : 0);
             sp.AddParameter("@UpdaterId", userId);
 
@@ -4593,8 +4592,7 @@ namespace DAL
         }
 
         public static DataSet UpdateParentalRule(int groupId, long id, string name, string description, int? order, int? mediaTopicId, bool shouldUpdateMediaTagValues, List<string> mediaTagValues,
-                                                int? epgTopicId, bool shouldUpdateEpgTagValues, List<string> epgTagValues, bool? blockAnonymousAccess, eParentalRuleType? ruleType, bool? isDefault,
-                                                bool? isActive, long userId)
+                                                int? epgTopicId, bool shouldUpdateEpgTagValues, List<string> epgTagValues, bool? blockAnonymousAccess, eParentalRuleType? ruleType, bool? isActive, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateParentalRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4613,7 +4611,6 @@ namespace DAL
             sp.AddIDListParameter("@EpgTagValues", shouldUpdateEpgTagValues ? epgTagValues : null, "STR");
             sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);
             sp.AddParameter("@RuleType", ruleType);
-            sp.AddParameter("@IsDefault", isDefault);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@UpdaterId", userId);
 
