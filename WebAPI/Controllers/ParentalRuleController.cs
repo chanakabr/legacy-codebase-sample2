@@ -410,6 +410,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
+        [Throws(eResponseStatus.CanNotDeleteDefaultParentalRule)]
         [SchemeArgument("id", MinLong = 1)]
         public bool Delete(long id)
         {
