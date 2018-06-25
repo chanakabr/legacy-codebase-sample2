@@ -30,6 +30,7 @@ namespace WebAPI.Clients
             try
             {
                 T dataToCatalogManager = AutoMapper.Mapper.Map<T>(requestObject);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = funcInWS(dataToCatalogManager);
@@ -177,6 +178,7 @@ namespace WebAPI.Clients
             try
             {
                 T dataToFunc = AutoMapper.Mapper.Map<T>(kalturaOTTObject);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     status = funcInWS(dataToFunc);

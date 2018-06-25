@@ -2150,7 +2150,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ConcurrencyRestrictionPolicy.Group:
                     return KalturaConcurrencyLimitationType.Group;
                 default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
             }
         }
 
@@ -2163,7 +2163,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaConcurrencyLimitationType.Group:
                     return ConcurrencyRestrictionPolicy.Group;
                 default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
             }
         }
 
@@ -2178,7 +2178,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRuleConditionType.COUNTRY:
                     return AssetRuleConditionType.Country;
                 default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
             }
         }
     }

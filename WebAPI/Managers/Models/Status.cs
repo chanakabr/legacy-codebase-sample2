@@ -129,6 +129,7 @@ namespace WebAPI.Managers.Models
         MultirequestGenericMethod = 500064,
         HttpMethodNotSupported = 500065,
         ArgumentsDuplicate = 500066,
-        InvalidArgumentValue = 500067
+        InvalidArgumentValue = 500067,
+        UnknownEnumValue = 500068
     }
 }

@@ -128,9 +128,7 @@ namespace WebAPI.Clients
         {
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
-
             
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
