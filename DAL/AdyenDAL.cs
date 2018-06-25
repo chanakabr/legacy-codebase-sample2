@@ -12,7 +12,7 @@ namespace DAL
         public static DataTable Get_WSPaymentUrl(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spWSPaymentUrl = new ODBCWrapper.StoredProcedure("Get_WSPaymentUrl");
-            spWSPaymentUrl.SetConnectionKey("CONNECTION_STRING");
+            spWSPaymentUrl.SetConnectionKey("BILLING_CONNECTION_STRING");
             spWSPaymentUrl.AddParameter("@GroupID", nGroupID);
 
             DataSet ds = spWSPaymentUrl.ExecuteDataSet();
@@ -25,7 +25,7 @@ namespace DAL
         public static DataTable Get_WSRecurringUrl(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spWSRecurringUrl = new ODBCWrapper.StoredProcedure("Get_WSRecurringUrl");
-            spWSRecurringUrl.SetConnectionKey("CONNECTION_STRING");
+            spWSRecurringUrl.SetConnectionKey("BILLING_CONNECTION_STRING");
             spWSRecurringUrl.AddParameter("@GroupID", nGroupID);
 
             DataSet ds = spWSRecurringUrl.ExecuteDataSet();
@@ -38,7 +38,7 @@ namespace DAL
         public static DataTable Get_WSCredentials(int nGroupID, int? nPurchaseType)
         {
             ODBCWrapper.StoredProcedure spWSCredentials = new ODBCWrapper.StoredProcedure("Get_WSCredentials");
-            spWSCredentials.SetConnectionKey("CONNECTION_STRING");
+            spWSCredentials.SetConnectionKey("BILLING_CONNECTION_STRING");
             spWSCredentials.AddParameter("@GroupID", nGroupID);
             spWSCredentials.AddParameter("@PurchaseType", nPurchaseType);
 
@@ -52,7 +52,7 @@ namespace DAL
         public static DataTable Get_AccountCredentials(string merchant)
         {
             ODBCWrapper.StoredProcedure spAccountCredentials = new ODBCWrapper.StoredProcedure("Get_AccountCredentials");
-            spAccountCredentials.SetConnectionKey("CONNECTION_STRING");
+            spAccountCredentials.SetConnectionKey("BILLING_CONNECTION_STRING");
             spAccountCredentials.AddParameter("@Merchant", merchant);
 
             DataSet ds = spAccountCredentials.ExecuteDataSet();
