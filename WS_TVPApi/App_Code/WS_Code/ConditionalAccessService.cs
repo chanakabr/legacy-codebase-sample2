@@ -1423,7 +1423,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
         [PrivateMethod]        
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
-            string referrer, string couponCode, PlayContextType contextType)
+            string referrer, string couponCode, TVPApiModule.Objects.PlayContextType contextType)
         {
             LicensedLinkNPVRResponse res = null;
 

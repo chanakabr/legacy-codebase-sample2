@@ -76,4 +76,13 @@ namespace TVPApiModule.Objects
         CancelSubscriptionOrder = 4,
         SubscriptionDateChanged = 5
     }
+
+    public enum PlayContextType
+    {
+        Playback,
+        Trailer,
+        CatchUp,
+        StartOver,
+        Download
+    }
 }

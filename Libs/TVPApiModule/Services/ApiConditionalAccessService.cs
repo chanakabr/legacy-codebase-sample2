@@ -1547,7 +1547,7 @@ namespace TVPApiModule.Services
 
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid,
             string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode,
-            string couponCode, PlayContextType contextType)
+            string couponCode, TVPApiModule.Objects.PlayContextType contextType)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1570,7 +1570,7 @@ namespace TVPApiModule.Services
                     format = 3,
                     wsPassword = m_wsPassword,
                     wsUsername = m_wsUserName,
-                    contextType = contextType
+                    contextType = ConvertPlayContextType(contextType)
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1584,8 +1584,7 @@ namespace TVPApiModule.Services
                     ex.Message, siteGuid, domainId, udid, recordingId, startTime, mediaFileID, basicLink, userIP, referrer, countryCode, languageCode, couponCode);
             }
             return res;
-        }
-
+        }        
 
         public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
         {
@@ -1788,6 +1787,24 @@ namespace TVPApiModule.Services
             }
 
             return response;
+        }
+
+        private TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType ConvertPlayContextType(Objects.PlayContextType contextType)
+        {
+            switch (contextType)
+            {
+                case Objects.PlayContextType.Trailer:
+                    return TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType.Trailer;
+                case Objects.PlayContextType.CatchUp:
+                    return TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType.CatchUp;
+                case Objects.PlayContextType.StartOver:
+                    return TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType.StartOver;
+                case Objects.PlayContextType.Download:
+                    return TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType.Download;
+                case Objects.PlayContextType.Playback:
+                default:
+                    return TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PlayContextType.Playback;
+            }
         }
     }
 }
