@@ -171,31 +171,35 @@ namespace WebAPI.App_Start
 
 
         [DataContract(Name = "error")]
-        public class KalturaAPIExceptionWrapper
+        public class KalturaAPIExceptionWrapper : IKalturaJsonable
         {
+            [DataMember(Name = "error")]
             [JsonProperty(PropertyName = "error")]
             public KalturaAPIException error { get; set; }
         }
 
-        public class KalturaAPIException
+        public class KalturaAPIException : IKalturaJsonable
         {
             [JsonProperty(PropertyName = "objectType")]
             [DataMember(Name = "objectType")]
             public string objectType { get { return this.GetType().Name; } set { } }
 
             [JsonProperty(PropertyName = "code")]
+            [DataMember(Name = "code")]
             public string code { get; set; }
 
             [JsonProperty(PropertyName = "message")]
+            [DataMember(Name = "message")]
             public string message { get; set; }
 
             [JsonProperty(PropertyName = "args")]
-            public KalturaApiExceptionArg[] args { get; set; }
+            [DataMember(Name = "args")]
+            public List<KalturaApiExceptionArg> args { get; set; }
         }
 
         public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaApiExceptionArg[] arguments = null)
         {
-            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments } };
+            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments == null ? null : arguments.ToList() } };
         }
 
         public static string HandleError(string errorMsg, string stack)

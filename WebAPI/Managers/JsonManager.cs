@@ -189,6 +189,10 @@ namespace WebAPI.Managers
 
         public string Serialize(object value, bool omitObsolete = false)
         {
+            if(value is IKalturaJsonable)
+            {
+                return KalturaJsonSerializer.Serialize((IKalturaJsonable) value);
+            }
             return JsonConvert.SerializeObject(value, new JsonSerializerSettings{ContractResolver = new KalturaObjectContractResolver(omitObsolete)});
         }
     }

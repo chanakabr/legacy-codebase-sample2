@@ -29,7 +29,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -37,7 +37,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -45,7 +45,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementTypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -63,7 +63,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -111,7 +111,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     

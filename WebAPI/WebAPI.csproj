@@ -24,6 +24,7 @@
     <NuGetPackageImportStamp>29ae49f1</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -865,6 +866,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Reflection\DataModel.cs" />
+    <Compile Include="Reflection\KalturaJsonSerializer.cs" />
     <Compile Include="Swagger.ashx.cs">
       <DependentUpon>Swagger.ashx</DependentUpon>
     </Compile>

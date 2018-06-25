@@ -178,59 +178,16 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null)
+                string json;
+                if (type == typeof(StatusWrapper))
                 {
-                    object result = ((StatusWrapper)value).Result;
-                    StatusWrapper statusWrapper = ((StatusWrapper)value);
-                    if (result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
-                    {
-                        if (OldStandardAttribute.isCurrentRequestOldVersion())
-                        {
-                            dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
-                            statusWrapper.Result = oldStandardObject;
-                        }
-                    }
-                    else if (result.GetType().IsGenericType && result.GetType().GetGenericArguments()[0].IsSubclassOf(typeof(KalturaOTTObject)))
-                    {
-                        List<OldStandardObject> list = new List<OldStandardObject>();
-                        foreach (KalturaOTTObject item in (dynamic)result)
-                        {
-                            list.Add(new OldStandardObject(item));
-                        }
-                        statusWrapper.Result = list;
-                    }
-                    else if (result.GetType().IsArray) // is multirequest
-                    {
-                        List<object> list = new List<object>();
-                        foreach (object item in (dynamic)result)
-                        {
-                            if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
-                            {
-                                list.Add(item);
-                            }
-                            else if (item.GetType().IsSubclassOf(typeof(ApiException)))
-                            {
-                                list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message, ((ApiException)item).Args));
-                            }
-                            else if (item.GetType().IsSubclassOf(typeof(Exception)))
-                            {
-                                InternalServerErrorException ex = new InternalServerErrorException();
-                                list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ((ApiException)item).Args));
-                            }
-                            else
-                            {
-                                list.Add(item);
-                            }
-                        }
-                        statusWrapper.Result = list;
-                    }
+                    json = KalturaJsonSerializer.Serialize((StatusWrapper)value);
                 }
-
-                string json = jsonManager.Serialize(value);
+                else
+                {
+                    json = jsonManager.Serialize(value);
+                }
                 streamWriter.Write(json);
-                
-                //JSON.Serialize(value, streamWriter, _jilOptions);
-
                 return Task.FromResult(writeStream);
             }
         }

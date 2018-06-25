@@ -78,5 +78,10 @@ public class SerializableDictionary<TKey, TValue>
             writer.WriteEndElement();
         }
     }
+
+    internal string[] Select(Func<object, object> p)
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 }

@@ -10,10 +10,15 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Reflection;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaOTTObject
+    public interface IKalturaJsonable
+    {
+    }
+
+    public interface IKalturaOTTObject : IKalturaJsonable
     {
     }
 
