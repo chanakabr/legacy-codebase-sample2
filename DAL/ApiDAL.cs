@@ -1710,33 +1710,12 @@ namespace DAL
             newRule.name = ODBCWrapper.Utils.ExtractString(row, "NAME");
             newRule.description = ODBCWrapper.Utils.ExtractString(row, "DESCRIPTION");
             newRule.order = ODBCWrapper.Utils.ExtractInteger(row, "ORDER_NUM");
-            newRule.mediaTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TAG_TYPE_ID", -1);
-            bool isTopic = false;
-            if (newRule.mediaTagTypeId == -1)
-            {
-                newRule.mediaTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TOPIC_ID");
-                isTopic = newRule.mediaTagTypeId > 0;
-            }
-
-            newRule.epgTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "EPG_TAG_TYPE_ID", -1);
-            if (newRule.epgTagTypeId == -1)
-            {
-                newRule.epgTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "EPG_TOPIC_ID");
-                isTopic = isTopic || newRule.epgTagTypeId > 0;
-            }
-
+            newRule.mediaTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_TAG_TYPE_ID");
+            newRule.epgTagTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "EPG_TAG_TYPE_ID");
             newRule.blockAnonymousAccess = ODBCWrapper.Utils.ExtractBoolean(row, "BLOCK_ANONYMOUS_ACCESS");
             newRule.ruleType = (eParentalRuleType)ODBCWrapper.Utils.ExtractInteger(row, "RULE_TYPE");
-            if (!isTopic)
-            {
-                newRule.mediaTagType = ODBCWrapper.Utils.ExtractString(row, "media_tag_type_name");
-                newRule.epgTagType = ODBCWrapper.Utils.ExtractString(row, "epg_tag_type_name");
-            }
-            else
-            {
-                newRule.mediaTagType = ODBCWrapper.Utils.GetSafeStr(row, "media_topic_system_name");
-                newRule.epgTagType = ODBCWrapper.Utils.GetSafeStr(row, "epg_topic_system_name");
-            }
+            newRule.mediaTagType = ODBCWrapper.Utils.GetSafeStr(row, "media_tag_type_name");
+            newRule.epgTagType = ODBCWrapper.Utils.GetSafeStr(row, "epg_tag_type_name");
 
             int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
 
@@ -1751,7 +1730,7 @@ namespace DAL
 
             newRule.isDefault = ODBCWrapper.Utils.ExtractBoolean(row, "IS_DEFAULT");
             int isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE", -1);
-            // isActive == -1 is for backward compatability in case is_active coulmn isn't returned at all, then it must be only active
+            // isActive == -1 is for backward compatibility in case is_active column isn't returned at all, then it must be only active
             newRule.isActive = isActive == -1 || isActive == 1 ? true : false;
             newRule.CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"));
             newRule.UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"));
