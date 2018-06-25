@@ -1,6 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.TimeShiftedTv;
+using CouchbaseManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 
@@ -18,6 +21,227 @@ namespace DAL
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const int NUM_OF_INSERT_TRIES = 10;
+        private const int NUM_OF_TRIES = 3;
+
+        #region Generic Methods
+        
+        public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                Random r = new Random();
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var response = cbManager.Get<string>(key);
+
+                    if (response != null)
+                    {
+                        log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
+                                        numOfTries, NUM_OF_TRIES, string.Join(", ", key));
+                        return JsonConvert.DeserializeObject<T>(response, jsonSerializerSettings);
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. keys: {2}",
+                                    numOfTries, NUM_OF_TRIES, string.Join(", ", key));
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetObjectFromCB. keys: {0}, ex: {1}",
+                                string.Join(", ", key), ex);
+            }
+
+            return default(T);
+        }
+
+        public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                Random r = new Random();
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var cbValues = cbManager.GetValues<string>(keys, true);
+
+                    if (cbValues != null)
+                    {
+                        log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                        return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(x.Value, jsonSerializerSettings)));
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while GetObjectListFromCB. number of tries: {0}/{1}. keys: {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetObjectListFromCB. keys: {0}, ex: {1}", string.Join(", ", keys), ex);
+            }
+
+            return null;
+        }
+
+        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave)
+        {
+            if (objectToSave != null)
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                int numOfTries = 0;
+
+                try
+                {
+                    Random r = new Random();
+                    var serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
+                    while (numOfTries < NUM_OF_INSERT_TRIES)
+                    {
+                        if (cbManager.Set<string>(key, serializeObject))
+                        {
+                            log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
+                                                numOfTries, NUM_OF_INSERT_TRIES, key);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, key);
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to SaveObjectInCB. key: {0}, ex: {1}", key, ex);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool DeleteObjectFromCB(eCouchbaseBucket couchbaseBucket, string key)
+        {
+            bool result = false;
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+
+            try
+            {
+                result = cbManager.Remove(key);
+                if (result)
+                    log.DebugFormat("Successfully removed {0}", key);
+                else
+                    log.ErrorFormat("Error while removing {0}", key);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
+            }
+
+            return result;
+        }
+        #endregion
+
+        #region Keys
+
+        public static string getUserMediaMarkDocKey(int nSiteUserGuid, int nMediaID)
+        {
+            return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
+        }
+
+        public static string getUserMediaMarkDocKey(string sSiteUserGuid, int nMediaID)
+        {
+            return string.Format("u{0}_m{1}", sSiteUserGuid, nMediaID);
+        }
+
+        public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
+        {
+            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
+
+        }
+
+        public static string getUserNpvrMarkDocKey(string userId, int npvrId)
+        {
+            return string.Format("u{0}_n{1}", userId, npvrId);
+
+        }
+
+        public static string getUserEpgMarkDocKey(int userID, string epgID)
+        {
+            return string.Format("u{0}_epg{1}", userID, epgID);
+        }
+
+        public static string GetPlayCycleKey(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
+        {
+            return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
+        }
+
+        public static string GetDomainQuotaKey(long domainId)
+        {
+            return string.Format("domain_{0}_quota", domainId);
+        }
+
+        public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
+        {
+            return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
+        }
+
+        public static string GetCachedEntitlementResultsKey(string version, long domainId, int mediaFileId)
+        {
+            return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
+        }
+
+        public static string MediaIdGroupFileTypesKey(int mediaID)
+        {
+            return string.Format("media_group_file_type_{0}", mediaID.ToString());
+        }
+
+        public static string GetDrmPolicyKey(int groupId)
+        {
+            return string.Format("drm_policy_{0}", groupId);
+        }
+
+        internal static string GetDomainDrmIdKey(int domainId)
+        {
+            return string.Format("domain_drmId_{0}", domainId);
+        }
+
+        internal static string GetDrmIdKey(string drmId, int groupId)
+        {
+            return string.Format("drmId_{0}_groupId_{1}", drmId, groupId);
+        }
+
+        internal static string GetSubscriptionSetModifyKey(int groupId, long id, SubscriptionSetModifyType type)
+        {
+            return string.Format("groupId_{0}_Id_{1}_type_{2}", groupId, id, type.ToString());
+        }
+
+        internal static string GetDomainUnifiedBillingCycleKey(long domainId, long renewBillingCycle)
+        {
+            return string.Format("unifiedBillingCycle_householdId_{0}_cycle_{1}", domainId, renewBillingCycle);
+        }
+
+        public static string GetAssetUserRuleKey(long ruleId)
+        {
+            return string.Format("asset_user_rule_{0}", ruleId);
+        }
+
+        public static string GetDefaultQuotaInSecondsKey(int groupId, long domainId)
+        {
+            return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
+        }
+
+        #endregion
 
         private static void HandleException(Exception ex)
         {
@@ -626,22 +850,7 @@ namespace DAL
             int result = spParentGroupID.ExecuteReturnValue<int>();
             return result;
         }
-
-        public static string getUserMediaMarkDocKey(int nSiteUserGuid, int nMediaID)
-        {
-            return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
-        }
-
-        public static string getUserMediaMarkDocKey(string sSiteUserGuid, int nMediaID)
-        {
-            return string.Format("u{0}_m{1}", sSiteUserGuid, nMediaID);
-        }
-
-        public static string getDomainMediaMarksDocKey(int nDomainID)
-        {
-            return string.Format("d{0}", nDomainID);
-        }
-
+        
         #region YES
         public static DataTable YesDeleteMediasByOfferID(string nOfferID)
         {
@@ -692,44 +901,7 @@ namespace DAL
 
             return res;
         }
-
-        public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
-        {
-            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
-
-        }
-
-        public static string getUserNpvrMarkDocKey(string userId, int npvrId)
-        {
-            return string.Format("u{0}_n{1}", userId, npvrId);
-
-        }
-
-        public static string getUserEpgMarkDocKey(int userID, string epgID)
-        {
-            return string.Format("u{0}_epg{1}", userID, epgID);
-        }
-
-        public static string GetPlayCycleKey(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
-        {
-            return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
-        }
-
-        public static string GetDomainQuotaKey(long domainId)
-        {
-            return string.Format("domain_{0}_quota", domainId);
-        }
-
-        public static string GetDefaultQuotaInSeconds(int groupId, long domainId)
-        {
-            return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
-        }
-
-        public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
-        {
-            return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
-        }
-
+        
         public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)
         {
             Dictionary<GroupFeature, bool> groupFeatures = null;
@@ -754,46 +926,6 @@ namespace DAL
             }
 
             return groupFeatures;
-        }
-
-        public static string GetCachedEntitlementResultsKey(string version, long domainId, int mediaFileId)
-        {
-            return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
-        }
-
-        public static string MediaIdGroupFileTypesKey(int mediaID)
-        {
-            return string.Format("media_group_file_type_{0}", mediaID.ToString());
-        }
-
-        public static string GetDrmPolicyKey(int groupId)
-        {
-            return string.Format("drm_policy_{0}", groupId);
-        }
-
-        internal static string GetDomainDrmIdKey(int domainId)
-        {
-            return string.Format("domain_drmId_{0}", domainId);
-        }
-
-        internal static string GetDrmIdKey(string drmId, int groupId)
-        {
-            return string.Format("drmId_{0}_groupId_{1}", drmId, groupId);
-        }
-
-        internal static string GetSubscriptionSetModifyKey(int groupId, long id, SubscriptionSetModifyType type)
-        {
-            return string.Format("groupId_{0}_Id_{1}_type_{2}", groupId, id, type.ToString());
-        }
-
-        internal static string GetDomainUnifiedBillingCycleKey(long domainId, long renewBillingCycle)
-        {
-            return string.Format("unifiedBillingCycle_householdId_{0}_cycle_{1}", domainId, renewBillingCycle);
-        }
-
-        public static string GetAssetUserRuleKey(long ruleId)
-        {
-            return string.Format("asset_user_rule_{0}", ruleId);
         }
     }
 }

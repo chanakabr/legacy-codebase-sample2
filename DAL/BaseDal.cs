@@ -35,6 +35,5 @@ namespace Tvinci.Core.DAL
 
             return dtGroups;
         }
-     
     }
 }

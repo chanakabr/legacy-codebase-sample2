@@ -571,39 +571,37 @@ namespace Tvinci.Core.DAL
             spInsertNewPlayerError.ExecuteNonQuery();
         }
 
-        public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID,
-            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds,
-            bool isLinearChannel = false, int finishedPercentThreshold = 95)
+        public static void UpdateOrInsert_UsersMediaMark(int userId, string udid, int mediaId, int loactionSec, int fileDuration, string action, 
+                                                         int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, 
+                                                         int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
-
+            
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             DateTime currentDate = DateTime.UtcNow;
-
-            string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
-            UserMediaMark dev = new UserMediaMark()
+            
+            UserMediaMark userMediaMarkDevice = new UserMediaMark()
             {
-                Location = nLoactionSec,
-                UDID = sUDID,
-                AssetID = nMediaID,
-                UserID = nSiteUserGuid,
+                Location = loactionSec,
+                UDID = udid,
+                AssetID = mediaId,
+                UserID = userId,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                 playType = ePlayType.MEDIA.ToString(),
                 FileDuration = fileDuration,
                 AssetAction = action,
                 AssetTypeId = mediaTypeId,
-                MediaConcurrencyRuleIds = mediaConcurrencyRuleIds
+                MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
+                AssetConcurrencyRuleIds = assetConcurrencyRuleIds,
+                DeviceFamilyId = deviceFamilyId
             };
 
             while (limitRetries >= 0)
             {
-                bool res = UpdateDomainConcurrency(sUDID, domainMarksManager, docKey, dev);
-
-                if (!res)
+                if (!SaveDomainPlayData(udid, userMediaMarkDevice))
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -612,7 +610,7 @@ namespace Tvinci.Core.DAL
                     break;
             }
 
-            string mmKey = UtilsDal.getUserMediaMarkDocKey(nSiteUserGuid, nMediaID);
+            string mmKey = UtilsDal.getUserMediaMarkDocKey(userId, mediaId);
 
             //Now storing this by the mediaID
             limitRetries = RETRY_LIMIT;
@@ -626,7 +624,7 @@ namespace Tvinci.Core.DAL
             {
                 while (limitRetries >= 0 && !success)
                 {
-                    shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitsManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, finishedPercentThreshold);
+                    shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitsManager, udid, ref limitRetries, r, mmKey, ref success, userMediaMarkDevice, finishedPercentThreshold);
                 }
             }
 
@@ -639,36 +637,35 @@ namespace Tvinci.Core.DAL
 
                 while (limitRetries >= 0 && !success)
                 {
-                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarksManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, 0);
+                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarksManager, udid, ref limitRetries, r, mmKey, ref success, userMediaMarkDevice, 0);
                 }
             }
         }
-
-
-        private static bool UpdateDomainConcurrency(string udid,
-            CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
+        
+        private static bool UpdateDomainConcurrency(string udid, CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
         {
             ulong version;
-            var data = couchbase.GetWithVersion<string>(documentKey, out version);
+            var domainMediaMarkData = couchbase.GetWithVersion<string>(documentKey, out version);
 
             DomainMediaMark domainMediaMark = new DomainMediaMark();
 
             //Create new if doesn't exist
-            if (data == null)
+            if (domainMediaMarkData == null)
             {
                 domainMediaMark.devices = new List<UserMediaMark>();
                 domainMediaMark.devices.Add(userMediaMark);
             }
             else
             {
-                domainMediaMark = JsonConvert.DeserializeObject<DomainMediaMark>(data);
+                domainMediaMark = JsonConvert.DeserializeObject<DomainMediaMark>(domainMediaMarkData);
 
                 // Get the current device's media mark, if it exists
-                UserMediaMark existdev = domainMediaMark.devices.Where(x => x.UDID == udid).FirstOrDefault();
+                UserMediaMark existdev = domainMediaMark.devices.FirstOrDefault(x => x.UDID == udid);
 
                 // If it exists, replace it
                 if (existdev != null)
                 {
+                    userMediaMark.DeviceFamilyId = existdev.DeviceFamilyId;
                     domainMediaMark.devices.Remove(existdev);
                 }
 
@@ -1561,73 +1558,7 @@ namespace Tvinci.Core.DAL
             var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
             return umm.LastMark.Location;
         }
-
-        public static List<UserMediaMark> GetDomainLastPositions(int domainId, int ttl, List<ePlayType> playTypes)
-        {
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
-            Random r = new Random();
-
-            string docKey = UtilsDal.getDomainMediaMarksDocKey(domainId);
-            ulong version;
-            string domainMarksString = domainMarksManager.GetWithVersion<string>(docKey, out version);
-
-            if (domainMarksString == null)
-                return null;
-
-            DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(domainMarksString);
-
-            List<string> playTypesStrings = new List<string>();
-
-            if (playTypes != null)
-            {
-                // If all - leave it as an empty list. empty list means everything
-                if (!playTypes.Contains(ePlayType.ALL))
-                {
-                    playTypesStrings = playTypes.Select(t => t.ToString()).ToList();
-                }
-            }
-
-            List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
-            
-            var filteredDevices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                // either the list is empty (which means all play types) or x's type is in the list)
-                (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
-                !playActions.Contains(x.AssetAction.ToLower())).ToList();
-
-            domainMarks.devices = filteredDevices;
-
-            // Cleaning old ones...
-            int limitRetries = RETRY_LIMIT;
-
-            while (limitRetries >= 0)
-            {
-                // re-get the domain marks document only for second run of loop - so we don't do "get" twice forn nothing
-                if (limitRetries < RETRY_LIMIT)
-                {
-                    domainMarksString = domainMarksManager.GetWithVersion<string>(docKey, out version);
-                }
-
-                DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(domainMarksString);
-
-                dm.devices = dm.devices.Where(x =>
-                    x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                    // either the list is empty (which means all play types) or x's type is in the list)
-                    (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
-
-                bool result = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
-
-                if (!result)
-                {
-                    Thread.Sleep(r.Next(50));
-                    limitRetries--;
-                }
-                else
-                    break;
-            }
-
-            return domainMarks.devices;
-        }
-
+        
         public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
@@ -2327,40 +2258,35 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec,
-            int fileDuration, string action, long recordingId, bool isFirstPlay = false, int finishedPercent = 95)
+        public static void UpdateOrInsert_UsersNpvrMark(int userId, string udid, string assetId, int loactionSec,int fileDuration, string action, 
+                                                        long recordingId, int deviceFamilyId, bool isFirstPlay, int finishedPercent = 95)
         {
             var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-
             DateTime currentDate = DateTime.UtcNow;
 
-            string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
-
-            var dev = new UserMediaMark()
+            var userMediaMark = new UserMediaMark()
             {
-                Location = nLoactionSec,
-                UDID = sUDID,
-                AssetID = int.Parse(sAssetID),
-                UserID = nSiteUserGuid,
+                Location = loactionSec,
+                UDID = udid,
+                AssetID = int.Parse(assetId),
+                UserID = userId,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                 playType = ApiObjects.ePlayType.NPVR.ToString(),
                 NpvrID = recordingId.ToString(),
                 AssetAction = action,
                 FileDuration = fileDuration,
-                AssetTypeId = (int)eAssetTypes.NPVR
+                AssetTypeId = (int)eAssetTypes.NPVR,
+                DeviceFamilyId = deviceFamilyId
             };
 
             while (limitRetries >= 0)
             {
-                bool res = UpdateDomainConcurrency(sUDID, domainMarksManager, docKey, dev);
-
-                if (!res)
+                if (!SaveDomainPlayData(udid, userMediaMark))
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2369,66 +2295,47 @@ namespace Tvinci.Core.DAL
                     break;
             }
 
-            string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sAssetID);
-            var userMediaMark = new UserMediaMark()
-            {
-                Location = nLoactionSec,
-                UDID = sUDID,
-                AssetID = int.Parse(sAssetID),
-                UserID = nSiteUserGuid,
-                CreatedAt = currentDate,
-                CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
-                playType = ApiObjects.ePlayType.NPVR.ToString(),
-                NpvrID = recordingId.ToString(),
-                AssetAction = action,
-                FileDuration = fileDuration,
-                AssetTypeId = (int)eAssetTypes.NPVR
-            };
+            string mmKey = UtilsDal.getUserNpvrMarkDocKey(userId, assetId);
 
             limitRetries = RETRY_LIMIT;
-
             bool hitSuccess = false;
-            bool finishedWatchingChanged = false;
+            bool shouldUpdateLocation = false;
 
-            hitSuccess = false;
             while (limitRetries >= 0 && !hitSuccess)
             {
-                finishedWatchingChanged = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref hitSuccess, userMediaMark);
+                shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, udid, ref limitRetries, r, mmKey, ref hitSuccess, userMediaMark, finishedPercent);
             }
 
             bool markSuccess = false;
 
-            if (isFirstPlay || finishedWatchingChanged)
+            if (isFirstPlay || shouldUpdateLocation)
             {
                 while (limitRetries >= 0 && !markSuccess)
                 {
-                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref markSuccess, userMediaMark);
+                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, udid, ref limitRetries, r, mmKey, ref markSuccess, userMediaMark);
                 }
             }
         }
 
-        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec,
-            int fileDuration, string action, bool isFirstPlay)
+        public static void UpdateOrInsert_UsersEpgMark(int userId, string udid, int assetID, int loactionSec,int fileDuration, string action, bool isFirstPlay)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
             DateTime currentDate = DateTime.UtcNow;
-            string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
-            var dev = new UserMediaMark()
+            var UserMediaMarkDevice = new UserMediaMark()
             {
-                Location = nLoactionSec,
-                UDID = sUDID,
-                AssetID = nAssetID,
-                UserID = nSiteUserGuid,
+                Location = loactionSec,
+                UDID = udid,
+                AssetID = assetID,
+                UserID = userId,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
-                playType = ApiObjects.ePlayType.EPG.ToString(),
+                playType = ePlayType.EPG.ToString(),
                 AssetAction = action,
                 FileDuration = fileDuration,
                 AssetTypeId = (int)eAssetTypes.EPG
@@ -2436,9 +2343,7 @@ namespace Tvinci.Core.DAL
 
             while (limitRetries >= 0)
             {
-                bool res = UpdateDomainConcurrency(sUDID, domainMarksManager, docKey, dev);
-
-                if (!res)
+                if (!SaveDomainPlayData(udid, UserMediaMarkDevice))
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2447,14 +2352,14 @@ namespace Tvinci.Core.DAL
                     break;
             }
 
-            string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
+            string mmKey = UtilsDal.getUserEpgMarkDocKey(userId, assetID.ToString());
 
             if (isFirstPlay)
             {
-                UpdateOrInsert_UserEpgMarkOrHit(mediaMarksManager, r, dev, mmKey);
+                UpdateOrInsert_UserEpgMarkOrHit(mediaMarksManager, r, UserMediaMarkDevice, mmKey);
             }
 
-            UpdateOrInsert_UserEpgMarkOrHit(mediaHitsManager, r, dev, mmKey);
+            UpdateOrInsert_UserEpgMarkOrHit(mediaHitsManager, r, UserMediaMarkDevice, mmKey);
         }
 
         private static bool UpdateOrInsert_UserEpgMarkOrHit(CouchbaseManager.CouchbaseManager manager, Random r, UserMediaMark dev, string mmKey)
@@ -2507,24 +2412,7 @@ namespace Tvinci.Core.DAL
             var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
             return umm.LastMark.Location;
         }
-
-        // get all devices last position in domain by media_id 
-        public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
-        {
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
-
-            // get domain document 
-            string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
-            var data = domainMarksManager.Get<string>(key);
-            if (data == null)
-                return null;
-
-            // get all last position order by desc              
-            var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            dmm.devices = dmm.devices.Where(x => x.AssetID == mediaID).ToList();
-            return dmm;
-        }
-
+        
         public static void Get_IPCountryCode(long ipVal, ref int countryID)
         {
             StoredProcedure sp = new StoredProcedure("Get_IPCountryCode");
@@ -4365,7 +4253,8 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int domainID, List<int> mediaConcurrencyRuleIds)
+        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int domainID, 
+                                                              List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
             int limitRetries = RETRY_LIMIT;
@@ -4390,10 +4279,11 @@ namespace Tvinci.Core.DAL
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
                     playCycleSession.DomainID = domainID;
+                    playCycleSession.AssetConcurrencyRuleIds = assetConcurrencyRuleIds;
                 }
                 else
                 {
-                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID, mediaConcurrencyRuleIds);
+                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID, mediaConcurrencyRuleIds, assetConcurrencyRuleIds);
                 }
 
                 int ttl = CB_PLAYCYCLE_DOC_EXPIRY_MIN;
@@ -4408,18 +4298,21 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}",
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetConcurrencyRuleIds: {7}, Exception: {8}",
                     siteGuid, groupID, UDID, platform,
                     mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0", 
-                    playCycleKey, MediaFileID, ex.Message);
+                    playCycleKey, MediaFileID,
+                    assetConcurrencyRuleIds != null ? string.Join(",", assetConcurrencyRuleIds) : "0",
+                    ex.Message);
             }
 
             if (playCycleSession == null)
             {
-                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}",
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetConcurrencyRuleIds: {7}",
                                  siteGuid, groupID, UDID, platform,
                                  mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0",
-                                 playCycleKey, MediaFileID);
+                                 playCycleKey, MediaFileID,
+                                 assetConcurrencyRuleIds != null ? string.Join(",", assetConcurrencyRuleIds) : "0");
             }
             return playCycleSession;
         }
@@ -4724,6 +4617,165 @@ namespace Tvinci.Core.DAL
                 log.ErrorFormat("Error at DeleteTopicInterest. groupId: {0}. Error {1}", groupId, ex);
                 return false;
             }
+        }
+
+        private static string GetDomainDevicesKey(long domainId)
+        {
+            return string.Format("domain_devices_{0}", domainId);
+        }
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.GetObjectFromCB
+        public static Dictionary<string, int> GetDomainDevices(long domainId)
+        {
+            Dictionary<string, int> domainDevicesDic = null;
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+
+            var key = GetDomainDevicesKey(domainId);
+            var domainDevices = domainMarksManager.Get<string>(key);
+
+            if (domainDevices != null)
+            {
+                domainDevicesDic = JsonConvert.DeserializeObject<Dictionary<string, int>>(domainDevices);
+            }
+
+            return domainDevicesDic;
+        }
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.SaveObjectInCB
+        public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
+        {
+            if (domainDevices != null)
+            {
+                Random r = new Random();
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                int numOfTries = 0;
+                var key = GetDomainDevicesKey(domainId);
+
+                try
+                {
+                    var serializeObject = JsonConvert.SerializeObject(domainDevices, jsonSerializerSettings);
+
+                    while (numOfTries < RETRY_LIMIT)
+                    {
+                        if (cbManager.Set<string>(key, serializeObject))
+                        {
+                            log.DebugFormat("successfully set SaveDomainDevices. number of tries: {0}/{1}. domainId: {2}.",
+                                                numOfTries, RETRY_LIMIT, domainId);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while set SaveDomainDevices. number of tries: {0}/{1}. domainId: {2}.",
+                                        numOfTries, RETRY_LIMIT, domainId);
+                        
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to set SaveDomainDevices. domainId: {0}, ex: {1}", domainId, ex);
+                }
+            }
+
+            return false;
+        }
+
+        private static string GetDomainPlayDataKey(string udid)
+        {
+            return string.Format("device_play_data_{0}", udid);
+        }
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.SaveObjectInCB
+        private static bool SaveDomainPlayData(string udid, UserMediaMark userMediaMark)
+        {
+            if (userMediaMark != null)
+            {
+                Random r = new Random();
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                int numOfTries = 0;
+                string key = GetDomainPlayDataKey(udid);
+
+                try
+                {
+                    var serializeObject = JsonConvert.SerializeObject(userMediaMark, jsonSerializerSettings);
+
+                    while (numOfTries < RETRY_LIMIT)
+                    {
+                        // TODO SHIR - HANDLE CACHE
+                        if (cbManager.Set<string>(key, serializeObject))
+                        {
+                            log.DebugFormat("successfully set SaveDomainPlayData. number of tries: {0}/{1}. udid: {2}.",
+                                                numOfTries, RETRY_LIMIT, udid);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while set SaveDomainPlayData. number of tries: {0}/{1}. udid: {2}.",
+                                        numOfTries, RETRY_LIMIT, udid);
+
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to set SaveDomainPlayData. udid: {0}, ex: {1}", udid, ex);
+                }
+            }
+
+            return false;
+        }
+
+        public static List<UserMediaMark> GetDomainPlayData(long domainId, List<ePlayType> playTypes, int ttl)
+        {
+            var domainDevices = GetDomainDevices(domainId);
+
+            if (domainDevices != null && domainDevices.Count > 0)
+            {
+                List<string> keys = new List<string>();
+                foreach (var currDevice in domainDevices)
+                {
+                    keys.Add(GetDomainPlayDataKey(currDevice.Key));
+                }
+
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                try
+                {
+                    var cbValues = cbManager.GetValues<string>(keys, true);
+
+                    if (cbValues != null)
+                    {
+                        List<UserMediaMark> domainPlayData = 
+                            new List<UserMediaMark>(cbValues.Select(x => JsonConvert.DeserializeObject<UserMediaMark>(x.Value, jsonSerializerSettings)));
+                        
+                        List<string> playTypesStrings = new List<string>();
+
+                        // If all - leave it as an empty list. empty list means everything
+                        if (playTypes != null && !playTypes.Contains(ePlayType.ALL))
+                        {
+                            playTypesStrings.AddRange(playTypes.Select(t => t.ToString()));
+                        }
+
+                        List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
+
+                        var filteredDevices = domainPlayData.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
+                            // either the list is empty (which means all play types) or x's type is in the list)
+                            (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
+                            !playActions.Contains(x.AssetAction.ToLower())).ToList();
+
+                        return domainPlayData;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to GetDomainPlayData. keys: {0}, ex: {1}", string.Join(", ", keys), ex);
+                }
+            }
+
+            return null;
         }
     }
 }

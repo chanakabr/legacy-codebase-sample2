@@ -65,6 +65,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_USER_TO_ASSET_USER_RULE_IDS = "GetUserToAssetUserRuleIdsDB";
         public const string GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME = "GetGroupDiscounts";
         public const string GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB = "GetDeviceConcurrencyPriorityCB";
+        public const string GET_ALL_LINEAR_MEDIA = "GetAllLinearMedia";
+        public const string GET_ADJACENT_PROGRAMS = "GetAdjacentPrograms";
 
         #endregion
 

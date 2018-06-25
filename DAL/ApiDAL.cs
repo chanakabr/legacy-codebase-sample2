@@ -4574,7 +4574,8 @@ namespace DAL
         {
             return UpdateAssetRule(groupId, id, null, null);
         }
-        
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
         {
             bool result = false;
@@ -4588,6 +4589,7 @@ namespace DAL
             return result;
         }
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.
         private static bool SetAssetRuleCB(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
         {
             bool result = false;
@@ -4693,6 +4695,7 @@ namespace DAL
             return string.Format("asset_rule:{0}", assetRuleId);
         }
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static AssetRule GetAssetRuleCB(long assetRuleId)
         {
             AssetRule assetRule = null;
@@ -4739,6 +4742,7 @@ namespace DAL
             return assetRule;
         }
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
@@ -4794,6 +4798,7 @@ namespace DAL
             return false;
         }
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
         {
             bool result = false;
@@ -5126,7 +5131,8 @@ namespace DAL
         #endregion
 
         #region AssetUserRule
-        
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.get
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
             AssetUserRule assetUserRule = null;
@@ -5172,7 +5178,8 @@ namespace DAL
 
             return assetUserRule;
         }
-        
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.SAVE
         public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
         {
             bool result = false;
@@ -5212,7 +5219,8 @@ namespace DAL
 
             return result;
         }
-        
+
+        // TODO SHIR - USE GENERIC IN UtilsDal.delete
         public static bool DeleteAssetUserRuleCB(long assetUserRuleId)
         {
             bool result = false;
@@ -5289,6 +5297,7 @@ namespace DAL
 
         #endregion
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.GetObjectFromCB
         public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
@@ -5325,6 +5334,7 @@ namespace DAL
             return null;
         }
 
+        // TODO SHIR - USE GENERIC IN UtilsDal.SAVE
         public static bool SaveDeviceConcurrencyPriorityCB(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriority)
         {
             if (deviceConcurrencyPriority != null)
@@ -5365,6 +5375,18 @@ namespace DAL
         public static string GetDeviceConcurrencyPriorityKey(int groupId)
         {
             return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
+        }
+        
+        // TODO SHIR - remove method from here and put in good place!!!
+        public static DataTable GetAllLinearMedia(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_AllLinearMedia");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
         }
     }
 }

@@ -578,6 +578,21 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_device_concurrency_Priority_groupId_{0}", groupId);
         }
 
+        public static string GetAllLinearMediaKey(int groupId)
+        {
+            return string.Format("all_linear_media_groupId_{0}", groupId);
+        }
+
+        public static string GetAdjacentProgramsKey(int groupId, string epgChannelId)
+        {
+            return string.Format("adjacent_programs_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+        }
+
+        public static string GetAdjacentProgramsInvalidationKey(int groupId, string epgChannelId)
+        {
+            return string.Format("invalidationKey_adjacent_programs_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+        }
+        
         #endregion
 
         #region Domains
