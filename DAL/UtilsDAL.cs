@@ -78,7 +78,7 @@ namespace DAL
                     if (cbValues != null)
                     {
                         log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
-                        return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(x.Value, jsonSerializerSettings)));
+                        return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(cbValues[x.Key], jsonSerializerSettings)));
                     }
 
                     numOfTries++;
@@ -94,7 +94,7 @@ namespace DAL
             return null;
         }
 
-        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave)
+        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, uint expirationTTL = 0)
         {
             if (objectToSave != null)
             {
@@ -108,7 +108,7 @@ namespace DAL
                     var serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
                     while (numOfTries < NUM_OF_INSERT_TRIES)
                     {
-                        if (cbManager.Set<string>(key, serializeObject))
+                        if (cbManager.Set<string>(key, serializeObject, expirationTTL))
                         {
                             log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
                                                 numOfTries, NUM_OF_INSERT_TRIES, key);

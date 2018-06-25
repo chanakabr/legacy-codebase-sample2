@@ -4575,60 +4575,14 @@ namespace DAL
             return UpdateAssetRule(groupId, id, null, null);
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
         {
             bool result = false;
 
             if (assetRule != null && assetRule.Id > 0)
             {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                result = SetAssetRuleCB(groupId, assetRule, cbManager);
-            }
-
-            return result;
-        }
-
-        // TODO SHIR - USE GENERIC IN UtilsDal.
-        private static bool SetAssetRuleCB(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
-        {
-            bool result = false;
-            int numOfTries = 0;
-            try
-            {
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set<string>(GetAssetRuleKey(assetRule.Id), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while set AssetRule. number of tries: {0}/{1}. groupId: {2}, assetRuleId: {3}.",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRule.Id);
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set AssetRule. number of tries: {0}/{1}. GID: {2}, assetRuleId: {3}.",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRule.Id);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to set AssetRule. Id: {0}, ex: {1}", assetRule.Id, ex);
+                string key = GetAssetRuleKey(assetRule.Id);
+                return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key, assetRule);
             }
 
             return result;
@@ -4695,90 +4649,21 @@ namespace DAL
             return string.Format("asset_rule:{0}", assetRuleId);
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static AssetRule GetAssetRuleCB(long assetRuleId)
         {
-            AssetRule assetRule = null;
-            eResultStatus status = eResultStatus.ERROR;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string key = GetAssetRuleKey(assetRuleId);
-            try
-            {
-                bool result = false;
-                int numOfTries = 0;
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                while (!result && numOfTries < NUM_OF_TRIES)
-                {
-                    assetRule = JsonConvert.DeserializeObject<AssetRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);
-                    if (assetRule == null)
-                    {
-                        if (status != eResultStatus.SUCCESS)
-                        {
-                            numOfTries++;
-                            log.ErrorFormat("Error while GetAssetRuleCB. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
-
-                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                        }
-                    }
-                    else
-                    {
-                        result = true;
-
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully received AssetRule. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to GetAssetRuleCB. key: {0}, ex: {1}", key, ex);
-            }
-
-            return assetRule;
+            return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             List<string> assetRuleKeys = new List<string>();
-
             foreach (var assetRuleId in assetRuleIds)
             {
                 assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
             }
 
-            int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-            try
-            {
-                while (numOfTries < NUM_OF_TRIES)
-                {
-                    var cbValues = cbManager.GetValues<string>(assetRuleKeys, true);
-                    
-                    if (cbValues != null)
-                    {
-                        log.DebugFormat("successfully received AssetRules. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", assetRuleKeys));
-                        return new List<AssetRule>(cbValues.Select(x => JsonConvert.DeserializeObject<AssetRule>(x.Value, jsonSerializerSettings)));
-                    }
-
-                    numOfTries++;
-                    log.ErrorFormat("Error while GetAssetRulesCB. number of tries: {0}/{1}. keys: {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", assetRuleKeys));
-                    Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to GetAssetRulesCB. keys: {0}, ex: {1}", string.Join(", ", assetRuleKeys), ex);
-            }
-            
-            return null;
+            return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
         }
         
         public static bool DeleteAssetRule(int groupId, long id)
@@ -4798,29 +4683,10 @@ namespace DAL
             return false;
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.
         public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
         {
-            bool result = false;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
             string key = GetAssetRuleKey(assetRuleId);
-
-            try
-            {
-                result = cbManager.Remove(key);
-                if (result)
-                    log.DebugFormat("Successfully removed {0}", key);
-                else
-                    log.ErrorFormat("Error while removing {0}", key);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
-            }
-
-            return result;
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)
@@ -5131,117 +4997,23 @@ namespace DAL
         #endregion
 
         #region AssetUserRule
-
-        // TODO SHIR - USE GENERIC IN UtilsDal.get
+        
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
-            AssetUserRule assetUserRule = null;
-            eResultStatus status = eResultStatus.ERROR;
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            bool result = false;
-            int numOfTries = 0;
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
-
-            try
-            {
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                while (!result && numOfTries < NUM_OF_TRIES)
-                {
-                    assetUserRule = JsonConvert.DeserializeObject<AssetUserRule>(cbManager.Get<string>(key, out status), jsonSerializerSettings);
-
-                    if (assetUserRule != null)
-                    {
-                        result = true;
-
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully received AssetUserRule. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
-                        }
-                    }
-                    else if (status != eResultStatus.SUCCESS)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while GetAssetUserRuleCB. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
-
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to GetAssetUserRuleCB. key: {0}, ex: {1}", key, ex);
-            }
-
-            return assetUserRule;
+            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key);
         }
-
-        // TODO SHIR - USE GENERIC IN UtilsDal.SAVE
+        
         public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
         {
-            bool result = false;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            int numOfTries = 0;
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleToSave.Id);
-
-            try
-            {
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set<string>(key, JsonConvert.SerializeObject(assetUserRuleToSave, jsonSerializerSettings));
-
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while Save AssetUserRuleCB. number of tries: {0}/{1}. groupId: {2}, assetUserRuleId: {3}.",
-                                        numOfTries, NUM_OF_INSERT_TRIES, assetUserRuleToSave.GroupId, assetUserRuleToSave.Id);
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    // log success on retry
-                    else if (numOfTries > 0)
-                    {
-                        numOfTries++;
-                        log.DebugFormat("successfully Save AssetUserRuleCB. number of tries: {0}/{1}. GID: {2}, assetUserRuleId: {3}.",
-                                        numOfTries, NUM_OF_INSERT_TRIES, assetUserRuleToSave.GroupId, assetUserRuleToSave.Id);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to Save AssetUserRuleCB. Id: {0}, ex: {1}", assetUserRuleToSave.Id, ex);
-            }
-
-            return result;
+            return UtilsDal.SaveObjectInCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, assetUserRuleToSave);
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.delete
         public static bool DeleteAssetUserRuleCB(long assetUserRuleId)
         {
-            bool result = false;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string assetUserRuleKey = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
-
-            try
-            {
-                result = cbManager.Remove(assetUserRuleKey);
-                if (result)
-                    log.DebugFormat("Successfully removed {0}", assetUserRuleKey);
-                else
-                    log.ErrorFormat("Error while removing {0}", assetUserRuleKey);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while removing {0}. ex: {1}", assetUserRuleKey, ex);
-            }
-
-            return result;
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetUserRuleKey);
         }
 
         public static DataTable GetAssetUserRules(int groupId)
@@ -5296,80 +5068,17 @@ namespace DAL
         }
 
         #endregion
-
-        // TODO SHIR - USE GENERIC IN UtilsDal.GetObjectFromCB
+        
         public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
-
-            int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-            try
-            {
-                while (numOfTries < NUM_OF_TRIES)
-                {
-                    var response = cbManager.Get<string>(deviceConcurrencyPriorityKey);
-
-                    if (response != null)
-                    {
-                        log.DebugFormat("successfully received DeviceConcurrencyPriority. number of tries: {0}/{1}. key {2}",
-                                        numOfTries, NUM_OF_TRIES, string.Join(", ", deviceConcurrencyPriorityKey));
-                        return JsonConvert.DeserializeObject<DeviceConcurrencyPriority>(response, jsonSerializerSettings);
-                    }
-
-                    numOfTries++;
-                    log.ErrorFormat("Error while GetDeviceConcurrencyPriorityCB. number of tries: {0}/{1}. keys: {2}",
-                                    numOfTries, NUM_OF_TRIES, string.Join(", ", deviceConcurrencyPriorityKey));
-                    Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to GetDeviceConcurrencyPriorityCB. keys: {0}, ex: {1}",
-                                string.Join(", ", deviceConcurrencyPriorityKey), ex);
-            }
-
-            return null;
+            return UtilsDal.GetObjectFromCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey);
         }
 
-        // TODO SHIR - USE GENERIC IN UtilsDal.SAVE
         public static bool SaveDeviceConcurrencyPriorityCB(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriority)
         {
-            if (deviceConcurrencyPriority != null)
-            {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-                int numOfTries = 0;
-                string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
-
-                try
-                {
-                    var serializeObject = JsonConvert.SerializeObject(deviceConcurrencyPriority, jsonSerializerSettings);
-
-                    while (numOfTries < NUM_OF_INSERT_TRIES)
-                    {
-                        if (cbManager.Set<string>(deviceConcurrencyPriorityKey, serializeObject))
-                        {
-                            log.DebugFormat("successfully set DeviceConcurrencyPriority. number of tries: {0}/{1}. groupId: {2}.",
-                                                numOfTries, NUM_OF_INSERT_TRIES, groupId);
-                            return true;
-                        }
-
-                        numOfTries++;
-                        log.ErrorFormat("Error while set DeviceConcurrencyPriority. number of tries: {0}/{1}. groupId: {2}.",
-                                        numOfTries, NUM_OF_INSERT_TRIES, groupId);
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to set DeviceConcurrencyPriority. groupId: {0}, ex: {1}", groupId, ex);
-                }
-            }
-
-            return false;
+            string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
+            return UtilsDal.SaveObjectInCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey, deviceConcurrencyPriority);
         }
 
         public static string GetDeviceConcurrencyPriorityKey(int groupId)

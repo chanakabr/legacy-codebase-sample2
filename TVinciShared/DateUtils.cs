@@ -13,12 +13,8 @@ namespace TVinciShared
     /// <summary>
     /// Summary description for DateUtils
     /// </summary>
-    public class DateUtils
+    public static class DateUtils
     {
-        public DateUtils()
-        {
-        }
-
         static public string GetDateForSchedule(DateTime theDate)
         {
             string sRet = "";
@@ -337,6 +333,12 @@ namespace TVinciShared
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
             return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
+        }
+
+        public static DateTime UnixTimestampToDateTime(this long timestamp)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return origin.AddSeconds(timestamp);
         }
     }
 }

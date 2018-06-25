@@ -1816,42 +1816,43 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                DataTable dtDeviceFamilies = ds.Tables[0];
+                if (dtDeviceFamilies != null && dtDeviceFamilies.Rows != null && dtDeviceFamilies.Rows.Count > 0)
                 {
-                    res = new List<string[]>(dt.Rows.Count);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        string sFamilyID = dt.Rows[i]["ID"].ToString();
-                        string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
-                        string[] dbDeviceContainer = new string[2] { sFamilyID, sFamilyName };
-                        res.Add(dbDeviceContainer);
-                    } // end for
+                    res = new List<string[]>(dtDeviceFamilies.Rows.Count);
 
+                    foreach (DataRow currDeviceFamily in dtDeviceFamilies.Rows)
+                    {
+                        string deviceFamilyId = currDeviceFamily["ID"].ToString();
+                        string deviceFamilyName = Utils.GetSafeStr(currDeviceFamily, "NAME");
+                        string[] dbDeviceContainer = new string[2] { deviceFamilyId, deviceFamilyName };
+                        res.Add(dbDeviceContainer);
+                    }
+                    
                     DataTable dtSpecificLimits = ds.Tables[1];
                     if (dtSpecificLimits != null && dtSpecificLimits.Rows != null && dtSpecificLimits.Rows.Count > 0)
                     {
-                        for (int i = 0; i < dtSpecificLimits.Rows.Count; i++)
+                        foreach (DataRow currSpecificLimit in dtSpecificLimits.Rows)
                         {
-                            int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["device_family_id"]);
-                            string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dtSpecificLimits.Rows[i]["description"]);
-                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["value"], -1);
+                            int deviceFamilyId = Utils.GetIntSafeVal(currSpecificLimit, "device_family_id");
+                            string LimitationType = Utils.GetSafeStr(currSpecificLimit, "description");
+                            int LimitationValue = Utils.GetIntSafeVal(currSpecificLimit, "value", -1);
 
-                            if (nFamilyID > 0 && nLimitationValue > -1 && sLimitationType.Length > 0)
+                            if (deviceFamilyId > 0 && LimitationValue > -1 && LimitationType.Length > 0)
                             {
-                                if (String.Compare(sLimitationType, "concurrency", true) == 0)
+                                if (String.Compare(LimitationType, "concurrency", true) == 0)
                                 {
-                                    concurrenyOverride.Add(nFamilyID, nLimitationValue);
+                                    concurrenyOverride.Add(deviceFamilyId, LimitationValue);
                                 }
                                 else
                                 {
-                                    if (String.Compare(sLimitationType, "quantity", true) == 0)
+                                    if (String.Compare(LimitationType, "quantity", true) == 0)
                                     {
-                                        quantityOverride.Add(nFamilyID, nLimitationValue);
+                                        quantityOverride.Add(deviceFamilyId, LimitationValue);
                                     }
                                 }
                             }
-                        } // end for
+                        }
                     }
                 }
                 else
