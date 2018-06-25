@@ -35,28 +35,35 @@ namespace DAL
 
             try
             {
+                CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
                 Random r = new Random();
                 while (numOfTries < NUM_OF_TRIES)
                 {
-                    var response = cbManager.Get<string>(key);
+                    var response = cbManager.Get<string>(key, out getResult);
 
-                    if (response != null)
+                    if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    {
+                        log.ErrorFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
+                        break;
+                    }
+                    else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                     {
                         log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
-                                        numOfTries, NUM_OF_TRIES, string.Join(", ", key));
+                                        numOfTries, NUM_OF_TRIES, key);
                         return JsonConvert.DeserializeObject<T>(response, jsonSerializerSettings);
                     }
-
-                    numOfTries++;
-                    log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. keys: {2}",
-                                    numOfTries, NUM_OF_TRIES, string.Join(", ", key));
-                    Thread.Sleep(r.Next(50));
+                    else
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
+                                        numOfTries, NUM_OF_TRIES, key);
+                        Thread.Sleep(r.Next(50));
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to GetObjectFromCB. keys: {0}, ex: {1}",
-                                string.Join(", ", key), ex);
+                log.ErrorFormat("Error while trying to GetObjectFromCB. key: {0}, ex: {1}", key, ex);
             }
 
             return default(T);
