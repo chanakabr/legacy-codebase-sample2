@@ -66,6 +66,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "playerData")]
         public KalturaBookmarkPlayerData PlayerData { get; set; }
 
+        /// <summary>
+        /// Program Id
+        /// </summary>
+        [DataMember(Name = "programId")]
+        [JsonProperty("programId")]
+        [XmlElement(ElementName = "programId")]
+        public long ProgramId { get; set; }
+
         internal int getPosition()
         {
             return Position.HasValue ? Position.Value : 0;

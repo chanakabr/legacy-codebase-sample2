@@ -1774,7 +1774,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate)
+        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate, long programId = 0)
         {
             int t;
 
@@ -1816,7 +1816,8 @@ namespace WebAPI.Clients
                     m_sUDID = udid,
                     m_nAvgBitRate = averageBitRate,
                     m_nCurrentBitRate = currentBitRate,
-                    m_nTotalBitRate = totalBitRate
+                    m_nTotalBitRate = totalBitRate,
+                    ProgramId = programId
                 }
             };
 

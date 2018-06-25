@@ -4332,7 +4332,8 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.ConditionsContainType">
             <summary>
-            Indicates which asset rule list to return by it KalturaRuleConditionType 
+            Indicates which asset rule list to return by it KalturaRuleConditionType.
+            Default value: KalturaRuleConditionType.COUNTRY
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.AssetApplied">
@@ -5935,6 +5936,11 @@
              <summary>
             Insert only player data
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.ProgramId">
+            <summary>
+            Program Id
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.action">
             <summary>

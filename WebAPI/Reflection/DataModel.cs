@@ -3041,8 +3041,8 @@ namespace WebAPI.Reflection
                     {
                         case "DeviceFamilyIds":
                             return "deviceFamilyIds";
-                        case "PriorityByFIFO":
-                            return "priorityByFIFO";
+                        case "EvictionPolicy":
+                            return "evictionPolicy";
                     }
                     break;
                     
@@ -4870,6 +4870,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOTTUserDynamicDataList":
+                    switch(property.Name)
+                    {
+                        case "DynamicData":
+                            return "dynamicData";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaOTTUserFilter":
                     switch(property.Name)
                     {
@@ -4925,6 +4935,14 @@ namespace WebAPI.Reflection
                     {
                         case "ParentalRule":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPartnerConfigurationFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerConfigurationTypeEqual":
+                            return "partnerConfigurationTypeEqual";
                     }
                     break;
                     

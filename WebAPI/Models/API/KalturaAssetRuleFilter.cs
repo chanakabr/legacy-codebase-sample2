@@ -23,7 +23,8 @@ namespace WebAPI.Models.API
     public class KalturaAssetRuleFilter : KalturaFilter<KalturaAssetRuleOrderBy>
     {
         /// <summary>
-        /// Indicates which asset rule list to return by it KalturaRuleConditionType 
+        /// Indicates which asset rule list to return by it KalturaRuleConditionType.
+        /// Default value: KalturaRuleConditionType.COUNTRY
         /// </summary>
         [DataMember(Name = "conditionsContainType")]
         [JsonProperty("conditionsContainType")]

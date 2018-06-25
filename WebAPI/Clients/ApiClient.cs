@@ -3889,7 +3889,7 @@ namespace WebAPI.Clients
             KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 
             Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
-               Core.Api.Module.GetAssetRules(groupId, assetRuleConditionType, slimAsset);
+               Core.Api.Module.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
 
             KalturaGenericListResponse<KalturaAssetRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetRule, AssetRule>(getAssetRulesFunc);
