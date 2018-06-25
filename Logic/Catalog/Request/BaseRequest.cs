@@ -174,10 +174,7 @@ namespace Core.Catalog.Request
 
         protected virtual void CheckRequestValidness()
         {
-            /*
-             * To be overriden in the inheriting class
-             * 
-             */ 
+            // To be overriden in the inheriting class
         }
 
         public override string ToString()

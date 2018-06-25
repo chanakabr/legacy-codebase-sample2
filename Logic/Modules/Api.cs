@@ -1853,9 +1853,9 @@ namespace Core.Api
             return Core.Api.api.DeleteAssetRule(groupId, id);
         }
 
-        public static GenericListResponse<AssetRule> GetAssetRules(int groupId, AssetRuleConditionType assetRuleConditionType, SlimAsset slimAsset)
+        public static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId, SlimAsset slimAsset = null)
         {
-            return Core.Api.api.GetAssetRules(assetRuleConditionType, slimAsset, groupId);
+            return Core.Api.api.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
         }
 
         public static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
@@ -1936,6 +1936,12 @@ namespace Core.Api
         public static Status UpdateConcurrencyPartner(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
         {
             return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
+        }
+
+        // TODO SHIR - remove method from here and put in good place!!!
+        public static string GetEpgChannelId(int mediaId, int groupId)
+        {
+            return Core.Api.api.GetEpgChannelId(mediaId, groupId);
         }
     }
 }

@@ -643,8 +643,9 @@
     <Compile Include="Users\KalturaBaseUsers.cs" />
     <Compile Include="Users\KalturaSSOUsers.cs" />
     <Compile Include="Users\KalturaUsers.cs" />
-    <Compile Include="Users\LimitationsManager.cs" />
+    <Compile Include="Users\Managers\LimitationsManager.cs" />
     <Compile Include="Users\MailFactory.cs" />
+    <Compile Include="Users\Managers\ConcurrencyManager.cs" />
     <Compile Include="Users\MCMailImpl.cs" />
     <Compile Include="Users\MCNewsLetterImpl.cs" />
     <Compile Include="Users\MediaCorpUsers.cs" />

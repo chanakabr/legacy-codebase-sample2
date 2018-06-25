@@ -109,7 +109,7 @@ namespace Core.Users
         /// <returns>the new record ID</returns>
         public Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int nMasterGuID, string sCoGuid)
         {
-            Domain d = null;
+            Domain domain = null;
 
             DateTime dDateTime = DateTime.UtcNow;
 
@@ -158,40 +158,40 @@ namespace Core.Users
 
                 if (resDbObj)
                 {
-                    d = new Domain();
+                    domain = new Domain(nDomainID)
+                    {
+                        m_sName = sName,
+                        m_sDescription = sDescription,
+                        m_nIsActive = nIsActive,
+                        m_nStatus = nStatus,
+                        m_sCoGuid = sCoGuid,
+                        m_nGroupID = nGroupID,
+                        m_nDeviceLimit = domain.m_nLimit = nDeviceLimit,
+                        m_nUserLimit = nUserLimit,
+                        m_nConcurrentLimit = nConcurrentLimit
+                    };
+                    
+                    domain.InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
 
-                    d.m_sName = sName;
-                    d.m_sDescription = sDescription;
-                    d.m_nDomainID = nDomainID;
-                    d.m_nIsActive = nIsActive;
-                    d.m_nStatus = nStatus;
-                    d.m_sCoGuid = sCoGuid;
-                    d.m_nGroupID = nGroupID;
-
-                    d.m_nDeviceLimit = d.m_nLimit = nDeviceLimit;
-                    d.m_nUserLimit = nUserLimit;
-                    d.m_nConcurrentLimit = nConcurrentLimit;
-                    d.InitializeLimitationsManager(nConcurrentLimit, nGroupConcurrentLimit, nDeviceLimit, nDeviceFreqLimit, Utils.FICTIVE_DATE);
-
-                    d.m_DomainStatus = DomainStatus.OK;
+                    domain.m_DomainStatus = DomainStatus.OK;
 
                     if (nOperatorSubGroupID > 0)
                     {
-                        d.DeviceFamiliesInitializer(nDomainLimitID, nOperatorSubGroupID);
+                        domain.DeviceFamiliesInitializer(nDomainLimitID, nOperatorSubGroupID);
                     }
                     else
                     {
-                        d.DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
+                        domain.DeviceFamiliesInitializer(nDomainLimitID, nGroupID);
                     }
 
-                    DomainResponseStatus res = d.AddUserToDomain(m_nGroupID, d.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
+                    DomainResponseStatus res = domain.AddUserToDomain(m_nGroupID, domain.m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
 
-                    d.m_UsersIDs = new List<int>();
-                    d.m_UsersIDs.Add(nMasterGuID);
+                    domain.m_UsersIDs = new List<int>();
+                    domain.m_UsersIDs.Add(nMasterGuID);
                 }
             }
 
-            return d;
+            return domain;
         }
 
 

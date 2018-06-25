@@ -8,5 +8,15 @@ namespace ApiObjects.Rules
     {
         public string Id { get; set; }
         public eAssetTypes Type { get; set; }
+
+        public SlimAsset()
+        {
+        }
+
+        public SlimAsset(string id, eAssetTypes assetTypes)
+        {
+            this.Id = id;
+            this.Type = assetTypes;
+        }
     }
 }

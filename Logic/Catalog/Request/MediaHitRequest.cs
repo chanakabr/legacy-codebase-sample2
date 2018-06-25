@@ -132,7 +132,8 @@ namespace Core.Catalog.Request
                 }
                 else
                 {
-                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, this.m_nGroupID, this.domainId);
+                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, 
+                                                                    this.m_nGroupID, this.domainId);
                 }
 
                 if (!result)
@@ -152,8 +153,8 @@ namespace Core.Catalog.Request
             {
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, fileDuration,
-                        MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0, ApiObjects.ePlayType.NPVR, false, false, recordingId);
+                    CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, 
+                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, 0, ePlayType.NPVR, false, false, recordingId);
                 }
 
                 response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.HIT);
@@ -192,7 +193,7 @@ namespace Core.Catalog.Request
             int nPlatform = 0;
             int nSwhoosh = 0;
             int nCountryID = 0;
-            int siteGuid;
+            int userId;
             int fileDuration = 0;
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
             string playCycleKey = string.Empty;
@@ -209,7 +210,8 @@ namespace Core.Catalog.Request
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
 
             if (!CatalogLogic.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
-                ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID, ref fileDuration, m_nGroupID))
+                                                         ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, 
+                                                         ref nBillingTypeID, ref fileDuration, this.m_nGroupID))
             {
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
@@ -229,23 +231,24 @@ namespace Core.Catalog.Request
             }
 
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out userId);
 
             //non-anonymous user
-            if (siteGuid > 0)
+            if (userId > 0)
             {
-                List<int> MediaConcurrencyRuleIds = null;
+                List<int> mediaConcurrencyRuleIds = null;
 
                 // Get from CB and insert into MediaEOH
-                PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
+                PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, 
+                                                                                this.m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
                 if (playCycleSession != null)
                 {
                     domainId = playCycleSession.DomainID;
                     playCycleKey = playCycleSession.PlayCycleKey;
-                    MediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
-                    if (MediaConcurrencyRuleIds == null || MediaConcurrencyRuleIds.Count == 0)
+                    mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
+                    if (mediaConcurrencyRuleIds == null || mediaConcurrencyRuleIds.Count == 0)
                     {
-                        MediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
+                        mediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
                     }
                 }
                 else
@@ -253,18 +256,30 @@ namespace Core.Catalog.Request
                     playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                 }
 
-                tasks.Add(Task.Run(() => CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                                                            nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
-                                                                            m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                                            m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
+                tasks.Add(Task.Run(() => CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, 
+                                                                              nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, 
+                                                                              nStop, nFinish, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, 
+                                                                              nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, 
+                                                                              m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
+
+                // Get AssetRules
+                List<long> assetRulesIds = null;
+                if (playCycleSession != null && playCycleSession.AssetConcurrencyRuleIds != null && playCycleSession.AssetConcurrencyRuleIds.Count > 0)
+                {
+                    assetRulesIds = playCycleSession.AssetConcurrencyRuleIds;
+                }
+                else
+                {
+                    assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, mediaHitRequest.m_oMediaPlayRequestData.ProgramId);
+                }
 
                 if (!resultParse || action == MediaPlayActions.HIT)
                 {
                     bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
 
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
-                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel,
-                        0, MediaConcurrencyRuleIds);
+                                                nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, 
+                                                mediaConcurrencyRuleIds, assetRulesIds, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)

@@ -9,7 +9,6 @@ namespace ApiObjects.PlayCycle
     [Serializable]
     public class PlayCycleSession
     {
-
         [JsonProperty("MediaConcurrencyRuleID")]
         public int MediaConcurrencyRuleID { get; set; }
 
@@ -24,14 +23,18 @@ namespace ApiObjects.PlayCycle
 
         [JsonProperty("MediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
+        
+        [JsonProperty("AssetConcurrencyRuleIds")]
+        public List<long> AssetConcurrencyRuleIds { get; set; }
 
-        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds)
+        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds)
         {
             MediaConcurrencyRuleID = mediaConcurrencyRuleID;
             PlayCycleKey = playCycleKey;
             CreateDateMs = createDateMs;
             DomainID = domainID;
             MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+            AssetConcurrencyRuleIds = assetConcurrencyRuleIds;
         }
     }
 }

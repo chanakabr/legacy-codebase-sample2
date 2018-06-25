@@ -174,7 +174,6 @@ namespace Core.Domains
             }
             return null;
         }
-
         
         public static DomainStatusResponse RemoveUserFromDomain(int nGroupID, Int32 nDomainID, string sUserGUID)
         {
@@ -632,7 +631,7 @@ namespace Core.Domains
 
         
         public static ValidationResponseObject ValidateLimitationModule(int nGroupID, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> ruleIds, int nMediaID = 0)
+            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> mediaConcurrencyRuleIds, List<long> assetRules, int nMediaID = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
@@ -642,11 +641,12 @@ namespace Core.Domains
 
             if (lDomainID < 1 && lSiteGuid < 1)
                 return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
-            Core.Users.BaseDomain t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
+
+            Core.Users.BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, nGroupID);
+            if (baseDomain != null)
             {
-                return t.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, ruleIds, nMediaID);
+                return baseDomain.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, mediaConcurrencyRuleIds, assetRules, nMediaID);
             }
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
         }

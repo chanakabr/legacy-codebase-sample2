@@ -387,7 +387,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, SlimAsset slimAsset = null, int groupId = 0)
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
         {
             GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
 
@@ -705,7 +705,7 @@ namespace Core.Api.Managers
                             Parallel.ForEach(assetRulesWithKsql, (currAssetRuleWithKsql) =>
                             {
                                 StringBuilder ksqlFilter = new StringBuilder();
-
+                                
                                 if (eAssetTypes.EPG == slimAsset.Type)
                                 {
                                     ksqlFilter.AppendFormat(string.Format("(and epg_id = '{0}' (or", slimAsset.Id));

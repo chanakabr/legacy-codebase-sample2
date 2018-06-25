@@ -45,17 +45,23 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("mediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
+        
+        [JsonProperty("assetConcurrencyRuleIds")]
+        public List<long> AssetConcurrencyRuleIds { get; set; }
+
+        // TODO SHIR - SET IN ALL PLACE
+        [JsonProperty("deviceFamilyId")]
+        public int DeviceFamilyId { get; set; }
 
         public UserMediaMark()
         {
-            /*default values to members from joker version*/
+            // default values to members from joker version
             playType = ePlayType.MEDIA.ToString();
             NpvrID = string.Empty;
         }
 
         public class UMMDateComparerDesc : IComparer<UserMediaMark>
         {
-
             public int Compare(UserMediaMark x, UserMediaMark y)
             {
                 return y.CreatedAt.CompareTo(x.CreatedAt);
@@ -64,13 +70,11 @@ namespace ApiObjects.MediaMarks
 
         public class UMMMediaComparer : IComparer<UserMediaMark>
         {
-
             public int Compare(UserMediaMark x, UserMediaMark y)
             {
                 return x.AssetID.CompareTo(y.AssetID);
             }
         }
     }
-
 }
 

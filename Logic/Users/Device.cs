@@ -348,8 +348,7 @@ namespace Core.Users
                 }
             }
         }
-
-
+        
         private string GenerateNewPIN()
         {
             string sNewPIN = string.Empty;

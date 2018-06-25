@@ -7,24 +7,21 @@ using System.Text;
 
 namespace Core.Users
 {
-    /*
-     * Device limitation manager for Domain obj and DeviceContainer obj.
-     * 
-     * 
-     */
+    /// <summary>
+    /// Device limitation manager for Domain obj and DeviceContainer obj.
+    /// </summary>
     [JsonObject(Id = "LimitationsManager")]
     public class LimitationsManager
     {
-
+        /// <summary>
+        /// 1. Unlike quantity and concurrency, frequency is defined only at domain level (actually at group level in db.
+        ///    Have a look at TVinci.dbo.groups_device_limitation_modules)
+        /// 2. Quantity and concurrency are defined both at domain level and in device family level.
+        /// 3. This comment is correct to 22.04.14
+        /// </summary>
+        private int frequency;
         private int concurrency;
         private int quantity;
-        /*
-         * 1. Unlike quantity and concurrency, frequency is defined only at domain level (actually at group level in db.
-         *    Have a look at TVinci.dbo.groups_device_limitation_modules)
-         * 2. Quantity and concurrency are defined both at domain level and in device family level.
-         * 3. This comment is correct to 22.04.14
-         */ 
-        private int frequency;
         private DateTime nextActionFreqDate;
 
         public override string ToString()
@@ -73,9 +70,7 @@ namespace Core.Users
                 frequency = value;
             }
         }
-
-
-
+        
         public DateTime NextActionFreqDate
         {
             get
@@ -109,8 +104,7 @@ namespace Core.Users
         {
             this.concurrency = nConcurrencyDomainLevel > 0 ? nConcurrencyDomainLevel : nConcurrencyGroupLevel;
         }
-
-
+        
         private int GetActualConcurrency(int concurrencyGroupLevel, int concurrencyDomainLevel)
         {
             return concurrencyDomainLevel > 0 ? concurrencyDomainLevel : concurrencyGroupLevel;
@@ -155,8 +149,5 @@ namespace Core.Users
             this.frequency = 0;
             this.nextActionFreqDate = Utils.FICTIVE_DATE;
         }
-
-
-
     }
 }

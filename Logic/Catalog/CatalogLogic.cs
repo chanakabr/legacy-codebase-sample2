@@ -5,6 +5,7 @@ using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
@@ -1318,8 +1319,7 @@ namespace Core.Catalog
 
             return searchResultsList;
         }
-
-
+        
         private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, string cacheKey)
         {
             UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
@@ -1733,8 +1733,7 @@ namespace Core.Catalog
 
             return searchKeys;
         }
-
-
+        
         protected static void GetMetaType(string meta, out Type type)
         {
             type = typeof(string);
@@ -2479,23 +2478,22 @@ namespace Core.Catalog
                 nBillingTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "billing_type_id");
             }
         }
-
-        public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
-            string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false,
-            bool isLinearChannel = false, long recordingId = 0, List<int> mediaConcurrencyRuleIds = null)
+        
+        public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, string assetAction, int mediaTypeId,
+                                          List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, int domainId = 0, ePlayType ePlayType = ePlayType.MEDIA, 
+                                          bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
-            if (CatalogLogic.IsAnonymousUser(siteGUID))
+            if (CatalogLogic.IsAnonymousUser(userId))
             {
                 return;
             }
 
-            if (nDomainID < 1)
+            if (domainId < 1)
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
                 bool isMaster = false;
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(siteGUID), ref opID, ref isMaster, ref eSuspendStat);
+                domainId = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(userId), ref opID, ref isMaster, ref eSuspendStat);
             }
 
             // take finished percent threshold
@@ -2507,26 +2505,49 @@ namespace Core.Catalog
             {
                 finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
             }
-
-            if (nDomainID > 0)
+            
+            if (domainId > 0)
             {
+                var domainDevices = CatalogDAL.GetDomainDevices(domainId);
+
+                if (domainDevices == null)
+                {
+                    DomainResponse domain = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+                    // get first master user
+                    if (domain.Status.Code == (int)eResponseStatus.OK && domain.Domain != null)
+                    {
+                        // TODO SHIR - MEGIC
+                        //domainDevices = domain...
+                        //CatalogDAL.SaveDomainDevices(domainId);
+                    }
+                }
+
+                int deviceFamilyId = 0;
+                if (domainDevices != null && domainDevices.ContainsKey(udid))
+                {
+                    deviceFamilyId = domainDevices[udid];
+                }
+                
                 switch (ePlayType)
                 {
+                    // TODO SHIR - ALL CASE DO THE SAME THING
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, isLinearChannel, finishedPercentThreshold);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, 
+                                                                 assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, 
+                                                                 assetConcurrencyRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId, nPlayTime, duration, assetAction, isFirstPlay);
+                        // TODO SHIR - TALK TO IRA
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), 
+                                                               playTime, duration, assetAction, isFirstPlay);
                         break;
 
                     default:
                         break;
                 }
-
             }
         }
 
@@ -3087,8 +3108,7 @@ namespace Core.Catalog
                 }
             }
         }
-
-
+        
         internal static bool CompleteDetailsForProgramResponse(EpgProgramDetailsRequest pRequest, ref EpgProgramResponse pResponse)
         {
             ProgramObj oProgramObj = null;
@@ -4115,8 +4135,7 @@ namespace Core.Catalog
             int operatorID = 0;
             return IsUseIPNOFiltering(oMediaRequest, ref initializedSearcher, ref outJsonizedChannelsDefinitions, ref operatorID);
         }
-
-
+        
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
             ref ISearcher initializedSearcher, ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
         {
@@ -4217,8 +4236,7 @@ namespace Core.Catalog
 
             return res;
         }
-
-
+        
         internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID,
             int domainId, string siteGuid,
             Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
@@ -4300,8 +4318,7 @@ namespace Core.Catalog
             bool isTagOrMeta;
             return CatalogLogic.GetFullSearchKey(originalKey, ref group, out isTagOrMeta);
         }
-
-
+        
         private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
         {
             isTagOrMeta = false;
@@ -4346,8 +4363,8 @@ namespace Core.Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID,
-            int mediaID, int mediaFileID, int platform, int countryID, PlayCycleSession playCycleSession, ePlayType playType = ePlayType.MEDIA)
+        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID, int mediaID, int mediaFileID, int platform, 
+                                          int countryID, PlayCycleSession playCycleSession, long programId, ePlayType playType = ePlayType.MEDIA)
         {
             bool result = true;
             long siteGuidLong = 0;
@@ -4364,14 +4381,13 @@ namespace Core.Catalog
                 return false;
             }
 
-            // Get MCRuleID from PlayCycleSession on CB
+            // Get mediaConcurrencyRuleIds from PlayCycleSession on CB
             List<int> mediaConcurrencyRuleIds = null;
 
             if (playType == ePlayType.MEDIA)
             {
                 if (playCycleSession != null)
                 {
-
                     if (playCycleSession.MediaConcurrencyRuleIds != null && playCycleSession.MediaConcurrencyRuleIds.Count > 0)
                     {
                         mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
@@ -4391,35 +4407,45 @@ namespace Core.Catalog
                 }
             }
 
-            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(groupID, udid, 0, siteGuidLong, domainID,
-                ValidationType.Concurrency, mediaConcurrencyRuleIds, mediaID);
-
-            if (domainsResp != null)
+            // Get AssetRules
+            List<long> assetRulesIds = null;
+            if (playCycleSession != null && playCycleSession.AssetConcurrencyRuleIds != null && playCycleSession.AssetConcurrencyRuleIds.Count > 0)
             {
-                domainID = (int)domainsResp.m_lDomainID;
-                switch (domainsResp.m_eStatus)
-                {
-                    case DomainResponseStatus.ConcurrencyLimitation:
-                    case DomainResponseStatus.MediaConcurrencyLimitation:
-                        {
-                            result = true;
-                            break;
-                        }
-                    case DomainResponseStatus.OK:
-                        {
-                            result = false;
-                            break;
-                        }
-                    default:
-                        {
-                            throw new Exception(GetIsConcurrentLogMsg(
-                                String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
-                        }
-                }
+                assetRulesIds = playCycleSession.AssetConcurrencyRuleIds;
             }
             else
             {
+                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(groupID, mediaID, programId);
+            }
+
+            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule
+                (groupID, udid, 0, siteGuidLong, domainID, ValidationType.Concurrency, 
+                 mediaConcurrencyRuleIds, assetRulesIds, mediaID);
+
+            if (domainsResp == null)
+            {
                 throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
+            }
+
+            domainID = (int)domainsResp.m_lDomainID;
+            switch (domainsResp.m_eStatus)
+            {
+                case DomainResponseStatus.ConcurrencyLimitation:
+                case DomainResponseStatus.MediaConcurrencyLimitation:
+                    {
+                        result = true;
+                        break;
+                    }
+                case DomainResponseStatus.OK:
+                    {
+                        result = false;
+                        break;
+                    }
+                default:
+                    {
+                        throw new Exception(GetIsConcurrentLogMsg(
+                            String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                    }
             }
 
             return result;
@@ -4909,8 +4935,7 @@ namespace Core.Catalog
 
             return result;
         }
-
-
+        
         private static long ParseIPOutOfString(string userIP)
         {
             long nIPVal = 0;
@@ -9024,6 +9049,3 @@ namespace Core.Catalog
         }
     }
 }
-
-
-

@@ -4476,12 +4476,12 @@ namespace Core.Api
             string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
 
             // try to get from cache  
-
-            bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(
-                key, ref result, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
-
-            if (!cacheResult)
+            if (!LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key,
+                                                                       ref result, 
+                                                                       APILogic.Utils.Get_MCRulesByGroup, 
+                                                                       new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                       groupId, 
+                                                                       LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME))
             {
                 log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
                 result = null;
@@ -10545,9 +10545,9 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, SlimAsset slimAsset, int groupId = 0)
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
         {
-            return AssetRuleManager.GetAssetRules(assetRuleConditionType, slimAsset, groupId);
+            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
         }
 
         internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)
@@ -10923,6 +10923,74 @@ namespace Core.Api
             }
 
             return new Tuple<DeviceConcurrencyPriority, bool>(deviceConcurrencyPriority, deviceConcurrencyPriority != null);
+        }
+
+        // TODO SHIR - remove method from here and put in good place!!!
+        internal static string GetEpgChannelId(int mediaId, int groupId)
+        {   
+            string allLinearMediaIdsKey = LayeredCacheKeys.GetAllLinearMediaKey(groupId);
+            //TODO SHIR - FIND RELEVENT INVALIDATIONS KEYS - ask ira (LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId);)
+            string invalidationKey = null;
+            Dictionary<long, string> allLinearMedia = null;
+
+            if (!LayeredCache.Instance.Get<Dictionary<long, string>>(allLinearMediaIdsKey,
+                                                                    ref allLinearMedia,
+                                                                    GetAllLinearMedia,
+                                                                    new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                    groupId,
+                                                                    LayeredCacheConfigNames.GET_ALL_LINEAR_MEDIA,
+                                                                    new List<string>() { invalidationKey }))
+            {
+                log.ErrorFormat("GetEpgChannelId - GetAllLinearMedia - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            long lMediaId = long.Parse(mediaId.ToString());
+            if (allLinearMedia != null && allLinearMedia.ContainsKey(lMediaId))
+            {
+                return allLinearMedia[lMediaId];
+            }
+
+            return null;
+        }
+
+        private static Tuple<Dictionary<long, string>, bool> GetAllLinearMedia(Dictionary<string, object> funcParams)
+        {
+            Dictionary<long, string> allLinearMedia = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            DataTable dtAllLinearMedia = ApiDAL.GetAllLinearMedia(groupId.Value);
+
+                            if (dtAllLinearMedia != null && dtAllLinearMedia.Rows != null)
+                            {
+                                allLinearMedia = new Dictionary<long, string>();
+
+                                foreach (DataRow drLinearMedia in dtAllLinearMedia.Rows)
+                                {
+                                    long linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drLinearMedia, "ID");
+                                    string channelId = ODBCWrapper.Utils.GetSafeStr(drLinearMedia, "EPG_IDENTIFIER");
+                                    
+                                    allLinearMedia.Add(linearMediaId, channelId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllLinearMedia faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, string>, bool>(allLinearMedia, allLinearMedia != null);
         }
     }
 }
