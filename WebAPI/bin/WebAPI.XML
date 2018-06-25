@@ -383,6 +383,47 @@
             <param name="assetStructMeta">AssetStructMeta Object</param>
             <returns></returns>
         </member>
+        <member name="T:WebAPI.Controllers.BulkUploadController">
+            <summary>
+            Bulk upload service is used to manage bulk uploads
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkUploadController.Abort(System.Int64)">
+            <summary>
+            Aborts the bulk upload
+            </summary>
+            <param name="id">bulk upload id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkUploadController.Get(System.Int64)">
+            <summary>
+            Get bulk upload by id
+            </summary>
+            <param name="id">bulk upload id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkUploadController.List(WebAPI.Models.Upload.KalturaBulkUploadFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List bulk uploads
+            </summary>
+            <param name="filter">Filtering the bulk upload request</param>
+            <param name="pager">Paging the request</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkUploadController.Serve(System.Int64)">
+            <summary>
+            Serve action returns the original file
+            </summary>
+            <param name="id">bulk upload id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkUploadController.ServeLog(System.Int64)">
+            <summary>
+            ServeLog action returns the log file for the bulk upload
+            </summary>
+            <param name="id">bulk upload id</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.MediaFileController.Add(WebAPI.Models.Catalog.KalturaMediaFile)">
             <summary>
             Add a new media file
@@ -5626,6 +5667,106 @@
         <member name="P:WebAPI.Models.API.KalturaPinResponse.Type">
             <summary>
             PIN type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.StatusEqual">
+            <summary>
+            dynamicOrderBy - order by Meta
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadListResponse">
+            <summary>
+            Asset wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadListResponse.Objects">
+            <summary>
+            bulk uploads
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUpload">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Id">
+            <summary>
+            BulkUpload identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.NumberOfEntries">
+            <summary>
+            The number of entries sent during the bulk upload
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.FileName">
+            <summary>
+            Name of the bulk upload file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Description">
+            <summary>
+            Description of the bulk upload file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.ErrorDescription">
+            <summary>
+            Error description for the bulk upload file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.ErrorNumber">
+            <summary>
+            Error number for the bulk upload file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.UploadedByUserId">
+            <summary>
+            Identifier of the user who created the bulk upload
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.CreateDate">
+            <summary>
+            Specifies when was the bulk upload was created. Date and time represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.UpdateDate">
+            <summary>
+            Specifies when was the bulk upload last updated. Date and time represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
+            <summary>
+            Upload-token identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.CreateDate">
+            <summary>
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter">
@@ -10971,31 +11112,6 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsCancellationBlocked">
             <summary>
             Is cancellation blocked for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
-            <summary>
-            Upload-token identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Status">
-            <summary>
-            Status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.FileSize">
-            <summary>
-            File size
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.CreateDate">
-            <summary>
-            Specifies when was the Asset was created. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
-            <summary>
-            Specifies when was the Asset last updated. Date and time represented as epoch.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaOTTUserDynamicData">
