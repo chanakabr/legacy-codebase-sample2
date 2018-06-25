@@ -79,13 +79,12 @@ namespace Core.Catalog.Request
 
                             for (int i = startIndex; i < count; i++)
                             {
-                                oPersonalLastWatched = new PersonalLastDevice();
-
-                                oPersonalLastWatched.m_nID = lastMediaMarksList[i].AssetID;
-
-                                oPersonalLastWatched.m_dLastWatchedDate = lastMediaMarksList[i].CreatedAt;
-
-
+                                oPersonalLastWatched = new PersonalLastDevice()
+                                {
+                                    m_nID = lastMediaMarksList[i].AssetID,
+                                    m_dLastWatchedDate = lastMediaMarksList[i].CreatedAt
+                                };
+                                
                                 string sLastDeviceName = string.Empty;
                                 if (dictDevices.ContainsKey(lastMediaMarksList[i].UDID))
                                 {
@@ -101,7 +100,6 @@ namespace Core.Catalog.Request
                                 }
 
                                 oPersonalLastWatched.m_sLastWatchedDevice = sLastDeviceName;
-
                                 oPersonalLastWatched.m_sSiteUserGuid = lastMediaMarksList[i].UserID.ToString();
 
                                 response.m_lPersonalLastWatched.Add(oPersonalLastWatched);

@@ -2480,8 +2480,8 @@ namespace Core.Catalog
         }
         
         public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, string assetAction, int mediaTypeId,
-                                          List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, int domainId = 0, ePlayType ePlayType = ePlayType.MEDIA, 
-                                          bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+                                          List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, long programId, int domainId = 0, 
+                                          ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
             if (CatalogLogic.IsAnonymousUser(userId))
             {
@@ -2508,20 +2508,8 @@ namespace Core.Catalog
             
             if (domainId > 0)
             {
-                var domainDevices = CatalogDAL.GetDomainDevices(domainId);
-
-                if (domainDevices == null)
-                {
-                    DomainResponse domain = Core.Domains.Module.GetDomainInfo(groupId, domainId);
-                    // get first master user
-                    if (domain.Status.Code == (int)eResponseStatus.OK && domain.Domain != null)
-                    {
-                        // TODO SHIR - MEGIC
-                        //domainDevices = domain...
-                        //CatalogDAL.SaveDomainDevices(domainId);
-                    }
-                }
-
+                Dictionary<string, int> domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
+                
                 int deviceFamilyId = 0;
                 if (domainDevices != null && domainDevices.ContainsKey(udid))
                 {
@@ -2530,19 +2518,17 @@ namespace Core.Catalog
                 
                 switch (ePlayType)
                 {
-                    // TODO SHIR - ALL CASE DO THE SAME THING
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, 
                                                                  assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, 
-                                                                 assetConcurrencyRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel);
+                                                                 assetConcurrencyRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel, programId);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay, programId);
                         break;
                     case ePlayType.EPG:
-                        // TODO SHIR - TALK TO IRA
                         CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), 
-                                                               playTime, duration, assetAction, isFirstPlay);
+                                                               playTime, duration, assetAction, isFirstPlay, deviceFamilyId, programId);
                         break;
 
                     default:

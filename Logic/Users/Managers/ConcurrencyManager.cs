@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.MediaMarks;
+using ApiObjects.Response;
 using ApiObjects.Rules;
 using DAL;
 using KLogMonitor;
@@ -11,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -61,9 +63,9 @@ namespace Core.Users
             try
             {
                 // Get all domain media marks
-                List<UserMediaMark> domainPlayData = CatalogDAL.GetDomainPlayData(domain.m_nDomainID, new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
                 
-                if (domainPlayData != null)
+                if (devicePlayData != null)
                 {
                     // Get all group's media concurrency rules
                     var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(groupId);
@@ -73,7 +75,7 @@ namespace Core.Users
 
                     ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
                     int mediaConcurrencyLimit = 0;
-                    List<UserMediaMark> assetMediaMarks = null;
+                    List<DevicePlayData> assetDevicePlayData = null;
 
                     foreach (int ruleId in mediaRuleIds)
                     {
@@ -105,30 +107,31 @@ namespace Core.Users
                         {
                             case ConcurrencyRestrictionPolicy.Single:
                                 {
-                                    assetMediaMarks = domainPlayData.FindAll(
-                                        currentMark => !currentMark.UDID.Equals(udid) && currentMark.AssetID == mediaId &&
-                                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                    assetDevicePlayData = devicePlayData.FindAll(x => 
+                                        !x.UDID.Equals(udid) && 
+                                        x.AssetId == mediaId &&
+                                        x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                     break;
                                 }
                             case ConcurrencyRestrictionPolicy.Group:
                                 {
-                                    assetMediaMarks = domainPlayData.FindAll(
-                                        currentMark => !currentMark.UDID.Equals(udid) &&
-                                        currentMark.MediaConcurrencyRuleIds != null &&
-                                        currentMark.MediaConcurrencyRuleIds.Contains(ruleId) &&
-                                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                    assetDevicePlayData = devicePlayData.FindAll(x => 
+                                        !x.UDID.Equals(udid) &&
+                                        x.MediaConcurrencyRuleIds != null &&
+                                        x.MediaConcurrencyRuleIds.Contains(ruleId) &&
+                                        x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                     break;
                                 }
                             default:
                                 break;
                         }
 
-                        if (assetMediaMarks != null && assetMediaMarks.Count >= mediaConcurrencyLimit)
+                        if (assetDevicePlayData != null && assetDevicePlayData.Count >= mediaConcurrencyLimit)
                         {
                             log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, mediaId:{1}, ruleId:{2}, limit:{3}, count:{4}",
-                                domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetMediaMarks);
+                                domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetDevicePlayData.Count);
 
-                            return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetMediaMarks.Select(x => x.DeviceFamilyId));
+                            return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId));
                         }
                     }
                 }
@@ -150,10 +153,10 @@ namespace Core.Users
 
             try
             {
-                List<UserMediaMark> domainPlayData = 
-                    CatalogDAL.GetDomainPlayData(domain.m_nDomainID, new List<ePlayType>() { ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                List<DevicePlayData> devicePlayData = 
+                    CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, new List<ePlayType>() { ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
 
-                if (domainPlayData == null || domainPlayData.Count == 0)
+                if (devicePlayData == null || devicePlayData.Count == 0)
                 {
                     return DomainResponseStatus.OK;
                 }
@@ -177,37 +180,37 @@ namespace Core.Users
                         continue;
                     }
 
-                    List<UserMediaMark> assetMediaMarks = null;
+                    List<DevicePlayData> assetDevicePlayData = null;
 
                     switch (concurrencyCondition.RestrictionPolicy)
                     {
                         case ConcurrencyRestrictionPolicy.Single:
                             {
-                                assetMediaMarks = domainPlayData.FindAll
-                                    (currentMark => !currentMark.UDID.Equals(udid) &&
-                                     currentMark.AssetID == mediaId &&
-                                     currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                assetDevicePlayData = devicePlayData.FindAll
+                                    (x => !x.UDID.Equals(udid) &&
+                                     x.AssetId == mediaId &&
+                                     x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                 break;
                             }
                         case ConcurrencyRestrictionPolicy.Group:
                             {
-                                assetMediaMarks = domainPlayData.FindAll
-                                    (currentMark => !currentMark.UDID.Equals(udid) &&
-                                     currentMark.AssetConcurrencyRuleIds != null &&
-                                     currentMark.AssetConcurrencyRuleIds.Contains(currAssetRuleId) &&
-                                     currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                assetDevicePlayData = devicePlayData.FindAll
+                                    (x => !x.UDID.Equals(udid) &&
+                                     x.AssetConcurrencyRuleIds != null &&
+                                     x.AssetConcurrencyRuleIds.Contains(currAssetRuleId) &&
+                                     x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                 break;
                             }
                         default:
                             break;
                     }
 
-                    if (assetMediaMarks != null && assetMediaMarks.Count >= concurrencyCondition.Limit)
+                    if (assetDevicePlayData != null && assetDevicePlayData.Count >= concurrencyCondition.Limit)
                     {
                         log.DebugFormat("ValidateAssetRulesConcurrency, domainId:{0}, mediaId:{1}, assetRuleId:{2}, limit:{3}, count:{4}",
-                                        domain, mediaId, currAssetRuleId, concurrencyCondition.Limit, assetMediaMarks);
+                                        domain, mediaId, currAssetRuleId, concurrencyCondition.Limit, assetDevicePlayData.Count);
 
-                        return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetMediaMarks.Select(x => x.DeviceFamilyId));
+                        return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId));
                     }
                 }
             }
@@ -292,6 +295,31 @@ namespace Core.Users
 
             // Cannot allow a new stream. Domain reached its max limitation
             return DomainResponseStatus.ConcurrencyLimitation;
+        }
+
+        internal static Dictionary<string, int> GetDomainDevices(int domainId, int groupId)
+        {
+            Dictionary<string, int> domainDevices = CatalogDAL.GetDomainDevices(domainId);
+
+            if (domainDevices == null)
+            {
+                DomainResponse domainResponse = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+                if (domainResponse.Status.Code == (int)eResponseStatus.OK && domainResponse.Domain != null)
+                {
+                    domainDevices = new Dictionary<string, int>();
+                    foreach (var currDeviceFamily in domainResponse.Domain.m_deviceFamilies)
+                    {
+                        foreach (var currDevice in currDeviceFamily.DeviceInstances)
+                        {
+                            domainDevices.Add(currDevice.m_deviceUDID, currDeviceFamily.m_deviceFamilyID);
+                        }
+                    }
+
+                    CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                }
+            }
+
+            return domainDevices;
         }
     }
 }

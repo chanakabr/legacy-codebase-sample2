@@ -296,8 +296,11 @@ namespace Core.Domains
         
         public static DomainResponse GetDomainInfo(int nGroupID, Int32 nDomainID)
         {
-            DomainResponse response = new DomainResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            DomainResponse response = new DomainResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+            
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)

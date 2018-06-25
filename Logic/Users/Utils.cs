@@ -553,8 +553,7 @@ namespace Core.Users
 
             return homeNetwork;
         }
-
-
+        
         static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;

@@ -154,7 +154,8 @@ namespace Core.Catalog.Request
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, 
-                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, 0, ePlayType.NPVR, false, false, recordingId);
+                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, request.m_oMediaPlayRequestData.ProgramId,
+                                                0, ePlayType.NPVR, false, false, recordingId);
                 }
 
                 response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.HIT);
@@ -279,7 +280,8 @@ namespace Core.Catalog.Request
 
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
                                                 nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, 
-                                                mediaConcurrencyRuleIds, assetRulesIds, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
+                                                mediaConcurrencyRuleIds, assetRulesIds, mediaHitRequest.m_oMediaPlayRequestData.ProgramId,
+                                                domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)

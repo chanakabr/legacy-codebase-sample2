@@ -12,28 +12,16 @@ namespace ApiObjects.MediaMarks
     {
         [JsonProperty("udid")]
         public string UDID { get; set; }
+
         [JsonProperty("mid")]
         public int AssetID { get; set; }
+
         [JsonProperty("uid")]
         public int UserID { get; set; }
-        [JsonProperty("loc")]
-        public int Location { get; set; }
-        [JsonProperty("ts")]
-        public DateTime CreatedAt { get; set; }
-
-        // VersionAdded  - Joker 
-
-        [JsonProperty("NpvrID", Required = Required.Default)]
-        public string NpvrID { get; set; }
-
+        
         [JsonProperty("playType", Required = Required.Default)]
         public string playType { get; set; }
-
-        // duration, action, assetTypeId, ts_epoch added - Maverick
-
-        [JsonProperty("duration")]
-        public int FileDuration { get; set; }
-
+        
         [JsonProperty("action")]
         public string AssetAction { get; set; }
 
@@ -49,9 +37,20 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("assetConcurrencyRuleIds")]
         public List<long> AssetConcurrencyRuleIds { get; set; }
 
-        // TODO SHIR - SET IN ALL PLACE
         [JsonProperty("deviceFamilyId")]
         public int DeviceFamilyId { get; set; }
+
+        [JsonProperty("loc")]
+        public int Location { get; set; }
+
+        [JsonProperty("ts")]
+        public DateTime CreatedAt { get; set; }
+
+        [JsonProperty("NpvrID", Required = Required.Default)]
+        public string NpvrID { get; set; }
+
+        [JsonProperty("duration")]
+        public int FileDuration { get; set; }
 
         public UserMediaMark()
         {

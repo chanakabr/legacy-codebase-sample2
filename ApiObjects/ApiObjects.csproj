@@ -140,6 +140,7 @@
     <Compile Include="DrmAdapter\DrmAdapterResponse.cs" />
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
+    <Compile Include="MediaMarks\DevicePlayData.cs" />
     <Compile Include="Notification\SMSNotificationData.cs" />
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
@@ -549,6 +550,10 @@
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
