@@ -10,12 +10,7 @@
       "action": "Update",
       "type": "Action"
     },
-<<<<<<< HEAD
-	{
-=======
-    {
->>>>>>> master
-      "permissions": [
+    {  "permissions": [
         "Manager"
       ],
       "excluded_permissions": [],
@@ -23,11 +18,7 @@
       "service": "PartnerConfiguration",
       "action": "List",
       "type": "Action"
-<<<<<<< HEAD
-    }
-=======
     }	
->>>>>>> master
   ],
   "type": "Action"
 }

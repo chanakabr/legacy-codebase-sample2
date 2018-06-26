@@ -2743,6 +2743,8 @@ namespace WebAPI.Reflection
                             return "position";
                         case "PositionOwner":
                             return "positionOwner";
+                        case "ProgramId":
+                            return "programId";
                         case "User":
                             return "user";
                         case "UserId":
