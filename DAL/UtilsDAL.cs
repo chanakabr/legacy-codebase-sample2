@@ -35,18 +35,18 @@ namespace DAL
 
             try
             {
-                CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
+                eResultStatus getResult = eResultStatus.ERROR;
                 Random r = new Random();
                 while (numOfTries < NUM_OF_TRIES)
                 {
                     var response = cbManager.Get<string>(key, out getResult);
 
-                    if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
                         log.ErrorFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
                         break;
                     }
-                    else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
+                    else if (getResult == eResultStatus.SUCCESS)
                     {
                         log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
                                         numOfTries, NUM_OF_TRIES, key);
@@ -157,6 +157,55 @@ namespace DAL
 
             return result;
         }
+
+        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null )
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }                
+            }
+
+            return sp.Execute();
+        }
+
+        public static DataSet ExecuteDataSet(string storedProcedure, Dictionary<string, object> parameters)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }
+            }
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool ExecuteReturnValue(string storedProcedure, Dictionary<string, object> parameters)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }
+            }
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         #endregion
 
         #region Keys

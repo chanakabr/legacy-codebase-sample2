@@ -5021,53 +5021,55 @@ namespace DAL
 
         public static DataTable GetAssetUserRules(int groupId)
         {
-            DataTable dt = null;
-            StoredProcedure sp = new StoredProcedure("Get_AssetUserRules");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            dt = sp.Execute();
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+            };
 
-            return dt;
+            return UtilsDal.Execute("Get_AssetUserRules", parameters);
         }
 
         public static DataSet DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
-            StoredProcedure sp = new StoredProcedure("Delete_AssetUserRule");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@ruleId", assetUserRuleId);
-            
-            return sp.ExecuteDataSet();
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@ruleId", assetUserRuleId }
+            };
+
+            return UtilsDal.ExecuteDataSet("Delete_AssetUserRule", parameters);
         }
 
         public static DataTable GetUserToAssetUserRules(long userId)
         {
-            DataTable dt = null;
-            StoredProcedure sp = new StoredProcedure("Get_UserToAssetUserRule");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@userId", userId);
-            dt = sp.Execute();
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId }
+            };
 
-            return dt;
+            return UtilsDal.Execute("Get_UserToAssetUserRule", parameters);
         }
 
         public static DataTable AddAssetUserRuleToUser(long userId, long ruleId)
         {
-            StoredProcedure sp = new StoredProcedure("Insert_UserToAssetUserRule");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@userId", userId);
-            sp.AddParameter("@ruleID", ruleId);
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId },
+                { "@ruleID", ruleId }
+            };
 
-            return sp.Execute();
+            return UtilsDal.Execute("Insert_UserToAssetUserRule", parameters);
         }
         
         public static bool DeleteAssetUserRuleFromUser(long userId, long ruleId)
         {
-            StoredProcedure sp = new StoredProcedure("Delete_UserToAssetUserRule");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@userId", userId);
-            sp.AddParameter("@ruleId", ruleId);
-            return sp.ExecuteReturnValue<int>() > 0;
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId },
+                { "@ruleId", ruleId }
+            };
+
+            return UtilsDal.ExecuteReturnValue("Delete_UserToAssetUserRule", parameters);
         }
 
         #endregion
