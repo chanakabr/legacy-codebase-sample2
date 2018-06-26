@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/DRMAdapter" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/DRMAdapter" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/DrmAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
   <xs:simpleType name="AssetType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="EPG" />
@@ -9,6 +9,13 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="AssetType" nillable="true" type="tns:AssetType" />
+  <xs:simpleType name="ContextType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STREAMING" />
+      <xs:enumeration value="DOWNLOAD" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ContextType" nillable="true" type="tns:ContextType" />
   <xs:complexType name="DrmAdapterResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="Data" nillable="true" type="xs:string" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="WQsyrnBreUQZE+L2YSxwRFcRTGA=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="8EWxQ/0ZyqN7SN244klOo3ynKbA=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_IService3">
       <properties>
@@ -112,10 +112,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="BasicHttpBinding_IService3" contract="drmAdapter.IService" bindingType="basicHttpBinding" address="http://localhost/DrmAdapter/Service.svc" bindingConfiguration="BasicHttpBinding_IService3">
+    <endpoint name="BasicHttpBinding_IService3" contract="drmAdapter.IService" bindingType="basicHttpBinding" address="http://localhost:86/DRMAdapter/Service.svc" bindingConfiguration="BasicHttpBinding_IService3">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://localhost/DrmAdapter/Service.svc</serializedValue>
+          <serializedValue>http://localhost:86/DRMAdapter/Service.svc</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

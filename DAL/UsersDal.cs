@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using ApiObjects.Response;
+using ApiObjects.SSOAdapter;
 using ODBCWrapper;
 using Tvinci.Core.DAL;
-
 
 namespace DAL
 {
@@ -1037,7 +1038,7 @@ namespace DAL
             return bIsActivationNeeded;
         }
 
-        public static bool Insert_ItemList(int nSiteGuid, List<KeyValuePair<int,int>> dItems, int listType, int itemType, int nGroupID)
+        public static bool Insert_ItemList(int nSiteGuid, List<KeyValuePair<int, int>> dItems, int listType, int itemType, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_ItemList");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -1147,7 +1148,7 @@ namespace DAL
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
                 sp.AddParameter("@UserName", sUserName);
-                sp.AddParameter("@GroupID", nParentGroupID);                
+                sp.AddParameter("@GroupID", nParentGroupID);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -1501,7 +1502,7 @@ namespace DAL
             sp.AddParameter("@Status", nStatus);
             return sp.ExecuteReturnValue<long>();
         }
-        
+
         public static void Update_IsActiveForAllUserSessionsOtherThan(long lOtherThanThisSiteGuid, string sDeviceID, bool bIsActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_IsActiveForAllUserSessionsOtherThan");
@@ -1939,14 +1940,14 @@ namespace DAL
                                 roleIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row["ROLE_ID"]));
                             }
                         }
-                    } 
+                    }
                 }
             }
             catch (Exception)
             {
                 return null;
             }
-            return roleIds; 
+            return roleIds;
         }
 
         public static int Insert_UserRole(int groupId, string userId, long roleId, bool isSingle)
@@ -1979,7 +1980,7 @@ namespace DAL
             {
                 StoredProcedure sp = new StoredProcedure("Upsert_SuspendedUsersRole");
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddIDListParameter<int>("@users_id",usersId, "Id");
+                sp.AddIDListParameter<int>("@users_id", usersId, "Id");
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@current_role_id", currentRoleId);
                 sp.AddParameter("@new_role_id", newRoleId);
@@ -2050,7 +2051,7 @@ namespace DAL
             {
                 return false;
             }
-            return result; 
+            return result;
         }
 
         public static DataTable Get_UserFavorites(string sUserGUID, string sUDID, int nType, int orderBy = 0)
@@ -2060,7 +2061,7 @@ namespace DAL
             sp.AddParameter("@SiteGUID", sUserGUID);
             sp.AddParameter("@MediaTypeID", nType);
             sp.AddParameter("@order_by", orderBy);
-            
+
             if (!string.IsNullOrEmpty(sUDID))
                 sp.AddParameter("@UDID", sUDID);
 
@@ -2174,5 +2175,122 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             return sp.ExecuteReturnValue<int>();
         }
-    }     
+
+        public static IEnumerable<SSOAdapter> GetSSOAdapters(int groupId)
+        {
+            var sp = new StoredProcedure("Get_GroupSSOAdapters");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            var result = sp.ExecuteDataSet();
+
+            var ssoAdapaterTbl = result.Tables[0];
+            var ssoAdaptersConfig = result.Tables[1];
+
+            var adapterConfigsList = ssoAdaptersConfig.ToList<SSOAdapterParam>();
+            var adaptersList = ssoAdapaterTbl.ToList<SSOAdapter>()
+                .Select(a =>
+                {
+                    a.Settings = adapterConfigsList.Where(c => c.AdapterId == a.Id).ToList();
+                    return a;
+                });
+
+            return adaptersList;
+        }
+
+        public static SSOAdapter AddSSOAdapters(SSOAdapter adapterDetails, int updaterId)
+        {
+            var sp = new StoredProcedure("Insert_SSOAdapter");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", adapterDetails.GroupId);
+            sp.AddParameter("@name", adapterDetails.Name);
+            sp.AddParameter("@isActive", adapterDetails.IsActive);
+            sp.AddParameter("@status", 1);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@adapterUrl", adapterDetails.AdapterUrl);
+            sp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
+            sp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
+            var result = sp.ExecuteDataSet();
+            var adapterId = (int)result.Tables[0].Rows[0][0];
+            adapterDetails.Id = adapterId;
+
+            MergeSSOAdapaterSettings(adapterDetails.GroupId, adapterId, updaterId, adapterDetails.Settings);
+
+            return adapterDetails;
+        }
+
+        public static SSOAdapter UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            var updateAdapterSp = new StoredProcedure("Update_SSOAdapter");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@groupId", adapterDetails.GroupId);
+            updateAdapterSp.AddParameter("@adapterId", adapterDetails.Id);
+            updateAdapterSp.AddParameter("@name", adapterDetails.Name);
+            updateAdapterSp.AddParameter("@isActive", adapterDetails.IsActive);
+            updateAdapterSp.AddParameter("@status", 1);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+            updateAdapterSp.AddParameter("@adapterUrl", adapterDetails.AdapterUrl);
+            updateAdapterSp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
+            updateAdapterSp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
+
+            var resp = updateAdapterSp.ExecuteDataSet();
+            var updatedSettings = MergeSSOAdapaterSettings(adapterDetails.GroupId, adapterDetails.Id.Value, updaterId, adapterDetails.Settings);
+
+            var updatedAdapater = resp.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
+            if (updatedAdapater == null) { return null; }
+
+            updatedAdapater.Settings = updatedSettings;
+            return updatedAdapater;
+        }
+
+        private static IList<SSOAdapterParam> MergeSSOAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<SSOAdapterParam> settings)
+        {
+            var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+            var mergeAdapterSettingsSp = new StoredProcedure("Merge_SSOAdapterSettings");
+            mergeAdapterSettingsSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            mergeAdapterSettingsSp.AddParameter("@groupId", groupId);
+            mergeAdapterSettingsSp.AddParameter("@adapterId", adapaterId);
+            mergeAdapterSettingsSp.AddParameter("@updaterId", updaterId);
+            mergeAdapterSettingsSp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+            var resp = mergeAdapterSettingsSp.ExecuteDataSet();
+            var ssoParams = resp.Tables[0].ToList<SSOAdapterParam>();
+            return ssoParams;
+        }
+
+        public static bool DeleteSSOAdapter(int ssoAdapterId, int updaterId)
+        {
+            var updateAdapterSp = new StoredProcedure("Delete_SSOAdapter");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var updatedRows = updateAdapterSp.ExecuteReturnValue<int>();
+            return updatedRows > 0;
+        }
+
+        public static SSOAdapter SetSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        {
+            var updateAdapterSp = new StoredProcedure("Set_SSOAdapterSecret");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
+            updateAdapterSp.AddParameter("@sharedSecret", sharedSecret);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var dsResult = updateAdapterSp.ExecuteDataSet();
+            var updatedAdapater = dsResult.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
+            return updatedAdapater;
+        }
+
+        public static SSOAdapter GetSSOAdapterByExternalId(string ssoAdapterExternalId)
+        {
+            var updateAdapterSp = new StoredProcedure("Get_SSOAdapterByExternalId");
+            updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@externalId", ssoAdapterExternalId);
+
+            var dsResult = updateAdapterSp.ExecuteDataSet();
+            var updatedAdapater = dsResult.Tables[0].ToList<SSOAdapter>().FirstOrDefault();
+            return updatedAdapater;
+
+        }
+    }
+
 }
