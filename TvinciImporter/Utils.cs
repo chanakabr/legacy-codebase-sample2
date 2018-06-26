@@ -34,6 +34,7 @@ namespace TvinciImporter
 
         private static string HttpBase(string uri, string parameters, string method, string contentType = null)
         {
+            string responseFromServer = string.Empty;
             try
             {
                 WebRequest request = WebRequest.Create(uri);
@@ -49,29 +50,25 @@ namespace TvinciImporter
 
                 request.ContentLength = byteArray.Length;
 
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
+                using (Stream dataStream = request.GetRequestStream())
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                }
 
-                WebResponse response = request.GetResponse();
-                dataStream = response.GetResponseStream();
-
-                StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = reader.ReadToEnd();
-
-                reader.Close();
-                dataStream.Close();
-                response.Close();
-
-                return responseFromServer;
+                using (Stream dataStream = request.GetResponse().GetResponseStream())
+                {
+                    using (StreamReader reader = new StreamReader(dataStream))
+                    {
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error on post request. URL: {0}, Parameter: {1}. Error: {2}", uri, parameters, ex);
             }
-            return null;
+            return responseFromServer;
         }
-
     }
 }
 
