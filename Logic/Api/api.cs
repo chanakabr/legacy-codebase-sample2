@@ -10510,7 +10510,7 @@ namespace Core.Api
                     Users.Device device = null;
                     foreach (var deviceFamily in domainResponse.Domain.m_deviceFamilies)
                     {
-                        device = deviceFamily.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault();
+                        device = deviceFamily.DeviceInstances.FirstOrDefault(d => d.m_deviceUDID == udid);
                         if (device != null)
                         {
                             return device.m_deviceBrandID;

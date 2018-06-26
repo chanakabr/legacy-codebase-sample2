@@ -63,9 +63,9 @@ namespace Core.Users
         protected override Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true)
         {
             // get domain by domain id from Cache 
-            DomainsCache oDomainCache = DomainsCache.Instance();
+            DomainsCache domainsCache = DomainsCache.Instance();
 
-            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);
+            Domain domain = domainsCache.GetDomain(nDomainID, nGroupID, bCache);
 
             return domain;
         }

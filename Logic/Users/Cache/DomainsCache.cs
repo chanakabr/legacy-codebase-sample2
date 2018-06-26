@@ -286,17 +286,14 @@ namespace Core.Users.Cache
                     {
                         while (limitRetries > 0)
                         {
-                            //try insert to Cache                                              
-                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
-                            if (!insertSuccess)
-                            {
-                                Thread.Sleep(random.Next(50));
-                                limitRetries--;
-                            }
-                            else
-                            {
+                            //try insert to Cache
+                            // set this Domain object anyway - Shouldn't get here if domain already exsits
+                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT);
+                            if (insertSuccess)
                                 break;
-                            }
+
+                            limitRetries--;
+                            Thread.Sleep(random.Next(50));
                         }
                     }
                 }

@@ -1978,7 +1978,7 @@ namespace Core.Users
                         return false; // error 
                     }
 
-                    device = deviceContainer.DeviceInstances.Where(x => x.m_deviceUDID == udid).First(); // get specific device by udid
+                    device = deviceContainer.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID == udid); // get specific device by udid
 
                     // check that device family in the Family policy roles
                     if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
@@ -1991,7 +1991,7 @@ namespace Core.Users
                             log.ErrorFormat("fail GetDomainDrmId groupId={0}, domainId={1}", m_nGroupID, domain.m_nDomainID);
                             return false; // error 
                         }
-                        if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
+                        if (domainDrmId.Count(x => x.Value == drmId) > 0)
                         {
                             if (drmValue.Key == 0 || string.IsNullOrEmpty(drmValue.Value))
                             {

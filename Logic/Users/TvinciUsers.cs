@@ -2109,7 +2109,7 @@ namespace Core.Users
 
                     foreach (var family in domain.m_deviceFamilies)
                     {
-                        if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                        if (family.DeviceInstances.FirstOrDefault(d => d.m_deviceUDID == udid) != null)
                         {
                             Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
                             return response;

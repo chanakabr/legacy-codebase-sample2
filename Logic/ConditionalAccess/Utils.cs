@@ -6265,7 +6265,7 @@ namespace Core.ConditionalAccess
             {
                 foreach (var deviceFamily in domain.m_deviceFamilies)
                 {
-                    if (deviceFamily.DeviceInstances != null && deviceFamily.DeviceInstances.Count > 0 && deviceFamily.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                    if (deviceFamily.DeviceInstances != null && deviceFamily.DeviceInstances.Count > 0 && deviceFamily.DeviceInstances.FirstOrDefault(d => d.m_deviceUDID == udid) != null)
                     {
                         return true;
                     }

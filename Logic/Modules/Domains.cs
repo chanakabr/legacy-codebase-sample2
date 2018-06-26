@@ -238,11 +238,11 @@ namespace Core.Domains
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Core.Users.BaseDomain t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
+            Core.Users.BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, nGroupID);
+            if (baseDomain != null)
             {
-                response = t.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID);
+                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID);
             }
             return response;
         }
