@@ -5088,17 +5088,5 @@ namespace DAL
         {
             return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
         }
-        
-        // TODO SHIR - remove method from here and put in good place!!!
-        public static DataTable GetAllLinearMedia(int groupId)
-        {
-            DataTable dt = null;
-            StoredProcedure sp = new StoredProcedure("Get_AllLinearMedia");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            dt = sp.Execute();
-
-            return dt;
-        }
     }
 }
