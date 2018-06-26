@@ -145,7 +145,7 @@ namespace WebAPI.Utils
             if (domain == null)
                 return false;
 
-            if (domain.MasterUsers != null && domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() != null)
+            if (domain.MasterUsers != null && domain.MasterUsers.FirstOrDefault(u => u.Id == userID) != null)
             {
                 return true;
             }
