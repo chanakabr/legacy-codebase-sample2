@@ -20,6 +20,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Partner;
@@ -3801,7 +3802,8 @@ namespace WebAPI.Clients
             }
         }
 
-        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId, string udid, out string code, out string message)
+        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId,
+            string udid, KalturaPlaybackContextType? context, out string code, out string message)
         {
             StringResponse drmAdapterResponse = null;
             message = null;
@@ -3809,9 +3811,17 @@ namespace WebAPI.Clients
 
             try
             {
+                PlayContextType contextType  = PlayContextType.Playback;
+
+                if (context.HasValue)
+                {
+                    contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download? PlayContextType.Download: PlayContextType.Playback;
+                }
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId, externalFileId, Utils.Utils.GetClientIP(), udid);
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId,
+                        externalFileId, Utils.Utils.GetClientIP(), udid, contextType);
                 }
             }
             catch (Exception ex)

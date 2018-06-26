@@ -451,7 +451,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.DirectUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
@@ -975,6 +975,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaPlaybackContextType.PLAYBACK:
                     result = PlayContextType.Playback;
                     break;
+                case KalturaPlaybackContextType.DOWNLOAD:
+                    result = PlayContextType.Download;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown KalturaContextType type");
                     break;
@@ -983,5 +986,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        internal static UrlType ConvertUrlType(KalturaUrlType urlType)
+        {
+            UrlType result;
+            switch (urlType)
+            {
+                case KalturaUrlType.DIRECT:
+                    result = UrlType.direct;
+                    break;
+                case KalturaUrlType.PLAYMANIFEST:
+                    result = UrlType.playmanifest;
+                    break;               
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaUrlType type");
+                    break;
+            }
+
+            return result;
+        }
     }
 }

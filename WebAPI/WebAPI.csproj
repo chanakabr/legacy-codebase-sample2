@@ -35,6 +35,7 @@
     <WarningLevel>0</WarningLevel>
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -243,6 +244,7 @@
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\DiscountDetailsController.cs" />
     <Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\SsoAdapterProfileController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -305,6 +307,7 @@
     <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaUrlType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
@@ -326,6 +329,8 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
+    <Compile Include="Models\Users\KalturaSSOAdapterProfile.cs" />
+    <Compile Include="Models\Users\KalturaSSOAdapterProfileListResponse.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />

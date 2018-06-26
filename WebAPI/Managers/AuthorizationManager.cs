@@ -108,7 +108,7 @@ namespace WebAPI.Managers
             };
         }
 
-        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null)
+        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string,string> privileges = null)
         {
             KalturaLoginSession session = new KalturaLoginSession();
 
@@ -122,7 +122,7 @@ namespace WebAPI.Managers
             Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
+            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, privileges);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data

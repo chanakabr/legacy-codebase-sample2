@@ -1966,6 +1966,7 @@ namespace WebAPI.Clients
             PlaybackContextResponse response = null;
 
             PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
+            UrlType urlType = ConditionalAccessMappings.ConvertUrlType(contextDataParams.UrlType);
 
             StreamerType? streamerType = null;
             if (!string.IsNullOrEmpty(contextDataParams.StreamerType))
@@ -1982,7 +1983,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
+                        ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, urlType);
                 }
             }
             catch (Exception ex)

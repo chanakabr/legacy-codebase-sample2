@@ -5263,6 +5263,8 @@ namespace WebAPI.Reflection
                             return "mediaProtocol";
                         case "StreamerType":
                             return "streamerType";
+                        case "UrlType":
+                            return "urlType";
                     }
                     break;
                     
@@ -6343,6 +6345,34 @@ namespace WebAPI.Reflection
                     {
                         case "PermissionItems":
                             return "actionPermissionItems";
+                    }
+                    break;
+                    
+                case "KalturaSSOAdapterProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "ExternalIdentifier":
+                            return "externalIdentifier";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                    }
+                    break;
+                    
+                case "KalturaSSOAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "SSOAdapters":
+                            return "objects";
                     }
                     break;
                     

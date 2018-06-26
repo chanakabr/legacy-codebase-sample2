@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
+using Core.Users;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -178,8 +179,9 @@ namespace WebAPI.Utils
                 else if (source.DrmId > 0)
                 {
                     string code, message;
-                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value, source.ExternalId, KSUtils.ExtractKSPayload().UDID,
-                        out code, out message);
+
+                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value,
+                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))
@@ -223,6 +225,6 @@ namespace WebAPI.Utils
                 }
                 response.Actions.Add(new KalturaAccessControlBlockAction());
             }
-        }
+        }      
     }
 }

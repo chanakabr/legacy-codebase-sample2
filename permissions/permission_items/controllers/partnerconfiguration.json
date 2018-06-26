@@ -10,7 +10,11 @@
       "action": "Update",
       "type": "Action"
     },
+<<<<<<< HEAD
 	{
+=======
+    {
+>>>>>>> master
       "permissions": [
         "Manager"
       ],
@@ -19,7 +23,11 @@
       "service": "PartnerConfiguration",
       "action": "List",
       "type": "Action"
+<<<<<<< HEAD
     }
+=======
+    }	
+>>>>>>> master
   ],
   "type": "Action"
 }
