@@ -7,7 +7,8 @@ namespace ApiObjects
     public enum eHttpRequestType
     {
         Post,
-        Get
+        Get,
+        Delete
     }
 
     public enum UserStatus
@@ -855,7 +856,8 @@ namespace ApiObjects
         Trailer,
         CatchUp,
         StartOver,
-        Playback
+        Playback,
+        Download
     }
 
     public enum StreamerType
@@ -1041,5 +1043,11 @@ namespace ApiObjects
     {
         AssetRule = 0,
         AssetUserRule = 1
+    }
+
+    public enum UrlType
+    {
+        playmanifest,
+        direct
     }
 }

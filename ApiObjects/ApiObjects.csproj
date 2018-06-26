@@ -43,6 +43,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -137,6 +138,7 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
+    <Compile Include="DBFieldMappingAttribute.cs" />
     <Compile Include="DrmAdapter\DrmAdapterResponse.cs" />
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
@@ -156,6 +158,10 @@
     <Compile Include="Rules\AssetUserRule.cs" />
     <Compile Include="Rules\AssetRule.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
+    <Compile Include="SSOAdapter\SSOAdapter.cs" />
+    <Compile Include="SSOAdapter\SSOAdapterParam.cs" />
+    <Compile Include="SSOAdapter\SSOAdaptersResponse.cs" />
+    <Compile Include="SSOAdapter\SSOAdapterResponse.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
     <Compile Include="QueueObjects\MessageInterestData.cs" />

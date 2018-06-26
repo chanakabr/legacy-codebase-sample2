@@ -25,7 +25,7 @@ namespace ApiObjects
 
         public string Url { get; set; }
 
-        public string PlayManifestUrl { get; set; } 
+        public string DirectUrl { get; set; } 
 
         public long Duration { get; set; }
 

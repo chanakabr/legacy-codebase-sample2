@@ -3475,10 +3475,11 @@ namespace Core.ConditionalAccess
             return isDeviceRecognized;
         }
 
-
-
-        public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink,
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, 
+            out string drmData)
         {
+            drmData = string.Empty;
             return new LicensedLinkResponse();
         }
 
@@ -10546,7 +10547,8 @@ namespace Core.ConditionalAccess
         }
 
         private bool TryGetFileUrlLinks(int groupId, int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
-            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID)
+            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID, ref string fileCoGuid)
+
         {
             bool res = false;
 
@@ -10563,49 +10565,58 @@ namespace Core.ConditionalAccess
                 mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
                 altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
                 mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                fileCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID");
                 res = true;
             }
             return res;
         }
 
-
-        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
+        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode,
+                                                             string languageCode, string deviceName, string couponCode)
         {
             int fileMainStreamingCoID = 0;
             int mediaId = 0;
             string fileType = string.Empty;
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId, ref fileType);
+            int drmId = 0;
+            string fileCoGuid = string.Empty;
+
+            return GetLicensedLinks(userId, mediaFileId, basicLink, ip, refferer, countryCode, languageCode, deviceName, couponCode, eObjectType.Media,
+                                    ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
+
         }
 
-        public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID, ref string fileType)
+        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
+                                                             string languageCode, string deviceName, string couponCode, ref int fileMainStreamingCoId, ref string fileType)
         {
             int mediaId = 0;
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId, ref fileType);
-        }
+            int drmId = 0;
+            string fileCoGuid = string.Empty;
 
-        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileID, string basicLink, string ip, string refferer, string countryCode, 
+            return GetLicensedLinks(userId, mediaFileId, basicLink, ip, refferer, countryCode, 
+                                    languageCode, deviceName, couponCode, eObjectType.Media, ref fileMainStreamingCoId, 
+                                    ref mediaId, ref fileType, out drmId, ref fileCoGuid);
+        }
+        
+        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
                                                              string languageCode, string deviceName, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
-                                                             ref int mediaId, ref string fileType)
+                                                             ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
+            drmId = 0;
 
             try
             {
-                int[] mediaFiles = new int[1] { mediaFileID };
+                int[] mediaFiles = new int[1] { mediaFileId };
                 int streamingCoID = 0;
-                if (IsAlterBasicLink(basicLink, mediaFileID))
+                if (IsAlterBasicLink(basicLink, mediaFileId))
                 {
-                    basicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, mediaFileID, basicLink, out streamingCoID, out fileType);
+                    basicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, mediaFileId, basicLink, out streamingCoID, out fileType, out drmId);
                 }
 
                 // validate parameters
-                if ((eLinkType != eObjectType.Recording && string.IsNullOrEmpty(basicLink)) || mediaFileID <= 0)
+                if ((eLinkType != eObjectType.Recording && string.IsNullOrEmpty(basicLink)) || mediaFileId <= 0)
                 {
-                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", userId, mediaFileID, deviceName, basicLink));
+                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", userId, mediaFileId, deviceName, basicLink));
 
                     response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
@@ -10641,16 +10652,17 @@ namespace Core.ConditionalAccess
                     // validate user suspension status
                     if (IsUserSuspended(prices[0]))
                     {
-                        log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", userId, mediaFileID));
+                        log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", userId, mediaFileId));
                         //returns empty url
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.UserSuspended.ToString(), (int)eResponseStatus.UserSuspended, "User suspended");
                         return response;
                     }
 
                     // validate file parameters
-                    if (!TryGetFileUrlLinks(m_nGroupID, mediaFileID, ip, userId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId, ref fileAltStreamingCoID, ref nMediaID))
+                    if (!TryGetFileUrlLinks(m_nGroupID, mediaFileId, ip, userId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId, 
+                                            ref fileAltStreamingCoID, ref nMediaID, ref fileCoGuid))
                     {
-                        log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", userId, mediaFileID, basicLink));
+                        log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", userId, mediaFileId, basicLink));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
@@ -10662,7 +10674,7 @@ namespace Core.ConditionalAccess
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}",
                            userId,
-                           mediaFileID,
+                           mediaFileId,
                            prices[0].m_oItemPrices[0].m_PriceReason.ToString(),
                            prices[0].m_oItemPrices[0].m_oPrice != null ? prices[0].m_oItemPrices[0].m_oPrice.m_dPrice.ToString() : string.Empty));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
@@ -10675,7 +10687,7 @@ namespace Core.ConditionalAccess
                     // validate link
                     if (eLinkType != eObjectType.Recording && !basicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) && !bIsDynamic)
                     {
-                        log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", userId, mediaFileID, basicLink));
+                        log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", userId, mediaFileId, basicLink));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidBaseLink.ToString(), (int)eResponseStatus.InvalidBaseLink, "Invalid base link");
                         return response;
                     }
@@ -10684,12 +10696,12 @@ namespace Core.ConditionalAccess
                     int domainID = 0;
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetConcurrencyRuleIds = null;
-                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileID, deviceName, prices, nMediaID, ip, 
+                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, deviceName, prices, nMediaID, ip, 
                                                                      ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds);
 
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
-                        log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileID));
+                        log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
                         response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
                         return response;
@@ -10697,14 +10709,14 @@ namespace Core.ConditionalAccess
 
                     if (Utils.IsItemPurchased(prices[0]))
                     {
-                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileID, ip, countryCode, languageCode, deviceName, couponCode, domainID, m_nGroupID);
+                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileId, ip, countryCode, languageCode, deviceName, couponCode, domainID, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
                     else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && 
-                        !Utils.InsertOrSetCachedEntitlementResults(domainID, mediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
+                        !Utils.InsertOrSetCachedEntitlementResults(domainID, mediaFileId, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
                     // transaction type doesn't matter when item is free so just pass PPV
                     {
-                        log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, mediaFileID);
+                        log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, mediaFileId);
                     }
 
                     if (eLinkType == eObjectType.EPG || eLinkType == eObjectType.Recording)
@@ -10729,16 +10741,16 @@ namespace Core.ConditionalAccess
                         }
 
                         // main url
-                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, fileMainUrl, fileType, nMediaID, mediaFileID, ip);
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, fileMainUrl, fileType, nMediaID, mediaFileId, ip);
                         response.mainUrl = link != null ? link.Url : string.Empty;
 
                         // alt url
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, fileAltUrl, fileType, nMediaID, mediaFileID, ip);
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, fileAltUrl, fileType, nMediaID, mediaFileId, ip);
                         response.altUrl = link != null ? link.Url : string.Empty;
                     }
                     else if (!string.IsNullOrEmpty(CdnStrID))
                     {
-                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(userId, mediaFileID.ToString(),
+                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(userId, mediaFileId.ToString(),
                             fileMainUrl, ip, countryCode, languageCode, deviceName, couponCode);
 
                         // TO DO if dynamic call to right provider to get the URL
@@ -10762,7 +10774,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("GetLicensedLink: No CDN configuration, fileId = {0}", mediaFileID);
+                        log.DebugFormat("GetLicensedLink: No CDN configuration, fileId = {0}", mediaFileId);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No CDN configuration");
                         response.mainUrl = string.Empty;
                         response.altUrl = string.Empty;
@@ -10776,7 +10788,7 @@ namespace Core.ConditionalAccess
                     }
                     
                     // create PlayCycle
-                    CreatePlayCycle(userId, mediaFileID, ip, deviceName, nMediaID, mediaConcurrencyRuleIds, domainID, assetConcurrencyRuleIds);
+                    CreatePlayCycle(userId, mediaFileId, ip, deviceName, nMediaID, mediaConcurrencyRuleIds, domainID, assetConcurrencyRuleIds);
                 }
 
             }
@@ -10788,7 +10800,7 @@ namespace Core.ConditionalAccess
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" SiteGuid: ", userId));
-                sb.Append(String.Concat(" MF ID: ", mediaFileID));
+                sb.Append(String.Concat(" MF ID: ", mediaFileId));
                 sb.Append(String.Concat(" Basic Link: ", basicLink));
                 sb.Append(String.Concat(" User IP: ", ip));
                 sb.Append(String.Concat(" Referrer: ", refferer));
@@ -10812,12 +10824,12 @@ namespace Core.ConditionalAccess
         /// <param name="userId"></param>
         /// <param name="mediaFileID"></param>
         /// <param name="userIp"></param>
-        /// <param name="sDeviceName"></param>
+        /// <param name="udid"></param>
         /// <param name="mediaID"></param>
         /// <param name="mediaConcurrencyRuleIds"></param>
         /// <param name="domainID"></param>
         /// <param name="assetConcurrencyRuleIds"></param>
-        public void CreatePlayCycle(string userId, Int32 mediaFileID, string userIp, string sDeviceName, int mediaID, 
+        public void CreatePlayCycle(string userId, Int32 mediaFileID, string userIp, string udid, int mediaID, 
                                     List<int> mediaConcurrencyRuleIds, int domainID, List<long> assetConcurrencyRuleIds)
         {
             int ruleID = 0;
@@ -10832,7 +10844,7 @@ namespace Core.ConditionalAccess
             if (!Utils.IsAnonymousUser(userId))
             {
                 playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession
-                    (userId, mediaFileID, m_nGroupID, sDeviceName, 0, domainID, mediaConcurrencyRuleIds, assetConcurrencyRuleIds);
+                    (userId, mediaFileID, m_nGroupID, udid, 0, domainID, mediaConcurrencyRuleIds, assetConcurrencyRuleIds);
             }
 
             if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
@@ -10848,7 +10860,7 @@ namespace Core.ConditionalAccess
             if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(userId, mediaID, mediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
+                Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(userId, mediaID, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
             }
         }
 
@@ -11092,8 +11104,10 @@ namespace Core.ConditionalAccess
         }
 
         protected virtual string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid, 
+            PlayContextType contextType, out string drmData)
         {
+            drmData = string.Empty;
             return string.Empty;
         }
 
@@ -16314,12 +16328,13 @@ namespace Core.ConditionalAccess
         }
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, 
-                                                          string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice)
+                                                          string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice,
+                                                          UrlType urlType)
         {
             List<int> mediaConcurrencyRuleIds = null;
             List<long> assetConcurrencyRuleIds = null;
             return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, 
-                                                      context, ip, udid, out filePrice, out mediaConcurrencyRuleIds, out assetConcurrencyRuleIds);
+                                                      context, ip, udid, out filePrice, out mediaConcurrencyRuleIds, out assetConcurrencyRuleIds, urlType);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)

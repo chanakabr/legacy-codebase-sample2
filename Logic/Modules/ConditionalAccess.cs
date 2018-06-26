@@ -173,7 +173,9 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
+                string drmData = string.Empty;
+                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, 
+                    sDeviceName, string.Empty, PlayContextType.Playback, out drmData);
             }
             else
             {
@@ -1890,7 +1892,7 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
-            {
+            {                
                 return t.GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
             }
             else
@@ -2880,7 +2882,7 @@ namespace Core.ConditionalAccess
         }
 
         public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
-            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -2888,7 +2890,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType);
             }
             else
             {

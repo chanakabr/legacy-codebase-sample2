@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using APILogic.Users;
 using TVinciShared;
 
 
@@ -139,7 +140,19 @@ namespace Core.Users
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
                 if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
-                    user = new KalturaUsers(nGroupID);
+                {
+                    var response = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                    if (response != null && response.SSOAdapters != null && response.SSOAdapters.Any())
+                    {
+                        var httpSSOAdapter = response.SSOAdapters.First();
+                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
+                    }
+                    else
+                    {
+                        user = new KalturaUsers(nGroupID);
+                    }
+
+                }
                 else
                 {
                     string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
@@ -147,8 +160,7 @@ namespace Core.Users
                     try
                     {
                         // load user assembly
-                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
-                            usersAssemblyLocation + "\\", moduleName));
+                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation : usersAssemblyLocation + "\\", moduleName));
 
                         // get user class 
                         Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
@@ -156,12 +168,12 @@ namespace Core.Users
                         if (operatorId == -1)
                         {
                             // regular user - constructor receives a single parameter
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
+                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID);
                         }
                         else
                         {
                             // SSO user - constructor receives 2 parameters
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
+                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID, operatorId);
                         }
                     }
                     catch (Exception ex)

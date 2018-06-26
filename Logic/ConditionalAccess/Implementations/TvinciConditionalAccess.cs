@@ -515,11 +515,12 @@ namespace Core.ConditionalAccess
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
             // validate user state (suspended or not)
             int domainId = 0;
+            drmData = string.Empty;
             DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
 
@@ -566,8 +567,11 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Streaming id
                 int mediaId = 0;
                 string fileType = string.Empty;
+                int drmId = 0;
+                string fileCoGuid = string.Empty;
+
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
-                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
 
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
@@ -589,12 +593,12 @@ namespace Core.ConditionalAccess
                      * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
                      */
                     string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
-                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, drmId, fileCoGuid, contextType, out drmData);
                     if (npvrLicensedLink.Length > 0)
                     {
                         response.Status.Code = (int)eResponseStatus.OK;
                         response.status = eLicensedLinkStatus.OK.ToString();
-                        response.mainUrl = npvrLicensedLink;
+                        response.mainUrl = npvrLicensedLink;                        
                         return response;
                     }
                     else

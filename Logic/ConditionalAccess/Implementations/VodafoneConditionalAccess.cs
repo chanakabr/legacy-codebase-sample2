@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.Response;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -130,7 +131,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.ErrorFormat("Exception - at RecordSeriesBySeriesId siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, seasonSeed:{3}, episodeSeed:{4}, channelId:{5}, lookupCriteria:{6}, ex:{7}",
-                    siteGuid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null && lookupCriteria.Count > 0 ? string.Join(",", lookupCriteria) :  string.Empty , ex);
+                    siteGuid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null && lookupCriteria.Count > 0 ? string.Join(",", lookupCriteria) : string.Empty, ex);
                 res.status = NPVRStatus.Error.ToString();
             }
 
@@ -201,7 +202,7 @@ namespace Core.ConditionalAccess
                                         {
                                             NPVRRecordResponse response = null;
                                             if (isSeries)
-                                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString()});
+                                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
                                             else
                                                 response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
                                             if (response != null)
@@ -436,8 +437,14 @@ namespace Core.ConditionalAccess
                     if (npvr != null)
                     {
                         NPVRCancelDeleteResponse response = null;
-                        response = npvr.DeleteSeries(new NPVRDeleteObj() { EntityID = domainID.ToString(),  Status = status , SeriesID = seriesId ,
-                            ChannelId = channelId, SeasonNumber = seasonNumber});
+                        response = npvr.DeleteSeries(new NPVRDeleteObj()
+                        {
+                            EntityID = domainID.ToString(),
+                            Status = status,
+                            SeriesID = seriesId,
+                            ChannelId = channelId,
+                            SeasonNumber = seasonNumber
+                        });
                         if (response != null)
                         {
                             switch (response.status)
@@ -452,7 +459,7 @@ namespace Core.ConditionalAccess
                                     res.status = NPVRStatus.Error.ToString();
                                     break;
                                 default:
-                                    log.DebugFormat("DeleteNPVR - Unrecognized CancelDeleteStatus enum: responseStatus:{0}, {1}", response.status.ToString(), logString );
+                                    log.DebugFormat("DeleteNPVR - Unrecognized CancelDeleteStatus enum: responseStatus:{0}, {1}", response.status.ToString(), logString);
                                     res.status = NPVRStatus.Unknown.ToString();
                                     break;
                             }
@@ -485,7 +492,7 @@ namespace Core.ConditionalAccess
 
             return res;
         }
-        
+
         // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
@@ -691,7 +698,7 @@ namespace Core.ConditionalAccess
 
             return res;
         }
-        
+
         public override NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched, int? version)
         {
             NPVRResponse res = new NPVRResponse();
@@ -723,7 +730,7 @@ namespace Core.ConditionalAccess
                                     res.status = NPVRStatus.QuotaExceeded.ToString();
                                     break;
                                 default:
-                                    log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Unrecognized ProtectStatus enum: status:{0}, siteGuid:{1}, assetID:{2}", 
+                                    log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Unrecognized ProtectStatus enum: status:{0}, siteGuid:{1}, assetID:{2}",
                                         response.status.ToString(), siteGuid, assetID);
                                     res.status = NPVRStatus.Unknown.ToString();
                                     break;
@@ -734,7 +741,7 @@ namespace Core.ConditionalAccess
                             // log here response is null.
                             log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. NPVR layer response is null. DomainId:{0}, siteGuid:{1} ", domainID, siteGuid);
                             res.status = NPVRStatus.Error.ToString();
-                        }                        
+                        }
                     }
                     else
                     {
@@ -746,7 +753,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // either user does not exist or domain is not valid
-                    log.ErrorFormat("Error - SetNPVRProtectionStatus. Either user or domain is not valid. DomainId:{0},siteGuid:{1},assetID:{2} ", 
+                    log.ErrorFormat("Error - SetNPVRProtectionStatus. Either user or domain is not valid. DomainId:{0},siteGuid:{1},assetID:{2} ",
                         domainID, siteGuid, assetID);
                     res.status = NPVRStatus.InvalidUser.ToString();
                 }
@@ -799,64 +806,78 @@ namespace Core.ConditionalAccess
             return !string.IsNullOrEmpty(programID) && !string.IsNullOrEmpty(siteGuid) && !string.IsNullOrEmpty(deviceUDID);
         }
 
-        protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink, 
-            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink,
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmAdapterId, string fileCoGuid, 
+            PlayContextType contextType, out string drmData)
         {
             // don't catch exceptions in this function!
             string res = string.Empty;
-            if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
+            drmData = string.Empty;
+
+            if (!IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
-                int domainID = 0;
-                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
-                if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0
-                                                                && suspendStatus == DomainSuspentionStatus.OK)
+                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Input not valid. Either user id, device udid or program id not supplied.", sSiteGUID, sProgramId, false, null));
+                return res;
+            }
+
+            int domainID = 0;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            if (!Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0 && suspendStatus == DomainSuspentionStatus.OK)
+            {
+                // user not valid/ user is suspended.
+                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain or suspended.", sSiteGUID, sProgramId, false, null));
+                return res;
+            }
+
+            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, null);
+            if (npvr == null)
+            {
+                // INPVRProvider instance is null
+                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Failed to instantiate INPVRProvider instance.", sSiteGUID, sProgramId, false, null));
+                return res;
+            }
+
+            string streamType = string.Empty;
+            string profile = string.Empty;
+            string xkData = string.Empty;
+            if (!GetDeviceStreamTypeAndProfile(sDEVICE_NAME, domainID, ref streamType, ref profile, ref xkData, sRefferer))
+            {
+                // failed to retrieve data from WS_Domains
+                throw new Exception("Failed to retrieve stream type and profile from WS_Domains. Refer to GetDeviceStreamTypeAndProfile log file.");
+            }
+
+            NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = streamType, StreamType = profile, XkData = xkData }); // it is not a bug we call ALU's HASFormat is Kaltura's StreamType.
+            if (resp == null)
+            {
+                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Response from NPVR layer is null.", sSiteGUID, sProgramId, false, null));
+                return res;
+            }
+
+
+            if (!resp.isOK)
+            {
+                log.Error("Error - " + GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null));
+                return res;
+            }
+
+            res = resp.licensedLink;
+
+            if (drmAdapterId > 0)
+            {
+                var drmResponse = Core.Api.api.GetCustomDrmAssetLicenseData(m_nGroupID, drmAdapterId, sSiteGUID, sProgramId, ApiObjects.eAssetTypes.NPVR, nMediaFileID,
+                    fileCoGuid, sUserIP, sDEVICE_NAME, contextType);
+                if (drmResponse != null && drmResponse.Status != null && drmResponse.Status.Code == (int)eResponseStatus.OK)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, null);
-                    if (npvr != null)
-                    {
-                        string streamType = string.Empty;
-                        string profile = string.Empty;
-                        string xkData = string.Empty;
-                        if (GetDeviceStreamTypeAndProfile(sDEVICE_NAME, domainID, ref streamType, ref profile, ref xkData, sRefferer))
-                        {
-                            NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = streamType, StreamType = profile, XkData = xkData }); // it is not a bug we call ALU's HASFormat is Kaltura's StreamType.
-                            if (resp != null)
-                            {
-                                if (resp.isOK)
-                                {
-                                    res = resp.licensedLink;
-                                }
-                                else
-                                {
-                                    log.Error("Error - " + GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null));
-                                }
-                            }
-                            else
-                            {
-                                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Response from NPVR layer is null.", sSiteGUID, sProgramId, false, null));
-                            }
-                        }
-                        else
-                        {
-                            // failed to retrieve data from WS_Domains
-                            throw new Exception("Failed to retrieve stream type and profile from WS_Domains. Refer to GetDeviceStreamTypeAndProfile log file.");
-                        }
-                    }
-                    else
-                    {
-                        // INPVRProvider instance is null
-                        log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Failed to instantiate INPVRProvider instance.", sSiteGUID, sProgramId, false, null));
-                    }
+                    drmData = drmResponse.Value;
                 }
                 else
                 {
-                    // user not valid/ user is suspended.
-                    log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. User not valid or not associated to domain or suspended.", sSiteGUID, sProgramId, false, null));
+                    log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. DrmAdapter is not OK. Msg: ", sSiteGUID, sProgramId, false, null));
                 }
             }
             else
             {
-                log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. Input not valid. Either user id, device udid or program id not supplied.", sSiteGUID, sProgramId, false, null));
+                log.Debug("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. DrmAdapter is 0. Msg: ", sSiteGUID, sProgramId, false, null));
             }
 
             return res;
@@ -934,6 +955,6 @@ namespace Core.ConditionalAccess
         }
 
 
-       
+
     }
 }

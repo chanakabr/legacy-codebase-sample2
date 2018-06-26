@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" />
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://arthur.adapters.com/SSOAdapter/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="SSOImplementationsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ImplementedMethods" nillable="true" type="tns:ArrayOfeSSOMethods" />
+      <xs:element minOccurs="0" name="SendWelcomeEmail" type="xs:boolean" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" minOccurs="0" name="Status" type="q1:AdapterStatusCode" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SSOImplementationsResponse" nillable="true" type="tns:SSOImplementationsResponse" />
+  <xs:complexType name="ArrayOfeSSOMethods">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="eSSOMethods" type="tns:eSSOMethods" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfeSSOMethods" nillable="true" type="tns:ArrayOfeSSOMethods" />
+  <xs:simpleType name="eSSOMethods">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PerSignIn" />
+      <xs:enumeration value="PostSignIn" />
+      <xs:enumeration value="PreGetUserData" />
+      <xs:enumeration value="PostGetUserData" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eSSOMethods" nillable="true" type="tns:eSSOMethods" />
+  <xs:complexType name="PreSignInModel">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="CustomParams" nillable="true" type="q2:ArrayOfKeyValueOfstringstring" />
+      <xs:element minOccurs="0" name="DeviceId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="IPAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LockMin" type="xs:int" />
+      <xs:element minOccurs="0" name="MaxFailCount" type="xs:int" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PreventDoubleLogin" type="xs:boolean" />
+      <xs:element minOccurs="0" name="SessionId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+      <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PreSignInModel" nillable="true" type="tns:PreSignInModel" />
+  <xs:complexType name="PreSignInResponse">
+    <xs:sequence>
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" minOccurs="0" name="AdapterStatus" type="q3:AdapterStatusCode" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element xmlns:q4="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="Priviliges" nillable="true" type="q4:ArrayOfKeyValueOfstringstring" />
+      <xs:element minOccurs="0" name="SSOResponseStatus" nillable="true" type="tns:SSOResponseStatus" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+      <xs:element minOccurs="0" name="Username" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PreSignInResponse" nillable="true" type="tns:PreSignInResponse" />
+  <xs:complexType name="SSOResponseStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ExternalCode" type="xs:int" />
+      <xs:element minOccurs="0" name="ExternalMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResponseStatus" type="tns:eSSOUserResponseStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SSOResponseStatus" nillable="true" type="tns:SSOResponseStatus" />
+  <xs:simpleType name="eSSOUserResponseStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OK" />
+      <xs:enumeration value="UserExists" />
+      <xs:enumeration value="UserDoesNotExist" />
+      <xs:enumeration value="WrongPasswordOrUserName" />
+      <xs:enumeration value="InsideLockTime" />
+      <xs:enumeration value="NotImplementedYet" />
+      <xs:enumeration value="UserNotActivated" />
+      <xs:enumeration value="UserAlreadyLoggedIn" />
+      <xs:enumeration value="UserDoubleLogIn" />
+      <xs:enumeration value="SessionLoggedOut" />
+      <xs:enumeration value="DeviceNotRegistered" />
+      <xs:enumeration value="ErrorOnSendingMail" />
+      <xs:enumeration value="UserEmailAlreadyExists" />
+      <xs:enumeration value="ErrorOnUpdatingUserType" />
+      <xs:enumeration value="UserTypeNotExist" />
+      <xs:enumeration value="UserNotMasterApproved" />
+      <xs:enumeration value="ErrorOnInitUser" />
+      <xs:enumeration value="ErrorOnSaveUser" />
+      <xs:enumeration value="UserNotIndDomain" />
+      <xs:enumeration value="TokenNotFound" />
+      <xs:enumeration value="UserAlreadyMasterApproved" />
+      <xs:enumeration value="UserWithNoDomain" />
+      <xs:enumeration value="LoginServerDown" />
+      <xs:enumeration value="UserSuspended" />
+      <xs:enumeration value="UserCreatedWithNoRole" />
+      <xs:enumeration value="ExternalIdAlreadyExists" />
+      <xs:enumeration value="ExternalError" />
+      <xs:enumeration value="InternalError">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">999</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eSSOUserResponseStatus" nillable="true" type="tns:eSSOUserResponseStatus" />
+  <xs:complexType name="PostSignInModel">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AuthenticatedUser" nillable="true" type="tns:User" />
+      <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="CustomParams" nillable="true" type="q5:ArrayOfKeyValueOfstringstring" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PostSignInModel" nillable="true" type="tns:PostSignInModel" />
+  <xs:complexType name="User">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Address" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="City" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CountryId" nillable="true" type="xs:int" />
+      <xs:element xmlns:q6="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="DynamicData" nillable="true" type="q6:ArrayOfKeyValueOfstringstring" />
+      <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExternalId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="HouseholdID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="IsHouseholdMaster" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Phone" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SuspensionState" type="tns:eHouseholdSuspensionState" />
+      <xs:element minOccurs="0" name="UserState" type="tns:eUserState" />
+      <xs:element minOccurs="0" name="UserType" nillable="true" type="tns:UserType" />
+      <xs:element minOccurs="0" name="Username" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Zip" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="User" nillable="true" type="tns:User" />
+  <xs:simpleType name="eHouseholdSuspensionState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NOT_SUSPENDED" />
+      <xs:enumeration value="SUSPENDED" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eHouseholdSuspensionState" nillable="true" type="tns:eHouseholdSuspensionState" />
+  <xs:simpleType name="eUserState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ok" />
+      <xs:enumeration value="user_with_no_household" />
+      <xs:enumeration value="user_created_with_no_role" />
+      <xs:enumeration value="user_not_activated" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUserState" nillable="true" type="tns:eUserState" />
+  <xs:complexType name="UserType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserType" nillable="true" type="tns:UserType" />
+  <xs:complexType name="UserResponse">
+    <xs:sequence>
+      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models" minOccurs="0" name="AdapterStatus" type="q7:AdapterStatusCode" />
+      <xs:element minOccurs="0" name="SSOResponseStatus" nillable="true" type="tns:SSOResponseStatus" />
+      <xs:element minOccurs="0" name="User" nillable="true" type="tns:User" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserResponse" nillable="true" type="tns:UserResponse" />
+</xs:schema>
