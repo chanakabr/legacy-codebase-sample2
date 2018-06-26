@@ -221,7 +221,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetStructMetaController.cs" />
-    <Compile Include="Controllers\BulkUploadController.cs" />
+    <Compile Include="Controllers\BulkController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\MediaFileTypeController.cs" />
@@ -249,7 +249,7 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
-    <Compile Include="Models\Upload\KalturaBulkUploadFilter.cs" />
+    <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse .cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
@@ -355,7 +355,7 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
-    <Compile Include="Models\Upload\KalturaBulkUploadListResponse.cs" />
+    <Compile Include="Models\Upload\KalturaBulkListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
     <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
@@ -1114,6 +1114,10 @@
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ExcelManager\ExcelManager.csproj">
+      <Project>{b244d457-c486-48a4-8bb2-7ecd008d4054}</Project>
+      <Name>ExcelManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>

@@ -3003,6 +3003,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulk":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaBulkFilter":
+                    switch(property.Name)
+                    {
+                        case "StatusEqual":
+                            return "statusEqual";
+                    }
+                    break;
+                    
+                case "KalturaBulkListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaBundleFilter":
                     switch(property.Name)
                     {

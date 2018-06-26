@@ -13,15 +13,15 @@ namespace WebAPI.Models.Upload
     /// Asset wrapper
     /// </summary>
     [Serializable]
-    public class KalturaBulkUploadListResponse : KalturaListResponse
+    public class KalturaBulkListResponse : KalturaListResponse
     {
         /// <summary>
-        /// bulk uploads
+        /// bulk items
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaBulkUpload> Objects { get; set; }
+        public List<KalturaBulk> Objects { get; set; }
     }
 }

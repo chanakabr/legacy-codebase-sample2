@@ -383,45 +383,24 @@
             <param name="assetStructMeta">AssetStructMeta Object</param>
             <returns></returns>
         </member>
-        <member name="T:WebAPI.Controllers.BulkUploadController">
+        <member name="T:WebAPI.Controllers.BulkController">
             <summary>
-            Bulk upload service is used to manage bulk uploads
+            Bulk service is used to manage bulk actions
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.Abort(System.Int64)">
+        <member name="M:WebAPI.Controllers.BulkController.List(WebAPI.Models.Upload.KalturaBulkFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            Aborts the bulk upload
+            List bulk actions
             </summary>
-            <param name="id">bulk upload id</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.Get(System.Int64)">
-            <summary>
-            Get bulk upload by id
-            </summary>
-            <param name="id">bulk upload id</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.List(WebAPI.Models.Upload.KalturaBulkUploadFilter,WebAPI.Models.General.KalturaFilterPager)">
-            <summary>
-            List bulk uploads
-            </summary>
-            <param name="filter">Filtering the bulk upload request</param>
+            <param name="filter">Filtering the bulk action request</param>
             <param name="pager">Paging the request</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.Serve(System.Int64)">
+        <member name="M:WebAPI.Controllers.BulkController.ServeLog(System.Int64)">
             <summary>
-            Serve action returns the original file
+            ServeLog action returns the log file for the bulk action
             </summary>
-            <param name="id">bulk upload id</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.ServeLog(System.Int64)">
-            <summary>
-            ServeLog action returns the log file for the bulk upload
-            </summary>
-            <param name="id">bulk upload id</param>
+            <param name="id">bulk action id</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.MediaFileController.Add(WebAPI.Models.Catalog.KalturaMediaFile)">
@@ -5669,79 +5648,44 @@
             PIN type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.StatusEqual">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkFilter.StatusEqual">
             <summary>
             dynamicOrderBy - order by Meta
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadListResponse">
+        <member name="T:WebAPI.Models.Upload.KalturaBulkListResponse">
             <summary>
             Asset wrapper
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadListResponse.Objects">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkListResponse.Objects">
             <summary>
-            bulk uploads
+            bulk items
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkUpload">
+        <member name="T:WebAPI.Models.Upload.KalturaBulk">
             <summary>
             
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Id">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Id">
             <summary>
-            BulkUpload identifier
+            Bulk identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Status">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Status">
             <summary>
             Status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.FileSize">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.CreateDate">
             <summary>
-            File size
+            Specifies when was the bulk action created. Date and time represented as epoch
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.NumberOfEntries">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.UpdateDate">
             <summary>
-            The number of entries sent during the bulk upload
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.FileName">
-            <summary>
-            Name of the bulk upload file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Description">
-            <summary>
-            Description of the bulk upload file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.ErrorDescription">
-            <summary>
-            Error description for the bulk upload file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.ErrorNumber">
-            <summary>
-            Error number for the bulk upload file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.UploadedByUserId">
-            <summary>
-            Identifier of the user who created the bulk upload
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.CreateDate">
-            <summary>
-            Specifies when was the bulk upload was created. Date and time represented as epoch
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.UpdateDate">
-            <summary>
-            Specifies when was the bulk upload last updated. Date and time represented as epoch
+            Specifies when was the bulk action last updated. Date and time represented as epoch
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
