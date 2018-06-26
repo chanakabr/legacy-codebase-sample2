@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Pricing;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -14,7 +15,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Translated string
     /// </summary>
-    public class KalturaMultilingualString : KalturaOTTObject, IXmlSerializable
+    public partial class KalturaMultilingualString : KalturaOTTObject, IXmlSerializable
     {
         private string language;
         private string defaultLanguage;
@@ -127,6 +128,19 @@ namespace WebAPI.Models.General
             }
 
             return null;
+        }
+
+        public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
+        {
+            string ret = "\"" + propertyName + "\": \"" + ToString() + "\"";
+
+            string language = Utils.Utils.GetLanguageFromRequest();
+            if (Values != null && language != null && language.Equals("*"))
+            {
+                string multilingualName = KalturaMultilingualString.GetMultilingualName(propertyName);
+                ret += ", \"" + multilingualName + "\": [" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+            }
+            return ret;
         }
     }
 }

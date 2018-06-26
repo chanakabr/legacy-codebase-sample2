@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Npvr Premium Service
     /// </summary>
-    public class KalturaNpvrPremiumService : KalturaPremiumService
+    public partial class KalturaNpvrPremiumService : KalturaPremiumService
     {
         /// <summary>
         /// Quota in minutes

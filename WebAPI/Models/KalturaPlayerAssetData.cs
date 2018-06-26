@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Kaltura bookmark data
     /// </summary>
     [Serializable]
-    public class KalturaPlayerAssetData : KalturaOTTObject
+    public partial class KalturaPlayerAssetData : KalturaOTTObject
     {
         /// <summary>
         /// Action: HIT/PLAY/STOP/PAUSE/FIRST_PLAY/SWOOSH/FULL_SCREEN/SEND_TO_FRIEND/LOAD/FULL_SCREEN_EXIT/FINISH/BITRATE_CHANGE/ERROR/NONE

@@ -11,7 +11,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaLicensedUrlRecordingRequest : KalturaLicensedUrlBaseRequest
+    public partial class KalturaLicensedUrlRecordingRequest : KalturaLicensedUrlBaseRequest
     {
         /// <summary>
         /// The file type for the URL

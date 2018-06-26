@@ -14,7 +14,7 @@ namespace WebAPI.Models.General
     /// </summary>
     [DataContract(Name = "KalturaIntegerValueListResponse", Namespace = "")]
     [XmlRoot("KalturaIntegerValueListResponse")]
-    public class KalturaIntegerValueListResponse : KalturaListResponse
+    public partial class KalturaIntegerValueListResponse : KalturaListResponse
     {
         /// <summary>
         /// Interger value items

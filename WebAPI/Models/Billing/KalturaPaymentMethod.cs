@@ -12,7 +12,7 @@ namespace WebAPI.Models.Billing
     /// payment method
     /// </summary>
     [Obsolete]
-    public class KalturaPaymentMethod : KalturaOTTObject
+    public partial class KalturaPaymentMethod : KalturaOTTObject
     {
         /// <summary>
         /// Payment method identifier (internal)

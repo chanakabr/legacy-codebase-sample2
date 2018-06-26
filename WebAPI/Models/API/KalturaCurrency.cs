@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Currency details
     /// </summary>
-    public class KalturaCurrency : KalturaOTTObject
+    public partial class KalturaCurrency : KalturaOTTObject
     {
 
         /// <summary>

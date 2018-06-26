@@ -13,7 +13,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     [DataContract(Name = "KalturaPaymentMethodProfileListResponse", Namespace = "")]
     [XmlRoot("KalturaPaymentMethodProfileListResponse")]
-    public class KalturaPaymentMethodProfileListResponse : KalturaListResponse
+    public partial class KalturaPaymentMethodProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// Payment method profiles list
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Billing
         NONE
     }
 
-    public class KalturaPaymentMethodProfileFilter : KalturaFilter<KalturaPaymentMethodProfileOrderBy>
+    public partial class KalturaPaymentMethodProfileFilter : KalturaFilter<KalturaPaymentMethodProfileOrderBy>
     {
         public override KalturaPaymentMethodProfileOrderBy GetDefaultOrderByValue()
         {
@@ -54,7 +54,7 @@ namespace WebAPI.Models.Billing
         }
     }
 
-    public class KalturaPaymentMethodProfile : KalturaOTTObject
+    public partial class KalturaPaymentMethodProfile : KalturaOTTObject
     {
         /// <summary>
         /// Payment method identifier (internal)

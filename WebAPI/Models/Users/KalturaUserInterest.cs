@@ -8,7 +8,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// User Interest
     /// </summary>
-    public class KalturaUserInterest : KalturaOTTObject
+    public partial class KalturaUserInterest : KalturaOTTObject
     {
         /// <summary>
         /// Identifier
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// User interest topic
     /// </summary>
-    public class KalturaUserInterestTopic : KalturaOTTObject
+    public partial class KalturaUserInterestTopic : KalturaOTTObject
     {
         /// <summary>
         /// Meta identifier

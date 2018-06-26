@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    public class KalturaBookmarkFilter : KalturaFilter<KalturaBookmarkOrderBy>
+    public partial class KalturaBookmarkFilter : KalturaFilter<KalturaBookmarkOrderBy>
     {
         /// <summary>
         /// List of assets identifier

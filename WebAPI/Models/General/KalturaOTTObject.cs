@@ -16,16 +16,30 @@ namespace WebAPI.Models.General
 {
     public interface IKalturaJsonable
     {
+        string ToJson(Version currentVersion, bool omitObsolete);
     }
 
-    public interface IKalturaOTTObject : IKalturaJsonable
+    public class KalturaJsonable : IKalturaJsonable
+    {
+        public virtual string ToJson(Version currentVersion, bool omitObsolete)
+        {
+            return "{" + PropertiesToJson(currentVersion, omitObsolete) + "}";
+        }
+
+        protected virtual string PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            return "";
+        }
+    }
+
+    public interface IKalturaOTTObject
     {
     }
 
     /// <summary>
     /// Base class
     /// </summary>
-    public class KalturaOTTObject : IKalturaOTTObject
+    public partial class KalturaOTTObject : KalturaJsonable, IKalturaOTTObject
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]

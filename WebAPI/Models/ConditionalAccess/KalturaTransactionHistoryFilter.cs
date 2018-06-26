@@ -19,7 +19,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Transactions filter
     /// </summary>
-    public class KalturaTransactionHistoryFilter : KalturaFilter<KalturaTransactionHistoryOrderBy>
+    public partial class KalturaTransactionHistoryFilter : KalturaFilter<KalturaTransactionHistoryOrderBy>
     {
         public override KalturaTransactionHistoryOrderBy GetDefaultOrderByValue()
         {

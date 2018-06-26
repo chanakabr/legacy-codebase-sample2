@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public class KalturaNotificationsPartnerSettings : KalturaOTTObject
+    public partial class KalturaNotificationsPartnerSettings : KalturaOTTObject
     {
         /// <summary>
         /// Push notification capability is enabled for the account
@@ -144,7 +144,7 @@ namespace WebAPI.Models.Notification
     }
 
     [Obsolete]
-    public class KalturaPartnerNotificationSettings : KalturaNotificationsPartnerSettings
+    public partial class KalturaPartnerNotificationSettings : KalturaNotificationsPartnerSettings
     {
     }
 }

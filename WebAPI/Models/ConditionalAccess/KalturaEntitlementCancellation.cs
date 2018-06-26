@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Cancellation of a user's entitlement
     /// </summary>
     [Serializable]
-    public class KalturaEntitlementCancellation : KalturaOTTObject
+    public partial class KalturaEntitlementCancellation : KalturaOTTObject
     {
         /// <summary>
         ///Purchase identifier

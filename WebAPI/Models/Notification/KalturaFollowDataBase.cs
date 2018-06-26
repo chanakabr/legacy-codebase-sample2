@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFollowDataBase : KalturaOTTObject
+    public partial class KalturaFollowDataBase : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id

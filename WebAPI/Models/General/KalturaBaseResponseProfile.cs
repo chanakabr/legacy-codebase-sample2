@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// Define base profile response -  optional configurations
     /// </summary>
     [JsonObject]
-    public abstract class KalturaBaseResponseProfile : KalturaOTTObject
+    public abstract partial class KalturaBaseResponseProfile : KalturaOTTObject
     {
         
     }

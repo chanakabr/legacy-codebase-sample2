@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
-    public class KalturaAssetStatistics : KalturaOTTObject
+    public partial class KalturaAssetStatistics : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset
@@ -72,7 +72,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "KalturaAssetStatisticsListResponse", Namespace = "")]
     [XmlRoot("KalturaAssetStatisticsListResponse")]
-    public class KalturaAssetStatisticsListResponse : KalturaListResponse
+    public partial class KalturaAssetStatisticsListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets

@@ -8,7 +8,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Array of translated strings
     /// </summary>
-    public class KalturaMultilingualStringValueArray : KalturaOTTObject
+    public partial class KalturaMultilingualStringValueArray : KalturaOTTObject
     {
         /// <summary>
         /// List of string values

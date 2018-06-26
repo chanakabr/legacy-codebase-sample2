@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaRegion : KalturaOTTObject
+    public partial class KalturaRegion : KalturaOTTObject
     {
         /// <summary>
         /// Region identifier

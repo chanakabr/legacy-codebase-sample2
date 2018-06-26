@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelExternalFilter : KalturaAssetFilter
+    public partial class KalturaChannelExternalFilter : KalturaAssetFilter
     {
         /// <summary>
         ///External Channel Id. 

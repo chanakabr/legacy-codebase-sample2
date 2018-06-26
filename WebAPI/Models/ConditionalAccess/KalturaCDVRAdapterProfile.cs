@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// C-DVR adapter profiles
     /// </summary>
     [Serializable]
-    public class KalturaCDVRAdapterProfileListResponse : KalturaListResponse
+    public partial class KalturaCDVRAdapterProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// C-DVR adapter profiles
@@ -29,7 +29,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// C-DVR Adapter
     /// </summary>
-    public class KalturaCDVRAdapterProfile : KalturaOTTObject
+    public partial class KalturaCDVRAdapterProfile : KalturaOTTObject
     {
         /// <summary>
         /// C-DVR adapter identifier

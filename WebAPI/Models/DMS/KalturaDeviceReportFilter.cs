@@ -8,7 +8,7 @@ namespace WebAPI.Models.DMS
     /// <summary>
     /// Report filter
     /// </summary>
-    public class KalturaDeviceReportFilter : KalturaReportFilter
+    public partial class KalturaDeviceReportFilter : KalturaReportFilter
     {
         /// <summary>
         ///Filter device configuration later than specific date        

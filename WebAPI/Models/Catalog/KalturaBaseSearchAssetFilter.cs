@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Kaltura Base Search Asset Filter
     /// </summary>
     [Serializable]
-    abstract public class KalturaBaseSearchAssetFilter : KalturaAssetFilter
+    abstract public partial class KalturaBaseSearchAssetFilter : KalturaAssetFilter
     {
         /// <summary>
         /// groupBy

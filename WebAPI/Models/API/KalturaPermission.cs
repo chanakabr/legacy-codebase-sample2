@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     [XmlInclude(typeof(KalturaGroupPermission))]
-    public class KalturaPermission : KalturaOTTObject
+    public partial class KalturaPermission : KalturaOTTObject
     {
         /// <summary>
         /// Permission identifier

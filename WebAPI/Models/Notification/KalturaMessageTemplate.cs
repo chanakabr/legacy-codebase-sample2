@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaMessageTemplate : KalturaOTTObject
+    public partial class KalturaMessageTemplate : KalturaOTTObject
     {
         /// <summary>
         ///The message template with placeholders

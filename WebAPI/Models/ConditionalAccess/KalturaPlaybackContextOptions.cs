@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaPlaybackContextOptions : KalturaOTTObject
+    public partial class KalturaPlaybackContextOptions : KalturaOTTObject
     {
         /// <summary>
         /// Protocol of the specific media object (http / https).

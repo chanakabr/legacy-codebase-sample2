@@ -11,7 +11,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "GenericRules", Namespace = "")]
     [XmlRoot("GenericRules")]
-    public class KalturaEngagementListResponse : KalturaListResponse
+    public partial class KalturaEngagementListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of Engagement

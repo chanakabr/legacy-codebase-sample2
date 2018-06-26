@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// OTT User filter
     /// </summary>
-    public class KalturaOTTUserFilter : KalturaFilter<KalturaOTTUserOrderBy>
+    public partial class KalturaOTTUserFilter : KalturaFilter<KalturaOTTUserOrderBy>
     {
         /// <summary>
         /// Username

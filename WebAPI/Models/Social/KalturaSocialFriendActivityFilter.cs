@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialFriendActivityFilter : KalturaFilter<KalturaSocialFriendActivityOrderBy>
+    public partial class KalturaSocialFriendActivityFilter : KalturaFilter<KalturaSocialFriendActivityOrderBy>
     {
         /// <summary>
         /// Asset ID to filter by

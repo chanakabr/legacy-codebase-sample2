@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaEpgChannelFilter : KalturaOTTObject
+    public partial class KalturaEpgChannelFilter : KalturaOTTObject
     {
         /// <summary>
         /// Entities IDs

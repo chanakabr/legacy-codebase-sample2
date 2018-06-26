@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim channel
     /// </summary>
-    public class KalturaBaseChannel : KalturaOTTObject
+    public partial class KalturaBaseChannel : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the channel

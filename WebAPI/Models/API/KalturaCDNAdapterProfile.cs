@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// CDN Adapter
     /// </summary>
-    public class KalturaCDNAdapterProfile : KalturaOTTObject
+    public partial class KalturaCDNAdapterProfile : KalturaOTTObject
     {
         /// <summary>
         /// CDN adapter identifier

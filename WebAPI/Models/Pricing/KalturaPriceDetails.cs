@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Price details
     /// </summary>
-    public class KalturaPriceDetails : KalturaOTTObject
+    public partial class KalturaPriceDetails : KalturaOTTObject
     {
         /// <summary>
         /// The price code identifier
@@ -61,7 +61,7 @@ namespace WebAPI.Models.Pricing
         public List<KalturaTranslationToken> Descriptions { get; set; }
     }
 
-    public class KalturaPriceDetailsListResponse : KalturaListResponse
+    public partial class KalturaPriceDetailsListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of price details

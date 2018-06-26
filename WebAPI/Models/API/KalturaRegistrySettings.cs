@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "KalturaRegistrySettingsListResponse", Namespace = "")]
     [XmlRoot("KalturaRegistrySettingsListResponse")]
-    public class KalturaRegistrySettingsListResponse : KalturaListResponse
+    public partial class KalturaRegistrySettingsListResponse : KalturaListResponse
     {
         /// <summary>
         /// Registry settings list
@@ -26,7 +26,7 @@ namespace WebAPI.Models.API
         public List<KalturaRegistrySettings> RegistrySettings { get; set; }
     }
 
-    public class KalturaRegistrySettings : KalturaOTTObject    
+    public partial class KalturaRegistrySettings : KalturaOTTObject    
     {
         /// <summary>
         /// Permission item identifier

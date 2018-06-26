@@ -16,7 +16,7 @@ namespace WebAPI.Models.Domains
     /// Device details
     /// </summary>
     [XmlInclude(typeof(KalturaDevice))]
-    public class KalturaHouseholdDevice : KalturaOTTObject
+    public partial class KalturaHouseholdDevice : KalturaOTTObject
     {
         /// <summary>
         /// Household identifier
@@ -115,7 +115,7 @@ namespace WebAPI.Models.Domains
     }
 
     [Obsolete]
-    public class KalturaDevice : KalturaHouseholdDevice
+    public partial class KalturaDevice : KalturaHouseholdDevice
     {
     }
 }

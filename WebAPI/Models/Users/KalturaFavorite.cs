@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite details
     /// </summary>
-    public class KalturaFavorite : KalturaOTTObject
+    public partial class KalturaFavorite : KalturaOTTObject
     {
         /// <summary>
         /// AssetInfo Model

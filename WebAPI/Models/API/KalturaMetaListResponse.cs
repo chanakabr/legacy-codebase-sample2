@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Meta list response
     /// </summary>
-    public class KalturaMetaListResponse : KalturaListResponse
+    public partial class KalturaMetaListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list asset meta

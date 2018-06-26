@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     /// Kaltura Aggregation CountFilter
     /// </summary>
     [SchemeBase(typeof(KalturaRelatedObjectFilter))]
-    public class KalturaAggregationCountFilter : KalturaFilter<KalturaAggregationCountOrderBy>, KalturaRelatedObjectFilter
+    public partial class KalturaAggregationCountFilter : KalturaFilter<KalturaAggregationCountOrderBy>, KalturaRelatedObjectFilter
     {
         internal virtual void Validate()
         {

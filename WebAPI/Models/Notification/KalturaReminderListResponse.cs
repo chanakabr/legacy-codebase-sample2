@@ -12,7 +12,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaReminderListResponse", Namespace = "")]
     [XmlRoot("KalturaReminderListResponse")]
-    public class KalturaReminderListResponse : KalturaListResponse
+    public partial class KalturaReminderListResponse : KalturaListResponse
     {
         /// <summary>
         /// Reminders

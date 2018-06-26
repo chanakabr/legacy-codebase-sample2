@@ -9,7 +9,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetCommentFilter : KalturaFilter<KalturaAssetCommentOrderBy>    
+    public partial class KalturaAssetCommentFilter : KalturaFilter<KalturaAssetCommentOrderBy>    
     {
         /// <summary>
         ///Asset Id

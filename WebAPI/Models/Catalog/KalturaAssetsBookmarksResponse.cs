@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     [DataContract(Name = "KalturaAssetsPositionsResponse", Namespace = "")]
     [XmlRoot("KalturaAssetsPositionsResponse")]
     [Obsolete]
-    public class KalturaAssetsBookmarksResponse : KalturaListResponse
+    public partial class KalturaAssetsBookmarksResponse : KalturaListResponse
     {
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaAssetBookmarks : KalturaSlimAsset
+    public partial class KalturaAssetBookmarks : KalturaSlimAsset
     {
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// KalturaSubscriptionEntitlement
     /// </summary>   
-    public class KalturaSubscriptionEntitlement : KalturaEntitlement
+    public partial class KalturaSubscriptionEntitlement : KalturaEntitlement
     {
         /// <summary>
         ///The date of the next renewal (only for subscription)

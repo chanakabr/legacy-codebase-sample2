@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialFriendActivity : KalturaOTTObject
+    public partial class KalturaSocialFriendActivity : KalturaOTTObject
     {
         /// <summary>
         /// The full name of the user who did the social action
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Social
         public KalturaSocialAction SocialAction { get; set; }
     }
 
-    public class KalturaSocialFriendActivityListResponse: KalturaListResponse
+    public partial class KalturaSocialFriendActivityListResponse: KalturaListResponse
     {
         /// <summary>
         /// Social friends activity

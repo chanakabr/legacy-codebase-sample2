@@ -13,7 +13,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Log in pin code details
     /// </summary>
-    public class KalturaUserLoginPin : KalturaOTTObject
+    public partial class KalturaUserLoginPin : KalturaOTTObject
     {
         /// <summary>
         /// Generated login pin code

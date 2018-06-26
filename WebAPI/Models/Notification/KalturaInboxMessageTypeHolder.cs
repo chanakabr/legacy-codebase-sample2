@@ -12,7 +12,7 @@ namespace WebAPI.Models.Notification
     /// <summary>
     /// Holder object for inbox message type enum
     /// </summary>    
-    public class KalturaInboxMessageTypeHolder : KalturaOTTObject
+    public partial class KalturaInboxMessageTypeHolder : KalturaOTTObject
     {
         [DataMember(Name = "type")]
         [JsonProperty("type")]

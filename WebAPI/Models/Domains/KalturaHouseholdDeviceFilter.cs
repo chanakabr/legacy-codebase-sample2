@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    public class KalturaHouseholdDeviceFilter : KalturaFilter<KalturaHouseholdDeviceOrderBy>
+    public partial class KalturaHouseholdDeviceFilter : KalturaFilter<KalturaHouseholdDeviceOrderBy>
     {
 
         /// <summary>

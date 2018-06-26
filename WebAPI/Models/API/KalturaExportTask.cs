@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export task
     /// </summary>
-    public class KalturaExportTask : KalturaOTTObject
+    public partial class KalturaExportTask : KalturaOTTObject
     {
         /// <summary>
         /// Task identifier
@@ -119,7 +119,7 @@ namespace WebAPI.Models.API
     /// Export task list wrapper
     /// </summary>
     [Serializable]
-    public class KalturaExportTaskListResponse : KalturaListResponse
+    public partial class KalturaExportTaskListResponse : KalturaListResponse
     {
         /// <summary>
         /// Export task items

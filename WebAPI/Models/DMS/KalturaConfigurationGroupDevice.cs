@@ -6,7 +6,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public class KalturaConfigurationGroupDevice : KalturaOTTObject
+    public partial class KalturaConfigurationGroupDevice : KalturaOTTObject
     {
         /// <summary>
         /// Configuration group id

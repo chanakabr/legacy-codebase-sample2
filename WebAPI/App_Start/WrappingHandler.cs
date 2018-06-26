@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 
 namespace WebAPI.App_Start
 {
-    public class KalturaApiExceptionArg : KalturaOTTObject
+    public partial class KalturaApiExceptionArg : KalturaOTTObject
     {
         /// <summary>
         /// Argument name
@@ -35,6 +35,35 @@ namespace WebAPI.App_Start
         [JsonProperty(PropertyName = "value")]
         public string value { get; set; }
     }
+
+
+    [DataContract(Name = "error")]
+    public partial class KalturaAPIExceptionWrapper : KalturaJsonable
+    {
+        [DataMember(Name = "error")]
+        [JsonProperty(PropertyName = "error")]
+        public KalturaAPIException error { get; set; }
+    }
+
+    public partial class KalturaAPIException : KalturaJsonable
+    {
+        [JsonProperty(PropertyName = "objectType")]
+        [DataMember(Name = "objectType")]
+        public string objectType { get { return this.GetType().Name; } set { } }
+
+        [JsonProperty(PropertyName = "code")]
+        [DataMember(Name = "code")]
+        public string code { get; set; }
+
+        [JsonProperty(PropertyName = "message")]
+        [DataMember(Name = "message")]
+        public string message { get; set; }
+
+        [JsonProperty(PropertyName = "args")]
+        [DataMember(Name = "args")]
+        public List<KalturaApiExceptionArg> args { get; set; }
+    }
+
 
     public class WrappingHandler : DelegatingHandler
     {
@@ -167,34 +196,6 @@ namespace WebAPI.App_Start
 
             if (!isActionExtracted)
                 log.WarnFormat("Could not extract action + service from request query. Original request: {0}", uri.OriginalString);
-        }
-
-
-        [DataContract(Name = "error")]
-        public class KalturaAPIExceptionWrapper : IKalturaJsonable
-        {
-            [DataMember(Name = "error")]
-            [JsonProperty(PropertyName = "error")]
-            public KalturaAPIException error { get; set; }
-        }
-
-        public class KalturaAPIException : IKalturaJsonable
-        {
-            [JsonProperty(PropertyName = "objectType")]
-            [DataMember(Name = "objectType")]
-            public string objectType { get { return this.GetType().Name; } set { } }
-
-            [JsonProperty(PropertyName = "code")]
-            [DataMember(Name = "code")]
-            public string code { get; set; }
-
-            [JsonProperty(PropertyName = "message")]
-            [DataMember(Name = "message")]
-            public string message { get; set; }
-
-            [JsonProperty(PropertyName = "args")]
-            [DataMember(Name = "args")]
-            public List<KalturaApiExceptionArg> args { get; set; }
         }
 
         public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaApiExceptionArg[] arguments = null)

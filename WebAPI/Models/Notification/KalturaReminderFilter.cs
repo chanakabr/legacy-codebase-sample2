@@ -38,7 +38,7 @@ namespace WebAPI.Models.Notification
     }
 
     [NewObjectType(typeof(KalturaAssetReminderFilter))]
-    public abstract class KalturaReminderFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaReminderFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// <![CDATA[
@@ -64,7 +64,7 @@ namespace WebAPI.Models.Notification
         public string KSql { get; set; }       
     }
 
-    public class KalturaAssetReminderFilter : KalturaReminderFilter<KalturaAssetReminderOrderBy>
+    public partial class KalturaAssetReminderFilter : KalturaReminderFilter<KalturaAssetReminderOrderBy>
     {
         public override KalturaAssetReminderOrderBy GetDefaultOrderByValue()
         {
@@ -72,7 +72,7 @@ namespace WebAPI.Models.Notification
         }
     }
 
-    public class KalturaSeriesReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
+    public partial class KalturaSeriesReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
     {
         /// <summary>
         /// Comma separated series IDs
@@ -111,7 +111,7 @@ namespace WebAPI.Models.Notification
         }
     }
 
-    public class KalturaSeasonsReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
+    public partial class KalturaSeasonsReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
     {
         /// <summary>
         /// Series ID

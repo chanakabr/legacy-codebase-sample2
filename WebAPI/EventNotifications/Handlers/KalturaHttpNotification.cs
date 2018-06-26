@@ -6,7 +6,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
 {
-    public class KalturaHttpNotification : KalturaNotification
+    public partial class KalturaHttpNotification : KalturaNotification
     {
     }
 }

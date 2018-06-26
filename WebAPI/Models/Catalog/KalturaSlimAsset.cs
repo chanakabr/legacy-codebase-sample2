@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Slim Asset Details
     /// </summary>
     [Serializable]
-    public class KalturaSlimAsset : KalturaOTTObject
+    public partial class KalturaSlimAsset : KalturaOTTObject
     {
 
         /// <summary>

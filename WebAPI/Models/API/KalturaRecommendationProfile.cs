@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "KalturaRecommendationProfileListResponse", Namespace = "")]
     [XmlRoot("KalturaRecommendationProfileListResponse")]
-    public class KalturaRecommendationProfileListResponse : KalturaListResponse
+    public partial class KalturaRecommendationProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// Recommendation profiles list
@@ -30,7 +30,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// PaymentGW
     /// </summary>
-    public class KalturaRecommendationProfile : KalturaOTTObject
+    public partial class KalturaRecommendationProfile : KalturaOTTObject
     {
         /// <summary>
         /// recommendation engine id

@@ -15,7 +15,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household users list
     /// </summary>
-    public class KalturaHouseholdUserListResponse : KalturaListResponse
+    public partial class KalturaHouseholdUserListResponse : KalturaListResponse
     {
         /// <summary>
         /// Household users
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household user 
     /// </summary>
-    public class KalturaHouseholdUser : KalturaOTTObject
+    public partial class KalturaHouseholdUser : KalturaOTTObject
     {
         /// <summary>
         /// The identifier of the household

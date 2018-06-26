@@ -13,7 +13,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// User type
     /// </summary>
-    public class KalturaOTTUserType : KalturaOTTObject
+    public partial class KalturaOTTUserType : KalturaOTTObject
     {
         /// <summary>
         /// User type identifier

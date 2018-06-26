@@ -9,7 +9,7 @@ using WebAPI.Models.API;
 
 namespace WebAPI.Models.General
 {
-    public class KalturaGroupPermission : KalturaPermission
+    public partial class KalturaGroupPermission : KalturaPermission
     {
         /// <summary>
         /// Permission identifier

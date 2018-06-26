@@ -15,7 +15,7 @@ namespace WebAPI.Models.Notification
     [DataContract(Name = "KalturaPersonalFollowFeedResponse", Namespace = "")]
     [XmlRoot("KalturaPersonalFollowFeedResponse")]
     [Obsolete]
-    public class KalturaPersonalFollowFeedResponse : KalturaListResponse
+    public partial class KalturaPersonalFollowFeedResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
@@ -32,7 +32,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaPersonalFeedListResponse", Namespace = "")]
     [XmlRoot("KalturaPersonalFeedListResponse")]
-    public class KalturaPersonalFeedListResponse : KalturaListResponse
+    public partial class KalturaPersonalFeedListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
@@ -63,7 +63,7 @@ namespace WebAPI.Models.Notification
         START_DATE_ASC
     }
 
-    public class KalturaPersonalFeedFilter : KalturaFilter<KalturaPersonalFeedOrderBy>
+    public partial class KalturaPersonalFeedFilter : KalturaFilter<KalturaPersonalFeedOrderBy>
     {
         public override KalturaPersonalFeedOrderBy GetDefaultOrderByValue()
         {

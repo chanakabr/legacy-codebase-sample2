@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A string representation to return an array of longs
     /// </summary>
-    public class KalturaLongValue : KalturaValue
+    public partial class KalturaLongValue : KalturaValue
     {
         /// <summary>
         /// Value

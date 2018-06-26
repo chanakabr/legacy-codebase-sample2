@@ -11,7 +11,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "favorites", Namespace = "")]
     [XmlRoot("favorites")]
-    public class KalturaFavoriteListResponse : KalturaListResponse
+    public partial class KalturaFavoriteListResponse : KalturaListResponse
     {
         /// <summary> 
         /// A list of favorites

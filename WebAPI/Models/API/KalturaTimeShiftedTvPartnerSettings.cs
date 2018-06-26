@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaTimeShiftedTvPartnerSettings : KalturaOTTObject
+    public partial class KalturaTimeShiftedTvPartnerSettings : KalturaOTTObject
     {
         /// <summary>
         /// Is catch-up enabled

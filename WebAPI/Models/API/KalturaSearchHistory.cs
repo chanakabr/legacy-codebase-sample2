@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// Search history wrapper
     /// </summary>
     [Serializable]
-    public class KalturaSearchHistoryListResponse : KalturaListResponse
+    public partial class KalturaSearchHistoryListResponse : KalturaListResponse
     {
         /// <summary>
         /// KalturaSearchHistory Models
@@ -34,7 +34,7 @@ namespace WebAPI.Models.API
     /// Search history info
     /// </summary>
     [Serializable]
-    public class KalturaSearchHistory : KalturaOTTObject
+    public partial class KalturaSearchHistory : KalturaOTTObject
     {
         /// <summary>
         /// Search ID

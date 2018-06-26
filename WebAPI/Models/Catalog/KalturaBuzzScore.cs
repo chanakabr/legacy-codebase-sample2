@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Buzz score
     /// </summary>
-    public class KalturaBuzzScore : KalturaOTTObject
+    public partial class KalturaBuzzScore : KalturaOTTObject
     {
         /// <summary>
         /// Normalized average score 

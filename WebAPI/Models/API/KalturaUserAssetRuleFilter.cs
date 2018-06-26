@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// User asset rule filter
     /// </summary>
-    public class KalturaUserAssetRuleFilter : KalturaFilter<KalturaUserAssetRuleOrderBy>
+    public partial class KalturaUserAssetRuleFilter : KalturaFilter<KalturaUserAssetRuleOrderBy>
     {
         /// <summary>
         /// Asset identifier to filter by

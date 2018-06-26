@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
     /// Holder object for personal asset with enum
     /// </summary>  
     [Obsolete]  
-    public class KalturaPersonalAssetWithHolder : KalturaOTTObject
+    public partial class KalturaPersonalAssetWithHolder : KalturaOTTObject
     {
         [DataMember(Name = "type")]
         [JsonProperty("type")]

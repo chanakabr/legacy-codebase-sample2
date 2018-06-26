@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// KSQL Channel
     /// </summary>
     [Obsolete]
-    public class KalturaChannelProfile : KalturaOTTObject
+    public partial class KalturaChannelProfile : KalturaOTTObject
     {
         /// <summary>
         /// Channel id

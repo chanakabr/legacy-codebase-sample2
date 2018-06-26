@@ -4,13 +4,13 @@ namespace WebAPI.Models.Notification
 {
     [Serializable]
     [Obsolete]
-    public class KalturaPersonalFollowFeed : KalturaFeed
+    public partial class KalturaPersonalFollowFeed : KalturaFeed
     {
 
     }
 
     [Serializable]
-    public class KalturaPersonalFeed : KalturaFeed
+    public partial class KalturaPersonalFeed : KalturaFeed
     {
 
     }

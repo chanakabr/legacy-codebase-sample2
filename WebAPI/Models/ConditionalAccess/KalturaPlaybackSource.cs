@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaPlaybackSource : KalturaMediaFile
+    public partial class KalturaPlaybackSource : KalturaMediaFile
     {
         /// <summary>
         /// Source format according to delivery profile streamer type (applehttp, mpegdash etc.)

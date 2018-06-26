@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    public class KalturaHouseholdPaymentMethod : KalturaOTTObject
+    public partial class KalturaHouseholdPaymentMethod : KalturaOTTObject
     {
         /// <summary>
         /// Household payment method identifier (internal)
@@ -99,7 +99,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     [DataContract(Name = "KalturaHouseholdPaymentMethodListResponse", Namespace = "")]
     [XmlRoot("KalturaHouseholdPaymentMethodListResponse")]
-    public class KalturaHouseholdPaymentMethodListResponse : KalturaListResponse
+    public partial class KalturaHouseholdPaymentMethodListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list

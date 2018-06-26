@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialComment : KalturaOTTObject
+    public partial class KalturaSocialComment : KalturaOTTObject
     {
         /// <summary>
         /// Comment header
@@ -45,7 +45,7 @@ namespace WebAPI.Models.Social
         public string Writer { get; set; }
     }
 
-    public class KalturaSocialNetworkComment : KalturaSocialComment
+    public partial class KalturaSocialNetworkComment : KalturaSocialComment
     {
         /// <summary>
         /// Number of likes
@@ -64,11 +64,11 @@ namespace WebAPI.Models.Social
         public string AuthorImageUrl { get; set; }
     }
 
-    public class KalturaTwitterTwit : KalturaSocialNetworkComment
+    public partial class KalturaTwitterTwit : KalturaSocialNetworkComment
     {
     }
 
-    public class KalturaFacebookPost : KalturaSocialNetworkComment
+    public partial class KalturaFacebookPost : KalturaSocialNetworkComment
     {
         /// <summary>
         /// List of comments on the post
@@ -87,7 +87,7 @@ namespace WebAPI.Models.Social
         public string Link { get; set; }
     }
 
-    public class KalturaSocialCommentListResponse : KalturaListResponse
+    public partial class KalturaSocialCommentListResponse : KalturaListResponse
     {
         /// <summary>
         /// Social comments list

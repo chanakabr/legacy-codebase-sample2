@@ -14,7 +14,7 @@ namespace WebAPI.Models.Users
     /// Slim user data
     /// </summary>
     [XmlInclude(typeof(KalturaOTTUser))]
-    public class KalturaBaseOTTUser : KalturaOTTObject
+    public partial class KalturaBaseOTTUser : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// Purchase settings and PIN
     /// </summary>
     [Serializable]
-    public class KalturaPurchaseSettings : KalturaPin
+    public partial class KalturaPurchaseSettings : KalturaPin
     {
         /// <summary>
         /// Purchase permission - block, ask or allow

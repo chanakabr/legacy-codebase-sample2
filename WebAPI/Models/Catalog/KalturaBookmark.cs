@@ -11,7 +11,7 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaBookmark : KalturaSlimAsset
+    public partial class KalturaBookmark : KalturaSlimAsset
     {
         /// <summary>
         ///User object
@@ -72,7 +72,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
-    public class KalturaBookmarkPlayerData : KalturaOTTObject
+    public partial class KalturaBookmarkPlayerData : KalturaOTTObject
     {
         /// <summary>
         /// Action

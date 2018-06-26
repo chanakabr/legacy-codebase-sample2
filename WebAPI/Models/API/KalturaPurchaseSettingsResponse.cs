@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaPurchaseSettingsResponse : KalturaPinResponse
+    public partial class KalturaPurchaseSettingsResponse : KalturaPinResponse
     {
         /// <summary>
         /// Purchase settings type - block, ask or allow

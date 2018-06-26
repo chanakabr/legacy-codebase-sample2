@@ -9,7 +9,7 @@ using WebAPI.Models.API;
 
 namespace WebAPI.Models.General
 {
-    public class KalturaApiArgumentPermissionItem : KalturaPermissionItem
+    public partial class KalturaApiArgumentPermissionItem : KalturaPermissionItem
     {
         /// <summary>
         /// API service name

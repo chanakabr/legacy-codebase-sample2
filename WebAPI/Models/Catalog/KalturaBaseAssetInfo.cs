@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Slim assets wrapper
     /// </summary>
     [Obsolete]
-    public class KalturaSlimAssetInfoWrapper : KalturaListResponse
+    public partial class KalturaSlimAssetInfoWrapper : KalturaListResponse
     {
         /// <summary>
         /// Assets
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
     /// Slim asset info
     /// </summary>
     [Obsolete]
-    public class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
+    public partial class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset

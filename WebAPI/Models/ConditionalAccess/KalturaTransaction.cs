@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaTransaction : KalturaOTTObject
+    public partial class KalturaTransaction : KalturaOTTObject
     {
         /// <summary>
         /// Kaltura unique ID representing the transaction

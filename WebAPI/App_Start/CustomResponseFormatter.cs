@@ -65,7 +65,7 @@ namespace WebAPI.App_Start
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
         {
-            if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionWrapper)
+            if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.KalturaAPIExceptionWrapper)
                 return base.WriteToStreamAsync(type, value, writeStream, content, transportContext);
 
             return Task.Factory.StartNew(() =>

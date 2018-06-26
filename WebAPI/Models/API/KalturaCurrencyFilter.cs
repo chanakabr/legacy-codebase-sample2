@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Currency filter
     /// </summary>
-    public class KalturaCurrencyFilter : KalturaFilter<KalturaCurrencyOrderBy>
+    public partial class KalturaCurrencyFilter : KalturaFilter<KalturaCurrencyOrderBy>
     {
 
         /// <summary>

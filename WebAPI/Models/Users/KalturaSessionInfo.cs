@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Kaltura Session
     /// </summary>
-    public class KalturaSession : KalturaOTTObject
+    public partial class KalturaSession : KalturaOTTObject
     {
         /// <summary>
         /// KS
@@ -103,7 +103,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Kaltura Session
     /// </summary>
-    public class KalturaSessionInfo : KalturaSession
+    public partial class KalturaSessionInfo : KalturaSession
     {
         public KalturaSessionInfo()
         {

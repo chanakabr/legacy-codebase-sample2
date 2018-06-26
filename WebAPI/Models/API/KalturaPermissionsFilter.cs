@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Permissions filter
     /// </summary>
-    public class KalturaPermissionsFilter : KalturaOTTObject
+    public partial class KalturaPermissionsFilter : KalturaOTTObject
     {
 
         /// <summary>

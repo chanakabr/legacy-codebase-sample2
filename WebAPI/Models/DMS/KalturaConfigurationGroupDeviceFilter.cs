@@ -12,7 +12,7 @@ namespace WebAPI.Models.DMS
     /// <summary>
      /// Configuration group device filter
     /// </summary>
-    public class KalturaConfigurationGroupDeviceFilter: KalturaFilter<KalturaConfigurationGroupDeviceOrderBy>
+    public partial class KalturaConfigurationGroupDeviceFilter : KalturaFilter<KalturaConfigurationGroupDeviceOrderBy>
     {
         /// <summary>
         /// the ID of the configuration group for which to return related configurations group devices

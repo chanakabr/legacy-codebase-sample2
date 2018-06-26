@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Transactions filter
     /// </summary>
     [Obsolete]
-    public class KalturaTransactionsFilter : KalturaFilterPager
+    public partial class KalturaTransactionsFilter : KalturaFilterPager
     {
         /// <summary>
         ///Reference type to filter by

@@ -12,7 +12,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Holder object for household device registration status enum
     /// </summary>
-    public class KalturaDeviceRegistrationStatusHolder : KalturaOTTObject
+    public partial class KalturaDeviceRegistrationStatusHolder : KalturaOTTObject
     {
         /// <summary>
         /// Household device registration status

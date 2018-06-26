@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// The KalturaFilterPager object enables paging management to be applied upon service list actions
     /// </summary>
-    public class KalturaFilterPager : KalturaOTTObject
+    public partial class KalturaFilterPager : KalturaOTTObject
     {
         private const int MAX_PAGE_SIZE = 500;
         private const int DEFAULT_PAGE_SIZE = 30;

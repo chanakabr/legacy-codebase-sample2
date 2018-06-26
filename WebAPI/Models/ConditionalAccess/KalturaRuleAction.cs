@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaRuleAction : KalturaOTTObject
+    public partial class KalturaRuleAction : KalturaOTTObject
     {
         /// <summary>
         /// The type of the action
@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         public KalturaRuleActionType Type { get; set; }
     }
 
-    public class KalturaAccessControlBlockAction : KalturaRuleAction
+    public partial class KalturaAccessControlBlockAction : KalturaRuleAction
     { 
     }
 

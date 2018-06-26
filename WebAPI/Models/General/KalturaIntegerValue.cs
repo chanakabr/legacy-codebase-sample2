@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A string representation to return an array of ints
     /// </summary>
-    public class KalturaIntegerValue : KalturaValue
+    public partial class KalturaIntegerValue : KalturaValue
     {
         /// <summary>
         /// Value

@@ -10,7 +10,7 @@ namespace WebAPI.Models.Notification
     /// <summary>
     /// Engagement
     /// </summary>
-    public class KalturaEngagement : KalturaOTTObject
+    public partial class KalturaEngagement : KalturaOTTObject
     {
         /// <summary>
         /// Engagement id

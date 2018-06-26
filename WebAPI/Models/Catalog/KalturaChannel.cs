@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public class KalturaChannel : KalturaBaseChannel
+    public partial class KalturaChannel : KalturaBaseChannel
     {
         /// <summary>
         /// Cannel description

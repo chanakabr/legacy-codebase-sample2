@@ -11,7 +11,7 @@ namespace WebAPI.Models.Notification
 {
     [DataContract(Name = "KalturaEmailMessage", Namespace = "")]
     [XmlRoot("KalturaEmailMessage")]
-    public class KalturaEmailMessage : KalturaOTTObject
+    public partial class KalturaEmailMessage : KalturaOTTObject
     {
         /// <summary>
         /// email template name 

@@ -178,15 +178,7 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json;
-                if (type == typeof(StatusWrapper))
-                {
-                    json = KalturaJsonSerializer.Serialize((StatusWrapper)value);
-                }
-                else
-                {
-                    json = jsonManager.Serialize(value);
-                }
+                string json = jsonManager.Serialize(value);
                 streamWriter.Write(json);
                 return Task.FromResult(writeStream);
             }

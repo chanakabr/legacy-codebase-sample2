@@ -19,7 +19,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// User roles filter
     /// </summary>
-    public class KalturaUserRoleFilter : KalturaFilter<KalturaUserRoleOrderBy>
+    public partial class KalturaUserRoleFilter : KalturaFilter<KalturaUserRoleOrderBy>
     {
 
         /// <summary>

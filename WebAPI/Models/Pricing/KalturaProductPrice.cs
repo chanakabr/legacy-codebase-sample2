@@ -15,7 +15,7 @@ namespace WebAPI.Models.Pricing
     [XmlInclude(typeof(KalturaPpvPrice))]
     [XmlInclude(typeof(KalturaSubscriptionPrice))]
     [XmlInclude(typeof(KalturaCollectionPrice))]
-    abstract public class KalturaProductPrice : KalturaOTTObject
+    abstract public partial class KalturaProductPrice : KalturaOTTObject
     {
         /// <summary>
         /// Product identifier

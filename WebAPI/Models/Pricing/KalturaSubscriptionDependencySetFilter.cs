@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Pricing
 {
-    public class KalturaSubscriptionDependencySetFilter : KalturaSubscriptionSetFilter
+    public partial class KalturaSubscriptionDependencySetFilter : KalturaSubscriptionSetFilter
     {
         /// <summary>
         /// Comma separated identifiers

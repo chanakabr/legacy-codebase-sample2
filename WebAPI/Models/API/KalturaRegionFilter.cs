@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaRegionFilter : KalturaFilter<KalturaRegionOrderBy>
+    public partial class KalturaRegionFilter : KalturaFilter<KalturaRegionOrderBy>
     {
         /// <summary>
         /// List of comma separated regions external identifiers

@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Country filter
     /// </summary>
-    public class KalturaCountryFilter : KalturaFilter<KalturaCountryOrderBy>
+    public partial class KalturaCountryFilter : KalturaFilter<KalturaCountryOrderBy>
     {
 
         /// <summary>

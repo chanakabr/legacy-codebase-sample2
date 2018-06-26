@@ -3,7 +3,7 @@
 namespace WebAPI.Models.General
 {
     [JsonObject]
-    public class KalturaReport : KalturaOTTObject
+    public partial class KalturaReport : KalturaOTTObject
     {
     }
 }

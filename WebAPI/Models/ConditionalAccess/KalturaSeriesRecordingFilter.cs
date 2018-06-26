@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering recordings
     /// </summary>
     [Serializable]
-    public class KalturaSeriesRecordingFilter : KalturaFilter<KalturaSeriesRecordingOrderBy>
+    public partial class KalturaSeriesRecordingFilter : KalturaFilter<KalturaSeriesRecordingOrderBy>
     {  
        
         public override KalturaSeriesRecordingOrderBy GetDefaultOrderByValue()

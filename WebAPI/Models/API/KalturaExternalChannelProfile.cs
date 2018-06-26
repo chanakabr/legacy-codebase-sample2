@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// External channel profiles
     /// </summary>
     [Serializable]
-    public class KalturaExternalChannelProfileListResponse : KalturaListResponse
+    public partial class KalturaExternalChannelProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// External channel profiles
@@ -29,7 +29,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS Adapter
     /// </summary>
-    public class KalturaExternalChannelProfile : KalturaOTTObject
+    public partial class KalturaExternalChannelProfile : KalturaOTTObject
     {
         /// <summary>
         /// External channel id
