@@ -1725,7 +1725,7 @@ namespace ElasticSearch.Searcher
                         };
                     }
                     // "bool" with "must_not" when no contains
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
                         string field = string.Format("{0}.analyzed", leaf.field);
 
@@ -1740,7 +1740,7 @@ namespace ElasticSearch.Searcher
                             });
                     }
                     // "bool" with "must_not" when no equals
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
                     {
                         string field = string.Format("{0}.lowercase", leaf.field);
 
