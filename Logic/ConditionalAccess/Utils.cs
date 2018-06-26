@@ -40,6 +40,8 @@ using ConfigurationManager;
 using GroupsCacheManager;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using APILogic.Api.Managers;
+using Core.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -8474,13 +8476,13 @@ namespace Core.ConditionalAccess
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
         }
 
-        // TODO SHIR - remove method from here and put in good place!!!
         public static List<long> GetAssetRuleIds(int groupId, int mediaId, long programId)
         {
             List<long> assetRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
-                        Api.Module.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId.ToString(), eAssetTypes.MEDIA));
+                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId.ToString(), eAssetTypes.MEDIA));
+            
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
                 assetRuleIds.AddRange(assetRulesMediaResponse.Objects.Select(x => x.Id));
@@ -8488,7 +8490,7 @@ namespace Core.ConditionalAccess
 
             if (programId == 0)
             {
-                string epgChannelId = Core.Api.Module.GetEpgChannelId(mediaId, groupId);
+                string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
                 if (!string.IsNullOrEmpty(epgChannelId))
                 {
                     programId = GetCurrentProgram(groupId, epgChannelId);
@@ -8498,7 +8500,7 @@ namespace Core.ConditionalAccess
             if (programId != 0)
             {
                 GenericListResponse<AssetRule> assetRulesEpgResponse =
-                Api.Module.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId.ToString(), eAssetTypes.EPG));
+                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId.ToString(), eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
                     assetRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));

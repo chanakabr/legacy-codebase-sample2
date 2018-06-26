@@ -975,6 +975,8 @@ namespace PermissionsManager
                 return result;
             }
 
+            string jsonString = string.Empty;
+
             try
             {
                 InitializeLogging();
@@ -990,10 +992,10 @@ namespace PermissionsManager
                 Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>();
                 List<FilePermissionItem> permissionItemsFromFiles = new List<FilePermissionItem>();
                 Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, FilePermissionItem>();
-
+                
                 foreach (string filePath in allfiles)
                 {
-                    string jsonString = File.ReadAllText(filePath);
+                    jsonString = File.ReadAllText(filePath);
 
                     var fileJson = JObject.Parse(jsonString);
 
@@ -1509,7 +1511,7 @@ namespace PermissionsManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed loading folder of permissions. ex = {0}", ex);
+                log.ErrorFormat("Failed loading folder of permissions. ex = {0}, jsonString = {1}", ex, jsonString);
             }
 
             return result;

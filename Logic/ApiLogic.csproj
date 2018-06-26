@@ -138,6 +138,7 @@
     <Compile Include="Api\Managers\AssetUserRuleManager.cs" />
     <Compile Include="Api\Managers\AssetRuleManager.cs" />
     <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
+    <Compile Include="Api\Managers\EpgManager.cs" />
     <Compile Include="Api\Managers\RolesPermissionsManager.cs" />
     <Compile Include="Api\Modules\SearchHistoryResponse.cs" />
     <Compile Include="Billing\999SMS.cs" />

@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Response;
@@ -1937,12 +1938,6 @@ namespace Core.Api
         public static Status UpdateConcurrencyPartner(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
         {
             return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
-        }
-
-        // TODO SHIR - remove method from here and put in good place!!!
-        public static string GetEpgChannelId(int mediaId, int groupId)
-        {
-            return Core.Api.api.GetEpgChannelId(mediaId, groupId);
         }
     }
 }
