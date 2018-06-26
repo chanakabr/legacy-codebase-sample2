@@ -453,7 +453,7 @@ namespace Core.Billing
                 // check user
                 ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
-                if (userStatus.Code == (int)eResponseStatus.OK && householdId > 0)
+                if ((userStatus.Code == (int)eResponseStatus.OK || userStatus.Code == (int)eResponseStatus.UserSuspended) && householdId > 0)
                 {
                     DataSet dsAllPaymentGateways = DAL.BillingDAL.GetAllPaymentGatewaysWithPaymentMethods(groupID, householdId);
 
