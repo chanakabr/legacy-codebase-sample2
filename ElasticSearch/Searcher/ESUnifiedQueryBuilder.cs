@@ -1739,7 +1739,7 @@ namespace ElasticSearch.Searcher
                             });
                     }
                     // "bool" with "must_not" when no equals
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
                     {
                         string field = string.Format("{0}.lowercase", leaf.field);
 
@@ -1882,10 +1882,10 @@ namespace ElasticSearch.Searcher
 
                     if (newChild != null)
                     {
-                        // If it is a "NOT" phrase (not contains or not equals)
-                        if (childNode.type == BooleanNodeType.Leaf &&
-                            (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) ||
-                            ((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)))
+                        // If it is a SIMPLE NOT PHRASE
+                        if (childNode.type == BooleanNodeType.Leaf && cut == CutWith.OR &&
+                            (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) &&
+                            (!(childNode as BooleanLeaf).shouldLowercase)))
                         {
                             // If the cut is "AND", simply add the child to the "must_not" list. ES cuts "must" and "must_not" with an AND
                             if (cut == CutWith.AND)
