@@ -130,6 +130,7 @@
     <Compile Include="DBTableWebEditor.cs" />
     <Compile Include="EncryptUtils.cs" />
     <Compile Include="FTPUploader.cs" />
+    <Compile Include="GenericExtensionMethods.cs" />
     <Compile Include="HashUtils.cs" />
     <Compile Include="Hitter.cs" />
     <Compile Include="ImageUtils.cs" />
