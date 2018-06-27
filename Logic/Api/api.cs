@@ -10888,11 +10888,11 @@ namespace Core.Api
                     return response;
                 }
 
-                var notDeviceFamily = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Where(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
-                if (notDeviceFamily != null)
+                var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
                 {
                     response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds, 
-                                 string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamily)));
+                                 string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
                     return response;
                 }
 
