@@ -9342,7 +9342,7 @@ namespace Core.Api
                 catch (Exception ex)
                 {
                     log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}",
-                        filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
+                                                         filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
                 }
             }
             catch (Exception ex)
@@ -9352,29 +9352,26 @@ namespace Core.Api
 
             return assets;
         }
-
+        
         public static DeviceFamilyResponse GetDeviceFamilyList()
         {
             DeviceFamilyResponse result = new DeviceFamilyResponse();
-            DataTable dt = DAL.ApiDAL.GetDeviceFamilies();
+            
+            DataTable dt = ApiDAL.GetDeviceFamilies();
             if (dt != null && dt.Rows != null)
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                foreach (DataRow dr in dt.Rows)
                 {
-                    DataRow dr = dt.Rows[i];
-                    if (dr != null)
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                    if (id > 0 && !string.IsNullOrEmpty(name))
                     {
-                        int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                        if (id > 0 && !string.IsNullOrEmpty(name))
-                        {
-                            DeviceFamily deviceFamily = new DeviceFamily(id, name);
-                            result.DeviceFamilies.Add(deviceFamily);
-                        }
+                        DeviceFamily deviceFamily = new DeviceFamily(id, name);
+                        result.DeviceFamilies.Add(deviceFamily);
                     }
                 }
 
-                result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 result.TotalItems = dt.Rows.Count;
             }
 
@@ -10881,6 +10878,24 @@ namespace Core.Api
 
             try
             {
+                // validate deviceFamilyIds
+                var deviceFamilyList = GetDeviceFamilyList();
+                if (deviceFamilyList == null || 
+                    deviceFamilyList.Status.Code != (int)eResponseStatus.OK || 
+                    deviceFamilyList.DeviceFamilies.Count == 0)
+                {
+                    response.Message = "No DeviceFamilies";
+                    return response;
+                }
+
+                var notDeviceFamily = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Where(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                if (notDeviceFamily != null)
+                {
+                    response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds, 
+                                 string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamily)));
+                    return response;
+                }
+
                 // upsert DeviceConcurrencyPriority            
                 if (!ApiDAL.SaveDeviceConcurrencyPriorityCB(groupId, deviceConcurrencyPriorityToUpdate))
                 {
