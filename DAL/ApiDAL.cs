@@ -4159,13 +4159,7 @@ namespace DAL
 
         public static DataTable GetDeviceFamilies()
         {
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetDeviceFamilies = new ODBCWrapper.StoredProcedure("GetDeviceFamilies");
-            spGetDeviceFamilies.SetConnectionKey("MAIN_CONNECTION_STRING");
-            dt = spGetDeviceFamilies.Execute();
-
-            return dt;
-
+            return UtilsDal.Execute("GetDeviceFamilies");
         }
 
         public static DataTable GetDeviceBrands()

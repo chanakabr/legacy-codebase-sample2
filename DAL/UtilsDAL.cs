@@ -158,7 +158,7 @@ namespace DAL
             return result;
         }
 
-        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters)
+        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters = null)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
