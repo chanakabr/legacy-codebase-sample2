@@ -106,7 +106,7 @@ public partial class adm_media_concurrency_rule : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "device_rules");
+            linkColumn.AddQueryStringValue("table", "media_concurrency_rules");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "5");
             linkColumn.AddQueryStringValue("sub_menu", "1");
@@ -119,7 +119,7 @@ public partial class adm_media_concurrency_rule : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "device_rules");
+            linkColumn.AddQueryStringValue("table", "media_concurrency_rules");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "5");
             linkColumn.AddQueryStringValue("sub_menu", "1");
@@ -132,7 +132,7 @@ public partial class adm_media_concurrency_rule : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "device_rules");
+            linkColumn.AddQueryStringValue("table", "media_concurrency_rules");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "5");
             linkColumn.AddQueryStringValue("sub_menu", "1");
