@@ -261,8 +261,9 @@ namespace Core.Users
                 return DomainResponseStatus.OK;
             }
 
-            DeviceContainer deviceContainer = domain.GetDeviceFamilyByUdid(udid);
-            if (deviceFamiliesStreams[deviceContainer.m_deviceFamilyID] >= deviceContainer.m_oLimitationsManager.Concurrency)
+            DeviceContainer deviceContainer = domain.GetDeviceContainerByUdid(udid);
+            if (deviceContainer != null && 
+                deviceFamiliesStreams[deviceContainer.m_deviceFamilyID] >= deviceContainer.m_oLimitationsManager.Concurrency)
             {
                 // device family reached its max limit. Cannot allow a new stream
                 return DomainResponseStatus.ConcurrencyLimitation;
