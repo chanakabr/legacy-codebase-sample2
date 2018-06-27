@@ -528,10 +528,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            res.entityID = args.EntityID;
-                            res.msg = string.Empty;
-                            res.status = RecordStatus.OK;
-                            res.recordingID = args.AssetID;
+                            GetSetAssetAlreadyWatchedValueStatusResponse(responseJson, args, res);
                         }
                         else
                         {
@@ -2355,6 +2352,49 @@ namespace NPVR
                             GetGenericFailureResponse(response, error);
                             break;
                     }
+                }
+            }
+        }
+
+        private void GetSetAssetAlreadyWatchedValueStatusResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.entityID = args.EntityID;
+                response.msg = string.Empty;
+                response.recordingID = args.AssetID;
+                response.status = RecordStatus.OK;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    if (error != null)
+                    {
+                        response.entityID = args.EntityID;
+                        response.recordingID = string.Empty;
+                        switch (error.ResultCode)
+                        {
+                            case 210:
+                                response.status = RecordStatus.ResourceAlreadyExists;
+                                response.msg = "Trying to create a resource that does already exist.";
+                                break;
+                            case 420:
+                                response.status = RecordStatus.QuotaExceeded;
+                                response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
+                                break;
+                            default:
+                                GetGenericFailureResponse(response, error);
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetAlreadyWatchedValueStatusResponse. Response JSON: ", responseJson), null, ex), ex);
+                    throw;
                 }
             }
         }
