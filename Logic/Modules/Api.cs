@@ -1825,9 +1825,9 @@ namespace Core.Api
         }
 
         public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
-            string externalFileId, string ip, string udid, PlayContextType contextType)
+            string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
-            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType);
+            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType, recordingId);
         }
 
         public static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip)

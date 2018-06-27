@@ -863,16 +863,20 @@ namespace Core.ConditionalAccess
             res = resp.licensedLink;
 
             if (drmAdapterId > 0)
-            {
-                var drmResponse = Core.Api.api.GetCustomDrmAssetLicenseData(m_nGroupID, drmAdapterId, sSiteGUID, sProgramId, ApiObjects.eAssetTypes.NPVR, nMediaFileID,
-                    fileCoGuid, sUserIP, sDEVICE_NAME, contextType);
-                if (drmResponse != null && drmResponse.Status != null && drmResponse.Status.Code == (int)eResponseStatus.OK)
+            { 
+                object mediaId = ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", nMediaFileID, 3600, "MAIN_CONNECTION_STRING");
+                if (mediaId != null && mediaId != DBNull.Value)
                 {
-                    drmData = drmResponse.Value;
-                }
-                else
-                {
-                    log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. DrmAdapter is not OK. Msg: ", sSiteGUID, sProgramId, false, null));
+                    var drmResponse = Core.Api.api.GetCustomDrmAssetLicenseData(m_nGroupID, drmAdapterId, sSiteGUID, mediaId.ToString(), ApiObjects.eAssetTypes.NPVR, nMediaFileID,
+                        fileCoGuid, sUserIP, sDEVICE_NAME, contextType, sProgramId);
+                    if (drmResponse != null && drmResponse.Status != null && drmResponse.Status.Code == (int)eResponseStatus.OK)
+                    {
+                        drmData = drmResponse.Value;
+                    }
+                    else
+                    {
+                        log.Error("Error - " + GetNPVRLogMsg("CalcNPVRLicensedLink. DrmAdapter is not OK. Msg: ", sSiteGUID, sProgramId, false, null));
+                    }
                 }
             }
             else

@@ -921,20 +921,17 @@
     <None Include="Service References\AmazonSnsAdapter\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\APILogic.DmsService.PushData.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\DmsService\Service.wsdl" />
-    <None Include="Service References\DmsService\Service.xsd">
+    <None Include="Service References\DmsService\Service11.wsdl" />
+    <None Include="Service References\DmsService\Service44.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service1.xsd">
+    <None Include="Service References\DmsService\Service45.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service2.xsd">
+    <None Include="Service References\DmsService\Service46.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service3.xsd">
+    <None Include="Service References\DmsService\Service47.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
@@ -1267,9 +1264,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\DmsService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\DmsService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -1346,6 +1340,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\Service11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

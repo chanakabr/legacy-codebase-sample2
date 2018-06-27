@@ -10284,7 +10284,7 @@ namespace Core.Api
         }
 
         internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
-            string externalFileId, string ip, string udid, PlayContextType contextType)
+            string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
             StringResponse response = new StringResponse();
 
@@ -10298,7 +10298,8 @@ namespace Core.Api
                     return response;
                 }
 
-                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType);
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, 
+                    contextType, recordingId);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
