@@ -187,10 +187,10 @@ namespace AdapterControllers.drmAdapter {
         System.Threading.Tasks.Task<AdapterControllers.drmAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, string settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetAssetLicenseData", ReplyAction="http://tempuri.org/IService/GetAssetLicenseDataResponse")]
-        AdapterControllers.drmAdapter.DrmAdapterResponse GetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, long timeStamp, string signature);
+        AdapterControllers.drmAdapter.DrmAdapterResponse GetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, string recordingId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetAssetLicenseData", ReplyAction="http://tempuri.org/IService/GetAssetLicenseDataResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.drmAdapter.DrmAdapterResponse> GetAssetLicenseDataAsync(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.drmAdapter.DrmAdapterResponse> GetAssetLicenseDataAsync(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, string recordingId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetDeviceLicenseData", ReplyAction="http://tempuri.org/IService/GetDeviceLicenseDataResponse")]
         AdapterControllers.drmAdapter.DrmAdapterResponse GetDeviceLicenseData(int adapterId, int partnerId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip, long timeStamp, string signature);
@@ -234,12 +234,12 @@ namespace AdapterControllers.drmAdapter {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public AdapterControllers.drmAdapter.DrmAdapterResponse GetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, long timeStamp, string signature) {
-            return base.Channel.GetAssetLicenseData(adapterId, partnerId, userId, assetId, assetType, fileId, externalFileId, ip, udid, context, timeStamp, signature);
+        public AdapterControllers.drmAdapter.DrmAdapterResponse GetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, string recordingId, long timeStamp, string signature) {
+            return base.Channel.GetAssetLicenseData(adapterId, partnerId, userId, assetId, assetType, fileId, externalFileId, ip, udid, context, recordingId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.drmAdapter.DrmAdapterResponse> GetAssetLicenseDataAsync(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, long timeStamp, string signature) {
-            return base.Channel.GetAssetLicenseDataAsync(adapterId, partnerId, userId, assetId, assetType, fileId, externalFileId, ip, udid, context, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.drmAdapter.DrmAdapterResponse> GetAssetLicenseDataAsync(int adapterId, int partnerId, string userId, string assetId, AdapterControllers.drmAdapter.AssetType assetType, long fileId, string externalFileId, string ip, string udid, AdapterControllers.drmAdapter.ContextType context, string recordingId, long timeStamp, string signature) {
+            return base.Channel.GetAssetLicenseDataAsync(adapterId, partnerId, userId, assetId, assetType, fileId, externalFileId, ip, udid, context, recordingId, timeStamp, signature);
         }
         
         public AdapterControllers.drmAdapter.DrmAdapterResponse GetDeviceLicenseData(int adapterId, int partnerId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip, long timeStamp, string signature) {

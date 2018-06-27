@@ -33,6 +33,7 @@
         <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="udid" nillable="true" type="xs:string" />
         <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="context" type="q3:ContextType" />
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
         <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
       </xs:sequence>
