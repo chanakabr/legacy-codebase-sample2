@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
                     KalturaBillingPartnerConfig partnerConfig = configuration as KalturaBillingPartnerConfig;
                     response = ClientsManager.BillingClient().SetPartnerConfiguration(groupId, partnerConfig);
                 }
-                if (configuration is KalturaConcurrencyPartnerConfig)
+                else if (configuration is KalturaConcurrencyPartnerConfig)
                 {
                     KalturaConcurrencyPartnerConfig partnerConfig = configuration as KalturaConcurrencyPartnerConfig;
                     response = ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, partnerConfig);
