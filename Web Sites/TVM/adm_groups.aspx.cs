@@ -134,7 +134,7 @@ public partial class adm_groups : System.Web.UI.Page
         theTable.AddOrderNumField("groups", "ID", "order_num", "Order number");
         theTable.AddHiddenField("order_num");
         theTable.AddTechDetails("groups");
-        theTable.AddActivationField("groups");
+        //theTable.AddActivationField("groups");  //BEO-5243
         theTable.AddHiddenField("is_active");
         theTable.AddImageField("Logo");
         theTable.AddHiddenField("pic_id");
@@ -167,6 +167,7 @@ public partial class adm_groups : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
+        /* BEO-5243
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
@@ -179,6 +180,7 @@ public partial class adm_groups : System.Web.UI.Page
             linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
+        */
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
         {
@@ -193,6 +195,7 @@ public partial class adm_groups : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn);
         }
 
+        /* BEO-5243
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
@@ -205,6 +208,7 @@ public partial class adm_groups : System.Web.UI.Page
             linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
+        */
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
