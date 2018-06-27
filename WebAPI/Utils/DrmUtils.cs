@@ -178,10 +178,10 @@ namespace WebAPI.Utils
                 // custom DRM adapter / profile
                 else if (source.DrmId > 0)
                 {
-                    string code, message;
+                    string code, message, recordingId = string.Empty;
 
                     string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value,
-                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, out code, out message);
+                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, recordingId, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))
