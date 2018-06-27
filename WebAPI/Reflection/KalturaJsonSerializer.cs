@@ -41,6 +41,23 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
+        }
     }
     public partial class KalturaAccessControlMessage
     {
@@ -67,6 +84,30 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Code != null)
+            {
+                ret += "<code>" + Code + "</code>";
+            }
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAdsContext
     {
@@ -89,6 +130,27 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"sources\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Sources != null && Sources.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<sources>" + propertyValue + "</sources>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAdsSource
@@ -124,6 +186,38 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AdsParams != null)
+            {
+                ret += "<adsParam>" + AdsParams + "</adsParam>";
+            }
+            if(AdsPolicy.HasValue)
+            {
+                ret += "<adsPolicy>" + AdsPolicy.GetHashCode() + "</adsPolicy>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Type != null)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetFileContext
     {
@@ -150,6 +244,31 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"viewLifeCycle\": " + "\"" + ViewLifeCycle + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(FullLifeCycle != null)
+            {
+                ret += "<fullLifeCycle>" + FullLifeCycle + "</fullLifeCycle>";
+            }
+            ret += "<isOfflinePlayBack>" + IsOfflinePlayBack.ToString().ToLower() + "</isOfflinePlayBack>";
+            if(ViewLifeCycle != null)
+            {
+                ret += "<viewLifeCycle>" + ViewLifeCycle + "</viewLifeCycle>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBillingResponse
@@ -184,6 +303,38 @@ namespace WebAPI.Models.ConditionalAccess
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ExternalReceiptCode != null)
+            {
+                ret += "<externalReceiptCode>" + ExternalReceiptCode + "</externalReceiptCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_receipt_code>" + ExternalReceiptCode + "</external_receipt_code>";
+                }
+            }
+            if(ReceiptCode != null)
+            {
+                ret += "<receiptCode>" + ReceiptCode + "</receiptCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<receipt_code>" + ReceiptCode + "</receipt_code>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaBillingTransaction
@@ -308,6 +459,127 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(actionDate.HasValue)
+            {
+                ret += "<actionDate>" + actionDate + "</actionDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<action_date>" + actionDate + "</action_date>";
+                }
+            }
+            ret += "<billingAction>" + billingAction.GetHashCode() + "</billingAction>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<billing_action>" + billingAction.GetHashCode() + "</billing_action>";
+            }
+            ret += "<billingPriceType>" + billingPriceType.GetHashCode() + "</billingPriceType>";
+            if(billingProviderRef.HasValue)
+            {
+                ret += "<billingProviderRef>" + billingProviderRef + "</billingProviderRef>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<billing_provider_ref>" + billingProviderRef + "</billing_provider_ref>";
+                }
+            }
+            if(endDate.HasValue)
+            {
+                ret += "<endDate>" + endDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + endDate + "</end_date>";
+                }
+            }
+            if(isRecurring.HasValue)
+            {
+                ret += "<isRecurring>" + isRecurring.ToString().ToLower() + "</isRecurring>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_recurring>" + isRecurring.ToString().ToLower() + "</is_recurring>";
+                }
+            }
+            ret += "<itemType>" + itemType.GetHashCode() + "</itemType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<item_type>" + itemType.GetHashCode() + "</item_type>";
+            }
+            ret += "<paymentMethod>" + paymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + paymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(paymentMethodExtraDetails != null)
+            {
+                ret += "<paymentMethodExtraDetails>" + paymentMethodExtraDetails + "</paymentMethodExtraDetails>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_method_extra_details>" + paymentMethodExtraDetails + "</payment_method_extra_details>";
+                }
+            }
+            if(price != null)
+            {
+                propertyValue = price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(purchasedItemCode != null)
+            {
+                ret += "<purchasedItemCode>" + purchasedItemCode + "</purchasedItemCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchased_item_code>" + purchasedItemCode + "</purchased_item_code>";
+                }
+            }
+            if(purchasedItemName != null)
+            {
+                ret += "<purchasedItemName>" + purchasedItemName + "</purchasedItemName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchased_item_name>" + purchasedItemName + "</purchased_item_name>";
+                }
+            }
+            if(purchaseID.HasValue)
+            {
+                ret += "<purchaseId>" + purchaseID + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + purchaseID + "</purchase_id>";
+                }
+            }
+            if(recieptCode != null)
+            {
+                ret += "<recieptCode>" + recieptCode + "</recieptCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<reciept_code>" + recieptCode + "</reciept_code>";
+                }
+            }
+            if(remarks != null)
+            {
+                ret += "<remarks>" + remarks + "</remarks>";
+            }
+            if(startDate.HasValue)
+            {
+                ret += "<startDate>" + startDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + startDate + "</start_date>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaBillingTransactionListResponse
     {
@@ -331,6 +603,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(transactions != null && transactions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", transactions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCDVRAdapterProfile
@@ -403,6 +697,75 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<adapter_url>" + AdapterUrl + "</adapter_url>";
+                }
+            }
+            if(DynamicLinksSupport.HasValue)
+            {
+                ret += "<dynamicLinksSupport>" + DynamicLinksSupport.ToString().ToLower() + "</dynamicLinksSupport>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<dynamic_links_support>" + DynamicLinksSupport.ToString().ToLower() + "</dynamic_links_support>";
+                }
+            }
+            if(ExternalIdentifier != null)
+            {
+                ret += "<externalIdentifier>" + ExternalIdentifier + "</externalIdentifier>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_identifier>" + ExternalIdentifier + "</external_identifier>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<settings>" + propertyValue + "</settings>";
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<shared_secret>" + SharedSecret + "</shared_secret>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaCDVRAdapterProfileListResponse
     {
@@ -426,6 +789,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCollectionEntitlement
@@ -603,6 +988,180 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CurrentDate.HasValue)
+            {
+                ret += "<currentDate>" + CurrentDate + "</currentDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_date>" + CurrentDate + "</current_date>";
+                }
+            }
+            if(CurrentUses.HasValue)
+            {
+                ret += "<currentUses>" + CurrentUses + "</currentUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_uses>" + CurrentUses + "</current_uses>";
+                }
+            }
+            if(DeviceName != null)
+            {
+                ret += "<deviceName>" + DeviceName + "</deviceName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_name>" + DeviceName + "</device_name>";
+                }
+            }
+            if(DeviceUDID != null)
+            {
+                ret += "<deviceUdid>" + DeviceUDID + "</deviceUdid>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_udid>" + DeviceUDID + "</device_udid>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementId != null)
+            {
+                ret += "<entitlementId>" + EntitlementId + "</entitlementId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<entitlement_id>" + EntitlementId + "</entitlement_id>";
+                }
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsCancelationWindowEnabled.HasValue)
+            {
+                ret += "<isCancelationWindowEnabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</isCancelationWindowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_cancelation_window_enabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</is_cancelation_window_enabled>";
+                }
+            }
+            if(!omitObsolete && IsInGracePeriod.HasValue)
+            {
+                ret += "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>";
+                }
+            }
+            if(!omitObsolete && IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(!omitObsolete && IsRenewableForPurchase.HasValue)
+            {
+                ret += "<isRenewableForPurchase>" + IsRenewableForPurchase.ToString().ToLower() + "</isRenewableForPurchase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable_for_purchase>" + IsRenewableForPurchase.ToString().ToLower() + "</is_renewable_for_purchase>";
+                }
+            }
+            if(LastViewDate.HasValue)
+            {
+                ret += "<lastViewDate>" + LastViewDate + "</lastViewDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_view_date>" + LastViewDate + "</last_view_date>";
+                }
+            }
+            if(MaxUses.HasValue)
+            {
+                ret += "<maxUses>" + MaxUses + "</maxUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses>" + MaxUses + "</max_uses>";
+                }
+            }
+            if(!omitObsolete && MediaFileId.HasValue)
+            {
+                ret += "<mediaFileId>" + MediaFileId + "</mediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_file_id>" + MediaFileId + "</media_file_id>";
+                }
+            }
+            if(!omitObsolete && MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            if(!omitObsolete && NextRenewalDate.HasValue)
+            {
+                ret += "<nextRenewalDate>" + NextRenewalDate + "</nextRenewalDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>";
+                }
+            }
+            ret += "<paymentMethod>" + PaymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + PaymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+            }
+            if(PurchaseDate.HasValue)
+            {
+                ret += "<purchaseDate>" + PurchaseDate + "</purchaseDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_date>" + PurchaseDate + "</purchase_date>";
+                }
+            }
+            if(!omitObsolete && PurchaseId.HasValue)
+            {
+                ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + PurchaseId + "</purchase_id>";
+                }
+            }
+            if(!omitObsolete)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCompensation
     {
@@ -627,6 +1186,29 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"subscriptionId\": " + SubscriptionId);
             ret.Add("\"totalRenewalIterations\": " + TotalRenewalIterations);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<amount>" + Amount + "</amount>";
+            ret += "<appliedRenewalIterations>" + AppliedRenewalIterations + "</appliedRenewalIterations>";
+            ret += "<compensationType>" + CompensationType.GetHashCode() + "</compensationType>";
+            ret += "<id>" + Id + "</id>";
+            ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+            ret += "<subscriptionId>" + SubscriptionId + "</subscriptionId>";
+            ret += "<totalRenewalIterations>" + TotalRenewalIterations + "</totalRenewalIterations>";
+            return ret;
         }
     }
     public partial class KalturaCustomDrmPlaybackPluginData
@@ -655,6 +1237,31 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(LicenseURL != null)
+            {
+                ret += "<licenseURL>" + LicenseURL + "</licenseURL>";
+            }
+            ret += "<scheme>" + Scheme.GetHashCode() + "</scheme>";
+            if(Data != null)
+            {
+                ret += "<data>" + Data + "</data>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDrmPlaybackPluginData
     {
@@ -677,6 +1284,27 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("\"scheme\": " + Scheme.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(LicenseURL != null)
+            {
+                ret += "<licenseURL>" + LicenseURL + "</licenseURL>";
+            }
+            ret += "<scheme>" + Scheme.GetHashCode() + "</scheme>";
+            return ret;
         }
     }
     public partial class KalturaEntitlement
@@ -854,6 +1482,180 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CurrentDate.HasValue)
+            {
+                ret += "<currentDate>" + CurrentDate + "</currentDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_date>" + CurrentDate + "</current_date>";
+                }
+            }
+            if(CurrentUses.HasValue)
+            {
+                ret += "<currentUses>" + CurrentUses + "</currentUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_uses>" + CurrentUses + "</current_uses>";
+                }
+            }
+            if(DeviceName != null)
+            {
+                ret += "<deviceName>" + DeviceName + "</deviceName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_name>" + DeviceName + "</device_name>";
+                }
+            }
+            if(DeviceUDID != null)
+            {
+                ret += "<deviceUdid>" + DeviceUDID + "</deviceUdid>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_udid>" + DeviceUDID + "</device_udid>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementId != null)
+            {
+                ret += "<entitlementId>" + EntitlementId + "</entitlementId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<entitlement_id>" + EntitlementId + "</entitlement_id>";
+                }
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsCancelationWindowEnabled.HasValue)
+            {
+                ret += "<isCancelationWindowEnabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</isCancelationWindowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_cancelation_window_enabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</is_cancelation_window_enabled>";
+                }
+            }
+            if(!omitObsolete && IsInGracePeriod.HasValue)
+            {
+                ret += "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>";
+                }
+            }
+            if(!omitObsolete && IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(!omitObsolete && IsRenewableForPurchase.HasValue)
+            {
+                ret += "<isRenewableForPurchase>" + IsRenewableForPurchase.ToString().ToLower() + "</isRenewableForPurchase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable_for_purchase>" + IsRenewableForPurchase.ToString().ToLower() + "</is_renewable_for_purchase>";
+                }
+            }
+            if(LastViewDate.HasValue)
+            {
+                ret += "<lastViewDate>" + LastViewDate + "</lastViewDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_view_date>" + LastViewDate + "</last_view_date>";
+                }
+            }
+            if(MaxUses.HasValue)
+            {
+                ret += "<maxUses>" + MaxUses + "</maxUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses>" + MaxUses + "</max_uses>";
+                }
+            }
+            if(!omitObsolete && MediaFileId.HasValue)
+            {
+                ret += "<mediaFileId>" + MediaFileId + "</mediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_file_id>" + MediaFileId + "</media_file_id>";
+                }
+            }
+            if(!omitObsolete && MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            if(!omitObsolete && NextRenewalDate.HasValue)
+            {
+                ret += "<nextRenewalDate>" + NextRenewalDate + "</nextRenewalDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>";
+                }
+            }
+            ret += "<paymentMethod>" + PaymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + PaymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+            }
+            if(PurchaseDate.HasValue)
+            {
+                ret += "<purchaseDate>" + PurchaseDate + "</purchaseDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_date>" + PurchaseDate + "</purchase_date>";
+                }
+            }
+            if(!omitObsolete && PurchaseId.HasValue)
+            {
+                ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + PurchaseId + "</purchase_id>";
+                }
+            }
+            if(!omitObsolete)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEntitlementCancellation
     {
@@ -885,6 +1687,36 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"userId\": " + "\"" + UserId + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            ret += "<id>" + Id + "</id>";
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+            }
+            if(!omitObsolete)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEntitlementFilter
@@ -922,6 +1754,40 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementTypeEqual.HasValue)
+            {
+                ret += "<entitlementTypeEqual>" + EntitlementTypeEqual.GetHashCode() + "</entitlementTypeEqual>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<entitlement_type>" + EntitlementTypeEqual.GetHashCode() + "</entitlement_type>";
+                }
+            }
+            ret += "<entityReferenceEqual>" + EntityReferenceEqual.GetHashCode() + "</entityReferenceEqual>";
+            if(IsExpiredEqual.HasValue)
+            {
+                ret += "<isExpiredEqual>" + IsExpiredEqual.ToString().ToLower() + "</isExpiredEqual>";
+            }
+            if(ProductTypeEqual.HasValue)
+            {
+                ret += "<productTypeEqual>" + ProductTypeEqual.GetHashCode() + "</productTypeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEntitlementListResponse
     {
@@ -945,6 +1811,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Entitlements != null && Entitlements.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEntitlementRenewal
@@ -972,6 +1860,30 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"subscriptionId\": " + SubscriptionId);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<date>" + Date + "</date>";
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+            ret += "<subscriptionId>" + SubscriptionId + "</subscriptionId>";
+            return ret;
+        }
     }
     public partial class KalturaEntitlementRenewalBase
     {
@@ -992,6 +1904,25 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"purchaseId\": " + PurchaseId);
             ret.Add("\"subscriptionId\": " + SubscriptionId);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<price>" + Price + "</price>";
+            ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+            ret += "<subscriptionId>" + SubscriptionId + "</subscriptionId>";
+            return ret;
         }
     }
     public partial class KalturaEntitlementsFilter
@@ -1016,6 +1947,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"entitlement_type\": " + EntitlementType.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            ret += "<entitlementType>" + EntitlementType.GetHashCode() + "</entitlementType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<entitlement_type>" + EntitlementType.GetHashCode() + "</entitlement_type>";
+            }
+            return ret;
         }
     }
     public partial class KalturaExternalReceipt
@@ -1049,6 +2002,36 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ContentId.HasValue)
+            {
+                ret += "<contentId>" + ContentId + "</contentId>";
+            }
+            ret += "<productId>" + ProductId + "</productId>";
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if(PaymentGatewayName != null)
+            {
+                ret += "<paymentGatewayName>" + PaymentGatewayName + "</paymentGatewayName>";
+            }
+            if(ReceiptId != null)
+            {
+                ret += "<receiptId>" + ReceiptId + "</receiptId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaFairPlayPlaybackPluginData
     {
@@ -1076,6 +2059,31 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(LicenseURL != null)
+            {
+                ret += "<licenseURL>" + LicenseURL + "</licenseURL>";
+            }
+            ret += "<scheme>" + Scheme.GetHashCode() + "</scheme>";
+            if(Certificate != null)
+            {
+                ret += "<certificate>" + Certificate + "</certificate>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdPremiumService
     {
@@ -1102,6 +2110,30 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdPremiumServiceListResponse
     {
@@ -1126,6 +2158,28 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PremiumServices != null && PremiumServices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdQuota
     {
@@ -1146,6 +2200,25 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"householdId\": " + HouseholdId);
             ret.Add("\"totalQuota\": " + TotalQuota);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<availableQuota>" + AvailableQuota + "</availableQuota>";
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            ret += "<totalQuota>" + TotalQuota + "</totalQuota>";
+            return ret;
         }
     }
     public partial class KalturaLicensedUrl
@@ -1181,6 +2254,38 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AltUrl != null)
+            {
+                ret += "<altUrl>" + AltUrl + "</altUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<alt_url>" + AltUrl + "</alt_url>";
+                }
+            }
+            if(MainUrl != null)
+            {
+                ret += "<mainUrl>" + MainUrl + "</mainUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<main_url>" + MainUrl + "</main_url>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaLicensedUrlBaseRequest
     {
@@ -1202,6 +2307,26 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"assetId\": " + "\"" + AssetId + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId != null)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            return ret;
         }
     }
     public partial class KalturaLicensedUrlEpgRequest
@@ -1232,6 +2357,33 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"streamType\": " + StreamType.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId != null)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            if(BaseUrl != null)
+            {
+                ret += "<baseUrl>" + BaseUrl + "</baseUrl>";
+            }
+            ret += "<contentId>" + ContentId + "</contentId>";
+            ret += "<startDate>" + StartDate + "</startDate>";
+            ret += "<streamType>" + StreamType.GetHashCode() + "</streamType>";
+            return ret;
+        }
     }
     public partial class KalturaLicensedUrlMediaRequest
     {
@@ -1259,6 +2411,31 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"contentId\": " + ContentId);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId != null)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            if(BaseUrl != null)
+            {
+                ret += "<baseUrl>" + BaseUrl + "</baseUrl>";
+            }
+            ret += "<contentId>" + ContentId + "</contentId>";
+            return ret;
+        }
     }
     public partial class KalturaLicensedUrlRecordingRequest
     {
@@ -1284,6 +2461,30 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"fileType\": " + "\"" + FileType + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId != null)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            if(FileType != null)
+            {
+                ret += "<fileType>" + FileType + "</fileType>";
+            }
+            return ret;
         }
     }
     public partial class KalturaNpvrPremiumService
@@ -1314,6 +2515,34 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"quotaInMinutes\": " + QuotaInMinutes);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(QuotaInMinutes.HasValue)
+            {
+                ret += "<quotaInMinutes>" + QuotaInMinutes + "</quotaInMinutes>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPlaybackContext
@@ -1348,6 +2577,37 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Actions != null && Actions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<actions>" + propertyValue + "</actions>";
+            }
+            if(Messages != null && Messages.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Messages.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<messages>" + propertyValue + "</messages>";
+            }
+            if(Sources != null && Sources.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<sources>" + propertyValue + "</sources>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPlaybackContextOptions
     {
@@ -1381,6 +2641,38 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"streamerType\": " + "\"" + StreamerType + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetFileIds != null)
+            {
+                ret += "<assetFileIds>" + AssetFileIds + "</assetFileIds>";
+            }
+            if(Context.HasValue)
+            {
+                ret += "<context>" + Context.GetHashCode() + "</context>";
+            }
+            if(MediaProtocol != null)
+            {
+                ret += "<mediaProtocol>" + MediaProtocol + "</mediaProtocol>";
+            }
+            if(StreamerType != null)
+            {
+                ret += "<streamerType>" + StreamerType + "</streamerType>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPlaybackSource
@@ -1487,6 +2779,109 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AltCdnCode != null)
+            {
+                ret += "<altCdnCode>" + AltCdnCode + "</altCdnCode>";
+            }
+            if(AssetId.HasValue)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_id>" + AssetId + "</asset_id>";
+                }
+            }
+            if(BillingType != null)
+            {
+                ret += "<billingType>" + BillingType + "</billingType>";
+            }
+            if(CdnCode != null)
+            {
+                ret += "<cdnCode>" + CdnCode + "</cdnCode>";
+            }
+            if(CdnName != null)
+            {
+                ret += "<cdnName>" + CdnName + "</cdnName>";
+            }
+            if(Duration.HasValue)
+            {
+                ret += "<duration>" + Duration + "</duration>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_id>" + ExternalId + "</external_id>";
+                }
+            }
+            ret += "<fileSize>" + FileSize + "</fileSize>";
+            if(HandlingType != null)
+            {
+                ret += "<handlingType>" + HandlingType + "</handlingType>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(PPVModules != null)
+            {
+                propertyValue = PPVModules.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<ppvModules>" + propertyValue + "</ppvModules>";
+            }
+            if(ProductCode != null)
+            {
+                ret += "<productCode>" + ProductCode + "</productCode>";
+            }
+            if(Quality != null)
+            {
+                ret += "<quality>" + Quality + "</quality>";
+            }
+            if(Type != null)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && AdsParams != null)
+            {
+                ret += "<adsParam>" + AdsParams + "</adsParam>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && AdsPolicy.HasValue)
+            {
+                ret += "<adsPolicy>" + AdsPolicy.GetHashCode() + "</adsPolicy>";
+            }
+            if(Drm != null && Drm.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Drm.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<drm>" + propertyValue + "</drm>";
+            }
+            if(Format != null)
+            {
+                ret += "<format>" + Format + "</format>";
+            }
+            if(Protocols != null)
+            {
+                ret += "<protocols>" + Protocols + "</protocols>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPluginData
     {
@@ -1504,6 +2899,22 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPpvEntitlement
@@ -1697,6 +3108,196 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CurrentDate.HasValue)
+            {
+                ret += "<currentDate>" + CurrentDate + "</currentDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_date>" + CurrentDate + "</current_date>";
+                }
+            }
+            if(CurrentUses.HasValue)
+            {
+                ret += "<currentUses>" + CurrentUses + "</currentUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_uses>" + CurrentUses + "</current_uses>";
+                }
+            }
+            if(DeviceName != null)
+            {
+                ret += "<deviceName>" + DeviceName + "</deviceName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_name>" + DeviceName + "</device_name>";
+                }
+            }
+            if(DeviceUDID != null)
+            {
+                ret += "<deviceUdid>" + DeviceUDID + "</deviceUdid>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_udid>" + DeviceUDID + "</device_udid>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementId != null)
+            {
+                ret += "<entitlementId>" + EntitlementId + "</entitlementId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<entitlement_id>" + EntitlementId + "</entitlement_id>";
+                }
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsCancelationWindowEnabled.HasValue)
+            {
+                ret += "<isCancelationWindowEnabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</isCancelationWindowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_cancelation_window_enabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</is_cancelation_window_enabled>";
+                }
+            }
+            if(!omitObsolete && IsInGracePeriod.HasValue)
+            {
+                ret += "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>";
+                }
+            }
+            if(!omitObsolete && IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(!omitObsolete && IsRenewableForPurchase.HasValue)
+            {
+                ret += "<isRenewableForPurchase>" + IsRenewableForPurchase.ToString().ToLower() + "</isRenewableForPurchase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable_for_purchase>" + IsRenewableForPurchase.ToString().ToLower() + "</is_renewable_for_purchase>";
+                }
+            }
+            if(LastViewDate.HasValue)
+            {
+                ret += "<lastViewDate>" + LastViewDate + "</lastViewDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_view_date>" + LastViewDate + "</last_view_date>";
+                }
+            }
+            if(MaxUses.HasValue)
+            {
+                ret += "<maxUses>" + MaxUses + "</maxUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses>" + MaxUses + "</max_uses>";
+                }
+            }
+            if(!omitObsolete && MediaFileId.HasValue)
+            {
+                ret += "<mediaFileId>" + MediaFileId + "</mediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_file_id>" + MediaFileId + "</media_file_id>";
+                }
+            }
+            if(!omitObsolete && MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            if(!omitObsolete && NextRenewalDate.HasValue)
+            {
+                ret += "<nextRenewalDate>" + NextRenewalDate + "</nextRenewalDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>";
+                }
+            }
+            ret += "<paymentMethod>" + PaymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + PaymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+            }
+            if(PurchaseDate.HasValue)
+            {
+                ret += "<purchaseDate>" + PurchaseDate + "</purchaseDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_date>" + PurchaseDate + "</purchase_date>";
+                }
+            }
+            if(!omitObsolete && PurchaseId.HasValue)
+            {
+                ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + PurchaseId + "</purchase_id>";
+                }
+            }
+            if(!omitObsolete)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            if(MediaFileId.HasValue)
+            {
+                ret += "<mediaFileId>" + MediaFileId + "</mediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_file_id>" + MediaFileId + "</media_file_id>";
+                }
+            }
+            if(MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPremiumService
     {
@@ -1722,6 +3323,30 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"name\": " + "\"" + Name + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPricesFilter
@@ -1767,6 +3392,48 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(FilesIds != null && FilesIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<filesIds>" + propertyValue + "</filesIds>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<files_ids>" + propertyValue + "</files_ids>";
+                }
+            }
+            if(ShouldGetOnlyLowest.HasValue)
+            {
+                ret += "<shouldGetOnlyLowest>" + ShouldGetOnlyLowest.ToString().ToLower() + "</shouldGetOnlyLowest>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<should_get_only_lowest>" + ShouldGetOnlyLowest.ToString().ToLower() + "</should_get_only_lowest>";
+                }
+            }
+            if(SubscriptionsIds != null && SubscriptionsIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionsIds.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<subscriptionsIds>" + propertyValue + "</subscriptionsIds>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<subscriptions_ids>" + propertyValue + "</subscriptions_ids>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaProductPriceFilter
     {
@@ -1805,6 +3472,43 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"subscriptionIdIn\": " + "\"" + SubscriptionIdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CollectionIdIn != null)
+            {
+                ret += "<collectionIdIn>" + CollectionIdIn + "</collectionIdIn>";
+            }
+            if(CouponCodeEqual != null)
+            {
+                ret += "<couponCodeEqual>" + CouponCodeEqual + "</couponCodeEqual>";
+            }
+            if(FileIdIn != null)
+            {
+                ret += "<fileIdIn>" + FileIdIn + "</fileIdIn>";
+            }
+            if(isLowest.HasValue)
+            {
+                ret += "<isLowest>" + isLowest.ToString().ToLower() + "</isLowest>";
+            }
+            if(SubscriptionIdIn != null)
+            {
+                ret += "<subscriptionIdIn>" + SubscriptionIdIn + "</subscriptionIdIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPurchase
@@ -1851,6 +3555,49 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"price\": " + Price);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ContentId.HasValue)
+            {
+                ret += "<contentId>" + ContentId + "</contentId>";
+            }
+            ret += "<productId>" + ProductId + "</productId>";
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if(AdapterData != null)
+            {
+                ret += "<adapterData>" + AdapterData + "</adapterData>";
+            }
+            if(Coupon != null)
+            {
+                ret += "<coupon>" + Coupon + "</coupon>";
+            }
+            if(Currency != null)
+            {
+                ret += "<currency>" + Currency + "</currency>";
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret += "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>";
+            }
+            if(PaymentMethodId.HasValue)
+            {
+                ret += "<paymentMethodId>" + PaymentMethodId + "</paymentMethodId>";
+            }
+            ret += "<price>" + Price + "</price>";
+            return ret;
+        }
     }
     public partial class KalturaPurchaseBase
     {
@@ -1874,6 +3621,28 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"productId\": " + ProductId);
             ret.Add("\"productType\": " + ProductType.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ContentId.HasValue)
+            {
+                ret += "<contentId>" + ContentId + "</contentId>";
+            }
+            ret += "<productId>" + ProductId + "</productId>";
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            return ret;
         }
     }
     public partial class KalturaPurchaseSession
@@ -1924,6 +3693,53 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ContentId.HasValue)
+            {
+                ret += "<contentId>" + ContentId + "</contentId>";
+            }
+            ret += "<productId>" + ProductId + "</productId>";
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if(AdapterData != null)
+            {
+                ret += "<adapterData>" + AdapterData + "</adapterData>";
+            }
+            if(Coupon != null)
+            {
+                ret += "<coupon>" + Coupon + "</coupon>";
+            }
+            if(Currency != null)
+            {
+                ret += "<currency>" + Currency + "</currency>";
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret += "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>";
+            }
+            if(PaymentMethodId.HasValue)
+            {
+                ret += "<paymentMethodId>" + PaymentMethodId + "</paymentMethodId>";
+            }
+            ret += "<price>" + Price + "</price>";
+            if(PreviewModuleId.HasValue)
+            {
+                ret += "<previewModuleId>" + PreviewModuleId + "</previewModuleId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRecording
     {
@@ -1956,6 +3772,36 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isProtected>" + IsProtected.ToString().ToLower() + "</isProtected>";
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            ret += "<updateDate>" + UpdateDate + "</updateDate>";
+            if(ViewableUntilDate.HasValue)
+            {
+                ret += "<viewableUntilDate>" + ViewableUntilDate + "</viewableUntilDate>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRecordingContext
     {
@@ -1985,6 +3831,33 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            ret += "<code>" + Code + "</code>";
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            if(Recording != null)
+            {
+                propertyValue = Recording.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<recording>" + propertyValue + "</recording>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRecordingContextFilter
     {
@@ -2007,6 +3880,27 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"assetIdIn\": " + "\"" + AssetIdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(AssetIdIn != null)
+            {
+                ret += "<assetIdIn>" + AssetIdIn + "</assetIdIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRecordingContextListResponse
@@ -2031,6 +3925,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRecordingFilter
@@ -2059,6 +3975,31 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(FilterExpression != null)
+            {
+                ret += "<filterExpression>" + FilterExpression + "</filterExpression>";
+            }
+            if(StatusIn != null)
+            {
+                ret += "<statusIn>" + StatusIn + "</statusIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRecordingListResponse
     {
@@ -2083,6 +4024,28 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRuleAction
     {
@@ -2101,6 +4064,23 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaSeriesRecording
@@ -2139,6 +4119,41 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"updateDate\": " + UpdateDate);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<channelId>" + ChannelId + "</channelId>";
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            ret += "<epgId>" + EpgId + "</epgId>";
+            if(ExcludedSeasons != null && ExcludedSeasons.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ExcludedSeasons.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<excludedSeasons>" + propertyValue + "</excludedSeasons>";
+            }
+            ret += "<id>" + Id + "</id>";
+            if(SeasonNumber.HasValue)
+            {
+                ret += "<seasonNumber>" + SeasonNumber + "</seasonNumber>";
+            }
+            if(SeriesId != null)
+            {
+                ret += "<seriesId>" + SeriesId + "</seriesId>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            ret += "<updateDate>" + UpdateDate + "</updateDate>";
+            return ret;
+        }
     }
     public partial class KalturaSeriesRecordingFilter
     {
@@ -2157,6 +4172,23 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaSeriesRecordingListResponse
@@ -2181,6 +4213,28 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscriptionEntitlement
@@ -2407,6 +4461,229 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CurrentDate.HasValue)
+            {
+                ret += "<currentDate>" + CurrentDate + "</currentDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_date>" + CurrentDate + "</current_date>";
+                }
+            }
+            if(CurrentUses.HasValue)
+            {
+                ret += "<currentUses>" + CurrentUses + "</currentUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_uses>" + CurrentUses + "</current_uses>";
+                }
+            }
+            if(DeviceName != null)
+            {
+                ret += "<deviceName>" + DeviceName + "</deviceName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_name>" + DeviceName + "</device_name>";
+                }
+            }
+            if(DeviceUDID != null)
+            {
+                ret += "<deviceUdid>" + DeviceUDID + "</deviceUdid>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_udid>" + DeviceUDID + "</device_udid>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementId != null)
+            {
+                ret += "<entitlementId>" + EntitlementId + "</entitlementId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<entitlement_id>" + EntitlementId + "</entitlement_id>";
+                }
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsCancelationWindowEnabled.HasValue)
+            {
+                ret += "<isCancelationWindowEnabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</isCancelationWindowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_cancelation_window_enabled>" + IsCancelationWindowEnabled.ToString().ToLower() + "</is_cancelation_window_enabled>";
+                }
+            }
+            if(!omitObsolete && IsInGracePeriod.HasValue)
+            {
+                ret += "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>";
+                }
+            }
+            if(!omitObsolete && IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(!omitObsolete && IsRenewableForPurchase.HasValue)
+            {
+                ret += "<isRenewableForPurchase>" + IsRenewableForPurchase.ToString().ToLower() + "</isRenewableForPurchase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable_for_purchase>" + IsRenewableForPurchase.ToString().ToLower() + "</is_renewable_for_purchase>";
+                }
+            }
+            if(LastViewDate.HasValue)
+            {
+                ret += "<lastViewDate>" + LastViewDate + "</lastViewDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_view_date>" + LastViewDate + "</last_view_date>";
+                }
+            }
+            if(MaxUses.HasValue)
+            {
+                ret += "<maxUses>" + MaxUses + "</maxUses>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses>" + MaxUses + "</max_uses>";
+                }
+            }
+            if(!omitObsolete && MediaFileId.HasValue)
+            {
+                ret += "<mediaFileId>" + MediaFileId + "</mediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_file_id>" + MediaFileId + "</media_file_id>";
+                }
+            }
+            if(!omitObsolete && MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            if(!omitObsolete && NextRenewalDate.HasValue)
+            {
+                ret += "<nextRenewalDate>" + NextRenewalDate + "</nextRenewalDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>";
+                }
+            }
+            ret += "<paymentMethod>" + PaymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + PaymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+            }
+            if(PurchaseDate.HasValue)
+            {
+                ret += "<purchaseDate>" + PurchaseDate + "</purchaseDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_date>" + PurchaseDate + "</purchase_date>";
+                }
+            }
+            if(!omitObsolete && PurchaseId.HasValue)
+            {
+                ret += "<purchaseId>" + PurchaseId + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + PurchaseId + "</purchase_id>";
+                }
+            }
+            if(!omitObsolete)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            if(IsInGracePeriod.HasValue)
+            {
+                ret += "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>";
+                }
+            }
+            if(IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(IsRenewableForPurchase.HasValue)
+            {
+                ret += "<isRenewableForPurchase>" + IsRenewableForPurchase.ToString().ToLower() + "</isRenewableForPurchase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable_for_purchase>" + IsRenewableForPurchase.ToString().ToLower() + "</is_renewable_for_purchase>";
+                }
+            }
+            ret += "<isSuspended>" + IsSuspended.ToString().ToLower() + "</isSuspended>";
+            if(NextRenewalDate.HasValue)
+            {
+                ret += "<nextRenewalDate>" + NextRenewalDate + "</nextRenewalDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>";
+                }
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret += "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>";
+            }
+            if(PaymentMethodId.HasValue)
+            {
+                ret += "<paymentMethodId>" + PaymentMethodId + "</paymentMethodId>";
+            }
+            if(ScheduledSubscriptionId.HasValue)
+            {
+                ret += "<scheduledSubscriptionId>" + ScheduledSubscriptionId + "</scheduledSubscriptionId>";
+            }
+            if(UnifiedPaymentId.HasValue)
+            {
+                ret += "<unifiedPaymentId>" + UnifiedPaymentId + "</unifiedPaymentId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaTransaction
     {
@@ -2465,6 +4742,62 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CreatedAt.HasValue)
+            {
+                ret += "<createdAt>" + CreatedAt + "</createdAt>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<created_at>" + CreatedAt + "</created_at>";
+                }
+            }
+            if(FailReasonCode.HasValue)
+            {
+                ret += "<failReasonCode>" + FailReasonCode + "</failReasonCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<fail_reason_code>" + FailReasonCode + "</fail_reason_code>";
+                }
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(PGReferenceID != null)
+            {
+                ret += "<paymentGatewayReferenceId>" + PGReferenceID + "</paymentGatewayReferenceId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_gateway_reference_id>" + PGReferenceID + "</payment_gateway_reference_id>";
+                }
+            }
+            if(PGResponseID != null)
+            {
+                ret += "<paymentGatewayResponseId>" + PGResponseID + "</paymentGatewayResponseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_gateway_response_id>" + PGResponseID + "</payment_gateway_response_id>";
+                }
+            }
+            if(State != null)
+            {
+                ret += "<state>" + State + "</state>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaTransactionHistoryFilter
     {
@@ -2492,6 +4825,32 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(EndDateLessThanOrEqual.HasValue)
+            {
+                ret += "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>";
+            }
+            ret += "<entityReferenceEqual>" + EntityReferenceEqual.GetHashCode() + "</entityReferenceEqual>";
+            if(StartDateGreaterThanOrEqual.HasValue)
+            {
+                ret += "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaTransactionsFilter
@@ -2536,6 +4895,47 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(PageIndex.HasValue)
+            {
+                ret += "<pageIndex>" + PageIndex + "</pageIndex>";
+            }
+            if(PageSize.HasValue)
+            {
+                ret += "<pageSize>" + PageSize + "</pageSize>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaTransactionStatus
     {
@@ -2568,6 +4968,36 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("\"failReason\": " + FailReason);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<adapterTransactionStatus>" + AdapterStatus.GetHashCode() + "</adapterTransactionStatus>";
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(ExternalMessage != null)
+            {
+                ret += "<externalMessage>" + ExternalMessage + "</externalMessage>";
+            }
+            if(ExternalStatus != null)
+            {
+                ret += "<externalStatus>" + ExternalStatus + "</externalStatus>";
+            }
+            ret += "<failReason>" + FailReason + "</failReason>";
+            return ret;
+        }
     }
     public partial class KalturaUnifiedPaymentRenewal
     {
@@ -2597,6 +5027,34 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("\"unifiedPaymentId\": " + UnifiedPaymentId);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<date>" + Date + "</date>";
+            if(Entitlements != null && Entitlements.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<entitlements>" + propertyValue + "</entitlements>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            ret += "<unifiedPaymentId>" + UnifiedPaymentId + "</unifiedPaymentId>";
+            return ret;
         }
     }
     public partial class KalturaUserBillingTransaction
@@ -2737,6 +5195,143 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(actionDate.HasValue)
+            {
+                ret += "<actionDate>" + actionDate + "</actionDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<action_date>" + actionDate + "</action_date>";
+                }
+            }
+            ret += "<billingAction>" + billingAction.GetHashCode() + "</billingAction>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<billing_action>" + billingAction.GetHashCode() + "</billing_action>";
+            }
+            ret += "<billingPriceType>" + billingPriceType.GetHashCode() + "</billingPriceType>";
+            if(billingProviderRef.HasValue)
+            {
+                ret += "<billingProviderRef>" + billingProviderRef + "</billingProviderRef>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<billing_provider_ref>" + billingProviderRef + "</billing_provider_ref>";
+                }
+            }
+            if(endDate.HasValue)
+            {
+                ret += "<endDate>" + endDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + endDate + "</end_date>";
+                }
+            }
+            if(isRecurring.HasValue)
+            {
+                ret += "<isRecurring>" + isRecurring.ToString().ToLower() + "</isRecurring>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_recurring>" + isRecurring.ToString().ToLower() + "</is_recurring>";
+                }
+            }
+            ret += "<itemType>" + itemType.GetHashCode() + "</itemType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<item_type>" + itemType.GetHashCode() + "</item_type>";
+            }
+            ret += "<paymentMethod>" + paymentMethod.GetHashCode() + "</paymentMethod>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<payment_method>" + paymentMethod.GetHashCode() + "</payment_method>";
+            }
+            if(paymentMethodExtraDetails != null)
+            {
+                ret += "<paymentMethodExtraDetails>" + paymentMethodExtraDetails + "</paymentMethodExtraDetails>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_method_extra_details>" + paymentMethodExtraDetails + "</payment_method_extra_details>";
+                }
+            }
+            if(price != null)
+            {
+                propertyValue = price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(purchasedItemCode != null)
+            {
+                ret += "<purchasedItemCode>" + purchasedItemCode + "</purchasedItemCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchased_item_code>" + purchasedItemCode + "</purchased_item_code>";
+                }
+            }
+            if(purchasedItemName != null)
+            {
+                ret += "<purchasedItemName>" + purchasedItemName + "</purchasedItemName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchased_item_name>" + purchasedItemName + "</purchased_item_name>";
+                }
+            }
+            if(purchaseID.HasValue)
+            {
+                ret += "<purchaseId>" + purchaseID + "</purchaseId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_id>" + purchaseID + "</purchase_id>";
+                }
+            }
+            if(recieptCode != null)
+            {
+                ret += "<recieptCode>" + recieptCode + "</recieptCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<reciept_code>" + recieptCode + "</reciept_code>";
+                }
+            }
+            if(remarks != null)
+            {
+                ret += "<remarks>" + remarks + "</remarks>";
+            }
+            if(startDate.HasValue)
+            {
+                ret += "<startDate>" + startDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + startDate + "</start_date>";
+                }
+            }
+            if(UserFullName != null)
+            {
+                ret += "<userFullName>" + UserFullName + "</userFullName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_full_name>" + UserFullName + "</user_full_name>";
+                }
+            }
+            if(UserID != null)
+            {
+                ret += "<userId>" + UserID + "</userId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_id>" + UserID + "</user_id>";
+                }
+            }
+            return ret;
+        }
     }
 }
 
@@ -2768,6 +5363,32 @@ namespace WebAPI.Models.Social
             }
             ret.Add("\"privacy\": " + Privacy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            ret += "<actionPrivacy>" + ActionPrivacy.GetHashCode() + "</actionPrivacy>";
+            if(Network.HasValue)
+            {
+                ret += "<network>" + Network.GetHashCode() + "</network>";
+            }
+            ret += "<privacy>" + Privacy.GetHashCode() + "</privacy>";
+            return ret;
         }
     }
     public partial class KalturaFacebookPost
@@ -2816,6 +5437,52 @@ namespace WebAPI.Models.Social
                 ret.Add("\"link\": " + "\"" + Link + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Header != null)
+            {
+                ret += "<header>" + Header + "</header>";
+            }
+            if(Text != null)
+            {
+                ret += "<text>" + Text + "</text>";
+            }
+            if(Writer != null)
+            {
+                ret += "<writer>" + Writer + "</writer>";
+            }
+            if(AuthorImageUrl != null)
+            {
+                ret += "<authorImageUrl>" + AuthorImageUrl + "</authorImageUrl>";
+            }
+            if(LikeCounter != null)
+            {
+                ret += "<likeCounter>" + LikeCounter + "</likeCounter>";
+            }
+            if(Comments != null && Comments.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Comments.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<comments>" + propertyValue + "</comments>";
+            }
+            if(Link != null)
+            {
+                ret += "<link>" + Link + "</link>";
+            }
+            return ret;
         }
     }
     public partial class KalturaFacebookSocial
@@ -2875,6 +5542,62 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Birthday != null)
+            {
+                ret += "<birthday>" + Birthday + "</birthday>";
+            }
+            if(Email != null)
+            {
+                ret += "<email>" + Email + "</email>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+            }
+            if(Gender != null)
+            {
+                ret += "<gender>" + Gender + "</gender>";
+            }
+            if(ID != null)
+            {
+                ret += "<id>" + ID + "</id>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PictureUrl != null)
+            {
+                ret += "<pictureUrl>" + PictureUrl + "</pictureUrl>";
+            }
+            if(Status != null)
+            {
+                ret += "<status>" + Status + "</status>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaNetworkActionStatus
     {
@@ -2897,6 +5620,27 @@ namespace WebAPI.Models.Social
             }
             ret.Add("\"status\": " + Status.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Network.HasValue)
+            {
+                ret += "<network>" + Network.GetHashCode() + "</network>";
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            return ret;
         }
     }
     public partial class KalturaSocial
@@ -2956,6 +5700,62 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Birthday != null)
+            {
+                ret += "<birthday>" + Birthday + "</birthday>";
+            }
+            if(Email != null)
+            {
+                ret += "<email>" + Email + "</email>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+            }
+            if(Gender != null)
+            {
+                ret += "<gender>" + Gender + "</gender>";
+            }
+            if(ID != null)
+            {
+                ret += "<id>" + ID + "</id>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PictureUrl != null)
+            {
+                ret += "<pictureUrl>" + PictureUrl + "</pictureUrl>";
+            }
+            if(Status != null)
+            {
+                ret += "<status>" + Status + "</status>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialAction
     {
@@ -2992,6 +5792,40 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<actionType>" + ActionType.GetHashCode() + "</actionType>";
+            if(AssetId.HasValue)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            ret += "<assetType>" + AssetType.GetHashCode() + "</assetType>";
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Time.HasValue)
+            {
+                ret += "<time>" + Time + "</time>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialActionFilter
     {
@@ -3020,6 +5854,32 @@ namespace WebAPI.Models.Social
             ret.Add("\"assetTypeEqual\": " + AssetTypeEqual.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ActionTypeIn != null)
+            {
+                ret += "<actionTypeIn>" + ActionTypeIn + "</actionTypeIn>";
+            }
+            if(AssetIdIn != null)
+            {
+                ret += "<assetIdIn>" + AssetIdIn + "</assetIdIn>";
+            }
+            ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            return ret;
+        }
     }
     public partial class KalturaSocialActionListResponse
     {
@@ -3043,6 +5903,28 @@ namespace WebAPI.Models.Social
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSocialActionRate
@@ -3081,6 +5963,41 @@ namespace WebAPI.Models.Social
             ret.Add("\"rate\": " + Rate);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<actionType>" + ActionType.GetHashCode() + "</actionType>";
+            if(AssetId.HasValue)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+            }
+            ret += "<assetType>" + AssetType.GetHashCode() + "</assetType>";
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Time.HasValue)
+            {
+                ret += "<time>" + Time + "</time>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            ret += "<rate>" + Rate + "</rate>";
+            return ret;
+        }
     }
     public partial class KalturaSocialComment
     {
@@ -3112,6 +6029,35 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Header != null)
+            {
+                ret += "<header>" + Header + "</header>";
+            }
+            if(Text != null)
+            {
+                ret += "<text>" + Text + "</text>";
+            }
+            if(Writer != null)
+            {
+                ret += "<writer>" + Writer + "</writer>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialCommentFilter
     {
@@ -3134,6 +6080,27 @@ namespace WebAPI.Models.Social
             ret.Add("\"createDateGreaterThan\": " + CreateDateGreaterThan);
             ret.Add("\"socialPlatformEqual\": " + SocialPlatformEqual.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            ret += "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>";
+            ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            ret += "<createDateGreaterThan>" + CreateDateGreaterThan + "</createDateGreaterThan>";
+            ret += "<socialPlatformEqual>" + SocialPlatformEqual.GetHashCode() + "</socialPlatformEqual>";
+            return ret;
         }
     }
     public partial class KalturaSocialCommentListResponse
@@ -3159,6 +6126,28 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialConfig
     {
@@ -3176,6 +6165,22 @@ namespace WebAPI.Models.Social
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSocialFacebookConfig
@@ -3206,6 +6211,34 @@ namespace WebAPI.Models.Social
                 ret.Add("\"permissions\": " + "\"" + Permissions + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AppId != null)
+            {
+                ret += "<appId>" + AppId + "</appId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<app_id>" + AppId + "</app_id>";
+                }
+            }
+            if(Permissions != null)
+            {
+                ret += "<permissions>" + Permissions + "</permissions>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSocialFriendActivity
@@ -3238,6 +6271,35 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(SocialAction != null)
+            {
+                propertyValue = SocialAction.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<socialAction>" + propertyValue + "</socialAction>";
+            }
+            if(UserFullName != null)
+            {
+                ret += "<userFullName>" + UserFullName + "</userFullName>";
+            }
+            if(UserPictureUrl != null)
+            {
+                ret += "<userPictureUrl>" + UserPictureUrl + "</userPictureUrl>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialFriendActivityFilter
     {
@@ -3269,6 +6331,35 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ActionTypeIn != null)
+            {
+                ret += "<actionTypeIn>" + ActionTypeIn + "</actionTypeIn>";
+            }
+            if(AssetIdEqual.HasValue)
+            {
+                ret += "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>";
+            }
+            if(AssetTypeEqual.HasValue)
+            {
+                ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialFriendActivityListResponse
     {
@@ -3292,6 +6383,28 @@ namespace WebAPI.Models.Social
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSocialNetworkComment
@@ -3331,6 +6444,43 @@ namespace WebAPI.Models.Social
                 ret.Add("\"likeCounter\": " + "\"" + LikeCounter + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Header != null)
+            {
+                ret += "<header>" + Header + "</header>";
+            }
+            if(Text != null)
+            {
+                ret += "<text>" + Text + "</text>";
+            }
+            if(Writer != null)
+            {
+                ret += "<writer>" + Writer + "</writer>";
+            }
+            if(AuthorImageUrl != null)
+            {
+                ret += "<authorImageUrl>" + AuthorImageUrl + "</authorImageUrl>";
+            }
+            if(LikeCounter != null)
+            {
+                ret += "<likeCounter>" + LikeCounter + "</likeCounter>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSocialResponse
@@ -3407,6 +6557,79 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Data != null)
+            {
+                ret += "<data>" + Data + "</data>";
+            }
+            if(KalturaName != null)
+            {
+                ret += "<kalturaUsername>" + KalturaName + "</kalturaUsername>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<kaltura_username>" + KalturaName + "</kaltura_username>";
+                }
+            }
+            if(MinFriends != null)
+            {
+                ret += "<minFriendsLimitation>" + MinFriends + "</minFriendsLimitation>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<min_friends_limitation>" + MinFriends + "</min_friends_limitation>";
+                }
+            }
+            if(Pic != null)
+            {
+                ret += "<pic>" + Pic + "</pic>";
+            }
+            if(SocialNetworkUsername != null)
+            {
+                ret += "<socialUsername>" + SocialNetworkUsername + "</socialUsername>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<social_username>" + SocialNetworkUsername + "</social_username>";
+                }
+            }
+            if(SocialUser != null)
+            {
+                propertyValue = SocialUser.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<socialUser>" + propertyValue + "</socialUser>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<social_user>" + propertyValue + "</social_user>";
+                }
+            }
+            if(Status != null)
+            {
+                ret += "<status>" + Status + "</status>";
+            }
+            if(Token != null)
+            {
+                ret += "<token>" + Token + "</token>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_id>" + UserId + "</user_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialUser
     {
@@ -3469,6 +6692,66 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Birthday != null)
+            {
+                ret += "<birthday>" + Birthday + "</birthday>";
+            }
+            if(Email != null)
+            {
+                ret += "<email>" + Email + "</email>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<first_name>" + FirstName + "</first_name>";
+                }
+            }
+            if(Gender != null)
+            {
+                ret += "<gender>" + Gender + "</gender>";
+            }
+            if(ID != null)
+            {
+                ret += "<id>" + ID + "</id>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_name>" + LastName + "</last_name>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_id>" + UserId + "</user_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaSocialUserConfig
     {
@@ -3491,6 +6774,27 @@ namespace WebAPI.Models.Social
                 ret.Add("\"actionPermissionItems\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(PermissionItems != null && PermissionItems.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<actionPermissionItems>" + propertyValue + "</actionPermissionItems>";
+            }
+            return ret;
         }
     }
     public partial class KalturaTwitterTwit
@@ -3531,6 +6835,43 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Header != null)
+            {
+                ret += "<header>" + Header + "</header>";
+            }
+            if(Text != null)
+            {
+                ret += "<text>" + Text + "</text>";
+            }
+            if(Writer != null)
+            {
+                ret += "<writer>" + Writer + "</writer>";
+            }
+            if(AuthorImageUrl != null)
+            {
+                ret += "<authorImageUrl>" + AuthorImageUrl + "</authorImageUrl>";
+            }
+            if(LikeCounter != null)
+            {
+                ret += "<likeCounter>" + LikeCounter + "</likeCounter>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserSocialActionResponse
     {
@@ -3559,6 +6900,32 @@ namespace WebAPI.Models.Social
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(NetworkStatus != null && NetworkStatus.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<failStatus>" + propertyValue + "</failStatus>";
+            }
+            if(SocialAction != null)
+            {
+                propertyValue = SocialAction.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<socialAction>" + propertyValue + "</socialAction>";
+            }
+            return ret;
+        }
     }
 }
 
@@ -3581,6 +6948,23 @@ namespace WebAPI.Models.General
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaApiActionPermissionItem
@@ -3616,6 +7000,39 @@ namespace WebAPI.Models.General
                 ret.Add("\"service\": " + "\"" + Service + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isExcluded>" + IsExcluded.ToString().ToLower() + "</isExcluded>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            if(Service != null)
+            {
+                ret += "<service>" + Service + "</service>";
+            }
+            return ret;
         }
     }
     public partial class KalturaApiArgumentPermissionItem
@@ -3656,6 +7073,43 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isExcluded>" + IsExcluded.ToString().ToLower() + "</isExcluded>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            if(Parameter != null)
+            {
+                ret += "<parameter>" + Parameter + "</parameter>";
+            }
+            if(Service != null)
+            {
+                ret += "<service>" + Service + "</service>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaApiParameterPermissionItem
     {
@@ -3691,6 +7145,40 @@ namespace WebAPI.Models.General
                 ret.Add("\"parameter\": " + "\"" + Parameter + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isExcluded>" + IsExcluded.ToString().ToLower() + "</isExcluded>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<action>" + Action.GetHashCode() + "</action>";
+            if(Object != null)
+            {
+                ret += "<object>" + Object + "</object>";
+            }
+            if(Parameter != null)
+            {
+                ret += "<parameter>" + Parameter + "</parameter>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAppToken
@@ -3750,6 +7238,62 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Expiry.HasValue)
+            {
+                ret += "<expiry>" + Expiry + "</expiry>";
+            }
+            if(HashType.HasValue)
+            {
+                ret += "<hashType>" + HashType.GetHashCode() + "</hashType>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(PartnerId.HasValue)
+            {
+                ret += "<partnerId>" + PartnerId + "</partnerId>";
+            }
+            if(SessionDuration.HasValue)
+            {
+                ret += "<sessionDuration>" + SessionDuration + "</sessionDuration>";
+            }
+            if(SessionPrivileges != null)
+            {
+                ret += "<sessionPrivileges>" + SessionPrivileges + "</sessionPrivileges>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && SessionType.HasValue)
+            {
+                ret += "<sessionType>" + SessionType.GetHashCode() + "</sessionType>";
+            }
+            if(SessionUserId != null)
+            {
+                ret += "<sessionUserId>" + SessionUserId + "</sessionUserId>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion))
+            {
+                ret += "<status>" + Status.GetHashCode() + "</status>";
+            }
+            if(Token != null)
+            {
+                ret += "<token>" + Token + "</token>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaBaseResponseProfile
     {
@@ -3767,6 +7311,22 @@ namespace WebAPI.Models.General
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBooleanValue
@@ -3790,6 +7350,27 @@ namespace WebAPI.Models.General
             }
             ret.Add("\"value\": " + value.ToString().ToLower());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            ret += "<value>" + value.ToString().ToLower() + "</value>";
+            return ret;
         }
     }
     public partial class KalturaClientConfiguration
@@ -3816,6 +7397,30 @@ namespace WebAPI.Models.General
                 ret.Add("\"clientTag\": " + "\"" + ClientTag + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ApiVersion != null)
+            {
+                ret += "<apiVersion>" + ApiVersion + "</apiVersion>";
+            }
+            if(ClientTag != null)
+            {
+                ret += "<clientTag>" + ClientTag + "</clientTag>";
+            }
+            return ret;
         }
     }
     public partial class KalturaDetachedResponseProfile
@@ -3845,6 +7450,32 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<filter>" + Filter + "</filter>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(RelatedProfiles != null && RelatedProfiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RelatedProfiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedProfiles>" + propertyValue + "</relatedProfiles>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDoubleValue
     {
@@ -3868,6 +7499,27 @@ namespace WebAPI.Models.General
             ret.Add("\"value\": " + value);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            ret += "<value>" + value + "</value>";
+            return ret;
+        }
     }
     public partial class KalturaFilter<T>
     {
@@ -3886,6 +7538,23 @@ namespace WebAPI.Models.General
             }
             ret.Add("\"orderBy\": " + OrderBy);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaFilterPager
@@ -3912,6 +7581,30 @@ namespace WebAPI.Models.General
                 ret.Add("\"pageSize\": " + PageSize);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(PageIndex.HasValue)
+            {
+                ret += "<pageIndex>" + PageIndex + "</pageIndex>";
+            }
+            if(PageSize.HasValue)
+            {
+                ret += "<pageSize>" + PageSize + "</pageSize>";
+            }
+            return ret;
         }
     }
     public partial class KalturaGroupPermission
@@ -3948,6 +7641,39 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PermissionItems != null && PermissionItems.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<permissionItems>" + propertyValue + "</permissionItems>";
+            }
+            if(Group != null)
+            {
+                ret += "<group>" + Group + "</group>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaIdentifierTypeFilter
     {
@@ -3970,6 +7696,27 @@ namespace WebAPI.Models.General
                 ret.Add("\"identifier\": " + "\"" + Identifier + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            if(Identifier != null)
+            {
+                ret += "<identifier>" + Identifier + "</identifier>";
+            }
+            return ret;
         }
     }
     public partial class KalturaIntegerValue
@@ -3994,6 +7741,27 @@ namespace WebAPI.Models.General
             ret.Add("\"value\": " + value);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            ret += "<value>" + value + "</value>";
+            return ret;
+        }
     }
     public partial class KalturaIntegerValueListResponse
     {
@@ -4017,6 +7785,28 @@ namespace WebAPI.Models.General
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Values != null && Values.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Values.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaKeyValue
@@ -4044,6 +7834,30 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(key != null)
+            {
+                ret += "<key>" + key + "</key>";
+            }
+            if(value != null)
+            {
+                ret += "<value>" + value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaListResponse
     {
@@ -4062,6 +7876,23 @@ namespace WebAPI.Models.General
             }
             ret.Add("\"totalCount\": " + TotalCount);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            return ret;
         }
     }
     public partial class KalturaLongValue
@@ -4086,6 +7917,27 @@ namespace WebAPI.Models.General
             ret.Add("\"value\": " + value);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            ret += "<value>" + value + "</value>";
+            return ret;
+        }
     }
     public partial class KalturaMultilingualStringValue
     {
@@ -4109,6 +7961,27 @@ namespace WebAPI.Models.General
             ret.Add(value.ToCustomJson(currentVersion, omitObsolete, "value"));
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            ret += value.ToCustomXml(currentVersion, omitObsolete, "value");
+            return ret;
+        }
     }
     public partial class KalturaMultilingualStringValueArray
     {
@@ -4131,6 +8004,27 @@ namespace WebAPI.Models.General
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaNotification
@@ -4167,6 +8061,39 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(eventObject != null)
+            {
+                propertyValue = eventObject.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<object>" + propertyValue + "</object>";
+            }
+            if(eventObjectType != null)
+            {
+                ret += "<eventObjectType>" + eventObjectType + "</eventObjectType>";
+            }
+            if(eventType.HasValue)
+            {
+                ret += "<eventType>" + eventType.GetHashCode() + "</eventType>";
+            }
+            if(systemName != null)
+            {
+                ret += "<systemName>" + systemName + "</systemName>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaOTTObject
     {
@@ -4184,6 +8111,22 @@ namespace WebAPI.Models.General
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPersistedFilter<T>
@@ -4208,6 +8151,27 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaReport
     {
@@ -4225,6 +8189,22 @@ namespace WebAPI.Models.General
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaReportFilter
@@ -4244,6 +8224,23 @@ namespace WebAPI.Models.General
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaReportListResponse
@@ -4268,6 +8265,28 @@ namespace WebAPI.Models.General
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRequestConfiguration
@@ -4312,6 +8331,47 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Currency != null)
+            {
+                ret += "<currency>" + Currency + "</currency>";
+            }
+            if(KS != null)
+            {
+                ret += "<ks>" + KS + "</ks>";
+            }
+            if(Language != null)
+            {
+                ret += "<language>" + Language + "</language>";
+            }
+            if(PartnerID.HasValue)
+            {
+                ret += "<partnerId>" + PartnerID + "</partnerId>";
+            }
+            if(ResponseProfile != null)
+            {
+                propertyValue = ResponseProfile.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<responseProfile>" + propertyValue + "</responseProfile>";
+            }
+            if(UserID.HasValue)
+            {
+                ret += "<userId>" + UserID + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaStringValue
     {
@@ -4338,6 +8398,30 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            if(value != null)
+            {
+                ret += "<value>" + value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaStringValueArray
     {
@@ -4360,6 +8444,27 @@ namespace WebAPI.Models.General
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaTranslationToken
@@ -4387,6 +8492,30 @@ namespace WebAPI.Models.General
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Language != null)
+            {
+                ret += "<language>" + Language + "</language>";
+            }
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaValue
     {
@@ -4408,6 +8537,26 @@ namespace WebAPI.Models.General
                 ret.Add("\"description\": " + "\"" + description + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            return ret;
         }
     }
 }
@@ -4465,6 +8614,56 @@ namespace WebAPI.Models.Notifications
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Enabled.HasValue)
+            {
+                ret += "<enabled>" + Enabled.ToString().ToLower() + "</enabled>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(ImageUrl != null)
+            {
+                ret += "<imageUrl>" + ImageUrl + "</imageUrl>";
+            }
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<recipients>" + Recipients.GetHashCode() + "</recipients>";
+            if(StartTime.HasValue)
+            {
+                ret += "<startTime>" + StartTime + "</startTime>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_time>" + StartTime + "</start_time>";
+                }
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            if(Timezone != null)
+            {
+                ret += "<timezone>" + Timezone + "</timezone>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetReminder
     {
@@ -4493,6 +8692,32 @@ namespace WebAPI.Models.Notifications
             ret.Add("\"assetId\": " + AssetId);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            ret += "<assetId>" + AssetId + "</assetId>";
+            return ret;
+        }
     }
     public partial class KalturaReminder
     {
@@ -4519,6 +8744,31 @@ namespace WebAPI.Models.Notifications
             }
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaSeriesReminder
@@ -4556,6 +8806,40 @@ namespace WebAPI.Models.Notifications
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            ret += "<epgChannelId>" + EpgChannelId + "</epgChannelId>";
+            if(SeasonNumber.HasValue)
+            {
+                ret += "<seasonNumber>" + SeasonNumber + "</seasonNumber>";
+            }
+            if(SeriesId != null)
+            {
+                ret += "<seriesId>" + SeriesId + "</seriesId>";
+            }
+            return ret;
+        }
     }
 }
 
@@ -4578,6 +8862,23 @@ namespace WebAPI.Models.Notification
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaAnnouncementListResponse
@@ -4603,6 +8904,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Announcements != null && Announcements.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetReminderFilter
     {
@@ -4625,6 +8948,27 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"kSql\": " + "\"" + KSql + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(!omitObsolete && KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEmailMessage
@@ -4681,6 +9025,59 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(BccAddress != null)
+            {
+                ret += "<bccAddress>" + BccAddress + "</bccAddress>";
+            }
+            if(ExtraParameters != null && ExtraParameters.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ExtraParameters.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<extraParameters>" + propertyValue + "</extraParameters>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+            }
+            if(SenderFrom != null)
+            {
+                ret += "<senderFrom>" + SenderFrom + "</senderFrom>";
+            }
+            if(SenderName != null)
+            {
+                ret += "<senderName>" + SenderName + "</senderName>";
+            }
+            if(SenderTo != null)
+            {
+                ret += "<senderTo>" + SenderTo + "</senderTo>";
+            }
+            if(Subject != null)
+            {
+                ret += "<subject>" + Subject + "</subject>";
+            }
+            if(TemplateName != null)
+            {
+                ret += "<templateName>" + TemplateName + "</templateName>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEngagement
     {
@@ -4713,6 +9110,37 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"userList\": " + "\"" + UserList + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AdapterDynamicData != null)
+            {
+                ret += "<adapterDynamicData>" + AdapterDynamicData + "</adapterDynamicData>";
+            }
+            ret += "<adapterId>" + AdapterId + "</adapterId>";
+            ret += "<couponGroupId>" + CouponGroupId + "</couponGroupId>";
+            ret += "<id>" + Id + "</id>";
+            ret += "<intervalSeconds>" + IntervalSeconds + "</intervalSeconds>";
+            ret += "<sendTimeInSeconds>" + SendTimeInSeconds + "</sendTimeInSeconds>";
+            ret += "<totalNumberOfRecipients>" + TotalNumberOfRecipients + "</totalNumberOfRecipients>";
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(UserList != null)
+            {
+                ret += "<userList>" + UserList + "</userList>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEngagementAdapter
@@ -4761,6 +9189,51 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+            }
+            if(ProviderUrl != null)
+            {
+                ret += "<providerUrl>" + ProviderUrl + "</providerUrl>";
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<engagementAdapterSettings>" + propertyValue + "</engagementAdapterSettings>";
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEngagementAdapterBase
     {
@@ -4787,6 +9260,30 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEngagementAdapterListResponse
     {
@@ -4810,6 +9307,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(EngagementAdapters != null && EngagementAdapters.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEngagementFilter
@@ -4838,6 +9357,31 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(SendTimeGreaterThanOrEqual.HasValue)
+            {
+                ret += "<sendTimeGreaterThanOrEqual>" + SendTimeGreaterThanOrEqual + "</sendTimeGreaterThanOrEqual>";
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaEngagementListResponse
     {
@@ -4862,6 +9406,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Engagements != null && Engagements.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Engagements.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaFeed
     {
@@ -4884,6 +9450,27 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"asset_id\": " + AssetId);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            return ret;
         }
     }
     public partial class KalturaFollowDataBase
@@ -4921,6 +9508,41 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"title\": " + "\"" + Title + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<announcementId>" + AnnouncementId + "</announcementId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<announcement_id>" + AnnouncementId + "</announcement_id>";
+            }
+            if(FollowPhrase != null)
+            {
+                ret += "<followPhrase>" + FollowPhrase + "</followPhrase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<follow_phrase>" + FollowPhrase + "</follow_phrase>";
+                }
+            }
+            ret += "<status>" + Status + "</status>";
+            ret += "<timestamp>" + Timestamp + "</timestamp>";
+            if(Title != null)
+            {
+                ret += "<title>" + Title + "</title>";
+            }
+            return ret;
         }
     }
     public partial class KalturaFollowDataTvSeries
@@ -4964,6 +9586,46 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<announcementId>" + AnnouncementId + "</announcementId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<announcement_id>" + AnnouncementId + "</announcement_id>";
+            }
+            if(FollowPhrase != null)
+            {
+                ret += "<followPhrase>" + FollowPhrase + "</followPhrase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<follow_phrase>" + FollowPhrase + "</follow_phrase>";
+                }
+            }
+            ret += "<status>" + Status + "</status>";
+            ret += "<timestamp>" + Timestamp + "</timestamp>";
+            if(Title != null)
+            {
+                ret += "<title>" + Title + "</title>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaFollowTvSeries
     {
@@ -5002,6 +9664,42 @@ namespace WebAPI.Models.Notification
             ret.Add("\"assetId\": " + AssetId);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<announcementId>" + AnnouncementId + "</announcementId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<announcement_id>" + AnnouncementId + "</announcement_id>";
+            }
+            if(FollowPhrase != null)
+            {
+                ret += "<followPhrase>" + FollowPhrase + "</followPhrase>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<follow_phrase>" + FollowPhrase + "</follow_phrase>";
+                }
+            }
+            ret += "<status>" + Status + "</status>";
+            ret += "<timestamp>" + Timestamp + "</timestamp>";
+            if(Title != null)
+            {
+                ret += "<title>" + Title + "</title>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            return ret;
+        }
     }
     public partial class KalturaFollowTvSeriesFilter
     {
@@ -5020,6 +9718,23 @@ namespace WebAPI.Models.Notification
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaFollowTvSeriesListResponse
@@ -5044,6 +9759,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(FollowDataList != null && FollowDataList.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaInboxMessage
@@ -5078,6 +9815,37 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createdAt>" + CreatedAt + "</createdAt>";
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaInboxMessageFilter
     {
@@ -5109,6 +9877,35 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CreatedAtGreaterThanOrEqual.HasValue)
+            {
+                ret += "<createdAtGreaterThanOrEqual>" + CreatedAtGreaterThanOrEqual + "</createdAtGreaterThanOrEqual>";
+            }
+            if(CreatedAtLessThanOrEqual.HasValue)
+            {
+                ret += "<createdAtLessThanOrEqual>" + CreatedAtLessThanOrEqual + "</createdAtLessThanOrEqual>";
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaInboxMessageListResponse
     {
@@ -5132,6 +9929,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(InboxMessages != null && InboxMessages.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaInboxMessageResponse
@@ -5157,6 +9976,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(InboxMessages != null && InboxMessages.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaInboxMessageTypeHolder
     {
@@ -5175,6 +10016,23 @@ namespace WebAPI.Models.Notification
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaListFollowDataTvSeriesResponse
@@ -5200,6 +10058,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(FollowDataList != null && FollowDataList.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaMessageAnnouncementListResponse
     {
@@ -5223,6 +10103,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Announcements != null && Announcements.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaMessageTemplate
@@ -5275,6 +10177,55 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            if(DateFormat != null)
+            {
+                ret += "<dateFormat>" + DateFormat + "</dateFormat>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<date_format>" + DateFormat + "</date_format>";
+                }
+            }
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            ret += "<messageType>" + MessageType.GetHashCode() + "</messageType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_type>" + MessageType.GetHashCode() + "</asset_type>";
+            }
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0 || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
+            {
+            ret += "<assetType>" + MessageType.GetHashCode() + "</assetType>";
+            }
+            if(Sound != null)
+            {
+                ret += "<sound>" + Sound + "</sound>";
+            }
+            if(URL != null)
+            {
+                ret += "<url>" + URL + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaNotificationSettings
     {
@@ -5308,6 +10259,38 @@ namespace WebAPI.Models.Notification
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(PushFollowEnabled.HasValue)
+            {
+                ret += "<pushFollowEnabled>" + PushFollowEnabled.ToString().ToLower() + "</pushFollowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_follow_enabled>" + PushFollowEnabled.ToString().ToLower() + "</push_follow_enabled>";
+                }
+            }
+            if(PushNotificationEnabled.HasValue)
+            {
+                ret += "<pushNotificationEnabled>" + PushNotificationEnabled.ToString().ToLower() + "</pushNotificationEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_notification_enabled>" + PushNotificationEnabled.ToString().ToLower() + "</push_notification_enabled>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaNotificationsPartnerSettings
@@ -5403,6 +10386,98 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AutomaticIssueFollowNotification.HasValue)
+            {
+                ret += "<automaticIssueFollowNotification>" + AutomaticIssueFollowNotification.ToString().ToLower() + "</automaticIssueFollowNotification>";
+            }
+            if(ChurnMailSubject != null)
+            {
+                ret += "<churnMailSubject>" + ChurnMailSubject + "</churnMailSubject>";
+            }
+            if(ChurnMailTemplateName != null)
+            {
+                ret += "<churnMailTemplateName>" + ChurnMailTemplateName + "</churnMailTemplateName>";
+            }
+            if(InboxEnabled.HasValue)
+            {
+                ret += "<inboxEnabled>" + InboxEnabled.ToString().ToLower() + "</inboxEnabled>";
+            }
+            if(MailSenderName != null)
+            {
+                ret += "<mailSenderName>" + MailSenderName + "</mailSenderName>";
+            }
+            if(MessageTTLDays.HasValue)
+            {
+                ret += "<messageTTLDays>" + MessageTTLDays + "</messageTTLDays>";
+            }
+            if(PushAdapterUrl != null)
+            {
+                ret += "<pushAdapterUrl>" + PushAdapterUrl + "</pushAdapterUrl>";
+            }
+            if(PushEndHour.HasValue)
+            {
+                ret += "<pushEndHour>" + PushEndHour + "</pushEndHour>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_end_hour>" + PushEndHour + "</push_end_hour>";
+                }
+            }
+            if(PushNotificationEnabled.HasValue)
+            {
+                ret += "<pushNotificationEnabled>" + PushNotificationEnabled.ToString().ToLower() + "</pushNotificationEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_notification_enabled>" + PushNotificationEnabled.ToString().ToLower() + "</push_notification_enabled>";
+                }
+            }
+            if(PushStartHour.HasValue)
+            {
+                ret += "<pushStartHour>" + PushStartHour + "</pushStartHour>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_start_hour>" + PushStartHour + "</push_start_hour>";
+                }
+            }
+            if(PushSystemAnnouncementsEnabled.HasValue)
+            {
+                ret += "<pushSystemAnnouncementsEnabled>" + PushSystemAnnouncementsEnabled.ToString().ToLower() + "</pushSystemAnnouncementsEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_system_announcements_enabled>" + PushSystemAnnouncementsEnabled.ToString().ToLower() + "</push_system_announcements_enabled>";
+                }
+            }
+            if(ReminderEnabled.HasValue)
+            {
+                ret += "<reminderEnabled>" + ReminderEnabled.ToString().ToLower() + "</reminderEnabled>";
+            }
+            if(ReminderOffset.HasValue)
+            {
+                ret += "<reminderOffsetSec>" + ReminderOffset + "</reminderOffsetSec>";
+            }
+            if(SenderEmail != null)
+            {
+                ret += "<senderEmail>" + SenderEmail + "</senderEmail>";
+            }
+            if(TopicExpirationDurationDays.HasValue)
+            {
+                ret += "<topicExpirationDurationDays>" + TopicExpirationDurationDays + "</topicExpirationDurationDays>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaNotificationsSettings
     {
@@ -5436,6 +10511,38 @@ namespace WebAPI.Models.Notification
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(PushFollowEnabled.HasValue)
+            {
+                ret += "<pushFollowEnabled>" + PushFollowEnabled.ToString().ToLower() + "</pushFollowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_follow_enabled>" + PushFollowEnabled.ToString().ToLower() + "</push_follow_enabled>";
+                }
+            }
+            if(PushNotificationEnabled.HasValue)
+            {
+                ret += "<pushNotificationEnabled>" + PushNotificationEnabled.ToString().ToLower() + "</pushNotificationEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_notification_enabled>" + PushNotificationEnabled.ToString().ToLower() + "</push_notification_enabled>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaPartnerNotificationSettings
@@ -5531,6 +10638,98 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AutomaticIssueFollowNotification.HasValue)
+            {
+                ret += "<automaticIssueFollowNotification>" + AutomaticIssueFollowNotification.ToString().ToLower() + "</automaticIssueFollowNotification>";
+            }
+            if(ChurnMailSubject != null)
+            {
+                ret += "<churnMailSubject>" + ChurnMailSubject + "</churnMailSubject>";
+            }
+            if(ChurnMailTemplateName != null)
+            {
+                ret += "<churnMailTemplateName>" + ChurnMailTemplateName + "</churnMailTemplateName>";
+            }
+            if(InboxEnabled.HasValue)
+            {
+                ret += "<inboxEnabled>" + InboxEnabled.ToString().ToLower() + "</inboxEnabled>";
+            }
+            if(MailSenderName != null)
+            {
+                ret += "<mailSenderName>" + MailSenderName + "</mailSenderName>";
+            }
+            if(MessageTTLDays.HasValue)
+            {
+                ret += "<messageTTLDays>" + MessageTTLDays + "</messageTTLDays>";
+            }
+            if(PushAdapterUrl != null)
+            {
+                ret += "<pushAdapterUrl>" + PushAdapterUrl + "</pushAdapterUrl>";
+            }
+            if(PushEndHour.HasValue)
+            {
+                ret += "<pushEndHour>" + PushEndHour + "</pushEndHour>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_end_hour>" + PushEndHour + "</push_end_hour>";
+                }
+            }
+            if(PushNotificationEnabled.HasValue)
+            {
+                ret += "<pushNotificationEnabled>" + PushNotificationEnabled.ToString().ToLower() + "</pushNotificationEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_notification_enabled>" + PushNotificationEnabled.ToString().ToLower() + "</push_notification_enabled>";
+                }
+            }
+            if(PushStartHour.HasValue)
+            {
+                ret += "<pushStartHour>" + PushStartHour + "</pushStartHour>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_start_hour>" + PushStartHour + "</push_start_hour>";
+                }
+            }
+            if(PushSystemAnnouncementsEnabled.HasValue)
+            {
+                ret += "<pushSystemAnnouncementsEnabled>" + PushSystemAnnouncementsEnabled.ToString().ToLower() + "</pushSystemAnnouncementsEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<push_system_announcements_enabled>" + PushSystemAnnouncementsEnabled.ToString().ToLower() + "</push_system_announcements_enabled>";
+                }
+            }
+            if(ReminderEnabled.HasValue)
+            {
+                ret += "<reminderEnabled>" + ReminderEnabled.ToString().ToLower() + "</reminderEnabled>";
+            }
+            if(ReminderOffset.HasValue)
+            {
+                ret += "<reminderOffsetSec>" + ReminderOffset + "</reminderOffsetSec>";
+            }
+            if(SenderEmail != null)
+            {
+                ret += "<senderEmail>" + SenderEmail + "</senderEmail>";
+            }
+            if(TopicExpirationDurationDays.HasValue)
+            {
+                ret += "<topicExpirationDurationDays>" + TopicExpirationDurationDays + "</topicExpirationDurationDays>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPersonalFeed
     {
@@ -5554,6 +10753,27 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPersonalFeedFilter
     {
@@ -5572,6 +10792,23 @@ namespace WebAPI.Models.Notification
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaPersonalFeedListResponse
@@ -5597,6 +10834,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PersonalFollowFeed != null && PersonalFollowFeed.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPersonalFollowFeed
     {
@@ -5619,6 +10878,27 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"asset_id\": " + AssetId);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPersonalFollowFeedResponse
@@ -5643,6 +10923,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PersonalFollowFeed != null && PersonalFollowFeed.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPushMessage
@@ -5678,6 +10980,38 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            if(Message != null)
+            {
+                ret += "<message>" + Message + "</message>";
+            }
+            if(Sound != null)
+            {
+                ret += "<sound>" + Sound + "</sound>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRegistryResponse
     {
@@ -5705,6 +11039,31 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<announcementId>" + AnnouncementId + "</announcementId>";
+            if(Key != null)
+            {
+                ret += "<key>" + Key + "</key>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaReminderFilter<T>
     {
@@ -5727,6 +11086,27 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"kSql\": " + "\"" + KSql + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy + "</orderBy>";
+            if(!omitObsolete && KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            return ret;
         }
     }
     public partial class KalturaReminderListResponse
@@ -5751,6 +11131,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Reminders != null && Reminders.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Reminders.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSeasonsReminderFilter
@@ -5787,6 +11189,39 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(!omitObsolete && KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            if(EpgChannelIdEqual.HasValue)
+            {
+                ret += "<epgChannelIdEqual>" + EpgChannelIdEqual + "</epgChannelIdEqual>";
+            }
+            if(SeasonNumberIn != null)
+            {
+                ret += "<seasonNumberIn>" + SeasonNumberIn + "</seasonNumberIn>";
+            }
+            if(SeriesIdEqual != null)
+            {
+                ret += "<seriesIdEqual>" + SeriesIdEqual + "</seriesIdEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSeriesReminderFilter
     {
@@ -5817,6 +11252,35 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"seriesIdIn\": " + "\"" + SeriesIdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(!omitObsolete && KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            if(EpgChannelIdEqual.HasValue)
+            {
+                ret += "<epgChannelIdEqual>" + EpgChannelIdEqual + "</epgChannelIdEqual>";
+            }
+            if(SeriesIdIn != null)
+            {
+                ret += "<seriesIdIn>" + SeriesIdIn + "</seriesIdIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaTopic
@@ -5850,6 +11314,36 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<automaticIssueNotification>" + AutomaticIssueNotification.GetHashCode() + "</automaticIssueNotification>";
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<lastMessageSentDateSec>" + LastMessageSentDateSec + "</lastMessageSentDateSec>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(SubscribersAmount != null)
+            {
+                ret += "<subscribersAmount>" + SubscribersAmount + "</subscribersAmount>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaTopicFilter
     {
@@ -5868,6 +11362,23 @@ namespace WebAPI.Models.Notification
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaTopicListResponse
@@ -5893,6 +11404,28 @@ namespace WebAPI.Models.Notification
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Topics != null && Topics.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaTopicResponse
     {
@@ -5916,6 +11449,28 @@ namespace WebAPI.Models.Notification
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Topics != null && Topics.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
 }
@@ -5947,6 +11502,30 @@ namespace WebAPI.App_Start
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(args != null && args.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", args.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<args>" + propertyValue + "</args>";
+            }
+            if(code != null)
+            {
+                ret += "<code>" + code + "</code>";
+            }
+            if(message != null)
+            {
+                ret += "<message>" + message + "</message>";
+            }
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaApiExceptionArg
     {
@@ -5973,6 +11552,30 @@ namespace WebAPI.App_Start
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(name != null)
+            {
+                ret += "<name>" + name + "</name>";
+            }
+            if(value != null)
+            {
+                ret += "<value>" + value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAPIExceptionWrapper
     {
@@ -5986,6 +11589,18 @@ namespace WebAPI.App_Start
                 ret.Add("\"error\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(error != null)
+            {
+                propertyValue = error.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<error>" + propertyValue + "</error>";
+            }
+            return ret;
         }
     }
 }
@@ -6072,6 +11687,85 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(EnableCatchUp.HasValue)
+            {
+                ret += "<enableCatchUp>" + EnableCatchUp.ToString().ToLower() + "</enableCatchUp>";
+            }
+            if(EnableCdvr.HasValue)
+            {
+                ret += "<enableCdvr>" + EnableCdvr.ToString().ToLower() + "</enableCdvr>";
+            }
+            if(EnableStartOver.HasValue)
+            {
+                ret += "<enableStartOver>" + EnableStartOver.ToString().ToLower() + "</enableStartOver>";
+            }
+            if(EnableTrickPlay.HasValue)
+            {
+                ret += "<enableTrickPlay>" + EnableTrickPlay.ToString().ToLower() + "</enableTrickPlay>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+            }
+            if(Metas != null && Metas.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<metas>" + propertyValue + "</metas>";
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetBookmark
     {
@@ -6112,6 +11806,44 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(IsFinishedWatching.HasValue)
+            {
+                ret += "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<finished_watching>" + IsFinishedWatching.ToString().ToLower() + "</finished_watching>";
+                }
+            }
+            if(Position.HasValue)
+            {
+                ret += "<position>" + Position + "</position>";
+            }
+            ret += "<positionOwner>" + PositionOwner.GetHashCode() + "</positionOwner>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<position_owner>" + PositionOwner.GetHashCode() + "</position_owner>";
+            }
+            if(User != null)
+            {
+                propertyValue = User.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<user>" + propertyValue + "</user>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetBookmarks
     {
@@ -6139,6 +11871,32 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(Bookmarks != null && Bookmarks.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetComment
@@ -6178,6 +11936,42 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(Header != null)
+            {
+                ret += "<header>" + Header + "</header>";
+            }
+            if(Text != null)
+            {
+                ret += "<text>" + Text + "</text>";
+            }
+            if(Writer != null)
+            {
+                ret += "<writer>" + Writer + "</writer>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            ret += "<assetType>" + AssetType.GetHashCode() + "</assetType>";
+            ret += "<id>" + Id + "</id>";
+            if(SubHeader != null)
+            {
+                ret += "<subHeader>" + SubHeader + "</subHeader>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetCommentFilter
     {
@@ -6198,6 +11992,25 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"assetIdEqual\": " + AssetIdEqual);
             ret.Add("\"assetTypeEqual\": " + AssetTypeEqual.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            ret += "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>";
+            ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            return ret;
         }
     }
     public partial class KalturaAssetCommentListResponse
@@ -6222,6 +12035,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetCount
@@ -6251,6 +12086,32 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<count>" + Count + "</count>";
+            if(SubCounts != null && SubCounts.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", SubCounts.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<subs>" + propertyValue + "</subs>";
+            }
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetCountListResponse
     {
@@ -6276,6 +12137,29 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            ret += "<assetsCount>" + AssetsCount + "</assetsCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetFieldGroupBy
     {
@@ -6294,6 +12178,23 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("\"value\": " + Value.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<value>" + Value.GetHashCode() + "</value>";
+            return ret;
         }
     }
     public partial class KalturaAssetFilter
@@ -6323,6 +12224,32 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetGroupBy
     {
@@ -6340,6 +12267,22 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetHistory
@@ -6376,6 +12319,40 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"position\": " + Position);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            ret += "<assetType>" + AssetType.GetHashCode() + "</assetType>";
+            if(Duration.HasValue)
+            {
+                ret += "<duration>" + Duration + "</duration>";
+            }
+            if(IsFinishedWatching.HasValue)
+            {
+                ret += "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>";
+            }
+            if(LastWatched.HasValue)
+            {
+                ret += "<watchedDate>" + LastWatched + "</watchedDate>";
+            }
+            if(Position.HasValue)
+            {
+                ret += "<position>" + Position + "</position>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetHistoryFilter
@@ -6434,6 +12411,61 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(AssetIdIn != null)
+            {
+                ret += "<assetIdIn>" + AssetIdIn + "</assetIdIn>";
+            }
+            if(DaysLessThanOrEqual.HasValue)
+            {
+                ret += "<daysLessThanOrEqual>" + DaysLessThanOrEqual + "</daysLessThanOrEqual>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<days>" + DaysLessThanOrEqual + "</days>";
+                }
+            }
+            if(!omitObsolete && filterTypes != null && filterTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", filterTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<filterTypes>" + propertyValue + "</filterTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<filter_types>" + propertyValue + "</filter_types>";
+                }
+            }
+            if(StatusEqual.HasValue)
+            {
+                ret += "<statusEqual>" + StatusEqual.GetHashCode() + "</statusEqual>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<filter_status>" + StatusEqual.GetHashCode() + "</filter_status>";
+                }
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            if(!omitObsolete && with != null && with.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", with.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<with>" + propertyValue + "</with>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetHistoryListResponse
     {
@@ -6457,6 +12489,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetInfo
@@ -6546,6 +12600,92 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_files>" + propertyValue + "</media_files>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(ExtraParams != null && ExtraParams.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ExtraParams.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<extraParams>" + propertyValue + "</extraParams>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<extra_params>" + propertyValue + "</extra_params>";
+                }
+            }
+            if(Metas != null && Metas.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<metas>" + propertyValue + "</metas>";
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetInfoFilter
     {
@@ -6580,6 +12720,38 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<cut_with>" + cutWith.GetHashCode() + "</cut_with>";
+            if(FilterTags != null && FilterTags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FilterTags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<filter_tags>" + propertyValue + "</filter_tags>";
+            }
+            if(IDs != null && IDs.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            ret += "<referenceType>" + ReferenceType.GetHashCode() + "</referenceType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<reference_type>" + ReferenceType.GetHashCode() + "</reference_type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetInfoListResponse
     {
@@ -6612,6 +12784,36 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            if(RequestId != null)
+            {
+                ret += "<requestId>" + RequestId + "</requestId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<request_id>" + RequestId + "</request_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetListResponse
     {
@@ -6636,6 +12838,28 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetMetaOrTagGroupBy
     {
@@ -6657,6 +12881,26 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"value\": " + "\"" + Value + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetsBookmarksResponse
@@ -6681,6 +12925,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(AssetsBookmarks != null && AssetsBookmarks.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetsCount
@@ -6709,6 +12975,31 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Field != null)
+            {
+                ret += "<field>" + Field + "</field>";
+            }
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaAssetsFilter
     {
@@ -6735,6 +13026,31 @@ namespace WebAPI.Models.Catalog
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Assets != null && Assets.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<assets>" + propertyValue + "</assets>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<Assets>" + propertyValue + "</Assets>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetStatistics
@@ -6776,6 +13092,44 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"views\": " + Views);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            if(BuzzAvgScore != null)
+            {
+                propertyValue = BuzzAvgScore.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<buzzScore>" + propertyValue + "</buzzScore>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<buzz_score>" + propertyValue + "</buzz_score>";
+                }
+            }
+            ret += "<likes>" + Likes + "</likes>";
+            ret += "<rating>" + Rating + "</rating>";
+            ret += "<ratingCount>" + RatingCount + "</ratingCount>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<rating_count>" + RatingCount + "</rating_count>";
+            }
+            ret += "<views>" + Views + "</views>";
+            return ret;
+        }
     }
     public partial class KalturaAssetStatisticsListResponse
     {
@@ -6799,6 +13153,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(AssetsStatistics != null && AssetsStatistics.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaAssetStatisticsQuery
@@ -6824,6 +13200,29 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"endDateGreaterThanOrEqual\": " + EndDateGreaterThanOrEqual);
             ret.Add("\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetIdIn != null)
+            {
+                ret += "<assetIdIn>" + AssetIdIn + "</assetIdIn>";
+            }
+            ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            ret += "<endDateGreaterThanOrEqual>" + EndDateGreaterThanOrEqual + "</endDateGreaterThanOrEqual>";
+            ret += "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>";
+            return ret;
         }
     }
     public partial class KalturaBaseAssetInfo
@@ -6878,6 +13277,57 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_files>" + propertyValue + "</media_files>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaBaseChannel
     {
@@ -6903,6 +13353,30 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"name\": " + "\"" + Name + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBaseSearchAssetFilter
@@ -6936,6 +13410,37 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"groupBy\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(GroupBy != null && GroupBy.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<groupBy>" + propertyValue + "</groupBy>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBookmark
@@ -6983,6 +13488,50 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(IsFinishedWatching.HasValue)
+            {
+                ret += "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>";
+            }
+            if(PlayerData != null)
+            {
+                propertyValue = PlayerData.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<playerData>" + propertyValue + "</playerData>";
+            }
+            if(Position.HasValue)
+            {
+                ret += "<position>" + Position + "</position>";
+            }
+            ret += "<positionOwner>" + PositionOwner.GetHashCode() + "</positionOwner>";
+            if(!omitObsolete && User != null)
+            {
+                propertyValue = User.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<user>" + propertyValue + "</user>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaBookmarkFilter
     {
@@ -7015,6 +13564,36 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(AssetIdIn != null)
+            {
+                ret += "<assetIdIn>" + AssetIdIn + "</assetIdIn>";
+            }
+            if(!omitObsolete && AssetIn != null && AssetIn.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetIn.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<assetIn>" + propertyValue + "</assetIn>";
+            }
+            if(AssetTypeEqual.HasValue)
+            {
+                ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaBookmarkListResponse
     {
@@ -7038,6 +13617,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(AssetsBookmarks != null && AssetsBookmarks.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBookmarkPlayerData
@@ -7074,6 +13675,39 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<action>" + action.GetHashCode() + "</action>";
+            if(averageBitRate.HasValue)
+            {
+                ret += "<averageBitrate>" + averageBitRate + "</averageBitrate>";
+            }
+            if(currentBitRate.HasValue)
+            {
+                ret += "<currentBitrate>" + currentBitRate + "</currentBitrate>";
+            }
+            if(FileId.HasValue)
+            {
+                ret += "<fileId>" + FileId + "</fileId>";
+            }
+            if(totalBitRate.HasValue)
+            {
+                ret += "<totalBitrate>" + totalBitRate + "</totalBitrate>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaBundleFilter
     {
@@ -7107,6 +13741,38 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"typeIn\": " + "\"" + TypeIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            ret += "<bundleTypeEqual>" + BundleTypeEqual.GetHashCode() + "</bundleTypeEqual>";
+            ret += "<idEqual>" + IdEqual + "</idEqual>";
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaBuzzScore
@@ -7150,6 +13816,46 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AvgScore.HasValue)
+            {
+                ret += "<avgScore>" + AvgScore + "</avgScore>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<avg_score>" + AvgScore + "</avg_score>";
+                }
+            }
+            if(NormalizedAvgScore.HasValue)
+            {
+                ret += "<normalizedAvgScore>" + NormalizedAvgScore + "</normalizedAvgScore>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<normalized_avg_score>" + NormalizedAvgScore + "</normalized_avg_score>";
+                }
+            }
+            if(UpdateDate.HasValue)
+            {
+                ret += "<updateDate>" + UpdateDate + "</updateDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<update_date>" + UpdateDate + "</update_date>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaCatalogWithHolder
     {
@@ -7168,6 +13874,23 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaChannel
@@ -7236,6 +13959,71 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"order\": " + Order.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(AssetTypes != null && AssetTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<assetTypes>" + propertyValue + "</assetTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_types>" + propertyValue + "</asset_types>";
+                }
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(FilterExpression != null)
+            {
+                ret += "<filterExpression>" + FilterExpression + "</filterExpression>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<filter_expression>" + FilterExpression + "</filter_expression>";
+                }
+            }
+            if(GroupBy != null)
+            {
+                propertyValue = GroupBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<groupBy>" + propertyValue + "</groupBy>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+            }
+            if(!omitObsolete && MediaTypes != null && MediaTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<media_types>" + propertyValue + "</media_types>";
+            }
+            ret += "<order>" + Order.GetHashCode() + "</order>";
+            return ret;
+        }
     }
     public partial class KalturaChannelExternalFilter
     {
@@ -7269,6 +14057,38 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"idEqual\": " + IdEqual);
             ret.Add("\"utcOffsetEqual\": " + UtcOffsetEqual);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(FreeText != null)
+            {
+                ret += "<freeText>" + FreeText + "</freeText>";
+            }
+            ret += "<idEqual>" + IdEqual + "</idEqual>";
+            ret += "<utcOffsetEqual>" + UtcOffsetEqual + "</utcOffsetEqual>";
+            return ret;
         }
     }
     public partial class KalturaChannelFilter
@@ -7304,6 +14124,38 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            ret += "<idEqual>" + IdEqual + "</idEqual>";
+            if(KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
+        }
     }
     public partial class KalturaDynamicOrderBy
     {
@@ -7329,6 +14181,30 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(OrderBy.HasValue)
+            {
+                ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            }
+            return ret;
         }
     }
     public partial class KalturaEPGChannelAssets
@@ -7362,6 +14238,36 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Assets != null && Assets.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            if(ChannelID.HasValue)
+            {
+                ret += "<channelId>" + ChannelID + "</channelId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<channel_id>" + ChannelID + "</channel_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaEPGChannelAssetsListResponse
     {
@@ -7389,6 +14295,32 @@ namespace WebAPI.Models.Catalog
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Channels != null && Channels.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<assets>" + propertyValue + "</assets>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaEpgChannelFilter
@@ -7429,6 +14361,43 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(EndTime.HasValue)
+            {
+                ret += "<endTime>" + EndTime + "</endTime>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_time>" + EndTime + "</end_time>";
+                }
+            }
+            if(IDs != null && IDs.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            if(StartTime.HasValue)
+            {
+                ret += "<startTime>" + StartTime + "</startTime>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_time>" + StartTime + "</start_time>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaLastPosition
     {
@@ -7452,6 +14421,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"user_id\": " + "\"" + UserId + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<position>" + Position + "</position>";
+            ret += "<position_owner>" + PositionOwner.GetHashCode() + "</position_owner>";
+            if(UserId != null)
+            {
+                ret += "<user_id>" + UserId + "</user_id>";
+            }
+            return ret;
         }
     }
     public partial class KalturaLastPositionFilter
@@ -7478,6 +14469,29 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            if(Ids != null && Ids.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
+        }
     }
     public partial class KalturaLastPositionListResponse
     {
@@ -7501,6 +14515,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(LastPositions != null && LastPositions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaMediaAsset
@@ -7619,6 +14655,121 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(EnableCatchUp.HasValue)
+            {
+                ret += "<enableCatchUp>" + EnableCatchUp.ToString().ToLower() + "</enableCatchUp>";
+            }
+            if(EnableCdvr.HasValue)
+            {
+                ret += "<enableCdvr>" + EnableCdvr.ToString().ToLower() + "</enableCdvr>";
+            }
+            if(EnableStartOver.HasValue)
+            {
+                ret += "<enableStartOver>" + EnableStartOver.ToString().ToLower() + "</enableStartOver>";
+            }
+            if(EnableTrickPlay.HasValue)
+            {
+                ret += "<enableTrickPlay>" + EnableTrickPlay.ToString().ToLower() + "</enableTrickPlay>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+            }
+            if(Metas != null && Metas.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<metas>" + propertyValue + "</metas>";
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(CatchUpBuffer.HasValue)
+            {
+                ret += "<catchUpBuffer>" + CatchUpBuffer + "</catchUpBuffer>";
+            }
+            if(DeviceRule != null)
+            {
+                ret += "<deviceRule>" + DeviceRule + "</deviceRule>";
+            }
+            if(EnableRecordingPlaybackNonEntitledChannel.HasValue)
+            {
+                ret += "<enableRecordingPlaybackNonEntitledChannel>" + EnableRecordingPlaybackNonEntitledChannel.ToString().ToLower() + "</enableRecordingPlaybackNonEntitledChannel>";
+            }
+            if(EntryId != null)
+            {
+                ret += "<entryId>" + EntryId + "</entryId>";
+            }
+            if(ExternalIds != null)
+            {
+                ret += "<externalIds>" + ExternalIds + "</externalIds>";
+            }
+            if(GeoBlockRule != null)
+            {
+                ret += "<geoBlockRule>" + GeoBlockRule + "</geoBlockRule>";
+            }
+            if(TrickPlayBuffer.HasValue)
+            {
+                ret += "<trickPlayBuffer>" + TrickPlayBuffer + "</trickPlayBuffer>";
+            }
+            if(TypeDescription != null)
+            {
+                ret += "<typeDescription>" + TypeDescription + "</typeDescription>";
+            }
+            if(WatchPermissionRule != null)
+            {
+                ret += "<watchPermissionRule>" + WatchPermissionRule + "</watchPermissionRule>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaMediaFile
     {
@@ -7703,6 +14854,88 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AltCdnCode != null)
+            {
+                ret += "<altCdnCode>" + AltCdnCode + "</altCdnCode>";
+            }
+            if(AssetId.HasValue)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_id>" + AssetId + "</asset_id>";
+                }
+            }
+            if(BillingType != null)
+            {
+                ret += "<billingType>" + BillingType + "</billingType>";
+            }
+            if(CdnCode != null)
+            {
+                ret += "<cdnCode>" + CdnCode + "</cdnCode>";
+            }
+            if(CdnName != null)
+            {
+                ret += "<cdnName>" + CdnName + "</cdnName>";
+            }
+            if(Duration.HasValue)
+            {
+                ret += "<duration>" + Duration + "</duration>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_id>" + ExternalId + "</external_id>";
+                }
+            }
+            ret += "<fileSize>" + FileSize + "</fileSize>";
+            if(HandlingType != null)
+            {
+                ret += "<handlingType>" + HandlingType + "</handlingType>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(PPVModules != null)
+            {
+                propertyValue = PPVModules.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<ppvModules>" + propertyValue + "</ppvModules>";
+            }
+            if(ProductCode != null)
+            {
+                ret += "<productCode>" + ProductCode + "</productCode>";
+            }
+            if(Quality != null)
+            {
+                ret += "<quality>" + Quality + "</quality>";
+            }
+            if(Type != null)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaMediaImage
     {
@@ -7752,6 +14985,54 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"width\": " + Width);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Height.HasValue)
+            {
+                ret += "<height>" + Height + "</height>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_default>" + IsDefault.ToString().ToLower() + "</is_default>";
+                }
+            }
+            if(Ratio != null)
+            {
+                ret += "<ratio>" + Ratio + "</ratio>";
+            }
+            if(Url != null)
+            {
+                ret += "<url>" + Url + "</url>";
+            }
+            if(Version.HasValue)
+            {
+                ret += "<version>" + Version + "</version>";
+            }
+            if(Width.HasValue)
+            {
+                ret += "<width>" + Width + "</width>";
+            }
+            return ret;
         }
     }
     public partial class KalturaOTTCategory
@@ -7806,6 +15087,57 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Channels != null && Channels.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<channels>" + propertyValue + "</channels>";
+            }
+            if(ChildCategories != null && ChildCategories.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ChildCategories.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<childCategories>" + propertyValue + "</childCategories>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<child_categories>" + propertyValue + "</child_categories>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(ParentCategoryId.HasValue)
+            {
+                ret += "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<parent_category_id>" + ParentCategoryId + "</parent_category_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPersonalAsset
     {
@@ -7840,6 +15172,38 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Bookmarks != null && Bookmarks.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<bookmarks>" + propertyValue + "</bookmarks>";
+            }
+            if(Files != null && Files.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Files.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<files>" + propertyValue + "</files>";
+            }
+            ret += "<following>" + Following.ToString().ToLower() + "</following>";
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
+        }
     }
     public partial class KalturaPersonalAssetListResponse
     {
@@ -7863,6 +15227,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPersonalAssetRequest
@@ -7896,6 +15282,36 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(FileIds != null && FileIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>";
+                ret += "<fileIds>" + propertyValue + "</fileIds>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<file_ids>" + propertyValue + "</file_ids>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
+        }
     }
     public partial class KalturaPersonalAssetWithHolder
     {
@@ -7914,6 +15330,23 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaPersonalFile
@@ -7948,6 +15381,38 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"offer\": " + "\"" + Offer + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Discounted.HasValue)
+            {
+                ret += "<discounted>" + Discounted.ToString().ToLower() + "</discounted>";
+            }
+            if(Entitled.HasValue)
+            {
+                ret += "<entitled>" + Entitled.ToString().ToLower() + "</entitled>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Offer != null)
+            {
+                ret += "<offer>" + Offer + "</offer>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPlayerAssetData
@@ -7998,6 +15463,54 @@ namespace WebAPI.Models.Catalog
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(action != null)
+            {
+                ret += "<action>" + action + "</action>";
+            }
+            if(averageBitRate.HasValue)
+            {
+                ret += "<averageBitrate>" + averageBitRate + "</averageBitrate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<average_bitrate>" + averageBitRate + "</average_bitrate>";
+                }
+            }
+            if(currentBitRate.HasValue)
+            {
+                ret += "<currentBitrate>" + currentBitRate + "</currentBitrate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<current_bitrate>" + currentBitRate + "</current_bitrate>";
+                }
+            }
+            if(location.HasValue)
+            {
+                ret += "<location>" + location + "</location>";
+            }
+            if(totalBitRate.HasValue)
+            {
+                ret += "<totalBitrate>" + totalBitRate + "</totalBitrate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<total_bitrate>" + totalBitRate + "</total_bitrate>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaProgramAsset
@@ -8099,6 +15612,105 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"relatedMediaId\": " + RelatedMediaId);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(EnableCatchUp.HasValue)
+            {
+                ret += "<enableCatchUp>" + EnableCatchUp.ToString().ToLower() + "</enableCatchUp>";
+            }
+            if(EnableCdvr.HasValue)
+            {
+                ret += "<enableCdvr>" + EnableCdvr.ToString().ToLower() + "</enableCdvr>";
+            }
+            if(EnableStartOver.HasValue)
+            {
+                ret += "<enableStartOver>" + EnableStartOver.ToString().ToLower() + "</enableStartOver>";
+            }
+            if(EnableTrickPlay.HasValue)
+            {
+                ret += "<enableTrickPlay>" + EnableTrickPlay.ToString().ToLower() + "</enableTrickPlay>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+            }
+            if(Metas != null && Metas.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<metas>" + propertyValue + "</metas>";
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(Crid != null)
+            {
+                ret += "<crid>" + Crid + "</crid>";
+            }
+            if(EpgChannelId.HasValue)
+            {
+                ret += "<epgChannelId>" + EpgChannelId + "</epgChannelId>";
+            }
+            if(EpgId != null)
+            {
+                ret += "<epgId>" + EpgId + "</epgId>";
+            }
+            if(LinearAssetId.HasValue)
+            {
+                ret += "<linearAssetId>" + LinearAssetId + "</linearAssetId>";
+            }
+            if(RelatedMediaId.HasValue)
+            {
+                ret += "<relatedMediaId>" + RelatedMediaId + "</relatedMediaId>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRecordingAsset
@@ -8209,6 +15821,113 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(EnableCatchUp.HasValue)
+            {
+                ret += "<enableCatchUp>" + EnableCatchUp.ToString().ToLower() + "</enableCatchUp>";
+            }
+            if(EnableCdvr.HasValue)
+            {
+                ret += "<enableCdvr>" + EnableCdvr.ToString().ToLower() + "</enableCdvr>";
+            }
+            if(EnableStartOver.HasValue)
+            {
+                ret += "<enableStartOver>" + EnableStartOver.ToString().ToLower() + "</enableStartOver>";
+            }
+            if(EnableTrickPlay.HasValue)
+            {
+                ret += "<enableTrickPlay>" + EnableTrickPlay.ToString().ToLower() + "</enableTrickPlay>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Images != null && Images.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<images>" + propertyValue + "</images>";
+            }
+            if(MediaFiles != null && MediaFiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaFiles>" + propertyValue + "</mediaFiles>";
+            }
+            if(Metas != null && Metas.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<metas>" + propertyValue + "</metas>";
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(!omitObsolete && Statistics != null)
+            {
+                propertyValue = Statistics.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<stats>" + propertyValue + "</stats>";
+            }
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type + "</type>";
+            }
+            if(Crid != null)
+            {
+                ret += "<crid>" + Crid + "</crid>";
+            }
+            if(EpgChannelId.HasValue)
+            {
+                ret += "<epgChannelId>" + EpgChannelId + "</epgChannelId>";
+            }
+            if(EpgId != null)
+            {
+                ret += "<epgId>" + EpgId + "</epgId>";
+            }
+            if(LinearAssetId.HasValue)
+            {
+                ret += "<linearAssetId>" + LinearAssetId + "</linearAssetId>";
+            }
+            if(RelatedMediaId.HasValue)
+            {
+                ret += "<relatedMediaId>" + RelatedMediaId + "</relatedMediaId>";
+            }
+            if(RecordingId != null)
+            {
+                ret += "<recordingId>" + RecordingId + "</recordingId>";
+            }
+            if(RecordingType.HasValue)
+            {
+                ret += "<recordingType>" + RecordingType.GetHashCode() + "</recordingType>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRelatedExternalFilter
     {
@@ -8246,6 +15965,42 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("\"utcOffsetEqual\": " + UtcOffsetEqual);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(FreeText != null)
+            {
+                ret += "<freeText>" + FreeText + "</freeText>";
+            }
+            ret += "<idEqual>" + IdEqual + "</idEqual>";
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            ret += "<utcOffsetEqual>" + UtcOffsetEqual + "</utcOffsetEqual>";
+            return ret;
         }
     }
     public partial class KalturaRelatedFilter
@@ -8292,6 +16047,49 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(GroupBy != null && GroupBy.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<groupBy>" + propertyValue + "</groupBy>";
+            }
+            if(IdEqual.HasValue)
+            {
+                ret += "<idEqual>" + IdEqual + "</idEqual>";
+            }
+            if(KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaScheduledRecordingProgramFilter
     {
@@ -8332,6 +16130,45 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"startDateGreaterThanOrNull\": " + StartDateGreaterThanOrNull);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(ChannelsIn != null)
+            {
+                ret += "<channelsIn>" + ChannelsIn + "</channelsIn>";
+            }
+            if(EndDateLessThanOrNull.HasValue)
+            {
+                ret += "<endDateLessThanOrNull>" + EndDateLessThanOrNull + "</endDateLessThanOrNull>";
+            }
+            ret += "<recordingTypeEqual>" + RecordingTypeEqual.GetHashCode() + "</recordingTypeEqual>";
+            if(StartDateGreaterThanOrNull.HasValue)
+            {
+                ret += "<startDateGreaterThanOrNull>" + StartDateGreaterThanOrNull + "</startDateGreaterThanOrNull>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSearchAssetFilter
@@ -8378,6 +16215,49 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(GroupBy != null && GroupBy.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<groupBy>" + propertyValue + "</groupBy>";
+            }
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(KSql != null)
+            {
+                ret += "<kSql>" + KSql + "</kSql>";
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSearchExternalFilter
     {
@@ -8415,6 +16295,41 @@ namespace WebAPI.Models.Catalog
             ret.Add("\"utcOffsetEqual\": " + UtcOffsetEqual);
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(DynamicOrderBy != null)
+            {
+                propertyValue = DynamicOrderBy.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>";
+            }
+            if(Query != null)
+            {
+                ret += "<query>" + Query + "</query>";
+            }
+            if(TypeIn != null)
+            {
+                ret += "<typeIn>" + TypeIn + "</typeIn>";
+            }
+            ret += "<utcOffsetEqual>" + UtcOffsetEqual + "</utcOffsetEqual>";
+            return ret;
+        }
     }
     public partial class KalturaSlimAsset
     {
@@ -8437,6 +16352,27 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaSlimAssetInfoWrapper
@@ -8461,6 +16397,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaWatchHistoryAsset
@@ -8509,6 +16467,51 @@ namespace WebAPI.Models.Catalog
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Asset != null)
+            {
+                propertyValue = Asset.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<asset>" + propertyValue + "</asset>";
+            }
+            if(Duration.HasValue)
+            {
+                ret += "<duration>" + Duration + "</duration>";
+            }
+            if(IsFinishedWatching.HasValue)
+            {
+                ret += "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<finished_watching>" + IsFinishedWatching.ToString().ToLower() + "</finished_watching>";
+                }
+            }
+            if(LastWatched.HasValue)
+            {
+                ret += "<watchedDate>" + LastWatched + "</watchedDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<watched_date>" + LastWatched + "</watched_date>";
+                }
+            }
+            if(Position.HasValue)
+            {
+                ret += "<position>" + Position + "</position>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaWatchHistoryAssetWrapper
     {
@@ -8532,6 +16535,28 @@ namespace WebAPI.Models.Catalog
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
 }
@@ -8564,6 +16589,32 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"file_prices\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId != null)
+            {
+                ret += "<asset_id>" + AssetId + "</asset_id>";
+            }
+            ret += "<asset_type>" + AssetType.GetHashCode() + "</asset_type>";
+            if(FilePrices != null && FilePrices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FilePrices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<file_prices>" + propertyValue + "</file_prices>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCollection
@@ -8634,6 +16685,73 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Channels != null && Channels.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<channels>" + propertyValue + "</channels>";
+            }
+            if(CouponGroups != null && CouponGroups.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<couponsGroups>" + propertyValue + "</couponsGroups>";
+            }
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(DiscountModule != null)
+            {
+                propertyValue = DiscountModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<discountModule>" + propertyValue + "</discountModule>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<discount_module>" + propertyValue + "</discount_module>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(PriceDetailsId.HasValue)
+            {
+                ret += "<priceDetailsId>" + PriceDetailsId + "</priceDetailsId>";
+            }
+            if(ProductCodes != null && ProductCodes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<productCodes>" + propertyValue + "</productCodes>";
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(UsageModule != null)
+            {
+                propertyValue = UsageModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<usageModule>" + propertyValue + "</usageModule>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCollectionFilter
     {
@@ -8661,6 +16779,31 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CollectionIdIn != null)
+            {
+                ret += "<collectionIdIn>" + CollectionIdIn + "</collectionIdIn>";
+            }
+            if(MediaFileIdEqual.HasValue)
+            {
+                ret += "<mediaFileIdEqual>" + MediaFileIdEqual + "</mediaFileIdEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCollectionListResponse
     {
@@ -8684,6 +16827,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Collections != null && Collections.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Collections.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCollectionPrice
@@ -8722,6 +16887,41 @@ namespace WebAPI.Models.Pricing
             ret.Add("\"purchaseStatus\": " + PurchaseStatus.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_id>" + ProductId + "</product_id>";
+                }
+            }
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<product_type>" + ProductType.GetHashCode() + "</product_type>";
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            return ret;
+        }
     }
     public partial class KalturaCoupon
     {
@@ -8749,6 +16949,32 @@ namespace WebAPI.Models.Pricing
             }
             ret.Add("\"status\": " + Status.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CouponsGroup != null)
+            {
+                propertyValue = CouponsGroup.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<couponsGroup>" + propertyValue + "</couponsGroup>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<coupons_group>" + propertyValue + "</coupons_group>";
+                }
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            return ret;
         }
     }
     public partial class KalturaCouponsGroup
@@ -8817,6 +17043,71 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CouponGroupType.HasValue)
+            {
+                ret += "<couponGroupType>" + CouponGroupType.GetHashCode() + "</couponGroupType>";
+            }
+            if(Descriptions != null && Descriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<descriptions>" + propertyValue + "</descriptions>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(MaxUsesNumber.HasValue)
+            {
+                ret += "<maxUsesNumber>" + MaxUsesNumber + "</maxUsesNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses_number>" + MaxUsesNumber + "</max_uses_number>";
+                }
+            }
+            if(MaxUsesNumberOnRenewableSub.HasValue)
+            {
+                ret += "<maxUsesNumberOnRenewableSub>" + MaxUsesNumberOnRenewableSub + "</maxUsesNumberOnRenewableSub>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_uses_number_on_renewable_sub>" + MaxUsesNumberOnRenewableSub + "</max_uses_number_on_renewable_sub>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaDiscountModule
     {
@@ -8854,6 +17145,42 @@ namespace WebAPI.Models.Pricing
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(Percent.HasValue)
+            {
+                ret += "<percent>" + Percent + "</percent>";
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaItemPrice
@@ -8909,6 +17236,58 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_id>" + ProductId + "</product_id>";
+                }
+            }
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<product_type>" + ProductType.GetHashCode() + "</product_type>";
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            if(FileId.HasValue)
+            {
+                ret += "<fileId>" + FileId + "</fileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<file_id>" + FileId + "</file_id>";
+                }
+            }
+            if(PPVPriceDetails != null && PPVPriceDetails.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PPVPriceDetails.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ppvPriceDetails>" + propertyValue + "</ppvPriceDetails>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<ppv_price_details>" + propertyValue + "</ppv_price_details>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaItemPriceListResponse
     {
@@ -8932,6 +17311,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(ItemPrice != null && ItemPrice.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPpv
@@ -9000,6 +17401,72 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"usageModule\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CouponsGroup != null)
+            {
+                propertyValue = CouponsGroup.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<couponsGroup>" + propertyValue + "</couponsGroup>";
+            }
+            if(Descriptions != null && Descriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<descriptions>" + propertyValue + "</descriptions>";
+            }
+            if(DiscountModule != null)
+            {
+                propertyValue = DiscountModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<discountModule>" + propertyValue + "</discountModule>";
+            }
+            if(FileTypes != null && FileTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<fileTypes>" + propertyValue + "</fileTypes>";
+            }
+            if(FirstDeviceLimitation.HasValue)
+            {
+                ret += "<firstDeviceLimitation>" + FirstDeviceLimitation.ToString().ToLower() + "</firstDeviceLimitation>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsSubscriptionOnly.HasValue)
+            {
+                ret += "<isSubscriptionOnly>" + IsSubscriptionOnly.ToString().ToLower() + "</isSubscriptionOnly>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductCode != null)
+            {
+                ret += "<productCode>" + ProductCode + "</productCode>";
+            }
+            if(UsageModule != null)
+            {
+                propertyValue = UsageModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<usageModule>" + propertyValue + "</usageModule>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPPVItemPriceDetails
@@ -9160,6 +17627,163 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CollectionId != null)
+            {
+                ret += "<collectionId>" + CollectionId + "</collectionId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<collection_id>" + CollectionId + "</collection_id>";
+                }
+            }
+            if(DiscountEndDate.HasValue)
+            {
+                ret += "<discountEndDate>" + DiscountEndDate + "</discountEndDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<discount_end_date>" + DiscountEndDate + "</discount_end_date>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(FirstDeviceName != null)
+            {
+                ret += "<firstDeviceName>" + FirstDeviceName + "</firstDeviceName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<first_device_name>" + FirstDeviceName + "</first_device_name>";
+                }
+            }
+            if(FullPrice != null)
+            {
+                propertyValue = FullPrice.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<fullPrice>" + propertyValue + "</fullPrice>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<full_price>" + propertyValue + "</full_price>";
+                }
+            }
+            if(IsInCancelationPeriod.HasValue)
+            {
+                ret += "<isInCancelationPeriod>" + IsInCancelationPeriod.ToString().ToLower() + "</isInCancelationPeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_in_cancelation_period>" + IsInCancelationPeriod.ToString().ToLower() + "</is_in_cancelation_period>";
+                }
+            }
+            if(IsSubscriptionOnly.HasValue)
+            {
+                ret += "<isSubscriptionOnly>" + IsSubscriptionOnly.ToString().ToLower() + "</isSubscriptionOnly>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_subscription_only>" + IsSubscriptionOnly.ToString().ToLower() + "</is_subscription_only>";
+                }
+            }
+            if(PPVDescriptions != null && PPVDescriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<ppv_descriptions>" + propertyValue + "</ppv_descriptions>";
+                }
+            }
+            if(PPVModuleId != null)
+            {
+                ret += "<ppvModuleId>" + PPVModuleId + "</ppvModuleId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<ppv_module_id>" + PPVModuleId + "</ppv_module_id>";
+                }
+            }
+            if(PrePaidId != null)
+            {
+                ret += "<prePaidId>" + PrePaidId + "</prePaidId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<pre_paid_id>" + PrePaidId + "</pre_paid_id>";
+                }
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductCode != null)
+            {
+                ret += "<ppvProductCode>" + ProductCode + "</ppvProductCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<ppv_product_code>" + ProductCode + "</ppv_product_code>";
+                }
+            }
+            if(PurchasedMediaFileId.HasValue)
+            {
+                ret += "<purchasedMediaFileId>" + PurchasedMediaFileId + "</purchasedMediaFileId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchased_media_file_id>" + PurchasedMediaFileId + "</purchased_media_file_id>";
+                }
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<purchase_status>" + PurchaseStatus.GetHashCode() + "</purchase_status>";
+            }
+            if(PurchaseUserId != null)
+            {
+                ret += "<purchaseUserId>" + PurchaseUserId + "</purchaseUserId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_user_id>" + PurchaseUserId + "</purchase_user_id>";
+                }
+            }
+            if(RelatedMediaFileIds != null && RelatedMediaFileIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<related_media_file_ids>" + propertyValue + "</related_media_file_ids>";
+                }
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            if(SubscriptionId != null)
+            {
+                ret += "<subscriptionId>" + SubscriptionId + "</subscriptionId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<subscription_id>" + SubscriptionId + "</subscription_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPpvPrice
     {
@@ -9268,6 +17892,112 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_id>" + ProductId + "</product_id>";
+                }
+            }
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<product_type>" + ProductType.GetHashCode() + "</product_type>";
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            if(CollectionId != null)
+            {
+                ret += "<collectionId>" + CollectionId + "</collectionId>";
+            }
+            if(DiscountEndDate.HasValue)
+            {
+                ret += "<discountEndDate>" + DiscountEndDate + "</discountEndDate>";
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(FileId.HasValue)
+            {
+                ret += "<fileId>" + FileId + "</fileId>";
+            }
+            if(FirstDeviceName != null)
+            {
+                ret += "<firstDeviceName>" + FirstDeviceName + "</firstDeviceName>";
+            }
+            if(FullPrice != null)
+            {
+                propertyValue = FullPrice.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<fullPrice>" + propertyValue + "</fullPrice>";
+            }
+            if(IsInCancelationPeriod.HasValue)
+            {
+                ret += "<isInCancelationPeriod>" + IsInCancelationPeriod.ToString().ToLower() + "</isInCancelationPeriod>";
+            }
+            if(IsSubscriptionOnly.HasValue)
+            {
+                ret += "<isSubscriptionOnly>" + IsSubscriptionOnly.ToString().ToLower() + "</isSubscriptionOnly>";
+            }
+            if(PPVDescriptions != null && PPVDescriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>";
+            }
+            if(PPVModuleId != null)
+            {
+                ret += "<ppvModuleId>" + PPVModuleId + "</ppvModuleId>";
+            }
+            if(PrePaidId != null)
+            {
+                ret += "<prePaidId>" + PrePaidId + "</prePaidId>";
+            }
+            if(ProductCode != null)
+            {
+                ret += "<ppvProductCode>" + ProductCode + "</ppvProductCode>";
+            }
+            if(PurchasedMediaFileId.HasValue)
+            {
+                ret += "<purchasedMediaFileId>" + PurchasedMediaFileId + "</purchasedMediaFileId>";
+            }
+            if(PurchaseUserId != null)
+            {
+                ret += "<purchaseUserId>" + PurchaseUserId + "</purchaseUserId>";
+            }
+            if(RelatedMediaFileIds != null && RelatedMediaFileIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>";
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+            }
+            if(SubscriptionId != null)
+            {
+                ret += "<subscriptionId>" + SubscriptionId + "</subscriptionId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPreviewModule
     {
@@ -9310,6 +18040,46 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(LifeCycle.HasValue)
+            {
+                ret += "<lifeCycle>" + LifeCycle + "</lifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<life_cycle>" + LifeCycle + "</life_cycle>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(NonRenewablePeriod.HasValue)
+            {
+                ret += "<nonRenewablePeriod>" + NonRenewablePeriod + "</nonRenewablePeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<non_renewable_period>" + NonRenewablePeriod + "</non_renewable_period>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPrice
     {
@@ -9347,6 +18117,42 @@ namespace WebAPI.Models.Pricing
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Amount.HasValue)
+            {
+                ret += "<amount>" + Amount + "</amount>";
+            }
+            if(CountryId.HasValue)
+            {
+                ret += "<countryId>" + CountryId + "</countryId>";
+            }
+            if(Currency != null)
+            {
+                ret += "<currency>" + Currency + "</currency>";
+            }
+            if(CurrencySign != null)
+            {
+                ret += "<currencySign>" + CurrencySign + "</currencySign>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<currency_sign>" + CurrencySign + "</currency_sign>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaPriceDetails
@@ -9389,6 +18195,45 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Descriptions != null && Descriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<descriptions>" + propertyValue + "</descriptions>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(MultiCurrencyPrice != null && MultiCurrencyPrice.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MultiCurrencyPrice.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<multiCurrencyPrice>" + propertyValue + "</multiCurrencyPrice>";
+            }
+            if(name != null)
+            {
+                ret += "<name>" + name + "</name>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPriceDetailsFilter
     {
@@ -9411,6 +18256,27 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"idIn\": " + "\"" + IdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPriceDetailsListResponse
@@ -9435,6 +18301,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Prices != null && Prices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Prices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPricePlan
@@ -9554,6 +18442,122 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CouponId.HasValue)
+            {
+                ret += "<couponId>" + CouponId + "</couponId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<coupon_id>" + CouponId + "</coupon_id>";
+                }
+            }
+            if(FullLifeCycle.HasValue)
+            {
+                ret += "<fullLifeCycle>" + FullLifeCycle + "</fullLifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<full_life_cycle>" + FullLifeCycle + "</full_life_cycle>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsOfflinePlayback.HasValue)
+            {
+                ret += "<isOfflinePlayback>" + IsOfflinePlayback.ToString().ToLower() + "</isOfflinePlayback>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_offline_playback>" + IsOfflinePlayback.ToString().ToLower() + "</is_offline_playback>";
+                }
+            }
+            if(IsWaiverEnabled.HasValue)
+            {
+                ret += "<isWaiverEnabled>" + IsWaiverEnabled.ToString().ToLower() + "</isWaiverEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_waiver_enabled>" + IsWaiverEnabled.ToString().ToLower() + "</is_waiver_enabled>";
+                }
+            }
+            if(MaxViewsNumber.HasValue)
+            {
+                ret += "<maxViewsNumber>" + MaxViewsNumber + "</maxViewsNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_views_number>" + MaxViewsNumber + "</max_views_number>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(ViewLifeCycle.HasValue)
+            {
+                ret += "<viewLifeCycle>" + ViewLifeCycle + "</viewLifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<view_life_cycle>" + ViewLifeCycle + "</view_life_cycle>";
+                }
+            }
+            if(WaiverPeriod.HasValue)
+            {
+                ret += "<waiverPeriod>" + WaiverPeriod + "</waiverPeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<waiver_period>" + WaiverPeriod + "</waiver_period>";
+                }
+            }
+            if(DiscountId.HasValue)
+            {
+                ret += "<discountId>" + DiscountId + "</discountId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<discount_id>" + DiscountId + "</discount_id>";
+                }
+            }
+            if(IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(PriceDetailsId.HasValue)
+            {
+                ret += "<priceDetailsId>" + PriceDetailsId + "</priceDetailsId>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && PriceId.HasValue)
+            {
+                ret += "<priceId>" + PriceId + "</priceId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<price_id>" + PriceId + "</price_id>";
+                }
+            }
+            if(RenewalsNumber.HasValue)
+            {
+                ret += "<renewalsNumber>" + RenewalsNumber + "</renewalsNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<renewals_number>" + RenewalsNumber + "</renewals_number>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPricePlanFilter
     {
@@ -9576,6 +18580,27 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"idIn\": " + "\"" + IdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPricePlanListResponse
@@ -9600,6 +18625,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PricePlans != null && PricePlans.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaProductCode
@@ -9626,6 +18673,30 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"inappProvider\": " + "\"" + InappProvider + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Code != null)
+            {
+                ret += "<code>" + Code + "</code>";
+            }
+            if(InappProvider != null)
+            {
+                ret += "<inappProvider>" + InappProvider + "</inappProvider>";
+            }
+            return ret;
         }
     }
     public partial class KalturaProductPrice
@@ -9664,6 +18735,41 @@ namespace WebAPI.Models.Pricing
             ret.Add("\"purchaseStatus\": " + PurchaseStatus.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_id>" + ProductId + "</product_id>";
+                }
+            }
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<product_type>" + ProductType.GetHashCode() + "</product_type>";
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            return ret;
+        }
     }
     public partial class KalturaProductPriceListResponse
     {
@@ -9688,6 +18794,28 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(ProductsPrices != null && ProductsPrices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaProductsPriceListResponse
     {
@@ -9711,6 +18839,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(ProductsPrices != null && ProductsPrices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscription
@@ -9951,6 +19101,243 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Channels != null && Channels.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<channels>" + propertyValue + "</channels>";
+            }
+            if(CouponGroups != null && CouponGroups.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<couponsGroups>" + propertyValue + "</couponsGroups>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.3.0.0", currentVersion) && CouponsGroup != null)
+            {
+                propertyValue = CouponsGroup.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<couponsGroup>" + propertyValue + "</couponsGroup>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<coupons_group>" + propertyValue + "</coupons_group>";
+                }
+            }
+            ret += "<dependencyType>" + DependencyType.GetHashCode() + "</dependencyType>";
+            ret += Description.ToCustomXml(currentVersion, omitObsolete, "description");
+            if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null && Descriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<descriptions>" + propertyValue + "</descriptions>";
+            }
+            if(DiscountModule != null)
+            {
+                propertyValue = DiscountModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<discountModule>" + propertyValue + "</discountModule>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<discount_module>" + propertyValue + "</discount_module>";
+                }
+            }
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<end_date>" + EndDate + "</end_date>";
+                }
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(FileTypes != null && FileTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<fileTypes>" + propertyValue + "</fileTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<file_types>" + propertyValue + "</file_types>";
+                }
+            }
+            if(GracePeriodMinutes.HasValue)
+            {
+                ret += "<gracePeriodMinutes>" + GracePeriodMinutes + "</gracePeriodMinutes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<grace_period_minutes>" + GracePeriodMinutes + "</grace_period_minutes>";
+                }
+            }
+            if(HouseholdLimitationsId.HasValue)
+            {
+                ret += "<householdLimitationsId>" + HouseholdLimitationsId + "</householdLimitationsId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<household_limitations_id>" + HouseholdLimitationsId + "</household_limitations_id>";
+                }
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isCancellationBlocked>" + IsCancellationBlocked.ToString().ToLower() + "</isCancellationBlocked>";
+            if(IsInfiniteRenewal.HasValue)
+            {
+                ret += "<isInfiniteRenewal>" + IsInfiniteRenewal.ToString().ToLower() + "</isInfiniteRenewal>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_infinite_renewal>" + IsInfiniteRenewal.ToString().ToLower() + "</is_infinite_renewal>";
+                }
+            }
+            if(IsRenewable.HasValue)
+            {
+                ret += "<isRenewable>" + IsRenewable.ToString().ToLower() + "</isRenewable>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_renewable>" + IsRenewable.ToString().ToLower() + "</is_renewable>";
+                }
+            }
+            if(IsWaiverEnabled.HasValue)
+            {
+                ret += "<isWaiverEnabled>" + IsWaiverEnabled.ToString().ToLower() + "</isWaiverEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_waiver_enabled>" + IsWaiverEnabled.ToString().ToLower() + "</is_waiver_enabled>";
+                }
+            }
+            if(MaxViewsNumber.HasValue)
+            {
+                ret += "<maxViewsNumber>" + MaxViewsNumber + "</maxViewsNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_views_number>" + MaxViewsNumber + "</max_views_number>";
+                }
+            }
+            if(MediaId.HasValue)
+            {
+                ret += "<mediaId>" + MediaId + "</mediaId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_id>" + MediaId + "</media_id>";
+                }
+            }
+            ret += Name.ToCustomXml(currentVersion, omitObsolete, "name");
+            if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null && Names.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Names.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<names>" + propertyValue + "</names>";
+            }
+            if(PremiumServices != null && PremiumServices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<premiumServices>" + propertyValue + "</premiumServices>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<premium_services>" + propertyValue + "</premium_services>";
+                }
+            }
+            if(PreviewModule != null)
+            {
+                propertyValue = PreviewModule.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<previewModule>" + propertyValue + "</previewModule>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<preview_module>" + propertyValue + "</preview_module>";
+                }
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(PricePlanIds != null)
+            {
+                ret += "<pricePlanIds>" + PricePlanIds + "</pricePlanIds>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && PricePlans != null && PricePlans.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<pricePlans>" + propertyValue + "</pricePlans>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<price_plans>" + propertyValue + "</price_plans>";
+                }
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.3.0.0", currentVersion) && ProductCode != null)
+            {
+                ret += "<productCode>" + ProductCode + "</productCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_code>" + ProductCode + "</product_code>";
+                }
+            }
+            if(ProductCodes != null && ProductCodes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<productCodes>" + propertyValue + "</productCodes>";
+            }
+            if(ProrityInOrder.HasValue)
+            {
+                ret += "<prorityInOrder>" + ProrityInOrder + "</prorityInOrder>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<prority_in_order>" + ProrityInOrder + "</prority_in_order>";
+                }
+            }
+            if(RenewalsNumber.HasValue)
+            {
+                ret += "<renewalsNumber>" + RenewalsNumber + "</renewalsNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<renewals_number>" + RenewalsNumber + "</renewals_number>";
+                }
+            }
+            if(StartDate.HasValue)
+            {
+                ret += "<startDate>" + StartDate + "</startDate>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_date>" + StartDate + "</start_date>";
+                }
+            }
+            if(UserTypes != null && UserTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<userTypes>" + propertyValue + "</userTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_types>" + propertyValue + "</user_types>";
+                }
+            }
+            if(ViewLifeCycle.HasValue)
+            {
+                ret += "<viewLifeCycle>" + ViewLifeCycle + "</viewLifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<view_life_cycle>" + ViewLifeCycle + "</view_life_cycle>";
+                }
+            }
+            if(WaiverPeriod.HasValue)
+            {
+                ret += "<waiverPeriod>" + WaiverPeriod + "</waiverPeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<waiver_period>" + WaiverPeriod + "</waiver_period>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionDependencySet
     {
@@ -9985,6 +19372,39 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"baseSubscriptionId\": " + BaseSubscriptionId);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<id>" + Id + "</id>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(SubscriptionIds != null)
+            {
+                ret += "<subscriptionIds>" + SubscriptionIds + "</subscriptionIds>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            if(BaseSubscriptionId.HasValue)
+            {
+                ret += "<baseSubscriptionId>" + BaseSubscriptionId + "</baseSubscriptionId>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscriptionDependencySetFilter
@@ -10021,6 +19441,39 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(SubscriptionIdContains != null)
+            {
+                ret += "<subscriptionIdContains>" + SubscriptionIdContains + "</subscriptionIdContains>";
+            }
+            if(TypeEqual.HasValue)
+            {
+                ret += "<typeEqual>" + TypeEqual.GetHashCode() + "</typeEqual>";
+            }
+            if(BaseSubscriptionIdIn != null)
+            {
+                ret += "<baseSubscriptionIdIn>" + BaseSubscriptionIdIn + "</baseSubscriptionIdIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionFilter
     {
@@ -10052,6 +19505,35 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ExternalIdIn != null)
+            {
+                ret += "<externalIdIn>" + ExternalIdIn + "</externalIdIn>";
+            }
+            if(MediaFileIdEqual.HasValue)
+            {
+                ret += "<mediaFileIdEqual>" + MediaFileIdEqual + "</mediaFileIdEqual>";
+            }
+            if(SubscriptionIdIn != null)
+            {
+                ret += "<subscriptionIdIn>" + SubscriptionIdIn + "</subscriptionIdIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionListResponse
     {
@@ -10075,6 +19557,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Subscriptions != null && Subscriptions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscriptionPrice
@@ -10130,6 +19634,58 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(ProductId != null)
+            {
+                ret += "<productId>" + ProductId + "</productId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<product_id>" + ProductId + "</product_id>";
+                }
+            }
+            ret += "<productType>" + ProductType.GetHashCode() + "</productType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<product_type>" + ProductType.GetHashCode() + "</product_type>";
+            }
+            ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+            if(EndDate.HasValue)
+            {
+                ret += "<endDate>" + EndDate + "</endDate>";
+            }
+            if(!omitObsolete && Price != null)
+            {
+                propertyValue = Price.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<price>" + propertyValue + "</price>";
+            }
+            if(!omitObsolete)
+            {
+                ret += "<purchaseStatus>" + PurchaseStatus.GetHashCode() + "</purchaseStatus>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_status>" + PurchaseStatus.GetHashCode() + "</purchase_status>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionSet
     {
@@ -10160,6 +19716,35 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"type\": " + Type.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<id>" + Id + "</id>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(SubscriptionIds != null)
+            {
+                ret += "<subscriptionIds>" + SubscriptionIds + "</subscriptionIds>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscriptionSetFilter
@@ -10192,6 +19777,35 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(SubscriptionIdContains != null)
+            {
+                ret += "<subscriptionIdContains>" + SubscriptionIdContains + "</subscriptionIdContains>";
+            }
+            if(TypeEqual.HasValue)
+            {
+                ret += "<typeEqual>" + TypeEqual.GetHashCode() + "</typeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionSetListResponse
     {
@@ -10216,6 +19830,28 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(SubscriptionSets != null && SubscriptionSets.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSubscriptionsFilter
     {
@@ -10239,6 +19875,28 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"ids\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            if(Ids != null && Ids.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSubscriptionSwitchSet
@@ -10270,6 +19928,35 @@ namespace WebAPI.Models.Pricing
                 ret.Add("\"type\": " + Type.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<id>" + Id + "</id>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(SubscriptionIds != null)
+            {
+                ret += "<subscriptionIds>" + SubscriptionIds + "</subscriptionIds>";
+            }
+            if(Type.HasValue)
+            {
+                ret += "<type>" + Type.GetHashCode() + "</type>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUsageModule
@@ -10353,6 +20040,86 @@ namespace WebAPI.Models.Pricing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CouponId.HasValue)
+            {
+                ret += "<couponId>" + CouponId + "</couponId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<coupon_id>" + CouponId + "</coupon_id>";
+                }
+            }
+            if(FullLifeCycle.HasValue)
+            {
+                ret += "<fullLifeCycle>" + FullLifeCycle + "</fullLifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<full_life_cycle>" + FullLifeCycle + "</full_life_cycle>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsOfflinePlayback.HasValue)
+            {
+                ret += "<isOfflinePlayback>" + IsOfflinePlayback.ToString().ToLower() + "</isOfflinePlayback>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_offline_playback>" + IsOfflinePlayback.ToString().ToLower() + "</is_offline_playback>";
+                }
+            }
+            if(IsWaiverEnabled.HasValue)
+            {
+                ret += "<isWaiverEnabled>" + IsWaiverEnabled.ToString().ToLower() + "</isWaiverEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_waiver_enabled>" + IsWaiverEnabled.ToString().ToLower() + "</is_waiver_enabled>";
+                }
+            }
+            if(MaxViewsNumber.HasValue)
+            {
+                ret += "<maxViewsNumber>" + MaxViewsNumber + "</maxViewsNumber>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<max_views_number>" + MaxViewsNumber + "</max_views_number>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(ViewLifeCycle.HasValue)
+            {
+                ret += "<viewLifeCycle>" + ViewLifeCycle + "</viewLifeCycle>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<view_life_cycle>" + ViewLifeCycle + "</view_life_cycle>";
+                }
+            }
+            if(WaiverPeriod.HasValue)
+            {
+                ret += "<waiverPeriod>" + WaiverPeriod + "</waiverPeriod>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<waiver_period>" + WaiverPeriod + "</waiver_period>";
+                }
+            }
+            return ret;
+        }
     }
 }
 
@@ -10398,6 +20165,46 @@ namespace WebAPI.Models.Users
                 ret.Add("\"username\": " + "\"" + Username + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<first_name>" + FirstName + "</first_name>";
+                }
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_name>" + LastName + "</last_name>";
+                }
+            }
+            if(Username != null)
+            {
+                ret += "<username>" + Username + "</username>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCountry
@@ -10446,6 +20253,51 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Code != null)
+            {
+                ret += "<code>" + Code + "</code>";
+            }
+            if(CurrencyCode != null)
+            {
+                ret += "<currency>" + CurrencyCode + "</currency>";
+            }
+            if(CurrencySign != null)
+            {
+                ret += "<currencySign>" + CurrencySign + "</currencySign>";
+            }
+            ret += "<id>" + Id + "</id>";
+            if(LanguagesCode != null)
+            {
+                ret += "<languagesCode>" + LanguagesCode + "</languagesCode>";
+            }
+            if(MainLanguageCode != null)
+            {
+                ret += "<mainLanguageCode>" + MainLanguageCode + "</mainLanguageCode>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(VatPercent.HasValue)
+            {
+                ret += "<vatPercent>" + VatPercent + "</vatPercent>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaFavorite
     {
@@ -10478,6 +20330,37 @@ namespace WebAPI.Models.Users
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && Asset != null)
+            {
+                propertyValue = Asset.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<asset>" + propertyValue + "</asset>";
+            }
+            ret += "<assetId>" + AssetId + "</assetId>";
+            ret += "<createDate>" + CreateDate + "</createDate>";
+            if(ExtraData != null)
+            {
+                ret += "<extraData>" + ExtraData + "</extraData>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<extra_data>" + ExtraData + "</extra_data>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaFavoriteFilter
@@ -10527,6 +20410,52 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(MediaIdIn != null)
+            {
+                ret += "<mediaIdIn>" + MediaIdIn + "</mediaIdIn>";
+            }
+            if(!omitObsolete && MediaIds != null && MediaIds.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MediaIds.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<media_ids>" + propertyValue + "</media_ids>";
+            }
+            if(MediaTypeEqual.HasValue)
+            {
+                ret += "<mediaTypeEqual>" + MediaTypeEqual + "</mediaTypeEqual>";
+            }
+            if(!omitObsolete && MediaTypeIn.HasValue)
+            {
+                ret += "<mediaTypeIn>" + MediaTypeIn + "</mediaTypeIn>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_type>" + MediaTypeIn + "</media_type>";
+                }
+            }
+            if(!omitObsolete && UDID != null)
+            {
+                ret += "<udid>" + UDID + "</udid>";
+            }
+            if(UdidEqualCurrent.HasValue)
+            {
+                ret += "<udidEqualCurrent>" + UdidEqualCurrent.ToString().ToLower() + "</udidEqualCurrent>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaFavoriteListResponse
     {
@@ -10550,6 +20479,28 @@ namespace WebAPI.Models.Users
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Favorites != null && Favorites.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Favorites.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaLoginResponse
@@ -10583,6 +20534,36 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(LoginSession != null)
+            {
+                propertyValue = LoginSession.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<loginSession>" + propertyValue + "</loginSession>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<login_session>" + propertyValue + "</login_session>";
+                }
+            }
+            if(User != null)
+            {
+                propertyValue = User.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<user>" + propertyValue + "</user>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaLoginSession
     {
@@ -10612,6 +20593,34 @@ namespace WebAPI.Models.Users
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(KS != null)
+            {
+                ret += "<ks>" + KS + "</ks>";
+            }
+            if(!omitObsolete && RefreshToken != null)
+            {
+                ret += "<refreshToken>" + RefreshToken + "</refreshToken>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<refresh_token>" + RefreshToken + "</refresh_token>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaOTTUser
@@ -10772,6 +20781,163 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(FirstName != null)
+            {
+                ret += "<firstName>" + FirstName + "</firstName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<first_name>" + FirstName + "</first_name>";
+                }
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(LastName != null)
+            {
+                ret += "<lastName>" + LastName + "</lastName>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<last_name>" + LastName + "</last_name>";
+                }
+            }
+            if(Username != null)
+            {
+                ret += "<username>" + Username + "</username>";
+            }
+            if(Address != null)
+            {
+                ret += "<address>" + Address + "</address>";
+            }
+            if(AffiliateCode != null)
+            {
+                ret += "<affiliateCode>" + AffiliateCode + "</affiliateCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<affiliate_code>" + AffiliateCode + "</affiliate_code>";
+                }
+            }
+            if(City != null)
+            {
+                ret += "<city>" + City + "</city>";
+            }
+            if(!omitObsolete && Country != null)
+            {
+                propertyValue = Country.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<country>" + propertyValue + "</country>";
+            }
+            if(CountryId.HasValue)
+            {
+                ret += "<countryId>" + CountryId + "</countryId>";
+            }
+            if(DynamicData != null && DynamicData.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<dynamicData>" + propertyValue + "</dynamicData>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<dynamic_data>" + propertyValue + "</dynamic_data>";
+                }
+            }
+            if(Email != null)
+            {
+                ret += "<email>" + Email + "</email>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_id>" + ExternalId + "</external_id>";
+                }
+            }
+            if(!omitObsolete && FacebookId != null)
+            {
+                ret += "<facebookId>" + FacebookId + "</facebookId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<facebook_id>" + FacebookId + "</facebook_id>";
+                }
+            }
+            if(!omitObsolete && FacebookImage != null)
+            {
+                ret += "<facebookImage>" + FacebookImage + "</facebookImage>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<facebook_image>" + FacebookImage + "</facebook_image>";
+                }
+            }
+            if(!omitObsolete && FacebookToken != null)
+            {
+                ret += "<facebookToken>" + FacebookToken + "</facebookToken>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<facebook_token>" + FacebookToken + "</facebook_token>";
+                }
+            }
+            if(HouseholdID.HasValue)
+            {
+                ret += "<householdId>" + HouseholdID + "</householdId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<household_id>" + HouseholdID + "</household_id>";
+                }
+            }
+            if(IsHouseholdMaster.HasValue)
+            {
+                ret += "<isHouseholdMaster>" + IsHouseholdMaster.ToString().ToLower() + "</isHouseholdMaster>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_household_master>" + IsHouseholdMaster.ToString().ToLower() + "</is_household_master>";
+                }
+            }
+            if(Phone != null)
+            {
+                ret += "<phone>" + Phone + "</phone>";
+            }
+            ret += "<suspensionState>" + SuspensionState.GetHashCode() + "</suspensionState>";
+            if(!omitObsolete)
+            {
+                ret += "<suspentionState>" + SuspentionState.GetHashCode() + "</suspentionState>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<suspention_state>" + SuspentionState.GetHashCode() + "</suspention_state>";
+                }
+            }
+            ret += "<userState>" + UserState.GetHashCode() + "</userState>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<user_state>" + UserState.GetHashCode() + "</user_state>";
+            }
+            if(UserType != null)
+            {
+                propertyValue = UserType.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<userType>" + propertyValue + "</userType>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_type>" + propertyValue + "</user_type>";
+                }
+            }
+            if(Zip != null)
+            {
+                ret += "<zip>" + Zip + "</zip>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaOTTUserDynamicData
     {
@@ -10802,6 +20968,35 @@ namespace WebAPI.Models.Users
                 ret.Add("\"value\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Key != null)
+            {
+                ret += "<key>" + Key + "</key>";
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            if(Value != null)
+            {
+                propertyValue = Value.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<value>" + propertyValue + "</value>";
+            }
+            return ret;
         }
     }
     public partial class KalturaOTTUserFilter
@@ -10834,6 +21029,35 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ExternalIdEqual != null)
+            {
+                ret += "<externalIdEqual>" + ExternalIdEqual + "</externalIdEqual>";
+            }
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(UsernameEqual != null)
+            {
+                ret += "<usernameEqual>" + UsernameEqual + "</usernameEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaOTTUserListResponse
     {
@@ -10857,6 +21081,28 @@ namespace WebAPI.Models.Users
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Users != null && Users.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaOTTUserType
@@ -10883,6 +21129,30 @@ namespace WebAPI.Models.Users
                 ret.Add("\"id\": " + Id);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            return ret;
         }
     }
     public partial class KalturaSession
@@ -10931,6 +21201,51 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + createDate + "</createDate>";
+            if(expiry.HasValue)
+            {
+                ret += "<expiry>" + expiry + "</expiry>";
+            }
+            if(ks != null)
+            {
+                ret += "<ks>" + ks + "</ks>";
+            }
+            if(partnerId.HasValue)
+            {
+                ret += "<partnerId>" + partnerId + "</partnerId>";
+            }
+            if(privileges != null)
+            {
+                ret += "<privileges>" + privileges + "</privileges>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion))
+            {
+                ret += "<sessionType>" + sessionType.GetHashCode() + "</sessionType>";
+            }
+            if(udid != null)
+            {
+                ret += "<udid>" + udid + "</udid>";
+            }
+            if(userId != null)
+            {
+                ret += "<userId>" + userId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSessionInfo
     {
@@ -10978,6 +21293,51 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<createDate>" + createDate + "</createDate>";
+            if(expiry.HasValue)
+            {
+                ret += "<expiry>" + expiry + "</expiry>";
+            }
+            if(ks != null)
+            {
+                ret += "<ks>" + ks + "</ks>";
+            }
+            if(partnerId.HasValue)
+            {
+                ret += "<partnerId>" + partnerId + "</partnerId>";
+            }
+            if(privileges != null)
+            {
+                ret += "<privileges>" + privileges + "</privileges>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion))
+            {
+                ret += "<sessionType>" + sessionType.GetHashCode() + "</sessionType>";
+            }
+            if(udid != null)
+            {
+                ret += "<udid>" + udid + "</udid>";
+            }
+            if(userId != null)
+            {
+                ret += "<userId>" + userId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserAssetsList
     {
@@ -11005,6 +21365,32 @@ namespace WebAPI.Models.Users
                 ret.Add("\"list_type\": " + ListType.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(List != null && List.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", List.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<list>" + propertyValue + "</list>";
+            }
+            ret += "<listType>" + ListType.GetHashCode() + "</listType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<list_type>" + ListType.GetHashCode() + "</list_type>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUserAssetsListFilter
@@ -11034,6 +21420,33 @@ namespace WebAPI.Models.Users
                 ret.Add("\"list_type\": " + ListTypeEqual.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<asset_type>" + AssetTypeEqual.GetHashCode() + "</asset_type>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            ret += "<listTypeEqual>" + ListTypeEqual.GetHashCode() + "</listTypeEqual>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<list_type>" + ListTypeEqual.GetHashCode() + "</list_type>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUserAssetsListItem
@@ -11079,6 +21492,48 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<listType>" + ListType.GetHashCode() + "</listType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<list_type>" + ListType.GetHashCode() + "</list_type>";
+            }
+            if(OrderIndex.HasValue)
+            {
+                ret += "<orderIndex>" + OrderIndex + "</orderIndex>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<order_index>" + OrderIndex + "</order_index>";
+                }
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_id>" + UserId + "</user_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserInterest
     {
@@ -11106,6 +21561,31 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Topic != null)
+            {
+                propertyValue = Topic.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<topic>" + propertyValue + "</topic>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserInterestListResponse
     {
@@ -11129,6 +21609,28 @@ namespace WebAPI.Models.Users
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(UserInterests != null && UserInterests.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUserInterestTopic
@@ -11160,6 +21662,35 @@ namespace WebAPI.Models.Users
                 ret.Add("\"value\": " + "\"" + Value + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(MetaId != null)
+            {
+                ret += "<metaId>" + MetaId + "</metaId>";
+            }
+            if(ParentTopic != null)
+            {
+                propertyValue = ParentTopic.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<parentTopic>" + propertyValue + "</parentTopic>";
+            }
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUserLoginPin
@@ -11203,6 +21734,46 @@ namespace WebAPI.Models.Users
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ExpirationTime.HasValue)
+            {
+                ret += "<expirationTime>" + ExpirationTime + "</expirationTime>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<expiration_time>" + ExpirationTime + "</expiration_time>";
+                }
+            }
+            if(PinCode != null)
+            {
+                ret += "<pinCode>" + PinCode + "</pinCode>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<pin_code>" + PinCode + "</pin_code>";
+                }
+            }
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_id>" + UserId + "</user_id>";
+                }
+            }
+            return ret;
+        }
     }
 }
 
@@ -11239,6 +21810,36 @@ namespace WebAPI.Models.Partner
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && PartnerConfigurationType != null)
+            {
+                propertyValue = PartnerConfigurationType.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<partnerConfigurationType>" + propertyValue + "</partnerConfigurationType>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<partner_configuration_type>" + propertyValue + "</partner_configuration_type>";
+                }
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPartnerConfiguration
     {
@@ -11256,6 +21857,22 @@ namespace WebAPI.Models.Partner
                 ret.Add("\"relatedObjects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPartnerConfigurationHolder
@@ -11275,6 +21892,23 @@ namespace WebAPI.Models.Partner
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
 }
@@ -11331,6 +21965,55 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+            }
+            if(BaseUrl != null)
+            {
+                ret += "<baseUrl>" + BaseUrl + "</baseUrl>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<settings>" + propertyValue + "</settings>";
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+            }
+            if(SystemName != null)
+            {
+                ret += "<systemName>" + SystemName + "</systemName>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCDNAdapterProfileListResponse
     {
@@ -11354,6 +22037,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Adapters != null && Adapters.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Adapters.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCDNPartnerSettings
@@ -11381,6 +22086,30 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(DefaultAdapterId.HasValue)
+            {
+                ret += "<defaultAdapterId>" + DefaultAdapterId + "</defaultAdapterId>";
+            }
+            if(DefaultRecordingAdapterId.HasValue)
+            {
+                ret += "<defaultRecordingAdapterId>" + DefaultRecordingAdapterId + "</defaultRecordingAdapterId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaChannelEnrichmentHolder
     {
@@ -11399,6 +22128,23 @@ namespace WebAPI.Models.API
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaChannelProfile
@@ -11456,6 +22202,60 @@ namespace WebAPI.Models.API
             ret.Add("\"order\": " + Order.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetTypes != null && AssetTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>";
+                ret += "<assetTypes>" + propertyValue + "</assetTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_types>" + propertyValue + "</asset_types>";
+                }
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(FilterExpression != null)
+            {
+                ret += "<filterExpression>" + FilterExpression + "</filterExpression>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<filter_expression>" + FilterExpression + "</filter_expression>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<order>" + Order.GetHashCode() + "</order>";
+            return ret;
+        }
     }
     public partial class KalturaCountryFilter
     {
@@ -11487,6 +22287,35 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(IpEqual != null)
+            {
+                ret += "<ipEqual>" + IpEqual + "</ipEqual>";
+            }
+            if(IpEqualCurrent.HasValue)
+            {
+                ret += "<ipEqualCurrent>" + IpEqualCurrent.ToString().ToLower() + "</ipEqualCurrent>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCountryListResponse
     {
@@ -11510,6 +22339,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCurrency
@@ -11542,6 +22393,35 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Code != null)
+            {
+                ret += "<code>" + Code + "</code>";
+            }
+            ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Sign != null)
+            {
+                ret += "<sign>" + Sign + "</sign>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaCurrencyFilter
     {
@@ -11564,6 +22444,27 @@ namespace WebAPI.Models.API
                 ret.Add("\"codeIn\": " + "\"" + CodeIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CodeIn != null)
+            {
+                ret += "<codeIn>" + CodeIn + "</codeIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaCurrencyListResponse
@@ -11589,6 +22490,28 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDeviceBrandListResponse
     {
@@ -11612,6 +22535,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaDeviceFamilyListResponse
@@ -11637,6 +22582,28 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaExportFilter
     {
@@ -11660,6 +22627,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"ids\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ids != null && ids.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ids.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            return ret;
         }
     }
     public partial class KalturaExportTask
@@ -11734,6 +22723,77 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Alias != null)
+            {
+                ret += "<alias>" + Alias + "</alias>";
+            }
+            ret += "<dataType>" + DataType.GetHashCode() + "</dataType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<data_type>" + DataType.GetHashCode() + "</data_type>";
+            }
+            ret += "<exportType>" + ExportType.GetHashCode() + "</exportType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<export_type>" + ExportType.GetHashCode() + "</export_type>";
+            }
+            if(Filter != null)
+            {
+                ret += "<filter>" + Filter + "</filter>";
+            }
+            if(Frequency.HasValue)
+            {
+                ret += "<frequency>" + Frequency + "</frequency>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(NotificationUrl != null)
+            {
+                ret += "<notificationUrl>" + NotificationUrl + "</notificationUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<notification_url>" + NotificationUrl + "</notification_url>";
+                }
+            }
+            if(VodTypes != null && VodTypes.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<vodTypes>" + propertyValue + "</vodTypes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<vod_types>" + propertyValue + "</vod_types>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaExportTaskFilter
     {
@@ -11756,6 +22816,27 @@ namespace WebAPI.Models.API
                 ret.Add("\"idIn\": " + "\"" + IdIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaExportTaskListResponse
@@ -11780,6 +22861,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaExternalChannelProfile
@@ -11844,6 +22947,67 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Enrichments != null && Enrichments.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<enrichments>" + propertyValue + "</enrichments>";
+            }
+            if(ExternalIdentifier != null)
+            {
+                ret += "<externalIdentifier>" + ExternalIdentifier + "</externalIdentifier>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_identifier>" + ExternalIdentifier + "</external_identifier>";
+                }
+            }
+            if(FilterExpression != null)
+            {
+                ret += "<filterExpression>" + FilterExpression + "</filterExpression>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<filter_expression>" + FilterExpression + "</filter_expression>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(RecommendationEngineId.HasValue)
+            {
+                ret += "<recommendationEngineId>" + RecommendationEngineId + "</recommendationEngineId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<recommendation_engine_id>" + RecommendationEngineId + "</recommendation_engine_id>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaExternalChannelProfileListResponse
     {
@@ -11867,6 +23031,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaGenericRule
@@ -11903,6 +23089,39 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<ruleType>" + RuleType.GetHashCode() + "</ruleType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<rule_type>" + RuleType.GetHashCode() + "</rule_type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaGenericRuleFilter
     {
@@ -11937,6 +23156,38 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AssetId.HasValue)
+            {
+                ret += "<assetId>" + AssetId + "</assetId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_id>" + AssetId + "</asset_id>";
+                }
+            }
+            if(AssetType.HasValue)
+            {
+                ret += "<assetType>" + AssetType + "</assetType>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<asset_type>" + AssetType + "</asset_type>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaGenericRuleListResponse
     {
@@ -11960,6 +23211,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(GenericRules != null && GenericRules.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaLanguage
@@ -11996,6 +23269,39 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Code != null)
+            {
+                ret += "<code>" + Code + "</code>";
+            }
+            if(Direction != null)
+            {
+                ret += "<direction>" + Direction + "</direction>";
+            }
+            ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(SystemName != null)
+            {
+                ret += "<systemName>" + SystemName + "</systemName>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaLanguageFilter
     {
@@ -12018,6 +23324,27 @@ namespace WebAPI.Models.API
                 ret.Add("\"codeIn\": " + "\"" + CodeIn + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CodeIn != null)
+            {
+                ret += "<codeIn>" + CodeIn + "</codeIn>";
+            }
+            return ret;
         }
     }
     public partial class KalturaLanguageListResponse
@@ -12042,6 +23369,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaMeta
@@ -12080,6 +23429,42 @@ namespace WebAPI.Models.API
             ret.Add("\"partnerId\": " + PartnerId);
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<assetType>" + AssetType.GetHashCode() + "</assetType>";
+            if(Features != null)
+            {
+                ret += "<features>" + Features + "</features>";
+            }
+            ret += "<fieldName>" + FieldName.GetHashCode() + "</fieldName>";
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(ParentId != null)
+            {
+                ret += "<parentId>" + ParentId + "</parentId>";
+            }
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaMetaFilter
@@ -12120,6 +23505,43 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(AssetTypeEqual.HasValue)
+            {
+                ret += "<assetTypeEqual>" + AssetTypeEqual.GetHashCode() + "</assetTypeEqual>";
+            }
+            if(FeaturesIn != null)
+            {
+                ret += "<featuresIn>" + FeaturesIn + "</featuresIn>";
+            }
+            if(FieldNameEqual.HasValue)
+            {
+                ret += "<fieldNameEqual>" + FieldNameEqual.GetHashCode() + "</fieldNameEqual>";
+            }
+            if(FieldNameNotEqual.HasValue)
+            {
+                ret += "<fieldNameNotEqual>" + FieldNameNotEqual.GetHashCode() + "</fieldNameNotEqual>";
+            }
+            if(TypeEqual.HasValue)
+            {
+                ret += "<typeEqual>" + TypeEqual.GetHashCode() + "</typeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaMetaListResponse
     {
@@ -12143,6 +23565,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaOSSAdapterBaseProfile
@@ -12169,6 +23613,30 @@ namespace WebAPI.Models.API
                 ret.Add("\"name\": " + "\"" + Name + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
         }
     }
     public partial class KalturaOSSAdapterProfile
@@ -12237,6 +23705,71 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<adapter_url>" + AdapterUrl + "</adapter_url>";
+                }
+            }
+            if(ExternalIdentifier != null)
+            {
+                ret += "<externalIdentifier>" + ExternalIdentifier + "</externalIdentifier>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_identifier>" + ExternalIdentifier + "</external_identifier>";
+                }
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ossAdapterSettings>" + propertyValue + "</ossAdapterSettings>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<oss_adapter_settings>" + propertyValue + "</oss_adapter_settings>";
+                }
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<shared_secret>" + SharedSecret + "</shared_secret>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaOSSAdapterProfileListResponse
     {
@@ -12260,6 +23793,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(OSSAdapterProfiles != null && OSSAdapterProfiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaParentalRule
@@ -12351,6 +23906,94 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(blockAnonymousAccess.HasValue)
+            {
+                ret += "<blockAnonymousAccess>" + blockAnonymousAccess.ToString().ToLower() + "</blockAnonymousAccess>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<block_anonymous_access>" + blockAnonymousAccess.ToString().ToLower() + "</block_anonymous_access>";
+                }
+            }
+            if(description != null)
+            {
+                ret += "<description>" + description + "</description>";
+            }
+            if(epgTagTypeId.HasValue)
+            {
+                ret += "<epgTag>" + epgTagTypeId + "</epgTag>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<epg_tag>" + epgTagTypeId + "</epg_tag>";
+                }
+            }
+            if(epgTagValues != null && epgTagValues.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", epgTagValues.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<epgTagValues>" + propertyValue + "</epgTagValues>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<epg_tag_values>" + propertyValue + "</epg_tag_values>";
+                }
+            }
+            if(id.HasValue)
+            {
+                ret += "<id>" + id + "</id>";
+            }
+            if(isDefault.HasValue)
+            {
+                ret += "<isDefault>" + isDefault.ToString().ToLower() + "</isDefault>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_default>" + isDefault.ToString().ToLower() + "</is_default>";
+                }
+            }
+            if(mediaTagTypeId.HasValue)
+            {
+                ret += "<mediaTag>" + mediaTagTypeId + "</mediaTag>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_tag>" + mediaTagTypeId + "</media_tag>";
+                }
+            }
+            if(mediaTagValues != null && mediaTagValues.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", mediaTagValues.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<mediaTagValues>" + propertyValue + "</mediaTagValues>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<media_tag_values>" + propertyValue + "</media_tag_values>";
+                }
+            }
+            if(name != null)
+            {
+                ret += "<name>" + name + "</name>";
+            }
+            if(order.HasValue)
+            {
+                ret += "<order>" + order + "</order>";
+            }
+            ret += "<origin>" + Origin.GetHashCode() + "</origin>";
+            ret += "<ruleType>" + ruleType.GetHashCode() + "</ruleType>";
+            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+            {
+            ret += "<rule_type>" + ruleType.GetHashCode() + "</rule_type>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaParentalRuleFilter
     {
@@ -12373,6 +24016,27 @@ namespace WebAPI.Models.API
                 ret.Add("\"entityReferenceEqual\": " + EntityReferenceEqual.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(EntityReferenceEqual.HasValue)
+            {
+                ret += "<entityReferenceEqual>" + EntityReferenceEqual.GetHashCode() + "</entityReferenceEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaParentalRuleListResponse
@@ -12397,6 +24061,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(ParentalRule != null && ParentalRule.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPermission
@@ -12429,6 +24115,35 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PermissionItems != null && PermissionItems.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<permissionItems>" + propertyValue + "</permissionItems>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPermissionItem
     {
@@ -12456,6 +24171,31 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isExcluded>" + IsExcluded.ToString().ToLower() + "</isExcluded>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPermissionsFilter
     {
@@ -12478,6 +24218,27 @@ namespace WebAPI.Models.API
                 ret.Add("\"ids\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Ids != null && Ids.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPin
@@ -12503,6 +24264,28 @@ namespace WebAPI.Models.API
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<origin>" + Origin.GetHashCode() + "</origin>";
+            if(PIN != null)
+            {
+                ret += "<pin>" + PIN + "</pin>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
+        }
     }
     public partial class KalturaPinResponse
     {
@@ -12526,6 +24309,28 @@ namespace WebAPI.Models.API
             }
             ret.Add("\"type\": " + Type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<origin>" + Origin.GetHashCode() + "</origin>";
+            if(PIN != null)
+            {
+                ret += "<pin>" + PIN + "</pin>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            return ret;
         }
     }
     public partial class KalturaPurchaseSettings
@@ -12554,6 +24359,32 @@ namespace WebAPI.Models.API
                 ret.Add("\"permission\": " + Permission.GetHashCode());
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<origin>" + Origin.GetHashCode() + "</origin>";
+            if(PIN != null)
+            {
+                ret += "<pin>" + PIN + "</pin>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(Permission.HasValue)
+            {
+                ret += "<permission>" + Permission.GetHashCode() + "</permission>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPurchaseSettingsResponse
@@ -12586,6 +24417,36 @@ namespace WebAPI.Models.API
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<origin>" + Origin.GetHashCode() + "</origin>";
+            if(PIN != null)
+            {
+                ret += "<pin>" + PIN + "</pin>";
+            }
+            ret += "<type>" + Type.GetHashCode() + "</type>";
+            if(PurchaseSettingsType.HasValue)
+            {
+                ret += "<purchaseSettingsType>" + PurchaseSettingsType.GetHashCode() + "</purchaseSettingsType>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<purchase_settings_type>" + PurchaseSettingsType.GetHashCode() + "</purchase_settings_type>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaRecommendationProfile
@@ -12654,6 +24515,71 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<adapter_url>" + AdapterUrl + "</adapter_url>";
+                }
+            }
+            if(ExternalIdentifier != null)
+            {
+                ret += "<externalIdentifier>" + ExternalIdentifier + "</externalIdentifier>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_identifier>" + ExternalIdentifier + "</external_identifier>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<recommendationEngineSettings>" + propertyValue + "</recommendationEngineSettings>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<recommendation_engine_settings>" + propertyValue + "</recommendation_engine_settings>";
+                }
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<shared_secret>" + SharedSecret + "</shared_secret>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaRecommendationProfileListResponse
     {
@@ -12677,6 +24603,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(RecommendationProfiles != null && RecommendationProfiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRegion
@@ -12711,6 +24659,37 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            ret += "<id>" + Id + "</id>";
+            ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(RegionalChannels != null && RegionalChannels.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<linearChannels>" + propertyValue + "</linearChannels>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRegionalChannel
     {
@@ -12730,6 +24709,24 @@ namespace WebAPI.Models.API
             ret.Add("\"channelNumber\": " + ChannelNumber);
             ret.Add("\"linearChannelId\": " + LinearChannelId);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<channelNumber>" + ChannelNumber + "</channelNumber>";
+            ret += "<linearChannelId>" + LinearChannelId + "</linearChannelId>";
+            return ret;
         }
     }
     public partial class KalturaRegionFilter
@@ -12754,6 +24751,27 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ExternalIdIn != null)
+            {
+                ret += "<externalIdIn>" + ExternalIdIn + "</externalIdIn>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRegionListResponse
     {
@@ -12777,6 +24795,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Regions != null && Regions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Regions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaRegistrySettings
@@ -12804,6 +24844,30 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Key != null)
+            {
+                ret += "<key>" + Key + "</key>";
+            }
+            if(Value != null)
+            {
+                ret += "<value>" + Value + "</value>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRegistrySettingsListResponse
     {
@@ -12828,6 +24892,28 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(RegistrySettings != null && RegistrySettings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaRuleFilter
     {
@@ -12846,6 +24932,23 @@ namespace WebAPI.Models.API
             }
             ret.Add("\"by\": " + By.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<by>" + By.GetHashCode() + "</by>";
+            return ret;
         }
     }
     public partial class KalturaSearchHistory
@@ -12894,6 +24997,51 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Action != null)
+            {
+                ret += "<action>" + Action + "</action>";
+            }
+            ret += "<createdAt>" + CreatedAt + "</createdAt>";
+            if(DeviceId != null)
+            {
+                ret += "<deviceId>" + DeviceId + "</deviceId>";
+            }
+            if(Filter != null)
+            {
+                ret += "<filter>" + Filter + "</filter>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Language != null)
+            {
+                ret += "<language>" + Language + "</language>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(Service != null)
+            {
+                ret += "<service>" + Service + "</service>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaSearchHistoryFilter
     {
@@ -12912,6 +25060,23 @@ namespace WebAPI.Models.API
             }
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            return ret;
         }
     }
     public partial class KalturaSearchHistoryListResponse
@@ -12936,6 +25101,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaTimeShiftedTvPartnerSettings
@@ -13071,6 +25258,138 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(CatchUpBufferLength.HasValue)
+            {
+                ret += "<catchUpBufferLength>" + CatchUpBufferLength + "</catchUpBufferLength>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<catch_up_buffer_length>" + CatchUpBufferLength + "</catch_up_buffer_length>";
+                }
+            }
+            if(CatchUpEnabled.HasValue)
+            {
+                ret += "<catchUpEnabled>" + CatchUpEnabled.ToString().ToLower() + "</catchUpEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<catch_up_enabled>" + CatchUpEnabled.ToString().ToLower() + "</catch_up_enabled>";
+                }
+            }
+            if(CdvrEnabled.HasValue)
+            {
+                ret += "<cdvrEnabled>" + CdvrEnabled.ToString().ToLower() + "</cdvrEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<cdvr_enabled>" + CdvrEnabled.ToString().ToLower() + "</cdvr_enabled>";
+                }
+            }
+            if(CleanupNoticePeriod.HasValue)
+            {
+                ret += "<cleanupNoticePeriod>" + CleanupNoticePeriod + "</cleanupNoticePeriod>";
+            }
+            if(NonEntitledChannelPlaybackEnabled.HasValue)
+            {
+                ret += "<nonEntitledChannelPlaybackEnabled>" + NonEntitledChannelPlaybackEnabled.ToString().ToLower() + "</nonEntitledChannelPlaybackEnabled>";
+            }
+            if(NonExistingChannelPlaybackEnabled.HasValue)
+            {
+                ret += "<nonExistingChannelPlaybackEnabled>" + NonExistingChannelPlaybackEnabled.ToString().ToLower() + "</nonExistingChannelPlaybackEnabled>";
+            }
+            if(PaddingAfterProgramEnds.HasValue)
+            {
+                ret += "<paddingAfterProgramEnds>" + PaddingAfterProgramEnds + "</paddingAfterProgramEnds>";
+            }
+            if(PaddingBeforeProgramStarts.HasValue)
+            {
+                ret += "<paddingBeforeProgramStarts>" + PaddingBeforeProgramStarts + "</paddingBeforeProgramStarts>";
+            }
+            if(ProtectionEnabled.HasValue)
+            {
+                ret += "<protectionEnabled>" + ProtectionEnabled.ToString().ToLower() + "</protectionEnabled>";
+            }
+            if(ProtectionPeriod.HasValue)
+            {
+                ret += "<protectionPeriod>" + ProtectionPeriod + "</protectionPeriod>";
+            }
+            if(ProtectionPolicy.HasValue)
+            {
+                ret += "<protectionPolicy>" + ProtectionPolicy.GetHashCode() + "</protectionPolicy>";
+            }
+            if(ProtectionQuotaPercentage.HasValue)
+            {
+                ret += "<protectionQuotaPercentage>" + ProtectionQuotaPercentage + "</protectionQuotaPercentage>";
+            }
+            if(QuotaOveragePolicy.HasValue)
+            {
+                ret += "<quotaOveragePolicy>" + QuotaOveragePolicy.GetHashCode() + "</quotaOveragePolicy>";
+            }
+            if(RecordingLifetimePeriod.HasValue)
+            {
+                ret += "<recordingLifetimePeriod>" + RecordingLifetimePeriod + "</recordingLifetimePeriod>";
+            }
+            if(RecordingScheduleWindow.HasValue)
+            {
+                ret += "<recordingScheduleWindow>" + RecordingScheduleWindow + "</recordingScheduleWindow>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<recording_schedule_window>" + RecordingScheduleWindow + "</recording_schedule_window>";
+                }
+            }
+            if(RecordingScheduleWindowEnabled.HasValue)
+            {
+                ret += "<recordingScheduleWindowEnabled>" + RecordingScheduleWindowEnabled.ToString().ToLower() + "</recordingScheduleWindowEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<recording_schedule_window_enabled>" + RecordingScheduleWindowEnabled.ToString().ToLower() + "</recording_schedule_window_enabled>";
+                }
+            }
+            if(RecoveryGracePeriod.HasValue)
+            {
+                ret += "<recoveryGracePeriod>" + RecoveryGracePeriod + "</recoveryGracePeriod>";
+            }
+            if(SeriesRecordingEnabled.HasValue)
+            {
+                ret += "<seriesRecordingEnabled>" + SeriesRecordingEnabled.ToString().ToLower() + "</seriesRecordingEnabled>";
+            }
+            if(StartOverEnabled.HasValue)
+            {
+                ret += "<startOverEnabled>" + StartOverEnabled.ToString().ToLower() + "</startOverEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<start_over_enabled>" + StartOverEnabled.ToString().ToLower() + "</start_over_enabled>";
+                }
+            }
+            if(TrickPlayBufferLength.HasValue)
+            {
+                ret += "<trickPlayBufferLength>" + TrickPlayBufferLength + "</trickPlayBufferLength>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<trick_play_buffer_length>" + TrickPlayBufferLength + "</trick_play_buffer_length>";
+                }
+            }
+            if(TrickPlayEnabled.HasValue)
+            {
+                ret += "<trickPlayEnabled>" + TrickPlayEnabled.ToString().ToLower() + "</trickPlayEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<trick_play_enabled>" + TrickPlayEnabled.ToString().ToLower() + "</trick_play_enabled>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserAssetRule
     {
@@ -13102,6 +25421,35 @@ namespace WebAPI.Models.API
             ret.Add("\"ruleType\": " + RuleType.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<ruleType>" + RuleType.GetHashCode() + "</ruleType>";
+            return ret;
+        }
     }
     public partial class KalturaUserAssetRuleFilter
     {
@@ -13129,6 +25477,31 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(AssetIdEqual.HasValue)
+            {
+                ret += "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>";
+            }
+            if(AssetTypeEqual.HasValue)
+            {
+                ret += "<assetTypeEqual>" + AssetTypeEqual + "</assetTypeEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserAssetRuleListResponse
     {
@@ -13152,6 +25525,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Rules != null && Rules.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Rules.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaUserRole
@@ -13192,6 +25587,43 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ExcludedPermissionNames != null)
+            {
+                ret += "<excludedPermissionNames>" + ExcludedPermissionNames + "</excludedPermissionNames>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PermissionNames != null)
+            {
+                ret += "<permissionNames>" + PermissionNames + "</permissionNames>";
+            }
+            if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && Permissions != null && Permissions.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Permissions.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<permissions>" + propertyValue + "</permissions>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserRoleFilter
     {
@@ -13224,6 +25656,36 @@ namespace WebAPI.Models.API
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(CurrentUserRoleIdsContains.HasValue)
+            {
+                ret += "<currentUserRoleIdsContains>" + CurrentUserRoleIdsContains.ToString().ToLower() + "</currentUserRoleIdsContains>";
+            }
+            if(IdIn != null)
+            {
+                ret += "<idIn>" + IdIn + "</idIn>";
+            }
+            if(!omitObsolete && Ids != null && Ids.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<ids>" + propertyValue + "</ids>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaUserRoleListResponse
     {
@@ -13247,6 +25709,28 @@ namespace WebAPI.Models.API
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(UserRoles != null && UserRoles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
 }
@@ -13291,6 +25775,43 @@ namespace WebAPI.Models.DMS
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConfigurationIdentifiers != null && ConfigurationIdentifiers.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<configurationIdentifiers>" + propertyValue + "</configurationIdentifiers>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<numberOfDevices>" + NumberOfDevices + "</numberOfDevices>";
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            if(Tags != null && Tags.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<tags>" + propertyValue + "</tags>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaConfigurationGroupDevice
     {
@@ -13318,6 +25839,31 @@ namespace WebAPI.Models.DMS
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConfigurationGroupId != null)
+            {
+                ret += "<configurationGroupId>" + ConfigurationGroupId + "</configurationGroupId>";
+            }
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            if(Udid != null)
+            {
+                ret += "<udid>" + Udid + "</udid>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaConfigurationGroupDeviceFilter
     {
@@ -13340,6 +25886,27 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"configurationGroupIdEqual\": " + "\"" + ConfigurationGroupIdEqual + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ConfigurationGroupIdEqual != null)
+            {
+                ret += "<configurationGroupIdEqual>" + ConfigurationGroupIdEqual + "</configurationGroupIdEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurationGroupDeviceListResponse
@@ -13365,6 +25932,28 @@ namespace WebAPI.Models.DMS
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaConfigurationGroupListResponse
     {
@@ -13388,6 +25977,28 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurationGroupTag
@@ -13416,6 +26027,31 @@ namespace WebAPI.Models.DMS
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConfigurationGroupId != null)
+            {
+                ret += "<configurationGroupId>" + ConfigurationGroupId + "</configurationGroupId>";
+            }
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            if(Tag != null)
+            {
+                ret += "<tag>" + Tag + "</tag>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaConfigurationGroupTagFilter
     {
@@ -13438,6 +26074,27 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"configurationGroupIdEqual\": " + "\"" + ConfigurationGroupIdEqual + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ConfigurationGroupIdEqual != null)
+            {
+                ret += "<configurationGroupIdEqual>" + ConfigurationGroupIdEqual + "</configurationGroupIdEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurationGroupTagListResponse
@@ -13462,6 +26119,28 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurationIdentifier
@@ -13488,6 +26167,30 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"name\": " + "\"" + Name + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurations
@@ -13534,6 +26237,49 @@ namespace WebAPI.Models.DMS
             ret.Add("\"platform\": " + Platform.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AppName != null)
+            {
+                ret += "<appName>" + AppName + "</appName>";
+            }
+            if(ClientVersion != null)
+            {
+                ret += "<clientVersion>" + ClientVersion + "</clientVersion>";
+            }
+            if(ConfigurationGroupId != null)
+            {
+                ret += "<configurationGroupId>" + ConfigurationGroupId + "</configurationGroupId>";
+            }
+            if(Content != null)
+            {
+                ret += "<content>" + Content + "</content>";
+            }
+            if(ExternalPushId != null)
+            {
+                ret += "<externalPushId>" + ExternalPushId + "</externalPushId>";
+            }
+            if(Id != null)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            ret += "<isForceUpdate>" + IsForceUpdate.ToString().ToLower() + "</isForceUpdate>";
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            ret += "<platform>" + Platform.GetHashCode() + "</platform>";
+            return ret;
+        }
     }
     public partial class KalturaConfigurationsFilter
     {
@@ -13556,6 +26302,27 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"configurationGroupIdEqual\": " + "\"" + ConfigurationGroupIdEqual + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(ConfigurationGroupIdEqual != null)
+            {
+                ret += "<configurationGroupIdEqual>" + ConfigurationGroupIdEqual + "</configurationGroupIdEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaConfigurationsListResponse
@@ -13580,6 +26347,28 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaDeviceReport
@@ -13635,6 +26424,58 @@ namespace WebAPI.Models.DMS
             ret.Add("\"versionPlatform\": " + VersionPlatform.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConfigurationGroupId != null)
+            {
+                ret += "<configurationGroupId>" + ConfigurationGroupId + "</configurationGroupId>";
+            }
+            ret += "<lastAccessDate>" + LastAccessDate + "</lastAccessDate>";
+            if(LastAccessIP != null)
+            {
+                ret += "<lastAccessIP>" + LastAccessIP + "</lastAccessIP>";
+            }
+            if(OperationSystem != null)
+            {
+                ret += "<operationSystem>" + OperationSystem + "</operationSystem>";
+            }
+            ret += "<partnerId>" + PartnerId + "</partnerId>";
+            if(PushParameters != null)
+            {
+                propertyValue = PushParameters.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<pushParameters>" + propertyValue + "</pushParameters>";
+            }
+            if(Udid != null)
+            {
+                ret += "<udid>" + Udid + "</udid>";
+            }
+            if(UserAgent != null)
+            {
+                ret += "<userAgent>" + UserAgent + "</userAgent>";
+            }
+            if(VersionAppName != null)
+            {
+                ret += "<versionAppName>" + VersionAppName + "</versionAppName>";
+            }
+            if(VersionNumber != null)
+            {
+                ret += "<versionNumber>" + VersionNumber + "</versionNumber>";
+            }
+            ret += "<versionPlatform>" + VersionPlatform.GetHashCode() + "</versionPlatform>";
+            return ret;
+        }
     }
     public partial class KalturaDeviceReportFilter
     {
@@ -13654,6 +26495,24 @@ namespace WebAPI.Models.DMS
             ret.Add("\"orderBy\": " + OrderBy.GetHashCode());
             ret.Add("\"lastAccessDateGreaterThanOrEqual\": " + LastAccessDateGreaterThanOrEqual);
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            ret += "<lastAccessDateGreaterThanOrEqual>" + LastAccessDateGreaterThanOrEqual + "</lastAccessDateGreaterThanOrEqual>";
+            return ret;
         }
     }
     public partial class KalturaPushParams
@@ -13680,6 +26539,30 @@ namespace WebAPI.Models.DMS
                 ret.Add("\"token\": " + "\"" + Token + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ExternalToken != null)
+            {
+                ret += "<externalToken>" + ExternalToken + "</externalToken>";
+            }
+            if(Token != null)
+            {
+                ret += "<token>" + Token + "</token>";
+            }
+            return ret;
         }
     }
 }
@@ -13749,6 +26632,68 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ActivatedOn.HasValue)
+            {
+                ret += "<activatedOn>" + ActivatedOn + "</activatedOn>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<activated_on>" + ActivatedOn + "</activated_on>";
+                }
+            }
+            if(!omitObsolete && Brand != null)
+            {
+                ret += "<brand>" + Brand + "</brand>";
+            }
+            if(BrandId.HasValue)
+            {
+                ret += "<brandId>" + BrandId + "</brandId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<brand_id>" + BrandId + "</brand_id>";
+                }
+            }
+            if(DeviceFamilyId.HasValue)
+            {
+                ret += "<deviceFamilyId>" + DeviceFamilyId + "</deviceFamilyId>";
+            }
+            if(Drm != null)
+            {
+                propertyValue = Drm.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<drm>" + propertyValue + "</drm>";
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && State.HasValue)
+            {
+                ret += "<state>" + State.GetHashCode() + "</state>";
+            }
+            if(Status.HasValue)
+            {
+                ret += "<status>" + Status.GetHashCode() + "</status>";
+            }
+            if(Udid != null)
+            {
+                ret += "<udid>" + Udid + "</udid>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDeviceBrand
     {
@@ -13778,6 +26723,34 @@ namespace WebAPI.Models.Domains
                 ret.Add("\"name\": " + "\"" + Name + "\"");
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(DeviceFamilyId.HasValue)
+            {
+                ret += "<deviceFamilyid>" + DeviceFamilyId + "</deviceFamilyid>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
         }
     }
     public partial class KalturaDeviceFamily
@@ -13826,6 +26799,51 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(!omitObsolete && DeviceLimit.HasValue)
+            {
+                ret += "<deviceLimit>" + DeviceLimit + "</deviceLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_limit>" + DeviceLimit + "</device_limit>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && Devices != null && Devices.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Devices.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<devices>" + propertyValue + "</devices>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDeviceFamilyBase
     {
@@ -13868,6 +26886,46 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(!omitObsolete && DeviceLimit.HasValue)
+            {
+                ret += "<deviceLimit>" + DeviceLimit + "</deviceLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_limit>" + DeviceLimit + "</device_limit>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDevicePin
     {
@@ -13890,6 +26948,26 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Pin != null)
+            {
+                ret += "<pin>" + Pin + "</pin>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaDeviceRegistrationStatusHolder
     {
@@ -13908,6 +26986,23 @@ namespace WebAPI.Models.Domains
             }
             ret.Add("\"status\": " + Status.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            return ret;
         }
     }
     public partial class KalturaHomeNetwork
@@ -13951,6 +27046,46 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_id>" + ExternalId + "</external_id>";
+                }
+            }
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive.ToString().ToLower() + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive.ToString().ToLower() + "</is_active>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHomeNetworkListResponse
     {
@@ -13974,6 +27109,28 @@ namespace WebAPI.Models.Domains
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaHousehold
@@ -14130,6 +27287,159 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(!omitObsolete && DefaultUsers != null && DefaultUsers.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<defaultUsers>" + propertyValue + "</defaultUsers>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<default_users>" + propertyValue + "</default_users>";
+                }
+            }
+            if(Description != null)
+            {
+                ret += "<description>" + Description + "</description>";
+            }
+            if(!omitObsolete && DeviceFamilies != null && DeviceFamilies.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamilies.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<deviceFamilies>" + propertyValue + "</deviceFamilies>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_families>" + propertyValue + "</device_families>";
+                }
+            }
+            if(DevicesLimit.HasValue)
+            {
+                ret += "<devicesLimit>" + DevicesLimit + "</devicesLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<devices_limit>" + DevicesLimit + "</devices_limit>";
+                }
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_id>" + ExternalId + "</external_id>";
+                }
+            }
+            if(FrequencyNextDeviceAction.HasValue)
+            {
+                ret += "<frequencyNextDeviceAction>" + FrequencyNextDeviceAction + "</frequencyNextDeviceAction>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<frequency_next_device_action>" + FrequencyNextDeviceAction + "</frequency_next_device_action>";
+                }
+            }
+            if(FrequencyNextUserAction.HasValue)
+            {
+                ret += "<frequencyNextUserAction>" + FrequencyNextUserAction + "</frequencyNextUserAction>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<frequency_next_user_action>" + FrequencyNextUserAction + "</frequency_next_user_action>";
+                }
+            }
+            if(HouseholdLimitationsId.HasValue)
+            {
+                ret += "<householdLimitationsId>" + HouseholdLimitationsId + "</householdLimitationsId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<household_limitations_id>" + HouseholdLimitationsId + "</household_limitations_id>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsFrequencyEnabled.HasValue)
+            {
+                ret += "<isFrequencyEnabled>" + IsFrequencyEnabled.ToString().ToLower() + "</isFrequencyEnabled>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_frequency_enabled>" + IsFrequencyEnabled.ToString().ToLower() + "</is_frequency_enabled>";
+                }
+            }
+            if(!omitObsolete && MasterUsers != null && MasterUsers.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", MasterUsers.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<masterUsers>" + propertyValue + "</masterUsers>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<master_users>" + propertyValue + "</master_users>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && PendingUsers != null && PendingUsers.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PendingUsers.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<pendingUsers>" + propertyValue + "</pendingUsers>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<pending_users>" + propertyValue + "</pending_users>";
+                }
+            }
+            if(RegionId.HasValue)
+            {
+                ret += "<regionId>" + RegionId + "</regionId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<region_id>" + RegionId + "</region_id>";
+                }
+            }
+            if(Restriction.HasValue)
+            {
+                ret += "<restriction>" + Restriction.GetHashCode() + "</restriction>";
+            }
+            if(RoleId.HasValue)
+            {
+                ret += "<roleId>" + RoleId + "</roleId>";
+            }
+            if(State.HasValue)
+            {
+                ret += "<state>" + State.GetHashCode() + "</state>";
+            }
+            if(!omitObsolete && Users != null && Users.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<users>" + propertyValue + "</users>";
+            }
+            if(UsersLimit.HasValue)
+            {
+                ret += "<usersLimit>" + UsersLimit + "</usersLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<users_limit>" + UsersLimit + "</users_limit>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdDevice
     {
@@ -14194,6 +27504,68 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ActivatedOn.HasValue)
+            {
+                ret += "<activatedOn>" + ActivatedOn + "</activatedOn>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<activated_on>" + ActivatedOn + "</activated_on>";
+                }
+            }
+            if(!omitObsolete && Brand != null)
+            {
+                ret += "<brand>" + Brand + "</brand>";
+            }
+            if(BrandId.HasValue)
+            {
+                ret += "<brandId>" + BrandId + "</brandId>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<brand_id>" + BrandId + "</brand_id>";
+                }
+            }
+            if(DeviceFamilyId.HasValue)
+            {
+                ret += "<deviceFamilyId>" + DeviceFamilyId + "</deviceFamilyId>";
+            }
+            if(Drm != null)
+            {
+                propertyValue = Drm.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<drm>" + propertyValue + "</drm>";
+            }
+            ret += "<householdId>" + HouseholdId + "</householdId>";
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && State.HasValue)
+            {
+                ret += "<state>" + State.GetHashCode() + "</state>";
+            }
+            if(Status.HasValue)
+            {
+                ret += "<status>" + Status.GetHashCode() + "</status>";
+            }
+            if(Udid != null)
+            {
+                ret += "<udid>" + Udid + "</udid>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdDeviceFamilyLimitations
     {
@@ -14256,6 +27628,66 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(!omitObsolete && DeviceLimit.HasValue)
+            {
+                ret += "<deviceLimit>" + DeviceLimit + "</deviceLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_limit>" + DeviceLimit + "</device_limit>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(DeviceLimit.HasValue)
+            {
+                ret += "<deviceLimit>" + DeviceLimit + "</deviceLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_limit>" + DeviceLimit + "</device_limit>";
+                }
+            }
+            if(Frequency.HasValue)
+            {
+                ret += "<frequency>" + Frequency + "</frequency>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdDeviceFilter
     {
@@ -14283,6 +27715,31 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(DeviceFamilyIdIn != null)
+            {
+                ret += "<deviceFamilyIdIn>" + DeviceFamilyIdIn + "</deviceFamilyIdIn>";
+            }
+            if(HouseholdIdEqual.HasValue)
+            {
+                ret += "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdDeviceListResponse
     {
@@ -14306,6 +27763,28 @@ namespace WebAPI.Models.Domains
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaHouseholdLimitations
@@ -14406,6 +27885,103 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(ConcurrentLimit.HasValue)
+            {
+                ret += "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>";
+                }
+            }
+            if(DeviceFamiliesLimitations != null && DeviceFamiliesLimitations.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamiliesLimitations.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<deviceFamiliesLimitations>" + propertyValue + "</deviceFamiliesLimitations>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_families_limitations>" + propertyValue + "</device_families_limitations>";
+                }
+            }
+            if(DeviceFrequency.HasValue)
+            {
+                ret += "<deviceFrequency>" + DeviceFrequency + "</deviceFrequency>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_frequency>" + DeviceFrequency + "</device_frequency>";
+                }
+            }
+            if(DeviceFrequencyDescription != null)
+            {
+                ret += "<deviceFrequencyDescription>" + DeviceFrequencyDescription + "</deviceFrequencyDescription>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_frequency_description>" + DeviceFrequencyDescription + "</device_frequency_description>";
+                }
+            }
+            if(DeviceLimit.HasValue)
+            {
+                ret += "<deviceLimit>" + DeviceLimit + "</deviceLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<device_limit>" + DeviceLimit + "</device_limit>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(NpvrQuotaInSeconds.HasValue)
+            {
+                ret += "<npvrQuotaInSeconds>" + NpvrQuotaInSeconds + "</npvrQuotaInSeconds>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<npvr_quota_in_seconds>" + NpvrQuotaInSeconds + "</npvr_quota_in_seconds>";
+                }
+            }
+            if(UserFrequency.HasValue)
+            {
+                ret += "<userFrequency>" + UserFrequency + "</userFrequency>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_frequency>" + UserFrequency + "</user_frequency>";
+                }
+            }
+            if(UserFrequencyDescription != null)
+            {
+                ret += "<userFrequencyDescription>" + UserFrequencyDescription + "</userFrequencyDescription>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<user_frequency_description>" + UserFrequencyDescription + "</user_frequency_description>";
+                }
+            }
+            if(UsersLimit.HasValue)
+            {
+                ret += "<usersLimit>" + UsersLimit + "</usersLimit>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<users_limit>" + UsersLimit + "</users_limit>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdUser
     {
@@ -14445,6 +28021,43 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(HouseholdId.HasValue)
+            {
+                ret += "<householdId>" + HouseholdId + "</householdId>";
+            }
+            if(HouseholdMasterUsername != null)
+            {
+                ret += "<householdMasterUsername>" + HouseholdMasterUsername + "</householdMasterUsername>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            }
+            if(IsMaster.HasValue)
+            {
+                ret += "<isMaster>" + IsMaster.ToString().ToLower() + "</isMaster>";
+            }
+            ret += "<status>" + Status.GetHashCode() + "</status>";
+            if(UserId != null)
+            {
+                ret += "<userId>" + UserId + "</userId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdUserFilter
     {
@@ -14467,6 +28080,27 @@ namespace WebAPI.Models.Domains
                 ret.Add("\"householdIdEqual\": " + HouseholdIdEqual);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(HouseholdIdEqual.HasValue)
+            {
+                ret += "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaHouseholdUserListResponse
@@ -14492,6 +28126,28 @@ namespace WebAPI.Models.Domains
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdWithHolder
     {
@@ -14510,6 +28166,23 @@ namespace WebAPI.Models.Domains
             }
             ret.Add("\"type\": " + type.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<type>" + type.GetHashCode() + "</type>";
+            return ret;
         }
     }
 }
@@ -14546,6 +28219,35 @@ namespace WebAPI.Models.Billing
             ret.Add("\"selectedBy\": " + selectedBy.GetHashCode());
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            ret += "<selectedBy>" + selectedBy.GetHashCode() + "</selectedBy>";
+            return ret;
+        }
     }
     public partial class KalturaHouseholdPaymentGatewayListResponse
     {
@@ -14569,6 +28271,28 @@ namespace WebAPI.Models.Billing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaHouseholdPaymentMethod
@@ -14621,6 +28345,55 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(!omitObsolete && AllowMultiInstance.HasValue)
+            {
+                ret += "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>";
+            }
+            if(Details != null)
+            {
+                ret += "<details>" + Details + "</details>";
+            }
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + ExternalId + "</externalId>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+            }
+            if(!omitObsolete && Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret += "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>";
+            }
+            ret += "<paymentMethodProfileId>" + PaymentMethodProfileId + "</paymentMethodProfileId>";
+            if(!omitObsolete && Selected.HasValue)
+            {
+                ret += "<selected>" + Selected.ToString().ToLower() + "</selected>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaHouseholdPaymentMethodListResponse
     {
@@ -14645,6 +28418,28 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(Objects != null && Objects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPaymentGateway
     {
@@ -14668,6 +28463,28 @@ namespace WebAPI.Models.Billing
             }
             ret.Add("\"selected_by\": " + selectedBy.GetHashCode());
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(paymentGateway != null)
+            {
+                propertyValue = paymentGateway.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<payment_gateway>" + propertyValue + "</payment_gateway>";
+            }
+            ret += "<selected_by>" + selectedBy.GetHashCode() + "</selected_by>";
+            return ret;
         }
     }
     public partial class KalturaPaymentGatewayBaseProfile
@@ -14720,6 +28537,55 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_default>" + IsDefault.ToString().ToLower() + "</is_default>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && PaymentMethods != null && PaymentMethods.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<paymentMethods>" + propertyValue + "</paymentMethods>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_methods>" + propertyValue + "</payment_methods>";
+                }
+            }
+            if(selectedBy.HasValue)
+            {
+                ret += "<selectedBy>" + selectedBy.GetHashCode() + "</selectedBy>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<selected_by>" + selectedBy.GetHashCode() + "</selected_by>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPaymentGatewayConfiguration
     {
@@ -14746,6 +28612,31 @@ namespace WebAPI.Models.Billing
                 }
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Configuration != null && Configuration.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Configuration.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<paymentGatewayConfiguration>" + propertyValue + "</paymentGatewayConfiguration>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_gatewaye_configuration>" + propertyValue + "</payment_gatewaye_configuration>";
+                }
+            }
+            return ret;
         }
     }
     public partial class KalturaPaymentGatewayProfile
@@ -14896,6 +28787,153 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(IsDefault.HasValue)
+            {
+                ret += "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_default>" + IsDefault.ToString().ToLower() + "</is_default>";
+                }
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(!omitObsolete && PaymentMethods != null && PaymentMethods.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<paymentMethods>" + propertyValue + "</paymentMethods>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_methods>" + propertyValue + "</payment_methods>";
+                }
+            }
+            if(selectedBy.HasValue)
+            {
+                ret += "<selectedBy>" + selectedBy.GetHashCode() + "</selectedBy>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<selected_by>" + selectedBy.GetHashCode() + "</selected_by>";
+                }
+            }
+            if(AdapterUrl != null)
+            {
+                ret += "<adapterUrl>" + AdapterUrl + "</adapterUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<adapter_url>" + AdapterUrl + "</adapter_url>";
+                }
+            }
+            if(ExternalIdentifier != null)
+            {
+                ret += "<externalIdentifier>" + ExternalIdentifier + "</externalIdentifier>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<external_identifier>" + ExternalIdentifier + "</external_identifier>";
+                }
+            }
+            ret += "<externalVerification>" + ExternalVerification.ToString().ToLower() + "</externalVerification>";
+            if(IsActive.HasValue)
+            {
+                ret += "<isActive>" + IsActive + "</isActive>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<is_active>" + IsActive + "</is_active>";
+                }
+            }
+            if(PendingInterval.HasValue)
+            {
+                ret += "<pendingInterval>" + PendingInterval + "</pendingInterval>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<pending_interval>" + PendingInterval + "</pending_interval>";
+                }
+            }
+            if(PendingRetries.HasValue)
+            {
+                ret += "<pendingRetries>" + PendingRetries + "</pendingRetries>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<pending_retries>" + PendingRetries + "</pending_retries>";
+                }
+            }
+            if(RenewIntervalMinutes.HasValue)
+            {
+                ret += "<renewIntervalMinutes>" + RenewIntervalMinutes + "</renewIntervalMinutes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<renew_interval_minutes>" + RenewIntervalMinutes + "</renew_interval_minutes>";
+                }
+            }
+            if(RenewStartMinutes.HasValue)
+            {
+                ret += "<renewStartMinutes>" + RenewStartMinutes + "</renewStartMinutes>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<renew_start_minutes>" + RenewStartMinutes + "</renew_start_minutes>";
+                }
+            }
+            if(RenewUrl != null)
+            {
+                ret += "<renewUrl>" + RenewUrl + "</renewUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<renew_url>" + RenewUrl + "</renew_url>";
+                }
+            }
+            if(Settings != null && Settings.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<paymentGatewaySettings>" + propertyValue + "</paymentGatewaySettings>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<payment_gateway_settings>" + propertyValue + "</payment_gateway_settings>";
+                }
+            }
+            if(SharedSecret != null)
+            {
+                ret += "<sharedSecret>" + SharedSecret + "</sharedSecret>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<shared_secret>" + SharedSecret + "</shared_secret>";
+                }
+            }
+            if(StatusUrl != null)
+            {
+                ret += "<statusUrl>" + StatusUrl + "</statusUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<status_url>" + StatusUrl + "</status_url>";
+                }
+            }
+            if(TransactUrl != null)
+            {
+                ret += "<transactUrl>" + TransactUrl + "</transactUrl>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<transact_url>" + TransactUrl + "</transact_url>";
+                }
+            }
+            return ret;
+        }
     }
     public partial class KalturaPaymentGatewayProfileListResponse
     {
@@ -14919,6 +28957,28 @@ namespace WebAPI.Models.Billing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PaymentGatewayProfiles != null && PaymentGatewayProfiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPaymentMethod
@@ -14963,6 +29023,47 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AllowMultiInstance.HasValue)
+            {
+                ret += "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<allow_multi_instance>" + AllowMultiInstance.ToString().ToLower() + "</allow_multi_instance>";
+                }
+            }
+            if(HouseholdPaymentMethods != null && HouseholdPaymentMethods.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", HouseholdPaymentMethods.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<householdPaymentMethods>" + propertyValue + "</householdPaymentMethods>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<household_payment_methods>" + propertyValue + "</household_payment_methods>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPaymentMethodProfile
     {
@@ -15001,6 +29102,42 @@ namespace WebAPI.Models.Billing
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(AllowMultiInstance.HasValue)
+            {
+                ret += "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>";
+                if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)
+                {
+                ret += "<allow_multi_instance>" + AllowMultiInstance.ToString().ToLower() + "</allow_multi_instance>";
+                }
+            }
+            if(Id.HasValue)
+            {
+                ret += "<id>" + Id + "</id>";
+            }
+            if(Name != null)
+            {
+                ret += "<name>" + Name + "</name>";
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret += "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>";
+            }
+            return ret;
+        }
     }
     public partial class KalturaPaymentMethodProfileFilter
     {
@@ -15023,6 +29160,27 @@ namespace WebAPI.Models.Billing
                 ret.Add("\"paymentGatewayIdEqual\": " + PaymentGatewayIdEqual);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<orderBy>" + OrderBy.GetHashCode() + "</orderBy>";
+            if(PaymentGatewayIdEqual.HasValue)
+            {
+                ret += "<paymentGatewayIdEqual>" + PaymentGatewayIdEqual + "</paymentGatewayIdEqual>";
+            }
+            return ret;
         }
     }
     public partial class KalturaPaymentMethodProfileListResponse
@@ -15047,6 +29205,28 @@ namespace WebAPI.Models.Billing
                 ret.Add("\"objects\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            ret += "<totalCount>" + TotalCount + "</totalCount>";
+            if(PaymentMethodProfiles != null && PaymentMethodProfiles.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
         }
     }
 }
@@ -15087,6 +29267,39 @@ namespace WebAPI.EventNotifications
             }
             return String.Join(", ", ret);
         }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            if(objectType != null)
+            {
+                ret += "<objectType>" + objectType + "</objectType>";
+            }
+            if(relatedObjects != null && relatedObjects.Count > 0)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<relatedObjects>" + propertyValue + "</relatedObjects>";
+            }
+            if(eventObject != null)
+            {
+                propertyValue = eventObject.PropertiesToXml(currentVersion, omitObsolete);
+                ret += "<object>" + propertyValue + "</object>";
+            }
+            if(eventObjectType != null)
+            {
+                ret += "<eventObjectType>" + eventObjectType + "</eventObjectType>";
+            }
+            if(eventType.HasValue)
+            {
+                ret += "<eventType>" + eventType.GetHashCode() + "</eventType>";
+            }
+            if(systemName != null)
+            {
+                ret += "<systemName>" + systemName + "</systemName>";
+            }
+            return ret;
+        }
     }
 }
 
@@ -15101,10 +29314,23 @@ namespace WebAPI.Managers.Models
             ret.Add("\"executionTime\": " + ExecutionTime);
             if(Result != null)
             {
-                propertyValue = (Result is IKalturaJsonable ? (Result as IKalturaJsonable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(Result));
+                propertyValue = (Result is IKalturaSerializable ? (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(Result));
                 ret.Add("\"result\": " + propertyValue);
             }
             return String.Join(", ", ret);
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            string ret = "";
+            string propertyValue;
+            ret += "<executionTime>" + ExecutionTime + "</executionTime>";
+            if(Result != null)
+            {
+                propertyValue = (Result is IKalturaSerializable ? (Result as IKalturaSerializable).PropertiesToXml(currentVersion, omitObsolete) : Result.ToString());
+                ret += "<result>" + propertyValue + "</result>";
+            }
+            return ret;
         }
     }
 }

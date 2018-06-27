@@ -16,6 +16,12 @@ using WebAPI.Models.Renderers;
 
 namespace Reflector
 {
+    enum SerializeType
+    {
+        JSON,
+        XML
+    }
+
     enum PropertyType
     {
         NATIVE,
@@ -32,9 +38,9 @@ namespace Reflector
 
     class Serializer : Base
     {
-        public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaJsonable))
+        public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
         {
-            types.Remove(typeof(KalturaJsonable));
+            types.Remove(typeof(KalturaSerializable));
             types.Remove(typeof(KalturaMultilingualString));
         }
         
@@ -73,11 +79,11 @@ namespace Reflector
             return null;
         }
 
-        private void wrtieSerializeTypeProperties(Type type)
+        private void wrtieSerializeTypeProperties(Type type, SerializeType serializeType)
         {
             if (type.BaseType != null && type != typeof(KalturaOTTObject))
             {
-                wrtieSerializeTypeProperties(type.BaseType);
+                wrtieSerializeTypeProperties(type.BaseType, serializeType);
             }
 
             List<PropertyInfo> properties = type.GetProperties().ToList();
@@ -101,10 +107,10 @@ namespace Reflector
                 string tab = "";
                 string genericType = "";
 
-                if (typeof(IKalturaJsonable).IsAssignableFrom(property.PropertyType))
+                if (typeof(IKalturaSerializable).IsAssignableFrom(property.PropertyType))
                 {
                     propertyType = PropertyType.OBJECT;
-                    if(property.PropertyType.GetMethod("ToCustomJson") != null)
+                    if((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
                     {
                         propertyType = PropertyType.CUSTOM;
                     }
@@ -224,37 +230,93 @@ namespace Reflector
                         break;
 
                     case PropertyType.STRING:
-                        value = "\"\\\"\" + " + propertyName + " + \"\\\"\"";
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            value = "\"\\\"\" + " + propertyName + " + \"\\\"\"";
+                        }
+                        else
+                        {
+                            value = propertyName;
+                        }
                         break;
 
                     case PropertyType.OBJECT:
-                        file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToJson(currentVersion, omitObsolete);");
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToJson(currentVersion, omitObsolete);");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".PropertiesToXml(currentVersion, omitObsolete);");
+                        }
                         break;
 
                     case PropertyType.GENERIC_OBJECT:
-                        file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaJsonable ? (" + propertyName + " as IKalturaJsonable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(" + propertyName + "));");
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(" + propertyName + "));");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).PropertiesToXml(currentVersion, omitObsolete) : " + propertyName + ".ToString());");
+                        }
                         break;
 
                     case PropertyType.ARRAY:
-                        file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToJson(currentVersion, omitObsolete))) + \"]\";");
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToJson(currentVersion, omitObsolete))) + \"]\";");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                        }
                         break;
 
                     case PropertyType.MAP:
-                        file.WriteLine(tab + "            propertyValue = \"{\" + String.Join(\", \", " + propertyName + ".Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"{\" + String.Join(\", \", " + propertyName + ".Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(pair => \"<itemKey>\" + pair.Key + \"</itemKey>\" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                        }
                         break;
 
                     case PropertyType.NUMERIC_ARRAY:
-                        file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToString())) + \"]\";");
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToString())) + \"]\";");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\";");
+                        }
                         break;
                 }
 
-                if (propertyType == PropertyType.CUSTOM)
+                if (serializeType == SerializeType.JSON)
                 {
-                    file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
+                    if (propertyType == PropertyType.CUSTOM)
+                    {
+                        file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
+                    }
+                    else
+                    {
+                        file.WriteLine(tab + "            ret.Add(\"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                    }
                 }
                 else
                 {
-                    file.WriteLine(tab + "            ret.Add(\"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                    if (propertyType == PropertyType.CUSTOM)
+                    {
+                        file.WriteLine(tab + "            ret += " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + dataMember.Name + "\");");
+                    }
+                    else
+                    {
+                        file.WriteLine(tab + "            ret += \"<" + dataMember.Name + ">\" + " + value + " + \"</" + dataMember.Name + ">\";");
+                    }
                 }
 
                 IEnumerable<OldStandardPropertyAttribute> oldStandardProperties = property.GetCustomAttributes<OldStandardPropertyAttribute>(false);
@@ -271,13 +333,27 @@ namespace Reflector
                             file.WriteLine(tab + "            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)");
                         }
                         file.WriteLine(tab + "            {");
-                        if (propertyType == PropertyType.CUSTOM)
+                        if (serializeType == SerializeType.JSON)
                         {
-                            file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
+                            if (propertyType == PropertyType.CUSTOM)
+                            {
+                                file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
+                            }
+                            else
+                            {
+                                file.WriteLine(tab + "                ret.Add(\"\\\"" + oldStandardProperty.oldName + "\\\": \" + " + value + ");");
+                            }
                         }
                         else
                         {
-                            file.WriteLine(tab + "                ret.Add(\"\\\"" + oldStandardProperty.oldName + "\\\": \" + " + value + ");");
+                            if (propertyType == PropertyType.CUSTOM)
+                            {
+                                file.WriteLine(tab + "            ret+ = " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\");");
+                            }
+                            else
+                            {
+                                file.WriteLine(tab + "            ret += \"<" + oldStandardProperty.oldName + ">\" + " + value + " + \"</" + oldStandardProperty.oldName + ">\";");
+                            }
                         }
                         file.WriteLine(tab + "            }");
                     }
@@ -311,8 +387,16 @@ namespace Reflector
             file.WriteLine("        {");
             file.WriteLine("            List<string> ret = new List<string>();");
             file.WriteLine("            string propertyValue;");
-            wrtieSerializeTypeProperties(type);
+            wrtieSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return String.Join(\", \", ret);");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+            file.WriteLine("        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        {");
+            file.WriteLine("            string ret = \"\";");
+            file.WriteLine("            string propertyValue;");
+            wrtieSerializeTypeProperties(type, SerializeType.XML);
+            file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("    }");
         }

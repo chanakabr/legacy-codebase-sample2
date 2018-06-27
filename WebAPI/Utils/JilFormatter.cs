@@ -178,7 +178,7 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json = jsonManager.Serialize(value);
+                string json = jsonManager.Serialize(value, true);
                 streamWriter.Write(json);
                 return Task.FromResult(writeStream);
             }

@@ -11,7 +11,7 @@ using WebAPI.Reflection;
 namespace WebAPI.Managers.Models
 {
     [DataContract]
-    public partial class StatusWrapper : KalturaJsonable
+    public partial class StatusWrapper : KalturaSerializable
     {
         public StatusWrapper()
         {

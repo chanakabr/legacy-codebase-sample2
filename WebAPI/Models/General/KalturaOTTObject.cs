@@ -14,16 +14,23 @@ using WebAPI.Reflection;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaJsonable
+    public interface IKalturaSerializable
     {
         string ToJson(Version currentVersion, bool omitObsolete);
+
+        string PropertiesToXml(Version currentVersion, bool omitObsolete);
     }
 
-    public class KalturaJsonable : IKalturaJsonable
+    public class KalturaSerializable : IKalturaSerializable
     {
         public virtual string ToJson(Version currentVersion, bool omitObsolete)
         {
             return "{" + PropertiesToJson(currentVersion, omitObsolete) + "}";
+        }
+
+        public virtual string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            return "";
         }
 
         protected virtual string PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -39,7 +46,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base class
     /// </summary>
-    public partial class KalturaOTTObject : KalturaJsonable, IKalturaOTTObject
+    public partial class KalturaOTTObject : KalturaSerializable, IKalturaOTTObject
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]

@@ -33,10 +33,10 @@ namespace WebAPI.Managers
                         
         public string Serialize(object value, bool omitObsolete = false)
         {
-            if(value is IKalturaJsonable)
+            if(value is IKalturaSerializable)
             {
                 Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-                return ((IKalturaJsonable) value).ToJson(currentVersion, omitObsolete);
+                return ((IKalturaSerializable) value).ToJson(currentVersion, omitObsolete);
             }
             return JsonConvert.SerializeObject(value);
         }

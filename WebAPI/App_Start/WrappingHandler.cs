@@ -38,14 +38,14 @@ namespace WebAPI.App_Start
 
 
     [DataContract(Name = "error")]
-    public partial class KalturaAPIExceptionWrapper : KalturaJsonable
+    public partial class KalturaAPIExceptionWrapper : KalturaSerializable
     {
         [DataMember(Name = "error")]
         [JsonProperty(PropertyName = "error")]
         public KalturaAPIException error { get; set; }
     }
 
-    public partial class KalturaAPIException : KalturaJsonable
+    public partial class KalturaAPIException : KalturaSerializable
     {
         [JsonProperty(PropertyName = "objectType")]
         [DataMember(Name = "objectType")]
