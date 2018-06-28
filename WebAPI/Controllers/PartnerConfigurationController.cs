@@ -41,15 +41,21 @@ namespace WebAPI.Controllers
                 }
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.DefaultPaymentGateway)
                 {
-                    throw new NotImplementedException();
+                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, 
+                                                  "filter.partnerConfigurationTypeEqual", 
+                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
                 }
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.EnablePaymentGatewaySelection)
                 {
-                    throw new NotImplementedException();
+                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE,
+                                                  "filter.partnerConfigurationTypeEqual",
+                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
                 }
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.OSSAdapter)
                 {
-                    throw new NotImplementedException();
+                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE,
+                                                  "filter.partnerConfigurationTypeEqual",
+                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
                 }
                 else
                 {
