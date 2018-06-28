@@ -2194,20 +2194,11 @@ namespace Tvinci.Core.DAL
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
 
-            DevicePlayData devicePlayData = new DevicePlayData()
+            DevicePlayData devicePlayData = new DevicePlayData
+                (udid, mediaId, userId, timeStamp, ePlayType.MEDIA, mediaTypeId, action, deviceFamilyId, createdAt, programId, string.Empty)
             {
-                UDID = udid,
-                AssetId = mediaId,
-                UserId = userId,
-                CreatedAt = createdAt,
-                TimeStamp = timeStamp,
-                playType = ePlayType.MEDIA.ToString(),
-                AssetAction = action,
-                AssetTypeId = mediaTypeId,
                 MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                AssetConcurrencyRuleIds = assetConcurrencyRuleIds,
-                DeviceFamilyId = deviceFamilyId,
-                ProgramId = programId
+                AssetConcurrencyRuleIds = assetConcurrencyRuleIds
             };
 
             int limitRetries = RETRY_LIMIT;
@@ -2263,20 +2254,8 @@ namespace Tvinci.Core.DAL
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
 
-            var devicePlayData = new DevicePlayData()
-            {
-                UDID = udid,
-                AssetId = int.Parse(assetId),
-                UserId = userId,
-                TimeStamp = timeStamp,
-                playType = ePlayType.NPVR.ToString(),
-                NpvrId = recordingId.ToString(),
-                AssetAction = action,
-                AssetTypeId = (int)eAssetTypes.NPVR,
-                DeviceFamilyId = deviceFamilyId,
-                CreatedAt = createdAt,
-                ProgramId = programId
-            };
+            DevicePlayData devicePlayData = new DevicePlayData
+               (udid, int.Parse(assetId), userId, timeStamp, ePlayType.NPVR, (int)eAssetTypes.NPVR, action, deviceFamilyId, createdAt, programId, recordingId.ToString());
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2323,19 +2302,8 @@ namespace Tvinci.Core.DAL
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
 
-            var devicePlayData = new DevicePlayData()
-            {
-                UDID = udid,
-                AssetId = assetID,
-                UserId = userId,
-                TimeStamp = timeStamp,
-                playType = ePlayType.EPG.ToString(),
-                AssetAction = action,
-                AssetTypeId = (int)eAssetTypes.EPG,
-                DeviceFamilyId = deviceFamilyId,
-                CreatedAt = createdAt,
-                ProgramId = programId
-            };
+            DevicePlayData devicePlayData = new DevicePlayData
+               (udid, assetID, userId, timeStamp, ePlayType.EPG, (int)eAssetTypes.EPG, action, deviceFamilyId, createdAt, programId, string.Empty);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
