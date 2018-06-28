@@ -10599,7 +10599,7 @@ namespace Core.ConditionalAccess
         
         public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
                                                              string languageCode, string deviceName, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
-                                                             ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid)
+                                                             ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid, long programId = 0)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
             drmId = 0;
@@ -10697,7 +10697,7 @@ namespace Core.ConditionalAccess
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetConcurrencyRuleIds = null;
                     mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, deviceName, prices, nMediaID, ip, 
-                                                                     ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds);
+                                                                     ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds, programId);
 
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
@@ -10865,7 +10865,7 @@ namespace Core.ConditionalAccess
         }
 
         internal DomainResponseStatus CheckMediaConcurrency(string userId, Int32 mediaFileId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
-                                                            string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetRuleIds)
+                                                            string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetRuleIds, long programId)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
             mediaConcurrencyRuleIds = new List<int>();
@@ -10888,7 +10888,7 @@ namespace Core.ConditionalAccess
                 eBusinessModule eBM = eBusinessModule.PPV;
 
                 // Get AssetRules
-                assetRuleIds = Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, 0);
+                assetRuleIds = Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, ref programId);
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -10943,8 +10943,8 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate Concurrency for domain
-                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency, 
-                                                                                  mediaConcurrencyRuleIds, assetRuleIds, mediaId);
+                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency,
+                                                                                  mediaConcurrencyRuleIds, assetRuleIds, mediaId, programId);
 
                 // get domainID from response
                 if (validationResponse != null)
@@ -16066,8 +16066,8 @@ namespace Core.ConditionalAccess
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetConcurrencyRuleIds = null;
                     int householdId = (int)domainId;
-                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, 
-                                                                                          ref mediaConcurrencyRuleIds, ref householdId, ref assetConcurrencyRuleIds);
+                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp,
+                                                                                          ref mediaConcurrencyRuleIds, ref householdId, ref assetConcurrencyRuleIds, recording.EpgId);
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));

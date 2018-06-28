@@ -4401,12 +4401,12 @@ namespace Core.Catalog
             }
             else
             {
-                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(groupID, mediaID, programId);
+                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(groupID, mediaID, ref programId);
             }
 
             ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule
                 (groupID, udid, 0, siteGuidLong, domainID, ValidationType.Concurrency, 
-                 mediaConcurrencyRuleIds, assetRulesIds, mediaID);
+                 mediaConcurrencyRuleIds, assetRulesIds, mediaID, programId);
 
             if (domainsResp == null)
             {

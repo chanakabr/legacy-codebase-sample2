@@ -20,7 +20,7 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static DomainResponseStatus Validate(List<int> mediaRuleIds, List<long> assetRuleIds, Domain domain, int mediaId, string udid, int groupId, int deviceBrandId, int deviceFamilyId)
+        public static DomainResponseStatus Validate(List<int> mediaRuleIds, List<long> assetRuleIds, Domain domain, int mediaId, string udid, int groupId, int deviceBrandId, int deviceFamilyId, long programId)
         {
             DomainResponseStatus status = DomainResponseStatus.UnKnown;
 
@@ -32,7 +32,7 @@ namespace Core.Users
             if (assetRuleIds != null && assetRuleIds.Count > 0 &&
                 (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown))
             {
-                status = ValidateAssetRulesConcurrency(groupId, assetRuleIds, domain, udid, mediaId, deviceFamilyId);
+                status = ValidateAssetRulesConcurrency(groupId, assetRuleIds, domain, udid, mediaId, deviceFamilyId, programId);
             }
 
             // if it's MediaConcurrencyLimitation no need to check this one 
@@ -145,7 +145,7 @@ namespace Core.Users
             return response;
         }
 
-        private static DomainResponseStatus ValidateAssetRulesConcurrency(int groupId, List<long> assetRuleIds, Domain domain, string udid, int mediaId, int deviceFamilyId)
+        private static DomainResponseStatus ValidateAssetRulesConcurrency(int groupId, List<long> assetRuleIds, Domain domain, string udid, int mediaId, int deviceFamilyId, long programId)
         {
             if (assetRuleIds == null || assetRuleIds.Count == 0)
             {

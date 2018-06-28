@@ -104,6 +104,12 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                long programId = 0;
+                if (assetType == eAssetTypes.EPG)
+                {
+                    bool parse = long.TryParse(assetId, out programId);
+                }
+
                 MediaObj epgChannelLinearMedia = null;
                 // Recording
                 if (assetType == eAssetTypes.NPVR)
@@ -193,7 +199,7 @@ namespace Core.ConditionalAccess
                         {
                             int domainID = 0;
                             DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId),
-                                                                                                      ip, ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds);
+                                                                                                      ip, ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds, programId);
                             if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                             {
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);

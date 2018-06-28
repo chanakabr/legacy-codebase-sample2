@@ -570,8 +570,14 @@ namespace Core.ConditionalAccess
                 int drmId = 0;
                 string fileCoGuid = string.Empty;
 
+                int nProgramId = 0;
+                if (eformat != eEPGFormatType.NPVR)
+                {
+                    bool res = int.TryParse(sProgramId, out nProgramId);
+                }
+
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
-                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
+                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, nProgramId);
 
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
@@ -611,7 +617,6 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
-                int nProgramId = Int32.Parse(sProgramId);
                 Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, nProgramId);
                 if (scheduling != null)
                 {

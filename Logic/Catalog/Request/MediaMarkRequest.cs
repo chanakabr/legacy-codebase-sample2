@@ -660,7 +660,7 @@ namespace Core.Catalog.Request
             }
             else
             {
-                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, programId);
+                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, ref programId);
             }
 
             switch (mediaMarkAction)

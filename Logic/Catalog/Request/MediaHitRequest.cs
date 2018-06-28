@@ -271,7 +271,7 @@ namespace Core.Catalog.Request
                 }
                 else
                 {
-                    assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, mediaHitRequest.m_oMediaPlayRequestData.ProgramId);
+                    assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, ref mediaHitRequest.m_oMediaPlayRequestData.ProgramId);
                 }
 
                 if (!resultParse || action == MediaPlayActions.HIT)

@@ -8476,7 +8476,7 @@ namespace Core.ConditionalAccess
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
         }
 
-        public static List<long> GetAssetRuleIds(int groupId, int mediaId, long programId)
+        public static List<long> GetAssetRuleIds(int groupId, int mediaId, ref long programId)
         {
             List<long> assetRuleIds = new List<long>();
 
