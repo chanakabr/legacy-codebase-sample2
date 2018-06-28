@@ -59,6 +59,22 @@ namespace ApiObjects.MediaMarks
             NpvrId = string.Empty;
         }
 
+        public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, int assetTypeId, string action, 
+                              int deviceFamilyId, long createdAt,long programId, string npvrId)
+        {
+            this.UDID = udid;
+            this.AssetId = assetID;
+            this.UserId = userId;
+            this.TimeStamp = timeStamp;
+            this.playType = playType.ToString();
+            this.AssetAction = action;
+            this.AssetTypeId = assetTypeId;
+            this.DeviceFamilyId = deviceFamilyId;
+            this.CreatedAt = createdAt;
+            this.ProgramId = programId;
+            this.NpvrId = npvrId;
+        }
+
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration)
         {
             return new UserMediaMark()

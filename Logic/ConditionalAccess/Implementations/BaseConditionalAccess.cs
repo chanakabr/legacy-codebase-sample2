@@ -10833,12 +10833,14 @@ namespace Core.ConditionalAccess
                                     List<int> mediaConcurrencyRuleIds, int domainID, List<long> assetConcurrencyRuleIds)
         {
             int ruleID = 0;
-            // create PlayCycle       
+            
+            // take the first rule (probably will be just one rule)
             if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
             {
-                ruleID = mediaConcurrencyRuleIds[0]; // take the first rule (probably will be just one rule)
+                ruleID = mediaConcurrencyRuleIds[0];
             }
 
+            // create PlayCycle
             string sPlayCycleKey;
             PlayCycleSession playCycleSession = null;
             if (!Utils.IsAnonymousUser(userId))

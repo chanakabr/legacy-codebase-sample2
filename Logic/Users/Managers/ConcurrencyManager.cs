@@ -55,7 +55,10 @@ namespace Core.Users
         /// <returns></returns>
         private static DomainResponseStatus ValidateMediaConcurrency(List<int> mediaRuleIds, Domain domain, int mediaId, string udid, int groupId, int deviceFamilyId)
         {
-            DomainResponseStatus response = DomainResponseStatus.OK;
+            if (mediaRuleIds == null || mediaRuleIds.Count == 0)
+            {
+                return DomainResponseStatus.OK;
+            }
 
             log.DebugFormat("ValidateAssetConcurrency, domainId:{0}, mediaId:{1}, ruleIds:{2}",
                             domain.m_nDomainID, mediaId, string.Join(",", mediaRuleIds));
@@ -63,86 +66,94 @@ namespace Core.Users
             try
             {
                 // Get all domain media marks
-                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
-                
-                if (devicePlayData != null)
+                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, 
+                                                                                       new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, 
+                                                                                       Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+
+                if (devicePlayData == null || devicePlayData.Count == 0)
                 {
-                    // Get all group's media concurrency rules
-                    var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(groupId);
+                    return DomainResponseStatus.OK;
+                }
 
-                    if (groupConcurrencyRules == null || groupConcurrencyRules.Count == 0)
-                        return response;
+                // Get all group's media concurrency rules
+                var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(groupId);
 
-                    ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
+                if (groupConcurrencyRules == null || groupConcurrencyRules.Count == 0)
+                {
+                    return DomainResponseStatus.OK;
+                }
+                
+                foreach (int ruleId in mediaRuleIds)
+                {
+                    // Search for the relevant rules
+                    var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
+
                     int mediaConcurrencyLimit = 0;
+                    ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
+
+                    // If we got one from the cache/api method, we will use its dat
+                    if (mediaConcurrencyRule != null)
+                    {
+                        mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
+                        policy = mediaConcurrencyRule.RestrictionPolicy;
+                    }
+                    // Otherwise we get the limiation from DB in the old fashion
+                    else
+                    {
+                        // get limitation from DB
+                        DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                        {
+                            mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                            policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
+                        }
+                    }
+
+                    if (mediaConcurrencyLimit == 0)
+                        continue;
+
                     List<DevicePlayData> assetDevicePlayData = null;
 
-                    foreach (int ruleId in mediaRuleIds)
+                    switch (policy)
                     {
-                        // Search for the relevant rules
-                        var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
-
-                        // If we got one from the cache/api method, we will use its dat
-                        if (mediaConcurrencyRule != null)
-                        {
-                            mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
-                            policy = mediaConcurrencyRule.RestrictionPolicy;
-                        }
-                        // Otherwise we get the limiation from DB in the old fashion
-                        else
-                        {
-                            // get limitation from DB
-                            DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
-                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                        case ConcurrencyRestrictionPolicy.Single:
                             {
-                                mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
-                                policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
-                            }
-                        }
-
-                        if (mediaConcurrencyLimit == 0)
-                            continue;
-
-                        switch (policy)
-                        {
-                            case ConcurrencyRestrictionPolicy.Single:
-                                {
-                                    assetDevicePlayData = devicePlayData.FindAll(x => 
-                                        !x.UDID.Equals(udid) && 
-                                        x.AssetId == mediaId &&
-                                        x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
-                                    break;
-                                }
-                            case ConcurrencyRestrictionPolicy.Group:
-                                {
-                                    assetDevicePlayData = devicePlayData.FindAll(x => 
-                                        !x.UDID.Equals(udid) &&
-                                        x.MediaConcurrencyRuleIds != null &&
-                                        x.MediaConcurrencyRuleIds.Contains(ruleId) &&
-                                        x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
-                                    break;
-                                }
-                            default:
+                                assetDevicePlayData = devicePlayData.FindAll(x =>
+                                    !x.UDID.Equals(udid) &&
+                                    x.AssetId == mediaId &&
+                                    x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                 break;
-                        }
+                            }
+                        case ConcurrencyRestrictionPolicy.Group:
+                            {
+                                assetDevicePlayData = devicePlayData.FindAll(x =>
+                                    !x.UDID.Equals(udid) &&
+                                    x.MediaConcurrencyRuleIds != null &&
+                                    x.MediaConcurrencyRuleIds.Contains(ruleId) &&
+                                    x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                break;
+                            }
+                        default:
+                            break;
+                    }
 
-                        if (assetDevicePlayData != null && assetDevicePlayData.Count >= mediaConcurrencyLimit)
-                        {
-                            log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, mediaId:{1}, ruleId:{2}, limit:{3}, count:{4}",
-                                domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetDevicePlayData.Count);
+                    if (assetDevicePlayData != null && assetDevicePlayData.Count >= mediaConcurrencyLimit)
+                    {
+                        log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, mediaId:{1}, ruleId:{2}, limit:{3}, count:{4}",
+                            domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetDevicePlayData.Count);
 
-                            if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
-                                return DomainResponseStatus.MediaConcurrencyLimitation;
-                        }
+                        if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
+                            return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error("Error - ValidateMediaConcurrency", ex);
+                return DomainResponseStatus.Error;
             }
 
-            return response;
+            return DomainResponseStatus.OK;
         }
 
         private static DomainResponseStatus ValidateAssetRulesConcurrency(int groupId, List<long> assetRuleIds, Domain domain, string udid, int mediaId, int deviceFamilyId, long programId)
@@ -287,6 +298,7 @@ namespace Core.Users
                 {
                     foreach (var otherDeviceFamilyId in otherDeviceFamilyIds)
                     {
+                        // TODO SHIR - ASK IRA IF CHECK FIFO LIFO
                         int otherDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(otherDeviceFamilyId);
                         if (otherDevicePriorityIndex == -1 || currDevicePriorityIndex < otherDevicePriorityIndex)
                         {

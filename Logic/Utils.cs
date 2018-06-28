@@ -466,8 +466,8 @@ namespace APILogic
                                         {
                                             DataRow[] drTags = ds.Tables[1].Select("rule_id=" + ruleID);
 
-                                            rule.TagValues.AddRange(drTags.Select(x => (int)x.Field<Int64>("TAG_ID")).ToList());
-                                            rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")).ToList());
+                                            rule.TagValues.AddRange(drTags.Select(x => (int)x.Field<Int64>("TAG_ID")));
+                                            rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")));
                                         }
                                         result.Add(rule);
                                     }                                    

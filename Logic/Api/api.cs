@@ -4421,15 +4421,19 @@ namespace Core.Api
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        /***************************************************************************************************************************
-         * 
-         This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
-         * 
-         ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID = -1, eBusinessModule? type = null)
+        /// <summary>
+        /// This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
+        /// </summary>
+        /// <param name="mediaId"></param>
+        /// <param name="ip"></param>
+        /// <param name="groupId"></param>
+        /// <param name="bmID"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string ip, int groupId, int bmID = -1, eBusinessModule? type = null)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
-            //MediaConcurrencyRule rule = null;
+            
             try
             {
                 var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
@@ -4437,28 +4441,31 @@ namespace Core.Api
 
                 // get all related rules to media 
                 string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
-                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
-                    key, ref ruleIds, Get_MCRulesIdsByMediaId,
-                    new Dictionary<string, object>()
-                        {
-                        { "groupId", groupId },
-                        { "mediaId", mediaId },
-                        { "mcr", groupMediaConcurrencyRules }
-                        },
-                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
-                if (!cacheResult)
+                if (!LayeredCache.Instance.Get<List<int>>(key,
+                                                          ref ruleIds, 
+                                                          Get_MCRulesIdsByMediaId,
+                                                          new Dictionary<string, object>()
+                                                          {
+                                                            { "groupId", groupId },
+                                                            { "mediaId", mediaId },
+                                                            { "mcr", groupMediaConcurrencyRules }
+                                                          },
+                                                          groupId, 
+                                                          LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                          new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) }))
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
                     return null;
                 }
-                else if (ruleIds != null && ruleIds.Count > 0)
+
+                if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
-                    (bmID == -1 || x.bmId == bmID) &&
-                    (type == null || x.Type == type)).ToList();
+                    res.AddRange(groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
+                                                                       (bmID == -1 || x.bmId == bmID) &&
+                                                                       (type == null || x.Type == type.Value)));
                 }
+
                 return res;
             }
             catch (Exception ex)
