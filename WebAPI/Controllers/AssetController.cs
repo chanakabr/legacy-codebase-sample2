@@ -952,7 +952,7 @@ namespace WebAPI.Controllers
 
             KS ks = KS.GetFromRequest();
 
-            contextDataParams.Validate(assetType);
+            contextDataParams.Validate(assetType, assetId);
 
             try
             {
@@ -1088,7 +1088,7 @@ namespace WebAPI.Controllers
             KS ks = KS.GetFromRequest();
             string userId = ks.UserId;
 
-            contextDataParams.Validate(assetType);
+            contextDataParams.Validate(assetType, assetId);
 
             try
             {

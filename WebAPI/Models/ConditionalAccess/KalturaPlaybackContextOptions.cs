@@ -78,7 +78,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
 
-        internal void Validate(Catalog.KalturaAssetType assetType)
+        internal void Validate(Catalog.KalturaAssetType assetType, string assetId)
         {
             Validate();
 
@@ -91,6 +91,12 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
                 }
+            }
+
+            int validAssetId = 0;
+            if (!int.TryParse(assetId, out validAssetId) || validAssetId == 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetId");
             }
         }
     }
