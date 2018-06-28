@@ -131,7 +131,8 @@ namespace Core.Users
                             log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, mediaId:{1}, ruleId:{2}, limit:{3}, count:{4}",
                                 domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetDevicePlayData.Count);
 
-                            return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId));
+                            if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
+                                return DomainResponseStatus.MediaConcurrencyLimitation;
                         }
                     }
                 }
@@ -210,7 +211,8 @@ namespace Core.Users
                         log.DebugFormat("ValidateAssetRulesConcurrency, domainId:{0}, mediaId:{1}, assetRuleId:{2}, limit:{3}, count:{4}",
                                         domain, mediaId, currAssetRuleId, concurrencyCondition.Limit, assetDevicePlayData.Count);
 
-                        return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId));
+                        if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
+                            return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
             }
