@@ -4672,7 +4672,7 @@ namespace Tvinci.Core.DAL
                             (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
                             !playActions.Contains(x.AssetAction.ToLower())).ToList();
 
-                        return domainPlayData;
+                        return filteredDevices;
                     }
                 }
                 catch (Exception ex)
