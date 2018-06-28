@@ -635,6 +635,9 @@ namespace ElasticSearch.Common
 
             ESMappingObj mappingObj = new ESMappingObj(mappingName);
 
+            // EPG should have TTL enabled
+            mappingObj.ttlEnabled = true;
+
             if (shouldAddRouting)
             {
                 ESRouting routing = new ESRouting()

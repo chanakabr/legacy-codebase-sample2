@@ -582,6 +582,12 @@ namespace ElasticSearch.Common
                     {
                         requestString.AppendFormat(", \"_routing\": \"{0}\"", bulk.routing);
                     }
+
+                    if (!string.IsNullOrEmpty(bulk.ttl))
+                    {
+                        requestString.AppendFormat(", \"_ttl\": \"{0}\"", bulk.ttl);
+                    }
+
                     requestString.AppendFormat(",\"_id\" : \"{0}\"", bulk.docID);
 
                     requestString.Append(" } }\n");
