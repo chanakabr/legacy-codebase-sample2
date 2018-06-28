@@ -45,7 +45,7 @@ namespace APILogic.Api.Managers
         private static Tuple<Dictionary<long, string>, bool> GetAllLinearMedia(Dictionary<string, object> funcParams)
         {
             Dictionary<long, string> allLinearMedia = null;
-
+            bool res = true;
             try
             {
                 if (funcParams != null && funcParams.Count == 1)
@@ -76,10 +76,11 @@ namespace APILogic.Api.Managers
             }
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("GetAllLinearMedia faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<long, string>, bool>(allLinearMedia, allLinearMedia != null);
+            return new Tuple<Dictionary<long, string>, bool>(allLinearMedia, res);
         }
     }
 }

@@ -4329,7 +4329,7 @@ namespace Core.Api
 
         internal static Tuple<List<int>, bool> Get_MCRulesIdsByMediaId(Dictionary<string, object> funcParams)
         {
-            bool res = false;
+            bool res = true;
             List<int> ruleIds = new List<int>();
             try
             {
@@ -4375,8 +4375,6 @@ namespace Core.Api
                                     }
                                 }
                             });
-
-                            res = true;
                         }
                     }
                 }
@@ -4384,8 +4382,10 @@ namespace Core.Api
 
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
+
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
 
@@ -4434,6 +4434,9 @@ namespace Core.Api
             {
                 var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
                 List<int> ruleIds = new List<int>();
+
+                if (groupMediaConcurrencyRules == null || groupMediaConcurrencyRules.Count == 0)
+                    return res;
 
                 // get all related rules to media 
                 string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
