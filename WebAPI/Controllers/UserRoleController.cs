@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         {
             if (id < 1)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "id", 1);
+                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETER, "id");
             }
 
             KalturaUserRole response = null;
