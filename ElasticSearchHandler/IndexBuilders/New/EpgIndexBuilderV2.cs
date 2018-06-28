@@ -22,6 +22,7 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         private static readonly string EPG = "epg";
         protected const string VERSION = "2";
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -458,6 +459,8 @@ namespace ElasticSearchHandler.IndexBuilders
                         string serializedEpg = SerializeEPGObject(epg, suffix);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
+                        string ttl = string.Format("{0}h", Math.Ceiling((epg.SearchEndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalHours));
+
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
                             docID = GetDocumentId(epg),
@@ -465,7 +468,8 @@ namespace ElasticSearchHandler.IndexBuilders
                             index = index,
                             Operation = eOperation.index,
                             routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                            type = epgType
+                            type = epgType,
+                            ttl = ttl
                         });
                     }
 
