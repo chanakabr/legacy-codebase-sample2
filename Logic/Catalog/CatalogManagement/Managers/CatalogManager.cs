@@ -1560,7 +1560,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         result.Status.Code = (int)eResponseStatus.TopicNotFound;
                         result.Status.Message = eResponseStatus.TopicNotFound.ToString();
-                        log.ErrorFormat("Error at AddTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tag));
+                        log.ErrorFormat("Error at AddTag. TopicId not found. GroupId: {0}", groupId);
                         return result;
                     }
                 }
@@ -1627,7 +1627,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         result.Status.Code = (int)eResponseStatus.TopicNotFound;
                         result.Status.Message = eResponseStatus.TopicNotFound.ToString();
-                        log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tagToUpdate));
+                        log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}", groupId);
                         return result;
                     }
                 }

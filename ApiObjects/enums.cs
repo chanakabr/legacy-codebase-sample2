@@ -1047,4 +1047,12 @@ namespace ApiObjects
         Dtt_and_ott = 3
     }
 
+    public enum ExcelColumnType
+    {
+        Asset = 0,
+        Topic = 1,
+        Image = 2,
+        File = 3
+    }
+
 }

@@ -9,15 +9,33 @@ namespace Core.Catalog.CatalogManagement
 {
     public class MediaAsset : Asset
     {
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public DateTime? CatalogStartDate { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public DateTime? FinalEndDate { get; set; }
+
         public MediaType MediaType { get; set; }
-        public string EntryId { get; set; }        
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
+        public string EntryId { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public int? DeviceRuleId { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public int? GeoBlockRuleId { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<AssetFile> Files { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public string UserTypes { get; set; }
+
+        [ExcelTemplateAttribute(PropertyValueRequired = true)]
         public bool? IsActive { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public MediaAssetType MediaAssetType { get; set; }
 
         public MediaAsset()

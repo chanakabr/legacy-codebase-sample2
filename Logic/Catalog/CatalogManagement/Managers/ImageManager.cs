@@ -79,15 +79,19 @@ namespace Core.Catalog.CatalogManagement
             string key = LayeredCacheKeys.GetGroupImageTypesKey(groupId);
 
             // try to get from cache  
-
+            List<ImageType> tempResult = null;
             bool cacheResult = LayeredCache.Instance.Get<List<ImageType>>(
-                key, ref result, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
+                key, ref tempResult, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_IMAGE_TYPE_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId) });
 
             if (!cacheResult)
             {
                 log.Error(string.Format("GetImageTypes - Failed get data from cache groupId = {0}", groupId));
                 result = null;
+            }
+            else
+            {
+                result = new List<ImageType>(tempResult);
             }
 
             return result;
@@ -438,7 +442,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddImageType for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageTypeToAdd)), ex);
+                log.Error(string.Format("Failed AddImageType for groupId: {0}", groupId), ex);
             }
 
             return result;
@@ -569,7 +573,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateImageType for groupId: {0}, id: {1} and ImageType: {2}", groupId, id, JsonConvert.SerializeObject(imageTypeToUpdate)), ex);
+                log.Error(string.Format("Failed UpdateImageType for groupId: {0}, id: {1}", groupId, id), ex);
             }
 
             return result;
@@ -757,7 +761,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddImage for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageToAdd)), ex);
+                log.Error(string.Format("Failed AddImage for groupId: {0}", groupId), ex);
             }
 
             return result;
@@ -893,7 +897,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddRatio for groupId: {0} and ratio: {1}", groupId, JsonConvert.SerializeObject(ratio)), ex);
+                log.Error(string.Format("Failed AddRatio for groupId: {0}", groupId), ex);
             }
 
             return result;

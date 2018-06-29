@@ -22,8 +22,7 @@ namespace Core.Catalog.CatalogManagement
         #region Constants and Readonly
 
         private const string NAME_META_SYSTEM_NAME = "Name";
-        private const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
-        private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";        
         private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         private const string STATUS_META_SYSTEM_NAME = "Status";
         private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
@@ -31,12 +30,13 @@ namespace Core.Catalog.CatalogManagement
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        internal static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
         };
 
+        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         public const string EPG_ASSET_STRUCT_SYSTEM_NAME = "Program";

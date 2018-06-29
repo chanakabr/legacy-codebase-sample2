@@ -290,7 +290,6 @@ namespace Core.Catalog.CatalogManagement
                 return status;
             }
 
-
             DataSet ds = CatalogDAL.GetMediaFilesByExternalIdAndAltExternalId(groupId, assetFile.ExternalId, assetFile.AltExternalId);
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -558,9 +557,8 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
-
-                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.TypeId).SingleOrDefault();
-                if (mediaFileType == null)
+                
+                if (!mediaFileTypes.Any(x => x.Id == assetFileToAdd.TypeId))
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
@@ -628,7 +626,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddAssetFile for groupId: {0} and AssetFile: {1}", groupId, JsonConvert.SerializeObject(assetFileToAdd)), ex);
+                log.Error(string.Format("Failed AddAssetFile for groupId: {0}", groupId), ex);
             }
 
             return result;
@@ -789,7 +787,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateAssetFile for groupId: {0} and AssetFile: {1}", groupId, JsonConvert.SerializeObject(assetFileToUpdate)), ex);
+                log.Error(string.Format("Failed UpdateAssetFile for groupId: {0}", groupId), ex);
             }
 
             return result;

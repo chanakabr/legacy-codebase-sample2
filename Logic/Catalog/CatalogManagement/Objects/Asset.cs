@@ -9,22 +9,49 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Asset
     {
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public long Id { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public eAssetTypes AssetType { get; set; }
+
+        [ExcelTemplateAttribute(PropertyValueRequired = true)]
         public string Name { get; set; }
-        // Name in other languages other then default (when language="*")
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        // Name in other languages other then default (when language="*")        
         public List<LanguageContainer> NamesWithLanguages { get; set; }
+
+        [ExcelTemplateAttribute(PropertyValueRequired = true)]
         public string Description { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         // Description in other languages other then default (when language="*")
         public List<LanguageContainer> DescriptionsWithLanguages { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public DateTime? CreateDate { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public DateTime? UpdateDate { get; set; }
-        public DateTime? StartDate { get; set; }        
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
+        public DateTime? StartDate { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public DateTime? EndDate { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Metas> Metas { get; set; }
-        public List<Tags> Tags { get; set; }        
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        public List<Tags> Tags { get; set; }
+
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Image> Images { get; set; }
-        public string CoGuid{ get; set; }        
+
+        [ExcelTemplateAttribute(PropertyValueRequired = true, IsKeyProperty = true)]
+        public string CoGuid{ get; set; }
 
         public Asset()
         {            
