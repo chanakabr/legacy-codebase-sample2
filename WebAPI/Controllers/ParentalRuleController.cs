@@ -364,7 +364,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().AddParentalRule(groupId, parentalRule, userId);
+                response = ClientsManager.ApiClient().UpdateParentalRule(groupId, id, parentalRule, userId);
             }
             catch (ClientException ex)
             {
