@@ -553,11 +553,11 @@ namespace APILogic
             {
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
                 {
-                    int? groupId = funcParams["groupId"] as int?;
+                    int? groupId = funcParams["groupId"] as int?;                    
                     if (groupId.HasValue)
                     {
-                        result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value, false);
-
+                        bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value);
+                        result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value, false, doesGroupUsesTemplates);
                         res = result != null ? true : false;
                     }
                 }
