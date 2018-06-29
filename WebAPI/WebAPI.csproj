@@ -1115,10 +1115,6 @@
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ExcelManager\ExcelManager.csproj">
-      <Project>{b244d457-c486-48a4-8bb2-7ecd008d4054}</Project>
-      <Name>ExcelManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
       <Name>GoogleAPI</Name>
