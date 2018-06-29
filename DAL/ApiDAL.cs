@@ -1594,7 +1594,7 @@ namespace DAL
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static List<ParentalRule> Get_Group_ParentalRules(int groupId, bool shouldGetOnlyActive)
+        public static List<ParentalRule> Get_Group_ParentalRules(int groupId, bool shouldGetOnlyActive, bool doesGroupUsesTemplates)
         {
             // Perform stored procedure
 
@@ -1602,6 +1602,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@ShouldGetOnlyActive", shouldGetOnlyActive ? 1 : 0);
+            storedProcedure.AddParameter("@DoesGroupUsesTemplates", doesGroupUsesTemplates ? 1 : 0);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
