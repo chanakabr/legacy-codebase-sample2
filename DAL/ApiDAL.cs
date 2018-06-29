@@ -4579,7 +4579,7 @@ namespace DAL
             sp.AddParameter("@Id", id);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@Description", description);
-            sp.AddParameter("@Order", order);
+            sp.AddParameter("@OrderNum", order);
             sp.AddParameter("@MediaTopicId", mediaTopicId);
             sp.AddParameter("@ShouldUpdateMediaTopicId", mediaTopicId.HasValue ? 1 : 0);
             sp.AddParameter("@ShouldUpdateMediaTagValues", shouldUpdateMediaTagValues ? 1 : 0);
