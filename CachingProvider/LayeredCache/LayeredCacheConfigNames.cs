@@ -63,6 +63,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_DEFAULT_IMAGES_CACHE_CONFIG_NAME = "GetGroupDefaultImages";
         public const string GET_CHANNELS_CACHE_CONFIG_NAME = "GetChannels";
         public const string GET_TSTV_ACCOUNT_SETTINGS_CACHE_CONFIG_NAME = "GetTimeShiftedTvPartnerSettings";
+        public const string GET_EXCEL_TEMPLATE = "GenerateExcelAsBytes";
 
         #endregion
 

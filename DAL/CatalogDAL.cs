@@ -5602,6 +5602,16 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public static DataTable ValidateExternalIdsExist(int groupId, List<string> externalIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("ValidateExternalIdsExist");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);            
+            sp.AddIDListParameter("@ExternalIds", externalIds, "STR");
+
+            return sp.Execute();
+        }
+
         #endregion
     }
 }
