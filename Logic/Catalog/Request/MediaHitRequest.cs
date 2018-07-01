@@ -265,9 +265,9 @@ namespace Core.Catalog.Request
 
                 // Get AssetRules
                 List<long> assetRulesIds = null;
-                if (playCycleSession != null && playCycleSession.AssetConcurrencyRuleIds != null && playCycleSession.AssetConcurrencyRuleIds.Count > 0)
+                if (playCycleSession != null && playCycleSession.AssetMediaConcurrencyRuleIds != null && playCycleSession.AssetMediaConcurrencyRuleIds.Count > 0)
                 {
-                    assetRulesIds = playCycleSession.AssetConcurrencyRuleIds;
+                    assetRulesIds = playCycleSession.AssetMediaConcurrencyRuleIds;
                 }
                 else
                 {
