@@ -42,6 +42,7 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using APILogic.Api.Managers;
 using Core.Api.Managers;
+using ApiObjects.PlayCycle;
 
 namespace Core.ConditionalAccess
 {
@@ -8476,12 +8477,43 @@ namespace Core.ConditionalAccess
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
         }
 
-        public static List<long> GetAssetRuleIds(int groupId, int mediaId, ref long programId)
+        public static void GetAssetRuleIds(PlayCycleSession playCycleSession, int groupId, int mediaId, ref long programId, 
+                                    out List<long> assetMediaRuleIds, out List<long> assetEpgRuleIds)
+        {
+            assetMediaRuleIds = null;
+            assetEpgRuleIds = null;
+
+            if (playCycleSession != null)
+            {
+                if (playCycleSession.AssetMediaRuleIds != null && playCycleSession.AssetMediaRuleIds.Count > 0)
+                {
+                    assetMediaRuleIds = playCycleSession.AssetMediaRuleIds;
+                }
+                else
+                {
+                    assetMediaRuleIds = GetAssetRuleIdsByAssetType(groupId, mediaId, ref programId);
+                    playCycleSession.AssetMediaRuleIds = assetMediaRuleIds;
+                }
+
+                if (playCycleSession.AssetEpgRuleIds != null && playCycleSession.AssetEpgRuleIds.Count > 0)
+                {
+                    assetEpgRuleIds = playCycleSession.AssetEpgRuleIds;
+                }
+                else
+                {
+                    assetEpgRuleIds = GetAssetRuleIdsByAssetType(groupId, mediaId, ref programId);
+                    playCycleSession.AssetEpgRuleIds = assetEpgRuleIds;
+                }
+            }
+        }
+
+        // TODO SHIR - EDIT THIS METHOD TO GET BY TYPE
+        public static List<long> GetAssetRuleIdsByAssetType(int groupId, int mediaId, ref long programId)
         {
             List<long> assetRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
-                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId.ToString(), eAssetTypes.MEDIA));
+                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
             
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
@@ -8500,7 +8532,7 @@ namespace Core.ConditionalAccess
             if (programId != 0)
             {
                 GenericListResponse<AssetRule> assetRulesEpgResponse =
-                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId.ToString(), eAssetTypes.EPG));
+                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
                     assetRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));

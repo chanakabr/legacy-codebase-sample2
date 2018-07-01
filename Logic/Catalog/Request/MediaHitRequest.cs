@@ -154,7 +154,7 @@ namespace Core.Catalog.Request
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, 
-                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, request.m_oMediaPlayRequestData.ProgramId,
+                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, null, request.m_oMediaPlayRequestData.ProgramId,
                                                 0, ePlayType.NPVR, false, false, recordingId);
                 }
 
@@ -264,15 +264,10 @@ namespace Core.Catalog.Request
                                                                               m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
 
                 // Get AssetRules
-                List<long> assetRulesIds = null;
-                if (playCycleSession != null && playCycleSession.AssetMediaConcurrencyRuleIds != null && playCycleSession.AssetMediaConcurrencyRuleIds.Count > 0)
-                {
-                    assetRulesIds = playCycleSession.AssetMediaConcurrencyRuleIds;
-                }
-                else
-                {
-                    assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, ref mediaHitRequest.m_oMediaPlayRequestData.ProgramId);
-                }
+                List<long> assetMediaRulesIds = null;
+                List<long> assetEpgRulesIds = null;
+                ConditionalAccess.Utils.GetAssetRuleIds(playCycleSession, this.m_nGroupID, mediaId, ref mediaHitRequest.m_oMediaPlayRequestData.ProgramId, 
+                                                        out assetMediaRulesIds, out assetEpgRulesIds);
 
                 if (!resultParse || action == MediaPlayActions.HIT)
                 {
@@ -280,7 +275,7 @@ namespace Core.Catalog.Request
 
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
                                                 nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, 
-                                                mediaConcurrencyRuleIds, assetRulesIds, mediaHitRequest.m_oMediaPlayRequestData.ProgramId,
+                                                mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, mediaHitRequest.m_oMediaPlayRequestData.ProgramId,
                                                 domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
                 }
 

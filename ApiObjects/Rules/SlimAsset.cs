@@ -13,9 +13,9 @@ namespace ApiObjects.Rules
         {
         }
 
-        public SlimAsset(string id, eAssetTypes assetTypes)
+        public SlimAsset(long id, eAssetTypes assetTypes)
         {
-            this.Id = id;
+            this.Id = id.ToString();
             this.Type = assetTypes;
         }
     }

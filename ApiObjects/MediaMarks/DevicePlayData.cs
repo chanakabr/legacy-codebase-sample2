@@ -43,6 +43,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("assetMediaConcurrencyRuleIds")]
         public List<long> AssetMediaConcurrencyRuleIds { get; set; }
 
+        [JsonProperty("assetEpgConcurrencyRuleIds")]
+        public List<long> AssetEpgConcurrencyRuleIds { get; set; }
+
         [JsonProperty("deviceFamilyId")]
         public int DeviceFamilyId { get; set; }
 
@@ -89,6 +92,7 @@ namespace ApiObjects.MediaMarks
                 CreatedAtEpoch = this.TimeStamp,
                 MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds,
                 AssetMediaConcurrencyRuleIds = this.AssetMediaConcurrencyRuleIds,
+                AssetEpgConcurrencyRuleIds = this.AssetEpgConcurrencyRuleIds,
                 DeviceFamilyId = this.DeviceFamilyId,
                 Location = location,
                 NpvrID = this.NpvrId,

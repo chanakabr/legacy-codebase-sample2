@@ -751,7 +751,8 @@ namespace Core.Users
         }
 
         public virtual ValidationResponseObject ValidateLimitationModule(string udid, int deviceBrandID, long userId, long domainID, ValidationType validationType,
-                                                                         List<int> mediaRuleIds, List<long> assetRuleIds, int mediaID = 0, long programId = 0)
+                                                                         List<int> mediaRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, int mediaID = 0, 
+                                                                         long programId = 0)
         {
             ValidationResponseObject response = new ValidationResponseObject();
 
@@ -773,7 +774,8 @@ namespace Core.Users
                 {
                     case ValidationType.Concurrency:
                         {
-                            response.m_eStatus = ConcurrencyManager.Validate(mediaRuleIds, assetRuleIds, domain, mediaID, udid, m_nGroupID, deviceBrandID, deviceFamilyId, programId);
+                            response.m_eStatus = ConcurrencyManager.Validate
+                                (mediaRuleIds, assetMediaRuleIds, assetEpgRuleIds, domain, mediaID, udid, m_nGroupID, deviceBrandID, deviceFamilyId, programId);
                             break;
                         }
                     case ValidationType.Frequency:

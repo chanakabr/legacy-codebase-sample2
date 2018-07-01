@@ -26,7 +26,7 @@ namespace Core.ConditionalAccess
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
                                                                  List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, 
                                                                  string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds, 
-                                                                 out List<long> assetConcurrencyRuleIds, UrlType urlType)
+                                                                 out List<long> assetMediaRuleIds, out List<long> assetEpgRuleIds, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -34,7 +34,8 @@ namespace Core.ConditionalAccess
             };
 
             mediaConcurrencyRuleIds = null;
-            assetConcurrencyRuleIds = null;
+            assetMediaRuleIds = null;
+            assetEpgRuleIds = null;
             filePrice = null;
 
             BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
@@ -199,7 +200,8 @@ namespace Core.ConditionalAccess
                         {
                             int domainID = 0;
                             DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId),
-                                                                                                      ip, ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds, programId);
+                                                                                                      ip, ref mediaConcurrencyRuleIds, ref domainID, ref assetMediaRuleIds, 
+                                                                                                      ref assetEpgRuleIds, programId);
                             if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                             {
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
@@ -251,7 +253,7 @@ namespace Core.ConditionalAccess
                                         {
                                             PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
                                                                            string.Empty, domainId, groupId);
-                                            cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetConcurrencyRuleIds);
+                                            cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, assetEpgRuleIds);
                                         }
                                     }
                                 }
@@ -364,12 +366,13 @@ namespace Core.ConditionalAccess
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
                 List<int> mediaConcurrencyRuleIds = null;
-                List<long> assetConcurrencyRuleIds = null;
+                List<long> assetMediaRuleIds = null;
+                List<long> assetEpgRuleIds = null;
 
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, 
                                                                                      file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, 
-                                                                                     ip, udid, out price, out mediaConcurrencyRuleIds, out assetConcurrencyRuleIds
-                                                                                     , UrlType.playmanifest);
+                                                                                     ip, udid, out price, out mediaConcurrencyRuleIds, out assetMediaRuleIds, out assetEpgRuleIds, 
+                                                                                     UrlType.playmanifest);
 
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -404,7 +407,7 @@ namespace Core.ConditionalAccess
                     if (domainId > 0 && Utils.IsItemPurchased(price))
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetConcurrencyRuleIds);
+                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, assetEpgRuleIds);
                     }
                 }
             }

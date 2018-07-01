@@ -2480,7 +2480,7 @@ namespace Core.Catalog
         }
         
         public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, string assetAction, int mediaTypeId,
-                                          List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, long programId, int domainId = 0, 
+                                          List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, int domainId = 0, 
                                           ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
             if (CatalogLogic.IsAnonymousUser(userId))
@@ -2520,8 +2520,8 @@ namespace Core.Catalog
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, 
-                                                                 assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, 
-                                                                 assetConcurrencyRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel, programId);
+                                                                 assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, assetMediaRuleIds, 
+                                                                 assetEpgRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel, programId);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay, programId);
@@ -4394,19 +4394,13 @@ namespace Core.Catalog
             }
 
             // Get AssetRules
-            List<long> assetRulesIds = null;
-            if (playCycleSession != null && playCycleSession.AssetMediaConcurrencyRuleIds != null && playCycleSession.AssetMediaConcurrencyRuleIds.Count > 0)
-            {
-                assetRulesIds = playCycleSession.AssetMediaConcurrencyRuleIds;
-            }
-            else
-            {
-                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(groupID, mediaID, ref programId);
-            }
+            List<long> assetMediaRulesIds = null;
+            List<long> assetEpgRulesIds = null;
+            ConditionalAccess.Utils.GetAssetRuleIds(playCycleSession, groupID, mediaID, ref programId, out assetMediaRulesIds, out assetEpgRulesIds);
 
             ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule
                 (groupID, udid, 0, siteGuidLong, domainID, ValidationType.Concurrency, 
-                 mediaConcurrencyRuleIds, assetRulesIds, mediaID, programId);
+                 mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, mediaID, programId);
 
             if (domainsResp == null)
             {

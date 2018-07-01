@@ -3,6 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+// NEW
+using ODBCWrapper;
+using ApiObjects;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Catalog;
+using ApiObjects.Rules;
 
 namespace ApiObjects.PlayCycle
 {
@@ -23,20 +29,23 @@ namespace ApiObjects.PlayCycle
 
         [JsonProperty("MediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
+        
+        // TODO SHIR -UPDATE DR
+        [JsonProperty("AssetMediaRuleIds")]
+        public List<long> AssetMediaRuleIds { get; set; }
 
-        // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
-        // TODO SHIR - add this fun to DR
-        [JsonProperty("AssetMediaConcurrencyRuleIds")]
-        public List<long> AssetMediaConcurrencyRuleIds { get; set; }
+        [JsonProperty("AssetEpgRuleIds")]
+        public List<long> AssetEpgRuleIds { get; set; }
 
-        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds)
+        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds)
         {
-            MediaConcurrencyRuleID = mediaConcurrencyRuleID;
-            PlayCycleKey = playCycleKey;
-            CreateDateMs = createDateMs;
-            DomainID = domainID;
-            MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-            AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds;
+            this.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
+            this.PlayCycleKey = playCycleKey;
+            this.CreateDateMs = createDateMs;
+            this.DomainID = domainID;
+            this.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+            this.AssetMediaRuleIds = assetMediaRuleIds;
+            this.AssetEpgRuleIds = assetEpgRuleIds;
         }
     }
 }
