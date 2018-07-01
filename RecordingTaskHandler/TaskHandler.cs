@@ -13,6 +13,7 @@ using System.Web;
 using System.ServiceModel;
 using DAL;
 using System.Threading;
+using ConfigurationManager;
 
 namespace RecordingTaskHandler
 {
@@ -113,7 +114,8 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        bool shouldDistributeRecordingSynchronously = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingSynchronously");                        
+                        bool shouldDistributeRecordingSynchronously = ApplicationConfiguration.ShouldDistributeRecordingSynchronously.Value;
+
                         if (shouldDistributeRecordingSynchronously)
                         {
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

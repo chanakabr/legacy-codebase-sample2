@@ -14,6 +14,7 @@ using System.Reflection;
 using ApiObjects.Response;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -47,10 +48,10 @@ namespace ElasticSearchHandler.IndexBuilders
             #region Build new index and specify number of nodes/shards
 
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
-            int numOfShards = TVinciShared.WS_Utils.GetTcmIntValue("ES_NUM_OF_SHARDS");
-            int numOfReplicas = TVinciShared.WS_Utils.GetTcmIntValue("ES_NUM_OF_REPLICAS");
-            int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
-            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+            int numOfShards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
+            int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
+            int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)

@@ -12,7 +12,7 @@ using System.IO.Compression;
 using ApiObjects.Epg;
 using KLogMonitor;
 using System.Reflection;
-
+using ConfigurationManager;
 
 namespace EPG_XDTVTransform
 {
@@ -74,7 +74,8 @@ namespace EPG_XDTVTransform
 
         private XmlDocument TransformToXDTV(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
         {
-            string xsltLoction = Utils.GetTcmConfigValue("GraceNote_XSLT_PATH");
+            string xsltLoction = ApplicationConfiguration.GraceNoteXSLTPath.Value;
+
             XmlDocument xmlResult = new XmlDocument();
             GraceNoteTransform transformer = new GraceNoteTransform(xsltLoction);
 
@@ -102,7 +103,8 @@ namespace EPG_XDTVTransform
 
         private Dictionary<int, int> getALUIDs()
         {
-            string sPath = Utils.GetTcmConfigValue("GraceNote_ALU_IDConvertion");
+            string sPath = ApplicationConfiguration.GraceNoteALUIdConvertion.Value;
+
             Dictionary<int, int> channelID_DB_ALU = null;
             if (File.Exists(sPath))
             {

@@ -14,6 +14,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Response;
 using System.Data;
 using Core.Catalog.CatalogManagement;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -95,9 +96,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
 
             if (sizeOfBulk == 0)
             {

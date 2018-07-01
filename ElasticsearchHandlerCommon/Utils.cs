@@ -14,6 +14,7 @@ using ApiObjects.Response;
 using Tvinci.Core.DAL;
 using Core.Catalog.Request;
 using Core.Catalog;
+using ConfigurationManager;
 
 namespace ElasticsearchTasksCommon
 {
@@ -35,7 +36,6 @@ namespace ElasticsearchTasksCommon
 		            };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static int maxNGram = 0;
 
         public static long UnixTimeStampNow()
         {
@@ -477,234 +477,7 @@ namespace ElasticsearchTasksCommon
             }
 
             return sRules;
-        }
-
-        /// <summary>
-        /// Update filter tree fields for specific fields/values.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="filterTree"></param>
-        /// <param name="definitions"></param>
-        /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
-        {
-            if (group != null && filterTree != null)
-            {
-                Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-
-                Queue<BooleanPhraseNode> nodes = new Queue<BooleanPhraseNode>();
-                nodes.Enqueue(filterTree);
-
-                // BFS
-                while (nodes.Count > 0)
-                {
-                    BooleanPhraseNode node = nodes.Dequeue();
-
-                    // If it is a leaf, just replace the field name
-                    if (node.type == BooleanNodeType.Leaf)
-                    {
-                        TreatLeaf(ref filterTree, definitions, group, node, parentMapping);
-                    }
-                    else if (node.type == BooleanNodeType.Parent)
-                    {
-                        BooleanPhrase phrase = node as BooleanPhrase;
-
-                        // Run on tree - enqueue all child nodes to continue going deeper
-                        foreach (var childNode in phrase.nodes)
-                        {
-                            nodes.Enqueue(childNode);
-                            parentMapping.Add(childNode, phrase);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update filter tree node fields for specific fields/values.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="filterTree"></param>
-        /// <param name="definitions"></param>
-        /// <param name="group"></param>
-        /// <param name="node"></param>
-        private static void TreatLeaf(ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
-        {
-            // initialize maximum nGram member only once - when this is negative it is still not set
-            if (maxNGram < 0)
-            {
-                maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
-            }
-            
-            BooleanLeaf leaf = node as BooleanLeaf;
-            bool isTagOrMeta;
-
-            // Add prefix (meta/tag) e.g. metas.{key}
-
-            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta);
-
-            if (searchKeys.Count > 1)
-            {
-                if (isTagOrMeta)
-                {
-                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
-
-                    // Split the single leaf into several brothers connected with an "or" operand
-                    foreach (var searchKey in searchKeys)
-                    {
-                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
-                    }
-
-                    BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
-
-                    BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
-                }
-            }
-            else if (searchKeys.Count == 1)
-            {
-                string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
-                string originalKey = leaf.field;
-
-                // Default - string, until proved otherwise
-                leaf.valueType = typeof(string);
-
-                // If this is a tag or a meta, we can continue happily.
-                // If not, we check if it is one of the "core" fields.
-                // If it is not one of them, an exception will be thrown
-                if (!isTagOrMeta)
-                {
-                    // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                    if (searchKeyLowered == "start_date")
-                    {
-                        definitions.shouldUseStartDateForEpg = false;
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = TVinciShared.DateUtils.UnixTimeStampToDateTime(epoch);
-                    }
-                    else if (searchKeyLowered == "end_date")
-                    {
-                        definitions.shouldUseEndDateForEpg = false;
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = TVinciShared.DateUtils.UnixTimeStampToDateTime(epoch);
-                    }
-                    else if (searchKeyLowered == "update_date")
-                    {
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = TVinciShared.DateUtils.UnixTimeStampToDateTime(epoch);
-                    }
-                    else if (searchKeyLowered == "geo_block")
-                    {
-                        // geo_block is a personal filter that currently will work only with "true".
-                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
-                        {
-                            // I mock operator+value so that it will not have any meaning, it will be ignored
-                            leaf.field = "_id";
-                            leaf.operand = ComparisonOperator.NotEquals;
-                            leaf.value = "-1";                          
-                        }
-                        else
-                        {
-                            throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
-                        }
-                    }
-                    else if (searchKeyLowered == "parental_rules")
-                    {
-                        // Same as geo_block: it is a personal filter that currently will work only with "true".
-                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
-                        {
-                            // I mock operator+value so that it will not have any meaning, it will be ignored
-                            leaf.field = "_id";
-                            leaf.operand = ComparisonOperator.NotEquals;
-                            leaf.value = "-1";                         
-                        }
-                        else
-                        {
-                            throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
-                        }
-                    }
-                    else if (searchKeyLowered == "entitled_assets")
-                    {
-                        // Same as geo_block: it is a personal filter that currently will work only with "true".
-                        if (leaf.operand != ComparisonOperator.Equals || leaf.value.ToString().ToLower() != "true")
-                        {
-                            throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
-                        }
-
-                        // I mock operator+value so that it will not have any meaning, it will be ignored
-                        leaf.field = "_id";
-                        leaf.operand = ComparisonOperator.NotEquals;
-                        leaf.value = "-1";
-                    }
-                    else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
-                    {
-                        leaf.valueType = typeof(long);
-                    }
-                    else if (!reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
-                    {
-                        throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
-                    }
-                }
-
-                leaf.field = searchKeys.FirstOrDefault();
-
-                #region IN operator
-
-                // Handle IN operator - validate the value, convert it into a proper list that the ES-QueryBuilder can use
-                if (leaf.operand == ComparisonOperator.In || leaf.operand == ComparisonOperator.NotIn &&
-                    leaf.valueType != typeof(List<string>))
-                {
-                    leaf.valueType = typeof(List<string>);
-                    string value = leaf.value.ToString().ToLower();
-
-                    string[] values = value.Split(',');
-
-                    // If there are 
-                    if (values.Length == 0)
-                    {
-                        throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey), (int)eResponseStatus.SyntaxError);
-                    }
-
-                    foreach (var single in values)
-                    {
-                        int temporaryInteger;
-
-                        if (!int.TryParse(single, out temporaryInteger))
-                        {
-                            throw new KalturaException(string.Format("Invalid IN clause of: {0}", originalKey),
-                                (int)eResponseStatus.SyntaxError);
-                        }
-                    }
-
-                    // Put new list of strings in boolean leaf
-                    leaf.value = values.ToList();
-                }
-
-                #endregion
-
-            }
-
-            #region Trim search value
-
-            // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
-            // Otherwise the search will not work completely 
-            if (maxNGram > 0 &&
-                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains
-                || leaf.operand == ComparisonOperator.WordStartsWith))
-            {
-                leaf.value = TVinciShared.StringUtils.Truncate(leaf.value.ToString(), maxNGram);
-            }
-
-            #endregion
-        }
+        }       
 
         /// <summary>
         /// Verifies that the search key is a tag or a meta of either EPG or media
@@ -775,6 +548,7 @@ namespace ElasticsearchTasksCommon
 
             return searchKeys;
         }
+
         #endregion
 
         // This is taken from Media index builder!
@@ -810,13 +584,16 @@ namespace ElasticsearchTasksCommon
                     return Core.Catalog.CatalogManagement.AssetManager.GetGroupMediaAssets(groupId);
                 }
 
-                ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
-                GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
+                ODBCWrapper.StoredProcedure groupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
+                groupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                GroupMedias.AddParameter("@GroupID", groupId);
-                GroupMedias.AddParameter("@MediaID", nMediaID);
+                groupMedias.AddParameter("@GroupID", groupId);
+                groupMedias.AddParameter("@MediaID", nMediaID);
 
-                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
+                // increase timeout: default is 30. Stored procedure might take longer than that if there are too many media.
+                groupMedias.SetTimeout(90);
+
+                Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => groupMedias.ExecuteDataSet());
                 tDS.Wait();
                 DataSet dataSet = tDS.Result;
 
@@ -885,12 +662,12 @@ namespace ElasticsearchTasksCommon
 
                                 media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
 
-                                //string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
+                                string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
 
-                                //if (!string.IsNullOrEmpty(epgIdentifier))
-                                //{
-                                //    media.epgIdentifier = epgIdentifier;
-                                //}
+                                if (!string.IsNullOrEmpty(epgIdentifier))
+                                {
+                                    media.epgIdentifier = epgIdentifier;
+                                }
 
                                 #endregion
 
@@ -1151,6 +928,39 @@ namespace ElasticsearchTasksCommon
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        #endregion
+
+                        #region - get countries of media
+
+                        // Regions table should be 6h on stored procedure
+                        if (dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null)
+                        {
+                            foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
+                                int countryId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "COUNTRY_ID");
+                                bool isAllowed = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_ALLOWED") == 1;
+
+                                if (isAllowed)
+                                {
+                                    medias[mediaId].allowedCountries.Add(countryId);
+                                }
+                                else
+                                {
+                                    medias[mediaId].blockedCountries.Add(countryId);
+                                }
+                            }   
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (Media media in medias.Values)
+                        {
+                            if (media.allowedCountries.Count == 0)
+                            {
+                                media.allowedCountries.Add(0);
                             }
                         }
 

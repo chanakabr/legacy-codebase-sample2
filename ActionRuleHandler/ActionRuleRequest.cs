@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using ApiObjects.Json.Converters;
+using ApiObjects;
 
 namespace ActionRuleHandler
 {
@@ -20,6 +21,13 @@ namespace ActionRuleHandler
 
         [JsonProperty("rule_ids")]
         public List<long> RuleIds
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("action_type")]
+        public RuleActionTaskType ActionType
         {
             get;
             set;

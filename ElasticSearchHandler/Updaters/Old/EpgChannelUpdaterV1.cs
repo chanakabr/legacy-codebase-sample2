@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using ElasticSearch.Common;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -151,7 +152,7 @@ namespace ElasticSearchHandler.Updaters
                 }
 
                 // get all epg programs related to epg channel      
-                int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
+                int days = ApplicationConfiguration.ElasticSearchHandlerConfiguration.ChannelStartDateDays.IntValue;
                 if (days == 0)
                     days = DAYS;
 

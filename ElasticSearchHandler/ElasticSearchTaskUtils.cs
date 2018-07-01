@@ -18,6 +18,7 @@ using ElasticSearch.Common;
 using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler
 {
@@ -25,27 +26,7 @@ namespace ElasticSearchHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly int DAYS = 7;
-        public static string GetWSURL(string key)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(key);
-        }
-
-        public static string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
-            }
-            return result;
-        }
-
-
+       
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -193,7 +174,7 @@ namespace ElasticSearchHandler
         {
             try
             {
-                int days = TCMClient.Settings.Instance.GetValue<int>("CURRENT_REQUEST_DAYS_OFFSET");
+                int days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
                 if (days == 0)
                 {

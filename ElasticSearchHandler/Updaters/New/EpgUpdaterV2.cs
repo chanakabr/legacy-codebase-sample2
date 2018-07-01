@@ -11,6 +11,7 @@ using System.Reflection;
 using ElasticSearch.Searcher;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -20,6 +21,7 @@ namespace ElasticSearchHandler.Updaters
 
         public static readonly string EPG = "epg";
         public static readonly int DAYS = 30;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         #region Data Members
 
@@ -240,6 +242,8 @@ namespace ElasticSearchHandler.Updaters
                                     }
 
                                     string serializedEpg = SerializeEPG(epg, suffix);
+                                    string ttl = string.Format("{0}h", Math.Ceiling((epg.SearchEndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalHours));
+
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
                                         docID = GetDocumentId(epg),
@@ -248,6 +252,7 @@ namespace ElasticSearchHandler.Updaters
                                         Operation = eOperation.index,
                                         document = serializedEpg,
                                         routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                                        ttl = ttl
                                     });
                                 }
 

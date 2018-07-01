@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using ElasticSearch.Common;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -150,12 +151,13 @@ namespace ElasticSearchHandler.Updaters
                 }
 
                 // get all epg programs related to epg channel      
-                int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
+                int days = ApplicationConfiguration.ElasticSearchHandlerConfiguration.ChannelStartDateDays.IntValue;
+
                 if (days == 0)
                     days = DAYS;
-                
-                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);                 
-                 DateTime toUTCDay = new DateTime(2100,12,01);
+
+                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);
+                DateTime toUTCDay = new DateTime(2100, 12, 01);
 
                  List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
 

@@ -98,7 +98,7 @@ namespace ElasticSearchHandler
                     }
                     else
                     {
-                        // the current bulk will be in the size of the predefined TCM value
+                        // the current bulk will be in the size of the predefined configuration value
                         lastIndex = firstIndex + sizeOfBulk;
                     }
 

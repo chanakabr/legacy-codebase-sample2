@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
@@ -66,8 +67,8 @@ namespace ElasticSearchHandler
 
                     if (rebaser != null)
                     {
-                        string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
-                        string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
+                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
 
                         bool result = rebaser.Rebase();
 
