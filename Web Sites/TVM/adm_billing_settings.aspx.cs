@@ -216,7 +216,12 @@ public partial class adm_billing_settings : System.Web.UI.Page
             DataRecordShortIntField dr_renewal_reminder = new DataRecordShortIntField(true, 9, 9, 0);
             dr_renewal_reminder.Initialize("Renewal Reminder - days", "adm_table_header_nbg", "FormInput", "RENEWAL_REMINDER_DAYS_BEFORE", false);
             theRecord.AddRecord(dr_renewal_reminder);
-            
+
+            DataRecordCheckBoxField checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Block double purchase", "adm_table_header_nbg", "FormInput", "BLOCK_DOUBLE_PURCHASE", false);
+            checkBoxField.SetDefault(0);
+            theRecord.AddRecord(checkBoxField);
+
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
         return sTable;
