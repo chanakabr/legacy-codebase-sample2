@@ -8415,7 +8415,6 @@ namespace Core.ConditionalAccess
         
         private static long GetCurrentProgram(int groupId, string epgChannelId)
         {
-            // TODO SHIR - ask ira: i want to do inner cache that save only the current program and other cache the have the adjacent programs..
             string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = null;
 
@@ -8491,7 +8490,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    assetMediaRuleIds = GetAssetRuleIdsByAssetType(groupId, mediaId, ref programId);
+                    assetMediaRuleIds = GetAssetMediaRuleIds(groupId, mediaId);
                     playCycleSession.AssetMediaRuleIds = assetMediaRuleIds;
                 }
 
@@ -8501,25 +8500,31 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    assetEpgRuleIds = GetAssetRuleIdsByAssetType(groupId, mediaId, ref programId);
+                    assetEpgRuleIds = GetAssetEpgRuleIds(groupId, mediaId, ref programId);
                     playCycleSession.AssetEpgRuleIds = assetEpgRuleIds;
                 }
             }
         }
 
-        // TODO SHIR - EDIT THIS METHOD TO GET BY TYPE
-        public static List<long> GetAssetRuleIdsByAssetType(int groupId, int mediaId, ref long programId)
+        public static List<long> GetAssetMediaRuleIds(int groupId, int mediaId)
         {
-            List<long> assetRuleIds = new List<long>();
+            List<long> assetMediaRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
                 AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
-            
+
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
-                assetRuleIds.AddRange(assetRulesMediaResponse.Objects.Select(x => x.Id));
+                assetMediaRuleIds.AddRange(assetRulesMediaResponse.Objects.Select(x => x.Id));
             }
 
+            return assetMediaRuleIds;
+        }
+
+        public static List<long> GetAssetEpgRuleIds(int groupId, int mediaId, ref long programId)
+        {
+            List<long> assetEpgRuleIds = new List<long>();
+            
             if (programId == 0)
             {
                 string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
@@ -8535,11 +8540,11 @@ namespace Core.ConditionalAccess
                     AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
-                    assetRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));
+                    assetEpgRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));
                 }
             }
 
-            return assetRuleIds;
+            return assetEpgRuleIds;
         }
 
         /// <summary>

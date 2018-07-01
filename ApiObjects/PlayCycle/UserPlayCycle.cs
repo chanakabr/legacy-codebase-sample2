@@ -30,7 +30,6 @@ namespace ApiObjects.PlayCycle
         [JsonProperty("MediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
         
-        // TODO SHIR -UPDATE DR
         [JsonProperty("AssetMediaRuleIds")]
         public List<long> AssetMediaRuleIds { get; set; }
 

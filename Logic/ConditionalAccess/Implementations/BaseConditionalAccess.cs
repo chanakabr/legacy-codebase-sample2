@@ -10893,8 +10893,8 @@ namespace Core.ConditionalAccess
                 eBusinessModule eBM = eBusinessModule.PPV;
 
                 // Get AssetRules
-                assetMediaRuleIds = Utils.GetAssetRuleIdsByAssetType(this.m_nGroupID, mediaId, ref programId);
-                assetEpgRuleIds = Utils.GetAssetRuleIdsByAssetType(this.m_nGroupID, mediaId, ref programId);
+                assetMediaRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
+                assetEpgRuleIds = Utils.GetAssetEpgRuleIds(this.m_nGroupID, mediaId, ref programId);
 
                 if (prices != null && prices.Length > 0)
                 {
