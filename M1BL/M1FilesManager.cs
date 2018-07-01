@@ -136,7 +136,7 @@ namespace M1BL
                 m_nGroupID = nGroupID;
                 m_nHoursOffset = 0;
 
-                string sGMTOffset = GetTcmConfigValue(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
+                string sGMTOffset = TCMClient.Settings.Instance.GetValue<string>(string.Format("GMTOffset_{0}", m_nGroupID.ToString()));
                 if (!string.IsNullOrEmpty(sGMTOffset))
                 {
                     m_nHoursOffset = int.Parse(sGMTOffset);
@@ -611,21 +611,5 @@ namespace M1BL
             public const int TRAILER_TOTAL_RECORDS = 8;
             public const int TRAILER_TOTAL_PRICE = 12;
         }
-
-        private string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("M1FilesManager - Key=" + sKey + "," + ex.Message);
-            }
-            return result;
-        }
-
     }
 }

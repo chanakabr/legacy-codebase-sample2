@@ -71,11 +71,13 @@ namespace GroupsCacheManager
             int searchRecommendationEngine;
             int relatedRecommendationEngineEnrichments;
             int searchRecommendationEngineEnrichments;
+            bool isGeoAvailabilityEnabled;
+            bool isAssetUserRuleEnabled;
 
             CatalogDAL.GetGroupDefaultParameters(group.m_nParentGroupID,
                 out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine,
                 out relatedRecommendationEngine, out searchRecommendationEngine,
-                out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments);
+                out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
 
             group.isRegionalizationEnabled = isRegionalizationEnabled;
             group.defaultRegion = defaultRegion;
@@ -84,6 +86,8 @@ namespace GroupsCacheManager
             group.SearchRecommendationEngine = searchRecommendationEngine;
             group.RelatedRecommendationEngineEnrichments = relatedRecommendationEngineEnrichments;
             group.SearchRecommendationEngineEnrichments = searchRecommendationEngineEnrichments;
+            group.isGeoAvailabilityWindowingEnabled= isGeoAvailabilityEnabled;
+            group.isAssetUserRuleEnabled = isAssetUserRuleEnabled;
         }
 
         /// <summary>

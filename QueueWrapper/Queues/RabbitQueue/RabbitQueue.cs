@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using RabbitMQ.Client.Impl;
+using ConfigurationManager;
 
 namespace QueueWrapper
 {
@@ -209,59 +210,59 @@ namespace QueueWrapper
 
         private void ReadRabbitParameters()
         {
-            hostName = Utils.GetConfigValue("hostName");
-            userName = Utils.GetConfigValue("userName");
-            password = Utils.GetConfigValue("password");
-            port = Utils.GetConfigValue("port");
+            hostName = ApplicationConfiguration.RabbitConfiguration.Default.HostName.Value;
+            userName = ApplicationConfiguration.RabbitConfiguration.Default.UserName.Value;
+            password = ApplicationConfiguration.RabbitConfiguration.Default.Password.Value;
+            port = ApplicationConfiguration.RabbitConfiguration.Default.Port.IntValue.ToString();
 
             switch (m_eConfigType)
             {
                 case ConfigType.DefaultConfig:
                     {
-                        routingKey = Utils.GetConfigValue("routingKey");
-                        exchange = Utils.GetConfigValue("exchange");
-                        queue = Utils.GetConfigValue("queue");
-                        virtualHost = Utils.GetConfigValue("virtualHost");
-                        exchangeType = Utils.GetConfigValue("exchangeType");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.Default.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.Default.Exchange.Value;
+                        queue = ApplicationConfiguration.RabbitConfiguration.Default.Queue.Value;
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.Default.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.Default.ExchangeType.Value;
                         break;
                     }
                 case ConfigType.PictureConfig:
                     {
-                        routingKey = Utils.GetConfigValue("routingKeyPicture");
-                        exchange = Utils.GetConfigValue("exchangePicture");
-                        queue = Utils.GetConfigValue("queuePicture");
-                        virtualHost = Utils.GetConfigValue("virtualHostPicture");
-                        exchangeType = Utils.GetConfigValue("exchangeTypePicture");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.Picture.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.Picture.Exchange.Value;
+                        queue = ApplicationConfiguration.RabbitConfiguration.Picture.Queue.Value;
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.Picture.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.Picture.ExchangeType.Value;
                         break;
                     }
                 case ConfigType.SocialFeedConfig:
                     {
-                        routingKey = Utils.GetConfigValue("routingKeySocialFeed");
-                        exchange = Utils.GetConfigValue("exchangeSocialFeed");
-                        queue = Utils.GetConfigValue("queueSocialFeed");
-                        virtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
-                        exchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.SocialFeed.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.SocialFeed.Exchange.Value;
+                        queue = ApplicationConfiguration.RabbitConfiguration.SocialFeed.Queue.Value;
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.SocialFeed.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.SocialFeed.ExchangeType.Value;
 
                         break;
                     }
                 case ConfigType.EPGConfig:
                     {
-                        routingKey = Utils.GetConfigValue("routingKeyEPG");
-                        exchange = Utils.GetConfigValue("exchangeEPG");
-                        queue = Utils.GetConfigValue("queueEPG");
-                        virtualHost = Utils.GetConfigValue("virtualHostEPG");
-                        exchangeType = Utils.GetConfigValue("exchangeTypeEPG");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.EPG.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.EPG.Exchange.Value;
+                        queue = ApplicationConfiguration.RabbitConfiguration.EPG.Queue.Value;
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.EPG.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.EPG.ExchangeType.Value;
 
                         break;
                     }
                 case ConfigType.ProfessionalServicesNotificationsConfig:
                     {
-                        routingKey = Utils.GetConfigValue("ProfessionalServices.routingKey");
-                        exchange = Utils.GetConfigValue("ProfessionalServices.exchange");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Exchange.Value;
                         queue = ".";
-                        virtualHost = Utils.GetConfigValue("ProfessionalServices.virtualHost");
-                        exchangeType = Utils.GetConfigValue("ProfessionalServices.exchangeType");
-
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.ExchangeType.Value;
+                        
                         // default values - to avoid embarrassments 
                         if (string.IsNullOrEmpty(routingKey))
                         {
@@ -287,11 +288,11 @@ namespace QueueWrapper
                     }
                 case ConfigType.IndexingDataConfig:
                     {
-                        routingKey = Utils.GetConfigValue("IndexingData.routingKey");
-                        exchange = Utils.GetConfigValue("IndexingData.exchange");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.Indexing.RoutingKey.Value;
+                        exchange = ApplicationConfiguration.RabbitConfiguration.Indexing.Exchange.Value;
                         queue = ".";
-                        virtualHost = Utils.GetConfigValue("IndexingData.virtualHost");
-                        exchangeType = Utils.GetConfigValue("IndexingData.exchangeType");
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.Indexing.VirtualHost.Value;
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.Indexing.ExchangeType.Value;
 
                         // default values - to avoid embarrassments 
                         if (string.IsNullOrEmpty(routingKey))
@@ -319,19 +320,19 @@ namespace QueueWrapper
 
                 case ConfigType.PushNotifications:
                     {
-                        routingKey = Utils.GetConfigValue("PushNotifications.routingKey");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.PushNotification.RoutingKey.Value;
                         if (string.IsNullOrEmpty(routingKey))
                             routingKey = "*";
 
-                        exchange = Utils.GetConfigValue("PushNotifications.exchange");
+                        exchange = ApplicationConfiguration.RabbitConfiguration.PushNotification.Exchange.Value;
                         if (string.IsNullOrEmpty(exchange))
                             exchange = "push_notifications";
 
-                        virtualHost = Utils.GetConfigValue("PushNotifications.virtualHost");
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.PushNotification.VirtualHost.Value;
                         if (string.IsNullOrEmpty(virtualHost))
                             virtualHost = "/";
 
-                        exchangeType = Utils.GetConfigValue("PushNotifications.exchangeType");
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.PushNotification.ExchangeType.Value;
                         if (string.IsNullOrEmpty(exchangeType))
                             exchangeType = "topic";
 
@@ -342,11 +343,36 @@ namespace QueueWrapper
 
                 case ConfigType.ImageUpload:
                     {
-                        routingKey = Utils.GetConfigValue("routingKey");
-                        exchange = Utils.GetConfigValue("ImageUpload.exchange");
-                        queue = Utils.GetConfigValue("queue");
-                        virtualHost = Utils.GetConfigValue("virtualHost");
-                        exchangeType = Utils.GetConfigValue("exchangeType");
+                        routingKey = ApplicationConfiguration.RabbitConfiguration.ImageUpload.RoutingKey.Value;
+
+                        if (string.IsNullOrEmpty(routingKey))
+                        {
+                            routingKey = ApplicationConfiguration.RabbitConfiguration.Default.RoutingKey.Value;
+                        }
+
+                        exchange = ApplicationConfiguration.RabbitConfiguration.ImageUpload.Exchange.Value;
+
+                        queue = ApplicationConfiguration.RabbitConfiguration.ImageUpload.Queue.Value;
+
+                        if (string.IsNullOrEmpty(queue))
+                        {
+                            queue = ApplicationConfiguration.RabbitConfiguration.Default.Queue.Value;
+                        }
+
+                        virtualHost = ApplicationConfiguration.RabbitConfiguration.ImageUpload.VirtualHost.Value;
+
+                        if (string.IsNullOrEmpty(virtualHost))
+                        {
+                            virtualHost = ApplicationConfiguration.RabbitConfiguration.Default.VirtualHost.Value;
+                        }
+
+                        exchangeType = ApplicationConfiguration.RabbitConfiguration.ImageUpload.ExchangeType.Value;
+
+                        if (string.IsNullOrEmpty(exchangeType))
+                        {
+                            exchangeType = ApplicationConfiguration.RabbitConfiguration.Default.ExchangeType.Value;
+                        }
+
                         break;
                     }
                 default:

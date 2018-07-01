@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 
 namespace ElasticSearch.Searcher
 {
@@ -23,6 +24,7 @@ namespace ElasticSearch.Searcher
         public const string GEO_BLOCK_FIELD = "geo_block";
         public const string PARENTAL_RULES_FIELD = "parental_rules";
         public const string USER_INTERESTS_FIELD = "user_interests";
+        public const string ASSET_TYPE = "asset_type";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -121,9 +123,9 @@ namespace ElasticSearch.Searcher
         /// </summary>
         static ESUnifiedQueryBuilder()
         {
-            string maxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
-            if (!int.TryParse(maxResults, out MAX_RESULTS))
+            if (MAX_RESULTS == 0)
             {
                 MAX_RESULTS = 10000;
             }
@@ -782,31 +784,51 @@ namespace ElasticSearch.Searcher
 
                 #region Media Dates ranges
 
-                FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+                FilterCompositeType mediaDatesFilter = BuildMediaDatesComposite();
 
-                string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");                
-
-                if (this.SearchDefinitions.shouldUseStartDateForMedia)
+                // Geo availability enabled
+                if (SearchDefinitions.countryId > 0)
                 {
-                    ESRange mediaStartDateRange = new ESRange(false);
-                    mediaStartDateRange.Key = "start_date";
-                    string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
-                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
-                    mediaDatesFilter.AddChild(mediaStartDateRange);
-                }                
+                    FilterCompositeType allowedEmpty = new FilterCompositeType(CutWith.AND);
 
-                if (this.SearchDefinitions.shouldUseEndDateForMedia)
-                {
-                    ESRange mediaEndDateRange = new ESRange(false);
-                    mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
-                    mediaDatesFilter.AddChild(mediaEndDateRange);
-                }                
+                    ESTerm emptyAllowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = "0"
+                    };
 
-                if (!mediaDatesFilter.IsEmpty())
+                    // allowed_countries = 0 and dates filter
+                    allowedEmpty.AddChild(emptyAllowedCountryTerm);
+                    allowedEmpty.AddChild(mediaDatesFilter);
+
+                    FilterCompositeType allowed = new FilterCompositeType(CutWith.OR);
+
+                    ESTerm allowedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "allowed_countries",
+                        Value = SearchDefinitions.countryId.ToString()
+                    };
+
+                    // allowed_countries = countryId or allowedEmpty
+                    allowed.AddChild(allowedCountryTerm);
+                    allowed.AddChild(allowedEmpty);
+
+                    FilterCompositeType blocked = new FilterCompositeType(CutWith.AND);
+
+                    ESTerm blockedCountryTerm = new ESTerm(true)
+                    {
+                        Key = "blocked_countries",
+                        Value = SearchDefinitions.countryId.ToString(),
+                        isNot = true
+                    };
+
+                    // blocked_countries != countryId and allowed
+                    blocked.AddChild(blockedCountryTerm);
+                    blocked.AddChild(allowed);
+
+                    mediaFilter.AddChild(blocked);
+                }
+                else if (!mediaDatesFilter.IsEmpty()) // No geo availability - handle dates without country consideration 
                 {
                     mediaFilter.AddChild(mediaDatesFilter);
                 }
@@ -904,6 +926,7 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
             }
 
             // Recordings specific filters
@@ -1056,8 +1079,40 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+
             #endregion
 
+            #region Asset User Rule
+
+            if (SearchDefinitions.assetUserRulePhrase != null)
+            {
+                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRulePhrase);
+
+                if (queryTerm == null)
+                {
+                    queryTerm = new BoolQuery();
+                    (queryTerm as BoolQuery).AddNot(notPhraseQuery);
+                }
+                else
+                {
+                    BoolQuery boolQuery = queryTerm as BoolQuery;
+
+                    if (boolQuery != null)
+                    {
+                        boolQuery.AddNot(notPhraseQuery);
+                    }
+                    else
+                    {
+                        boolQuery = new BoolQuery();
+                        boolQuery.AddChild(queryTerm, CutWith.AND);
+                        boolQuery.AddNot(notPhraseQuery);
+
+                        queryTerm = boolQuery;
+                    }
+                }
+            }
+
+            #endregion
             // Eventual filter will be:
             //
             // AND: [
@@ -1656,6 +1711,10 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildUserInterestsQuery();
                 }
+                else if (leaf.field == ASSET_TYPE)
+                {
+                    term = BuildAssetTypeQuery(leaf);
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
@@ -1739,7 +1798,7 @@ namespace ElasticSearch.Searcher
                             });
                     }
                     // "bool" with "must_not" when no equals
-                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
                     {
                         string field = string.Format("{0}.lowercase", leaf.field);
 
@@ -1790,7 +1849,7 @@ namespace ElasticSearch.Searcher
 
                         (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
                     }
-                    else if (leaf.operand ==  ApiObjects.ComparisonOperator.Exists)
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Exists)
                     {
                         term = new ESExists()
                         {
@@ -1882,10 +1941,10 @@ namespace ElasticSearch.Searcher
 
                     if (newChild != null)
                     {
-                        // If it is a "NOT" phrase (not contains or not equals)
-                        if (childNode.type == BooleanNodeType.Leaf &&
-                            (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) ||
-                            ((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains)))
+                        // If it is a SIMPLE NOT PHRASE
+                        if (childNode.type == BooleanNodeType.Leaf && cut == CutWith.OR &&
+                            (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) &&
+                            (!(childNode as BooleanLeaf).shouldLowercase)))
                         {
                             // If the cut is "AND", simply add the child to the "must_not" list. ES cuts "must" and "must_not" with an AND
                             if (cut == CutWith.AND)
@@ -1911,6 +1970,41 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildAssetTypeQuery(BooleanLeaf leaf)
+        {
+            IESTerm result = null;
+
+            string loweredValue = leaf.value.ToString().ToLower();
+
+            if (loweredValue == "media")
+            {
+                result = mediaPrefixTerm;
+            }
+            else if (loweredValue == "epg")
+            {
+                result = epgPrefixTerm;
+            }
+            else if (loweredValue == "recording")
+            {
+                result = recordingPrefixTerm;
+            }
+            else
+            {
+                int assetType;
+
+                if (int.TryParse(loweredValue, out assetType))
+                {
+                    result = new ESTerm(true)
+                    {
+                        Key = "media_type_id",
+                        Value = loweredValue
+                    };
+                }
+            }
+
+            return result;
         }
 
         private IESTerm BuildUserInterestsQuery()
@@ -1971,7 +2065,9 @@ namespace ElasticSearch.Searcher
 
         private IESTerm BuildEntitledAssetsQuery()
         {
-            BoolQuery result = new BoolQuery();
+            IESTerm result = null;
+
+            BoolQuery boolQuery = new BoolQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
 
@@ -2099,7 +2195,7 @@ namespace ElasticSearch.Searcher
 
                 channelsTerm.Value.AddRange(entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
 
-                result.AddChild(channelsTerm, CutWith.OR);
+                boolQuery.AddChild(channelsTerm, CutWith.OR);
             }
 
             //
@@ -2112,7 +2208,7 @@ namespace ElasticSearch.Searcher
                     (this.SubscriptionsQuery == null || 
                     (this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())))
                 {
-                    result.AddChild(new ESTerm(true)
+                    boolQuery.AddChild(new ESTerm(true)
                     {
                         Key = "_id",
                         Value = "-1"
@@ -2122,8 +2218,8 @@ namespace ElasticSearch.Searcher
                 else
                 {
                     // Connect all the channels in the entitled user's subscriptions
-                    result.AddChild(this.SubscriptionsQuery, CutWith.OR);
-                    result.AddChild(specificAssetsTerm, CutWith.OR);
+                    boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
+                    boolQuery.AddChild(specificAssetsTerm, CutWith.OR);
                 }
             }
             else
@@ -2134,12 +2230,24 @@ namespace ElasticSearch.Searcher
             // Get free assets only if requested in definitions
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
-                result.AddChild(isFreeTerm, CutWith.OR);
+                boolQuery.AddChild(isFreeTerm, CutWith.OR);
 
                 if (fileTypeTerm != null)
                 {
-                    result.AddChild(fileTypeTerm, CutWith.OR);
+                    boolQuery.AddChild(fileTypeTerm, CutWith.OR);
                 }
+            }
+
+            // if we want to get the assets the user is NOT entitled to, we will invert everything we have done up until now
+            if (entitlementSearchDefinitions.shouldSearchNotEntitled)
+            {
+                BoolQuery notBoolQuery = new Searcher.BoolQuery();
+                notBoolQuery.AddNot(boolQuery);
+                result = notBoolQuery;
+            }
+            else
+            {
+                result = boolQuery;
             }
 
             return result;
@@ -2461,6 +2569,40 @@ namespace ElasticSearch.Searcher
                     Script = script,
                 };
             }
+        }
+
+        private FilterCompositeType BuildMediaDatesComposite()
+        {
+            FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
+
+            DateTime now = DateTime.UtcNow;
+            now = now.AddSeconds(-now.Second);
+            string nowDateString = now.ToString("yyyyMMddHHmmss");
+            string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+
+            ESRange mediaStartDateRange = new ESRange(false);
+
+            if (this.SearchDefinitions.shouldUseStartDateForMedia)
+            {
+                mediaStartDateRange.Key = "start_date";
+                string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
+                mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
+            }
+
+            mediaDatesFilter.AddChild(mediaStartDateRange);
+
+            if (!this.SearchDefinitions.shouldIgnoreEndDate)
+            {
+                ESRange mediaEndDateRange = new ESRange(false);
+                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+
+                mediaDatesFilter.AddChild(mediaEndDateRange);
+            }
+
+            return mediaDatesFilter;
         }
 
         #endregion

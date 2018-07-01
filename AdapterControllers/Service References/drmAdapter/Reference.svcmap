@@ -21,15 +21,15 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://localhost/DrmAdapter/Service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost:86/DRMAdapter/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="1068e019-e463-4f54-b170-484a051dea50" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="3184d478-5dbf-4c3a-a6ba-1ce5d8ef0119" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="1707b40c-da21-4a7a-acbf-22247419ed07" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="dca745a7-1354-4f1f-8b04-4b45de7c0d60" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?disco" />
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="3e3b5822-4097-4d1c-8ef3-3be81fb452fc" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?wsdl" />
-    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="6b7fa949-8fdd-45f2-806a-3e29422c3692" SourceId="1" SourceUrl="http://localhost/DrmAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service1.disco" MetadataType="Disco" ID="f2602941-48e0-4a94-bf75-84163e83a3aa" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="ae1876ee-b229-454b-aa53-1944e51b0710" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service41.xsd" MetadataType="Schema" ID="e8584300-504d-413a-b988-dc82136d9742" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service42.xsd" MetadataType="Schema" ID="b518e7a7-4f51-463f-bcb5-5792bf8215e0" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="0b302806-9ade-4baf-a623-625f75eff649" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?wsdl" />
+    <MetadataFile FileName="Service43.xsd" MetadataType="Schema" ID="d93a3216-879b-43cc-9a99-dcdda4399c1a" SourceId="1" SourceUrl="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd1" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

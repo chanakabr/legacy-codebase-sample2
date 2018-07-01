@@ -1,20 +1,15 @@
-﻿using System;
+﻿using com.llnw.mediavault;
+using KLogMonitor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
-using System.Data;
-using com.llnw.mediavault;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Xml.XPath;
-using System.Configuration;
-using KLogMonitor;
-using System.Reflection;
 
 
 namespace TVinciShared
@@ -14219,7 +14214,7 @@ namespace TVinciShared
                     {
                         Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                        string sWSURL = GetWSURL("LUCENE_WCF");
+                        string sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
                         if (!String.IsNullOrEmpty(sWSURL))
                             s.Url = sWSURL;
 
@@ -15038,7 +15033,7 @@ namespace TVinciShared
 
                 Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                sWSURL = GetWSURL("LUCENE_WCF");
+                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
                 if (!String.IsNullOrEmpty(sWSURL))
                     s.Url = sWSURL;
 
@@ -15226,10 +15221,6 @@ namespace TVinciShared
             {
                 log.Error("SearchObjectString", ex);
             }
-        }
-        private static string GetWSURL(string sKey)
-        {
-            return WS_Utils.GetTcmConfigValue(sKey);
         }
 
         /*

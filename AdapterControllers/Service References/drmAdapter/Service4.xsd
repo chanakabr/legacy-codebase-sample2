@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/DrmAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
-  <xs:import schemaLocation="http://localhost/DrmAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/DRMAdapter" />
+  <xs:import schemaLocation="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost:86/DRMAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/DRMAdapter" />
   <xs:element name="SetConfiguration">
     <xs:complexType>
       <xs:sequence>
@@ -32,6 +32,8 @@
         <xs:element minOccurs="0" name="externalFileId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="udid" nillable="true" type="xs:string" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="context" type="q3:ContextType" />
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
         <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
       </xs:sequence>
@@ -40,7 +42,7 @@
   <xs:element name="GetAssetLicenseDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetAssetLicenseDataResult" nillable="true" type="q3:DrmAdapterResponse" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetAssetLicenseDataResult" nillable="true" type="q4:DrmAdapterResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -62,7 +64,7 @@
   <xs:element name="GetDeviceLicenseDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetDeviceLicenseDataResult" nillable="true" type="q4:DrmAdapterResponse" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetDeviceLicenseDataResult" nillable="true" type="q5:DrmAdapterResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

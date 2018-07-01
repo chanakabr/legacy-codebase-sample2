@@ -1,4 +1,5 @@
 ﻿using ApiObjects.MediaMarks;
+using ConfigurationManager;
 using CouchbaseManager;
 using Newtonsoft.Json;
 using System;
@@ -12,7 +13,7 @@ namespace DAL
 {
     public class SocialDAL
     {
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private int m_nGroupID;
         public SocialDAL(int nGroupID)

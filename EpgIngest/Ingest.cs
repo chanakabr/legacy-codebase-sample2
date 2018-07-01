@@ -2,6 +2,7 @@
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using ConfigurationManager;
 using EpgBL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -37,7 +38,6 @@ namespace EpgIngest
         List<LanguageObj> lLanguage = new List<LanguageObj>();
         List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
         Dictionary<int, string> ratios;
-        string update_epg_package;
         int nCountPackage;
         bool isTstvSettings = false;
 
@@ -74,8 +74,8 @@ namespace EpgIngest
             lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
             FieldEntityMapping = Utils.GetMappingFields(m_Channels.parentgroupid);
-            update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-            nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
@@ -287,6 +287,10 @@ namespace EpgIngest
                         foreach (desc description in prog.desc)
                         {
                             language = description.lang.ToLower();
+
+                            if (string.IsNullOrEmpty(description.Value))
+                                description.Value = string.Empty;
+
                             if (dEpgCbTranslate.ContainsKey(language))
                             {
                                 dEpgCbTranslate[language].Description = description.Value;

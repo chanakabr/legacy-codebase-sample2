@@ -147,16 +147,24 @@ namespace EpgIngest
                         row["EPG_CHANNEL_ID"] = epg.ChannelID;
                         row["EPG_IDENTIFIER"] = epg.EpgIdentifier;
 
+                        if (string.IsNullOrEmpty(epg.Name))
+                            epg.Name = string.Empty;
+
                         epg.Name = epg.Name.Replace("\r", "").Replace("\n", "");
                         if (epg.Name.Length >= MaxNameSize)
                             row["NAME"] = epg.Name.Substring(0, MaxNameSize); //insert only 255 chars (limitation of the column in the DB)
                         else
                             row["NAME"] = epg.Name;
+
+                        if (string.IsNullOrEmpty(epg.Description))
+                            epg.Description = string.Empty;
+
                         epg.Description = epg.Description.Replace("\r", "").Replace("\n", "");
                         if (epg.Description.Length >= MaxDescriptionSize)
                             row["DESCRIPTION"] = epg.Description.Substring(0, MaxDescriptionSize); //insert only 1024 chars (limitation of the column in the DB)
                         else
                             row["DESCRIPTION"] = epg.Description;
+
                         row["START_DATE"] = epg.StartDate;
                         row["END_DATE"] = epg.EndDate;
                         row["PIC_ID"] = epg.PicID;

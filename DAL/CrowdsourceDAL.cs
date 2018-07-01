@@ -6,6 +6,7 @@ using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.CbDocs;
 using Newtonsoft.Json;
 using CouchbaseManager;
+using ConfigurationManager;
 
 namespace DAL
 {
@@ -67,7 +68,7 @@ namespace DAL
                     feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version);
                 }
                 feedDoc.Items.Insert(0, csItem.Value);
-                feedDoc.Items = feedDoc.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
+                feedDoc.Items = feedDoc.Items.Take(ApplicationConfiguration.CrowdSourcerFeedNumberOfItems.IntValue).ToList();
 
                 return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000, 0, true);
             }

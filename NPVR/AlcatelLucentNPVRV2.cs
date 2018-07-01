@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -82,8 +83,6 @@ namespace NPVR
         private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
         private static readonly string ALU_RATING = "rating";
 
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
-
         private const string ALU_CHANNEL_NAME = "channelName";
         private const string ALU_DESCRIPTION = "description";
         private const string ALU_PROTECTED = "protected";
@@ -101,7 +100,7 @@ namespace NPVR
 
         /*********************************************************************************/
 
-        private static readonly string ALU_RECORD_COMMAND = "record";
+        private static readonly string ALU_RECORD_COMMAND = "Record/";
         private static readonly string ALU_DELETE_BY_COMMAND = "deleteBy";
         private static readonly string ALU_BY_SERIES_ID_PARAM = "bySeriesId";
         private static readonly string ALU_BY_SEASON_NUMBER_PARAM = "bySeasonNumber";
@@ -109,12 +108,13 @@ namespace NPVR
         private static readonly string ALU_BY_STATUS_PARAM = "byStatus";
 
         private static readonly string ALU_SERIES_ID_PARAM = "seriesId";
-        private static readonly string ALU_ENDPOINT_UPDATE_FIELD = "updateField/";
+        private static readonly string ALU_ENDPOINT_UPDATE_FIELD = "updateField";
         private static readonly string ALU_SEASON_SEED = "seasonSeed";
         private static readonly string ALU_EPISODE_SEED = "episodeSeed";
         private static readonly string ALU_LOOKUP_CRITERIA = "lookupCriteria";
         private static readonly string ALU_TYPE = "type";
         private static readonly string ALU_FIELDS = "fields";
+        private static readonly string ALU_ADDITIONAL_FIELDS = "additionalFields";
 
         /********************************************************************************/
         #endregion
@@ -518,7 +518,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));
 
-                    string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_ENDPOINT_UPDATE_FIELD, urlParams);
+                    string url = BuildRestCommand(ALU_ENDPOINT_UPDATE_FIELD, ALU_RECORD_COMMAND, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -528,7 +528,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            GetRecordSeriesResponse(responseJson, args, res);
+                            GetSetAssetAlreadyWatchedValueStatusResponse(responseJson, args, res);
                         }
                         else
                         {
@@ -572,6 +572,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ADDITIONAL_FIELDS, "customMetadata"));
 
                     if (args.PageSize > 0)
                     {
@@ -685,8 +686,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));                    
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SERIES, urlParams);
 
@@ -742,16 +742,15 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesId));
 
-                    if (args.SeasonSeed > 0)
+                    if (args.SeasonSeed > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_SEED, args.SeasonSeed.ToString()));
                     }
-                    else
+                    if (args.SeasonNumber > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
                     }
-
-                    if (args.EpisodeSeed > 0)
+                    if (args.EpisodeSeed > -1)
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
                     }
@@ -1061,8 +1060,15 @@ namespace NPVR
                         urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES_START_INDEX_URL_PARAM, args.PageIndex.ToString()));
                     }
 
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs != null && args.SeriesIDs.Count > 0 ? args.SeriesIDs[0] : ""));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+                    if (args.SeriesIDs != null && args.SeriesIDs.Count > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs[0]));
+                    }
+
+                    if (args.SeasonNumber > -1)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+                    }
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FIELDS, string.Format("{0},{1},{2},{3},{4},{5}",
                             ALU_SERIES_ID_PARAM, ALU_SEASON_ID, ALU_SEASON_NUMBER, ALU_TYPE, ALU_ID_URL_PARAM, ALU_CHANNEL_ID_URL_PARAM)));
 
@@ -1257,7 +1263,7 @@ namespace NPVR
 
         private bool IsSetAssetAlreadyWatchedInputValid(NPVRParamsObj args)
         {
-            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID) && args.Value > 0;
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
         }
 
         private void GetSetAssetProtectionStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
@@ -1386,6 +1392,15 @@ namespace NPVR
                                 case ALU_THUMBNAIL:
                                     obj.PIC_URL = item.Value.ToString();
                                     break;
+                                case "customMetadata":
+                                    bool errorWhenNoMatch = false;
+                                    var newValue = item.Value.SelectToken("contentTags", errorWhenNoMatch);
+                                    obj.EPG_TAGS.Add(new EPGDictionary()
+                                    {
+                                        Key = "contentTags",
+                                        Value = !errorWhenNoMatch ? newValue[0].ToString() : string.Empty
+                                    });
+                                    break;
                                 /* in case this data is not needed at the response object remove the remark 
                                   case ALU_ACTUAL_START_TIME:
                                 case ALU_ACTUAL_END_TIME:
@@ -1418,7 +1433,7 @@ namespace NPVR
                                 else
                                 {
                                     // no sizes defined
-                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';') &&
                                         epgRatios != null &&
                                         epgRatios.Count > 0)
                                     {
@@ -1659,7 +1674,7 @@ namespace NPVR
 
 
                     string url = string.Empty;
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
                         url = urlStr.ToString();
@@ -1976,10 +1991,10 @@ namespace NPVR
             }
         }
 
-        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON responseJson)
+        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON<SeriesEntryV2JSON> responseJson)
         {
             List<RecordedSeriesObject> res = new List<RecordedSeriesObject>(responseJson.Entries.Count);
-            foreach (SeriesEntryJSON entry in responseJson.Entries)
+            foreach (SeriesEntryV2JSON entry in responseJson.Entries)
             {
                 RecordedSeriesObject obj = new RecordedSeriesObject();
 
@@ -2001,7 +2016,7 @@ namespace NPVR
         {
             try
             {
-                ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
+                ReadSeriesResponseJSON<SeriesEntryV2JSON> success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON<SeriesEntryV2JSON>>(responseJson);
                 response.isOK = true;
                 response.msg = string.Empty;
                 response.results = ExtractRecordedSeries(success);
@@ -2166,7 +2181,7 @@ namespace NPVR
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
-            string url =  String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
+            string url = String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
 
             log.DebugFormat("BuildRestCommand url: {0}", url);
@@ -2341,6 +2356,48 @@ namespace NPVR
             }
         }
 
+        private void GetSetAssetAlreadyWatchedValueStatusResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse response)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.entityID = args.EntityID;
+                response.msg = string.Empty;
+                response.recordingID = args.AssetID;
+                response.status = RecordStatus.OK;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    if (error != null)
+                    {
+                        response.entityID = args.EntityID;
+                        response.recordingID = string.Empty;
+                        switch (error.ResultCode)
+                        {
+                            case 210:
+                                response.status = RecordStatus.ResourceAlreadyExists;
+                                response.msg = "Trying to create a resource that does already exist.";
+                                break;
+                            case 420:
+                                response.status = RecordStatus.QuotaExceeded;
+                                response.msg = "Recording can not be done because the user has exceeded the assigned quota.";
+                                break;
+                            default:
+                                GetGenericFailureResponse(response, error);
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetAlreadyWatchedValueStatusResponse. Response JSON: ", responseJson), null, ex), ex);
+                    throw;
+                }
+            }
+        }
 
         #endregion
     }

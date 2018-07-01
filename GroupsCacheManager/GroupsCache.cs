@@ -1,15 +1,14 @@
-﻿using System;
+﻿using CachingProvider;
+using ConfigurationManager;
+using CouchbaseManager;
+using KLogMonitor;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
-using CachingProvider;
-using DAL;
-using ApiObjects;
-using CouchbaseManager;
-using KLogMonitor;
-using System.Reflection;
 
 namespace GroupsCacheManager
 {
@@ -50,8 +49,8 @@ namespace GroupsCacheManager
 
         private GroupsCache()
         {
-            cacheGroupConfiguration = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
-            version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+            cacheGroupConfiguration = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
+            version = ApplicationConfiguration.Version.Value;
 
             switch (cacheGroupConfiguration)
             {
@@ -108,7 +107,8 @@ namespace GroupsCacheManager
 
         private string GetCacheName()
         {
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
+            string res = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
+
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -116,14 +116,14 @@ namespace GroupsCacheManager
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = 0;
-            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
-            return DEFAULT_TIME_IN_CACHE_SECONDS;
+
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
@@ -138,18 +138,14 @@ namespace GroupsCacheManager
 
         private static uint GetDocTTLSettings()
         {
-            uint nResult;
-            if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out nResult))
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                nResult = DEFAULT_TIME_IN_CACHE_SECONDS;
-            }                
-            else
-            {
-                // convert to seconds (TCM config is in minutes)
-                nResult *= 60;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
 
-            return nResult;
+            return result;
         }
 
         internal void LogCachingError(string msg, string key, object obj, string methodName, string logFile)
@@ -200,8 +196,8 @@ namespace GroupsCacheManager
                         try
                         {
                             mutex.WaitOne(-1);
-                            // try to get GRoup from CB 
 
+                            // try to get group from CB with version
                             VersionModuleCache versionModule = null;
 
                             try
@@ -218,9 +214,11 @@ namespace GroupsCacheManager
 
                             if (versionModule != null && versionModule.result != null)
                             {
-                                group = baseModule.result as Group;
+                                group = versionModule.result as Group;
                             }
-                            else
+                            
+                            // if group is still null 
+                            if (group == null)
                             {
                                 Group tempGroup = Utils.BuildGroup(nGroupID, true);
 
@@ -808,7 +806,7 @@ namespace GroupsCacheManager
             return (mediaTypes);
         }
 
-	    #endregion
+        #endregion
 
     }
 }

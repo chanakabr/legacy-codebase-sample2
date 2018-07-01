@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace QueueWrapper
 {
@@ -74,17 +75,19 @@ namespace QueueWrapper
 
                     try
                     {
-                        string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
+                        int tcmFailCountLimit = ApplicationConfiguration.QueueFailLimit.IntValue;
+
                         bool isParseSucceeded = false;
 
                         // If reading from TCM failed, try to read from extra.config. Else, convert to int
-                        if (string.IsNullOrEmpty(sFailCountLimit))
+                        if (tcmFailCountLimit <= 0)
                         {
-                            isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
+                            isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
                         }
                         else
                         {
-                            isParseSucceeded = int.TryParse(sFailCountLimit, out failCounterLimit);
+                            isParseSucceeded = true;
+                            failCounterLimit = tcmFailCountLimit;
                         }
 
                         // If any reading failed, set the failCounterLimit as the constant
@@ -177,10 +180,18 @@ namespace QueueWrapper
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
                         {
-                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}, fail counter = {2}", 
+                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}, fail counter = {2}",
                                 message, ex, this.m_FailCounter);
                             ClearConnection();
                             IncreaseFailCounter();
+                            return Publish(configuration, message);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}, fail counter = {2}",
+                                message, ex, this.m_FailCounter);
+                            IncreaseFailCounter();
+                            ClearConnection();
                             return Publish(configuration, message);
                         }
 
@@ -228,8 +239,10 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit2. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
                         IncreaseFailCounter();
+                        ClearConnection();
+                        return Publish(configuration, message);
                     }
                 }
                 else

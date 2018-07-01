@@ -1,13 +1,10 @@
+using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Web;
-using System.Xml;
 using System.Collections;
 using System.Data;
-using System.Configuration;
-using KLogMonitor;
 using System.Reflection;
+using System.Text;
+using System.Xml;
 
 namespace TVinciShared
 {
@@ -691,6 +688,22 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
+        public string GetChannelMediaIDs_OLD(Int32 nNumOfItems, Int32[] nFileTypes, bool bOnlyActiveMedias, bool bUseStartDate)
+        {
+            StringBuilder sRet = new StringBuilder();
+            System.Data.DataTable d = GetChannelMediaDT_OLD(nNumOfItems, nFileTypes, bOnlyActiveMedias, bUseStartDate);
+            if (d == null)
+                return "";
+            Int32 nCount = d.DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                if (i > 0)
+                    sRet.Append(",");
+                sRet.Append(d.DefaultView[i].Row["id"]);
+            }
+            return sRet.ToString();
+        }
+
         public System.Data.DataTable GetChannelMediaDT(Int32[] nFileTypes)
         {
             return GetChannelMediaDT(0, nFileTypes);
@@ -907,6 +920,32 @@ namespace TVinciShared
             return GetChannelMediaDT(nNumOfItems, null);
         }
 
+        protected Int32 GetTypeFromfriendlyType(Int32 nFriendlyType, Int32 nGroupID)
+        {
+            Int32 nID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey(s_ConnectionKey);
+            selectQuery.SetCachedSec(86400);
+            selectQuery += "SELECT MEDIA_TYPE_ID FROM groups_media_type (nolock) WHERE ";
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            //selectQuery += " AND ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nFriendlyType);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    object oF_ID = selectQuery.Table("query").DefaultView[0].Row["MEDIA_TYPE_ID"];
+                    if (oF_ID != DBNull.Value)
+                        nID = int.Parse(oF_ID.ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nID;
+        }
+
         public System.Data.DataTable GetChannelMediaDT(Int32 nNumOfItems, Int32[] nFileTypes)
         {
             return GetChannelMediaDT(nNumOfItems, nFileTypes, true, true);
@@ -921,7 +960,8 @@ namespace TVinciShared
             try
             {
                 Lucene_WCF.Service client = new Lucene_WCF.Service();
-                sWSURL = GetWSURL("LUCENE_WCF");
+                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore
+
                 if (!String.IsNullOrEmpty(sWSURL))
                     client.Url = sWSURL;
 
@@ -954,11 +994,535 @@ namespace TVinciShared
 
             return dt;
         }
-
-        private static string GetWSURL(string sKey)
+        
+        public System.Data.DataTable GetChannelMediaDT_OLD(Int32 nNumOfItems, Int32[] nFileTypes, bool bOnlyActiveMedias, bool bUseStartDate)
         {
-            return WS_Utils.GetTcmConfigValue(sKey);
+            log.Debug("GetChannelMediaDT - channel=" + m_nChannelID + " bUseStartDate=" + bUseStartDate.ToString());
+
+            if (m_nStatus == 2 || m_nIsActive == 0)
+                return null;
+            string sFileTypesStr = "";
+            if (nFileTypes != null && nFileTypes.Length > 0)
+            {
+                for (int j = 0; j < nFileTypes.Length; j++)
+                {
+                    if (j > 0)
+                        sFileTypesStr += "|";
+                    sFileTypesStr += nFileTypes[j].ToString();
+                }
+            }
+
+            if (CachingManager.CachingManager.Exist("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString()) == true && m_bWithCache == true)
+            {
+                log.Debug("Caching - GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString());
+                return (System.Data.DataTable)(CachingManager.CachingManager.GetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString()));
+            }
+            System.Data.DataTable d = null;
+            Int32 nGroupID = m_nGroupID;
+            if (nGroupID == 0)
+                nGroupID = LoginManager.GetLoginGroupID();
+            string sWPGID = PageUtils.GetPermittedWatchRulesID(nGroupID, s_ConnectionKey);
+            bool bPersonalChannel = false;
+            bPersonalChannel = IsPersonal();
+
+            Int32 nLoginID = LoginManager.GetLoginID();
+            bool bAnd = false;
+            string sTagsIDs = GetTagsIDs(ref bAnd, nGroupID);
+
+
+            //auto
+            if (m_nChannelType == 1)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey(s_ConnectionKey);
+                //selectQuery.SetCachedSec(7200);
+
+                if (m_nOrderBy == -6 && m_sOrderByAdd == "")
+                    selectQuery += "select q.* from (";
+                selectQuery += "select distinct ";
+                if (nNumOfItems > 0)
+                    selectQuery += "  top " + nNumOfItems.ToString() + " ";
+                selectQuery += "m.id ";
+
+                if (m_sOrderByAdd == "")
+                {
+
+                    if (m_nOrderBy == -10)
+                        selectQuery += ",m.start_date ";
+                    else if (m_nOrderBy == -12)
+                        selectQuery += ",m.create_date ";
+                    else if (m_nOrderBy == -11)
+                        selectQuery += ",m.name ";
+                    else if (m_nOrderBy == -9)
+                        selectQuery += ",m.like_counter ";
+                    else if (m_nOrderBy == -8)
+                        selectQuery += ",((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end)) * ( case when m.VOTES_COUNT<5 then m.VOTES_COUNT else 5 end)) ,m.VOTES_COUNT ";
+                    else if (m_nOrderBy == -7)
+                        selectQuery += ",m.VIEWS ";
+                    //else if (m_nOrderBy == -6)
+                    //selectQuery += ",newid() ";
+                    else if (m_nOrderBy == 1)
+                        selectQuery += ",m.META1_STR ";
+                    else if (m_nOrderBy == 2)
+                        selectQuery += ",m.META2_STR ";
+                    else if (m_nOrderBy == 3)
+                        selectQuery += ",m.META3_STR ";
+                    else if (m_nOrderBy == 4)
+                        selectQuery += ",m.META4_STR ";
+                    else if (m_nOrderBy == 5)
+                        selectQuery += ",m.META5_STR ";
+                    else if (m_nOrderBy == 6)
+                        selectQuery += ",m.META6_STR ";
+                    else if (m_nOrderBy == 7)
+                        selectQuery += ",m.META7_STR ";
+                    else if (m_nOrderBy == 8)
+                        selectQuery += ",m.META8_STR ";
+                    else if (m_nOrderBy == 9)
+                        selectQuery += ",m.META9_STR ";
+                    else if (m_nOrderBy == 10)
+                        selectQuery += ",m.META10_STR ";
+                    else if (m_nOrderBy == 11)
+                        selectQuery += ",m.META11_STR ";
+                    else if (m_nOrderBy == 12)
+                        selectQuery += ",m.META12_STR ";
+                    else if (m_nOrderBy == 13)
+                        selectQuery += ",m.META13_STR ";
+                    else if (m_nOrderBy == 14)
+                        selectQuery += ",m.META14_STR ";
+                    else if (m_nOrderBy == 15)
+                        selectQuery += ",m.META15_STR ";
+                    else if (m_nOrderBy == 16)
+                        selectQuery += ",m.META16_STR ";
+                    else if (m_nOrderBy == 17)
+                        selectQuery += ",m.META17_STR ";
+                    else if (m_nOrderBy == 18)
+                        selectQuery += ",m.META18_STR ";
+                    else if (m_nOrderBy == 19)
+                        selectQuery += ",m.META19_STR ";
+                    else if (m_nOrderBy == 20)
+                        selectQuery += ",m.META20_STR ";
+
+                    else if (m_nOrderBy == 21)
+                        selectQuery += ",m.META1_DOUBLE ";
+                    else if (m_nOrderBy == 22)
+                        selectQuery += ",m.META2_DOUBLE ";
+                    else if (m_nOrderBy == 23)
+                        selectQuery += ",m.META3_DOUBLE ";
+                    else if (m_nOrderBy == 24)
+                        selectQuery += ",m.META4_DOUBLE ";
+                    else if (m_nOrderBy == 25)
+                        selectQuery += ",m.META5_DOUBLE ";
+
+                    else if (m_nOrderBy == 26)
+                        selectQuery += ",m.META6_DOUBLE ";
+                    else if (m_nOrderBy == 27)
+                        selectQuery += ",m.META7_DOUBLE ";
+                    else if (m_nOrderBy == 28)
+                        selectQuery += ",m.META8_DOUBLE ";
+                    else if (m_nOrderBy == 29)
+                        selectQuery += ",m.META9_DOUBLE ";
+                    else if (m_nOrderBy == 30)
+                        selectQuery += ",m.META10_DOUBLE ";
+                }
+                else
+                {
+                    if (m_sOrderByAdd != "")
+                        selectQuery += "," + m_sOrderByAdd;
+                }
+
+                selectQuery += " from media m (nolock) ";
+                if (m_dtChannelTags.DefaultView.Count > 0 && sTagsIDs != "" && bAnd == false)
+                    selectQuery += ",media_tags mt (nolock)";
+                if (m_bIsLangMain == false)
+                    selectQuery += ",media_translate mtt (nolock)";
+                string sPersonal = "";
+                if (bPersonalChannel == true)
+                {
+                    sPersonal = GetPersonalViewdMedia();
+                    //selectQuery += ",watchers_media_actions wma";
+                }
+                //selectQuery += " where m.start_date<getdate() and (m.end_date is null or m.end_date>getdate()) and m.status=1 and m.is_active=1 ";
+                selectQuery += " where m.status=1 ";
+
+                if (bOnlyActiveMedias)
+                    selectQuery += "and m.is_active=1 ";
+
+                if (m_bIsLangMain == false)
+                {
+                    selectQuery += " and m.id=mtt.media_id and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mtt.LANGUAGE_ID", "=", m_nLangID);
+                    selectQuery += " and mtt.NAME <> '' and mtt.NAME is not null ";
+                }
+                selectQuery += " and (m.id not in (select id from media (nolock) where";
+
+                //With/ 
+                selectQuery += GetDateRangeQuery(bUseStartDate);
+
+                selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nGroupID, string.Empty);
+                selectQuery += "))";
+                selectQuery += " and ";
+                selectQuery += " (m.id not in (select media_id from media_locale_values (nolock) where";
+
+                selectQuery += GetDateRangeQuery(bUseStartDate);
+
+                selectQuery += "(country_id=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", m_nCountryID);
+                selectQuery += ") and (language_id=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", m_nLangID);
+                selectQuery += ") and (DEVICE_ID=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_ID", "=", m_nDeviceID);
+                selectQuery += ") and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += "))";
+                selectQuery += " and ";
+                if (nFileTypes != null && nFileTypes.Length > 0)
+                {
+                    selectQuery += " m.id in (select distinct media_id from media_files where is_active=1 and status=1 and MEDIA_TYPE_ID in(";
+                    for (int j = 0; j < nFileTypes.Length; j++)
+                    {
+                        if (j > 0)
+                            selectQuery += ",";
+                        selectQuery += GetTypeFromfriendlyType(nFileTypes[j], nGroupID);
+                    }
+                    selectQuery += ")";
+                    selectQuery += ") and";
+                }
+                selectQuery += "(";
+
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.group_id", "=", nGroupID);
+                if (sWPGID != "")
+                {
+                    selectQuery += " or m.WATCH_PERMISSION_TYPE_ID in (";
+                    selectQuery += sWPGID;
+                    selectQuery += ")";
+                }
+                selectQuery += ") ";
+                if (bPersonalChannel == true)
+                {
+                    if (sPersonal != "")
+                        selectQuery += " and m.id in " + sPersonal + " ";
+                    else
+                        selectQuery += " and m.id in (0) ";
+                }
+                if (m_dtChannelTags.DefaultView.Count > 0 && sTagsIDs != "")
+                {
+                    if (bAnd == false)
+                    {
+                        selectQuery += "and mt.status=1 and ";//and mt.tag_id in (";
+                        selectQuery += sTagsIDs;
+                        selectQuery += " and mt.MEDIA_ID=m.id ";
+                    }
+                    else
+                    {
+                        selectQuery += "and " + sTagsIDs;
+                    }
+                }
+
+
+                if (m_sStrValuesQuery.Trim() != "")
+                {
+                    selectQuery += " and (";
+                    selectQuery += m_sStrValuesQuery;
+                    selectQuery += ")";
+                }
+                if (m_sDoubleValuesQuery.Trim() != "")
+                {
+                    selectQuery += " and (";
+                    selectQuery += m_sDoubleValuesQuery;
+                    selectQuery += ")";
+                }
+
+                if (m_sBoolValuesQuery.Trim() != "")
+                {
+                    selectQuery += " and (";
+                    selectQuery += m_sBoolValuesQuery;
+                    selectQuery += ")";
+                }
+                if (m_nMediaType != 0)
+                {
+                    selectQuery += " and (";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.MEDIA_TYPE_ID", "=", m_nMediaType);
+                    selectQuery += ")";
+                }
+                if (m_sOrderByAdd == "")
+                {
+                    if (m_nOrderBy != -6)
+                        selectQuery += " order by ";
+                    //if (bPersonalChannel = true)
+                    //selectQuery += " wma.create_date desc, ";
+                    if (m_nOrderBy == -10)
+                        selectQuery += "m.start_date ";
+                    else if (m_nOrderBy == -12)
+                        selectQuery += "m.create_date ";
+                    else if (m_nOrderBy == -11)
+                        selectQuery += "m.name ";
+                    else if (m_nOrderBy == -9)
+                        selectQuery += "m.like_counter ";
+                    else if (m_nOrderBy == -8)
+                        selectQuery += "((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end)) * ( case when m.VOTES_COUNT<5 then m.VOTES_COUNT else 5 end))  ";
+                    else if (m_nOrderBy == -7)
+                        selectQuery += "m.VIEWS ";
+                    //else if (m_nOrderBy == -6)
+                    //selectQuery += "newid() ";
+                    else if (m_nOrderBy == 0)
+                        selectQuery += "m.id ";
+
+                    else if (m_nOrderBy == 1)
+                        selectQuery += "m.META1_STR ";
+                    else if (m_nOrderBy == 2)
+                        selectQuery += "m.META2_STR ";
+                    else if (m_nOrderBy == 3)
+                        selectQuery += "m.META3_STR ";
+                    else if (m_nOrderBy == 4)
+                        selectQuery += "m.META4_STR ";
+                    else if (m_nOrderBy == 5)
+                        selectQuery += "m.META5_STR ";
+                    else if (m_nOrderBy == 6)
+                        selectQuery += "m.META6_STR ";
+                    else if (m_nOrderBy == 7)
+                        selectQuery += "m.META7_STR ";
+                    else if (m_nOrderBy == 8)
+                        selectQuery += "m.META8_STR ";
+                    else if (m_nOrderBy == 9)
+                        selectQuery += "m.META9_STR ";
+                    else if (m_nOrderBy == 10)
+                        selectQuery += "m.META10_STR ";
+
+                    else if (m_nOrderBy == 11)
+                        selectQuery += "m.META11_STR ";
+                    else if (m_nOrderBy == 12)
+                        selectQuery += "m.META12_STR ";
+                    else if (m_nOrderBy == 13)
+                        selectQuery += "m.META13_STR ";
+                    else if (m_nOrderBy == 14)
+                        selectQuery += "m.META14_STR ";
+                    else if (m_nOrderBy == 15)
+                        selectQuery += "m.META15_STR ";
+                    else if (m_nOrderBy == 16)
+                        selectQuery += "m.META16_STR ";
+                    else if (m_nOrderBy == 17)
+                        selectQuery += "m.META17_STR ";
+                    else if (m_nOrderBy == 18)
+                        selectQuery += "m.META18_STR ";
+                    else if (m_nOrderBy == 19)
+                        selectQuery += "m.META19_STR ";
+                    else if (m_nOrderBy == 20)
+                        selectQuery += "m.META20_STR ";
+
+                    else if (m_nOrderBy == 21)
+                        selectQuery += "m.META1_DOUBLE ";
+                    else if (m_nOrderBy == 22)
+                        selectQuery += "m.META2_DOUBLE ";
+                    else if (m_nOrderBy == 23)
+                        selectQuery += "m.META3_DOUBLE ";
+                    else if (m_nOrderBy == 24)
+                        selectQuery += "m.META4_DOUBLE ";
+                    else if (m_nOrderBy == 25)
+                        selectQuery += "m.META5_DOUBLE ";
+
+                    else if (m_nOrderBy == 26)
+                        selectQuery += "m.META6_DOUBLE ";
+                    else if (m_nOrderBy == 27)
+                        selectQuery += "m.META7_DOUBLE ";
+                    else if (m_nOrderBy == 28)
+                        selectQuery += "m.META8_DOUBLE ";
+                    else if (m_nOrderBy == 29)
+                        selectQuery += "m.META9_DOUBLE ";
+                    else if (m_nOrderBy == 30)
+                        selectQuery += "m.META10_DOUBLE ";
+
+                    if (m_nOrderDir == 2 && m_nOrderBy != -6)
+                        selectQuery += "desc";
+                    if (m_nOrderBy == -8)
+                        selectQuery += ",m.VOTES_COUNT desc";
+                }
+                else
+                    selectQuery += m_sOrderBy;
+                if (m_nOrderBy == -6 && m_sOrderByAdd == "")
+                    selectQuery += ")q order by newid()";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    d = selectQuery.Table("query").Copy();
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            //manu
+            if (m_nChannelType == 2)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey(s_ConnectionKey);
+                selectQuery += "select ";
+                if (nNumOfItems > 0)
+                    selectQuery += " top " + nNumOfItems.ToString() + " ";
+                selectQuery += "m.id from media m (nolock),channels_media cm (nolock) ";
+                if (m_bIsLangMain == false)
+                    selectQuery += ",media_translate mtt (nolock)";
+                selectQuery += " where ";
+                if (nFileTypes != null && nFileTypes.Length > 0)
+                {
+                    selectQuery += " m.id in (select distinct media_id from media_files where is_active=1 and status=1 and MEDIA_TYPE_ID in(";
+                    for (int j = 0; j < nFileTypes.Length; j++)
+                    {
+                        if (j > 0)
+                            selectQuery += ",";
+                        selectQuery += GetTypeFromfriendlyType(nFileTypes[j], nGroupID);
+                    }
+                    selectQuery += ")";
+                    selectQuery += ") and";
+                }
+                selectQuery += "(";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("m.group_id", "=", nGroupID);
+                if (sWPGID != "")
+                {
+                    selectQuery += " or m.WATCH_PERMISSION_TYPE_ID in (";
+                    selectQuery += sWPGID;
+                    selectQuery += ")";
+                }
+                //selectQuery += ") and m.start_date<getdate() and (m.end_date is null or m.end_date>getdate()) and cm.media_id=m.id and cm.status=1 and m.status=1 and m.is_active=1 and";
+                selectQuery += ") and cm.media_id=m.id and cm.status=1 and m.status=1";
+
+                if (bOnlyActiveMedias)
+                    selectQuery += "and m.is_active=1 ";
+
+                selectQuery += " and (m.id not in (select id from media (nolock) where";
+                selectQuery += GetDateRangeQuery(bUseStartDate);
+                selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nGroupID, string.Empty);
+                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += "))";
+                selectQuery += " and ";
+                selectQuery += " (m.id not in (select media_id from media_locale_values (nolock) where";
+                selectQuery += GetDateRangeQuery(bUseStartDate);
+                selectQuery += "(country_id=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", m_nCountryID);
+                selectQuery += ") and (language_id=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", m_nLangID);
+                selectQuery += ") and (DEVICE_ID=0 or ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_ID", "=", m_nDeviceID);
+                selectQuery += ") and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+                selectQuery += "))";
+
+                if (m_bIsLangMain == false)
+                {
+                    selectQuery += " and m.id=mtt.media_id and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mtt.LANGUAGE_ID", "=", m_nLangID);
+                    selectQuery += " and mtt.NAME <> '' and mtt.NAME is not null ";
+                }
+                selectQuery += "and";
+
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("cm.channel_id", "=", m_nChannelID);
+                if (m_sOrderByAdd == "")
+                {
+                    selectQuery += " order by cm.order_num";
+                    if (m_nOrderBy == -10)
+                        selectQuery += ",m.start_date ";
+                    else if (m_nOrderBy == -12)
+                        selectQuery += ",m.create_date ";
+                    else if (m_nOrderBy == -11)
+                        selectQuery += ",m.name ";
+                    else if (m_nOrderBy == -9)
+                        selectQuery += ",m.like_counter ";
+                    else if (m_nOrderBy == -8)
+                        selectQuery += ",((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end)) * ( case when m.VOTES_COUNT<5 then m.VOTES_COUNT else 5 end))  ";
+                    else if (m_nOrderBy == -7)
+                        selectQuery += ",m.VIEWS ";
+                    else if (m_nOrderBy == -6)
+                        selectQuery += ",newid() ";
+                    else if (m_nOrderBy == 0)
+                        selectQuery += ",m.id ";
+
+                    else if (m_nOrderBy == 1)
+                        selectQuery += ",m.META1_STR ";
+                    else if (m_nOrderBy == 2)
+                        selectQuery += ",m.META2_STR ";
+                    else if (m_nOrderBy == 3)
+                        selectQuery += ",m.META3_STR ";
+                    else if (m_nOrderBy == 4)
+                        selectQuery += ",m.META4_STR ";
+                    else if (m_nOrderBy == 5)
+                        selectQuery += ",m.META5_STR ";
+                    else if (m_nOrderBy == 6)
+                        selectQuery += ",m.META6_STR ";
+                    else if (m_nOrderBy == 7)
+                        selectQuery += ",m.META7_STR ";
+                    else if (m_nOrderBy == 8)
+                        selectQuery += ",m.META8_STR ";
+                    else if (m_nOrderBy == 9)
+                        selectQuery += ",m.META9_STR ";
+                    else if (m_nOrderBy == 10)
+                        selectQuery += ",m.META10_STR ";
+
+                    else if (m_nOrderBy == 11)
+                        selectQuery += ",m.META11_STR ";
+                    else if (m_nOrderBy == 12)
+                        selectQuery += ",m.META12_STR ";
+                    else if (m_nOrderBy == 13)
+                        selectQuery += ",m.META13_STR ";
+                    else if (m_nOrderBy == 14)
+                        selectQuery += ",m.META14_STR ";
+                    else if (m_nOrderBy == 15)
+                        selectQuery += ",m.META15_STR ";
+                    else if (m_nOrderBy == 16)
+                        selectQuery += ",m.META16_STR ";
+                    else if (m_nOrderBy == 17)
+                        selectQuery += ",m.META17_STR ";
+                    else if (m_nOrderBy == 18)
+                        selectQuery += ",m.META18_STR ";
+                    else if (m_nOrderBy == 19)
+                        selectQuery += ",m.META19_STR ";
+                    else if (m_nOrderBy == 20)
+                        selectQuery += ",m.META20_STR ";
+
+                    else if (m_nOrderBy == 21)
+                        selectQuery += ",m.META1_DOUBLE ";
+                    else if (m_nOrderBy == 22)
+                        selectQuery += ",m.META2_DOUBLE ";
+                    else if (m_nOrderBy == 23)
+                        selectQuery += ",m.META3_DOUBLE ";
+                    else if (m_nOrderBy == 24)
+                        selectQuery += ",m.META4_DOUBLE ";
+                    else if (m_nOrderBy == 25)
+                        selectQuery += ",m.META5_DOUBLE ";
+
+                    else if (m_nOrderBy == 26)
+                        selectQuery += ",m.META6_DOUBLE ";
+                    else if (m_nOrderBy == 27)
+                        selectQuery += ",m.META7_DOUBLE ";
+                    else if (m_nOrderBy == 28)
+                        selectQuery += ",m.META8_DOUBLE ";
+                    else if (m_nOrderBy == 29)
+                        selectQuery += ",m.META9_DOUBLE ";
+                    else if (m_nOrderBy == 30)
+                        selectQuery += ",m.META10_DOUBLE ";
+
+                    if (m_nOrderDir == 2)
+                        selectQuery += "desc";
+                    if (m_nOrderBy == -8)
+                        selectQuery += ",m.VOTES_COUNT desc";
+                }
+                else
+                {
+                    selectQuery += m_sOrderBy;
+                }
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    d = selectQuery.Table("query").Copy();
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+
+            log.Debug("cache string - GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString());
+
+            if (m_nWatcherID == 0)
+                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            else
+                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+            return d;
         }
+
 
         private string GetDateRangeQuery(bool bUseStartDate)
         {

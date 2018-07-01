@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects;
+using ConfigurationManager;
 using CouchbaseManager;
-using System.Configuration;
-using ApiObjects;
-using Newtonsoft.Json;
 using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace DalCB
 {
@@ -16,7 +15,8 @@ namespace DalCB
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly string sEndMaxValue = @"\uefff";
-        private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
+
+        private static readonly string CB_EPG_DESGIN = ApplicationConfiguration.CouchBaseDesigns.EPGDesign.Value;
         private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
 
         CouchbaseManager.CouchbaseManager cbManager;
@@ -327,7 +327,7 @@ namespace DalCB
 
         private EpgCB BuildEpgCbFromCbObject(object cbObject)
         {
-            EpgCB epgCb = null;                        
+            EpgCB epgCb = null;
 
             // Old code:
             // If the value that CB returned is valid
@@ -354,7 +354,7 @@ namespace DalCB
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)
-        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex)
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, bool falseStaleState = false)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             var startKey = new List<object>() { m_nGroupID, null }.ToArray();
@@ -367,8 +367,14 @@ namespace DalCB
                     startKey = startKey,
                     endKey = endKey,
                     allowPartialQuery = true,
-                    shouldLookupById = true
+                    shouldLookupById = true,
+                    staleState = ViewStaleState.False
                 };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
 
                 if (nPageSize > 0)
                 {
@@ -388,7 +394,7 @@ namespace DalCB
 
         //(dStartDate <= start_date < sEndMaxValue) 
         //returns all programs with group id, that have a start date that's greater than or equal to dStartDate
-        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dStartDate)
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dStartDate, bool falseStaleState = false)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             List<object> startKey = new List<object>() { m_nGroupID, dStartDate.ToString("yyyyMMddHHmmss") };
@@ -403,6 +409,16 @@ namespace DalCB
                     allowPartialQuery = true,
                     shouldLookupById = true
                 };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
 
                 if (nPageSize > 0)
                 {
@@ -422,7 +438,7 @@ namespace DalCB
 
         //(dFromDate <= start_date < dToDate)
         //returns all programs with group id, that have a start date that's greater than or equal to dFromDate and smaller than dToDate
-        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dFromDate, DateTime dToDate)
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dFromDate, DateTime dToDate, bool falseStaleState = false)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             List<object> startKey = new List<object>() { m_nGroupID, dFromDate.ToString("yyyyMMddHHmmss") };
@@ -437,6 +453,11 @@ namespace DalCB
                     allowPartialQuery = true,
                     shouldLookupById = true
                 };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
 
                 if (nPageSize > 0)
                 {

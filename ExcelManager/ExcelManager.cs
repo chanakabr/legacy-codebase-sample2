@@ -219,7 +219,7 @@ namespace ExcelManager
                                 }
                             }
 
-                            assetImageGenResponse.Status = ImageManager.SetContent(groupId, userId, image.Id, image.Url);
+                            assetImageGenResponse.SetStatus(ImageManager.SetContent(groupId, userId, image.Id, image.Url));
                             if (!IsValidStatus(assetImageGenResponse.Status, externalId, ref externalIdToResultMap))
                             {
                                 break;

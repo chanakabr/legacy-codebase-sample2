@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace ODBCWrapper
 {
@@ -22,19 +23,28 @@ namespace ODBCWrapper
             m_myDataSet.RemotingFormat = System.Data.SerializationFormat.Binary;
             command = null;
 
-            if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("ODBC_CACH_SEC")))
+            var cachedSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+
+            if (cachedSec >= 0)
             {
-                m_nCachedSec = int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
+                m_nCachedSec = cachedSec;
             }
             else if (HttpContext.Current != null && HttpContext.Current.Session != null)
             {
                 if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
+                {
                     m_nCachedSec = int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
+                }
                 else
+                {
                     m_nCachedSec = 60;
+                }
             }
             else
+            {
                 m_nCachedSec = 60;
+            }
+
             m_bIsWritable = false;
         }
 

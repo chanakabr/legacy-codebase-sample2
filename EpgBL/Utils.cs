@@ -36,16 +36,6 @@ namespace EpgBL
                     }
             }
         }
-        
-        public static double GetDoubleValFromConfig(string sKey)
-        {
-            double nRes = 0;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue(sKey) != string.Empty)
-            {
-                double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKey), out nRes);
-            }
-            return nRes;
-        }
 
         public static string GenerateDocID(int nGroupID, int nEpgID)
         {

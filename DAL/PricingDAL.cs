@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ODBCWrapper;
+﻿using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.Pricing;
 using KLogMonitor;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects.AssetLifeCycleRules;
-using ApiObjects.IngestBusinessModules;
-using System.Xml.Serialization;
-using System.IO;
 using System.Xml;
 
 namespace DAL
@@ -79,7 +76,7 @@ namespace DAL
 
             spSubscriptionData.AddParameter("@UserTypesIdIn", UserTypesIdIn);
             spSubscriptionData.AddIDListParameter("@UserTypesIdList", userTypesIDsList, "id");
-            
+
             spSubscriptionData.AddParameter("@TopRows", nTopRows);
 
             DataSet ds = spSubscriptionData.ExecuteDataSet();
@@ -379,7 +376,7 @@ namespace DAL
             if (ds != null && ds.Tables != null)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static DataTable GetUsageModuleCollection(string sAssetCode)
         {
@@ -571,8 +568,8 @@ namespace DAL
             }
 
             return res;
-        }
-               
+        }        
+
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
             DataTable subscriptionsServices = null;
@@ -985,7 +982,7 @@ namespace DAL
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
             sp.AddIDListParameter<string>("@CouponGroups", couponGroups, "STR");
-             sp.AddIDListParameter<string>("@VerificationPGW", verificationPGW, "STR");
+            sp.AddIDListParameter<string>("@VerificationPGW", verificationPGW, "STR");
 
             return sp.Execute();
         }
@@ -1023,7 +1020,7 @@ namespace DAL
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
                 sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
                 sp.AddParameter("@productCodes", productCodes.InnerXml);
-                
+
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1069,13 +1066,13 @@ namespace DAL
 
             sp.AddParameter("@IsRenewable", mpp.IsRenewable);
             sp.AddParameter("@ProductCode", mpp.ProductCode);
-            
+
             if (mpp.Descriptions != null)
                 sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions.Select(d => new KeyValuePair<string, string>(d.key, d.value)).ToList(), "key", "value");
-            
+
             if (mpp.Titles != null)
                 sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
-            
+
             sp.AddKeyValueListParameter<long, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
             sp.AddIDListParameter<long>("@Channels", channels, "Id");
             sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
@@ -1101,7 +1098,7 @@ namespace DAL
             sp.AddParameter("@ViewLifeCycle", viewLifeCycle);
             sp.AddParameter("@currency", currency);
             sp.AddParameter("@price", price);
-            sp.AddParameter("@Discount", discount);;
+            sp.AddParameter("@Discount", discount); ;
 
             return sp.Execute();
         }
@@ -1123,7 +1120,7 @@ namespace DAL
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
-                
+
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1141,27 +1138,27 @@ namespace DAL
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@Name", pricePlan.Code);
-                
+
                 sp.AddParameter("@IsActive", pricePlan.IsActive);
-                sp.AddParameter("@MaxViews", pricePlan.MaxViews);                
-                
+                sp.AddParameter("@MaxViews", pricePlan.MaxViews);
+
                 sp.AddParameter("@RecurringPeriods", pricePlan.RecurringPeriods);
-                
+
                 if (priceCodeID >= 0)
                     sp.AddParameter("@PriceCodeID", priceCodeID);
-                
+
                 if (fullLifeCycleID >= 0)
                     sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
 
                 if (viewLifeCycleID >= 0)
                     sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
-                
+
                 if (discountID >= 0)
                     sp.AddParameter("@DiscountID", discountID);
-                
+
                 sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
                 sp.AddParameter("@Date", DateTime.UtcNow);
-                
+
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1199,7 +1196,7 @@ namespace DAL
             sp.AddParameter("@price", price);
             sp.AddParameter("@usageModule", usageModule);
             sp.AddParameter("@discount", discount);
-            sp.AddParameter("@couponGroup", couponGroup);            
+            sp.AddParameter("@couponGroup", couponGroup);
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
 
             return sp.Execute();
@@ -1238,16 +1235,16 @@ namespace DAL
             sp.AddParameter("@Name", ppv.Code);
             if (priceCodeID >= 0)
                 sp.AddParameter("@priceCode", priceCodeID);
-            
+
             if (usageModuleID >= 0)
                 sp.AddParameter("@usageModule", usageModuleID);
-            
-            if (discountID >= 0)            
+
+            if (discountID >= 0)
                 sp.AddParameter("@discount", discountID);
-            
-            if (couponGroupID >= 0)            
+
+            if (couponGroupID >= 0)
                 sp.AddParameter("@couponGroup", couponGroupID);
-            
+
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
@@ -1318,10 +1315,10 @@ namespace DAL
         }
 
         public static DataSet GetPriceCodeLocale(int priceCodeId, string countryCode, string currencyCode)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPriceCodeLocale");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@priceCodeId", priceCodeId);            
+            sp.AddParameter("@priceCodeId", priceCodeId);
             sp.AddParameter("@countryCode", countryCode);
             sp.AddParameter("@currencyCode", currencyCode);
             return sp.ExecuteDataSet();
@@ -1415,7 +1412,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsContainingSubscriptionIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");     
+            sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");
             sp.AddParameter("@Type", type);
             return sp.Execute();
         }
@@ -1436,7 +1433,7 @@ namespace DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@SubscriptionId", subscriptionId);
             sp.AddParameter("@xmlDoc", xml);
-            
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -1447,7 +1444,7 @@ namespace DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@Ids", ids, "id");
             sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
-            if (typeId.HasValue )
+            if (typeId.HasValue)
             {
                 sp.AddParameter("@Type", typeId.Value);
             }
@@ -1511,7 +1508,7 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<KeyValuePair<long, int>> subscriptionIdsToPriority, 
+        public static DataSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<KeyValuePair<long, int>> subscriptionIdsToPriority,
             bool shouldUpdateSubscriptionIds, int type = 1)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionDependencySet");
@@ -1601,6 +1598,128 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@productIds", productIds, "ID");
             sp.AddParameter("@productType", (int)productType);
+            return sp.Execute();
+        }
+
+        public static DataTable GetCoupon(int groupId, string couponCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCoupon");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponCode", couponCode);
+            return sp.Execute();
+        }
+
+        public static DataTable GetCouponsGroup(int groupId, long couponsGroupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCouponsGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponsGroupId", couponsGroupId);
+            return sp.Execute();
+        }
+
+        public static int GetCouponDomainUses(int groupId, int couponId, long domainId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCouponDomainUses");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponId", couponId);
+            sp.AddParameter("@domainId", domainId);
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static bool IsCouponCodeExists(int groupId, string couponCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_CouponCodeExists");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponCode", couponCode);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable GetGroupCouponsGroups(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupCouponsGroups");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            return sp.Execute();
+        }
+
+        public static DataTable UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CouponsGroups");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@maxUsesNumber", maxUsesNumber);
+            sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
+            sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
+            sp.AddParameter("@couponGroupType", couponGroupType);
+            sp.AddParameter("@discountCode", discountCode);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int DeleteCouponsGroup(int groupId, long id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_CouponsGroups");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }
+
+        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, 
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CouponsGroups");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@maxUsesNumber", maxUsesNumber);
+            sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
+            sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
+            sp.AddParameter("@couponGroupType", couponGroupType);
+            sp.AddParameter("@discountCode", discountCode);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static bool IsDiscountCodeExists(int groupId, long discountCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_DiscountCodeExists");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@discountCodeId", discountCode);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable GetGroupDiscounts(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupDiscounts");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
             return sp.Execute();
         }
     }

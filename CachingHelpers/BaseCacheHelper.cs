@@ -1,12 +1,11 @@
 ﻿using CachingProvider;
+using ConfigurationManager;
 using CouchbaseManager;
-using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace CachingHelpers
@@ -51,35 +50,35 @@ namespace CachingHelpers
         {
             if (string.IsNullOrEmpty(cacheType))
             {
-                cacheType = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
+                cacheType = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
             }
 
             switch (cacheType.ToLower())
             {
                 case "couchbase":
-                {
-                    cacheService = CouchBaseCache<T>.GetInstance("CACHE");
-                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    {
+                        cacheService = CouchBaseCache<T>.GetInstance("CACHE");
+                        version = ApplicationConfiguration.Version.Value;
 
-                    //set ttl time for document 
-                    cacheTime = GetDocTTLSettings();
-                    break;
-                }
+                        //set ttl time for document 
+                        cacheTime = GetDocTTLSettings();
+                        break;
+                    }
                 case "innercache":
-                {
-                    cacheTime = GetDefaultCacheTimeInSeconds();
-                    InitializeCachingService(GetCacheName(), cacheTime);
-                    break;
-                }
+                    {
+                        cacheTime = GetDefaultCacheTimeInSeconds();
+                        InitializeCachingService(GetCacheName(), cacheTime);
+                        break;
+                    }
                 case "hybrid":
-                {
-                    cacheTime = GetDefaultCacheTimeInSeconds();
-                    string cacheName = GetCacheName();
-                    cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
-                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    {
+                        cacheTime = GetDefaultCacheTimeInSeconds();
+                        string cacheName = GetCacheName();
+                        cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                        version = ApplicationConfiguration.Version.Value;
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
 
@@ -92,11 +91,11 @@ namespace CachingHelpers
         {
             string result = DEFAULT_CACHE_NAME;
 
-            string tcm = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
+            string name = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
 
-            if (tcm.Length > 0)
+            if (name.Length > 0)
             {
-                result = tcm;
+                result = name;
             }
 
             return result;
@@ -104,14 +103,11 @@ namespace CachingHelpers
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = DEFAULT_TIME_IN_CACHE_SECONDS;
-            uint tcm = 0;
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
 
-            string timeString = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_TIME_IN_MINUTES");
-
-            if (timeString.Length > 0 && uint.TryParse(timeString, out tcm) && tcm > 0)
+            if (result <= 0)
             {
-                result = tcm * 60;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
 
             return result;
@@ -119,17 +115,11 @@ namespace CachingHelpers
 
         private uint GetDocTTLSettings()
         {
-            uint result;
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
 
-            if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out result))
+            if (result <= 0)
             {
-                // 24 hours
                 result = 86400;
-            }
-            else
-            {
-                // convert to seconds (TCM config is in minutes)
-                result *= 60;
             }
 
             return result;
@@ -340,7 +330,7 @@ namespace CachingHelpers
 
                         VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cachedKey);
                         bool inserted = false;
-                        
+
                         //try insert to Cache
                         for (int tryNumber = 0; tryNumber < 3 && !inserted; tryNumber++)
                         {

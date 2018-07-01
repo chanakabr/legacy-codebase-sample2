@@ -7,6 +7,8 @@ using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.Web;
+using ConfigurationManager;
+
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
@@ -43,6 +45,18 @@ namespace CachingProvider.LayeredCache
 
         #region Public Methods
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="genericParameter"></param>
+        /// <param name="fillObjectMethod"></param>
+        /// <param name="funcParameters"></param>
+        /// <param name="groupId"></param>
+        /// <param name="layeredCacheConfigName"></param>
+        /// <param name="inValidationKeys"></param>
+        /// <returns></returns>
         public bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
                             int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null)
         {
@@ -51,6 +65,7 @@ namespace CachingProvider.LayeredCache
             try
             {
                 Tuple<T, long> tuple = null;
+                // save data in cache only if result is true!!!!
                 result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys);
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
@@ -340,6 +355,13 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public bool ShouldGoToCache(string layeredCacheConfigName, int groupId)
+        {
+            List<LayeredCacheConfig> layeredCacheConfig = null;
+
+            return ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+        }
+
         #endregion
 
         #region Static Methods
@@ -373,10 +395,11 @@ namespace CachingProvider.LayeredCache
             LayeredCacheTcmConfig layeredCacheTcmConfig = null;
             try
             {
-                object obj = Utils.GetTcmGenericValue<object>(LAYERED_CACHE_TCM_CONFIG);
-                if (obj != null)
+                string layeredCacheConfigurationString = ApplicationConfiguration.LayeredCacheConfigurationValidation.Value;
+                    
+                if (!string.IsNullOrEmpty(layeredCacheConfigurationString))
                 {
-                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(obj.ToString(), layeredCacheConfigSerializerSettings);
+                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(layeredCacheConfigurationString, layeredCacheConfigSerializerSettings);
                 }
             }
 
@@ -1080,7 +1103,7 @@ namespace CachingProvider.LayeredCache
 
             return res;
         }
-
+        
         #endregion
 
         #endregion

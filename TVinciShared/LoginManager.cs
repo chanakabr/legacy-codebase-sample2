@@ -10,6 +10,7 @@ using System.Web.UI.HtmlControls;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVinciShared
 {
@@ -302,8 +303,11 @@ namespace TVinciShared
         static public void LogoutFromSite(string sFileToTransferTo)
         {
             string sBaseURL = "http://admin.tvinci.com";
-            if (WS_Utils.GetTcmConfigValue("BASE_URL") != string.Empty)
-                sBaseURL = WS_Utils.GetTcmConfigValue("BASE_URL");
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.TVMBaseUrl.Value))
+            {
+                sBaseURL = ApplicationConfiguration.TVMBaseUrl.Value;
+            }
+
             try
             {
                 Int32 nAcctID = GetLoginID();
@@ -713,11 +717,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty &&
-                    WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK").ToLower() == "true")
-                {
-                }
-                else
+                if (!ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
                 {
                     bool bAllowedIP = false;
 

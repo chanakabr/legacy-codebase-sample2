@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -75,6 +76,7 @@
     <Compile Include="CrowdsourceDAL.cs" />
     <Compile Include="EngagementDal.cs" />
     <Compile Include="enums.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="InterestDal.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="RecordingsDAL.cs" />
@@ -97,6 +99,10 @@
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
+      <Name>ConfigurationManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>

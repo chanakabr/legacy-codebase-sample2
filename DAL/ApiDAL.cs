@@ -5,6 +5,7 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -15,15 +16,18 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiObjects.Billing;
+using System.Xml.Linq;
 
 namespace DAL
 {
     public class ApiDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_queue_messages_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
+        private const int NUM_OF_INSERT_TRIES = 10;
+        private const int NUM_OF_TRIES = 3;
+        private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -49,7 +53,7 @@ namespace DAL
 
             return dt != null ? dt : new DataTable();
         }
-
+        
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
         {
             ODBCWrapper.StoredProcedure spGet_Operators_Info = new ODBCWrapper.StoredProcedure("Get_Operators_Info");
@@ -79,7 +83,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_UserSocialActionID(int nMediaID, string sSiteGuid, int nGroupID, int nSocialPlatform, int nSocialAction)
         {
             ODBCWrapper.StoredProcedure spUserSocialActionID = new ODBCWrapper.StoredProcedure("Get_UserSocialActionID");
@@ -239,7 +243,7 @@ namespace DAL
 
             return ret;
         }
-
+        
         public static string[] GetDomainGroupRule(int nGroupID, int nDomainID, int nRuleID)
         {
             try
@@ -280,7 +284,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1 , int status = 1)
+        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1, int status = 1)
         {
             try
             {
@@ -302,14 +306,14 @@ namespace DAL
 
             return false;
         }
-
+        
         public static bool DeleteRole(int groupId, long id)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_RolePermission");
                 sp.AddParameter("@roleId", id);
-                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@groupId", groupId);
 
                 int rowCount = sp.ExecuteReturnValue<int>();
                 return rowCount > 0;
@@ -321,7 +325,6 @@ namespace DAL
 
             return false;
         }
-
 
         public static string GetDomainCodeForParentalPIN(int nDomainID, int nRuleID)
         {
@@ -355,7 +358,7 @@ namespace DAL
 
             return sPIN;
         }
-
+        
         public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
         {
             ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
@@ -369,7 +372,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_GroupOperatorsDetails(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spGroupOperatorsDetails = new ODBCWrapper.StoredProcedure("Get_GroupOperatorsDetails");
@@ -382,9 +385,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
-       
-
+        
         public static DataTable Get_UserGroupRules(string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spUserGroupRules = new ODBCWrapper.StoredProcedure("Get_UserGroupRules");
@@ -397,7 +398,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable GetDomainGroupRules(int nDomainID)
         {
             try
@@ -524,7 +525,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_MapMediaFiles(List<int> nMediaFileIDs)
         {
             ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_MapMediaFiles");
@@ -577,7 +578,7 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
 
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);
@@ -1126,7 +1127,7 @@ namespace DAL
                     bool markResult = mediaMarkManager.Remove(documentKey);
                     bool hitResult = mediaHitManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
-                
+
                     if (!markResult || !hitResult)
                     {
                         retVal = false;
@@ -1745,14 +1746,14 @@ namespace DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@BillingProcessor", billingProcessor);
             sp.AddParameter("@BillingProvider", billingProvider);
-            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);            
+            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);
             sp.AddParameter("@BillingTransactionStatus", billingTransactionStatus);
             sp.AddParameter("@BillingProviderReference", billingProviderReferance);
             sp.AddParameter("@XmlDoc", xml);
 
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
-            sp.AddParameter("@GroupID", groupId);                        
+            sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@CurrentDate", DateTime.UtcNow);
             sp.AddParameter("@UpdaterID", DBNull.Value);
 
@@ -1826,7 +1827,7 @@ namespace DAL
 
         private static Dictionary<long, eRuleLevel> CreateUserParentalRules(DataTable dt)
         {
-            Dictionary<long, eRuleLevel> result = new Dictionary<long,eRuleLevel>();
+            Dictionary<long, eRuleLevel> result = new Dictionary<long, eRuleLevel>();
 
             // Validate tables count
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -1851,9 +1852,9 @@ namespace DAL
 
                 if (level != 0)
                 {
-                    eLevel = (eRuleLevel)level; 
+                    eLevel = (eRuleLevel)level;
                     return new KeyValuePair<long, eRuleLevel>(id, eLevel);
-                }               
+                }
             }
             return new KeyValuePair<long, eRuleLevel>();
         }
@@ -1961,6 +1962,8 @@ namespace DAL
                 case eGroupRuleType.Device:
                     break;
                 case eGroupRuleType.EPG:
+                    break;
+                case eGroupRuleType.AssetUser:
                     break;
                 default:
                     break;
@@ -2516,7 +2519,6 @@ namespace DAL
             return ossAdapterRes;
         }
 
-
         public static List<OSSAdapter> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
             List<OSSAdapter> res = new List<OSSAdapter>();
@@ -2724,7 +2726,7 @@ namespace DAL
             return table;
         }
 
-        public static List<int> GetAllCountries()
+        public static List<int> GetAllCountriesIds()
         {
             List<int> countries = new List<int>();
 
@@ -2856,7 +2858,7 @@ namespace DAL
                 storedProcedure.AddParameter("@is_active", null);
             }
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
-            
+
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             DataTable tasksTable = dataSet.Tables[0];
 
@@ -3188,7 +3190,7 @@ namespace DAL
                     retrievedGroupId = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "GROUP_ID");
 
                     // if the role - permission connection is overridden by another group - get the exclusion status of the connection
-                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;                  
+                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;
 
                     // build the permission object depending on the type
                     switch (permissionType)
@@ -3262,7 +3264,7 @@ namespace DAL
                     permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
                     isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
-                   
+
                     // build the permission item object depending on the type
                     switch (permissionItemType)
                     {
@@ -3379,8 +3381,8 @@ namespace DAL
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    response = dt.AsEnumerable().Select(x=>  new KeyValuePair<long, string>(x.Field<long>("Id"), x.Field<string>("name"))).
-                        ToDictionary(y=>y.Key, y=>y.Value);
+                    response = dt.AsEnumerable().Select(x => new KeyValuePair<long, string>(x.Field<long>("Id"), x.Field<string>("name"))).
+                        ToDictionary(y => y.Key, y => y.Value);
                 }
             }
             catch (Exception ex)
@@ -3454,7 +3456,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static int InsertRolePermission(int groupId, string roleName,string permissionMap)
+        public static int InsertRolePermission(int groupId, string roleName, string permissionMap)
         {
             int roleId = 0;
 
@@ -3498,6 +3500,7 @@ namespace DAL
         public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null)
         {
             int result = -1;
+
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
             try
             {
@@ -3516,18 +3519,20 @@ namespace DAL
                     updateQuery += " AND ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
                 }
-
-                if (status == eTableStatus.Failed)
+                else if (status == eTableStatus.Failed)
                 {
                     // update image upload failed only if current status is "Pending"
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     if (updaterId.HasValue)
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
-                    updateQuery += " AND ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                    if (!updaterId.HasValue || updaterId != 999)
+                    {
+                        updateQuery += " AND ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                    }
                 }
 
                 updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4121,7 +4126,7 @@ namespace DAL
                 log.Error("Error occurred while trying to execute GetCdnRegularGroupId", ex);
             }
 
-            return regularGroupId;        
+            return regularGroupId;
         }
 
         public static List<int> GetEpgChannelIdsWithNoCatchUp(int groupID)
@@ -4167,13 +4172,7 @@ namespace DAL
 
         public static DataTable GetDeviceFamilies()
         {
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetDeviceFamilies = new ODBCWrapper.StoredProcedure("GetDeviceFamilies");
-            spGetDeviceFamilies.SetConnectionKey("MAIN_CONNECTION_STRING");
-            dt = spGetDeviceFamilies.Execute();
-
-            return dt;
-
+            return UtilsDal.Execute("GetDeviceFamilies");
         }
 
         public static DataTable GetDeviceBrands()
@@ -4187,13 +4186,11 @@ namespace DAL
 
         }
 
-        public static DataTable GetCountries(List<int> countryIds)
+        public static DataTable GetAllCountries()
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountries");
+            StoredProcedure sp = new StoredProcedure("GetCountries");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@ind", countryIds.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter("@countryIds", countryIds, "ID");
             dt = sp.Execute();
 
             return dt;
@@ -4219,14 +4216,19 @@ namespace DAL
                         Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
                         ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
                         Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
-                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), 
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
-                        StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                     };
+
+                    if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
+                    {
+                        file.StreamerType = (StreamerType)ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type");
+                    }
+
 
                     files.Add(file);
                 }
@@ -4329,7 +4331,7 @@ namespace DAL
             // for alcr_geo_block table
             sp.AddParameter("@GeoBlockRuleId", rule.Actions.GeoBlockRuleToSet);
 
-            return sp.ExecuteReturnValue<long>();            
+            return sp.ExecuteReturnValue<long>();
         }
 
         public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(AssetLifeCycleRule rule)
@@ -4354,7 +4356,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountriesLocale");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@CountryIds", countryIds, "id");            
+            sp.AddIDListParameter("@CountryIds", countryIds, "id");
 
             return sp.ExecuteDataSet();
         }
@@ -4364,7 +4366,7 @@ namespace DAL
             bool isLanguageCodesExists = languageCodes != null && languageCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);            
+            sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@LanguageCodes", isLanguageCodesExists ? languageCodes : null, "STR");
             sp.AddParameter("@IsLanguageCodesExists", isLanguageCodesExists ? 1 : 0);
 
@@ -4396,7 +4398,7 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetProxyByIp");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@Ip", ip);            
+            sp.AddParameter("@Ip", ip);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -4533,6 +4535,569 @@ namespace DAL
             return result;
         }
 
+        public static List<int> GetDeviceRulesByBrandId(int groupId, int brandId)
+        {
+            List<int> rules = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("GetDeviceRulesByBrandId");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", groupId);
+            storedProcedure.AddParameter("@brandId", brandId);
+
+            DataTable dt = storedProcedure.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                    rules.Add(id);
+                }
+            }
+
+            return rules;
+        }
+
+        public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
+        {
+            DataTable ds = null;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+                sp.AddParameter("@assetRuleType", assetRuleType);
+
+                ds = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ruleType: {3}, ex:{4} ", groupId, name, description, assetRuleType, ex);
+            }
+
+            return ds;
+        }
+
+        public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
+        {
+            return UpdateAssetRule(groupId, id, null, null);
+        }
+
+        public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
+        {
+            bool result = false;
+
+            if (assetRule != null && assetRule.Id > 0)
+            {
+                string key = GetAssetRuleKey(assetRule.Id);
+                return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key, assetRule);
+            }
+
+            return result;
+        }
+
+        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaCountry");
+                sp.AddIDListParameter("@mediaIds", assetIds, "ID");
+                sp.AddParameter("@countryId", countryId);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@isAllowed", isAllowed);
+                sp.AddParameter("@ruleId", ruleId);
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while adding country to medias", ex);
+            }
+
+            return false;
+        }
+
+        public static DataTable UpdateMediaCountry(int groupId, long ruleId)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountry");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@status", 2);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while update media country", ex);
+            }
+
+            return dt;
+        }
+
+        public static DataTable GetAssetRulesDB()
+        {
+            StoredProcedure sp = new StoredProcedure("Get_AssetRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            DataTable dt = sp.Execute();
+
+            return dt;
+        }
+
+        private static string GetAssetRuleKey(long assetRuleId)
+        {
+            return string.Format("asset_rule:{0}", assetRuleId);
+        }
+
+        public static AssetRule GetAssetRuleCB(long assetRuleId)
+        {
+            string key = GetAssetRuleKey(assetRuleId);
+            return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
+        {
+            List<string> assetRuleKeys = new List<string>();
+            foreach (var assetRuleId in assetRuleIds)
+            {
+                assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
+        }
+        
+        public static bool DeleteAssetRule(int groupId, long id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id, ex);
+            }
+
+            return false;
+        }
+
+        public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
+        {
+            string key = GetAssetRuleKey(assetRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)
+        {
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", assetRuleId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRuleId, ex);
+            }
+
+            return result;
+        }
+
+        public static DataTable GetMediaCountries(long mediaId)
+        {
+            DataTable result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
+                sp.AddParameter("@mediaId", mediaId);
+
+                result = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool UpdateAssetRulesLastRunDate(int groupId, List<long> assetRuleIds)
+        {
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("UpdateAssetRulesLastRunDate");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIds, "ID");
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIds), ex);
+            }
+
+            return result;
+        }
+
+        #region Permissions Management
+
+        public static DataSet Get_PermissionsForExport()
+        {
+            DataSet result = null;
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_PermissionsForExport");
+
+            result = storedProcedure.ExecuteDataSet();
+
+            return result;
+        }
+
+        public static int InsertRole(string name)
+        {
+            int result = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Role");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@name", name);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
+            return result;
+        }
+
+        public static int InsertPermission(string name, int type, string usersGroup)
+        {
+            int result = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@usersGroup", usersGroup);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
+            return result;
+        }
+
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@usersGroup", usersGroup);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermission(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static int InsertPermissionRole(int roleId, int permissionId, int? isExcluded)
+        {
+            int result = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@roleId", roleId);
+            storedProcedure.AddParameter("@permissionId", permissionId);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
+            return result;
+        }
+
+        public static bool UpdatePermissionRole(int id, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermissionRole(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionRole");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static int InsertPermissionItem(string name, int? type, string service, string action, string permissionItemObject, string parameter)
+        {
+            int result = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@service", service);
+            storedProcedure.AddParameter("@action", action);
+            storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
+            storedProcedure.AddParameter("@parameter", parameter);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
+            return result;
+        }
+
+        public static bool UpdatePermissionItem(int id, int? type, string name, string service, string action, string permissionItemObject, string parameter)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@service", service);
+            storedProcedure.AddParameter("@action", action);
+            storedProcedure.AddParameter("@permissionItemObject", permissionItemObject);
+            storedProcedure.AddParameter("@parameter", parameter);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermissionItem(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static int InsertPermissionPermissionItem(int permissionId, int permissionItemId, int? isExcluded)
+        {
+            int result = 0;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@permissionId", permissionId);
+            storedProcedure.AddParameter("@permissionItemId", permissionItemId);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+            
+            return result;
+        }
+
+        public static bool UpdatePermissionPermissionItem(int id, int? isExcluded)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+            storedProcedure.AddParameter("@isExcluded", isExcluded);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static bool DeletePermissionPermissionItem(int id)
+        {
+            bool result = false;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Delete_PermissionPermissionItem");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@id", id);
+
+            int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            if (executionValue > 0)
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region AssetUserRule
+        
+        public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
+        {
+            string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
+            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key);
+        }
+        
+        public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
+        {
+            string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleToSave.Id);
+            return UtilsDal.SaveObjectInCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, assetUserRuleToSave);
+        }
+
+        public static bool DeleteAssetUserRuleCB(long assetUserRuleId)
+        {
+            string assetUserRuleKey = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetUserRuleKey);
+        }
+
+        public static DataTable GetAssetUserRules(int groupId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+            };
+
+            return UtilsDal.Execute("Get_AssetUserRules", parameters);
+        }
+
+        public static DataSet DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@ruleId", assetUserRuleId }
+            };
+
+            return UtilsDal.ExecuteDataSet("Delete_AssetUserRule", parameters);
+        }
+
+        public static DataTable GetUserToAssetUserRules(long userId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId }
+            };
+
+            return UtilsDal.Execute("Get_UserToAssetUserRule", parameters);
+        }
+
+        public static DataTable AddAssetUserRuleToUser(long userId, long ruleId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId },
+                { "@ruleID", ruleId }
+            };
+
+            return UtilsDal.Execute("Insert_UserToAssetUserRule", parameters);
+        }
+        
+        public static bool DeleteAssetUserRuleFromUser(long userId, long ruleId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@userId", userId },
+                { "@ruleId", ruleId }
+            };
+
+            return UtilsDal.ExecuteReturnValue("Delete_UserToAssetUserRule", parameters);
+        }
+
+        #endregion
+        
+        public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
+        {
+            string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
+            return UtilsDal.GetObjectFromCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey);
+        }
+
+        public static bool SaveDeviceConcurrencyPriorityCB(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriority)
+        {
+            string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
+            return UtilsDal.SaveObjectInCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey, deviceConcurrencyPriority);
+        }
+
+        public static string GetDeviceConcurrencyPriorityKey(int groupId)
+        {
+            return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
+        }
+
         #region New Catalog Management
 
         public static bool DeleteParentalRule(int groupId, long id, long userId)
@@ -4560,7 +5125,7 @@ namespace DAL
             sp.AddParameter("@MediaTagValuesExists", shouldInsertMediaTagValues ? 1 : 0);
             sp.AddIDListParameter("@MediaTagValues", shouldInsertMediaTagValues ? mediaTagValues : null, "STR");
             sp.AddParameter("@EpgTopicId", epgTopicId.HasValue ? epgTopicId.Value : 0);
-            bool shouldInsertEpgTagValues = epgTagValues != null && epgTagValues.Count > 0;            
+            bool shouldInsertEpgTagValues = epgTagValues != null && epgTagValues.Count > 0;
             sp.AddParameter("@EpgTagValuesExists", shouldInsertEpgTagValues ? 1 : 0);
             sp.AddIDListParameter("@EpgTagValues", shouldInsertEpgTagValues ? epgTagValues : null, "STR");
             sp.AddParameter("@BlockAnonymousAccess", blockAnonymousAccess);

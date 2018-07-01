@@ -210,6 +210,18 @@ namespace ElasticSearch.Common
                 type = eESFieldType.INTEGER,
                 index = eMappingIndex.not_analyzed
             });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "allowed_countries",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "blocked_countries",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed
+            });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {
@@ -758,6 +770,9 @@ namespace ElasticSearch.Common
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(mappingName);
+
+            // EPG should have TTL enabled
+            mappingObj.ttlEnabled = true;
 
             if (shouldAddRouting)
             {

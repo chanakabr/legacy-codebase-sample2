@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/REAdapter.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/REAdapter.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/REAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
-  <xs:import schemaLocation="http://localhost/REAdapter/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:86/REAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost:86/REAdapter/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="RecommendationsResult">
     <xs:sequence>
       <xs:element minOccurs="0" name="RequestId" nillable="true" type="xs:string" />
@@ -21,6 +21,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="AssetId" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="AssetType" type="tns:eAssetTypes" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="TagsExtraData" nillable="true" type="q2:ArrayOfKeyValue" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />

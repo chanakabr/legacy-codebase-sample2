@@ -229,5 +229,18 @@ namespace TVinciShared
                 }
             }
         }
+        public static string HashMD5(string payload)
+        {
+            string response = null;
+            if (!string.IsNullOrEmpty(payload))
+            {
+                using (MD5 md5 = MD5.Create())
+                {
+                    var hashed = md5.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
+                }
+            }
+            return response;
+        }
     }
 }

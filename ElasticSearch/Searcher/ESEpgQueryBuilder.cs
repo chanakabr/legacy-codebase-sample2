@@ -15,7 +15,6 @@ namespace ElasticSearch.Searcher
         public static readonly string OR_CONDITION = "OR";
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
-        protected readonly int MAX_RESULTS;
 
         public EpgSearchObj m_oEpgSearchObj { get; set; }
         public eQueryAnalyzer eAnalyzer { get; set; }
@@ -25,9 +24,6 @@ namespace ElasticSearch.Searcher
         public ESEpgQueryBuilder()
         {
             ReturnFields = DEFAULT_RETURN_FIELDS;
-            string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
-            if (!int.TryParse(sMaxResults, out MAX_RESULTS))
-                MAX_RESULTS = 10000;
         }
 
         private int CalcNumOfRequests()

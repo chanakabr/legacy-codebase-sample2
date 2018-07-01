@@ -17,7 +17,7 @@ namespace ElasticSearch.Common
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
         public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
 
-        public static string GetWSURL(string sKey)
+        public static string GetTcmValue(string sKey)
         {
             string result = string.Empty;
             try

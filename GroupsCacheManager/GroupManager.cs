@@ -68,7 +68,7 @@ namespace GroupsCacheManager
         public List<long> GetOperatorChannelIDs(int nGroupID, int nOperatorID)
         {
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
             {
                 // group has ipnos
                 Group group = GetGroup(nGroupID);
@@ -85,7 +85,7 @@ namespace GroupsCacheManager
 
         public List<long> GetDistinctAllOperatorsChannels(int nGroupID)
         {
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
             {
                 // group has ipnos
                 Group group = GetGroup(nGroupID);
@@ -156,7 +156,7 @@ namespace GroupsCacheManager
         public bool HandleOperatorEvent(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
         {
             bool res = false;
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
             {
                 switch (oe)
                 {

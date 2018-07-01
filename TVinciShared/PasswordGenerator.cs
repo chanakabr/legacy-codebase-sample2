@@ -17,6 +17,8 @@ namespace TVinciShared
             this.RepeatCharacters = true;
             this.ExcludeSymbols = false;
             this.Exclusions = null;
+            this.UseLetters = true;
+            this.UseNumbers = true;
 
             rng = new RNGCryptoServiceProvider();
         }
@@ -47,17 +49,12 @@ namespace TVinciShared
 
         protected char GetRandomCharacter()
         {
-            int upperBound = pwdCharArray.GetUpperBound(0);
-
-            if (true == this.ExcludeSymbols)
-            {
-                upperBound = PasswordGenerator.UBoundDigit;
-            }
+            int upperBound = passwordCharModifiedArray.GetUpperBound(0);
 
             int randomCharPosition = GetCryptographicRandomNumber(
-                pwdCharArray.GetLowerBound(0), upperBound);
+                passwordCharModifiedArray.GetLowerBound(0), upperBound);
 
-            char randomChar = pwdCharArray[randomCharPosition];
+            char randomChar = passwordCharModifiedArray[randomCharPosition];
 
             return randomChar;
         }
@@ -67,6 +64,8 @@ namespace TVinciShared
             // Pick random length between minimum and maximum   
             int pwdLength = GetCryptographicRandomNumber(this.Minimum,
                 this.Maximum);
+
+            SetPasswordCharArray();
 
             System.Text.StringBuilder pwdBuffer = new System.Text.StringBuilder();
             pwdBuffer.Capacity = this.Maximum;
@@ -120,6 +119,28 @@ namespace TVinciShared
             {
                 return String.Empty;
             }
+        }
+
+        public void SetPasswordCharArray()
+        {
+            string optionalCharactersModified = optionalCharacters;
+            //pwdCharArray
+            if (ExcludeSymbols)
+            {
+                optionalCharactersModified = optionalCharactersModified.Remove(62, 4);
+            }
+
+            if (!UseNumbers)
+            {
+                optionalCharactersModified = optionalCharactersModified.Remove(52, 10);
+            }
+
+            if (!UseLetters)
+            {
+                optionalCharactersModified = optionalCharactersModified.Remove(0, 52);
+            }
+
+            passwordCharModifiedArray = optionalCharactersModified.ToArray();
         }
 
         public string Exclusions
@@ -184,5 +205,10 @@ namespace TVinciShared
         private bool hasSymbols;
         private string exclusionSet;
         private char[] pwdCharArray = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$?".ToCharArray();
+        //optional Characters
+        private string optionalCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$?";
+        private char[] passwordCharModifiedArray;
+        public bool UseNumbers { get; set; }
+        public bool UseLetters { get; set; }
     }
 }

@@ -53,7 +53,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
         }
-
+        
         public static string GetKeyForIp(string ip)
         {
             return string.Format("ip_{0}", ip);
@@ -123,10 +123,15 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("userParentalRules_groupId_{0}_userId_{1}", groupId, siteGuid);
         }
-
+        
         public static string GetMediaParentalRulesKey(int groupId, long mediaId)
         {
             return string.Format("mediaParentalRules_groupId_{0}_mediaId_{1}", groupId, mediaId);
+        }
+
+        public static string GetMediaAssetUserRulesKey(int groupId, long mediaId)
+        {
+            return string.Format("mediaAssetUserRules_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
 
         public static string GetLastUseWithCreditForDomainKey(int groupId, long domainId, int mediaId)
@@ -364,6 +369,76 @@ namespace CachingProvider.LayeredCache
             return string.Format("ExcelTemplate_groupId_{0}_mediaType_{1}_WithFiles_{2}_WithImages_{3}", groupId, mediaTypeId, shouldGenerateFiles, shouldGenerateImages);
         }
 
+        public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
+        {
+            return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
+        }
+
+        public static string GetUserWatchedMediaIdsKey(int userId)
+        {
+            return string.Format("user_watched_media_ids_user_{0}", userId);
+        }
+
+        public static string GetCouponsGroupKey(long couponsGroupId, int groupId)
+        {
+            return string.Format("coupons_group_id_{0}_groupId_{1}", couponsGroupId, groupId);
+        }
+
+        public static string GetCouponsGroupsKey(int groupId)
+        {
+            return string.Format("coupons_groups_groupId_{0}", groupId);
+        }
+
+        public static string GetMediaCountriesKey(long mediaId)
+        {
+            return string.Format("media_countries_{0}", mediaId);
+        }
+
+        public static string GetAllCountryListKey()
+        {
+            return "allCountryList";
+        }
+
+        public static string GetDiscountsKey(int groupId)
+        {
+            return string.Format("discounts_groupId_{0}", groupId);
+        }
+
+        public static string GetAllAssetRulesKey(int groupId, int conditionType)
+        {
+            return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+        }
+
+        public static string GetAllAssetRulesFromDBKey()
+        {
+            return string.Format("all_asset_rules_from_db");
+        }
+
+        public static string GetAssetRuleKey(long ruleId)
+        {
+            return string.Format("asset_rules_{0}", ruleId);
+        }
+
+        public static string GetAssetRulesByAssetKey(string assetId, int assetType)
+        {
+            return string.Format("asset_rules_by_assetId_{0}_assetType_{1}", assetId, assetType);
+        }
+
+        public static string GetAssetUserRuleIdsGroupKey(int groupId)
+        {
+            return string.Format("asset_user_rule_ids_groupId_{0}", groupId);
+        }
+
+        public static string GetAssetUserRuleKey(long ruleId)
+        {
+            return string.Format("asset_user_rule_{0}", ruleId);
+        }
+
+        public static string GetUserToAssetUserRuleIdsKey(long userId)
+        {
+            return string.Format("asset_user_rule_ids_userId_{0}", userId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -427,7 +502,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
-
+        
         public static string GetSeriesRemindersInvalidationKey(int groupId, long seriesReminderId)
         {
             return string.Format("invalidationKeySeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
@@ -623,6 +698,93 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static string GetUserParentalRuleInvalidationKey(string siteGuid)
+        {
+            return string.Format("user_parental_rules_{0}", siteGuid);
+        }
+
+        public static string GetCouponsGroupInvalidationKey(int groupId, long couponsGroup)
+        {
+            return string.Format("invalidationKey_coupons_group_{0}_groupId_{1}", couponsGroup, groupId);
+        }
+
+        public static string GetCouponsGroupsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_coupons_groups_groupId_{0}", groupId);
+        }
+
+        public static string GetAllAssetRulesInvalidationKey()
+        {
+            return string.Format("invalidationKey_all_asset_rules");
+        }
+
+        public static string GetAllAssetRulesGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_all_asset_rules_groupId_{0}", groupId);
+        }
+
+        public static string GetAssetRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_asset_rule_{0}", ruleId);
+        }
+
+        public static string GetAssetUserRuleIdsGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_asset_user_rule_ids_groupId_{0}", groupId);
+        }
+
+        public static string GetAssetUserRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_asset_user_rule_{0}", ruleId);
+        }
+
+        public static string GetUserToAssetUserRuleIdsInvalidationKey(long userId)
+        {
+            return string.Format("invalidationKey_user_asset_user_rule_ids_userId_{0}", userId);
+        }
+
+        public static string GetGroupDiscountsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
+        }
+
+        public static string GetEpgInvalidationKey(int groupId, long epgId)
+        {
+            return string.Format("invalidationKeyEpg_groupId_{0}_epgId_{1}", groupId, epgId);
+        }
+        
+        public static string GetDeviceConcurrencyPriorityKey(int groupId)
+        {
+            return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
+        }
+
+        public static string GetDeviceConcurrencyPriorityInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_device_concurrency_Priority_groupId_{0}", groupId);
+        }
+
+        public static string GetAllLinearMediaKey(int groupId)
+        {
+            return string.Format("all_linear_media_groupId_{0}", groupId);
+        }
+
+        public static string GetAdjacentProgramsKey(int groupId, string epgChannelId)
+        {
+            return string.Format("adjacent_programs_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+        }
+
+        public static string GetAdjacentProgramsInvalidationKey(int groupId, string epgChannelId)
+        {
+            return string.Format("invalidationKey_adjacent_programs_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+        }
+
+        public static string GetGroupParentalRulesInvalidationKey(int groupId)
+        {
+            return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
+        }
+
+        #endregion
+
         #region Domains
 
         public static string GetHouseholdInvalidationKey(long householdId)
@@ -654,11 +816,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_user_{0}", siteGuid);
         }
 
-        #endregion
-
-        public static string GetGroupParentalRulesInvalidationKey(int groupId)
+        public static string GetUserWatchedMediaIdsInvalidationKey(int userId)
         {
-            return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
+            return string.Format("invalidationkey_userWatchedMediaIds_user_{0}", userId);
+        }
+
+        public static string GetMediaCountriesInvalidationKey(long mediaId)
+        {
+            return string.Format("invalidationkey_mediaCountries_{0}", mediaId);
         }
 
         #endregion

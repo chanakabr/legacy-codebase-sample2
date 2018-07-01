@@ -10,7 +10,9 @@ namespace ElasticSearch.Common
         protected List<IMappingProperty> m_lProperties { get; set; }
         protected ESRouting m_oRouting { get; set; }
         protected string m_sName;
-        
+
+        public bool ttlEnabled;
+
         public ESMappingObj(string sName) {
             m_sName = sName;
             m_lProperties = new List<IMappingProperty>();
@@ -40,6 +42,11 @@ namespace ElasticSearch.Common
             sb.Append("{");
             sb.AppendFormat("\"{0}\":",m_sName);
             sb.Append("{");
+
+            if (ttlEnabled)
+            {
+                sb.Append("\"_ttl\": {\"enabled\": true },");
+            }
 
             if (m_oRouting != null)
             {

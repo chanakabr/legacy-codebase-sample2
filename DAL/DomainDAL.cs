@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using ApiObjects.Rules;
+using System.Threading;
 
 namespace DAL
 {
@@ -16,6 +18,7 @@ namespace DAL
         #region Private Constants
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const int SLEEP_BETWEEN_RETRIES_MILLI = 50;
 
         private const string SP_GET_USER_EXISTS_IN_DOMAIN = "Get_UserExistsInDomain";
         private const string SP_GET_USER_IN_DOMAIN = "Get_UserInDomain";
@@ -28,8 +31,7 @@ namespace DAL
         private const string SP_GET_DOMAIN_COGUID = "Get_DomainCoGuid";
         private const string SP_GET_DOMAIN_COGUID_BY_SITEGUID = "Get_DomainCoGuidBySiteGuid";
         private const string SP_GET_DEVICE_ID_AND_BRAND_BY_PIN = "Get_DeviceIDAndBrandByPIN";
-
-
+        
         private const string SP_INSERT_USER_TO_DOMAIN = "sp_InsertUserToDomain";
         private const string SP_INSERT_DEVICE_TO_DOMAIN = "sp_InsertDeviceToDomain";
 
@@ -44,14 +46,12 @@ namespace DAL
         private const string SP_PURGE_DOMAIN = "Purge_Domain";
 
         #endregion
-
-
+        
         private static void HandleException(Exception ex)
         {
 
         }
-
-
+        
         public static bool InitDeviceInDb(int nDeviceID, int nDomainID,
                                     ref int nGroupID, ref string sDbDeviceUDID, ref int nDbDeviceBrandID, ref string sDbDeviceName, ref int nDbDeviceFamilyID, ref string sDbPin, ref DateTime dtDbActivationDate, ref string sDbState)
         {
@@ -1274,7 +1274,7 @@ namespace DAL
 
             return nActivationStatus;
         }
-
+        
         public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStat)
         {
             return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster, ref eSuspendStat);
@@ -1816,42 +1816,43 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                DataTable dtDeviceFamilies = ds.Tables[0];
+                if (dtDeviceFamilies != null && dtDeviceFamilies.Rows != null && dtDeviceFamilies.Rows.Count > 0)
                 {
-                    res = new List<string[]>(dt.Rows.Count);
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        string sFamilyID = dt.Rows[i]["ID"].ToString();
-                        string sFamilyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["NAME"]);
-                        string[] dbDeviceContainer = new string[2] { sFamilyID, sFamilyName };
-                        res.Add(dbDeviceContainer);
-                    } // end for
+                    res = new List<string[]>(dtDeviceFamilies.Rows.Count);
 
+                    foreach (DataRow currDeviceFamily in dtDeviceFamilies.Rows)
+                    {
+                        string deviceFamilyId = currDeviceFamily["ID"].ToString();
+                        string deviceFamilyName = Utils.GetSafeStr(currDeviceFamily, "NAME");
+                        string[] dbDeviceContainer = new string[2] { deviceFamilyId, deviceFamilyName };
+                        res.Add(dbDeviceContainer);
+                    }
+                    
                     DataTable dtSpecificLimits = ds.Tables[1];
                     if (dtSpecificLimits != null && dtSpecificLimits.Rows != null && dtSpecificLimits.Rows.Count > 0)
                     {
-                        for (int i = 0; i < dtSpecificLimits.Rows.Count; i++)
+                        foreach (DataRow currSpecificLimit in dtSpecificLimits.Rows)
                         {
-                            int nFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["device_family_id"]);
-                            string sLimitationType = ODBCWrapper.Utils.GetSafeStr(dtSpecificLimits.Rows[i]["description"]);
-                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(dtSpecificLimits.Rows[i]["value"], -1);
+                            int deviceFamilyId = Utils.GetIntSafeVal(currSpecificLimit, "device_family_id");
+                            string LimitationType = Utils.GetSafeStr(currSpecificLimit, "description");
+                            int LimitationValue = Utils.GetIntSafeVal(currSpecificLimit, "value", -1);
 
-                            if (nFamilyID > 0 && nLimitationValue > -1 && sLimitationType.Length > 0)
+                            if (deviceFamilyId > 0 && LimitationValue > -1 && LimitationType.Length > 0)
                             {
-                                if (String.Compare(sLimitationType, "concurrency", true) == 0)
+                                if (String.Compare(LimitationType, "concurrency", true) == 0)
                                 {
-                                    concurrenyOverride.Add(nFamilyID, nLimitationValue);
+                                    concurrenyOverride.Add(deviceFamilyId, LimitationValue);
                                 }
                                 else
                                 {
-                                    if (String.Compare(sLimitationType, "quantity", true) == 0)
+                                    if (String.Compare(LimitationType, "quantity", true) == 0)
                                     {
-                                        quantityOverride.Add(nFamilyID, nLimitationValue);
+                                        quantityOverride.Add(deviceFamilyId, LimitationValue);
                                     }
                                 }
                             }
-                        } // end for
+                        }
                     }
                 }
                 else
@@ -2170,7 +2171,6 @@ namespace DAL
             DrmPolicy response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
             int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
             CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string drmPolicyKey = UtilsDal.GetDrmPolicyKey(groupId);
             if (string.IsNullOrEmpty(drmPolicyKey))
@@ -2194,7 +2194,7 @@ namespace DAL
                         {
                             log.ErrorFormat("Retrieving drm policy groupId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", groupId, drmPolicyKey, getResult, numOfRetries, limitRetries);
                             numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
+                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
                     }
                 }
@@ -2212,7 +2212,6 @@ namespace DAL
             Dictionary<int, string> response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
             CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string domainDrmIdKey = UtilsDal.GetDomainDrmIdKey(domainId);
             if (string.IsNullOrEmpty(domainDrmIdKey))
@@ -2238,7 +2237,7 @@ namespace DAL
                         {
                             log.ErrorFormat("Retrieving drm policy domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainDrmIdKey, getResult, numOfRetries, limitRetries);
                             numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
+                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
                     }
                 }
@@ -2306,7 +2305,6 @@ namespace DAL
             KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
             CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
             string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
@@ -2332,7 +2330,7 @@ namespace DAL
                         {
                             log.ErrorFormat("Retrieving drmId by key: {0} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", drmIdKey, getResult, numOfRetries, limitRetries);
                             numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
+                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
                     }
                 }
@@ -2434,7 +2432,6 @@ namespace DAL
             KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
             CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
@@ -2467,7 +2464,7 @@ namespace DAL
                         {
                             log.ErrorFormat("Retrieving drmId by key: {0} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", drmIdKey, getResult, numOfRetries, limitRetries);
                             numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
+                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
                     }
                 }
@@ -2492,6 +2489,22 @@ namespace DAL
             status = sp.ExecuteReturnValue<int>();
 
             return status == 1;
+        }
+
+        public static int GetDeviceBrandIdByUdid(int groupId, string udid)
+        {
+            int brandId = 0; 
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDeviceBrandIdByUdid");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@udid", udid);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                brandId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "device_brand_id");
+            }
+            return brandId;
         }
     }
 }

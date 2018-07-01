@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Linq;
 using CachingProvider;
+using ConfigurationManager;
 
 namespace ODBCWrapper
 {
@@ -19,9 +20,12 @@ namespace ODBCWrapper
         private const int DB_SP_ROUTING_EXPIRY_HOURS = 24;        
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
-        static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
-        static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
-        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");        
+        static List<string> dbWriteLockParams = ApplicationConfiguration.DatabaseConfiguration.GetWriteLockParameters();
+        static public string dBVersionPrefix = 
+            (!string.IsNullOrEmpty(ApplicationConfiguration.DatabaseConfiguration.Prefix.Value)) ? 
+                string.Concat("__", ApplicationConfiguration.DatabaseConfiguration.Prefix.Value, "__") : 
+                string.Empty;
+        static bool UseReadWriteLockMechanism = ApplicationConfiguration.DatabaseConfiguration.WriteLockUse.Value;        
         private static object locker = new object();        
         [ThreadStatic]
         public static bool UseWritable;
@@ -47,6 +51,20 @@ namespace ODBCWrapper
             catch
             {
                 return 0;
+            }
+        }
+
+        public static int? GetNullableInt(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return null;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -748,15 +766,12 @@ namespace ODBCWrapper
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return origin.AddSeconds(timestamp);
         }
-
- 
-
+        
         public static long DateTimeToUnixTimestampUtc(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
-                
-
+        
         public static DateTime ConvertToUtc(DateTime time, string timezone)
         {
             DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
@@ -819,16 +834,14 @@ namespace ODBCWrapper
                         var allMatches = tableNameReegx.Matches(query);
                         if (allMatches != null && allMatches.Count > 0)
                         {
-                            StringBuilder sb = new StringBuilder();
-                            for (int i = 0; i < allMatches.Count; i++)
+                            for (int i = 1; i < allMatches[0].Groups.Count; i++)
                             {
-                                if (i == 0)
-                                    sb.Append(allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
-                                else
-                                    sb.Append(" " + allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
+                                if (!String.IsNullOrEmpty(allMatches[0].Groups[i].Value))
+                                {
+                                    sqlInfo.Table = allMatches[0].Groups[i].Value;
+                                    break;
+                                }
                             }
-
-                            sqlInfo.Table = sb.ToString();
                         }
                     }
                 }
@@ -1092,13 +1105,13 @@ namespace ODBCWrapper
                                 {
                                     foreach (string val in oValue as IList<string>)
                                     {
-                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, (uint)TCMClient.Settings.Instance.GetValue<int>("DB_WriteLock_TTL"));
+                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, (uint)ApplicationConfiguration.DatabaseConfiguration.WriteLockTTL.IntValue);
                                         //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
                                     }
                                 }
                                 else
                                 {
-                                    bool res = cbManager.Set(cbKeyPrefix + oValue, executer, (uint)TCMClient.Settings.Instance.GetValue<int>("DB_WriteLock_TTL"));
+                                    bool res = cbManager.Set(cbKeyPrefix + oValue, executer, (uint)ApplicationConfiguration.DatabaseConfiguration.WriteLockTTL.IntValue);
                                     //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
                                 }
                             }

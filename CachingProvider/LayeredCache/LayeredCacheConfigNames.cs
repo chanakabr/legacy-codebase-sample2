@@ -29,6 +29,7 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "GroupParentalRules";
         public const string USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "UserParentalRules";
         public const string MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "MediaParentalRules";
+        public const string MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaAssetUserRules";
         public const string EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "EpgParentalRules";
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
@@ -64,6 +65,21 @@ namespace CachingProvider.LayeredCache
         public const string GET_CHANNELS_CACHE_CONFIG_NAME = "GetChannels";
         public const string GET_TSTV_ACCOUNT_SETTINGS_CACHE_CONFIG_NAME = "GetTimeShiftedTvPartnerSettings";
         public const string GET_EXCEL_TEMPLATE = "GenerateExcelAsBytes";
+        public const string GET_DEVICE_RULES_BY_BRAND_ID_CACHE_CONFIG_NAME = "GetDeviceRulesByBrandId";
+        public const string GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME = "GetUserWatchedMediaIds";
+        public const string UNIFIED_SEARCH_WITH_PERSONAL_DATA = "UnifiedSearchWithPersonalData";
+        public const string GET_COUPONS_GROUP = "GetCouponsGroup";
+        public const string GET_ALL_ASSET_RULES = "GetAllAssetRules";
+        public const string GET_ALL_ASSET_RULES_FROM_DB = "GetAllAssetRulesDB";
+        public const string GET_ASSET_RULES_BY_ASSET = "GetAssetRulesByAsset";
+        public const string GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllCountryList";
+        public const string GET_ASSET_USER_RULE_IDS_BY_GROUP = "GetAssetUserRuleIdsByGroupDB";
+        public const string GET_ASSET_USER_RULE = "GetAssetUserRulesCB";
+        public const string GET_USER_TO_ASSET_USER_RULE_IDS = "GetUserToAssetUserRuleIdsDB";
+        public const string GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME = "GetGroupDiscounts";
+        public const string GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB = "GetDeviceConcurrencyPriorityCB";
+        public const string GET_ALL_LINEAR_MEDIA = "GetAllLinearMedia";
+        public const string GET_ADJACENT_PROGRAMS = "GetAdjacentPrograms";
 
         #endregion
 

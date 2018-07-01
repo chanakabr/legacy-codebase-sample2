@@ -16,10 +16,10 @@ namespace Notifiers
         override public void NotifyChange(string sSiteGUID)
         {
             //tikle_ws.Service t = new Notifiers.tikle_ws.Service();
-            //string sTikleWSURL = Utils.GetWSURL("tikle_ws");
+            //string sTikleWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("tikle_ws"); //TCM not relevant anymore 
             //t.Url = sTikleWSURL;
             //tikle_ws.Response resp = t.NotifyCustomer(sSiteGUID);
-            
+
         }
     }
 }

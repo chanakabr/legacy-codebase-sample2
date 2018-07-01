@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -984,6 +985,15 @@ namespace NPVR
                                 case ALU_THUMBNAIL:
                                     obj.PIC_URL = item.Value.ToString();
                                     break;
+                                case "customMetadata":
+                                    bool errorWhenNoMatch = false;
+                                    var newValue = item.Value.SelectToken("contentTags", errorWhenNoMatch);
+                                    obj.EPG_TAGS.Add(new EPGDictionary()
+                                    {
+                                        Key = "contentTags",
+                                        Value = !errorWhenNoMatch ? newValue[0].ToString() : string.Empty
+                                    });
+                                    break;
                                 /* in case this data is not needed at the response object remove the remark 
                                   case ALU_ACTUAL_START_TIME:
                                 case ALU_ACTUAL_END_TIME:
@@ -1016,7 +1026,7 @@ namespace NPVR
                                 else
                                 {
                                     // no sizes defined
-                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';') &&
                                         epgRatios != null &&
                                         epgRatios.Count > 0)
                                     {
@@ -1136,7 +1146,7 @@ namespace NPVR
 
 
                     string url = string.Empty;
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
                         url = urlStr.ToString();
@@ -1615,7 +1625,7 @@ namespace NPVR
             return args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0);
         }
 
-        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON responseJson)
+        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON<SeriesEntryJSON> responseJson)
         {
             List<RecordedSeriesObject> res = new List<RecordedSeriesObject>(responseJson.Entries.Count);
             foreach (SeriesEntryJSON entry in responseJson.Entries)
@@ -1635,7 +1645,7 @@ namespace NPVR
         {
             try
             {
-                ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
+                ReadSeriesResponseJSON<SeriesEntryJSON> success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON<SeriesEntryJSON>>(responseJson);
                 response.isOK = true;
                 response.msg = string.Empty;
                 response.results = ExtractRecordedSeries(success);

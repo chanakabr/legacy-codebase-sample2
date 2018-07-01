@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
+
 namespace CachingProvider
 {
     public class HybridCache<T> : OutOfProcessCache
@@ -23,7 +25,7 @@ namespace CachingProvider
         {
             this.inMemoryCache = new SingleInMemoryCache(0);
             this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
-            this.secondsInMemory = Utils.GetDoubleValueFromTcm("Groups_Cache_TTL");
+            this.secondsInMemory = ApplicationConfiguration.BaseCacheConfiguration.TTLSeconds.DoubleValue;
 
             // default value = 1 minute = 60 seconds
             if (this.secondsInMemory == 0)

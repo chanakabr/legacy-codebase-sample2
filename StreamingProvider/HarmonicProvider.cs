@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Epg;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using ApiObjects;
-using ApiObjects.Epg;
-using KLogMonitor;
 
 namespace StreamingProvider
 {
@@ -111,7 +111,6 @@ namespace StreamingProvider
         private string GetStreamTypeAndFormatLink(eStreamType streamType, eEPGFormatType format)
         {
             string url = string.Empty;
-            string urlConfig = string.Empty;
             switch (format)
             {
                 case eEPGFormatType.Catchup:
@@ -119,13 +118,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                urlConfig = "hls_catchup";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSCatchup.Value;                                
                                 break;
                             case eStreamType.SS:
-                                urlConfig = "smooth_catchup";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothCatchup.Value; 
                                 break;
                             case eStreamType.DASH:
-                                urlConfig = "dash_catchup";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashCatchup.Value; 
                                 break;
                             default:
                                 break;
@@ -138,13 +137,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSStartOver.Value; 
                                 break;
                             case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothStartOver.Value;
                                 break;
                             case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashStartOver.Value; 
                                 break;
                             default:
                                 break;
@@ -157,13 +156,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSStartOver.Value; 
                                 break;
                             case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothStartOver.Value; 
                                 break;
                             case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
+                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashStartOver.Value;
                                 break;
                             default:
                                 break;
@@ -174,9 +173,6 @@ namespace StreamingProvider
                 default:
                     break;
             }
-
-            if (!string.IsNullOrEmpty(urlConfig))
-                url = Utils.GetValueFromConfig(urlConfig);
 
             return url;
         }

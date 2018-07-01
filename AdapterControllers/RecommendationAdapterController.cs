@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
-using System.ServiceModel;
 
 namespace AdapterControllers
 {
@@ -81,7 +79,7 @@ namespace AdapterControllers
         #endregion
 
         #region Public Methods
-        
+
         public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel,
             Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize, out int totalResults)
         {
@@ -94,16 +92,16 @@ namespace AdapterControllers
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", externalChannel.RecommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-            
+
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
-            
+
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
-            
+
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
@@ -181,7 +179,7 @@ namespace AdapterControllers
 
                     requestId = adapterResponse.RequestId;
 
-                    LogAdapterResponse(adapterResponse, "GetChannelRecommendation"); 
+                    LogAdapterResponse(adapterResponse, "GetChannelRecommendation");
 
                     #endregion
                 }
@@ -200,7 +198,8 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType
+                                    type = (eAssetTypes)result.AssetType,
+                                    TagsExtarData = ConvertAdapterTagsExtarData(result.TagsExtraData)
                                 }).ToList();
                     }
                     totalResults = adapterResponse.TotalResults;
@@ -217,9 +216,9 @@ namespace AdapterControllers
             }
 
             return searchResults;
-        }
+        }      
 
-        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId, 
+        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId,
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
                                                                     Int32 nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId, out int totalItems)
         {
@@ -232,7 +231,7 @@ namespace AdapterControllers
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-            
+
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
@@ -299,8 +298,8 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get related recommendations - after it is configured
-                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID, nMediaID, nMediaTypeID, 
-                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(),nPageIndex, nPageSize, unixTimestamp,
+                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID, nMediaID, nMediaTypeID,
+                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), nPageIndex, nPageSize, unixTimestamp,
                             System.Convert.ToBase64String(
                                 EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
                     }
@@ -327,6 +326,7 @@ namespace AdapterControllers
                                 {
                                     id = result.AssetId,
                                     type = (eAssetTypes)result.AssetType
+
                                 }).ToList();
                     }
                     totalItems = adapterResponse.TotalResults;
@@ -349,12 +349,12 @@ namespace AdapterControllers
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
-            
+
             if (engine == null)
             {
                 throw new KalturaException(string.Format("Recommendation Engine {0} doesn't exist", recommendationEngineId), (int)eResponseStatus.RecommendationEngineNotExist);
             }
-            
+
             if (string.IsNullOrEmpty(engine.AdapterUrl))
             {
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
@@ -449,7 +449,8 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType
+                                    type = (eAssetTypes)result.AssetType,
+                                    TagsExtarData = ConvertAdapterTagsExtarData(result.TagsExtraData)
                                 }).ToList();
                     }
                     totalItems = adapterResponse.TotalResults;
@@ -485,7 +486,7 @@ namespace AdapterControllers
             }
             else
             {
-                string recommendationsString = 
+                string recommendationsString =
                     string.Join(";", adapterResponse.Results.Select(item => string.Concat("ID: ", item.AssetId, ", Type: ", item.AssetType.ToString())));
 
                 logMessage = string.Format("Recommendation Engine Adapter {0} Result Status: Message = {1}, " +
@@ -611,16 +612,31 @@ namespace AdapterControllers
             switch (origin)
             {
                 case eAssetTypes.UNKNOWN:
-                return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
+                    return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
                 case eAssetTypes.EPG:
-                return RecommendationEngineAdapter.eAssetTypes.EPG;
+                    return RecommendationEngineAdapter.eAssetTypes.EPG;
                 case eAssetTypes.NPVR:
-                return RecommendationEngineAdapter.eAssetTypes.NPVR;
+                    return RecommendationEngineAdapter.eAssetTypes.NPVR;
                 case eAssetTypes.MEDIA:
-                return RecommendationEngineAdapter.eAssetTypes.MEDIA;
+                    return RecommendationEngineAdapter.eAssetTypes.MEDIA;
                 default:
-                return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
+                    return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
             }
+        }
+
+        private List<KeyValuePair<string, string>> ConvertAdapterTagsExtarData(RecommendationEngineAdapter.KeyValue[] tagsExtraData)
+        {
+            List<KeyValuePair<string, string>> resultRagsExtraData = new List<KeyValuePair<string, string>>();
+
+            if (tagsExtraData != null)
+            {
+                foreach (var keyValue in tagsExtraData)
+                {
+                    resultRagsExtraData.Add(new KeyValuePair<string, string>(keyValue.Key, keyValue.Value));
+                }
+            }
+
+            return resultRagsExtraData;
         }
 
         #endregion

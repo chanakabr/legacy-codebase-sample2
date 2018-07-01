@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ODBCWrapper;
-using ApiObjects;
-using System.Text.RegularExpressions;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.TimeShiftedTv;
+﻿using ApiObjects;
 using ApiObjects.SubscriptionSet;
+using ConfigurationManager;
+using KLogMonitor;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace DAL
 {
@@ -17,7 +15,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = TCMClient.Settings.Instance.GetValue<uint>("LicenseLinkCacheInSec");
+        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.LicensedLinksCacheConfiguration.CacheTimeInSeconds.IntValue;
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -231,6 +229,7 @@ namespace DAL
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetCachedSec(0);
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
                 if (nTopNum > 0)
@@ -849,7 +848,8 @@ namespace DAL
             return Get_GroupFailCount(lGroupID, string.Empty);
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, int? subscriptionStatus = null)
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, 
+            int? subscriptionStatus = null, long billingTransactionId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -862,6 +862,10 @@ namespace DAL
             if (subscriptionStatus.HasValue)
             {
                 sp.AddParameter("@subscriptionStatus", subscriptionStatus.Value);
+            }
+            if (billingTransactionId > 0)
+            {
+                sp.AddParameter("@BillingTransactionId", billingTransactionId); 
             }
 
             sp.ExecuteNonQuery();
@@ -1560,8 +1564,9 @@ namespace DAL
             }
         }
 
-        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType)
+        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType, out int drmId)
         {
+            drmId = 0;            
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1579,6 +1584,7 @@ namespace DAL
                     streamingCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["STREAMING_CODE"]);
                     streamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["STREAMING_SUPLIER_ID"]);
                     fileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["DESCRIPTION"]);
+                    drmId= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["DRM_ID"]);
                 }
             }
 
@@ -3299,6 +3305,18 @@ namespace DAL
             sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
             sp.AddParameter("@paymentGatewayId", paymentGatewayId);
             sp.AddParameter("@householdId", householdId);
+            sp.AddParameter("@isSuspend", (int)isSuspend);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessIds(int groupId, List<long> unifiedProccessIds, SubscriptionPurchaseStatus subscriptionPurchseStatus, PaymentGatewayStatus isSuspend)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessIds");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@unifiedProccessIds", unifiedProccessIds, "Id");
+            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
             sp.AddParameter("@isSuspend", (int)isSuspend);
 
             return sp.ExecuteReturnValue<int>() > 0;

@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.DRM;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -274,7 +275,7 @@ namespace TvinciImporter
                 return 0;
         }
 
-        static protected void DeleteMedia(Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
+        static protected void DeleteMedia(long nGroupID, Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
@@ -291,6 +292,7 @@ namespace TvinciImporter
             if (deleteMediaPolicy == DeleteMediaPolicy.Delete)
             {
                 ClearMediaFiles(nMediaID);
+                ClearImages(nGroupID, nMediaID);
             }
         }
 
@@ -584,6 +586,61 @@ namespace TvinciImporter
             updateQuery = null;
         }
 
+        static public void ClearImages(long nGroupID, Int32 nMediaID)
+        {
+            int version = 0;
+            string baseUrl = string.Empty;
+            int picId = 0;
+            int picRatioId = 0;
+
+            // use new image server
+            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            {
+                log.DebugFormat("Delete images for media id:{0}",nMediaID);
+                DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
+
+                if (picsDataRows != null && picsDataRows.Count > 0) 
+                {
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
+                    string url = ImageUtils.GetImageServerUrl(parentGroupId, eHttpRequestType.Delete);
+                    foreach (DataRow row in picsDataRows)
+                    {
+                        picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION");
+                        baseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                        picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
+
+                        // Call to imageSerever->Delete
+                        ImageServerDeleteRequest imageServerReq = new ImageServerDeleteRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + picRatioId, Version = version };
+                        log.DebugFormat("Send Delete request to image server, GroupID:{0}, pic id:{1}, version:{2}, BASE_URL:{3}", parentGroupId, picId, version, baseUrl);
+                        string result = Utils.HttpPost(url, JsonConvert.SerializeObject(imageServerReq), "application/json");
+                        if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                        {
+                            log.Error(string.Format("Delete image By ImageServer failed. picId {0} ", picId));
+                        }
+
+                        //Update pic status to 2 with updater_id 999
+                        var queryRes = ApiDAL.UpdateImageState((int)nGroupID, picId, version, eTableStatus.Failed, 999);
+                        if(queryRes > 0)
+                        {
+                            log.DebugFormat("Update status in database finish with Success. pic:{0}, version:{1}", picId, version);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Update status in database finish with Error. pic:{0}, version:{1}", picId, version);
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("Delete images for media id:{0}, found no images to delete", nMediaID);
+                }
+            }
+            else
+            {
+                log.Debug("use OLD image server");
+            }
+        }
         static protected void ClearMediaTranslateValues(Int32 nMediaID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_translate");
@@ -1729,7 +1786,7 @@ namespace TvinciImporter
                 // according to groupDeleteMediaPolicy  set the index action
                 action = groupDeleteMediaPolicy == DeleteMediaPolicy.Delete ? eAction.Delete : eAction.Update;
 
-                DeleteMedia(nMediaID, groupDeleteMediaPolicy);
+                DeleteMedia(nGroupID, nMediaID, groupDeleteMediaPolicy);
             }
             else if (sAction == "insert" || sAction == "update")
             {
@@ -1749,11 +1806,13 @@ namespace TvinciImporter
 
                 Int32 nItemType = GetItemTypeIdByName(nGroupID, sItemType);
 
-                if (nItemType == 0 && sEraseFiles != "false")
+                if (nItemType == 0 && nMediaID == 0)
                 {
                     AddError(ref sErrorMessage, "Item type not recognized");
                     log.DebugFormat("ProcessItem - Item type not recognized. mediaId:{0}", nMediaID);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Status.Code = (int)eResponseStatus.InvalidMediaType;
+                    ingestAssetStatus.Status.Message = string.Format("Invalid media type \"{0}\"", sItemType);
+                    return false;
                 }
 
                 string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
@@ -2023,10 +2082,11 @@ namespace TvinciImporter
             }
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                //use the rabbit Queue
+                if (sUseQueue)
                 {
                     picId = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
                 }
@@ -2045,7 +2105,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
                     log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
@@ -2183,9 +2243,8 @@ namespace TvinciImporter
             string picName = string.Empty;
             int picId = 0;
 
-            //check if thumb Url exist
-            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            //check if thumb Url exist            
+            if (!ApplicationConfiguration.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(thumb))
                 {
@@ -2201,13 +2260,8 @@ namespace TvinciImporter
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = 0;
-            var epgImagePendingThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImagePendingThresholdInMinutes");
-            int.TryParse(epgImagePendingThresholdInMinutes, out pendingThresholdInMinutes);
-
-            int activeThresholdInMinutes = 0;
-            var epgImageActiveThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImageActiveThresholdInMinutes");
-            int.TryParse(epgImageActiveThresholdInMinutes, out activeThresholdInMinutes);
+            int pendingThresholdInMinutes = ApplicationConfiguration.EpgImagePendingThresholdInMinutes.IntValue;
+            int activeThresholdInMinutes = ApplicationConfiguration.EpgImageActiveThresholdInMinutes.IntValue;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
@@ -2640,10 +2694,11 @@ namespace TvinciImporter
             int picId = 0;
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                //use the rabbit Queue
+                if (sUseQueue)
                 {
                     picId = DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID, ratioSize);
 
@@ -2679,7 +2734,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
                 else
                     log.DebugFormat("Successfully processed image - mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
@@ -2976,8 +3031,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             //check if pic Url exist
-            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            if (!ApplicationConfiguration.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(pic))
                 {
@@ -3174,13 +3228,13 @@ namespace TvinciImporter
         {
             string key = string.Format("pics_base_path_{0}", nGroupID);
 
-            if (!string.IsNullOrEmpty(GetConfigVal(key)))
+            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue(key)))
             {
-                return GetConfigVal(key);
+                return TVinciShared.WS_Utils.GetTcmConfigValue(key);
             }
-            if (!string.IsNullOrEmpty(GetConfigVal("pics_base_path")))
+            if (!string.IsNullOrEmpty( ApplicationConfiguration.PicsBasePath.Value))
             {
-                return GetConfigVal("pics_base_path");
+                return ApplicationConfiguration.PicsBasePath.Value;
             }
 
             string sBasePath = string.Empty;
@@ -3644,11 +3698,12 @@ namespace TvinciImporter
                 if (!string.IsNullOrEmpty(outputProtectionLevel))
                 {
                     // check if policy to file attachment should be through new CENC or not
-                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, "OLD_DRM_EXC_GROUPS", ';'))
+                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS"); //TCM not relevant anymore 
+                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';')) // OLD_DRM_EXC_GROUPS not releventAnyMore
                     {
                         // old policy attachment
-                        string sWSURL = GetConfigVal("EncryptorService");
-                        string sWSPassword = GetConfigVal("EncryptorPassword");
+                        string sWSURL =   ApplicationConfiguration.EncryptorService.Value;
+                        string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
 
                         WS_Encryptor.Encryptor service = new WS_Encryptor.Encryptor();
                         if (!string.IsNullOrEmpty(sWSURL))
@@ -4559,6 +4614,13 @@ namespace TvinciImporter
                 if (string.IsNullOrEmpty(sName))
                     continue;
 
+                Int32 tagTypeID = GetTagTypeID(nGroupID, sName);
+                if (tagTypeID == 0 && sName.ToLower().Trim() != "free")
+                {
+                    AddError(ref sError, string.Format("meta \"{0}\" does not exist) :", sName));
+                    continue;
+                }
+
                 TranslatorStringHolder metaHolder = new TranslatorStringHolder();
                 XmlNodeList theContainers = theItem.SelectNodes("container");
                 Int32 nCount1 = theContainers.Count;
@@ -4586,12 +4648,13 @@ namespace TvinciImporter
                         GetSubLangMetaData(nGroupID, sMainLang, ref metaHolder, ref theContainer, j.ToString());  ///i->j
                     }
                 }
-                Int32 nTagTypeID = GetTagTypeID(nGroupID, sName);
-                ClearMediaTags(nMediaID, nTagTypeID);
+
+                
+                ClearMediaTags(nMediaID, tagTypeID);
                 if (nCount1 > 0)
                 {
-                    if (nTagTypeID != 0 || sName.ToLower().Trim() == "free")
-                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
+                    if (tagTypeID != 0 || sName.ToLower().Trim() == "free")
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
                             sMainLang, metaHolder, nGroupID, nMediaID);
 
                 }
@@ -4603,6 +4666,7 @@ namespace TvinciImporter
         {
             if (sTagName.ToLower().Trim() == "free")
                 return 0;
+
             Int32 nRet = 0;
             string sGroups = TVinciShared.PageUtils.GetParentsGroupsStr(nGroupID);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -5334,7 +5398,7 @@ namespace TvinciImporter
 
         private static string GetLuceneUrl(int nGroupID)
         {
-            string sLuceneURL = GetConfigVal("LUCENE_WCF_" + nGroupID);
+            string sLuceneURL = TVinciShared.WS_Utils.GetTcmConfigValue("LUCENE_WCF_" + nGroupID);  //TCM not relevant anymore 
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_LuceneUrl(nGroupID);
@@ -5361,7 +5425,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("WS_Catalog");
+            string sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -5388,7 +5452,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string tcmCatalogURL = GetConfigVal("WS_Catalog");
+            string tcmCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             string catalogURL = tcmCatalogURL;
 
             try
@@ -5419,8 +5483,8 @@ namespace TvinciImporter
             AddMessageAnnouncementResponse response = null;
             try
             {
-                //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                //Call Notifications WCF service                
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5461,7 +5525,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5499,7 +5563,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5530,7 +5594,7 @@ namespace TvinciImporter
         //    try
         //    {
         //        //Call Notifications WCF service
-        //        string sWSURL = GetConfigVal("NotificationService");
+        //        string sWSURL = ApplicationConfiguration.NotificationsService.Value;
         //        Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
         //        if (!string.IsNullOrEmpty(sWSURL))
         //            service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5608,7 +5672,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5634,7 +5698,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5691,7 +5755,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5728,7 +5792,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5752,7 +5816,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5773,11 +5837,6 @@ namespace TvinciImporter
 
         #endregion
 
-        private static string GetConfigVal(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         #region create client to WCF service
 
         internal static class BindingFactory
@@ -5791,9 +5850,8 @@ namespace TvinciImporter
             }
         }
 
-        internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
+        internal static WSCatalog.IserviceClient GetWCFSvc(string siteUrl)
         {
-            string siteUrl = GetConfigVal(sSiteUrl);
             Uri serviceUri = new Uri(siteUrl);
             EndpointAddress endpointAddress = new EndpointAddress(serviceUri);
 
@@ -5912,7 +5970,7 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-            string sUseElasticSearch = GetConfigVal("indexer");
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
                 WSCatalog.IserviceClient wsCatalog = null;
@@ -6099,7 +6157,7 @@ namespace TvinciImporter
                 // Update recordings only if we know that the dates have changed
                 if (datesUpdates)
                 {
-                    UpdateRecordingsOfEPGs(epgIds, groupId, action, "conditionalaccess_ws", isCalledFromTvm);
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action, isCalledFromTvm);
                 }
 
                 #endregion
@@ -6123,7 +6181,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6144,14 +6202,14 @@ namespace TvinciImporter
 
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
-            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value;  // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 WSCatalog.IserviceClient wsCatalog = null;
 
                 try
                 {
-                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    wsCatalog = GetWCFSvc(ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value);
 
                     string sWSURL = GetCatalogUrlByParameters(groupId, eObjectType.EPG, action);
 
@@ -6230,14 +6288,14 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws", bool isCalledFromTvm = false)
+        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool isCalledFromTvm = false)
         {
             try
             {
                 string sWSUserName = string.Empty;
                 string sWSPassword = string.Empty;
                 WS_Utils.GetWSCredentials(groupId, eWSModules.CONDITIONALACCESS.ToString(), ref sWSUserName, ref sWSPassword);
-                string casURL = TVinciShared.WS_Utils.GetTcmConfigValue(tcmKey);
+                string casURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
 
                 if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(casURL))
                 {
@@ -6293,7 +6351,8 @@ namespace TvinciImporter
         {
             bool isUpdateIndexSucceeded = false;
 
-            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 WSCatalog.IserviceClient wsCatalog = null;
@@ -6301,7 +6360,7 @@ namespace TvinciImporter
                 try
                 {
                     int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
-                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    wsCatalog = GetWCFSvc(ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value);
                     if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
                     {
                         string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.EpgChannel, eAction);
@@ -6445,7 +6504,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6477,7 +6536,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6512,7 +6571,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = GetConfigVal("NotificationService");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);

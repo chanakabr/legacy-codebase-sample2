@@ -695,5 +695,16 @@ namespace Tvinci.Core.DAL
 
             return sp.Execute();
         }
+
+        public static DataTable GetAllLinearMedia(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_AllLinearMedia");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
     }
 }
