@@ -2188,8 +2188,8 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersMediaMark(int userId, string udid, int mediaId, int loactionSec, int fileDuration, string action,
-                                                         int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds,
-                                                         int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel, long programId)
+                                                         int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
+                                                         List<long> assetEpgRuleIds, int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel, long programId)
         {
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
@@ -2198,7 +2198,8 @@ namespace Tvinci.Core.DAL
                 (udid, mediaId, userId, timeStamp, ePlayType.MEDIA, mediaTypeId, action, deviceFamilyId, createdAt, programId, string.Empty)
             {
                 MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds
+                AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
+                AssetEpgConcurrencyRuleIds = assetEpgRuleIds
             };
 
             int limitRetries = RETRY_LIMIT;
@@ -4240,7 +4241,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int domainID, 
-                                                              List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds)
+                                                              List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
             int limitRetries = RETRY_LIMIT;
@@ -4265,11 +4266,13 @@ namespace Tvinci.Core.DAL
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
                     playCycleSession.DomainID = domainID;
-                    playCycleSession.AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds;
+                    playCycleSession.AssetMediaRuleIds = assetMediaRuleIds;
+                    playCycleSession.AssetEpgRuleIds = assetEpgRuleIds;
                 }
                 else
                 {
-                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID, mediaConcurrencyRuleIds, assetConcurrencyRuleIds);
+                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID,
+                                                            mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
                 }
 
                 int ttl = CB_PLAYCYCLE_DOC_EXPIRY_MIN;
@@ -4284,21 +4287,23 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetConcurrencyRuleIds: {7}, Exception: {8}",
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetMediaRuleIds: {7}, assetEpgRuleIds: {8} Exception: {9}",
                     siteGuid, groupID, UDID, platform,
                     mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0", 
                     playCycleKey, MediaFileID,
-                    assetConcurrencyRuleIds != null ? string.Join(",", assetConcurrencyRuleIds) : "0",
+                    assetMediaRuleIds != null ? string.Join(",", assetMediaRuleIds) : "0",
+                    assetEpgRuleIds != null ? string.Join(",", assetEpgRuleIds) : "0",
                     ex.Message);
             }
 
             if (playCycleSession == null)
             {
-                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetConcurrencyRuleIds: {7}",
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetMediaRuleIds: {7}, assetEpgRuleIds: {8}",
                                  siteGuid, groupID, UDID, platform,
                                  mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0",
                                  playCycleKey, MediaFileID,
-                                 assetConcurrencyRuleIds != null ? string.Join(",", assetConcurrencyRuleIds) : "0");
+                                 assetMediaRuleIds != null ? string.Join(",", assetMediaRuleIds) : "0",
+                                 assetEpgRuleIds != null ? string.Join(",", assetEpgRuleIds) : "0");
             }
             return playCycleSession;
         }
