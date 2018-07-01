@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Data;
-using DAL;
-using ApiObjects;
-
-using System.Reflection;
-
-using System.Security.Principal;
-using System.Security.AccessControl;
-using KLogMonitor;
-using ApiObjects.Response;
-using QueueWrapper.Queues.QueueObjects;
-using TVinciShared;
-using System.Xml;
-using System.IO;
-using System.Net;
-using ApiObjects.Notification;
-using System.Threading.Tasks;
-using System.Web;
-using System.ServiceModel;
-using Core.Users.Cache;
+﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.Response;
+using ConfigurationManager;
+using Core.Users.Cache;
+using DAL;
+using KLogMonitor;
+using QueueWrapper;
+using QueueWrapper.Queues.QueueObjects;
+using ScheduledTasks;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Text;
+using APILogic.Users;
+using TVinciShared;
+
 
 namespace Core.Users
 {
@@ -38,6 +33,10 @@ namespace Core.Users
         internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
         protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
+        private const string PURGE_TASK = "distributed_tasks.process_purge";
+        private const double MAX_SERVER_TIME_DIF = 5;
+        private const double HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const string ROUTING_KEY_PURGE = "PROCESS_PURGE";
 
         static public Int32 GetGroupID(string sWSUserName, string sPass)
         {
@@ -140,17 +139,28 @@ namespace Core.Users
             {
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
-                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
-                    user = new KalturaUsers(nGroupID);
+                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
+                {
+                    var response = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                    if (response != null && response.SSOAdapters != null && response.SSOAdapters.Any())
+                    {
+                        var httpSSOAdapter = response.SSOAdapters.First();
+                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
+                    }
+                    else
+                    {
+                        user = new KalturaUsers(nGroupID);
+                    }
+
+                }
                 else
                 {
-                    string usersAssemblyLocation = GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
+                    string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
 
                     try
                     {
                         // load user assembly
-                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
-                            usersAssemblyLocation + "\\", moduleName));
+                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation : usersAssemblyLocation + "\\", moduleName));
 
                         // get user class 
                         Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
@@ -158,12 +168,12 @@ namespace Core.Users
                         if (operatorId == -1)
                         {
                             // regular user - constructor receives a single parameter
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
+                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID);
                         }
                         else
                         {
                             // SSO user - constructor receives 2 parameters
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
+                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID, operatorId);
                         }
                     }
                     catch (Exception ex)
@@ -220,11 +230,6 @@ namespace Core.Users
 
         }
 
-        static public string GetTcmConfigValue(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
@@ -273,7 +278,7 @@ namespace Core.Users
             string key = "users_GetCountryList";
             List<int> lCountryIDs;
             List<Country> lCountry;
-            bool bRes = UsersCache.GetItem<List<Country>>(key, out  lCountry);
+            bool bRes = UsersCache.GetItem<List<Country>>(key, out lCountry);
             if (!bRes)
             {
                 Country oCountry;
@@ -560,15 +565,14 @@ namespace Core.Users
 
             return homeNetwork;
         }
-
-
-        static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        
+        static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
-            string rawStrFromConfig = GetTcmConfigValue(sKey);
+            string rawStrFromConfig = ApplicationConfiguration.ExcludePsDllImplementation.Value;
             if (rawStrFromConfig.Length > 0)
             {
-                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                string[] strArrOfIDs = rawStrFromConfig.Split(';');
                 if (strArrOfIDs != null && strArrOfIDs.Length > 0)
                 {
                     List<long> listOfIDs = strArrOfIDs.Select(s =>
@@ -802,7 +806,7 @@ namespace Core.Users
                     if (externalCode > 0 && !string.IsNullOrEmpty(externalMessage))
                     {
                         result.Code = (int)eResponseStatus.UserExternalError;
-                        result.Message = "User External Error";                        
+                        result.Message = "User External Error";
                     }
                     else
                     {
@@ -1095,34 +1099,7 @@ namespace Core.Users
 
             return res;
         }
-
-        //public static void AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
-        //{
-        //    string response = string.Empty;
-        //    string wsUsername = string.Empty;
-        //    string wsPassword = string.Empty;
-        //    GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
-        //    string Address = Utils.GetTcmConfigValue("NotificationService");
-        //    string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
-        //    if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
-        //    {
-        //        log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
-        //        return;
-        //    }
-        //    try
-        //    {
-        //        string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
-        //        string ErrorMsg = string.Empty;
-        //        Task.Run(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
-        //    }
-
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
-        //                            groupId, userAction, userId, udid, pushToken, ex.Message);
-        //    }
-        //}
-
+        
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
         {
             string request = string.Empty;
@@ -1247,7 +1224,7 @@ namespace Core.Users
 
         private static Dictionary<int, string> BuildDomainDrmId(int groupId, int domainId)
         {
-            Dictionary<int, string> domainDrmId = new Dictionary<int,string>();
+            Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
             // get data from db and insert it to CB
             // get all devices per domain
             DataTable dt = DomainDal.Get_DomainDevices(groupId, domainId);
@@ -1316,7 +1293,7 @@ namespace Core.Users
             {
                 response = drm.Value;
             }
-           
+
             return response;
         }
 
@@ -1396,6 +1373,85 @@ namespace Core.Users
                 result = result & DomainDal.RemoveDrmId(drmId, groupId);
             }
             return result;
+        }
+
+        public static bool Purge()
+        {
+            double purgeScheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
+            try
+            {
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails purgeScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.purgeScheduledTasks);
+
+                // get run details
+                ScheduledTaskLastRunDetails lastRunDetails = purgeScheduledTask.GetLastRunDetails();
+                purgeScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+
+                if (purgeScheduledTask != null &&
+                    purgeScheduledTask.Status.Code == (int)eResponseStatus.OK &&
+                    purgeScheduledTask.NextRunIntervalInSeconds > 0)
+                {
+                    purgeScheduledTaskIntervalSec = purgeScheduledTask.NextRunIntervalInSeconds;
+
+                    if (purgeScheduledTask.LastRunDate.AddSeconds(purgeScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = true;
+                    }
+                }
+                else
+                {
+                    shouldEnqueueFollowUp = true;
+                    purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
+                }
+
+                int impactedItems = UsersDal.Purge(); //TODO call DB
+
+                if (impactedItems > 0)
+                {
+                    log.DebugFormat("Successfully applied purge on: {0} users", impactedItems);
+                }
+                else
+                {
+                    log.DebugFormat("No users were modified on purge");
+                }
+
+                purgeScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, purgeScheduledTaskIntervalSec, ScheduledTaskType.purgeScheduledTasks);
+                if (!purgeScheduledTask.SetLastRunDetails())
+                {
+                    log.InfoFormat("Failed to run purge scheduled task last run details, PurgeScheduledTask: {0}", purgeScheduledTask.ToString());
+                }
+                else
+                {
+                    log.Debug("Successfully ran purge scheduled task last run date");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in purge process", ex);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {
+                if (shouldEnqueueFollowUp)
+                {
+                    if (purgeScheduledTaskIntervalSec == 0)
+                    {
+                        purgeScheduledTaskIntervalSec = HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(purgeScheduledTaskIntervalSec);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.PurgeUsers, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_PURGE);
+                }
+            }
+
+            return true;
         }
     }
 }

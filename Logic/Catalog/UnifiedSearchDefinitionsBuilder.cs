@@ -12,6 +12,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -31,7 +32,7 @@ namespace Core.Catalog
 
         public UnifiedSearchDefinitionsBuilder()
         {
-            shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+            shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
         #endregion
@@ -47,6 +48,7 @@ namespace Core.Catalog
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
+                definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
                 int parentGroupID = request.m_nGroupID;
                 GroupManager groupManager = null;
@@ -60,8 +62,7 @@ namespace Core.Catalog
                 }
                 else
                 {
-                    CatalogCache catalogCache = CatalogCache.Instance();
-                    parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                    parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                     groupManager = new GroupManager();
                     group = groupManager.GetGroup(parentGroupID);
                 }                                    
@@ -79,7 +80,7 @@ namespace Core.Catalog
                 }
 
                 // Get days offset for EPG search from TCM
-                definitions.epgDaysOffest = CatalogLogic.GetCurrentRequestDaysOffset();
+                definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
                 #region Filter & Order
 
@@ -90,13 +91,13 @@ namespace Core.Catalog
                     definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
                     if (!definitions.shouldIgnoreDeviceRuleID)
                     {
-                        definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                        definitions.deviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
                     }
                 }
 
                 // in case operator is searching we override the existing value
-                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
-                definitions.shouldUseEndDateForMedia = !request.isAllowedToViewInactiveAssets;
+                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;                
+                definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets || request.shouldIgnoreEndDate;
 
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
@@ -373,6 +374,24 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region Geo Availability
+
+                if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
+                {
+                    definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+                }
+
+                #endregion
+
+                #region Asset User Rule
+
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+                {
+                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID);
+                }
+
+                #endregion
+
             }
             catch (Exception ex)
             {
@@ -381,6 +400,44 @@ namespace Core.Catalog
             }
 
             return definitions;
+        }
+
+        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId)
+        {
+            long userId = long.Parse(request.m_sSiteGuid);
+
+            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
+            if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
+            {
+                if (assetUserRulesResponse.HasObjects())
+                {
+                    StringBuilder notQuery = new StringBuilder();
+                    notQuery.Append("(and ");
+                    foreach (var rule in assetUserRulesResponse.Objects)
+                    {
+                        definitions.assetUserRuleIds.Add(rule.Id);
+                        foreach (var condition in rule.Conditions)
+                        {
+                            notQuery.AppendFormat(" {0}", condition.Ksql);
+                        }
+                    }
+
+                    notQuery.Append(")");
+
+                    string notQueryString = notQuery.ToString();
+
+                    BooleanPhraseNode notPhrase = null;
+                    BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+
+                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group, groupId);
+
+                    definitions.assetUserRulePhrase = notPhrase;
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+            }
         }
 
         private List<string> GetUserRecordings(UnifiedSearchDefinitions definitions, string siteGuid, int groupId, long domainId)

@@ -94,7 +94,7 @@ namespace Core.Catalog.CatalogManagement
             long id = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ID", 0);
             if (id <= 0)
             {
-                result.Status = CreateAssetResponseStatusFromResult(id);
+                result.SetStatus(CreateAssetResponseStatusFromResult(id));
                 return result;
             }
 
@@ -102,7 +102,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (result.Object != null)
             {
-                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return result;
@@ -1021,7 +1021,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
                 }
 
@@ -1032,7 +1032,7 @@ namespace Core.Catalog.CatalogManagement
                                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = validateAssetTopicsResult;
+                    result.SetStatus(validateAssetTopicsResult);
                     return result;
                 }
 
@@ -1093,7 +1093,7 @@ namespace Core.Catalog.CatalogManagement
                                                                                 ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = validateAssetTopicsResult;
+                    result.SetStatus(validateAssetTopicsResult);
                     return result;
                 }
 
@@ -1569,7 +1569,7 @@ namespace Core.Catalog.CatalogManagement
                 result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
                 if (result.Object != null)
                 {
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
@@ -1600,7 +1600,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Object != null)
                 {
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
@@ -1663,12 +1663,12 @@ namespace Core.Catalog.CatalogManagement
                     if (assets == null || assets.Count != 1 || assets[0] == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
-                        result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                        result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     }
                     else
                     {
                         result.Object = assets[0];
-                        result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
             }
@@ -1716,14 +1716,14 @@ namespace Core.Catalog.CatalogManagement
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
-                        result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;
                     }
                     else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
                     {                        
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
-                        result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                        result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
                         return result;
                     }
 
@@ -1737,13 +1737,13 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}",
-                                                        eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString(), baseAsset.AssetId));
+                            result.SetStatus(eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}", 
+                                                                                                eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString(), baseAsset.AssetId));
                             return result;
                         }
                     }
 
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -1898,7 +1898,7 @@ namespace Core.Catalog.CatalogManagement
                 List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
                 if (assets == null || assets.Count != 1)
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
@@ -1915,7 +1915,7 @@ namespace Core.Catalog.CatalogManagement
                         // validate that existing asset is indeed linear media
                         if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
                         {
-                            result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                            result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                             return result;
                         }
 

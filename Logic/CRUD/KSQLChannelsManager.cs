@@ -1,27 +1,13 @@
-﻿using ApiLogic;
-using ApiObjects;
-using ApiObjects.BulkExport;
-using ApiObjects.QueueObjects;
+﻿using ApiObjects;
 using ApiObjects.Response;
-using ApiObjects.Roles;
-using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
-using ApiObjects.Statistics;
-using CachingHelpers;
-using EpgBL;
+using ConfigurationManager;
 using GroupsCacheManager;
 using KLogMonitor;
-using QueueWrapper;
-using QueueWrapper.Queues.QueueObjects;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Web;
-using System.Xml;
 using Tvinci.Core.DAL;
 
 namespace APILogic.CRUD
@@ -51,7 +37,7 @@ namespace APILogic.CRUD
 
         static KSQLChannelsManager()
         {
-            version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+            version = ApplicationConfiguration.Version.Value;
         }
 
         #endregion
@@ -96,32 +82,11 @@ namespace APILogic.CRUD
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null)
+                Status validateAssetTypesStatus = ValidateAssetTypes(channel.AssetTypes, groupID);
+                if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
                 {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupID,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
-                    {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
-                    }
+                    response.Status = validateAssetTypesStatus;
+                    return response;
                 }
 
                 channel.GroupID = groupID;
@@ -214,32 +179,11 @@ namespace APILogic.CRUD
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null)
+                Status validateAssetTypesStatus = ValidateAssetTypes(channel.AssetTypes, groupID);
+                if (validateAssetTypesStatus.Code != (int)eResponseStatus.OK)
                 {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupID,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
-                    {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
-                    }
+                    response.Status = validateAssetTypesStatus;
+                    return response;
                 }
 
                 //check channel exist
@@ -361,7 +305,42 @@ namespace APILogic.CRUD
 
         #region Private Methods
 
-        public static string BuildChannelCacheKey(int groupId, int channelId)
+        private static Status ValidateAssetTypes(List<int> assetTypes, int groupID)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+
+            if (assetTypes != null)
+            {
+                Dictionary<int, string> mediaTypesIdToName;
+                Dictionary<string, int> mediaTypesNameToId;
+                Dictionary<int, int> mediaTypeParents;
+                List<int> linearMediaTypes;
+
+                CatalogDAL.GetMediaTypes(groupID,
+                    out mediaTypesIdToName,
+                    out mediaTypesNameToId,
+                    out mediaTypeParents,
+                    out linearMediaTypes);
+
+                HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
+
+                var channelsMediaTypes = assetTypes.Where(type => type != EPG_ASSET_TYPE);
+
+                foreach (int assetType in channelsMediaTypes)
+                {
+                    if (!groupMediaTypes.Contains(assetType))
+                    {
+                        status.Code = (int)eResponseStatus.InvalidMediaType;
+                        status.Message = string.Format("KSQL Channel media type {0} does not belong to group", assetType);
+                        return status;
+                    }
+                }
+            }
+
+            return status;
+        }
+
+        private static string BuildChannelCacheKey(int groupId, int channelId)
         {
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, version);
         }

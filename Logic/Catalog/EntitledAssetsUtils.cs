@@ -124,6 +124,8 @@ namespace Core.Catalog
             UnifiedSearchDefinitions originalDefinitions,
             List<int> linearChannelMediaTypes)
         {
+            //IRA: check if can skip ES
+
             List<int> result = new List<int>();
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -133,9 +135,11 @@ namespace Core.Catalog
                 GroupManager manager = new GroupManager();
                 Group group = manager.GetGroup(parentGroupID);
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+                bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 
-                // Copy definitons from original object
+                // Copy definitions from original object
                 definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
+                definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = false;
                 definitions.deviceRuleId = originalDefinitions.deviceRuleId;
                 definitions.groupId = parentGroupID;
                 definitions.indexGroupId = parentGroupID;
@@ -154,6 +158,8 @@ namespace Core.Catalog
                 definitions.extraReturnFields.Add("epg_identifier");
 
                 result = searcher.GetEntitledEpgLinearChannels(group, definitions);
+
+                originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled = shouldSearchNotEntitled;
             }
 
             return result;

@@ -43,6 +43,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -135,7 +136,10 @@
     <Compile Include="AdaptersController.cs" />
     <Compile Include="Api\api.cs" />
     <Compile Include="Api\ApiCache.cs" />
+    <Compile Include="Api\Managers\AssetUserRuleManager.cs" />
+    <Compile Include="Api\Managers\AssetRuleManager.cs" />
     <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
+    <Compile Include="Api\Managers\EpgManager.cs" />
     <Compile Include="Api\Managers\RolesPermissionsManager.cs" />
     <Compile Include="Api\Modules\SearchHistoryResponse.cs" />
     <Compile Include="Billing\999SMS.cs" />
@@ -399,6 +403,7 @@
     <Compile Include="ConditionalAccess\Response\BillingTransactions.cs" />
     <Compile Include="ConditionalAccess\Response\CancelDeleteResponse.cs" />
     <Compile Include="ConditionalAccess\Response\DomainServicesResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\DrmPlaybackPluginData.cs" />
     <Compile Include="ConditionalAccess\Response\Entitlement.cs" />
     <Compile Include="ConditionalAccess\Response\EntitlementResponse.cs" />
     <Compile Include="ConditionalAccess\Response\LicensedLinkNPVRResponse.cs" />
@@ -500,6 +505,9 @@
     <Compile Include="Pricing\Collection.cs" />
     <Compile Include="Pricing\CollectionCacheWrapper.cs" />
     <Compile Include="Pricing\CollectionsResponse.cs" />
+    <Compile Include="Pricing\CouponsGroupResponse.cs" />
+    <Compile Include="Pricing\CouponGroupGenerationResponse.cs" />
+    <Compile Include="Pricing\DiscountDetails.cs" />
     <Compile Include="Pricing\PriceDetails.cs" />
     <Compile Include="Pricing\DependencySet.cs" />
     <Compile Include="Pricing\SubscriptionSetsResponse.cs" />
@@ -581,6 +589,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Service References\SSOAdapaterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Social\BaseSocialBL.cs" />
     <Compile Include="Social\Cache\SocialCache.cs" />
     <Compile Include="Social\FacebookManager.cs" />
@@ -657,10 +670,12 @@
     <Compile Include="Users\HomeNetwork.cs" />
     <Compile Include="Users\ISSOProvider.cs" />
     <Compile Include="Users\KalturaBaseUsers.cs" />
+    <Compile Include="Users\KalturaHttpSSOUser.cs" />
     <Compile Include="Users\KalturaSSOUsers.cs" />
     <Compile Include="Users\KalturaUsers.cs" />
-    <Compile Include="Users\LimitationsManager.cs" />
+    <Compile Include="Users\Managers\LimitationsManager.cs" />
     <Compile Include="Users\MailFactory.cs" />
+    <Compile Include="Users\Managers\ConcurrencyManager.cs" />
     <Compile Include="Users\MCMailImpl.cs" />
     <Compile Include="Users\MCNewsLetterImpl.cs" />
     <Compile Include="Users\MediaCorpUsers.cs" />
@@ -676,6 +691,7 @@
     <Compile Include="Users\Saml\SamlProviderObject.cs" />
     <Compile Include="Users\Saml\SamlResponseObject.cs" />
     <Compile Include="Users\Saml\SamlUtils.cs" />
+    <Compile Include="Users\SSOAdaptersManager.cs" />
     <Compile Include="Users\SSOKdgImplementation.cs" />
     <Compile Include="Users\SSOMCImplementation.cs" />
     <Compile Include="Users\SSOOAuthImplementation.cs" />
@@ -859,6 +875,10 @@
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
       <Name>Uploader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -922,20 +942,17 @@
     <None Include="Service References\AmazonSnsAdapter\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\APILogic.DmsService.PushData.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\DmsService\Service.wsdl" />
-    <None Include="Service References\DmsService\Service.xsd">
+    <None Include="Service References\DmsService\Service11.wsdl" />
+    <None Include="Service References\DmsService\Service44.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service1.xsd">
+    <None Include="Service References\DmsService\Service45.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service2.xsd">
+    <None Include="Service References\DmsService\Service46.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\DmsService\Service3.xsd">
+    <None Include="Service References\DmsService\Service47.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
@@ -1041,6 +1058,34 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\PaymentGWAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.AdapterStatusCode.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.PreSignInResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.SSOImplementationsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.UserResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SSOAdapaterService\Service.wsdl" />
+    <None Include="Service References\SSOAdapaterService\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SSOAdapaterService\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SSOAdapaterService\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SSOAdapaterService\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SSOAdapaterService\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\AdyenPayAPI\BalanceCheckResult.datasource">
@@ -1201,6 +1246,7 @@
     <WCFMetadataStorage Include="Service References\EngagementAdapterService\" />
     <WCFMetadataStorage Include="Service References\MailNotificationsAdapterService\" />
     <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
+    <WCFMetadataStorage Include="Service References\SSOAdapaterService\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\OSSAdapterService\" />
@@ -1237,9 +1283,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\DmsService\configuration91.svcinfo" />
@@ -1303,6 +1346,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SSOAdapaterService\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SSOAdapaterService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SSOAdapaterService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SSOAdapaterService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\Service11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -10,7 +10,8 @@ namespace ApiObjects.Response
         OK = 0,
         Error = 1,
 
-        // Domain Section 1000 - 1999
+        #region Domain Section 1000 - 1999
+
         DomainAlreadyExists = 1000,
         ExceededLimit = 1001,
         DeviceTypeNotAllowed = 1002,
@@ -48,8 +49,11 @@ namespace ApiObjects.Response
         HomeNetworkFrequency = 1034,
         DlmExist = 1035,
         MasterUserNotFound = 1036,
+        
+        #endregion
 
-        // User Section 2000 - 2999
+        #region User Section 2000 - 2999
+
         UserDoesNotExist = 2000,
         UserSuspended = 2001,
         GenerateNewLoginPIN = 2002,
@@ -100,10 +104,15 @@ namespace ApiObjects.Response
         ParentTopicMetaIdNotEqualToMetaParentMetaID = 2052,
         ParentTopicValueIsMissing = 2053,
         ExternalIdAlreadyExists = 2054,
-        UserExternalError = 2055,        
+        UserExternalError = 2055,
+        SSOAdapterNotExist = 2056,
+        NoSSOAdapaterToInsert = 2057,
+        SSOAdapterIdRequired = 2058,
 
+        #endregion
 
-        // CAS Section 3000 - 3999
+        #region CAS Section 3000 - 3999
+
         InvalidPurchase = 3000,
         CancelationWindowPeriodExpired = 3001,
         SubscriptionNotRenewable = 3002,
@@ -171,8 +180,16 @@ namespace ApiObjects.Response
         BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3072,
         WrongSubscriptionType = 3073,
         SubscriptionCancellationIsBlocked = 3074,
+        InvalidProductType = 3075,
+        InvalidContentId = 3076,
+        UnknownPriceReason = 3077,
+        PurchaseFailed = 3078,
+        PurchasePassedEntitlementFailed = 3079,
 
-        //Catalog 4000 - 4999
+        #endregion
+
+        #region Catalog 4000 - 4999
+
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,
         BadSearchRequest = 4002,
@@ -246,7 +263,10 @@ namespace ApiObjects.Response
         RatioDoesNotExist = 4070,
         MissingBasicValueForAsset = 4071,
 
-        // Api 5000 - 5999
+        #endregion
+
+        #region Api 5000 - 5999
+
         NoPinDefined = 5001,
         PinMismatch = 5002,
         RuleNotExists = 5003,
@@ -276,11 +296,19 @@ namespace ApiObjects.Response
         NotaTopicInterestMeta = 5027,
         PermissionNameNotExists = 5028,
         RoleAlreadyExists = 5029,
-        ParentalRuleNameAlreadyInUse = 5030,
-        ParentalRuleDoesNotExist = 5031,
-        CanNotDeleteDefaultParentalRule = 5032,
+        AssetRuleNotExists = 5030,
+        AssetUserRuleDoesNotExists = 5031,
+        UserAlreadyAttachedToAssetUserRule = 5031,
+        AssetUserRulesOperationsDisable = 5032,
+        NonExistingDeviceFamilyIds = 5033,
+        ParentalRuleNameAlreadyInUse = 5034,
+        ParentalRuleDoesNotExist = 5035,
+        CanNotDeleteDefaultParentalRule = 5036,
 
-        // Billing 6000 - 6999
+        #endregion
+
+        #region Billing 6000 - 6999
+
         IncorrectPrice = 6000,
         UnKnownPPVModule = 6001,
         ExpiredCard = 6002,
@@ -335,7 +363,10 @@ namespace ApiObjects.Response
         PaymentGatewaySuspended = 6051,
         PaymentGatewayExternalVerification = 6052,
 
-        // social 7000 - 7999
+        #endregion
+
+        #region social 7000 - 7999
+
         Conflict = 7000,
         MinFriendsLimitation = 7001,
         NoUserSocialSettingsFound = 7002,
@@ -355,7 +386,10 @@ namespace ApiObjects.Response
         SocialActionIdDoseNotExists = 7016,
         UserEmailIsMissing = 7017,
 
-        // notification 8000-8999
+        #endregion
+        
+        #region notification 8000-8999
+
         NoNotificationSettingsSent = 8000,
         PushNotificationFalse = 8001, //"push notification false can't combine with push system announcements true";
         NoNotificationPartnerSettings = 8002,
@@ -398,7 +432,10 @@ namespace ApiObjects.Response
         MailNotificationAdapterNotExist = 8039,
         InvalidToken = 8040,
 
-        //Pricing 9000-9999
+        #endregion
+
+        #region Pricing 9000-9999
+
         InvalidPriceCode = 9000,
         InvalidValue = 9001,
         InvalidDiscountCode = 9002,
@@ -417,20 +454,33 @@ namespace ApiObjects.Response
         ModuleNotExists = 9016,
         PricePlanDoesNotExist = 9017,
         PriceDetailsDoesNotExist = 9018,
+        CouponCodeAlreadyExists = 9019,
+        CouponGroupNotExist = 9020,
+        CouponCodeNotInTheRightLength = 9021,
+        DiscountCodeNotExist = 9022,
 
-        // Adapters 10000-10999
+        #endregion
+
+        #region Adapters 10000-10999
+
         AdapterNotExists = 10000,
         AdapterIdentifierRequired = 10001,
         AdapterIsRequired = 10002,
         NoAdapterToInsert = 10003,
 
-        // Ingest 11000-11999
+        #endregion
+
+        #region Ingest 11000-11999
+
         IllegalXml = 11000,
         MissingExternalIdentifier = 11001,
         UnknownIngestType = 11002,
         EPGSProgramDatesError = 11003,
 
-        // DMS  12000-12999
+        #endregion
+
+        #region DMS  12000-12999
+
         Forbidden = 12000,
         IllegalQueryParams = 12001,
         IllegalPostData = 12002,
@@ -439,6 +489,8 @@ namespace ApiObjects.Response
         ItemAlreadyExist = 12005,
         Registered = 12006,
         VersionNotFound = 12007,
-        AlreadyExist = 12008        
+        AlreadyExist = 12008
+
+        #endregion
     }
 }

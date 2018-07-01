@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 
 namespace ApiObjects.Pricing
 {
@@ -114,5 +110,12 @@ namespace ApiObjects.Pricing
         NotApplicable  = 0,
         Base = 1,
         AddOn = 2
+    }
+
+    [Serializable]
+    public enum CouponGroupType
+    {
+        Coupon = 0,
+        GiftCard = 1
     }
 }

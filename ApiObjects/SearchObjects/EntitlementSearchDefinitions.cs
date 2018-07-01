@@ -29,6 +29,13 @@ namespace ApiObjects.SearchObjects
         public bool shouldGetPurchasedAssets;
 
         /// <summary>
+        /// Defines whether we eventually want to get all assets that user is NOT entitled to watch currently
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldSearchNotEntitled;
+
+        /// <summary>
         /// List of free assets according to their type - will be filled if searching by entitlements
         /// </summary>
         [JsonProperty()]

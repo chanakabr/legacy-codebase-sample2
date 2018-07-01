@@ -43,6 +43,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -138,9 +139,11 @@
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
     <Compile Include="DrmAdapter\DrmAdapterListResponse.cs" />
+    <Compile Include="DBFieldMappingAttribute.cs" />
     <Compile Include="DrmAdapter\DrmAdapterResponse.cs" />
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
+    <Compile Include="MediaMarks\DevicePlayData.cs" />
     <Compile Include="Notification\SMSNotificationData.cs" />
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
@@ -149,10 +152,20 @@
     <Compile Include="Response\GenericResponse.cs" />
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
+    <Compile Include="Rules\AssetRuleCondition.cs" />
+    <Compile Include="Rules\DeviceConcurrencyPriority.cs" />
+    <Compile Include="Rules\RuleAction.cs" />
+    <Compile Include="Rules\SlimAsset.cs" />
+    <Compile Include="Rules\AssetUserRule.cs" />
+    <Compile Include="Rules\AssetRule.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
     <Compile Include="SearchObjects\ChannelSearchDefinitions.cs" />
     <Compile Include="SearchObjects\TagSearchDefinitions.cs" />
     <Compile Include="SearchObjects\TagValue.cs" />
+    <Compile Include="SSOAdapter\SSOAdapter.cs" />
+    <Compile Include="SSOAdapter\SSOAdapterParam.cs" />
+    <Compile Include="SSOAdapter\SSOAdaptersResponse.cs" />
+    <Compile Include="SSOAdapter\SSOAdapterResponse.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
     <Compile Include="QueueObjects\MessageInterestData.cs" />
@@ -547,6 +560,10 @@
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

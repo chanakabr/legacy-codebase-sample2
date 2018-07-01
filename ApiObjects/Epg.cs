@@ -245,9 +245,9 @@ namespace ApiObjects
                         else
                         {
                             // compare the values between the lists
-                            foreach (string sTagValue in obj.Tags[objTagKey])
+                            for (int i = 0; i < obj.Tags[objTagKey].Count; i++)
                             {
-                                if (!this.Tags[objTagKey].Contains(sTagValue))
+                                if (this.Tags[objTagKey][i] != obj.Tags[objTagKey][i])
                                 {
                                     return false;
                                 }

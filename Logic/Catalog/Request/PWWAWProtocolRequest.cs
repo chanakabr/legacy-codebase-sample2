@@ -1,15 +1,10 @@
-﻿using System;
+﻿using ApiObjects.SearchObjects;
+using ConfigurationManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Reflection;
-using TVinciShared;
 using System.Data;
+using System.Runtime.Serialization;
 using Tvinci.Core.DAL;
-using ApiObjects.SearchObjects;
 
 namespace Core.Catalog.Request
 {
@@ -45,9 +40,9 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            string resultsSize = Utils.GetWSURL("PWWAWP_MAX_RESULTS_SIZE");
-            if (resultsSize.Length > 0 && Int32.TryParse(resultsSize, out res))
-                return res;
+            int resultsSize = ApplicationConfiguration.PwwawpMaxResultsSize.IntValue;
+            if (resultsSize > 0)
+                return resultsSize;
             return CatalogLogic.DEFAULT_PWWAWP_MAX_RESULTS_SIZE;
         }
 

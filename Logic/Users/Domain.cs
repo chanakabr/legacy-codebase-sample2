@@ -2,7 +2,9 @@
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -15,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -27,8 +30,7 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_USER_TASK\\{0}";
-
-
+        
         //Name of the Domain       
         public string m_sName;
 
@@ -39,7 +41,7 @@ namespace Core.Users
         public string m_sCoGuid;
 
         //Domain ID in Domains table        
-        public int m_nDomainID;
+        public int m_nDomainID { get; set; }
 
         //Domain group_id        
         [JsonProperty()]
@@ -89,6 +91,13 @@ namespace Core.Users
         [JsonProperty()]
         public List<DeviceContainer> m_deviceFamilies;
 
+        [XmlIgnore]
+        protected Dictionary<string, int> UdidToDeviceFamilyIdMapping;
+
+        [XmlIgnore]
+        [JsonProperty()]
+        protected Dictionary<int, DeviceContainer> DeviceFamiliesMapping;
+
         [JsonProperty()]
         public DomainStatus m_DomainStatus;
 
@@ -120,20 +129,13 @@ namespace Core.Users
 
         [XmlIgnore]
         [JsonProperty()]
-        protected LimitationsManager m_oLimitationsManager;
-
-        [XmlIgnore]
-        protected Dictionary<string, int> m_oUDIDToDeviceFamilyMapping;
-
-        [XmlIgnore]
-        [JsonProperty()]
-        protected Dictionary<int, DeviceContainer> m_oDeviceFamiliesMapping;
-
+        public LimitationsManager m_oLimitationsManager { get; protected set; }
+        
         [JsonProperty()]
         public int m_nRegion;
 
         [XmlIgnore]
-        protected int m_nMasterGuID;
+        protected int MasterGuID;
 
         [XmlIgnore]
         [JsonIgnore()]
@@ -141,37 +143,21 @@ namespace Core.Users
 
         [XmlIgnore]
         [JsonIgnore()]
-        public bool shouldUpdateInfo
-        {
-            get;
-            set;
-        }
+        public bool shouldUpdateInfo;
 
         [XmlIgnore]
         [JsonIgnore()]
-        public DomainSuspentionStatus nextSuspensionStatus
-        {
-            get;
-            set;
-        }
+        public DomainSuspentionStatus nextSuspensionStatus;
 
         public int? roleId { get; set; }
 
         [XmlIgnore]
         [JsonIgnore()]
-        public bool shouldUpdateSuspendStatus
-        {
-            get;
-            set;
-        }
+        public bool shouldUpdateSuspendStatus;
 
         [XmlIgnore]
         [JsonIgnore()]
-        public bool shouldPurge
-        {
-            get;
-            set;
-        }
+        public bool shouldPurge;
 
         public Domain()
         {
@@ -192,10 +178,8 @@ namespace Core.Users
             m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
 
             m_homeNetworks = new List<HomeNetwork>();
-
             m_oLimitationsManager = new LimitationsManager();
-
-            m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
+            UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
         }
 
         public Domain(int nDomainID)
@@ -204,130 +188,7 @@ namespace Core.Users
             m_nDomainID = nDomainID;
         }
 
-        /// <summary>
-        /// Create new Domain record in DB
-        /// </summary>
-        /// <param name="sName"></param>
-        /// <param name="sDescription"></param>
-        /// <param name="nGroupID"></param>
-        /// <param name="nLimit"></param>
-        /// <returns>the new record ID</returns>
-        public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int nMasterGuID, string sCoGuid = null)
-        {
-            DateTime dDateTime = DateTime.UtcNow;
-            m_sName = sName;
-            m_sDescription = sDescription;
-            m_nGroupID = nGroupID;
-            m_sCoGuid = sCoGuid;
-            m_nMasterGuID = nMasterGuID;
-
-            // Pending - until proved otherwise
-            m_DomainStatus = DomainStatus.Pending;
-
-            this.Insert();
-
-            return this;
-        }
-
-        private long InitializeDLM(long npvrQuotaInSecs, int nDomainLimitID, int nGroupID, DateTime nextAction)
-        {
-            LimitationsManager oLimitationsManager = GetDLM(nDomainLimitID, nGroupID);
-            bool bInitialize = Initialize(out npvrQuotaInSecs, oLimitationsManager, nextAction);
-            return npvrQuotaInSecs;
-        }
-
-        public void InitializeDLM()
-        {
-            long npvrQuotaInSecs = 0;
-            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, this.m_nGroupID, this.m_NextActionFreq);
-        }
-
-        private bool Initialize(out long npvrQuotaInSecs, LimitationsManager oLimitationsManager, DateTime nextAction)
-        {
-            npvrQuotaInSecs = 0;
-            if (oLimitationsManager != null) // initialize all fileds 
-            {
-                m_nConcurrentLimit = oLimitationsManager.Concurrency;
-                m_nDeviceLimit = oLimitationsManager.Quantity;
-                m_nUserLimit = oLimitationsManager.nUserLimit;
-
-                m_oLimitationsManager = new LimitationsManager();
-                m_oLimitationsManager.Concurrency = oLimitationsManager.Concurrency;
-                m_oLimitationsManager.domianLimitID = oLimitationsManager.domianLimitID;
-                m_oLimitationsManager.Frequency = oLimitationsManager.Frequency;
-                m_oLimitationsManager.npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
-                npvrQuotaInSecs = oLimitationsManager.npvrQuotaInSecs;
-                m_oLimitationsManager.Quantity = oLimitationsManager.Quantity;
-                m_oLimitationsManager.NextActionFreqDate = nextAction;
-
-                if (m_oDeviceFamiliesMapping == null)
-                {
-                    m_oDeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
-                }
-                if (m_deviceFamilies == null)
-                {
-                    m_deviceFamilies = new List<DeviceContainer>();
-                }
-                if (oLimitationsManager.lDeviceFamilyLimitations != null)
-                {
-                    m_oLimitationsManager.lDeviceFamilyLimitations = oLimitationsManager.lDeviceFamilyLimitations;
-
-                    foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
-                    {
-                        DeviceContainer dc = new DeviceContainer(item.deviceFamily, item.deviceFamilyName, item.quantity, item.concurrency, item.Frequency);
-                        if (!m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
-                        {
-                            m_deviceFamilies.Add(dc);
-                            m_oDeviceFamiliesMapping.Add(item.deviceFamily, dc);
-                        }
-                        else
-                        {
-                            for (int i = 0; i < m_deviceFamilies.Count; i++)
-                            {
-                                if (m_deviceFamilies[i].m_deviceFamilyID == item.deviceFamily)
-                                {
-                                    m_deviceFamilies[i].m_oLimitationsManager = dc.m_oLimitationsManager;
-                                    m_deviceFamilies[i].m_deviceLimit = dc.m_deviceLimit;
-                                    m_deviceFamilies[i].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
-                                    break;
-                                }
-                            }
-                            m_oDeviceFamiliesMapping[item.deviceFamily].m_oLimitationsManager = dc.m_oLimitationsManager;
-                            m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceLimit = dc.m_deviceLimit;
-                            m_oDeviceFamiliesMapping[item.deviceFamily].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-
-        private LimitationsManager GetDLM(int nDomainLimitID, int m_nGroupID)
-        {
-            LimitationsManager oLimitationsManager = null;
-            try
-            {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bGet = oDomainCache.GetDLM(nDomainLimitID, m_nGroupID, out oLimitationsManager);
-
-                return oLimitationsManager;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Empty, ex);
-                return null;
-            }
-        }
-
-
-        public DomainResponseStatus Remove()
-        {
-            this.removeResponse = DomainResponseStatus.UnKnown;
-
-            this.Delete();
-
-            return this.removeResponse;
-        }
+        #region Initialize
 
         /// <summary>
         /// Init new Domain Object according to GroupId and DomainId
@@ -413,9 +274,9 @@ namespace Core.Users
                 this.m_nSSOOperatorID = domain.m_nSSOOperatorID;
                 this.m_nStatus = domain.m_nStatus;
                 this.m_nUserLimit = domain.m_nUserLimit;
-                this.m_oDeviceFamiliesMapping = domain.m_oDeviceFamiliesMapping;
+                this.DeviceFamiliesMapping = domain.DeviceFamiliesMapping;
                 this.m_oLimitationsManager = domain.m_oLimitationsManager;
-                this.m_oUDIDToDeviceFamilyMapping = domain.m_oUDIDToDeviceFamilyMapping;
+                this.UdidToDeviceFamilyIdMapping = domain.UdidToDeviceFamilyIdMapping;
                 this.m_PendingUsersIDs = domain.m_PendingUsersIDs;
                 this.m_sCoGuid = domain.m_sCoGuid;
                 this.m_sDescription = domain.m_sDescription;
@@ -470,6 +331,148 @@ namespace Core.Users
             return true;
         }
 
+        private bool Initialize(out long npvrQuotaInSecs, LimitationsManager limitationsManager, DateTime nextAction)
+        {
+            npvrQuotaInSecs = 0;
+            if (limitationsManager != null) // initialize all fileds 
+            {
+                m_nConcurrentLimit = limitationsManager.Concurrency;
+                m_nDeviceLimit = limitationsManager.Quantity;
+                m_nUserLimit = limitationsManager.nUserLimit;
+
+                m_oLimitationsManager = new LimitationsManager()
+                {
+                    Concurrency = limitationsManager.Concurrency,
+                    domianLimitID = limitationsManager.domianLimitID,
+                    Frequency = limitationsManager.Frequency,
+                    npvrQuotaInSecs = limitationsManager.npvrQuotaInSecs,
+                    Quantity = limitationsManager.Quantity,
+                    NextActionFreqDate = nextAction
+                };
+                
+                npvrQuotaInSecs = limitationsManager.npvrQuotaInSecs;
+
+                if (m_deviceFamilies == null)
+                {
+                    m_deviceFamilies = new List<DeviceContainer>();
+                }
+                if (DeviceFamiliesMapping == null)
+                {
+                    DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
+                }
+                
+                if (limitationsManager.lDeviceFamilyLimitations != null)
+                {
+                    m_oLimitationsManager.lDeviceFamilyLimitations = limitationsManager.lDeviceFamilyLimitations;
+
+                    foreach (DeviceFamilyLimitations currDeviceFamilyLimitations in m_oLimitationsManager.lDeviceFamilyLimitations)
+                    {
+                        DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyLimitations.deviceFamily, 
+                                                                                  currDeviceFamilyLimitations.deviceFamilyName, 
+                                                                                  currDeviceFamilyLimitations.quantity, 
+                                                                                  currDeviceFamilyLimitations.concurrency, 
+                                                                                  currDeviceFamilyLimitations.Frequency);
+
+                        this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyLimitations.deviceFamily);
+                    }
+                }
+            }
+            return true;
+        }
+
+        private void InitDeviceFamily(DeviceContainer deviceContainer, int deviceFamilyId)
+        {
+            if (!DeviceFamiliesMapping.ContainsKey(deviceFamilyId))
+            {
+                m_deviceFamilies.Add(deviceContainer);
+                DeviceFamiliesMapping.Add(deviceFamilyId, deviceContainer);
+            }
+            else
+            {
+                DeviceFamiliesMapping[deviceFamilyId].m_oLimitationsManager = deviceContainer.m_oLimitationsManager;
+                DeviceFamiliesMapping[deviceFamilyId].m_deviceConcurrentLimit = deviceContainer.m_deviceConcurrentLimit;
+                DeviceFamiliesMapping[deviceFamilyId].m_deviceLimit = deviceContainer.m_deviceLimit;
+
+                int currDeviceFamilyIndex = m_deviceFamilies.FindIndex(x => x.m_deviceFamilyID == deviceFamilyId);
+                if (currDeviceFamilyIndex != -1)
+                {
+                    m_deviceFamilies[currDeviceFamilyIndex].m_oLimitationsManager = deviceContainer.m_oLimitationsManager;
+                    m_deviceFamilies[currDeviceFamilyIndex].m_deviceConcurrentLimit = deviceContainer.m_deviceConcurrentLimit;
+                    m_deviceFamilies[currDeviceFamilyIndex].m_deviceLimit = deviceContainer.m_deviceLimit;
+                }
+            }
+        }
+
+        private long InitializeDLM(long npvrQuotaInSecs, int nDomainLimitID, int nGroupID, DateTime nextAction)
+        {
+            LimitationsManager oLimitationsManager = GetDLM(nDomainLimitID, nGroupID);
+            if (oLimitationsManager != null)
+            {
+                bool bInitialize = Initialize(out npvrQuotaInSecs, oLimitationsManager, nextAction);
+            }
+            
+            return npvrQuotaInSecs;
+        }
+
+        public void InitializeDLM()
+        {
+            long npvrQuotaInSecs = 0;
+            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, this.m_nGroupID, this.m_NextActionFreq);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Create new Domain record in DB
+        /// </summary>
+        /// <param name="sName"></param>
+        /// <param name="sDescription"></param>
+        /// <param name="nGroupID"></param>
+        /// <param name="nLimit"></param>
+        /// <returns>the new record ID</returns>
+        public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int masterGuID, string sCoGuid = null)
+        {
+            DateTime dDateTime = DateTime.UtcNow;
+            m_sName = sName;
+            m_sDescription = sDescription;
+            m_nGroupID = nGroupID;
+            m_sCoGuid = sCoGuid;
+            this.MasterGuID = masterGuID;
+
+            // Pending - until proved otherwise
+            m_DomainStatus = DomainStatus.Pending;
+
+            this.Insert();
+
+            return this;
+        }
+
+        private LimitationsManager GetDLM(int nDomainLimitID, int m_nGroupID)
+        {
+            LimitationsManager oLimitationsManager = null;
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                bool bGet = oDomainCache.GetDLM(nDomainLimitID, m_nGroupID, out oLimitationsManager);
+
+                return oLimitationsManager;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                return null;
+            }
+        }
+        
+        public DomainResponseStatus Remove()
+        {
+            this.removeResponse = DomainResponseStatus.UnKnown;
+
+            this.Delete();
+
+            return this.removeResponse;
+        }
+        
         /// <summary>
         /// Remove User from the Domain
         /// </summary>
@@ -579,11 +582,11 @@ namespace Core.Users
             return eRetVal;
         }
 
-        public DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device)
+        public DomainResponseStatus AddDeviceToDomain(int groupId, int domainId, string udid, string deviceName, int brandId, ref Device device)
         {
             DomainResponseStatus responseStatus = DomainResponseStatus.UnKnown;
             bool removeSuccess = false;
-            responseStatus = AddDeviceToDomain(nGroupID, nDomainID, sUDID, deviceName, brandID, ref device, out removeSuccess);
+            responseStatus = AddDeviceToDomain(groupId, domainId, udid, deviceName, brandId, ref device, out removeSuccess);
 
             try
             {
@@ -592,16 +595,189 @@ namespace Core.Users
                 {
                     //Remove domain from cache
                     DomainsCache domainCache = DomainsCache.Instance();
-                    domainCache.RemoveDomain(nDomainID);
+                    domainCache.RemoveDomain(domainId);
                     InvalidateDomain();
+
+                    var domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
+                    if (domainDevices != null && !domainDevices.ContainsKey(udid))
+                    {
+                        domainDevices.Add(udid, device.m_deviceFamilyID);
+                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("AddDeviceToDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", nDomainID, sUDID, ex);
+                log.ErrorFormat("AddDeviceToDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", domainId, udid, ex);
             }
 
             return responseStatus;
+        }
+
+        private DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device, out bool bRemove)
+        {
+            DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
+            bRemove = false;
+            int isDevActive = 0;
+            int status = 0;
+            int tempDeviceID = 0;
+            int nDbDomainDeviceID = 0;
+
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
+                {
+                    eRetVal = DomainResponseStatus.DomainSuspended;
+                    return eRetVal;
+                }
+            }
+
+            int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
+
+            // If the device is already contained in any domain
+            if (domainID != 0)
+            {
+                // If the device is already contained in ANOTHER domain
+                if (domainID != nDomainID)
+                {
+                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
+                    return eRetVal;
+                }
+                // If the device is already contained in THIS domain
+                else
+                {
+                    // Pending master approval
+                    if (status == 3 && isDevActive == 3)
+                    {
+                        DomainDevice domainDevice = new DomainDevice()
+                        {
+                            Id = nDbDomainDeviceID,
+                            ActivataionStatus = DeviceState.Activated,
+                            DeviceBrandId = brandID,
+                            DeviceId = tempDeviceID,
+                            DomainId = nDomainID,
+                            Name = deviceName,
+                            Udid = sUDID,
+                            ActivatedOn = DateTime.UtcNow,
+                            GroupId = m_nGroupID,
+                            DeviceFamilyId = device.m_deviceFamilyID
+                        };
+
+                        bool updated = domainDevice.Update();
+                        if (updated)
+                        {
+                            eRetVal = DomainResponseStatus.OK;
+                            bRemove = true;
+                            device.m_domainID = nDomainID;
+                            device.m_state = DeviceState.Activated;
+                            int deviceID = device.Save(1, 1, tempDeviceID);
+                            GetDeviceList();
+
+                            return eRetVal;
+                        }
+                    }
+
+                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
+                    return eRetVal;
+                }
+            }
+
+            DeviceContainer container = GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
+
+            //Check if exceeded limit for the device type
+            DomainResponseStatus responseStatus = ValidateQuantity(sUDID, brandID, ref container, ref device);
+
+            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
+            {
+                eRetVal = responseStatus;
+                return eRetVal;
+            }
+
+            int isActive = 0;
+            int nDeviceID = 0;
+            // Get row id from domains_devices
+            int nDomainsDevicesID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
+
+            //New Device Domain Connection
+            if (nDomainsDevicesID == 0)
+            {
+                // Get row id from devices table (not udid)
+                device.m_domainID = nDomainID;
+                int deviceID = device.Save(1);
+                DomainDevice domainDevice = new DomainDevice()
+                {
+                    Id = nDbDomainDeviceID,
+                    ActivataionStatus = DeviceState.Activated,
+                    DeviceId = deviceID,
+                    DomainId = m_nDomainID,
+                    DeviceBrandId = brandID,
+                    ActivatedOn = DateTime.UtcNow,
+                    Udid = sUDID,
+                    GroupId = m_nGroupID,
+                    Name = deviceName,
+                    DeviceFamilyId = device.m_deviceFamilyID
+                };
+
+                bool domainDeviceInsertSuccess = domainDevice.Insert();
+
+                //int domainDeviceRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
+
+                if (domainDeviceInsertSuccess && domainDevice.Id > 0)
+                {
+                    device.m_state = DeviceState.Activated;
+                    DeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
+                    m_totalNumOfDevices++;
+
+                    bRemove = true;
+                    eRetVal = DomainResponseStatus.OK;
+                }
+                else
+                {
+                    eRetVal = DomainResponseStatus.Error;
+                }
+            }
+            else
+            {
+                //Update device status if exists
+                if (isActive != 1)               // should be status != 1 ?
+                {
+                    DomainDevice domainDevice = new DomainDevice()
+                    {
+                        Id = nDomainsDevicesID,
+                        ActivataionStatus = DeviceState.Activated,
+                        DeviceId = nDeviceID,
+                        DomainId = m_nDomainID,
+                        DeviceBrandId = brandID,
+                        ActivatedOn = DateTime.UtcNow,
+                        Udid = sUDID,
+                        GroupId = m_nGroupID,
+                        DeviceFamilyId = device.m_deviceFamilyID
+                    };
+
+                    bool updated = domainDevice.Update();
+
+                    if (updated)
+                    {
+                        bRemove = true;
+                        eRetVal = DomainResponseStatus.OK;
+                        device.m_domainID = nDomainID;
+                        int deviceID = device.Save(1);
+
+                        // change the device in the container                      
+                        DeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
+                    }
+                }
+                else
+                {
+                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
+                }
+            }
+
+            //GetDeviceList();
+
+            return eRetVal;
         }
 
         public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false)
@@ -613,22 +789,20 @@ namespace Core.Users
             // device brand id to ValidateFrequency method
             if (!forceRemove && ValidateFrequency(udid, 0) == DomainResponseStatus.LimitationPeriod)
             {
-                bRes = DomainResponseStatus.LimitationPeriod;
-                return bRes;
+                return DomainResponseStatus.LimitationPeriod;
             }
 
             int isActive = 0;
             int nDeviceID = 0;
 
             //BEO-4478
-            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
+            if (!forceRemove && 
+                m_DomainStatus == DomainStatus.DomainSuspended &&
+                (roleId == 0 || (m_masterGUIDs != null &&
+                                    m_masterGUIDs.Count > 0 &&
+                                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()))))
             {
-                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString())))
-                {
-                    bRes = DomainResponseStatus.DomainSuspended;
-                    return bRes;
-                }
+                return DomainResponseStatus.DomainSuspended;
             }
 
             // try to get device from cache 
@@ -638,85 +812,83 @@ namespace Core.Users
             Device device = null;
 
             bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
-            if (bDeviceExist)
+            if (!bDeviceExist)
             {
-                try
-                {
-                    RemoveDeviceDrmId(udid);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
-                }
+                return DomainResponseStatus.DeviceNotInDomain;
+            }
 
+            try
+            {
+                RemoveDeviceDrmId(udid);
+            }
+            catch (Exception ex)
+            {
+                log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : domainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
+            }
+
+            // set is_Active = 2; status = 2
+            DomainDevice domainDevice = new DomainDevice()
+            {
+                Udid = udid,
+                DeviceId = nDeviceID,
+                GroupId = m_nGroupID,
+                DomainId = m_nDomainID,
+                ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated,
+                DeviceBrandId = brandId,
+                ActivatedOn = activationDate,
+                Name = name,
+                DeviceFamilyId = device.m_deviceFamilyID
+            };
+
+            bool deleted = domainDevice.Delete();
+
+            if (!deleted)
+            {
+                log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid));
+                return DomainResponseStatus.Error;
+            }
+
+            // if the first update done successfully - remove domain from cache
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(m_nDomainID);
+            }
+            catch (Exception ex)
+            {
+                log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
+            }
+
+            this.InvalidateDomain();
+
+            if (DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID) == 0) // No other domains attached to this device
+            {
                 // set is_Active = 2; status = 2
-                DomainDevice domainDevice = new DomainDevice()
-                {
-                    Udid = udid,
-                    DeviceId = nDeviceID,
-                    GroupId = m_nGroupID,
-                    DomainId = m_nDomainID,
-                    ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated,
-                    DeviceBrandId = brandId,
-                    ActivatedOn = activationDate,
-                    Name = name,
-                    DeviceFamilyId = device.m_deviceFamilyID
-                };
-
-                bool deleted = domainDevice.Delete();
+                deleted = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
 
                 if (!deleted)
                 {
-                    log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid));
-                    return DomainResponseStatus.Error;
+                    log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, nDeviceID);
+                    return DomainResponseStatus.OK;
                 }
+            }
 
-                // if the first update done successfully - remove domain from cache
-                try
+            DeviceContainer container = null;
+            device = GetDomainDevice(udid, ref container);
+            if (container != null && device != null)
+            {
+                if (container.RemoveDeviceInstance(udid))
                 {
-                    DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain(m_nDomainID);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
-                }
+                    bRes = DomainResponseStatus.OK;
 
-                this.InvalidateDomain();
-
-                if (DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID) == 0) // No other domains attached to this device
-                {
-                    // set is_Active = 2; status = 2
-                    deleted = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
-
-                    if (!deleted)
+                    if (!forceRemove && m_minPeriodId != 0 && GetDeviceFrequency(udid) != 0)
                     {
-                        log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, nDeviceID);
-                        return DomainResponseStatus.OK;
-                    }
-                }
-
-                DeviceContainer container = null;
-                device = GetDomainDevice(udid, ref container);
-                if (container != null && device != null)
-                {
-                    if (container.RemoveDeviceInstance(udid))
-                    {
-                        bRes = DomainResponseStatus.OK;
-
-                        if (!forceRemove && m_minPeriodId != 0 && GetDeviceFrequency(udid) != 0)
-                        {
-                            SetDomainFlag(m_nDomainID, 1);
-                        }
-                    }
-                    else
-                    {
-                        bRes = DomainResponseStatus.Error;
+                        SetDomainFlag(m_nDomainID, 1);
                     }
                 }
                 else
                 {
-                    bRes = DomainResponseStatus.DeviceNotInDomain;
+                    bRes = DomainResponseStatus.Error;
                 }
             }
             else
@@ -736,7 +908,7 @@ namespace Core.Users
                 List<int> deviceIds = new List<int>();
 
                 // check that udid exsits in doimain device list
-                DeviceContainer deviceContainer = this.m_deviceFamilies.Where(x => x.DeviceInstances != null && x.DeviceInstances.Find(u => u.m_deviceUDID == sUDID) != null ? true : false).FirstOrDefault();
+                DeviceContainer deviceContainer = this.m_deviceFamilies.FirstOrDefault(x => x.DeviceInstances != null && x.DeviceInstances.Find(u => u.m_deviceUDID == sUDID) != null ? true : false);
                 if (deviceContainer == null || deviceContainer.DeviceInstances == null || deviceContainer.DeviceInstances.Count == 0)
                 {
                     log.ErrorFormat("udid not exsits in Domain devices list groupId={0}, domainId={1}, udid ={2}", m_nGroupID, this.m_nDomainID, sUDID);
@@ -837,8 +1009,7 @@ namespace Core.Users
                 return false;
             }
         }
-
-
+        
         /// <summary>
         /// Activate/Deactivate device in Domain
         /// </summary>
@@ -882,7 +1053,7 @@ namespace Core.Users
             }
             else
             {
-                domainResponseStatus = ValidateQuantity(sUDID, device.m_deviceBrandID, container, device);
+                domainResponseStatus = ValidateQuantity(sUDID, device.m_deviceBrandID, ref container, ref device);
                 eNewDeviceState = DeviceState.Activated;
             }
 
@@ -932,7 +1103,7 @@ namespace Core.Users
 
             return domainResponseStatus;
         }
-
+        
         /// <summary>
         /// Add User to the Domain
         /// </summary>
@@ -959,11 +1130,11 @@ namespace Core.Users
             }
 
             // if user was added successfully as master - set user role to be master
-            long roleId;
+            long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
 
             if (eDomainResponseStatus == DomainResponseStatus.OK && DAL.UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
-                if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
+                if (roleId > 0 && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
                 {
                     // add invalidation key for user roles cache
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
@@ -1291,140 +1462,59 @@ namespace Core.Users
                 return DomainResponseStatus.Error;
             }
         }
-
-        public DomainResponseStatus ValidateConcurrency(string udid, int nDeviceBrandID, long domainID)
-        {
-            DomainResponseStatus result = DomainResponseStatus.UnKnown;
-
-            if (!string.IsNullOrEmpty(udid))
-            {
-                Device device = new Device(udid, nDeviceBrandID, m_nGroupID, string.Empty, (int)domainID);
-                DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
-                if (dc != null)
-                {
-                    if (m_oLimitationsManager.Concurrency <= 0 || IsAgnosticToDeviceLimitation(ValidationType.Concurrency, device.m_deviceFamilyID))
-                    {
-                        // there are no concurrency limitations at all.
-                        result = DomainResponseStatus.OK;
-                    }
-                    else
-                    {
-                        int nTotalStreams = 0;
-                        Dictionary<int, int> deviceFamiliesStreams = GetConcurrentCount(domainID, udid, ref nTotalStreams);
-                        if (deviceFamiliesStreams == null)
-                        {
-                            // no active streams at all
-                            result = DomainResponseStatus.OK;
-                        }
-                        else
-                        {
-                            if (nTotalStreams >= m_oLimitationsManager.Concurrency)
-                            {
-                                // Cannot allow a new stream. Domain reached its max limitation
-                                result = DomainResponseStatus.ConcurrencyLimitation;
-                            }
-                            else
-                            {
-                                if (deviceFamiliesStreams.ContainsKey(device.m_deviceFamilyID))
-                                {
-                                    if (deviceFamiliesStreams[device.m_deviceFamilyID] >= dc.m_oLimitationsManager.Concurrency)
-                                    {
-                                        // device family reached its max limit. Cannot allow a new stream
-                                        result = DomainResponseStatus.ConcurrencyLimitation;
-                                    }
-                                    else
-                                    {
-                                        // User is able to watch through this device. Hasn't reach the device family max limitation
-                                        result = DomainResponseStatus.OK;
-                                    }
-                                }
-                                else
-                                {
-                                    // no active streams at the device's family.
-                                    result = DomainResponseStatus.OK;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    result = DomainResponseStatus.DeviceTypeNotAllowed;
-                }
-            }
-            else
-            {
-                result = DomainResponseStatus.OK;
-            }
-
-            return result;
-        }
-
+        
         public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
         {
             // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
-            if (m_oDeviceFamiliesMapping != null)
+            if (DeviceFamiliesMapping != null)
             {
-                DeviceContainer deviceFamily = GetDeviceFamilyByUDID(sUDID);
+                DeviceContainer deviceFamily = GetDeviceContainerByUdid(sUDID);
 
-                if (deviceFamily != null)
+                if (deviceFamily != null && deviceFamily.m_oLimitationsManager != null && deviceFamily.m_oLimitationsManager.Frequency == 0)
                 {
-                    if (deviceFamily.m_oLimitationsManager != null)
-                    {
-                        if (deviceFamily.m_oLimitationsManager.Frequency == 0)
-                        {
-                            return DomainResponseStatus.OK;
-                        }
-                    }
+                    return DomainResponseStatus.OK;
                 }
             }
 
             // check DLM device frequency
             if (m_oLimitationsManager.NextActionFreqDate > DateTime.UtcNow)
+            {
                 return DomainResponseStatus.LimitationPeriod;
+            }
+                
             return DomainResponseStatus.OK;
         }
 
         private int GetDeviceFrequency(string sUDID)
         {
             // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
-            if (m_oDeviceFamiliesMapping != null)
+            if (DeviceFamiliesMapping != null)
             {
-                DeviceContainer deviceFamily = GetDeviceFamilyByUDID(sUDID);
+                DeviceContainer deviceFamily = GetDeviceContainerByUdid(sUDID);
 
-                if (deviceFamily != null)
+                if (deviceFamily != null && deviceFamily.m_oLimitationsManager != null && deviceFamily.m_oLimitationsManager.Frequency != -1)
                 {
-                    if (deviceFamily.m_oLimitationsManager != null && deviceFamily.m_oLimitationsManager.Frequency != -1)
-                    {
-                        return deviceFamily.m_oLimitationsManager.Frequency;
-                    }
+                    return deviceFamily.m_oLimitationsManager.Frequency;
                 }
             }
 
             return m_oLimitationsManager.Frequency;
         }
 
-        private DeviceContainer GetDeviceFamilyByUDID(string sUDID)
+        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId)
         {
-            foreach (var family in m_oDeviceFamiliesMapping)
-            {
-                Device device = family.Value.DeviceInstances.Where(d => d.m_deviceUDID == sUDID).FirstOrDefault();
-                if (device != null)
-                {
-                    return family.Value;
-                }
-            }
-
-            return null;
+            DeviceContainer dc = null;
+            Device device = null;
+            return ValidateQuantity(udid, deviceBrandId, ref dc, ref device);
         }
 
-        public DomainResponseStatus ValidateQuantity(string sUDID, int nDeviceBrandID, DeviceContainer dc = null, Device device = null)
+        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId, ref DeviceContainer dc, ref Device device)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (device == null)
-                device = new Device(sUDID, nDeviceBrandID, m_nGroupID);
+                device = new Device(udid, deviceBrandId, m_nGroupID);
             if (dc == null)
-                dc = GetDeviceContainer(device.m_deviceFamilyID);
+                dc = GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
             if (dc == null)
             {
                 // device type not allowed for this domain
@@ -1508,48 +1598,35 @@ namespace Core.Users
             {
                 m_deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
             }
-            if (m_oDeviceFamiliesMapping == null)
+            if (DeviceFamiliesMapping == null)
             {
-                m_oDeviceFamiliesMapping = new Dictionary<int, DeviceContainer>(dbDeviceFamilies.Count);
+                DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>(dbDeviceFamilies.Count);
             }
-            for (int i = 0; i < dbDeviceFamilies.Count; i++)
-            {
-                string[] currentDeviceFamily = dbDeviceFamilies[i];
 
-                int nFamilyID = string.IsNullOrEmpty(currentDeviceFamily[0]) ? 0 : Int32.Parse(currentDeviceFamily[0]);
-                string sFamilyName = currentDeviceFamily[1];
-                int nOverrideQuantityLimit = -1;
-                int nOverrideConcurrencyLimit = -1;
-                if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(nFamilyID))
+            foreach (string[] currDeviceFamily in dbDeviceFamilies)
+            {
+                int currDeviceFamilyId = string.IsNullOrEmpty(currDeviceFamily[0]) ? 0 : Int32.Parse(currDeviceFamily[0]);
+                string currDeviceFamilyName = currDeviceFamily[1];
+                
+                int overrideConcurrencyLimit = -1;
+                if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(currDeviceFamilyId))
                 {
-                    nOverrideConcurrencyLimit = concurrencyOverride[nFamilyID];
+                    overrideConcurrencyLimit = concurrencyOverride[currDeviceFamilyId];
                 }
-                if (quantityOverride != null && quantityOverride.Count > 0 && quantityOverride.ContainsKey(nFamilyID))
+
+                int overrideQuantityLimit = -1;
+                if (quantityOverride != null && quantityOverride.Count > 0 && quantityOverride.ContainsKey(currDeviceFamilyId))
                 {
-                    nOverrideQuantityLimit = quantityOverride[nFamilyID];
+                    overrideQuantityLimit = quantityOverride[currDeviceFamilyId];
                 }
-                DeviceContainer dc = new DeviceContainer(nFamilyID, sFamilyName, nOverrideQuantityLimit > -1 ? nOverrideQuantityLimit : m_oLimitationsManager.Quantity, nOverrideConcurrencyLimit > -1 ? nOverrideConcurrencyLimit : m_oLimitationsManager.Concurrency, m_oLimitationsManager.Frequency);
-                if (!m_oDeviceFamiliesMapping.ContainsKey(nFamilyID))
-                {
-                    m_deviceFamilies.Add(dc);
-                    m_oDeviceFamiliesMapping.Add(nFamilyID, dc);
-                }
-                else
-                {
-                    m_oDeviceFamiliesMapping[nFamilyID].m_oLimitationsManager = dc.m_oLimitationsManager;
-                    m_oDeviceFamiliesMapping[nFamilyID].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
-                    m_oDeviceFamiliesMapping[nFamilyID].m_deviceLimit = dc.m_deviceLimit;
-                    for (int j = 0; j < m_deviceFamilies.Count; j++)
-                    {
-                        if (m_deviceFamilies[j].m_deviceFamilyID == nFamilyID)
-                        {
-                            m_deviceFamilies[j].m_oLimitationsManager = dc.m_oLimitationsManager;
-                            m_deviceFamilies[j].m_deviceConcurrentLimit = dc.m_deviceConcurrentLimit;
-                            m_deviceFamilies[j].m_deviceLimit = dc.m_deviceLimit;
-                            break;
-                        }
-                    }
-                }
+
+                DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyId, 
+                                                                          currDeviceFamilyName, 
+                                                                          overrideQuantityLimit > -1 ? overrideQuantityLimit : m_oLimitationsManager.Quantity, 
+                                                                          overrideConcurrencyLimit > -1 ? overrideConcurrencyLimit : m_oLimitationsManager.Concurrency, 
+                                                                          m_oLimitationsManager.Frequency);
+
+                this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyId);
             }
         }
 
@@ -1641,11 +1718,88 @@ namespace Core.Users
             return eRetVal;
         }
 
-        protected DeviceContainer GetDeviceContainer(int deviceFamilyID)
+        protected DeviceContainer GetDeviceContainerByFamilyId(int deviceFamilyId)
         {
-            if (m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.Count > 0 && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID))
-                return m_oDeviceFamiliesMapping[deviceFamilyID];
+            InitDeviceFamilyMapping();
+
+            if (DeviceFamiliesMapping.ContainsKey(deviceFamilyId))
+                return DeviceFamiliesMapping[deviceFamilyId];
+
+            // old code
+            if (m_deviceFamilies != null)
+            {
+                var currDeviceFamily = m_deviceFamilies.FirstOrDefault(x => x.m_deviceFamilyID == deviceFamilyId);
+                if (currDeviceFamily != null)
+                {
+                    MapIdToDeviceFamily(deviceFamilyId, currDeviceFamily);
+                    return currDeviceFamily;
+                }
+            }
+
             return null;
+        }
+
+        public DeviceContainer GetDeviceContainerByUdid(string udid)
+        {
+            InitDeviceFamilyMapping();
+
+            if (UdidToDeviceFamilyIdMapping.ContainsKey(udid))
+            {
+                int deviceFamily = UdidToDeviceFamilyIdMapping[udid];
+                if (DeviceFamiliesMapping.ContainsKey(deviceFamily))
+                {
+                    return DeviceFamiliesMapping[deviceFamily];
+                }
+            }
+
+            // old code
+            if (m_deviceFamilies != null)
+            {
+                var currDeviceFamily = m_deviceFamilies.FirstOrDefault(x => x.DeviceInstances.Any(y => y.m_deviceUDID == udid));
+
+                if (currDeviceFamily != null)
+                {
+                    MapIdToDeviceFamily(currDeviceFamily.m_deviceFamilyID, currDeviceFamily);
+                    MapUdidToDeviceFamilyId(udid, currDeviceFamily.m_deviceFamilyID);
+
+                    return currDeviceFamily;
+                }
+            }
+
+            return null;
+        }
+        
+        private void InitDeviceFamilyMapping()
+        {
+            if (DeviceFamiliesMapping == null)
+            {
+                DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
+            }
+
+            if (UdidToDeviceFamilyIdMapping == null)
+            {
+                UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
+            }
+        }
+
+        private void MapUdidToDeviceFamilyId(string udid, int deviceFamilyId)
+        {
+            InitDeviceFamilyMapping();
+
+            if (!UdidToDeviceFamilyIdMapping.ContainsKey(udid))
+            {
+                UdidToDeviceFamilyIdMapping.Add(udid, deviceFamilyId);
+            }
+        }
+
+        private void MapIdToDeviceFamily(int deviceFamilyId, DeviceContainer deviceFamily)
+        {
+            InitDeviceFamilyMapping();
+
+            if (!DeviceFamiliesMapping.ContainsKey(deviceFamilyId))
+            {
+                DeviceFamiliesMapping.Add(deviceFamilyId, deviceFamily);
+            }
         }
 
         /// <summary>
@@ -1774,7 +1928,7 @@ namespace Core.Users
 
                     if (AddDeviceToContainer(device))
                     {
-                        MapDeviceToFamily(device);
+                        MapUdidToDeviceFamilyId(device.m_deviceUDID, device.m_deviceFamilyID);
                         IncrementDeviceCount(device);
                     }
 
@@ -1791,25 +1945,17 @@ namespace Core.Users
         {
             if (device.IsActivated())
             {
-                if (m_oDeviceFamiliesMapping.ContainsKey(device.m_deviceFamilyID) && !m_oDeviceFamiliesMapping[device.m_deviceFamilyID].IsUnlimitedQuantity())
+                if (DeviceFamiliesMapping.ContainsKey(device.m_deviceFamilyID) && !DeviceFamiliesMapping[device.m_deviceFamilyID].IsUnlimitedQuantity())
                 {
                     m_totalNumOfDevices++;
                 }
             }
         }
-
-        private void MapDeviceToFamily(Device device)
-        {
-            if (!m_oUDIDToDeviceFamilyMapping.ContainsKey(device.m_deviceUDID))
-            {
-                m_oUDIDToDeviceFamilyMapping.Add(device.m_deviceUDID, device.m_deviceFamilyID);
-            }
-        }
-
+        
         private bool AddDeviceToContainer(Device device)
         {
             bool res = false;
-            DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
+            DeviceContainer dc = GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
             if (dc != null)
             {
                 if (!dc.DeviceInstances.Contains(device))
@@ -1842,59 +1988,70 @@ namespace Core.Users
             return res;
         }
 
-        private Dictionary<int, int> GetConcurrentCount(long lDomainID, string sUDID, ref int nTotalConcurrentStreamsWithoutGivenDevice)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="udid"></param>
+        /// <param name="totalConcurrentStreamsWithoutGivenDevice"></param>
+        /// <returns>Dictionary with key: deviceFamilyId, value: amount of devices</returns>
+        public Dictionary<int, int> GetConcurrentCount(string udid, ref int totalConcurrentStreamsWithoutGivenDevice)
         {
-            Dictionary<int, int> res = null;
-            List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA, ePlayType.EPG });
-
-            if (positions != null)
+            Dictionary<int, int> concurrentCount = null;
+            List<DevicePlayData> devicePlayData =
+                    CatalogDAL.GetDomainPlayDataList(this.m_nDomainID, 
+                                                 new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG }, 
+                                                 Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+            if (devicePlayData != null)
             {
-                res = new Dictionary<int, int>();
-                nTotalConcurrentStreamsWithoutGivenDevice = positions.Where(x => !x.UDID.Equals(sUDID) && x.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).Count();
-                var filteredPositions = positions.Where(x => !x.UDID.Equals(sUDID));
-                if (filteredPositions != null)
+                concurrentCount = new Dictionary<int, int>();
+                var filteredDevicePlayData = devicePlayData.Where(x => !x.UDID.Equals(udid));
+                
+                if (filteredDevicePlayData != null)
                 {
-                    foreach (UserMediaMark umm in filteredPositions)
+                    totalConcurrentStreamsWithoutGivenDevice = 
+                        filteredDevicePlayData.Count(x => x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+
+                    foreach (DevicePlayData userMediaMark in filteredDevicePlayData)
                     {
                         int nDeviceFamilyID = 0;
-                        if (!m_oUDIDToDeviceFamilyMapping.TryGetValue(umm.UDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
+                        if (!UdidToDeviceFamilyIdMapping.TryGetValue(userMediaMark.UDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
                         {
                             // the device family id does not exist in Domain cache. Grab it from DB.
-                            int nDeviceBrandID = 0;
-                            nDeviceFamilyID = DeviceDal.GetDeviceFamilyID(m_nGroupID, umm.UDID, ref nDeviceBrandID);
+                            nDeviceFamilyID = userMediaMark.DeviceFamilyId;
+
                             if (nDeviceFamilyID > 0)
                             {
-                                m_oUDIDToDeviceFamilyMapping.Add(umm.UDID, nDeviceFamilyID);
+                                UdidToDeviceFamilyIdMapping.Add(userMediaMark.UDID, nDeviceFamilyID);
                             }
                         }
+
                         if (nDeviceFamilyID > 0)
                         {
                             if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, nDeviceFamilyID))
                             {
                                 // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
-                                if (res.ContainsKey(nDeviceFamilyID))
+                                if (concurrentCount.ContainsKey(nDeviceFamilyID))
                                 {
                                     // increment by one
-                                    res[nDeviceFamilyID]++;
+                                    concurrentCount[nDeviceFamilyID]++;
                                 }
                                 else
                                 {
                                     // add the device family id to dictionary
-                                    res.Add(nDeviceFamilyID, 1);
+                                    concurrentCount.Add(nDeviceFamilyID, 1);
                                 }
                             }
                             else
                             {
                                 // agnostic to device limitation, decrement total streams count by one.
-                                nTotalConcurrentStreamsWithoutGivenDevice--;
+                                totalConcurrentStreamsWithoutGivenDevice--;
                             }
                         }
                     } // end foreach
                 }
             }
 
-            return res;
+            return concurrentCount;
         }
 
         private DomainResponseStatus CheckUserLimit(int nDomainID, int nUserGuid)
@@ -1921,19 +2078,19 @@ namespace Core.Users
         private Device GetDomainDevice(string udid, ref DeviceContainer cont)
         {
             #region New part
-            Device retVal = null;
-            if (m_oUDIDToDeviceFamilyMapping.ContainsKey(udid) && m_oDeviceFamiliesMapping.ContainsKey(m_oUDIDToDeviceFamilyMapping[udid]))
+
+            Device retDevice = null;
+            if (UdidToDeviceFamilyIdMapping.ContainsKey(udid) && DeviceFamiliesMapping.ContainsKey(UdidToDeviceFamilyIdMapping[udid]))
             {
-                DeviceContainer dc = m_oDeviceFamiliesMapping[m_oUDIDToDeviceFamilyMapping[udid]];
-                foreach (Device device in dc.DeviceInstances)
+                DeviceContainer dc = DeviceFamiliesMapping[UdidToDeviceFamilyIdMapping[udid]];
+
+                retDevice = dc.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID.Equals(udid));
+                if (retDevice != null)
                 {
-                    if (device.m_deviceUDID.Equals(udid))
-                    {
-                        retVal = device;
-                        cont = dc;
-                        return device;
-                    }
+                    cont = dc;
                 }
+
+                return retDevice;
             }
 
             #endregion
@@ -1945,35 +2102,38 @@ namespace Core.Users
                     {
                         foreach (Device device in container.DeviceInstances)
                         {
-                            if (device.m_deviceUDID.Equals(udid))
+                            retDevice = container.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID.Equals(udid));
+                            if (retDevice != null)
                             {
-                                retVal = device;
                                 cont = container;
-                                break;
                             }
+
+                            return retDevice;
                         }
                     }
                 }
             }
 
-            return retVal;
+            return retDevice;
         }
 
-        private bool IsAgnosticToDeviceLimitation(ValidationType vt, int deviceFamilyID)
+        public bool IsAgnosticToDeviceLimitation(ValidationType validationType, int deviceFamilyId)
         {
             bool res = false;
-            switch (vt)
+            switch (validationType)
             {
                 case ValidationType.Concurrency:
                     {
-                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID)
-                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedConcurrency();
+                        res = DeviceFamiliesMapping != null && 
+                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) && 
+                            DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedConcurrency();
                         break;
                     }
                 case ValidationType.Quantity:
                     {
-                        res = m_oDeviceFamiliesMapping != null && m_oDeviceFamiliesMapping.ContainsKey(deviceFamilyID)
-                            && m_oDeviceFamiliesMapping[deviceFamilyID].IsUnlimitedQuantity();
+                        res = DeviceFamiliesMapping != null && 
+                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) && 
+                            DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedQuantity();
                         break;
                     }
                 default:
@@ -2041,10 +2201,10 @@ namespace Core.Users
             }
 
             //Check if exceeded limit for users
-            DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
+            DeviceContainer container = GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
 
             //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = ValidateQuantity(sDeviceUdid, device.m_deviceBrandID, container, device);
+            DomainResponseStatus responseStatus = ValidateQuantity(sDeviceUdid, device.m_deviceBrandID, ref container, ref device);
             if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
             {
                 return responseStatus;
@@ -2502,314 +2662,58 @@ namespace Core.Users
 
             return (new DomainResponseObject(this, DomainResponseStatus.UnKnown));
         }
-
-        private DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device, out bool bRemove)
-        {
-            DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
-            bRemove = false;
-            int isDevActive = 0;
-            int status = 0;
-            int tempDeviceID = 0;
-            int nDbDomainDeviceID = 0;
-
-            //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
-                {
-                    eRetVal = DomainResponseStatus.DomainSuspended;
-                    return eRetVal;
-                }
-            }
-
-            int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
-
-            // If the device is already contained in any domain
-            if (domainID != 0)
-            {
-                // If the device is already contained in ANOTHER domain
-                if (domainID != nDomainID)
-                {
-                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
-                    return eRetVal;
-                }
-                // If the device is already contained in THIS domain
-                else
-                {
-                    // Pending master approval
-                    if (status == 3 && isDevActive == 3)
-                    {
-                        DomainDevice domainDevice = new DomainDevice()
-                        {
-                            Id = nDbDomainDeviceID,
-                            ActivataionStatus = DeviceState.Activated,
-                            DeviceBrandId = brandID,
-                            DeviceId = tempDeviceID,
-                            DomainId = nDomainID,
-                            Name = deviceName,
-                            Udid = sUDID,
-                            ActivatedOn = DateTime.UtcNow,
-                            GroupId = m_nGroupID,
-                            DeviceFamilyId = device.m_deviceFamilyID
-                        };
-
-                        bool updated = domainDevice.Update();
-                        if (updated)
-                        {
-                            eRetVal = DomainResponseStatus.OK;
-                            bRemove = true;
-                            device.m_domainID = nDomainID;
-                            device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID);
-                            GetDeviceList();
-
-                            return eRetVal;
-                        }
-                    }
-
-                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                    return eRetVal;
-                }
-            }
-
-            DeviceContainer container = GetDeviceContainer(device.m_deviceFamilyID);
-
-            //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = ValidateQuantity(sUDID, brandID, container, device);
-
-            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
-            {
-                eRetVal = responseStatus;
-                return eRetVal;
-            }
-
-            int isActive = 0;
-            int nDeviceID = 0;
-            // Get row id from domains_devices
-            int nDomainsDevicesID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
-
-            //New Device Domain Connection
-            if (nDomainsDevicesID == 0)
-            {
-                // Get row id from devices table (not udid)
-                device.m_domainID = nDomainID;
-                int deviceID = device.Save(1);
-                DomainDevice domainDevice = new DomainDevice()
-                {
-                    Id = nDbDomainDeviceID,
-                    ActivataionStatus = DeviceState.Activated,
-                    DeviceId = deviceID,
-                    DomainId = m_nDomainID,
-                    DeviceBrandId = brandID,
-                    ActivatedOn = DateTime.UtcNow,
-                    Udid = sUDID,
-                    GroupId = m_nGroupID,
-                    Name = deviceName,
-                    DeviceFamilyId = device.m_deviceFamilyID
-                };
-
-                bool domainDeviceInsertSuccess = domainDevice.Insert();
-
-                //int domainDeviceRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
-
-                if (domainDeviceInsertSuccess && domainDevice.Id > 0)
-                {
-                    device.m_state = DeviceState.Activated;
-                    m_oDeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
-                    m_totalNumOfDevices++;
-
-                    bRemove = true;
-                    eRetVal = DomainResponseStatus.OK;
-                }
-                else
-                {
-                    eRetVal = DomainResponseStatus.Error;
-                }
-            }
-            else
-            {
-                //Update device status if exists
-                if (isActive != 1)               // should be status != 1 ?
-                {
-                    DomainDevice domainDevice = new DomainDevice()
-                    {
-                        Id = nDomainsDevicesID,
-                        ActivataionStatus = DeviceState.Activated,
-                        DeviceId = nDeviceID,
-                        DomainId = m_nDomainID,
-                        DeviceBrandId = brandID,
-                        ActivatedOn = DateTime.UtcNow,
-                        Udid = sUDID,
-                        GroupId = m_nGroupID,
-                        DeviceFamilyId = device.m_deviceFamilyID
-                    };
-
-                    bool updated = domainDevice.Update();
-
-                    if (updated)
-                    {
-                        bRemove = true;
-                        eRetVal = DomainResponseStatus.OK;
-                        device.m_domainID = nDomainID;
-                        int deviceID = device.Save(1);
-
-                        // change the device in the container                      
-                        m_oDeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
-                    }
-                }
-                else
-                {
-                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                }
-            }
-
-            //GetDeviceList();
-
-            return eRetVal;
-        }
-
+        
         private bool IsDomainRemovedSuccessfully(int statusRes)
         {
             return statusRes == 2;
         }
-
-
-
-        /***************************************************************************************************************
-         * This method get List of Media Concurrency Rules, Domain and MediaId
-         * Get from CB all media play at the last 
-         ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateAssetConcurrency(List<int> ruleIds, long domainID, int assetID, string udid)
+        
+        /// <summary>
+        /// This method get NPVRConcurrencyLimit (int) , domain and npvrID
+        /// Get from CB all media play at the last 
+        /// </summary>
+        /// <param name="npvrConcurrencyLimit"></param>
+        /// <param name="domainId"></param>
+        /// <param name="npvr"></param>
+        /// <returns></returns>
+        internal DomainResponseStatus ValidateNpvrConcurrency(int npvrConcurrencyLimit, long domainId, string npvr)
         {
-            DomainResponseStatus response = DomainResponseStatus.OK;
-
-            log.DebugFormat("ValidateAssetConcurrency, domainId:{0}, assetId:{1}, ruleIds:{2}",
-                            domainID, assetID, string.Join(",", ruleIds));
-
             try
             {
-                // Get all domain media marks
-                List<UserMediaMark> domainMediaMarks = CatalogDAL.GetDomainLastPositions((int)domainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
-
-                if (domainMediaMarks != null)
+                if (npvrConcurrencyLimit == 0)
                 {
-                    // Get all group's media concurrency rules
-                    var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(this.m_nGroupID);
+                    // get limitation from DB ( get it from domain / group table - wait for future implementation)
+                }
 
-                    if (groupConcurrencyRules == null || groupConcurrencyRules.Count == 0)
-                        return response;
-
-                    ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
-                    int mediaConcurrencyLimit = 0;
-                    List<UserMediaMark> assetMediaMarks = null;
-
-                    foreach (int ruleId in ruleIds)
+                if (npvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+                {
+                    List<DevicePlayData> devicePlayDataList =
+                        CatalogDAL.GetDomainPlayDataList(domainId,
+                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
+                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                    
+                    if (devicePlayDataList != null)
                     {
-                        // Search for the relevant rules
-                        var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
-
-                        // If we got one from the cache/api method, we will use its dat
-                        if (mediaConcurrencyRule != null)
+                        int mediaConcurrencyCount = devicePlayDataList.Count(c => 
+                            c.NpvrId == npvr && 
+                            c.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                        if (mediaConcurrencyCount >= npvrConcurrencyLimit)
                         {
-                            mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
-                            policy = mediaConcurrencyRule.RestrictionPolicy;
-                        }
-                        // Otherwise we get the limiation from DB in the old fashion
-                        else
-                        {
-                            // get limitation from DB
-                            DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
-                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                            {
-                                mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
-                                policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
-                            }
-                        }
-
-                        if (mediaConcurrencyLimit == 0)
-                            continue;
-
-                        switch (policy)
-                        {
-                            case ConcurrencyRestrictionPolicy.Single:
-                                {
-                                    assetMediaMarks = domainMediaMarks.Where(
-                                        currentMark => !currentMark.UDID.Equals(udid) && currentMark.AssetID == assetID &&
-                                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
-                                    break;
-                                }
-                            case ConcurrencyRestrictionPolicy.Group:
-                                {
-                                    assetMediaMarks = domainMediaMarks.Where(
-                                        currentMark => !currentMark.UDID.Equals(udid) &&
-                                        currentMark.MediaConcurrencyRuleIds != null &&
-                                        currentMark.MediaConcurrencyRuleIds.Contains(ruleId) &&
-                                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
-                                    break;
-                                }
-                            default:
-                                break;
-                        }
-
-                        if (assetMediaMarks != null && assetMediaMarks.Count >= mediaConcurrencyLimit)
-                        {
-                            log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, assetId:{1}, ruleId:{2}, limit:{3}, count:{4}",
-                                domainID, assetID, ruleId, mediaConcurrencyLimit, assetMediaMarks.Count);
                             return DomainResponseStatus.MediaConcurrencyLimitation;
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - ValidateAssetConcurrency", ex);
-            }
 
-            return response;
-        }
-
-        /***************************************************************************************************************
-        * This method get NPVRConcurrencyLimit (int) , domain and npvrID
-        * Get from CB all media play at the last 
-        ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateNpvrConcurrency(int nNpvrConcurrencyLimit, long lDomainID, string sNPVR)
-        {
-            DomainResponseStatus res = DomainResponseStatus.OK;
-            try
-            {
-
-                if (nNpvrConcurrencyLimit == 0)
-                {
-                    // get limitation from DB ( get it from domain / group table - wait for future implementation)
-
-                }
-
-                if (nNpvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
-                {
-                    List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
-
-                    if (lUserMediaMark != null)
-                    {
-                        List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.NpvrID == sNPVR && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
-                        if (lMediaConcurrency != null && lMediaConcurrency.Count >= nNpvrConcurrencyLimit)
-                        {
-                            res = DomainResponseStatus.MediaConcurrencyLimitation;
-                        }
-                    }
-                }
-                return res;
+                return DomainResponseStatus.OK;
             }
             catch (Exception ex)
             {
                 log.Error("ValidateNpvrConcurrency - " + String.Concat("Failed ex={0}, nNpvrConcurrencyLimit={1}, lDomainID={2}, sNPVR={3}",
-                    ex.Message, nNpvrConcurrencyLimit, lDomainID, sNPVR), ex);
+                    ex.Message, npvrConcurrencyLimit, domainId, npvr), ex);
                 throw;
             }
         }
-
+        
         internal void SetDeviceFamiliesMapping(List<DeviceContainer> dc)
         {
             this.m_deviceFamilies = dc;
@@ -2828,9 +2732,9 @@ namespace Core.Users
                     foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                     {
                         devicesChange = new List<string>();
-                        if (m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                        if (DeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                         {
-                            currentDC = m_oDeviceFamiliesMapping[item.deviceFamily];
+                            currentDC = DeviceFamiliesMapping[item.deviceFamily];
                             if (currentDC != null && currentDC.m_oLimitationsManager != null)
                             {
                                 // quntity of the new dlm is less than the cuurent dlm only if new dlm is <> 0 (0 = unlimited)
@@ -2852,8 +2756,7 @@ namespace Core.Users
                                             //remove device notification
                                             foreach (string deviceId in devicesChange)
                                             {
-                                                Device device = null;
-                                                device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                                                Device device = currentDC.DeviceInstances.FirstOrDefault(x => x.m_id == deviceId);
                                                 if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
                                                     Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
                                             }
@@ -2864,7 +2767,7 @@ namespace Core.Users
                         }
                     }
 
-                    foreach (KeyValuePair<int, DeviceContainer> currentItem in m_oDeviceFamiliesMapping) // all keys not exsits in new DLM - Delete
+                    foreach (KeyValuePair<int, DeviceContainer> currentItem in DeviceFamiliesMapping) // all keys not exsits in new DLM - Delete
                     {
                         devicesChange = new List<string>();
                         bool bNeedToDelete = true;
@@ -2888,7 +2791,7 @@ namespace Core.Users
                                 foreach (string deviceId in devicesChange)
                                 {
                                     Device device = null;
-                                    device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                                    device = currentDC.DeviceInstances.FirstOrDefault(x => x.m_id == deviceId);
                                     if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
                                         Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
                                 }
@@ -2907,9 +2810,9 @@ namespace Core.Users
                         {
                             if (item.quantity == 0) // create list of all devices that can't be deleteed!!!!!
                             {
-                                if (m_oDeviceFamiliesMapping.ContainsKey(item.deviceFamily))
+                                if (DeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                                 {
-                                    List<Device> lDevices = m_oDeviceFamiliesMapping[item.deviceFamily].DeviceInstances;
+                                    List<Device> lDevices = DeviceFamiliesMapping[item.deviceFamily].DeviceInstances;
                                     lDevicesID.AddRange(lDevices.Select(x => int.Parse(x.m_id)));
                                 }
                             }
@@ -3009,12 +2912,12 @@ namespace Core.Users
             m_PendingUsersIDs = new List<int>();
             m_DefaultUsersIDs = new List<int>();
 
-            DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, this.m_nMasterGuID, this.m_nMasterGuID, UserDomainType.Master);
+            DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, this.MasterGuID, this.MasterGuID, UserDomainType.Master);
 
             if (res == DomainResponseStatus.OK)
             {
                 m_UsersIDs = new List<int>();
-                m_UsersIDs.Add(this.m_nMasterGuID);
+                m_UsersIDs.Add(this.MasterGuID);
                 m_totalNumOfUsers++;
                 success = true;
             }

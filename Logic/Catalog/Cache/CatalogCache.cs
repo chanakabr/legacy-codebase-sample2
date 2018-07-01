@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using CachingProvider;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
@@ -36,7 +37,7 @@ namespace Core.Catalog.Cache
 
         private string GetCacheName()
         {
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue("CACHE_NAME");
+            string res = ApplicationConfiguration.CatalogCacheConfiguration.Name.Value;
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -44,15 +45,14 @@ namespace Core.Catalog.Cache
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = 0;
-            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            uint result = (uint)ApplicationConfiguration.CatalogCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
 
-            return DEFAULT_TIME_IN_CACHE_SECONDS;
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)

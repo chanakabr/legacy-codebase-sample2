@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -38,17 +39,16 @@ namespace Core.Notification
         private const int MIN_TIME_FOR_START_TIME_SECONDS = 30;
 
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
+        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
 
         private const string ANNOUNCEMENT_NOT_FOUND = "Announcement Not Found";
         private const string ANNOUNCEMENT_QUEUE_NAME_FORMAT = @"Announcement_{0}_{1}"; // Announcement_{GID}_{AnnID}
 
 
-        private static string outerPushDomainName = ODBCWrapper.Utils.GetTcmConfigValue("PushDomainName");
-        private static string outerPushServerSecret = ODBCWrapper.Utils.GetTcmConfigValue("PushServerKey");
-        private static string outerPushServerIV = ODBCWrapper.Utils.GetTcmConfigValue("PushServerIV");
+        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
+        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
 
-        //private static string PushNotificationQueueTTLMilliSec = ODBCWrapper.Utils.GetTcmConfigValue("PushNotificationQueueTTLMilliSec");
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;
 
         public const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
@@ -282,7 +282,7 @@ namespace Core.Notification
             DbAnnouncement announcement = null;
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
-                announcement = announcements.Where(x => x.ID == announcementId).FirstOrDefault();
+                announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
 
             if (announcement == null)
             {
@@ -579,7 +579,7 @@ namespace Core.Notification
                     return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests) == null)
                 {
                     // create guest topic
                     announcementName = "Guest";
@@ -598,7 +598,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn) == null)
                 {
                     // create logged-in topic
                     announcementName = "LoggedIn";
@@ -618,7 +618,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail) == null)
                 {
                     announcementName = "Mail";
                     string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
@@ -635,7 +635,7 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault() == null)
+                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms) == null)
                 {
                     announcementName = "Sms";
                     string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
@@ -778,7 +778,7 @@ namespace Core.Notification
                     {
                         DbAnnouncement announcementGuest = null;
                         if (announcements != null)
-                            announcementGuest = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
+                            announcementGuest = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
                         if (announcementGuest != null)
                             topicExternalIds.Add(announcementGuest.ExternalId);
@@ -810,7 +810,7 @@ namespace Core.Notification
                         // get topic push external id's of logged-in users
                         DbAnnouncement announcementLoggedIn = null;
                         if (announcements != null)
-                            announcementLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault();
+                            announcementLoggedIn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
 
                         if (announcementLoggedIn != null)
                             topicExternalIds.Add(announcementLoggedIn.ExternalId);
@@ -1021,7 +1021,7 @@ namespace Core.Notification
             DbAnnouncement smsAnnouncement = null;
 
             if (announcements != null)
-                smsAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault();
+                smsAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms);
 
             if (smsAnnouncement != null)
             {
@@ -1050,7 +1050,7 @@ namespace Core.Notification
             DbAnnouncement mailAnnouncement = null;
 
             if (announcements != null)
-                mailAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
+                mailAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail);
 
             if (mailAnnouncement != null)
             {
@@ -1382,8 +1382,7 @@ namespace Core.Notification
                 // add  amountOfSubscribers to announcements result
                 SetAmountOfSubscibers(groupId, ref response);
 
-                response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -1415,7 +1414,7 @@ namespace Core.Notification
 
         public static Status CreateNextNotificationCleanupIteration(eSetupTask task, DateTime nextIteration)
         {
-            Status result = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             var queue = new SetupTasksQueue();
             CelerySetupTaskData data;
             switch (task)
@@ -1470,7 +1469,7 @@ namespace Core.Notification
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
 
             if (announcements != null)
-                announcement = announcements.Where(x => x.ID == announcementId).FirstOrDefault();
+                announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
 
             if (announcement == null)
             {
@@ -1537,7 +1536,7 @@ namespace Core.Notification
             }
 
             // get logged-in announcement
-            var loggedInAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault();
+            var loggedInAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
             int loggedAnnouncementId = 0;
             if (loggedInAnnouncement != null)
                 loggedAnnouncementId = loggedInAnnouncement.ID;
@@ -1548,7 +1547,7 @@ namespace Core.Notification
             string queueName = string.Format(ANNOUNCEMENT_QUEUE_NAME_FORMAT, groupId, loggedAnnouncementId);
 
             // get relevant announcement
-            var announcement = announcements.Where(x => x.ID == loggedAnnouncementId).FirstOrDefault();
+            var announcement = announcements.FirstOrDefault(x => x.ID == loggedAnnouncementId);
             if (announcement == null)
             {
                 log.ErrorFormat("GetPushWebParams: announcement not found. id: {0}.", loggedAnnouncementId);

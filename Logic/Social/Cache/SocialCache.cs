@@ -1,4 +1,5 @@
 ﻿using CachingProvider;
+using ConfigurationManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,13 +61,14 @@ namespace Core.Social.Cache
 
         private static double GetDocTTLSettings()
         {
-            double nResult;
-            if (!double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("socialCacheDocTimeout"), out nResult))
+            double result = ApplicationConfiguration.SocialCacheDocTimeout.DoubleValue;
+
+            if (ApplicationConfiguration.SocialCacheDocTimeout.DoubleValue <= 0)
             {
-                nResult = 1440.0;
+                result = 1440.0;
             }
 
-            return nResult;
+            return result;
         }
     }
 }

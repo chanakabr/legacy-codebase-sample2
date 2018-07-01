@@ -14,12 +14,13 @@ namespace Core.Users
         [XmlIgnore]
         [JsonProperty()]
         private List<Device> m_DeviceInstances;
+
         [JsonProperty()]
         public string m_deviceFamilyName;
+
         [JsonProperty()]
         public int m_deviceFamilyID;
        
-
         [JsonIgnore]
         public int m_deviceLimit;
         

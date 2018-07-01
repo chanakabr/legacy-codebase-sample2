@@ -59,6 +59,16 @@ namespace ApiObjects.SearchObjects
         public bool isFree;
 
         /// <summary>
+        /// country IDs in which the media is allowed in
+        /// </summary>
+        public List<int> allowedCountries;
+
+        /// <summary>
+        /// country IDs in which the media is blocked in
+        /// </summary>
+        public List<int> blockedCountries;
+
+        /// <summary>
         /// EPG identifier (if this is a linear channel)
         /// </summary>
         public string epgIdentifier;
@@ -104,6 +114,8 @@ namespace ApiObjects.SearchObjects
             epgIdentifier = null;
             CoGuid = string.Empty;
             EntryId = string.Empty;
+            allowedCountries = new List<int>();
+            blockedCountries = new List<int>();
         }
 
         #endregion
@@ -138,11 +150,12 @@ namespace ApiObjects.SearchObjects
                 epgIdentifier = this.epgIdentifier,
                 isFree = this.isFree,
                 CoGuid = this.CoGuid,
-                EntryId = this.EntryId
+                EntryId = this.EntryId,
+                allowedCountries = this.allowedCountries,
+                blockedCountries = this.blockedCountries
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
-
             clone.m_dTagValues = new Dictionary<string, HashSet<string>>();
 
             foreach (string tagName in this.m_dTagValues.Keys)
@@ -151,7 +164,6 @@ namespace ApiObjects.SearchObjects
             }
 
             clone.regions.AddRange(this.regions);
-
             clone.freeFileTypes = new List<int>();
             clone.freeFileTypes.AddRange(this.freeFileTypes);
 

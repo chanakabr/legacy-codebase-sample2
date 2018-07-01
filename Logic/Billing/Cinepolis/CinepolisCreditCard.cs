@@ -1,14 +1,11 @@
-﻿using System;
+﻿using ApiObjects.Billing;
+using DAL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using DAL;
-using System.Net;
-using System.IO;
-using TVinciShared;
-using KLogMonitor;
 using System.Reflection;
-using ApiObjects.Billing;
+using System.Text;
 
 namespace Core.Billing
 {
@@ -145,8 +142,8 @@ namespace Core.Billing
             ref int nInternalCode, ref string sKlicOperationID)
         {
             bool res = false;
-            string sAddress = Utils.GetWSURL("CinepolisChargeUserAddress");
-            string sContentType = Utils.GetWSURL("CinepolisPostRequestContentType");
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisChargeUserAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // no valid data in config

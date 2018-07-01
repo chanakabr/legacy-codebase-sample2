@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -43,7 +44,7 @@ namespace Core.ConditionalAccess
 
             int releventCollectionID = ExtractRelevantCollectionID(itemPriceContainer);
             cas.HandleCouponUses(itemPriceContainer.m_relevantSub, itemPriceContainer.m_sPPVModuleCode, userId, itemPriceContainer.m_oPrice.m_dPrice,
-                                itemPriceContainer.m_oPrice.m_oCurrency.m_sCurrencyCD3, mediaFileId, couponCode, ip, countryCode, languageCode, udid, false, 0, releventCollectionID);
+                                itemPriceContainer.m_oPrice.m_oCurrency.m_sCurrencyCD3, mediaFileId, couponCode, ip, countryCode, languageCode, udid, false, 0, releventCollectionID, domainId);
             Int32 nRelPP = ExtractRelevantPrePaidID(itemPriceContainer);
             List<Task> tasks = new List<Task>();
             ContextData contextData = new ContextData();
@@ -501,7 +502,7 @@ namespace Core.ConditionalAccess
                 isCreditDownloaded = true;
             }
 
-            if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+            if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
             {
                 // update lastUseWithCredit value according to nIsCreditDownloaded
                 lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;
@@ -686,7 +687,7 @@ namespace Core.ConditionalAccess
             Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, groupId);
 
             string sCustomData = cas.GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode,
-                sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
             DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
             purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(groupId, nMediaFileID, sSiteGUID, dPrice, sCurrency,

@@ -1,7 +1,6 @@
 ﻿using APILogic.AmazonSnsAdapter;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +13,17 @@ namespace Core.Notification.Adapters
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static string CreateAnnouncement(int groupId, string announcementName)
+        public static string CreateAnnouncement(int groupId, string announcementName, bool isUniqueName = false)
         {
-            // create Amazon topic name (without special characters + GID)
-            announcementName = string.Format("{0}_{1}", Utils.Base64ForUrlEncode(announcementName), groupId);
+            // create Amazon topic name (without special characters + announcemenId + GID)
+            if (isUniqueName)
+            {
+                announcementName = string.Format("{0}_{1}_{2}", Utils.Base64ForUrlEncode(announcementName), Guid.NewGuid().ToString(), groupId);
+            }
+            else
+            {
+                announcementName = string.Format("{0}_{1}", Utils.Base64ForUrlEncode(announcementName), groupId);
+            }
 
             string externalAnnouncementId = string.Empty;
 
@@ -34,14 +40,14 @@ namespace Core.Notification.Adapters
 
                         externalAnnouncementId = client.CreateTopic(announcementName);
                         if (string.IsNullOrEmpty(externalAnnouncementId))
-                            log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
+                            log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, isUniqueName: {1}", announcementName, isUniqueName);
                         else
-                            log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
+                            log.DebugFormat("successfully created announcement. announcement Name: {0}, isUniqueName: {1}", announcementName, isUniqueName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, ex: {1}", announcementName, ex);
+                    log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, isUniqueName: {1}, ex: {2}", announcementName, isUniqueName, ex);
                 }
             }
             return externalAnnouncementId;
@@ -163,7 +169,7 @@ namespace Core.Notification.Adapters
             return result;
         }
 
-        public static string PublishToAnnouncement(int groupId,string externalAnnouncementId, string subject, MessageData message)
+        public static string PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
         {
             string messageId = string.Empty;
 
@@ -193,7 +199,7 @@ namespace Core.Notification.Adapters
             return messageId;
         }
 
-        public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId,WSEndPointPublishData publishData)
+        public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId, WSEndPointPublishData publishData)
         {
             List<WSEndPointPublishDataResult> publishResult = new List<WSEndPointPublishDataResult>();
 
@@ -333,6 +339,34 @@ namespace Core.Notification.Adapters
                 }
             }
             return result;
+        }
+
+        public static bool SendSms(int groupId, string message, string phoneNumber)
+        {
+            bool success = false;
+
+            // validate notification URL exists
+            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+                log.Error("Notification URL wasn't found");
+            else
+            {
+                try
+                {
+                    using (ServiceClient client = new ServiceClient())
+                    {
+                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+
+                        success = client.SendSms(message, phoneNumber);
+
+                        log.DebugFormat("Send Sms to phoneNumber: {0}, success: {1}, message: {2}", phoneNumber, success, message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to send SMS . ex {0}", ex);
+                }
+            }
+            return success;
         }
     }
 }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -26,11 +27,9 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly uint DEFAULT_TIME_IN_CACHE_MINUTES = 3600; // 1 hours
+        private static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 216000; // 1 hours
         private static readonly double SHORT_IN_CACHE_MINUTES = 3d; // 3 minutes
         private static readonly string DEFAULT_CACHE_NAME = "NotificationCache";
-        private static readonly string TCM_CACHE_CONFIG_NAME = "CACHE_NAME";
-        private static readonly string TCM_CACHE_TIME_IN_MINUTES = "CACHE_TIME_IN_MINUTES";
         protected const string CACHE_KEY = "NOTIFICATION";
 
         private static object locker = new object();
@@ -68,7 +67,7 @@ namespace Core.Notification
 
         private string GetCacheName()
         {
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue(TCM_CACHE_CONFIG_NAME);
+            string res = ApplicationConfiguration.NotificationCacheConfiguration.Name.Value;
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -76,15 +75,14 @@ namespace Core.Notification
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = 0;
-            string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue(TCM_CACHE_TIME_IN_MINUTES);
-            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            uint result = (uint)ApplicationConfiguration.NotificationCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
 
-            return DEFAULT_TIME_IN_CACHE_MINUTES;
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
@@ -280,10 +278,10 @@ namespace Core.Notification
                     NotificationDal.GetEpisodeAssociationTag(groupId, out associationTagName, out mediaTypeId);
 
                     if (!string.IsNullOrEmpty(associationTagName))
-                        Set(tagNameKey, associationTagName, DEFAULT_TIME_IN_CACHE_MINUTES);
+                        Set(tagNameKey, associationTagName, DEFAULT_TIME_IN_CACHE_SECONDS);
 
                     if (mediaTypeId != 0)
-                        Set(mediaTypeIdKey, mediaTypeId.ToString(), DEFAULT_TIME_IN_CACHE_MINUTES);
+                        Set(mediaTypeIdKey, mediaTypeId.ToString(), DEFAULT_TIME_IN_CACHE_SECONDS);
                 }
             }
             catch (Exception ex)
@@ -310,10 +308,10 @@ namespace Core.Notification
                     NotificationDal.GetEpisodeAssociationTag(groupId, out associationTagName, out mediaTypeId);
 
                     if (!string.IsNullOrEmpty(associationTagName))
-                        Set(tagNameKey, associationTagName, DEFAULT_TIME_IN_CACHE_MINUTES);
+                        Set(tagNameKey, associationTagName, DEFAULT_TIME_IN_CACHE_SECONDS);
 
                     if (mediaTypeId != 0)
-                        Set(mediaTypeIdKey, mediaTypeId.ToString(), DEFAULT_TIME_IN_CACHE_MINUTES);
+                        Set(mediaTypeIdKey, mediaTypeId.ToString(), DEFAULT_TIME_IN_CACHE_SECONDS);
                 }
             }
             catch (Exception ex)

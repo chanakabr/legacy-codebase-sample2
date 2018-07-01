@@ -215,13 +215,13 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateAssetStructResponseStatusFromResult(id);
+                        response.SetStatus(CreateAssetStructResponseStatusFromResult(id));
                     }
                 }
                 /// assetStruct does not exist
                 else
                 {
-                    response.Status = CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString()));
+                    response.SetStatus(CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString())));
                 }
 
                 if (response.Object != null && ds.Tables.Count == 3)
@@ -243,7 +243,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Object != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
@@ -410,14 +410,14 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        response.SetStatus(CreateTopicResponseStatusFromResult(id));
                         return response;
                     }
                 }
 
                 if (response.Object != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
@@ -500,24 +500,24 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTagResponseStatusFromResult(id);
+                        response.SetStatus(CreateTagResponseStatusFromResult(id));
                         return response;
                     }
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
                 if (response.Objects != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             else
             {
-                response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
             }
 
             return response;
@@ -794,7 +794,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Objects = response.Objects.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -824,7 +824,7 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects = response.Objects.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
                     }
 
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -849,7 +849,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
+                    result.SetStatus(eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
                     return result;
                 }
 
@@ -857,7 +857,7 @@ namespace Core.Catalog.CatalogManagement
                 Status validateBasicMetasResult = ValidateBasicMetaIds(catalogGroupCache, assetStructToadd);
                 if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = validateBasicMetasResult;
+                    result.SetStatus(validateBasicMetasResult);
                     return result;
                 }
 
@@ -865,8 +865,8 @@ namespace Core.Catalog.CatalogManagement
                 List<long> noneExistingMetaIds = assetStructToadd.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
                 if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                 {
-                    result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
-                                                                                            eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                    result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
+                                                                                        eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                     return result;
                 }
 
@@ -916,14 +916,14 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
                 }
 
                 AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
                 if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null && assetStruct.SystemName != assetStructToUpdate.SystemName)
                 {
-                    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
+                    result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
                 }
                 
@@ -934,7 +934,7 @@ namespace Core.Catalog.CatalogManagement
                     Status validateBasicMetasResult = ValidateBasicMetaIds(catalogGroupCache, assetStructToUpdate);
                     if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                     {
-                        result.Status = validateBasicMetasResult;
+                        result.SetStatus(validateBasicMetasResult);
                         return result;
                     }
 
@@ -942,7 +942,7 @@ namespace Core.Catalog.CatalogManagement
                     List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
-                        result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
+                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
                                                                                                 eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                         return result;
                     }
@@ -1117,7 +1117,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Objects = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -1151,7 +1151,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -1176,7 +1176,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
                 {
-                    result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
+                    result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     return result;
                 }
 
@@ -1216,7 +1216,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
-                    result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
                 }
                 
@@ -1568,7 +1568,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
                 GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = CreateTagListResponseFromDataSet(ds);
                 result.Object = tagListResponse.Objects.FirstOrDefault();
-                result.Status = tagListResponse.Status;
+                result.SetStatus(tagListResponse.Status);
 
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1576,7 +1576,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.Object);
+                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
             }
             catch (Exception ex)
             {
@@ -1594,7 +1594,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 GenericListResponse<ApiObjects.SearchObjects.TagValue> tagByIdListResponse = GetTagListResponseById(groupId, id);
                 result.Object = tagByIdListResponse.Objects.FirstOrDefault();
-                result.Status = tagByIdListResponse.Status;
+                result.SetStatus(tagByIdListResponse.Status);
 
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1635,7 +1635,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
                 tagByIdListResponse = CreateTagListResponseFromDataSet(ds);
                 result.Object = tagByIdListResponse.Objects.FirstOrDefault();
-                result.Status = tagByIdListResponse.Status;
+                result.SetStatus(tagByIdListResponse.Status);
 
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1648,7 +1648,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.Object);
+                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
 
             }
             catch (Exception ex)
@@ -1668,7 +1668,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagId);
                 tagResponse.Object = tagListResponse.Objects.FirstOrDefault();
-                tagResponse.Status = tagListResponse.Status;
+                tagResponse.SetStatus(tagListResponse.Status);
 
                 if (tagResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -1787,7 +1787,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             result.TotalItems = totalItemsCount;
 
             return result;
@@ -1808,13 +1808,13 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
-                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return response;
                 }
 
                 if (!catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds.Contains(MetaId))
                 {
-                    response.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return response;
                 }
 
@@ -1828,7 +1828,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Object = assetStructMetaList.FirstOrDefault();
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
             }
             catch (Exception ex)
@@ -1870,13 +1870,13 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
                     DataTable dt = CatalogDAL.GetAssetStructMetaList(groupId, metaId.Value);
                     response.Objects = CreateAssetStructMetaListFromDT(dt);
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)

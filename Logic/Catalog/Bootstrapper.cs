@@ -32,7 +32,7 @@ namespace Core.Catalog
                             // Create the container
 
                             container = new Container();
-                            Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
+                            Type searcherType = typeof(ElasticsearchWrapper); // old code: Type.GetType(Utils.GetWSURL("media_searcher"));
 
                             // Register your types, for instance:
                             container.Register(typeof(ISearcher), searcherType);
@@ -51,12 +51,7 @@ namespace Core.Catalog
                 log.Error("Catalog - " + String.Concat("Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
             }
         }
-
-        public static object GetInstance(Type serviceType)
-        {
-            Bootstrap();
-            return container.GetInstance(serviceType);
-        }
+        
         public static T GetInstance<T>() where T : class
         {
             Bootstrap();

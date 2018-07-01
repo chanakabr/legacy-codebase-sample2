@@ -40,12 +40,12 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    response.Status = CreateImageTypeResponseStatusFromResult(id);
+                    response.SetStatus(CreateImageTypeResponseStatusFromResult(id));
                 }
 
                 if (response.Object != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
@@ -385,7 +385,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return response;
         }
@@ -422,7 +422,7 @@ namespace Core.Catalog.CatalogManagement
                     GenericListResponse<Image> imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToAdd.DefaultImageId.Value });
                     if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK ||imageList.Objects == null || imageList.Objects.Count != 1)
                     {
-                        result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
+                        result.SetStatus(eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
                         return result;
                     }
                 }
@@ -518,13 +518,13 @@ namespace Core.Catalog.CatalogManagement
                     GenericListResponse<Image> imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToUpdate.DefaultImageId.Value });
                     if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Objects == null || imageList.Objects.Count != 1)
                     {
-                        result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
+                        result.SetStatus(eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
                         return result;
                     }
 
                     if (imageList.Objects[0].ImageTypeId != id)
                     {
-                        result.Status = new Status((int)eResponseStatus.DefaultImageInvalidImageType, eResponseStatus.DefaultImageInvalidImageType.ToString());
+                        result.SetStatus(eResponseStatus.DefaultImageInvalidImageType, eResponseStatus.DefaultImageInvalidImageType.ToString());
                         return result;
                     }
                 }
@@ -532,21 +532,21 @@ namespace Core.Catalog.CatalogManagement
                 GenericListResponse<ImageType> imageTypeListResponse = GetImageTypes(groupId, true, null);
                 if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.Objects == null) || (imageTypeListResponse.Objects.Count == 0))
                 {
-                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    result.SetStatus(eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
                     return result;
                 }
 
                 ImageType cachedImageType = imageTypeListResponse.Objects.Where(x => x.Id == id).FirstOrDefault();
                 if (cachedImageType == null)
                 {
-                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    result.SetStatus(eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
                     return result;
                 }
 
                 cachedImageType = imageTypeListResponse.Objects.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
                 if (cachedImageType != null)
                 {
-                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
+                    result.SetStatus(eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());
                     return result;
                 }
 
@@ -587,7 +587,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (imageTypes != null)
             {
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.TotalItems = imageTypes.Count;
 
                 if (ids == null || ids.Count == 0)
@@ -621,7 +621,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (response.Objects != null)
             {
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.TotalItems = response.Objects.Count;
             }
 
@@ -705,7 +705,7 @@ namespace Core.Catalog.CatalogManagement
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
-                        result.Status = new Status(asset.Status.Code, "Asset not found");
+                        result.SetStatus(asset.Status.Code, "Asset not found");
                         return result;
                     }
                 }
@@ -717,7 +717,7 @@ namespace Core.Catalog.CatalogManagement
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);
-                        result.Status = new Status(channel.Status.Code, "Channel not found");
+                        result.SetStatus(channel.Status.Code, "Channel not found");
                         return result;
                     }
                 }
@@ -725,7 +725,7 @@ namespace Core.Catalog.CatalogManagement
                 ImageType imageType = GetImageType(groupId, imageToAdd.ImageTypeId);
                 if (imageType == null)
                 {
-                    result.Status = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
                     return result;
                 }
 
@@ -745,17 +745,17 @@ namespace Core.Catalog.CatalogManagement
                                 GenericResponse<ImageType> imageTypeResult = UpdateImageType(groupId, result.Object.ImageTypeId,
                                     new ImageType() { DefaultImageId = result.Object.Id }, userId);
 
-                                result.Status = imageTypeResult.Status;
+                                result.SetStatus(imageTypeResult.Status);
                             }
                             else
                             {
-                                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                             }
                         }
                     }
                     else
                     {
-                        result.Status = new Status((int)eResponseStatus.ImageTypeAlreadyInUse, "Image type already in use for object");
+                        result.SetStatus(eResponseStatus.ImageTypeAlreadyInUse, "Image type already in use for object");
                     }
                 }
             }

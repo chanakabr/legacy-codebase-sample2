@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using Newtonsoft.Json;
+﻿using ApiObjects;
+using ApiObjects.Billing;
 using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Web;
-using KLogMonitor;
-using System.Reflection;
-using System.ServiceModel;
-using ApiObjects;
-using ApiObjects.Billing;
 
 namespace Core.Billing
 {
@@ -27,8 +23,8 @@ namespace Core.Billing
         {
             bool res = false;
 
-            string sAddress = Utils.GetValFromConfig("CinepolisOperationConfirmAddress");
-            string sContentType = Utils.GetValFromConfig("CinepolisPostRequestContentType");
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // either address or content type retrieved from config is empty
@@ -337,7 +333,7 @@ namespace Core.Billing
                 if (res.Equals(corruptedDate))
                     res = DateTime.UtcNow;
             }
-            string sGMTOffset = Utils.GetWSURL(string.Format("GMTOffset_{0}", lGroupID.ToString()));
+            string sGMTOffset = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("GMTOffset_{0}", lGroupID.ToString()));
             if (sGMTOffset.Length > 0 && Int32.TryParse(sGMTOffset, out hoursOffset))
                 return res.AddHours(hoursOffset).ToString("dd/MM/yyyy");
             return res.ToString("dd/MM/yyyy");

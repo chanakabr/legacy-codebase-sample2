@@ -1,21 +1,18 @@
 
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using ApiObjects;
-using ApiObjects.Epg;
-using DAL;
-using KLogMonitor;
-using Core.Pricing;
-using Core.Billing;
-using Core.Users;
+using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
-using ApiObjects.Billing;
+using ApiObjects.Epg;
+using ConfigurationManager;
+using Core.Pricing;
+using Core.Users;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
 namespace Core.ConditionalAccess
 {
@@ -141,7 +138,7 @@ namespace Core.ConditionalAccess
 
 
             // Check coupon validity
-            if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+            if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, nDomainID))
             {
                 ret.m_oStatus = BillingResponseStatus.Fail;
                 ret.m_sRecieptCode = string.Empty;
@@ -217,13 +214,8 @@ namespace Core.ConditionalAccess
                     return ret;
                 }
 
-
                 // Check user's entitlement via 3SS interface
-                bool skip3SSCheck = false;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue("SKIP_3SS_CHECK") != string.Empty)
-                {
-                    skip3SSCheck = bool.Parse(TVinciShared.WS_Utils.GetTcmConfigValue("SKIP_3SS_CHECK"));
-                }
+                bool skip3SSCheck = ApplicationConfiguration.EutelsatSettings.Skip3SSCheck.Value;
 
                 if (!skip3SSCheck)
                 {
@@ -249,12 +241,12 @@ namespace Core.ConditionalAccess
                 {
                     if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                     {
-                            sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
+                        sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                     }
 
                     //Create the Custom Data
                     sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
+                                                sCountryCd, sLANGUAGE_CODE, sDeviceUDID, nDomainID);
                     log.Debug("CustomData - " + sCustomData);
 
 
@@ -263,7 +255,7 @@ namespace Core.ConditionalAccess
 
                 if (ret.m_oStatus == BillingResponseStatus.Success)
                 {
-                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0);
+                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0, uObj.m_user.m_domianID);
 
                     int transactionID = int.Parse(ret.m_sRecieptCode);
 
@@ -299,11 +291,7 @@ namespace Core.ConditionalAccess
 
                     // If device is portal (3SS), do NOT notify!
                     //
-                    string transDeviceFilter = string.Empty;
-                    if (TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter") != string.Empty)
-                    {
-                        transDeviceFilter = TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter");
-                    }
+                    string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
 
                     if (!string.IsNullOrEmpty(sDeviceUDID) && (!sDeviceUDID.Contains(transDeviceFilter)))
                     {
@@ -380,9 +368,9 @@ namespace Core.ConditionalAccess
             EutelsatTransactionResponse res = new EutelsatTransactionResponse();
             res.Success = false;
 
-            string sWSURL = Utils.GetWSURL("Eutelsat_CheckTvod_ws");
-            string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-            string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+            string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_CheckTvod_ws.Value;
+            string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+            string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sHouseholdUID))
             {
@@ -424,9 +412,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = Utils.GetWSURL("Eutelsat_Transaction_ws");
-                string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-                string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Transaction_ws.Value;
+                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
@@ -503,9 +491,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = Utils.GetWSURL("Eutelsat_Subscription_ws");
-                string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-                string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Subscription_ws.Value;
+                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
@@ -595,7 +583,7 @@ namespace Core.ConditionalAccess
             string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
         {
             BillingResponse ret = new BillingResponse();
-            
+
             try
             {
                 #region User and household validation
@@ -644,7 +632,7 @@ namespace Core.ConditionalAccess
                 #endregion
 
 
-                if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, domainId))
                 {
                     ret.m_oStatus = BillingResponseStatus.Fail;
                     ret.m_sRecieptCode = string.Empty;
@@ -756,7 +744,7 @@ namespace Core.ConditionalAccess
             }
 
             //Create the Custom Data
-            sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
             log.Debug("CustomData - " + sCustomData);
 
@@ -772,7 +760,7 @@ namespace Core.ConditionalAccess
 
             if (ret.m_oStatus == BillingResponseStatus.Success)
             {
-                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, !string.IsNullOrEmpty(sHouseholdUID) ? long.Parse(sHouseholdUID) : 0);
 
                 bool dbRes = DAL.ConditionalAccessDAL.UpdateSubPurchase(m_nGroupID, sSiteGUID, sSubscriptionCode, bIsRecurring ? 1 : 0);
 
@@ -800,11 +788,7 @@ namespace Core.ConditionalAccess
 
                 // If device is portal (3SS), do NOT notify!
                 //
-                string transDeviceFilter = string.Empty;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter") != string.Empty)
-                {
-                    transDeviceFilter = TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter");
-                }
+                string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
 
                 if (!string.IsNullOrEmpty(sDEVICE_NAME) && (!sDEVICE_NAME.Contains(transDeviceFilter)))
                 {
@@ -852,9 +836,12 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
+            drmData = string.Empty;
+
             try
             {
                 // Validate inputs
@@ -869,8 +856,11 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 int mediaId = 0;
                 string fileType = string.Empty;
-                oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, 
-                    ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                int drmId = 0;
+                string fileCoGuid = string.Empty;
+
+                oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG,
+                    ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {
@@ -881,18 +871,12 @@ namespace Core.ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
-                string sRightMargin = Utils.GetValueFromConfig("right_margin");
-                string sLeftMargin = Utils.GetValueFromConfig("left_margin");
-                int nRightMargin = !string.IsNullOrEmpty(sRightMargin) ? int.Parse(sRightMargin) : RIGHT_MARGIN;
-                int nLeftMargin = !string.IsNullOrEmpty(sLeftMargin) ? int.Parse(sLeftMargin) : LEFT_MARGIN;
+                int nRightMargin = ApplicationConfiguration.EutelsatSettings.RightMargin.IntValue;
+                int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue;
 
                 // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
-                string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
-                int timeMultFactor = 10000;
-                if (!string.IsNullOrEmpty(sTimeMultFactor))
-                {
-                    int.TryParse(sTimeMultFactor, out timeMultFactor);
-                }
+                
+                int timeMultFactor = ApplicationConfiguration.EutelsatSettings.TimeMultFactor.IntValue;
 
                 //call api service to get the epg_url_link 
                 //get channel name 

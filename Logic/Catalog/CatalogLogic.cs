@@ -5,13 +5,17 @@ using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
+using Catalog.Response;
+using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification;
 using Core.Users;
 using DAL;
 using DalCB;
@@ -37,9 +41,6 @@ using System.Threading.Tasks;
 using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using Core.Notification;
-using Catalog.Response;
-using ElasticSearch.Common;
 
 namespace Core.Catalog
 {
@@ -89,15 +90,14 @@ namespace Core.Catalog
         internal const string STAT_ACTION_LIKE = "like";
         internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";        
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
 
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";
@@ -148,6 +148,12 @@ namespace Core.Catalog
             LASTMODIFIED
         };
 
+        private static readonly HashSet<string> internalReservedUnifiedSearchNumericFields = new HashSet<string>()
+        {
+            "allowed_countries",
+            "blocked_countries"
+        };
+
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
@@ -155,16 +161,14 @@ namespace Core.Catalog
             "crid"
         };
 
-        private static int maxNGram = -1;
-
-        internal static int GetCurrentRequestDaysOffset()
+        private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
         {
-            int res = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-            string daysOffset = Utils.GetWSURL("CURRENT_REQUEST_DAYS_OFFSET");
-            if (daysOffset.Length > 0 && Int32.TryParse(daysOffset, out res) && res > 0)
-                return res;
-            return DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-        }
+            "media",
+            "epg",
+            "recording"
+        };
+
+        private static int maxNGram = -1;
 
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
@@ -388,7 +392,10 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+                if (group.isGeoAvailabilityWindowingEnabled)
+                    sEndDate = "GEO";
+                else
+                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
                 if (filter != null)
                 {
@@ -422,6 +429,8 @@ namespace Core.Catalog
                     if (!languagesIds.Contains(languageId))
                         languagesIds.Add(languageId);
                 }
+
+
 
                 DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languagesIds, sEndDate, bUseStartDate);
 
@@ -782,7 +791,8 @@ namespace Core.Catalog
             try
             {
                 // use old/new image server
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                 {
                     if (dtPic != null && dtPic.Rows != null)
                     {
@@ -1320,7 +1330,7 @@ namespace Core.Catalog
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 if (request.m_oFilter == null)
                 {
@@ -1330,23 +1340,122 @@ namespace Core.Catalog
                 //call ws_users to get userType                  
                 request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
             }
-
+            
             UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request);
 
+            UnifiedSearchResponse searchResult;
+
+            string deviceId = string.Empty;
+
+            if (request.m_oFilter != null)
+            {
+                deviceId = request.m_oFilter.m_sDeviceId;
+            }
+
+            string cacheKey = GetSearchCacheKey(request.m_nGroupID, request.m_sSiteGuid, request.domainId, deviceId, request.m_sUserIP, request.assetTypes, request.filterQuery,
+                searchDefinitions, searchDefinitions.PersonalData);
+
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                log.DebugFormat("Going to get search assets from cache with key: {0}", cacheKey);
+                searchResult = GetUnifiedSearchResultsFromCache(request.m_nGroupID, searchDefinitions, cacheKey);
+            }
+            else
+            {
+                log.DebugFormat("Going to get search assets from ES");
+                searchResult = UnifiedSearch(request.m_nGroupID, searchDefinitions);
+            }
+
+            searchResultsList = searchResult.searchResults;
+            totalItems = searchResult.m_nTotalItems;
+            aggregationsResults = searchResult.aggregationResults;
+
+            return searchResultsList;
+        }
+        
+        private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, string cacheKey)
+        {
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetUnifiedSearchResults,
+                new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions } },
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null))
+            {
+                log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
+            }
+
+            return cachedResult;
+        }
+
+        private static Tuple<UnifiedSearchResponse, bool> GetUnifiedSearchResults(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        UnifiedSearchDefinitions unifiedSearchDefinitions = funcParams["unifiedSearchDefinitions"] as UnifiedSearchDefinitions;
+
+                        if (groupId.HasValue && unifiedSearchDefinitions != null)
+                        {
+                            cachedResult = UnifiedSearch(groupId.Value, unifiedSearchDefinitions);
+
+                            if (cachedResult.status.Code == (int)eResponseStatus.OK)
+                            {
+                                result = true;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.status.Code, cachedResult.status.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
+        }
+
+        public static UnifiedSearchResponse UnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions)
+        {
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            int totalItems = 0;
+            int to = 0;
+            List<AggregationsResult> aggregationsResults = null;
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to,
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to,
                     out aggregationsResults);
 
                 if (searchResults != null)
                 {
-                    searchResultsList = searchResults;
+                    response.searchResults = searchResults;
                 }
             }
 
-            return searchResultsList;
+            response.m_nTotalItems = totalItems;
+            response.aggregationResults = aggregationsResults;
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+
+            return response;
         }
 
         /// <summary>
@@ -1684,8 +1793,7 @@ namespace Core.Catalog
 
             return searchKeys;
         }
-
-
+        
         protected static void GetMetaType(string meta, out Type type)
         {
             type = typeof(string);
@@ -1769,7 +1877,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';');
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';');
             }
             catch (Exception ex)
             {
@@ -1782,7 +1890,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIFPNPC", ';');
+                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
             }
             catch (Exception ex)
             {
@@ -1890,7 +1998,7 @@ namespace Core.Catalog
                 }
 
                 if (request.m_oFilter != null)
-                    searchObj.m_nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                    searchObj.m_nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
                 if (m_dOr.Count > 0)
                 {
@@ -2457,23 +2565,22 @@ namespace Core.Catalog
                 nBillingTypeID = Utils.GetIntSafeVal(dtPlayData.Rows[0], "billing_type_id");
             }
         }
-
-        public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
-            string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false,
-            bool isLinearChannel = false, long recordingId = 0, List<int> mediaConcurrencyRuleIds = null)
+        
+        public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, string assetAction, int mediaTypeId,
+                                          List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds, long programId, int domainId = 0, 
+                                          ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
-            if (CatalogLogic.IsAnonymousUser(siteGUID))
+            if (CatalogLogic.IsAnonymousUser(userId))
             {
                 return;
             }
 
-            if (nDomainID < 1)
+            if (domainId < 1)
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
                 bool isMaster = false;
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(siteGUID), ref opID, ref isMaster, ref eSuspendStat);
+                domainId = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(userId), ref opID, ref isMaster, ref eSuspendStat);
             }
 
             // take finished percent threshold
@@ -2485,26 +2592,35 @@ namespace Core.Catalog
             {
                 finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
             }
-
-            if (nDomainID > 0)
+            
+            if (domainId > 0)
             {
+                Dictionary<string, int> domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
+                
+                int deviceFamilyId = 0;
+                if (domainDevices != null && domainDevices.ContainsKey(udid))
+                {
+                    deviceFamilyId = domainDevices[udid];
+                }
+                
                 switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, isLinearChannel, finishedPercentThreshold);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, 
+                                                                 assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, 
+                                                                 assetConcurrencyRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel, programId);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay, programId);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId, nPlayTime, duration, assetAction, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), 
+                                                               playTime, duration, assetAction, isFirstPlay, deviceFamilyId, programId);
                         break;
 
                     default:
                         break;
                 }
-
             }
         }
 
@@ -2574,7 +2690,8 @@ namespace Core.Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request, 
+            OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -2949,6 +3066,10 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
+                        foreach (long id in ids)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetEpgInvalidationKey(groupId, id));
+                        }
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3017,7 +3138,7 @@ namespace Core.Catalog
             return searcher.SearchEpgs(epgSearchReq);
         }
 
-        internal static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
+        internal static void GetGroupsTagsAndMetas(int nGroupID, ref List<string> lSearchList)
         {
 
             GroupManager groupManager = new GroupManager();
@@ -3060,8 +3181,7 @@ namespace Core.Catalog
                 }
             }
         }
-
-
+        
         internal static bool CompleteDetailsForProgramResponse(EpgProgramDetailsRequest pRequest, ref EpgProgramResponse pResponse)
         {
             ProgramObj oProgramObj = null;
@@ -3840,7 +3960,7 @@ namespace Core.Catalog
                          *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
                          */
 
-                        if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                         {
                             #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -3980,7 +4100,7 @@ namespace Core.Catalog
                         else
                         {
                             // we bring data from ES statistics index only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                             {
                                 #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -4088,15 +4208,14 @@ namespace Core.Catalog
             int operatorID = 0;
             return IsUseIPNOFiltering(oMediaRequest, ref initializedSearcher, ref outJsonizedChannelsDefinitions, ref operatorID);
         }
-
-
+        
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
             ref ISearcher initializedSearcher, ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
         {
 
             bool res = false;
             long lSiteGuid = 0;
-            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 /*
                  * 1. We need to filter results by IPNO.
@@ -4110,7 +4229,7 @@ namespace Core.Catalog
                 if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
                 {
                     // anonymous user
-                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", ';'))
+                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
                     {
                         //user is able to watch the entire catalog
                         res = false;
@@ -4190,8 +4309,7 @@ namespace Core.Catalog
 
             return res;
         }
-
-
+        
         internal static MediaSearchObj BuildLinearChannelsMediaIDsRequest(int nGroupID,
             int domainId, string siteGuid,
             Dictionary<string, string> dict, List<List<string>> jsonizedChannelsDefinitions)
@@ -4225,9 +4343,9 @@ namespace Core.Catalog
 
         private static int GetSearcherMaxResultsSize()
         {
-            int res = 0;
-            string maxResultsStr = Utils.GetWSURL("MAX_RESULTS");
-            if (!string.IsNullOrEmpty(maxResultsStr) && Int32.TryParse(maxResultsStr, out res) && res > 0)
+            int res = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            
+            if ( res > 0)
                 return res;
             return DEFAULT_SEARCHER_MAX_RESULTS_SIZE;
         }
@@ -4273,8 +4391,7 @@ namespace Core.Catalog
             bool isTagOrMeta;
             return CatalogLogic.GetFullSearchKey(originalKey, ref group, out isTagOrMeta);
         }
-
-
+        
         private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
         {
             isTagOrMeta = false;
@@ -4319,8 +4436,8 @@ namespace Core.Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID,
-            int mediaID, int mediaFileID, int platform, int countryID, PlayCycleSession playCycleSession, ePlayType playType = ePlayType.MEDIA)
+        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID, int mediaID, int mediaFileID, int platform, 
+                                          int countryID, PlayCycleSession playCycleSession, long programId, ePlayType playType = ePlayType.MEDIA)
         {
             bool result = true;
             long siteGuidLong = 0;
@@ -4337,14 +4454,13 @@ namespace Core.Catalog
                 return false;
             }
 
-            // Get MCRuleID from PlayCycleSession on CB
+            // Get mediaConcurrencyRuleIds from PlayCycleSession on CB
             List<int> mediaConcurrencyRuleIds = null;
 
             if (playType == ePlayType.MEDIA)
             {
                 if (playCycleSession != null)
                 {
-
                     if (playCycleSession.MediaConcurrencyRuleIds != null && playCycleSession.MediaConcurrencyRuleIds.Count > 0)
                     {
                         mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
@@ -4364,35 +4480,45 @@ namespace Core.Catalog
                 }
             }
 
-            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(groupID, udid, 0, siteGuidLong, domainID,
-                ValidationType.Concurrency, mediaConcurrencyRuleIds, mediaID);
-
-            if (domainsResp != null)
+            // Get AssetRules
+            List<long> assetRulesIds = null;
+            if (playCycleSession != null && playCycleSession.AssetConcurrencyRuleIds != null && playCycleSession.AssetConcurrencyRuleIds.Count > 0)
             {
-                domainID = (int)domainsResp.m_lDomainID;
-                switch (domainsResp.m_eStatus)
-                {
-                    case DomainResponseStatus.ConcurrencyLimitation:
-                    case DomainResponseStatus.MediaConcurrencyLimitation:
-                        {
-                            result = true;
-                            break;
-                        }
-                    case DomainResponseStatus.OK:
-                        {
-                            result = false;
-                            break;
-                        }
-                    default:
-                        {
-                            throw new Exception(GetIsConcurrentLogMsg(
-                                String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
-                        }
-                }
+                assetRulesIds = playCycleSession.AssetConcurrencyRuleIds;
             }
             else
             {
+                assetRulesIds = ConditionalAccess.Utils.GetAssetRuleIds(groupID, mediaID, ref programId);
+            }
+
+            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule
+                (groupID, udid, 0, siteGuidLong, domainID, ValidationType.Concurrency, 
+                 mediaConcurrencyRuleIds, assetRulesIds, mediaID, programId);
+
+            if (domainsResp == null)
+            {
                 throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
+            }
+
+            domainID = (int)domainsResp.m_lDomainID;
+            switch (domainsResp.m_eStatus)
+            {
+                case DomainResponseStatus.ConcurrencyLimitation:
+                case DomainResponseStatus.MediaConcurrencyLimitation:
+                    {
+                        result = true;
+                        break;
+                    }
+                case DomainResponseStatus.OK:
+                    {
+                        result = false;
+                        break;
+                    }
+                default:
+                    {
+                        throw new Exception(GetIsConcurrentLogMsg(
+                            String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                    }
             }
 
             return result;
@@ -4666,7 +4792,7 @@ namespace Core.Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
@@ -4674,7 +4800,7 @@ namespace Core.Catalog
 
             #region  try get values from catalog cache
 
-            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
+            double cacheTime = ApplicationConfiguration.CatalogLogicConfiguration.HitCacheTimeInMinutes.DoubleValue;
 
             if (cacheTime == 0)
             {
@@ -4826,7 +4952,7 @@ namespace Core.Catalog
             CatalogCache catalogCache = CatalogCache.Instance();
             string key = string.Format("Recording_{0}", domainRecordingId);
 
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 shouldGoToCas = true;
             }
@@ -4882,8 +5008,7 @@ namespace Core.Catalog
 
             return result;
         }
-
-
+        
         private static long ParseIPOutOfString(string userIP)
         {
             long nIPVal = 0;
@@ -5293,7 +5418,7 @@ namespace Core.Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, 
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser,
             List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
@@ -5360,7 +5485,7 @@ namespace Core.Catalog
                     EntityID = domainID.ToString(),
                     PageIndex = request.m_nPageIndex,
                     PageSize = request.m_nPageSize,
-                    SeriesIDs =  new List<string>() { request.seriesID },
+                    SeriesIDs =  string.IsNullOrEmpty(request.seriesID )? new List<string>(): new List<string>() { request.seriesID },
                     SeasonNumber = request.seasonNumber,
                     OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy),
                     Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir)
@@ -5448,7 +5573,7 @@ namespace Core.Catalog
                 {
                     args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
                     args.SearchBy.Add(SearchByField.bySeriesId);
-                }           
+                }
 
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
                 if (npvrResp != null)
@@ -5720,16 +5845,17 @@ namespace Core.Catalog
             {
                 int tempTotalItems = 0;
                 var allRecommendations = recommendations.Select(result =>
-                    new UnifiedSearchResult()
+                    new RecommendationSearchResult()
                     {
                         AssetId = result.id,
                         AssetType = (eAssetTypes)result.type,
-                        m_dUpdateDate = DateTime.MinValue
+                        m_dUpdateDate = DateTime.MinValue,
+                        TagsExtraData = result.TagsExtarData,
                     }
                     ).ToList();
 
                 searchResultsList =
-                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
+                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
             }
             // If there is, go to ES and perform further filter
             else
@@ -5791,7 +5917,7 @@ namespace Core.Catalog
 
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
-                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
                 {
                     if (request.m_oFilter == null)
                     {
@@ -6255,6 +6381,7 @@ namespace Core.Catalog
         {
             // Set default values for out parameters
             totalItems = 0;
+            aggregationsResult = null;
             searchResults = new List<UnifiedSearchResult>();
             aggregationsResult = null;
 
@@ -6296,6 +6423,38 @@ namespace Core.Catalog
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID, catalogGroupCache);
 
+            UnifiedSearchResponse searchResult;
+
+            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.internalChannelID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, 
+                unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData);
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
+                searchResult = GetUnifiedSearchChannelResultsFromCache(parentGroupID, unifiedSearchDefinitions, channel, cacheKey);
+            }
+            else
+            {
+                log.DebugFormat("Going to get channel assets from ES");
+                searchResult = ChannelUnifiedSearch(parentGroupID, unifiedSearchDefinitions, channel);
+            }
+
+            status = searchResult.status;
+            searchResults = searchResult.searchResults;
+            totalItems = searchResult.m_nTotalItems;
+            aggregationsResult = searchResult.aggregationResults;
+
+            return status;
+            
+        }
+
+        public static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        {
+            UnifiedSearchResponse response = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
             int pageIndex = 0;
             int pageSize = 0;
 
@@ -6313,17 +6472,21 @@ namespace Core.Catalog
 
             if (searcher == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return response;
             }
 
             int to = 0;
-
+            int totalItems = 0;
+            List<AggregationsResult> aggregationsResult;
+            
             // Perform initial search of channel
             searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
-            
+
             if (searchResults == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -6332,12 +6495,9 @@ namespace Core.Catalog
 
             if (ChannelRequest.IsSlidingWindow(channel))
             {
-                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(parentGroupID, channel.m_OrderObject.m_eOrderBy,
-                    channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, pageSize,
-                    pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-
+                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
+                                                                    pageSize, pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
                 totalItems = 0;
-
                 if (assetIDs != null && assetIDs.Count > 0)
                 {
                     totalItems = assetIDs.Count;
@@ -6410,12 +6570,271 @@ namespace Core.Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
-            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            response.searchResults = searchResults;
+            response.m_nTotalItems = totalItems;
+            response.aggregationResults = aggregationsResult;
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
-            return status;
+            return response;
+        }
+
+        private static UnifiedSearchResponse GetUnifiedSearchChannelResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
+        {
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetChannelUnifiedSearchResults, 
+                new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions }, { "channel", channel } },
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null)) 
+            {
+                log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
+            }
+
+            return cachedResult;
+        }
+
+        private static Tuple<UnifiedSearchResponse, bool> GetChannelUnifiedSearchResults(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+            
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions") && funcParams.ContainsKey("channel"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        UnifiedSearchDefinitions unifiedSearchDefinitions = funcParams["unifiedSearchDefinitions"] as UnifiedSearchDefinitions;
+                        GroupsCacheManager.Channel channel = funcParams["channel"] as GroupsCacheManager.Channel;
+
+                        if (groupId.HasValue && unifiedSearchDefinitions != null && channel != null)
+                        {
+                            cachedResult = ChannelUnifiedSearch(groupId.Value, unifiedSearchDefinitions, channel);
+
+                            if (cachedResult.status.Code == (int)eResponseStatus.OK)
+                            {
+                                result = true;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.status.Code, cachedResult.status.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetChannelUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
+        }
+
+        private static string GetChannelSearchCacheKey(int groupId, string channelId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        {
+            string key = null;
+            if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
+            {
+                if ((personalData != null && personalData.Count > 0) || !string.IsNullOrEmpty(ksql) || (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0))
+                {
+                    StringBuilder cacheKey = new StringBuilder();
+                    cacheKey.AppendFormat("channel={0}", channelId);
+                    cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+                    if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                    {
+                        cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                        // IRA: what else with ordering
+                    }
+
+                    if (!string.IsNullOrEmpty(udid))
+                    {
+                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                        if (deviceRules != null && deviceRules.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    {
+                        UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                        if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                        {
+                            if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                            {
+                                return key;
+                            }
+                            else
+                            {
+                                UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                                if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                                {
+                                    cacheKey.AppendFormat("_entitlements={0}",
+                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                }
+                            }
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                    {
+                        int countryId = Utils.GetIP2CountryId(groupId, ip);
+                        cacheKey.AppendFormat("_countryId={0}", countryId);
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                    {
+                        Dictionary<long, eRuleLevel> ruleIds = null;
+
+                        string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                        bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                        if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(ksql))
+                    {
+                        string ksqlMd5 = null;
+                        try
+                        {
+                            ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                            return key;
+                        }
+                        cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    if (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_assetUserRules={0}", string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
+                    }
+
+                    key = cacheKey.ToString();
+                }
+            }
+
+            return key;
+        }
+
+        private static string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, List<int> assetTypes, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        {
+            string key = null;
+            if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
+            {
+                if (personalData != null && personalData.Count > 0)
+                {
+                    StringBuilder cacheKey = new StringBuilder("search");
+                    cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+
+                    if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                    {
+                        cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                        // IRA: what else with ordering
+                    }
+                    if (assetTypes != null && assetTypes.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_types={0}", string.Join("|", assetTypes.OrderBy(at => at)));
+                    }
+
+                    if (!string.IsNullOrEmpty(udid))
+                    {
+                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                        if (deviceRules != null && deviceRules.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    {
+                        UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                        if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                        {
+                            if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                            {
+                                return key;
+                            }
+                            else
+                            {
+                                UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                                if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                                {
+                                    cacheKey.AppendFormat("_entitlements={0}",
+                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                }
+                            }
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                    {
+                        int countryId = Utils.GetIP2CountryId(groupId, ip);
+                        cacheKey.AppendFormat("_countryId={0}", countryId);
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                    {
+                        Dictionary<long, eRuleLevel> ruleIds = null;
+
+                        string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                        bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                        if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(ksql))
+                    {
+                        string ksqlMd5 = null;
+                        try
+                        {
+                            ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                            return key;
+                        }
+                        cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    if (unifiedSearchDefinitions.assetUserRuleIds != null && unifiedSearchDefinitions.assetUserRuleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_assetUserRules={0}", string.Join("|", unifiedSearchDefinitions.assetUserRuleIds.OrderBy(r => r)));
+                    }
+
+                    key = cacheKey.ToString();
+                }
+            }
+
+            return key;
         }
 
         internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
@@ -6594,7 +7013,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -6605,9 +7024,9 @@ namespace Core.Catalog
 
             // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
             definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
-           
 
-           
+
+
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
@@ -6739,6 +7158,20 @@ namespace Core.Catalog
             definitions.filterPhrase = root;
 
             #endregion
+            
+            #region Entitlements, user preferences
+
+            if (definitions.entitlementSearchDefinitions != null)
+            {
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, group.m_nParentGroupID, group);
+            }
+
+            if (definitions.shouldGetUserPreferences)
+            {
+                definitions.userPreferences = CatalogLogic.GetUserPreferences(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+            }
+
+            #endregion
 
             #region Group By
 
@@ -6746,12 +7179,28 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Geo Availability
 
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
+
+            #endregion
+
+            #region Asset User Rule
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            {
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+            }
+
+            #endregion
 
             return status;
         }
 
-        
+
 
         /// <summary>
         /// Update filter tree fields for specific fields/values.
@@ -6805,12 +7254,12 @@ namespace Core.Catalog
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
         {
-            bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+            bool shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
-                maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+                maxNGram = ApplicationConfiguration.ElasticSearchConfiguration.MaxNGram.IntValue;
             }
 
             List<int> geoBlockRules = null;
@@ -7023,6 +7472,8 @@ namespace Core.Catalog
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
+                            definitions.PersonalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
+
                             if (geoBlockRules == null)
                             {
                                 geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
@@ -7036,10 +7487,10 @@ namespace Core.Catalog
 
                             BooleanPhrase newPhrase = new BooleanPhrase(
                                 new List<BooleanPhraseNode>()
-												{
-													mediaTypeCondition, 
-													newLeaf
-												},
+                                                {
+                                                    mediaTypeCondition,
+                                                    newLeaf
+                                                },
                                 eCutType.And);
 
                             BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
@@ -7056,6 +7507,8 @@ namespace Core.Catalog
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
+                                definitions.PersonalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
+
                                 if (shouldUseCache)
                                 {
                                     var parentalRulesTags = ParentalRulesTagsCache.Instance().GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid);
@@ -7148,6 +7601,14 @@ namespace Core.Catalog
 
                         switch (loweredValue)
                         {
+                            case ("not_entitled"):
+                                {
+                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    break;
+                                }
                             case ("free"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
@@ -7156,12 +7617,14 @@ namespace Core.Catalog
                             case ("entitled"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             default:
@@ -7188,6 +7651,24 @@ namespace Core.Catalog
                             definitions.shouldGetUserPreferences = true;
                         }
                     }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ASSET_TYPE)
+                    {
+                        string loweredValue = leaf.value.ToString().ToLower();
+                        int assetType;
+
+                        // asset type - accepts only "equals", only predefined types (epg, media, recording) and numbers
+                        if (leaf.operand != ComparisonOperator.Equals ||
+                            (!predefinedAssetTypes.Contains(loweredValue) &&
+                            !int.TryParse(loweredValue, out assetType)))
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for asset_type", (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.Contains;
+                        }
+                    }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
@@ -7205,6 +7686,24 @@ namespace Core.Catalog
                                 throw new KalturaException("Unauthorized use of field status", (int)eResponseStatus.BadSearchRequest);
                             }
                         }
+
+                        if (leaf.operand != ComparisonOperator.In)
+                        {
+                            leaf.valueType = typeof(long);
+
+                            try
+                            {
+                                leaf.value = Convert.ToInt64(leaf.value);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
+                    }
+                    else if (definitions.isInternalSearch && internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
+                    {
+                        leaf.shouldLowercase = false;
 
                         if (leaf.operand != ComparisonOperator.In)
                         {
@@ -7297,7 +7796,7 @@ namespace Core.Catalog
             // Otherwise the search will not work completely 
             if (maxNGram > 0 &&
                 (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains ||
-                leaf.operand == ComparisonOperator.WordStartsWith || 
+                leaf.operand == ComparisonOperator.WordStartsWith ||
                 leaf.operand == ComparisonOperator.PhraseStartsWith))
             {
                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
@@ -7356,7 +7855,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -7407,7 +7906,7 @@ namespace Core.Catalog
 
             // in case operator is searching we override the existing value
             definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
-            definitions.shouldUseEndDateForMedia = !request.isAllowedToViewInactiveAssets;
+            definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets;
 
             #endregion
 
@@ -7441,6 +7940,7 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -7450,6 +7950,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
@@ -7502,7 +8003,7 @@ namespace Core.Catalog
                 #region Group By
 
                 Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
-                
+
                 #endregion
             }
             else
@@ -7684,7 +8185,7 @@ namespace Core.Catalog
             #endregion
 
             // Get days offset for EPG search from TCM
-            definitions.epgDaysOffest = CatalogLogic.GetCurrentRequestDaysOffset();
+            definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
             #region Regions and associations
 
@@ -7701,6 +8202,23 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Geo Availability
+
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
+            }
+
+            #endregion
+
+            #region Asset User Rule
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            {
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+            }
+
+            #endregion
             return definitions;
         }
 
@@ -7730,7 +8248,7 @@ namespace Core.Catalog
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
-                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request,
                 request.order, groupId, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, languageObj);
@@ -7856,7 +8374,7 @@ namespace Core.Catalog
 
                 // insert all above  
                 int nCount = 0;
-                int nCountPackage = TVinciShared.WS_Utils.GetTcmIntValue("update_epg_package");
+                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                 if (nCountPackage == 0)
                     nCountPackage = 200;
                 List<long> epgIds = new List<long>();
@@ -8133,7 +8651,7 @@ namespace Core.Catalog
             {
                 CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
 
-                string staleStateConfiguration = ODBCWrapper.Utils.GetTcmConfigValue("WatchHistory_StaleMode");
+                string staleStateConfiguration = ApplicationConfiguration.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
 
                 if (!string.IsNullOrEmpty(staleStateConfiguration))
                 {
@@ -8188,19 +8706,19 @@ namespace Core.Catalog
                         }
 
                         // From the unfiltered list get only the recordings;
-                        
+
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
                                 {
                                     // For each recording,
                                     // map the recording to its domain recording id
-                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording() 
-                                        { 
-                                            DomainRecordingId = x.AssetId,
-                                            EpgId = x.EpgId,
-                                            RecordingId = x.RecordingId,
-                                            RecordingType = null
-                                        };
+                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording()
+                                    {
+                                        DomainRecordingId = x.AssetId,
+                                        EpgId = x.EpgId,
+                                        RecordingId = x.RecordingId,
+                                        RecordingType = null
+                                    };
                                     return x.RecordingId.ToString();
                                 }).ToList();
 

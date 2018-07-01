@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Configuration;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
-using Tvinci.Core.DAL;
+using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using Core.Api.Managers;
+using Core.Users;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
-using System.Web;
-using System.ServiceModel;
-using Core.Users;
-using ApiObjects.SearchObjects;
-using ApiObjects.AssetLifeCycleRules;
-using Core.Api.Managers;
+using System.Reflection;
 using System.Security.Cryptography;
-using CachingProvider.LayeredCache;
+using System.Text;
+using Tvinci.Core.DAL;
 
 namespace APILogic
 {
@@ -128,7 +126,7 @@ namespace APILogic
 
             try
             {
-                sCatalogURL = GetWSUrl("WS_Catalog");
+                sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             }
             catch (Exception ex)
             {
@@ -136,11 +134,6 @@ namespace APILogic
             }
 
             return sCatalogURL;
-        }
-
-        public static string GetWSUrl(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         /// <summary>
@@ -473,8 +466,8 @@ namespace APILogic
                                         {
                                             DataRow[] drTags = ds.Tables[1].Select("rule_id=" + ruleID);
 
-                                            rule.TagValues.AddRange(drTags.Select(x => (int)x.Field<Int64>("TAG_ID")).ToList());
-                                            rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")).ToList());
+                                            rule.TagValues.AddRange(drTags.Select(x => (int)x.Field<Int64>("TAG_ID")));
+                                            rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")));
                                         }
                                         result.Add(rule);
                                     }                                    
@@ -887,5 +880,48 @@ namespace APILogic
             }            
         }
 
+        internal static Tuple<List<ApiObjects.Country>, bool> GetAllCountryList(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ApiObjects.Country> countriesResult = null;
+
+            try
+            {
+                DataTable dt = DAL.ApiDAL.GetAllCountries();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    countriesResult = new List<ApiObjects.Country>(dt.Rows.Count);
+
+                    ApiObjects.Country country;
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow dr = dt.Rows[i];
+                        if (dr != null)
+                        {
+                            country = new ApiObjects.Country()
+                            {
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_NAME"),
+                                Code = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_CD2"),
+                                TimeZoneId = ODBCWrapper.Utils.GetSafeStr(dr, "TIME_ZONE_ID"),
+                            };
+
+                            if (country.Id > 0)
+                            {
+                                countriesResult.Add(country);
+                            }
+                        }
+                    }
+                }
+
+                res = countriesResult != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetAllCountryList failed", ex);
+            }
+
+            return new Tuple<List<ApiObjects.Country>, bool>(countriesResult, res);
+        }
     }
 }

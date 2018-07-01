@@ -1,5 +1,6 @@
 ﻿using APILogic;
 using ApiObjects;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +23,7 @@ namespace Core.Api.Modules
         #region Consts
 
         private const string KEY_FORMAT = "search_history_{0}_{1}";
-        private static readonly string CB_SEARCH_HISTORY_DESIGN_DOC = ODBCWrapper.Utils.GetTcmConfigValue("search_history_design_doc");
+        private static readonly string CB_SEARCH_HISTORY_DESIGN_DOC = ApplicationConfiguration.CouchBaseDesigns.SearchHistoryDesign.Value;
 
         #endregion
 

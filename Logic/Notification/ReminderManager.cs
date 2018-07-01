@@ -24,6 +24,7 @@ using TVinciShared;
 using System.Threading.Tasks;
 using CachingProvider.LayeredCache;
 using APILogic.Notification;
+using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -31,13 +32,12 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string REMINDER_QUEUE_NAME_FORMAT = @"Reminder_{0}_{1}"; // Reminder_GID_ReminderID
-        private static string outerPushServerSecret = ODBCWrapper.Utils.GetTcmConfigValue("PushServerKey");
-        private static string outerPushServerIV = ODBCWrapper.Utils.GetTcmConfigValue("PushServerIV");
-        private static string outerPushDomainName = ODBCWrapper.Utils.GetTcmConfigValue("PushDomainName");
-
-
+        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
+        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
+        
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
+        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
 
         public const double REMINDER_CLEANUP_INTERVAL_SEC = 21600; // 6 hours 
         private const string ROUTING_KEY_REMINDERS_MESSAGES = "PROCESS_MESSAGE_REMINDERS";
@@ -547,11 +547,11 @@ namespace Core.Notification
                         List<ProgramObj> episodesToRemove = new List<ProgramObj>();
                         foreach (ProgramObj program in programs)
                         {
-                            if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
-                                (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
+                            if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.FirstOrDefault(pm => pm.Key == seriesIdNameType.Item1).Value == seriesId) ||
+                                (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.FirstOrDefault(pm => pm.Key == seriesIdNameType.Item1).Value == seriesId)) &&
                                 (seasonNumber != 0 && seasonNumberNameType != null ?
-                                ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
-                                (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
+                                ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.FirstOrDefault(pm => pm.Key == seasonNumberNameType.Item1).Value == seasonNumber.ToString()) ||
+                                (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.FirstOrDefault(pm => pm.Key == seasonNumberNameType.Item1).Value == seasonNumber.ToString()))
                                 : true))
                             {
                                 episodesToRemove.Add(program);
@@ -641,11 +641,11 @@ namespace Core.Notification
             long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
 
             DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
-            if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
+            if (seriesSeasonReminder != null && userSeriesReminders.FirstOrDefault(usr => usr.AnnouncementId == seriesSeasonReminder.ID) != null)
                 return true;
 
             DbSeriesReminder seriesReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, null, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
-            if (seriesReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesReminder.ID).FirstOrDefault() != null)
+            if (seriesReminder != null && userSeriesReminders.FirstOrDefault(usr => usr.AnnouncementId == seriesReminder.ID) != null)
                 return true;
 
             return false;
@@ -702,7 +702,7 @@ namespace Core.Notification
                 if (string.IsNullOrEmpty(dbReminder.ExternalPushId))
                 {
                     // Create topic
-                    string externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
+                    string externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name, true);
                     if (string.IsNullOrEmpty(externalTopicId))
                     {
                         log.DebugFormat("failed to create topic groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
@@ -795,7 +795,7 @@ namespace Core.Notification
             }
 
             // remove reminder from user notification object
-            userNotificationData.Reminders.Remove(userNotificationData.Reminders.Where(x => x.AnnouncementId == reminderId).First());
+            userNotificationData.Reminders.Remove(userNotificationData.Reminders.First(x => x.AnnouncementId == reminderId));
 
             // update CB userNotificationData
             if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
@@ -893,7 +893,7 @@ namespace Core.Notification
 
             if (userNotificationData == null ||
                 userNotificationData.SeriesReminders == null ||
-                userNotificationData.SeriesReminders.Where(x => x.AnnouncementId == reminderId).Count() == 0)
+                userNotificationData.SeriesReminders.Count(x => x.AnnouncementId == reminderId) == 0)
             {
                 log.DebugFormat("user notification data wasn't found. GID: {0}, UID: {1}, reminderID: {2}", groupId, userId, reminderId);
                 statusResult = new Status((int)eResponseStatus.ReminderNotFound, "reminder not found");
@@ -901,7 +901,7 @@ namespace Core.Notification
             }
 
             // remove reminder from user notification object
-            userNotificationData.SeriesReminders.Remove(userNotificationData.SeriesReminders.Where(x => x.AnnouncementId == reminderId).First());
+            userNotificationData.SeriesReminders.Remove(userNotificationData.SeriesReminders.First(x => x.AnnouncementId == reminderId));
 
             // update CB userNotificationData
             if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
@@ -1006,7 +1006,7 @@ namespace Core.Notification
             string queueName = string.Format(REMINDER_QUEUE_NAME_FORMAT, groupId, reminderId);
 
             // get relevant reminder
-            var reminder = reminders.Where(x => x.ID == reminderId).FirstOrDefault();
+            var reminder = reminders.FirstOrDefault(x => x.ID == reminderId);
             if (reminder == null)
             {
                 log.ErrorFormat("GetPushWebParams: reminder not found. id: {0}.", reminderId);
@@ -1295,12 +1295,7 @@ namespace Core.Notification
 
                 seriesReminders = seriesReminders != null && seriesReminders.Count > 0 ? seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || sr.SeasonNumber == 0).ToList() : null;
 
-                if (seriesReminders == null || seriesReminders.Count == 0)
-                {
-                    log.ErrorFormat("failed to get series reminders for programId = {0}, seriesId = {1}, seasonNumber = {2}, epgChannelId = {3}",
-                        program.AssetId, seriesId, seasonNumber, program.m_oProgram.EPG_CHANNEL_ID);
-                }
-                else
+                if (seriesReminders != null && seriesReminders.Count > 0)
                 {
                     log.DebugFormat("found series reminders for the program");
 
@@ -1939,7 +1934,7 @@ namespace Core.Notification
             string queueName = string.Format(REMINDER_QUEUE_NAME_FORMAT, groupId, seriesReminderId);
 
             // get relevant reminder
-            var reminder = reminders.Where(x => x.ID == seriesReminderId).FirstOrDefault();
+            var reminder = reminders.FirstOrDefault(x => x.ID == seriesReminderId);
             if (reminder == null)
             {
                 log.ErrorFormat("GetPushWebParams: reminder not found. id: {0}.", seriesReminderId);

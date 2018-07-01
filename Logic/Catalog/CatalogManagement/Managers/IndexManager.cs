@@ -98,13 +98,33 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("Received media request of invalid media id {0} when calling UpsertMedia", assetId);
                 return result;
             }
-
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            
+            Dictionary<int, LanguageObj> languagesMap = null;            
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
-                return result;
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
+                    return false;
+                }
+
+                languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
             }
+            else
+            {
+                GroupManager groupManager = new GroupManager();                
+                Group group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
+                    return false;
+                }
+                List<LanguageObj> languages = group.GetLangauges();
+                languagesMap = languages.ToDictionary(x => x.ID, x => x);
+            }
+
 
             try
             {
@@ -114,7 +134,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (int languageId in mediaDictionary[assetId].Keys)
                     {
-                        LanguageObj language = catalogGroupCache.LanguageMapById.ContainsKey(languageId) ? catalogGroupCache.LanguageMapById[languageId] : null;
+                        LanguageObj language = languagesMap.ContainsKey(languageId) ? languagesMap[languageId] : null;
                         if (language != null)
                         {
                             string suffix = null;

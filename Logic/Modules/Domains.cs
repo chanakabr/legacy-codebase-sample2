@@ -5,6 +5,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
+using ApiObjects.Rules;
 
 namespace Core.Domains
 {
@@ -173,7 +174,6 @@ namespace Core.Domains
             }
             return null;
         }
-
         
         public static DomainStatusResponse RemoveUserFromDomain(int nGroupID, Int32 nDomainID, string sUserGUID)
         {
@@ -238,11 +238,11 @@ namespace Core.Domains
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Core.Users.BaseDomain t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
+            Core.Users.BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, nGroupID);
+            if (baseDomain != null)
             {
-                response = t.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID);
+                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID);
             }
             return response;
         }
@@ -296,8 +296,11 @@ namespace Core.Domains
         
         public static DomainResponse GetDomainInfo(int nGroupID, Int32 nDomainID)
         {
-            DomainResponse response = new DomainResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            DomainResponse response = new DomainResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+            
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
@@ -631,7 +634,7 @@ namespace Core.Domains
 
         
         public static ValidationResponseObject ValidateLimitationModule(int nGroupID, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> ruleIds, int nMediaID = 0)
+            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> mediaConcurrencyRuleIds, List<long> assetRules, int nMediaID = 0, long programId = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
@@ -641,11 +644,12 @@ namespace Core.Domains
 
             if (lDomainID < 1 && lSiteGuid < 1)
                 return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
-            Core.Users.BaseDomain t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
+
+            Core.Users.BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, nGroupID);
+            if (baseDomain != null)
             {
-                return t.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, ruleIds, nMediaID);
+                return baseDomain.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, mediaConcurrencyRuleIds, assetRules, nMediaID, programId);
             }
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
         }

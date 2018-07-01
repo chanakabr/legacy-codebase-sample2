@@ -1209,6 +1209,11 @@ namespace Core.Notification
         {
             bool result = false;
 
+            if (!NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
+            {
+                return true;
+            }
+
             log.Debug("Starting mail action handle");
 
             try
@@ -1354,7 +1359,7 @@ namespace Core.Notification
                 NotificationCache.TryGetAnnouncements(groupId, ref announcements);
                 if (announcements != null)
                 {
-                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
+                    DbAnnouncement mailAnnouncement = announcements.FirstOrDefault(a => a.RecipientsType == eAnnouncementRecipientsType.Mail);
                     if (mailAnnouncement == null)
                     {
                         log.ErrorFormat("Failed to get mail announcement.");
@@ -1388,6 +1393,11 @@ namespace Core.Notification
         public static bool InitiateSmsAction(int groupId, eUserMessageAction userAction, int userId, UserNotification userNotificationData)
         {
             bool result = false;
+
+            if (!NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
+            {
+                return true;
+            }
 
             log.Debug("Starting SMS action handle");
 
@@ -1528,7 +1538,7 @@ namespace Core.Notification
                 subscribeList.Count == 0 ||
                 smsAnnouncementId == 0)
             {
-                log.Error("Error retrieving login announcement to subscribe");
+                log.Error("Error retrieving SMS announcement to subscribe");
                 return false;
             }
 
@@ -1692,10 +1702,10 @@ namespace Core.Notification
                 return false;
             }
 
-            if (string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            if (userNotificationData.UserData == null || string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
             {
-                log.DebugFormat("user does not have phone number for SMS", groupId, userId);
-                return false;
+                //log.DebugFormat("user does not have phone number for SMS", groupId, userId);
+                return true;
             }
 
             SmsNotificationData userSmsNotificationData = null;

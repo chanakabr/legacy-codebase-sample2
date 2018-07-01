@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -45,7 +46,8 @@ namespace Core.ConditionalAccess
             }
 
             // frequency (tcm)
-            long frequency = TVinciShared.WS_Utils.GetTcmIntValue("reconciliation_frequency_seconds");
+            long frequency = ApplicationConfiguration.ReconciliationFrequencySeconds.LongValue;
+
             if (frequency == 0)
             {
                 frequency = DEFAULT_RECONCILIATION_FREQUENCY_SECONDS;

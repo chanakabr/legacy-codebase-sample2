@@ -64,5 +64,11 @@ namespace Core.Catalog.Request
             return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults, out aggregationsResult);
 
         }
+
+        internal virtual bool GetShouldUseSearchEndDate()
+        {
+            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);
+        }
+
     }
 }

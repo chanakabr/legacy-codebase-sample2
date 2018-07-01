@@ -173,7 +173,9 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
+                string drmData = string.Empty;
+                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, 
+                    sDeviceName, string.Empty, PlayContextType.Playback, out drmData);
             }
             else
             {
@@ -1890,7 +1892,7 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
-            {
+            {                
                 return t.GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
             }
             else
@@ -2012,14 +2014,11 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
-
-
-        public static ApiObjects.Response.Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,
-                                        int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
+        public static Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,
+            int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
         {
-            ApiObjects.Response.Status status = null;
-
-
+            Status status = null;
+            
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
@@ -2032,13 +2031,12 @@ namespace Core.ConditionalAccess
                 status = casImpl.GrantEntitlements(siteguid, housholdId, contentId, productId, transactionType, userIp, deviceName, history);
                 if (status == null)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
             return status;
         }
-
-
+        
         public static ApiObjects.Response.Status UpdatePendingTransaction(int groupID, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
             string externalMessage, int failReason, string signature)
         {
@@ -2884,7 +2882,7 @@ namespace Core.ConditionalAccess
         }
 
         public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
-            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -2892,7 +2890,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType);
             }
             else
             {

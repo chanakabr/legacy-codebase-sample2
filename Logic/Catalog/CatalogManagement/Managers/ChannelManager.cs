@@ -341,7 +341,7 @@ namespace Core.Catalog.CatalogManagement
                 if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
                 {
                     log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
-                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                    result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
                     return result;
                 }
 
@@ -354,7 +354,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Objects != null)
                 {
                     result.TotalItems = totalItems;
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -441,19 +441,19 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (channelToAdd == null)
                 {
-                    response.Status = new Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
+                    response.SetStatus(eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
                     return response;
                 }
 
                 if (!CatalogDAL.ValidateChannelSystemName(groupId, channelToAdd.SystemName))
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
+                    response.SetStatus(eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(channelToAdd.m_sName))
                 {
-                    response.Status = new Status((int)eResponseStatus.NameRequired, APILogic.CRUD.KSQLChannelsManager.NAME_REQUIRED);
+                    response.SetStatus(eResponseStatus.NameRequired, APILogic.CRUD.KSQLChannelsManager.NAME_REQUIRED);
                     return response;
                 }
 
@@ -465,12 +465,12 @@ namespace Core.Catalog.CatalogManagement
 
                     if (parseStatus == null)
                     {
-                        response.Status = new Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
+                        response.SetStatus(eResponseStatus.SyntaxError, "Failed parsing filter query");
                         return response;
                     }
                     else if (parseStatus.Code != (int)eResponseStatus.OK)
                     {
-                        response.Status = new Status(parseStatus.Code, parseStatus.Message);
+                        response.SetStatus(parseStatus);
                         return response;
                     }
 
@@ -490,7 +490,7 @@ namespace Core.Catalog.CatalogManagement
                     List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
                     if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
                     {
-                        response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                        response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
                                         eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
                         return response;
                     }
@@ -519,7 +519,7 @@ namespace Core.Catalog.CatalogManagement
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
                         {
                             List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                            response.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                            response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
                                             eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
                             return response;
                         }
@@ -529,7 +529,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
                     && !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                    response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
                     return response;
                 }
 
@@ -580,12 +580,12 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
             catch (Exception ex)
@@ -604,7 +604,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (channelToUpdate == null)
                 {
-                    response.Status = new Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
+                    response.SetStatus(eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
                     return response;
                 }
 
@@ -612,14 +612,14 @@ namespace Core.Catalog.CatalogManagement
                 Channel currentChannel = GetChannelById(groupId, channelId, true);
                 if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
                     return response;
                 }
 
                 if (!string.IsNullOrEmpty(channelToUpdate.SystemName) && currentChannel.SystemName != channelToUpdate.SystemName
                     && !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
+                    response.SetStatus(eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return response;
                 }
 
@@ -631,12 +631,12 @@ namespace Core.Catalog.CatalogManagement
 
                     if (parseStatus == null)
                     {
-                        response.Status = new Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
+                        response.SetStatus(eResponseStatus.SyntaxError, "Failed parsing filter query");
                         return response;
                     }
                     else if (parseStatus.Code != (int)eResponseStatus.OK)
                     {
-                        response.Status = new Status(parseStatus.Code, parseStatus.Message);
+                        response.SetStatus(parseStatus);
                         return response;
                     }
 
@@ -656,8 +656,8 @@ namespace Core.Catalog.CatalogManagement
                     List<int> noneGroupAssetTypes = channelToUpdate.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
                     if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
                     {
-                        response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                        eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                        response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                            eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
                         return response;
                     }
                 }
@@ -685,8 +685,8 @@ namespace Core.Catalog.CatalogManagement
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
                         {
                             List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                            response.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                            eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                            response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                                                eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
                             return response;
                         }
                     }
@@ -695,7 +695,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
                     && !CatalogManager.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                    response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
                     return response;
                 }
 
@@ -764,12 +764,12 @@ namespace Core.Catalog.CatalogManagement
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
                         }
 
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
             catch (Exception ex)
@@ -789,11 +789,11 @@ namespace Core.Catalog.CatalogManagement
                 response.Object = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets);
                 if (response.Object != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
                 }                
             }
             catch (Exception ex)
@@ -868,7 +868,7 @@ namespace Core.Catalog.CatalogManagement
                 else
                 {
                     result.TotalItems = 0;
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)

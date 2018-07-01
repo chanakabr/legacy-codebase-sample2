@@ -82,16 +82,16 @@ namespace Core.ConditionalAccess
         protected virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode,
             string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection, int domainId)
         {
             if (!string.IsNullOrEmpty(sCouponCode))
             {
                 if (bFromPurchase)
                     return;
 
-                Pricing.Module.SetCouponUsed(m_nGroupID, sCouponCode, sSiteGUID);
+                Pricing.Module.SetCouponUsed(m_nGroupID, sCouponCode, sSiteGUID, domainId);
 
-                double dPercent = Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode);
+                double dPercent = Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode, domainId);
                 log.Debug("Set Coupon Used called : " + sCouponCode + ", Coupon Discount Percent : " + dPercent.ToString());
                 if (dPercent == 100)
                 {
@@ -112,7 +112,7 @@ namespace Core.ConditionalAccess
                     Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, m_nGroupID);
 
                     string sCustomData = GetCustomData(relevantSub, oPPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID,
-                        sPPVModuleCode, string.Empty, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        sPPVModuleCode, string.Empty, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
 
                     string sType = "pp";
@@ -179,7 +179,7 @@ namespace Core.ConditionalAccess
 
                     //Tickle WS
                     APILogic.tikle.Service s = new APILogic.tikle.Service();
-                    string sTikleWSURL = Utils.GetWSURL("tikle_ws");
+                    string sTikleWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("tikle_ws"); //TCM not relevant anymore 
                     s.Url = sTikleWSURL;
 
                     string sMD5Hash = Core.Billing.Utils.GetHash("0" + sTransactionData, "WS_SECRET");
@@ -200,7 +200,7 @@ namespace Core.ConditionalAccess
         protected internal override string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
             string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
             string sCustomData = "<customdata type=\"pp\">";
             if (String.IsNullOrEmpty(sCountryCd) == false)
@@ -233,7 +233,7 @@ namespace Core.ConditionalAccess
             sCustomData += sPPVModuleCode;
             sCustomData += "</ppvm>";
             sCustomData += "<cc>";
-            sCustomData += Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode).ToString();
+            sCustomData += Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode, domainId).ToString();
             sCustomData += "</cc>";
             sCustomData += "<p ir=\"false\" n=\"1\" o=\"1\"/>";
 
@@ -255,7 +255,7 @@ namespace Core.ConditionalAccess
 
         protected override string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode,
             string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
 
             bool bIsRecurring = theSub.m_bIsRecurring;
@@ -276,7 +276,7 @@ namespace Core.ConditionalAccess
             sCustomData += string.Format("<up>{0}</up>", sUserIP);
             sCustomData += "<s>" + sSubscriptionCode + "</s>";
             sCustomData += "<cc>";
-            sCustomData += Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode).ToString();
+            sCustomData += Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode, domainId).ToString();
             sCustomData += "</cc>";
             sCustomData += "<p ir=\"" + bIsRecurring.ToString().ToLower() + "\" n=\"1\" o=\"" + nRecPeriods.ToString() + "\"/>";
             sCustomData += "<vlcs>";

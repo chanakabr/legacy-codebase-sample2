@@ -1,6 +1,8 @@
 ﻿using ApiObjects.Pricing;
+using DAL;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -24,55 +26,29 @@ namespace Core.Pricing
             m_nCouponID = nCouponID;
         }
 
-        public bool Initialize(string sCode , Int32 nGroupID)
+        public bool Initialize(string couponCode , int groupId)
         {
-            bool bRet = false;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
+            DataTable dt = PricingDAL.GetCoupon(groupId, couponCode); 
+
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select id, voucher_campaign_id, owner_guid, rel_media from coupons with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("code", "=", sCode);
-                selectQuery += "and";
-                selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(nGroupID, "MAIN_CONNECTION_STRING");
-                selectQuery += " order by status desc,is_active desc";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        m_nCouponID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                        object oCID = selectQuery.Table("query").DefaultView[0].Row["voucher_campaign_id"];
-                        object oUID = selectQuery.Table("query").DefaultView[0].Row["owner_guid"];
-                        object oMID = selectQuery.Table("query").DefaultView[0].Row["rel_media"];
-                        if (oCID != null && oCID != System.DBNull.Value)
-                        {
-                            m_campaignID = long.Parse(selectQuery.Table("query").DefaultView[0].Row["voucher_campaign_id"].ToString());
-                        }
-                        if (oUID != null && oUID != System.DBNull.Value)
-                        {
-                            m_ownerGUID = long.Parse(selectQuery.Table("query").DefaultView[0].Row["owner_guid"].ToString());
-                        }
-                        if (oMID != null && oMID != System.DBNull.Value)
-                        {
-                            m_ownerMedia = long.Parse(selectQuery.Table("query").DefaultView[0].Row["rel_media"].ToString());
-                        }
-                        bRet = true;
-                    }
-                }
+                return false;
             }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-            return bRet;
+
+            m_nCouponID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+            m_campaignID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "voucher_campaign_id");
+            m_ownerGUID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "owner_guid");
+            m_ownerMedia = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "rel_media");
+            couponsGroupId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "COUPON_GROUP_ID");
+            useCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "USE_COUNT");
+            isActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_ACTIVE") > 0;
+            status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS") > 0;
+            m_couponType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "voucher") > 0 ? CouponType.Voucher : CouponType.Coupon;
+
+            return true;
         }
 
-        static public CouponsStatus SetCouponUsed(string sCouponCode, Int32 nGroupID, string sSiteGUID, Int32 nCollectionCode, Int32 nMediaFileID, Int32 nSubCode, int nPrePaidCode)
+        static public CouponsStatus SetCouponUsed(string sCouponCode, Int32 nGroupID, string sSiteGUID, Int32 nCollectionCode, Int32 nMediaFileID, Int32 nSubCode, int nPrePaidCode, long domainId)
         {
             Coupon c = new Coupon();
             ODBCWrapper.DirectQuery directQuery = null;
@@ -81,7 +57,7 @@ namespace Core.Pricing
             {
                 if (c.Initialize(sCouponCode, nGroupID))
                 {
-                    if (c.GetCouponStatus() == CouponsStatus.Valid)
+                    if (c.GetCouponStatus(nGroupID) == CouponsStatus.Valid)
                     {
                         directQuery = new ODBCWrapper.DirectQuery();
                         directQuery.SetConnectionKey("pricing_connection");
@@ -99,9 +75,10 @@ namespace Core.Pricing
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", nSubCode);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRE_PAID_CODE", "=", nPrePaidCode);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COLLECTION_CODE", "=", nCollectionCode);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                         insertQuery.Execute();
                     }
-                    return c.GetCouponStatus();
+                    return c.GetCouponStatus(nGroupID);
                 }
                 else
                     return CouponsStatus.NotExists;
@@ -122,83 +99,31 @@ namespace Core.Pricing
         public CouponsGroup GetCouponGroup(Int32 nGroupID)
         {
             CouponsGroup p = new CouponsGroup();
-            object o = ODBCWrapper.Utils.GetTableSingleVal("coupons", "COUPON_GROUP_ID", m_nCouponID, "pricing_connection");
-            if (o != null && o != DBNull.Value)
+            if (couponsGroupId > 0)
             {
-                Int32 nCouponGroupID = int.Parse(o.ToString());
-                p.Initialize(nCouponGroupID, nGroupID);
+                p.Initialize((int)couponsGroupId, nGroupID);
                 return p;
             }
             return null;
-            
         }
 
-        public CouponsStatus GetCouponStatus()
+        public CouponsStatus GetCouponStatus(int groupId, CouponsGroup couponsGroup = null)
         {
             CouponsStatus ret = CouponsStatus.Valid;
-            Int32 nCouponGroupID = 0;
-            Int32 nUseCount = 0;
-            DateTime dLast = new DateTime(2000, 1, 1);
-            Int32 nIsActive = 0;
-            Int32 nStatus = 0;
-            Int32 nGroupID = 0;
-            object oCouponType = null;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
+
+            if (!status || !isActive)
+                ret = CouponsStatus.NotExists;
+            else
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select * from coupons with (nolock) where ";
-                selectQuery.SetCachedSec(0);
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nCouponID);
-                if (selectQuery.Execute("query", true) != null)
+                if (couponsGroup == null)
                 {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nCouponGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["COUPON_GROUP_ID"].ToString());
-                        object oDate = selectQuery.Table("query").DefaultView[0].Row["LAST_USED_DATE"];
-                        if (oDate != null && oDate != DBNull.Value)
-                            dLast = (DateTime)(oDate);
-                        nUseCount = int.Parse(selectQuery.Table("query").DefaultView[0].Row["USE_COUNT"].ToString());
-                        nIsActive = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString());
-                        nStatus = int.Parse(selectQuery.Table("query").DefaultView[0].Row["STATUS"].ToString());
-                        nGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
-                        oCouponType = selectQuery.Table("query").DefaultView[0].Row["voucher"];
-                        if (oCouponType != null && oCouponType != System.DBNull.Value)
-                        {
-                            int couponType = int.Parse(oCouponType.ToString());
-                            if (couponType > 0)
-                            {
-                                m_couponType = CouponType.Voucher;
-                            }
-                        }
-                    }
-                    else
-                        ret = CouponsStatus.NotExists;
+                    couponsGroup = new CouponsGroup();
+                    couponsGroup.Initialize((int)couponsGroupId, groupId);
                 }
 
-                if (ret != CouponsStatus.NotExists)
-                {
-                    if (nStatus == 0)
-                        ret = CouponsStatus.NotExists;
-                    else if (nIsActive == 0)
-                        ret = CouponsStatus.NotExists;
-                    else
-                    {
-                        CouponsGroup t = new CouponsGroup();
-                        t.Initialize(nCouponGroupID, nGroupID);
-                        ret = t.GetCouponStatusCode(nUseCount);
-                    }
-                }
+                ret = couponsGroup.GetCouponStatusCode(useCount);
             }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
+
             return ret;
         }
 
@@ -208,5 +133,9 @@ namespace Core.Pricing
         public long m_ownerGUID;
         public long m_ownerMedia;
         public string code;
+        public long couponsGroupId;
+        public int useCount;
+        public bool isActive;
+        public bool status;
     }
 }

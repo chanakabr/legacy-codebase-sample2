@@ -238,7 +238,7 @@ namespace Core.ConditionalAccess
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool result = true;
-            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
+            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0, (long)domianID);
 
             long lPreviewModuleID = 0;
             if (theSub.m_oPreviewModule != null)
@@ -341,7 +341,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, Collection theCol,
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domainID, Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
@@ -350,7 +350,7 @@ namespace Core.ConditionalAccess
             Int32 nColCode;
             Int32.TryParse(sCollectionCode, out nColCode);
             HandleCouponUses(null, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0, nColCode);
+                sCountryCd, sLanguageCode, sDeviceName, true, 0, nColCode, (long)domainID);
 
             lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
 
@@ -360,7 +360,7 @@ namespace Core.ConditionalAccess
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName,
                 bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
-                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
+                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domainID);
 
             if (lPurchaseID > 0)
             {
@@ -411,18 +411,18 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
-            Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLanguageCode, string sDeviceName, BillingResponse br, string sCustomData,
-            PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, 
+        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string siteGuid, int householdId,
+            Subscription relevantSub, double price, string currency, string couponCode, string userIP,
+            string countryCode, string languageCode, string deviceName, BillingResponse br, string customData,
+            PPVModule thePPVModule, long mediaFileId, ref long billingTransactionId, ref long purchaseId, bool isDummy, 
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            bool res = true;
+            bool result = true;
 
-            HandleCouponUses(relevantSub, string.Empty, sSiteGUID, dPrice, sCurrency, (int)lMediaFileID, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
+            HandleCouponUses(relevantSub, string.Empty, siteGuid, price, currency, (int)mediaFileId, couponCode, userIP,
+                countryCode, languageCode, deviceName, true, 0, 0, (long)householdId);
 
-            lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
+            billingTransactionId = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
             bool bIsPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
             if (!startDate.HasValue)
@@ -436,55 +436,75 @@ namespace Core.ConditionalAccess
                     endDate = Utils.GetEndDateTime(startDate.Value, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
             }
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, lMediaFileID, sSiteGUID, dPrice, sCurrency,
-                bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
-                relevantSub != null ? relevantSub.m_sObjectCode : null, lBillingTransactionID, startDate.Value, endDate.Value,
-                DateTime.UtcNow, sCountryCd, sLanguageCode, sDeviceName, domianID, billingGuid);
-
-            if (lPurchaseID > 0)
+            int maxNumOfViews = bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
+            
+            PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
             {
+                billingGuid = billingGuid,
+                billingTransactionId = billingTransactionId,
+                contentId = (int)mediaFileId,
+                country = countryCode,
+                couponCode = couponCode,
+                currency = currency,
+                customData = customData,
+                deviceName = deviceName,
+                endDate = endDate,
+                entitlementDate = DateTime.UtcNow,
+                houseHoldId = householdId,
+                maxNumOfViews = maxNumOfViews,
+                price = price,
+                siteGuid = siteGuid,
+                startDate = startDate
+            };
 
-                WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. PPV purchase inserted into ppv_purchases. Purchase ID: {0}", lPurchaseID));
-                if (lBillingTransactionID > 0)
+            bool insertResult = ppvPurchase.Insert();
+
+            purchaseId = ppvPurchase.purchaseId;
+
+            if (purchaseId > 0)
+            {
+                WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. PPV purchase inserted into ppv_purchases. Purchase ID: {0}", purchaseId));
+
+                if (billingTransactionId > 0)
                 {
-                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
+                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId))
                     {
                         // failed to update purchase id in billing_transactions. log
                         #region Logging
                         StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
-                        sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                        sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
-                        sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
-                        sb.Append(String.Concat(" Media File ID: ", lMediaFileID));
+                        sb.Append(String.Concat(" Site Guid: ", siteGuid));
+                        sb.Append(String.Concat(" Purchase ID: ", purchaseId));
+                        sb.Append(String.Concat(" Billing transaction ID: ", billingTransactionId));
+                        sb.Append(String.Concat(" Media File ID: ", mediaFileId));
                         sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                        sb.Append(String.Concat(" Custom Data: ", sCustomData));
+                        sb.Append(String.Concat(" Custom Data: ", customData));
                         log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + sb.ToString());
                         #endregion
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lBillingTransactionID, lPurchaseID);
+                        UpdatePurchaseIDInExternalBillingTable(billingTransactionId, purchaseId);
                     }
                 }
                 else
                 {
-                    res = false;
+                    result = false;
                     #region Logging
-                    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", lPurchaseID, sSiteGUID, lMediaFileID, sCouponCode));
-                    WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No billing_transactions id. Purchase ID: {0}", lPurchaseID));
+                    log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No billing transaction id. Purchase ID: {0} , Site Guid: {1} , Media File ID: {2} , Coupon Code: {3}", purchaseId, siteGuid, mediaFileId, couponCode));
+                    WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. No billing_transactions id. Purchase ID: {0}", purchaseId));
                     #endregion
                 }
             }
             else
             {
-                res = false;
+                result = false;
                 #region Logging
-                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", lBillingTransactionID, sSiteGUID, sCouponCode, lMediaFileID));
-                WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForMediaFileBillingSuccess. No purchase id. Media File ID:  {0} , Coupon Code: {1}", lMediaFileID, sCouponCode));
+                log.Debug("HandleChargeUserForMediaFileBillingSuccess - " + string.Format("No PPV Purchase ID. Billing transaction ID: {0} , Site Guid: {1} , Coupon Code: {2} , Media File ID: {3}", billingTransactionId, siteGuid, couponCode, mediaFileId));
+                WriteToUserLog(siteGuid, string.Format("HandleChargeUserForMediaFileBillingSuccess. No purchase id. Media File ID:  {0} , Coupon Code: {1}", mediaFileId, couponCode));
                 #endregion
             }
 
-            return res;
+            return result;
         }
 
         /*
@@ -495,11 +515,12 @@ namespace Core.ConditionalAccess
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
             // validate user state (suspended or not)
             int domainId = 0;
+            drmData = string.Empty;
             DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
 
@@ -546,8 +567,17 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Streaming id
                 int mediaId = 0;
                 string fileType = string.Empty;
+                int drmId = 0;
+                string fileCoGuid = string.Empty;
+
+                int nProgramId = 0;
+                if (eformat != eEPGFormatType.NPVR)
+                {
+                    bool res = int.TryParse(sProgramId, out nProgramId);
+                }
+
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
-                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, nProgramId);
 
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
@@ -569,12 +599,12 @@ namespace Core.ConditionalAccess
                      * It continues as usual. If it is Vodafone, it returns the licensed link that we fetched from ALU.
                      */
                     string npvrLicensedLink = CalcNPVRLicensedLink(sProgramId, dStartTime, format, sSiteGUID, nMediaFileID, sBasicLink, sUserIP,
-                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
+                        sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, drmId, fileCoGuid, contextType, out drmData);
                     if (npvrLicensedLink.Length > 0)
                     {
                         response.Status.Code = (int)eResponseStatus.OK;
                         response.status = eLicensedLinkStatus.OK.ToString();
-                        response.mainUrl = npvrLicensedLink;
+                        response.mainUrl = npvrLicensedLink;                        
                         return response;
                     }
                     else
@@ -587,7 +617,6 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
-                int nProgramId = Int32.Parse(sProgramId);
                 Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, nProgramId);
                 if (scheduling != null)
                 {
@@ -720,7 +749,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(relevantSub, productId.ToString(), siteguid, price, currency, contentId, coupon, userIp, country, string.Empty, deviceName, true, 0, 0);
+                HandleCouponUses(relevantSub, productId.ToString(), siteguid, price, currency, contentId, coupon, userIp, country, string.Empty, deviceName, true, 0, 0, houseHoldId);
 
                 bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
@@ -805,7 +834,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(subscription, string.Empty, siteguid, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
+                HandleCouponUses(subscription, string.Empty, siteguid, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0, houseHoldId);
 
                 long previewModuleID = 0;
                 bool usageModuleExists = (subscription != null && subscription.m_oUsageModule != null);
@@ -914,7 +943,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID);
+                HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID, houseHoldID);
 
                 bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
 

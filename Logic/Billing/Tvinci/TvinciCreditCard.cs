@@ -349,62 +349,6 @@ namespace Core.Billing
             return ret;
         }
 
-        //public override BillingResponse ChargeUser(string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters, int transactionID)
-        //{
-        //    UsersService u = new UsersService();
-        //    string sIP = "1.1.1.1";
-        //    string sWSUserName = "";
-        //    string sWSPass = "";
-        //    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "GetUserData", "users", sIP, ref sWSUserName, ref sWSPass);
-        //    string sWSURL = Utils.GetWSURL("users_ws");
-        //    if (sWSURL != "")
-        //        u.Url = sWSURL;
-        //    BillingResponse ret = new BillingResponse();
-        //    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID);
-        //    if (uObj.m_RespStatus != ResponseStatus.OK)
-        //    {
-        //        ret = new BillingResponse();
-        //        ret.m_oStatus = BillingResponseStatus.UnKnownUser;
-        //        ret.m_sRecieptCode = "";
-        //        ret.m_sStatusDescription = "Unknown or active user";
-        //        return ret;
-        //    }
-
-        //    Int32 nExpM = 1;
-        //    Int32 nExpY = 10;
-        //    string sIssueNum = "";
-        //    string sStartM = "";
-        //    string sStartY = "";
-        //    string sIssuerBank = "";
-        //    string sToken = GetUserToken(sSiteGUID, ref nExpM, ref nExpY, ref sStartM, ref sStartY, ref sIssueNum, ref sIssuerBank);
-        //    if (sToken == "")
-        //    {
-        //        ret = new BillingResponse();
-        //        ret.m_oStatus = BillingResponseStatus.Fail;
-        //        ret.m_sRecieptCode = "";
-        //        ret.m_sStatusDescription = "User does not have a token";
-        //        return ret;
-        //    }
-
-        //    UserBasicData uBasicData = uObj.m_user.m_oBasicData;
-        //    Int32 nTransactionLocalID = 0;
-        //    string sSaleURL = GetSaleURL(sSiteGUID, uBasicData, sToken, nExpM, nExpY, dChargePrice,
-        //        sCurrencyCode, sUserIP, sCustomData, sIssueNum, sStartM, sStartY, sIssuerBank, ref nTransactionLocalID, transactionID);
-        //    Int32 nStatus = 0;
-        //    string sResp = TVinciShared.Notifier.SendGetHttpReq(sSaleURL, ref nStatus);
-        //    if (nStatus != 200)
-        //    {
-        //        ret.m_oStatus = BillingResponseStatus.ExternalError;
-        //        ret.m_sRecieptCode = "";
-        //        ret.m_sStatusDescription = "Proccessor is down";
-        //        return ret;
-        //    }
-        //    else
-        //        ret = GetBillingResponse(sResp, nTransactionLocalID, sSiteGUID, nPaymentNumber, nNumberOfPayments);
-
-        //    return ret;
-        //}
-
         protected BillingResponse GetBillingResponse(string sResp, Int32 nTransactionLocalID, string sSiteGUID,
             Int32 nPaymentNumber, Int32 nNumberOfPayments, string sUserIP)
         {

@@ -2,6 +2,7 @@
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -105,11 +106,11 @@ namespace Core.Api.Managers
                                     // Initialize unified search request:
                                     // SignString/Signature (basic catalog parameters)
                                     string sSignString = Guid.NewGuid().ToString();
-                                    string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
+                                    string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                                     string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                                     // page size should be max_results so it will return everything
-                                    int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
+                                    int pageSize = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
                                     UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
                                     {

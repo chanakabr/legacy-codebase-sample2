@@ -11,7 +11,6 @@ using ApiObjects;
 
 namespace Core.Catalog.Request
 {
- 
     public class MediaPlayRequestData
     {
         [DataMember]
@@ -36,19 +35,15 @@ namespace Core.Catalog.Request
         public int m_nCurrentBitRate;
         [DataMember]
         public eAssetTypes m_eAssetType;
-
+        [DataMember]
         public string m_sMediaTypeId;
-
-        public MediaPlayRequestData()
-        {
-
-
-        }
-
+        [DataMember]
+        public long ProgramId;
+        
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("MediaPlayRequestData obj: ");
-            sb.Append(String.Concat("Asset ID: ", m_sAssetID));
+            sb.Append(String.Concat(" Asset ID: ", m_sAssetID));
             sb.Append(String.Concat(" Site Guid: ", m_sSiteGuid ?? "null"));
             sb.Append(String.Concat(" Action: ", m_sAction ?? "null"));
             sb.Append(String.Concat(" Loc: ", m_nLoc));
@@ -59,9 +54,9 @@ namespace Core.Catalog.Request
             sb.Append(String.Concat(" Total Bitrate: ", m_nTotalBitRate));
             sb.Append(String.Concat(" Current Bitrate: ", m_nCurrentBitRate));
             sb.Append(String.Concat(" Asset Type: ", m_eAssetType));
+            sb.Append(String.Concat(" Program Id: ", ProgramId));
 
             return sb.ToString();
         }
-
     }
 }

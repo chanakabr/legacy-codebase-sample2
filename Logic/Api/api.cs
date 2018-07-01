@@ -14,6 +14,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog;
@@ -21,9 +22,12 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
+using CouchbaseManager;
 using DAL;
 using EpgBL;
 using KLogMonitor;
+using KlogMonitorHelper;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -100,7 +104,14 @@ namespace Core.Api
         private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
         private const double MAX_SERVER_TIME_DIF = 5;
         private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const double HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 300; // 5 minutes
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
+
+        private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
+        private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
+        private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
+
+        private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
 
         #endregion
 
@@ -457,18 +468,6 @@ namespace Core.Api
             return ret;
         }
 
-        /*Get the Lucene URL from DB , else from config file*/
-        private static string GetLuceneUrl(int nGroupID)
-        {
-            string sLuceneURL = GetWSURL("LUCENE_WCF");
-            return sLuceneURL;
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public List<string> GetAutoCompleteList(RequestObj request, int groupID)
         {
             log.Debug("AutoComplete - Start AutoComplete");
@@ -495,7 +494,7 @@ namespace Core.Api
             autoCompleteRequest.m_lTags = request.m_InfoStruct.m_Tags;
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             autoCompleteRequest.m_sSignature = sSignature;
@@ -840,7 +839,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 for (int i = 0; i < nChannels.Length; i++)
@@ -1018,7 +1017,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1047,7 +1046,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1611,6 +1610,7 @@ namespace Core.Api
                     }
                 }
             }
+
             return res;
         }       
 
@@ -1648,6 +1648,11 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
+        }
+
+        internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            return AssetRuleManager.GetAssetRule(groupId, assetRuleId);
         }
 
         static private Dictionary<string, List<EPGDictionary>> GetAllEPGMetaProgram(int nGroupID, DataTable ProgramID)
@@ -1699,7 +1704,7 @@ namespace Core.Api
             }
             return EPG_ResponseMeta;
         }
-
+        
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
             List<EPGDictionary> EPG_ResponseMeta = new List<EPGDictionary>();
@@ -2483,45 +2488,51 @@ namespace Core.Api
         {
             bool isBlocked = false;
             Int32 geoBlockID = 0;
-            ruleName = string.Empty;
-            string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
-            DataTable dt = null;
-            // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
-                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
-            if (cacheResult && dt != null)
+            ruleName = "GeoAvailability";
+            Country country = GetCountryByIp(groupId, ip);
+
+            bool isGeoAvailability;
+            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, country.Id, mediaId, out isGeoAvailability);
+            
+            if (!isGeoAvailability)
             {
-                if (dt.Rows != null && dt.Rows.Count > 0)
+                string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
+                DataTable dt = null;
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                if (cacheResult && dt != null)
                 {
-                    Country country = GetCountryByIp(groupId, ip);
-                    Int32 nCountryID = country != null ? country.Id : 0;
-                    ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                    geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
-                    int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
-
-                    DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
-                    bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-
-                    log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
-
-                    if (geoBlockID > 0)
+                    if (dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        //No one except
-                        if (nONLY_OR_BUT == 0)
-                            isBlocked = !bExsitInRuleM2M;
-                        //All except
-                        if (nONLY_OR_BUT == 1)
-                            isBlocked = bExsitInRuleM2M;
+                        Int32 nCountryID = country != null ? country.Id : 0;
+                        ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
+                        geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+                        int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
-                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                        DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
+                        bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
+
+                        log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
+
+                        if (geoBlockID > 0)
                         {
-                            isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            //No one except
+                            if (nONLY_OR_BUT == 0)
+                                isBlocked = !bExsitInRuleM2M;
+                            //All except
+                            if (nONLY_OR_BUT == 1)
+                                isBlocked = bExsitInRuleM2M;
+
+                            if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
+                            {
+                                isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
+                            }
                         }
                     }
                 }
             }
-
             return isBlocked;
         }
 
@@ -2641,7 +2652,17 @@ namespace Core.Api
                     IsActive = true
                 });
             }
+            
+            // check if the user have assetUserRules 
+            long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
+            var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
 
+            if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+            {
+                groupRules.AddRange(ConvertAssetUserRuleToGroupRule(mediaAssetUserRules));
+            }
+
+            // check if the user have Parental Rules 
             var response = GetParentalMediaRules(groupId, siteGuid, mediaId, 0);
 
             if (response != null && response.status != null && response.status.Code == 0)
@@ -3772,7 +3793,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -3827,7 +3848,7 @@ namespace Core.Api
         {
             List<string> medias = new List<string>();
             string signString = Guid.NewGuid().ToString();
-            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, GetWSURL("CatalogSignatureKey"));
+            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.CatalogSignatureKey.Value);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -3855,7 +3876,7 @@ namespace Core.Api
         public static bool DoesMediaBelongToBundle(int nBundleCode, int[] nFileTypeIDs, int nMediaID, string sDevice, int nGroupID, Btype bType)
         {
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -3912,7 +3933,7 @@ namespace Core.Api
             List<int> nMedias = new List<int>();
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -3969,7 +3990,7 @@ namespace Core.Api
 
             //Check if geo-block applies
             string ruleName;
-            if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
+            if (string.IsNullOrEmpty(ip) || CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
             {
                 groupRules.Add(new GroupRule()
                 {
@@ -4217,7 +4238,7 @@ namespace Core.Api
                 oFilter.m_sPlatform = "";
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
 
@@ -4249,7 +4270,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = APILogic.Utils.GetWSUrl("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4280,7 +4301,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4307,7 +4328,7 @@ namespace Core.Api
 
         internal static Tuple<List<int>, bool> Get_MCRulesIdsByMediaId(Dictionary<string, object> funcParams)
         {
-            bool res = false;
+            bool res = true;
             List<int> ruleIds = new List<int>();
             try
             {
@@ -4353,8 +4374,6 @@ namespace Core.Api
                                     }
                                 }
                             });
-
-                            res = true;
                         }
                     }
                 }
@@ -4362,8 +4381,10 @@ namespace Core.Api
 
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
+
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
 
@@ -4398,44 +4419,54 @@ namespace Core.Api
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        /***************************************************************************************************************************
-         * 
-         This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
-         * 
-         ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID = -1, eBusinessModule? type = null)
+        /// <summary>
+        /// This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
+        /// </summary>
+        /// <param name="mediaId"></param>
+        /// <param name="ip"></param>
+        /// <param name="groupId"></param>
+        /// <param name="bmID"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string ip, int groupId, int bmID = -1, eBusinessModule? type = null)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
-            //MediaConcurrencyRule rule = null;
+            
             try
             {
                 var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
                 List<int> ruleIds = new List<int>();
 
+                if (groupMediaConcurrencyRules == null || groupMediaConcurrencyRules.Count == 0)
+                    return res;
+
                 // get all related rules to media 
                 string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
-                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
-                    key, ref ruleIds, Get_MCRulesIdsByMediaId,
-                    new Dictionary<string, object>()
-                        {
-                        { "groupId", groupId },
-                        { "mediaId", mediaId },
-                        { "mcr", groupMediaConcurrencyRules }
-                        },
-                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
-                if (!cacheResult)
+                if (!LayeredCache.Instance.Get<List<int>>(key,
+                                                          ref ruleIds, 
+                                                          Get_MCRulesIdsByMediaId,
+                                                          new Dictionary<string, object>()
+                                                          {
+                                                            { "groupId", groupId },
+                                                            { "mediaId", mediaId },
+                                                            { "mcr", groupMediaConcurrencyRules }
+                                                          },
+                                                          groupId, 
+                                                          LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                          new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) }))
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
                     return null;
                 }
-                else if (ruleIds != null && ruleIds.Count > 0)
+
+                if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
-                    (bmID == -1 || x.bmId == bmID) &&
-                    (type == null || x.Type == type)).ToList();
+                    res.AddRange(groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
+                                                                       (bmID == -1 || x.bmId == bmID) &&
+                                                                       (type == null || x.Type == type.Value)));
                 }
+
                 return res;
             }
             catch (Exception ex)
@@ -4453,12 +4484,12 @@ namespace Core.Api
             string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
 
             // try to get from cache  
-
-            bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(
-                key, ref result, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
-
-            if (!cacheResult)
+            if (!LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key,
+                                                                       ref result, 
+                                                                       APILogic.Utils.Get_MCRulesByGroup, 
+                                                                       new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                       groupId, 
+                                                                       LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME))
             {
                 log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
                 result = null;
@@ -4480,7 +4511,7 @@ namespace Core.Api
                 request.m_oFilter.m_bOnlyActiveMedia = true;
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                 request.m_sSignature = sSignature;
@@ -4747,7 +4778,7 @@ namespace Core.Api
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
 
-                        LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4774,11 +4805,6 @@ namespace Core.Api
             }
 
             return status;
-        }
-
-        private static string GetUserParentalRuleInvalidationKey(string siteGuid)
-        {
-            return string.Format("user_parental_rules_{0}", siteGuid);
         }
 
         public static ApiObjects.Response.Status SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
@@ -4914,7 +4940,7 @@ namespace Core.Api
                             // if we updated a user only - set its key as invalid
                             if (!string.IsNullOrEmpty(siteGuid))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                             }
                             // otherwise - set all of the domain's users keys as invalid
                             else
@@ -4961,7 +4987,7 @@ namespace Core.Api
                 // Set invalidation key for each of its users
                 foreach (var userId in domain.m_UsersIDs)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(userId.ToString()));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId.ToString()));
                 }
             }
         }
@@ -5329,14 +5355,10 @@ namespace Core.Api
 
                     // media rules id 
                     string key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
-                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
-                        new Dictionary<string, object>()
-                            {
-                                { "groupId", groupId },
-                                { "mediaId", mediaId },
-                                { "groupsParentalRules", groupsParentalRules }
-                            },
-                        groupId, LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                            { "mediaId", mediaId }, { "groupsParentalRules", groupsParentalRules } }, groupId,
+                                                                            LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>()
+                                                                            { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
                     if (!cacheResult)
                     {
@@ -5348,7 +5370,7 @@ namespace Core.Api
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             List<string> userParentalRulesInvalidationKeys = new List<string>();
-                            userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                             // user rules 
                             key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5470,7 +5492,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-
+        
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
         {
             GenericRuleResponse response = new GenericRuleResponse();
@@ -5494,6 +5516,25 @@ namespace Core.Api
                         response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
                     }
 
+                    // get all AssetUserRule for the user
+                    long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
+                    var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
+
+                    if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                    {
+                        foreach(AssetUserRule assetUserRule in mediaAssetUserRules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = assetUserRule.Id,
+                                Name = assetUserRule.Name,
+                                Description = assetUserRule.Description,
+                                RuleType = RuleType.AssetUser
+                            });
+                        }
+                    }
+
+                    // get all ParentalRules for the user
                     ParentalRulesResponse parentalRulesResponse = GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
                     if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
                     {
@@ -5566,14 +5607,8 @@ namespace Core.Api
 
                     // epg rules id 
                     string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
-                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
-                        new Dictionary<string, object>()
-                            {
-                                { "groupId", groupId },
-                                { "epgId", epgId },
-                                { "groupParentalRules", groupsParentalRules }
-                            },
-                        groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "epgId", epgId },
+                                                                            { "groupParentalRules", groupsParentalRules } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
                     if (!cacheResult)
                     {
@@ -5583,7 +5618,7 @@ namespace Core.Api
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
                     {
                         List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5799,19 +5834,8 @@ namespace Core.Api
                     foreach (var rule in rules)
                     {
                         // Transform lists of tags from ParentalRule class to lists of tag values
-                        response.mediaTags.AddRange(
-                            rule.mediaTagValues.Select(tag => (new IdValuePair()
-                            {
-                                id = rule.mediaTagTypeId.HasValue ? rule.mediaTagTypeId.Value : 0,
-                                value = tag
-                            })));
-
-                        response.epgTags.AddRange(
-                            rule.epgTagValues.Select(tag => (new IdValuePair()
-                            {
-                                id = rule.epgTagTypeId.HasValue ? rule.epgTagTypeId.Value : 0,
-                                value = tag
-                            })));
+                        response.mediaTags.AddRange(rule.mediaTagValues.Select(tag => (new IdValuePair() { id = rule.mediaTagTypeId.HasValue ? rule.mediaTagTypeId.Value : 0, value = tag })));
+                        response.epgTags.AddRange(rule.epgTagValues.Select(tag => (new IdValuePair() { id = rule.epgTagTypeId.HasValue ? rule.epgTagTypeId.Value : 0, value = tag })));
                     }
 
                     response.status = new ApiObjects.Response.Status()
@@ -5839,7 +5863,7 @@ namespace Core.Api
                 ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK && result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.name == parentalRuleToAdd.name) > 0)
                 {
-                    response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
                     return response;
                 }
 
@@ -5851,13 +5875,13 @@ namespace Core.Api
 
                 if (parentalRuleToAdd.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.mediaTagTypeId.Value))
                 {
-                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
                 if (parentalRuleToAdd.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.epgTagTypeId.Value))
                 {
-                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
@@ -5868,7 +5892,7 @@ namespace Core.Api
                 if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id > 0)
                 {
                     response.Object = rules[0];
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -5892,19 +5916,19 @@ namespace Core.Api
                 ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
-                    response.Status = new Status((int)result.status.Code, result.status.Message);
+                    response.SetStatus(result.status);
                     return response;
                 }
 
                 if (result.rules == null || result.rules.Count == 0 || result.rules.Count(x => x.id == id) != 1)
                 {
-                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
                     return response;
                 }
 
                 if (!string.IsNullOrEmpty(parentalRuleToUpdate.name) && result.rules.Count(x => x.name == parentalRuleToUpdate.name) > 0)
                 {
-                    response.Status = new Status((int)eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
                     return response;
                 }
 
@@ -5916,13 +5940,13 @@ namespace Core.Api
 
                 if (parentalRuleToUpdate.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.mediaTagTypeId.Value))
                 {
-                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
                 if (parentalRuleToUpdate.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.epgTagTypeId.Value))
                 {
-                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
                     return response;
                 }
 
@@ -5948,7 +5972,7 @@ namespace Core.Api
                     if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
                     {
                         response.Object = rules[0];
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
@@ -5958,7 +5982,7 @@ namespace Core.Api
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
                 }
             }
             catch (Exception ex)
@@ -5977,18 +6001,18 @@ namespace Core.Api
                 ParentalRulesResponse result = GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
-                    response.Status = new Status((int)result.status.Code, result.status.Message);
+                    response.SetStatus(result.status);
                     return response;
                 }
 
                 if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
                 {
                     response.Object = result.rules.Where(x => x.id == id).First();
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
                 }
             }
             catch (Exception ex)
@@ -7002,7 +7026,7 @@ namespace Core.Api
 
             try
             {
-                List<int> countries = DAL.ApiDAL.GetAllCountries();
+                List<int> countries = DAL.ApiDAL.GetAllCountriesIds();
 
                 if (countries != null)
                 {
@@ -7130,8 +7154,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7229,7 +7252,7 @@ namespace Core.Api
                         }
                     }
 
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
                     };
@@ -7467,8 +7490,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7532,8 +7554,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7787,7 +7808,7 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannelId)
@@ -7879,7 +7900,7 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannel.ID)
@@ -7968,7 +7989,8 @@ namespace Core.Api
                 return response;
             }
 
-            int frequencyMinValue = TVinciShared.WS_Utils.GetTcmIntValue("export.frequency_min_value");
+            int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+
             if (frequency < frequencyMinValue)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));
@@ -8032,7 +8054,8 @@ namespace Core.Api
                     return response;
                 }
 
-                int frequencyMinValue = TVinciShared.WS_Utils.GetTcmIntValue("export.frequency_min_value");
+                int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+
                 if (frequency < frequencyMinValue)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));
@@ -8471,7 +8494,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = GetWSURL("CatalogSignatureKey");
+                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -8817,7 +8840,7 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -8895,7 +8918,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
@@ -8952,7 +8975,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version,adapterId)
@@ -9051,7 +9074,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -9438,7 +9461,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = GetWSURL("CatalogSignatureKey");
+                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -9477,7 +9500,7 @@ namespace Core.Api
                 catch (Exception ex)
                 {
                     log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}",
-                        filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
+                                                         filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
                 }
             }
             catch (Exception ex)
@@ -9487,29 +9510,26 @@ namespace Core.Api
 
             return assets;
         }
-
+        
         public static DeviceFamilyResponse GetDeviceFamilyList()
         {
             DeviceFamilyResponse result = new DeviceFamilyResponse();
-            DataTable dt = DAL.ApiDAL.GetDeviceFamilies();
+            
+            DataTable dt = ApiDAL.GetDeviceFamilies();
             if (dt != null && dt.Rows != null)
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                foreach (DataRow dr in dt.Rows)
                 {
-                    DataRow dr = dt.Rows[i];
-                    if (dr != null)
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                    if (id > 0 && !string.IsNullOrEmpty(name))
                     {
-                        int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                        if (id > 0 && !string.IsNullOrEmpty(name))
-                        {
-                            DeviceFamily deviceFamily = new DeviceFamily(id, name);
-                            result.DeviceFamilies.Add(deviceFamily);
-                        }
+                        DeviceFamily deviceFamily = new DeviceFamily(id, name);
+                        result.DeviceFamilies.Add(deviceFamily);
                     }
                 }
 
-                result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 result.TotalItems = dt.Rows.Count;
             }
 
@@ -9545,33 +9565,41 @@ namespace Core.Api
             return result;
         }
 
-        public static ApiObjects.CountryLocaleResponse GetCountryList(List<int> countryIds, int groupId = 0)
+        public static List<Country> GetCountryListByIds(List<int> countryIds, int groupId)
         {
-            ApiObjects.CountryLocaleResponse result = new ApiObjects.CountryLocaleResponse();
-            List<Country> countries = new List<Country>();
-            DataTable dt = DAL.ApiDAL.GetCountries(countryIds);
-            if (dt != null && dt.Rows != null)
+            List<Country> countries = null;
+            try
             {
-                ApiObjects.Country country;
-                for (int i = 0; i < dt.Rows.Count; i++)
+                string key = LayeredCacheKeys.GetAllCountryListKey();
+                
+                if (!LayeredCache.Instance.Get<List<Country>>(key, 
+                                                              ref countries, 
+                                                              APILogic.Utils.GetAllCountryList, 
+                                                              new Dictionary<string, object>(), 
+                                                              groupId, 
+                                                              LayeredCacheConfigNames.GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME))
                 {
-                    DataRow dr = dt.Rows[i];
-                    if (dr != null)
-                    {
-                        country = new ApiObjects.Country()
-                        {
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
-                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_NAME"),
-                            Code = ODBCWrapper.Utils.GetSafeStr(dr, "COUNTRY_CD2"),
-                        };
-                        if (country.Id > 0)
-                        {
-                            countries.Add(country);
-                        }
-                    }
+                    log.ErrorFormat("Failed getting country list by Ids from LayeredCache, groupId: {0}, countryIds: {1}, key: {2}", groupId, string.Join(", ", countryIds), key);
+                }
+
+                if (countries != null && countryIds != null && countryIds.Count > 0)
+                {
+                    countries = countries.Where(x => countryIds.Contains(x.Id)).ToList();
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryListByIds for groupId: {0}, countryIds: {1}", groupId, string.Join(", ", countryIds)), ex);
+            }
 
+            return countries;
+        }
+
+        public static CountryLocaleResponse GetCountryLocaleList(List<int> countryIds, int groupId = 0)
+        {
+            CountryLocaleResponse result = new CountryLocaleResponse();
+            List<Country> countries = GetCountryListByIds(countryIds, groupId);
+            
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
             if (groupId > 0)
             {
@@ -9587,6 +9615,7 @@ namespace Core.Api
                         countriesLocaleMap[country.Id].Id = country.Id;
                         countriesLocaleMap[country.Id].Code = country.Code;
                         countriesLocaleMap[country.Id].Name = country.Name;
+                        countriesLocaleMap[country.Id].TimeZoneId = country.TimeZoneId;
                         result.CountryLocales.Add(countriesLocaleMap[country.Id]);
                     }
                     else
@@ -9601,7 +9630,6 @@ namespace Core.Api
             }
 
             result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
             return result;
         }
 
@@ -9609,7 +9637,7 @@ namespace Core.Api
         {
             MetaResponse response = new MetaResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             try
@@ -10100,6 +10128,7 @@ namespace Core.Api
                         countriesLocaleMap[country.Id].Id = country.Id;
                         countriesLocaleMap[country.Id].Code = country.Code;
                         countriesLocaleMap[country.Id].Name = country.Name;
+                        countriesLocaleMap[country.Id].TimeZoneId = country.TimeZoneId;
                         result.CountryLocales.Add(countriesLocaleMap[country.Id]);
                     }
                     else
@@ -10412,7 +10441,8 @@ namespace Core.Api
             }
         }
 
-        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, string externalFileId, string ip, string udid)
+        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
+            string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
             StringResponse response = new StringResponse();
 
@@ -10426,7 +10456,8 @@ namespace Core.Api
                     return response;
                 }
 
-                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid);
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, 
+                    contextType, recordingId);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
@@ -10492,58 +10523,581 @@ namespace Core.Api
             return response;
         }
 
-        /*internal static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        internal static List<long> GetUserWatchedMediaIds(int groupId, int userId)
         {
-            List<TagValue> result = new List<TagValue>();
+            List<long> mediaIds = new List<long>();
 
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache;
-            Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-            if (catalogGroupCache == null)
-            {
-                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
-            }
-            else
-            {
-                LanguageObj language = null;
-                catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
-
-                if (language == null)
-                {
-                    log.ErrorFormat("Invalid language id {0}", languageId);
-                }
-                else
-                {
-                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-
-                    result = wrapper.SearchTags(groupId, language, topicId, searchValue);
-                }
-            }
-            return result;
-        }
-        */
-
-        public static DrmAdapterListResponse GetDrmAdapters(int groupID)
-        {
-            DrmAdapterListResponse response = new DrmAdapterListResponse();
             try
             {
-                response.Adapters = DAL.ApiDAL.GetDrmAdapters(groupID);
-                if (response.Adapters == null || response.Adapters.Count == 0)
+                string key = LayeredCacheKeys.GetUserWatchedMediaIdsKey(userId);
+
+                bool cacheResult = LayeredCache.Instance.Get<List<long>>(
+                    key, ref mediaIds, GetUserWatchedMedias,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "userId", userId }
+                        },
+                    groupId, LayeredCacheConfigNames.GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId) });
+
+                if (!cacheResult)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No adapters found");
+                    log.ErrorFormat("GetUserWatchedMediaIds - Failed get data from cache groupId= {0}, userId= {1}", groupId, userId);
+                    return null;
                 }
-                else
+
+                return mediaIds;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed - GetUserWatchedMediaIds. ex: {0}", ex);
+                return null;
+            }
+        }
+
+        internal static Tuple<List<long>, bool> GetUserWatchedMedias(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> mediaIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("userId"))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? userId = funcParams["userId"] as int?;
+
+                    if (groupId.HasValue && userId.HasValue)
+                    {
+                        // get mediaIds from catalog using WatchHistoryRequest
+                        string signString = Guid.NewGuid().ToString();
+                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value);
+
+                        // build request
+                        WatchHistoryRequest request = new WatchHistoryRequest()
+                        {
+                            m_sSiteGuid = userId.ToString(),
+                            m_sSignature = signature,
+                            m_sSignString = signString,
+                            m_nGroupID = groupId.Value,
+                            m_nPageIndex = 0,
+                            m_nPageSize = 0,
+                            AssetTypes = null,
+                            FilterStatus = eWatchStatus.All,
+                            NumOfDays = 365,
+                            OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                        };
+
+                        WatchHistoryResponse response = request.GetResponse(request) as WatchHistoryResponse;
+                        if (response != null && response.result != null)
+                        {
+                            mediaIds = response.result.Select(x => long.Parse(x.AssetId)).ToList<long>();
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUserWatchedMedias failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<long>, bool>(mediaIds.Distinct().ToList(), result);
+        }
+
+        private static List<int> GetDeviceRulesByBrandId(int groupId, int brandId)
+        {
+            List<int> deviceRules = new List<int>();
+
+            string key = LayeredCacheKeys.GetDeviceRulesByBrandIdKey(groupId, brandId);
+            if (!LayeredCache.Instance.Get<List<int>>(key, ref deviceRules, GetDeviceRulesByBrandId, new Dictionary<string, object>() { { "groupId", groupId }, { "brandId", brandId } },
+                groupId, LayeredCacheConfigNames.GET_DEVICE_RULES_BY_BRAND_ID_CACHE_CONFIG_NAME, null))
+            {
+                log.ErrorFormat("Failed getting device rules by brand ID from LayeredCache, key: {0}", key);
+            }
+
+            return deviceRules;
+        }
+
+        private static Tuple<List<int>, bool> GetDeviceRulesByBrandId(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<int> ruleIds = new List<int>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("brandId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? brandId = funcParams["brandId"] as int?;
+
+                        if (groupId.HasValue && brandId.HasValue)
+                        {
+                            ruleIds = ApiDAL.GetDeviceRulesByBrandId(groupId.Value, brandId.Value);
+                            result = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+                log.Error(string.Format("GetDeviceRulesByBrandId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+
+        public static int GetDeviceBrandId(int groupId, string udid, int domainId)
+        {
+            if (string.IsNullOrEmpty(udid))
+            {
+                return 22;
+            }
+
+            if (domainId > 0)
+            {
+                Users.DomainResponse domainResponse = Domains.Module.GetDomainInfo(groupId, domainId);
+                if (domainResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    Users.Device device = null;
+                    foreach (var deviceFamily in domainResponse.Domain.m_deviceFamilies)
+                    {
+                        device = deviceFamily.DeviceInstances.FirstOrDefault(d => d.m_deviceUDID == udid);
+                        if (device != null)
+                        {
+                            return device.m_deviceBrandID;
+                        }
+                    }
+                }
+            }
+
+            return DomainDal.GetDeviceBrandIdByUdid(groupId, udid);
+        }
+
+        public static List<int> GetDeviceAllowedRuleIDs(int groupId, string udid, int domainId)
+        {
+            List<int> ruleIds = new List<int>();
+
+            int brandId = GetDeviceBrandId(groupId, udid, domainId);
+
+            if (brandId > 0)
+            {
+                ruleIds = GetDeviceRulesByBrandId(groupId, brandId);
+            }
+
+            return ruleIds;
+        }
+
+        internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
+        {
+            return AssetRuleManager.AddAssetRule(groupId, assetRule);
+        }
+
+        internal static Status DeleteAssetRule(int groupId, long assetRuleId)
+        {
+            return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
+        }
+
+        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        {
+            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
+        }
+
+        internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)
+        {
+            return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
+        }
+
+        internal static bool DoActionAssetRules()
+        {
+            double assetRuleScheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
+            try
+            {
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetRuleScheduledTasks);
+
+                // get run details
+                ScheduledTaskLastRunDetails lastRunDetails = assetRuleScheduledTask.GetLastRunDetails();
+                assetRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+
+                if (assetRuleScheduledTask != null &&
+                    assetRuleScheduledTask.Status.Code == (int)eResponseStatus.OK &&
+                    assetRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                {
+                    assetRuleScheduledTaskIntervalSec = assetRuleScheduledTask.NextRunIntervalInSeconds;
+
+                    if (assetRuleScheduledTask.LastRunDate.AddSeconds(assetRuleScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = true;
+                    }
+                }
+                else
+                {
+                    shouldEnqueueFollowUp = true;
+                    assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                }
+
+                int impactedItems = AssetRuleManager.DoActionRules();
+
+                if (impactedItems > 0)
+                {
+                    log.DebugFormat("Successfully applied asset rules on: {0} assets", impactedItems);
+                }
+                else
+                {
+                    log.DebugFormat("No assets were modified on DoActionRules");
+                }
+
+                assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, assetRuleScheduledTaskIntervalSec, ScheduledTaskType.assetRuleScheduledTasks);
+                if (!assetRuleScheduledTask.SetLastRunDetails(ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN))
+                {
+                    log.InfoFormat("Failed updating asset rules scheduled task last run details, AssetRuleScheduledTask: {0}", assetRuleScheduledTask.ToString());
+                }
+                else
+                {
+                    log.Debug("Successfully updated asset rules scheduled task last run date");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in DoActionAssetRules", ex);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {
+                if (shouldEnqueueFollowUp)
+                {
+                    if (assetRuleScheduledTaskIntervalSec == 0)
+                    {
+                        assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+                    {
+                        ETA = nextExecutionDate
+                    };
+
+                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                }
+            }
+
+            return true;
+        }
+
+        internal static DataTable GetMediaCountries(int groupId, long mediaId)
+        {
+            DataTable mediaCountries = null;
+
+            string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
+            if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
+                groupId, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+            {
+                log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
+            }
+
+            return mediaCountries;
+        }
+
+        private static Tuple<DataTable, bool> GetMediaCountries(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            DataTable mediaCountries = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaId"))
+                    {
+                        long? mediaId = funcParams["mediaId"] as long?;
+
+                        if (mediaId.HasValue && mediaId.HasValue)
+                        {
+                            mediaCountries = ApiDAL.GetMediaCountries(mediaId.Value);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaCountries failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DataTable, bool>(mediaCountries, result);
+        }
+
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability)
+        {
+            isGeoAvailability = false;
+            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            if (group.isGeoAvailabilityWindowingEnabled)
+            {
+                isGeoAvailability = true;
+
+                DataTable mediaCountriesDt = Core.Api.api.GetMediaCountries(groupId, mediaId);
+                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
+                {
+                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
+                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
+
+                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
+                    {
+                        return true;
+                    }
+                    else if (allowedCountries == null || allowedCountries.Length == 0)
+                    {
+                        isGeoAvailability = false;
+                        return false;
+                    }
+                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    isGeoAvailability = false;
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, GenericListResponse<AssetUserRule> userToAssetUserRules = null)
+        {
+            List<AssetUserRule> rules = new List<AssetUserRule>();
+
+            if (userId > 0)
+            {
+                try
+                {
+                    // check that have AssetUserRule for the group in general and return it
+                    var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
+                    
+                    if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
+                    {
+                        return null;
+                    }
+                    
+                    List<long> mediaAssetUserRuleIds = null;
+                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
+
+                    //Get mediaAssetUserRuleIds from cache
+                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
+                                                               ref mediaAssetUserRuleIds,
+                                                               GetMediaAssetUserRules,
+                                                               new Dictionary<string, object>()
+                                                               {
+                                                                   { "groupId", groupId },
+                                                                   { "mediaId", mediaId },
+                                                                   { "assetUserRules", assetUserRuleList.Objects }
+                                                               },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
+                    {
+                        log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                    }
+
+                    if (mediaAssetUserRuleIds == null || mediaAssetUserRuleIds.Count == 0)
+                    {
+                        return rules;
+                    }
+
+                    if (userToAssetUserRules == null)
+                    {
+                        userToAssetUserRules = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+                    }
+
+                    // if user has at least one rule applied on him
+                    if (userToAssetUserRules == null || !userToAssetUserRules.HasObjects())
+                    {
+                        return rules;
+                    }
+
+                    // union userRules with the mediaRules 
+                    rules = userToAssetUserRules.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
+                }
+            }
+
+            return rules;
+        }
+
+        private static Tuple<List<long>, bool> GetMediaAssetUserRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("assetUserRules"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        long? mediaId = funcParams["mediaId"] as long?;
+                        List<AssetUserRule> mediaAssetUserRules = funcParams["assetUserRules"] as List<AssetUserRule>;
+
+                        UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build search for each tag and tag values
+                            Parallel.ForEach(mediaAssetUserRules, (rule) =>
+                            {
+                                if (rule.Conditions != null && rule.Conditions.Count > 0)
+                                {
+                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);    
+                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.Id);
+                                    }
+                                }
+                            });
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaAssetUserRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+        
+        private static List<GroupRule> ConvertAssetUserRuleToGroupRule(List<AssetUserRule> assetUserRules)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            foreach (var assetUserRule in assetUserRules)
+            {
+                GroupRule groupRule = new GroupRule()
+                {
+                    RuleID = (int)assetUserRule.Id,
+                    IsActive = true,
+                    Name = assetUserRule.Name,
+                    GroupRuleType = eGroupRuleType.AssetUser,
+                    BlockType = eBlockType.AssetUserBlock
+                };
+
+                groupRules.Add(groupRule);
+            }
+
+            return groupRules;
+        }
+
+        internal static DeviceConcurrencyPriority GetDeviceConcurrencyPriority(int groupId)
+        {
+            DeviceConcurrencyPriority deviceConcurrencyPriority = null;
+            string deviceConcurrencyPriorityKey = LayeredCacheKeys.GetDeviceConcurrencyPriorityKey(groupId);
+
+            if (!LayeredCache.Instance.Get<DeviceConcurrencyPriority>(deviceConcurrencyPriorityKey,
+                                                                    ref deviceConcurrencyPriority,
+                                                                    GetDeviceConcurrencyPriorityCB,
+                                                                    new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                    groupId,
+                                                                    LayeredCacheConfigNames.GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB,
+                                                                    new List<string>() { LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId) }))
+            {
+                log.ErrorFormat("GetDeviceConcurrencyPriority - GetDeviceConcurrencyPriorityCB - Failed get data from cache. groupId: {0}", groupId);
+                return null;
+            }
+
+            return deviceConcurrencyPriority;
+        }
+
+        internal static Status UpdateDeviceConcurrencyPriority(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // validate deviceFamilyIds
+                var deviceFamilyList = GetDeviceFamilyList();
+                if (deviceFamilyList == null || 
+                    deviceFamilyList.Status.Code != (int)eResponseStatus.OK || 
+                    deviceFamilyList.DeviceFamilies.Count == 0)
+                {
+                    response.Message = "No DeviceFamilies";
+                    return response;
+                }
+
+                var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
+                {
+                    response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds, 
+                                 string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
+                    return response;
+                }
+
+                // upsert DeviceConcurrencyPriority            
+                if (!ApiDAL.SaveDeviceConcurrencyPriorityCB(groupId, deviceConcurrencyPriorityToUpdate))
+                {
+                    log.ErrorFormat("Error while saving DeviceConcurrencyPriority. groupId: {0}", groupId);
+                    return response;
+                }
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateDeviceConcurrencyPriority failed ex={0}, groupId={1}", ex, groupId);
             }
 
             return response;
+        }
+
+        private static Tuple<DeviceConcurrencyPriority, bool> GetDeviceConcurrencyPriorityCB(Dictionary<string, object> funcParams)
+        {
+            DeviceConcurrencyPriority deviceConcurrencyPriority = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            deviceConcurrencyPriority = ApiDAL.GetDeviceConcurrencyPriorityCB(groupId.Value);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDeviceConcurrencyPriorityCB faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DeviceConcurrencyPriority, bool>(deviceConcurrencyPriority, deviceConcurrencyPriority != null);
         }
     }
 }

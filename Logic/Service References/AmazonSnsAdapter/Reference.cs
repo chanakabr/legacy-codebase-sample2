@@ -978,6 +978,12 @@ namespace APILogic.AmazonSnsAdapter {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/RegisterDeviceToApplicationAndTopic", ReplyAction="http://tempuri.org/IService/RegisterDeviceToApplicationAndTopicResponse")]
         System.Threading.Tasks.Task<APILogic.AmazonSnsAdapter.DeviceAppRegistrationAnnouncementResult> RegisterDeviceToApplicationAndTopicAsync(APILogic.AmazonSnsAdapter.DeviceAppRegistration deviceAppRegistration, System.Collections.Generic.List<APILogic.AmazonSnsAdapter.AnnouncementSubscriptionData> announcementToSubscribe, System.Collections.Generic.List<APILogic.AmazonSnsAdapter.UnSubscribe> announcementToUnsubscribe);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SendSms", ReplyAction="http://tempuri.org/IService/SendSmsResponse")]
+        bool SendSms(string message, string phoneNumber);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SendSms", ReplyAction="http://tempuri.org/IService/SendSmsResponse")]
+        System.Threading.Tasks.Task<bool> SendSmsAsync(string message, string phoneNumber);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1077,6 +1083,14 @@ namespace APILogic.AmazonSnsAdapter {
         
         public System.Threading.Tasks.Task<APILogic.AmazonSnsAdapter.DeviceAppRegistrationAnnouncementResult> RegisterDeviceToApplicationAndTopicAsync(APILogic.AmazonSnsAdapter.DeviceAppRegistration deviceAppRegistration, System.Collections.Generic.List<APILogic.AmazonSnsAdapter.AnnouncementSubscriptionData> announcementToSubscribe, System.Collections.Generic.List<APILogic.AmazonSnsAdapter.UnSubscribe> announcementToUnsubscribe) {
             return base.Channel.RegisterDeviceToApplicationAndTopicAsync(deviceAppRegistration, announcementToSubscribe, announcementToUnsubscribe);
+        }
+        
+        public bool SendSms(string message, string phoneNumber) {
+            return base.Channel.SendSms(message, phoneNumber);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendSmsAsync(string message, string phoneNumber) {
+            return base.Channel.SendSmsAsync(message, phoneNumber);
         }
     }
 }

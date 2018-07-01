@@ -16,6 +16,7 @@ using System.Net;
 using ApiObjects;
 using Core.Pricing;
 using Core.Users;
+using ConfigurationManager;
 
 namespace Core.Billing
 {
@@ -258,12 +259,6 @@ namespace Core.Billing
             {
                 log.Error("Send purchase mail - " + ex.Message + " | " + ex.StackTrace, ex);
             }
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-
         }
 
         static public string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
@@ -1663,8 +1658,10 @@ namespace Core.Billing
         public static int GetPreviewModuleNumOfCancelOrRefundAttempts()
         {
             int res = DEFAULT_PREVIEW_MODULE_NUM_OF_CANCEL_OR_REFUND_ATTEMPTS;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue("PreviewModuleNumOfCancelOrRefundAttempts") != string.Empty)
-                Int32.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("PreviewModuleNumOfCancelOrRefundAttempts"), out res);
+            if (ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue > 0)
+            {
+                return ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue;
+            }
             return res;
         }
 
@@ -2016,11 +2013,6 @@ namespace Core.Billing
             return res;
         }
 
-        public static string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         public static ItemType CinepolisConvertToItemType(string sBusinessModuleInCustomData)
         {
             string sLoweredTrimmed = sBusinessModuleInCustomData.Trim().ToLower();
@@ -2190,7 +2182,7 @@ namespace Core.Billing
                     }
                     else
                     {
-                        double minuteOffset = TVinciShared.WS_Utils.GetTcmDoubleValue("BillingCacheTTL");
+                        double minuteOffset = ApplicationConfiguration.BillingCacheTTL.DoubleValue;
                         if (minuteOffset == 0)
                         {
                             minuteOffset = 60;// default value
@@ -2362,11 +2354,6 @@ namespace Core.Billing
                     ex);
             }
             return status;
-        }
-
-        private static string GetWSUrl(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         public static ApiObjects.Response.Status SetPartnerConfiguration(int groupId, PartnerConfiguration partnerConfig)

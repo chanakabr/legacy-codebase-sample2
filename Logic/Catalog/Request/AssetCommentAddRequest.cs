@@ -60,6 +60,28 @@ namespace Core.Catalog.Request
                     country = Utils.GetIP2CountryName(request.m_nGroupID, request.m_sUserIP);
                 }
 
+                // Check if asset is exists
+                if (this.assetType == ApiObjects.eAssetType.PROGRAM)
+                {
+                    var m_epgList = CatalogLogic.GetEPGProgramInformation(new List<long>() { this.assetId}, this.m_nGroupID, this.m_oFilter);
+
+                    if (m_epgList == null || m_epgList.Count == 0 || m_epgList[0] == null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.AssetDoseNotExists, "Asset does not exists");
+                        return response;
+                    }
+                }
+                else if (this.assetType == ApiObjects.eAssetType.MEDIA)
+                {
+                    var mediaList = CatalogLogic.CompleteMediaDetails(new List<int>() { this.assetId },this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
+
+                    if (mediaList == null || mediaList.Count == 0 || mediaList[0] == null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.AssetDoseNotExists, "Asset does not exists");
+                        return response;
+                    }
+                }
+
                 // insert comment
                 DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("groups", "group_id", request.m_nGroupID.ToString(), new List<string>() { "ENABLE_COMMENT_AUTOMATICALLY" });
                 int nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_COMMENT_AUTOMATICALLY", 1);

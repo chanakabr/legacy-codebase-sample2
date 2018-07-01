@@ -1,4 +1,5 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,6 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using ElasticSearch.Searcher;
 using ElasticSearch.Common;
-using ApiObjects;
 using System.Collections;
 using System.Collections.Concurrent;
 using Core.Catalog.Cache;
@@ -18,6 +18,7 @@ using System.Reflection;
 using KlogMonitorHelper;
 using Catalog.Response;
 using Core.Catalog.CatalogManagement;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -28,7 +29,7 @@ namespace Core.Catalog
         public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
-        public static readonly string ES_BASE_ADDRESS = Utils.GetWSURL("ES_URL");
+        public static readonly string ES_BASE_ADDRESS = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
         public const int STATUS_OK = 200;
         public const int STATUS_NOT_FOUND = 404;
         public const int STATUS_INTERNAL_ERROR = 500;
@@ -661,13 +662,14 @@ namespace Core.Catalog
             {
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-
+                
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
                 if (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(nParentGroupID) != null)
                 {
                     epgSearch.m_bSearchEndDate = true;
                 }
+
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
@@ -2386,6 +2388,7 @@ namespace Core.Catalog
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
             queryParser.PageIndex = 0;
             queryParser.PageSize = 0;
+            queryParser.GetAllDocuments = true;
 
             if (definitions.entitlementSearchDefinitions != null &&
                 definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)

@@ -1,12 +1,11 @@
-﻿using DAL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Users.Cache;
+using DAL;
 using KLogMonitor;
+using System;
 using System.Reflection;
-using CachingProvider.LayeredCache;
+using System.Text;
 
 namespace Core.Users
 {
@@ -64,9 +63,9 @@ namespace Core.Users
         protected override Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true)
         {
             // get domain by domain id from Cache 
-            DomainsCache oDomainCache = DomainsCache.Instance();
+            DomainsCache domainsCache = DomainsCache.Instance();
 
-            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, bCache);
+            Domain domain = domainsCache.GetDomain(nDomainID, nGroupID, bCache);
 
             return domain;
         }
@@ -91,8 +90,8 @@ namespace Core.Users
                             DomainsCache.Instance().InsertDomain(domain);
 
                             // set user role to master 
-                            long roleId;
-                            if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
+                            long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                            if (roleId > 0 && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
                             {
                                 // add invalidation key for user roles cache
                                 string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nMasterUserGuid.ToString());

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiObjects.SSOAdapter;
+using APILogic.Users;
 
 namespace Core.Users
 {
@@ -48,7 +50,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -109,7 +111,7 @@ namespace Core.Users
         {
             try
             {
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     BaseUsers t = null;
                     Utils.GetBaseImpl(ref t, nGroupID);
@@ -150,7 +152,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -256,7 +258,7 @@ namespace Core.Users
                     return null;
                 }
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -541,7 +543,7 @@ namespace Core.Users
                 HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers user = null;
@@ -591,7 +593,7 @@ namespace Core.Users
                 }
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 BaseUsers user = null;
                 Utils.GetBaseImpl(ref user, nGroupID);
@@ -665,7 +667,7 @@ namespace Core.Users
         
         public static UserResponseObject AddNewUser(int nGroupID, UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword, string sAffiliateCode)
         {
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers t = null;
@@ -1716,7 +1718,7 @@ namespace Core.Users
                 return new ApiObjects.Response.Status((int)eResponseStatus.NotAllowedToDelete, eResponseStatus.NotAllowedToDelete.ToString());
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers t = null;
@@ -1921,7 +1923,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = userId;
 
-                if (Utils.IsGroupIDContainedInConfig(groupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(groupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -1945,6 +1947,37 @@ namespace Core.Users
                 log.Error("", ex);
             }
             return null;
+        }
+
+        public static bool Purge()
+        {
+            bool result = Utils.Purge();
+            return result;
+        }
+
+        public static SSOAdaptersResponse GetSSOAdapters(int groupId)
+        {
+            return SSOAdaptersManager.GetSSOAdapters(groupId);
+        }
+
+        public static SSOAdapterResponse InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            return SSOAdaptersManager.InsertSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static SSOAdapterResponse UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
+        {
+            return SSOAdaptersManager.UpdateSSOAdapter(adapterDetails, updaterId);
+        }
+
+        public static ApiObjects.Response.Status DeleteSSOAdapter(int groupId, int ssoAdapterId, int updaterId)
+        {
+            return SSOAdaptersManager.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
+        }
+
+        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        {
+            return SSOAdaptersManager.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
         }
     }
 }

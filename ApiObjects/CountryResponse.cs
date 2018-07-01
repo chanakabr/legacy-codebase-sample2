@@ -42,11 +42,19 @@ namespace ApiObjects
             set;
         }
 
+        [JsonProperty("time_zone_id")]
+        public string TimeZoneId
+        {
+            get;
+            set;
+        }
+
         public Country()
         {
             this.Id = 0;
             this.Name = string.Empty;
             this.Code = string.Empty;
+            this.TimeZoneId = string.Empty;
         }
     }
 }

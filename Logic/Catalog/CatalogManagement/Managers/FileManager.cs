@@ -169,19 +169,19 @@ namespace Core.Catalog.CatalogManagement
                         response.Object = CreateMediaFileType(id, dt.Rows[0]);
                         if (response.Object != null)
                         {
-                            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
                     }
                     else
                     {
-                        response.Status = CreateMediaFileTypeResponseStatusFromResult(id);
+                        response.SetStatus(CreateMediaFileTypeResponseStatusFromResult(id));
                         return response;
                     }
                 }
                 /// MediaFileType does not exist (on update)
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                 }
             }
 
@@ -200,13 +200,13 @@ namespace Core.Catalog.CatalogManagement
                     response.Object = CreateAssetFile(groupId, dt.Rows[0]);
                     if (response.Object != null)
                     {
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
                 /// AssetFile does not exist
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.MediaFileDoesNotExist, eResponseStatus.MediaFileDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.MediaFileDoesNotExist, eResponseStatus.MediaFileDoesNotExist.ToString());
                 }
             }
 
@@ -421,7 +421,7 @@ namespace Core.Catalog.CatalogManagement
                 response.Objects = GetGroupMediaFileTypes(groupId);
                 if (response.Objects != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -546,7 +546,7 @@ namespace Core.Catalog.CatalogManagement
                 GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
@@ -554,13 +554,13 @@ namespace Core.Catalog.CatalogManagement
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
-                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
                 
                 if (!mediaFileTypes.Any(x => x.Id == assetFileToAdd.TypeId))
                 {
-                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
 
@@ -568,12 +568,12 @@ namespace Core.Catalog.CatalogManagement
                 List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
                 if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToAdd.TypeId).Count() > 0)
                 {
-                    result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                    result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                     return result;
                 }
 
                 // validate ExternalId and AltExternalId  are unique 
-                result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd);
+                result.SetStatus(ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd));
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
                     return result;
@@ -583,7 +583,7 @@ namespace Core.Catalog.CatalogManagement
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = validateCdnReponse;
+                    result.SetStatus(validateCdnReponse);
                     return result;
                 }
                 else if (!assetFileToAdd.CdnAdapaterProfileId.HasValue || assetFileToAdd.CdnAdapaterProfileId.Value == 0)
@@ -592,7 +592,7 @@ namespace Core.Catalog.CatalogManagement
                     if (GroupDefaultCdnAdapter == null || GroupDefaultCdnAdapter.Status == null || GroupDefaultCdnAdapter.Status.Code != (int)eResponseStatus.OK
                         || GroupDefaultCdnAdapter.Adapter == null || GroupDefaultCdnAdapter.Adapter.ID <= 0)
                     {
-                        result.Status = new Status((int)eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
+                        result.SetStatus(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
                         return result;
                     }
 
@@ -688,7 +688,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (currentAssetFile.Object != null && currentAssetFile.Object.AssetId != assetFileToUpdate.AssetId)
                 {                 
-                    result.Status = new Status() { Code = (int)eResponseStatus.MediaFileNotBelongToAsset, Message = eResponseStatus.MediaFileNotBelongToAsset.ToString() };
+                    result.SetStatus(eResponseStatus.MediaFileNotBelongToAsset, eResponseStatus.MediaFileNotBelongToAsset.ToString());
                     return result;
                 }
 
@@ -696,14 +696,14 @@ namespace Core.Catalog.CatalogManagement
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
-                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
 
                 MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.TypeId).SingleOrDefault();
                 if (mediaFileType == null)
                 {
-                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
 
@@ -713,7 +713,7 @@ namespace Core.Catalog.CatalogManagement
                     List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
                     if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id).Count() > 0)
                     {
-                        result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                        result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                         return result;
                     }
                 }
@@ -730,7 +730,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate ExternalId and AltExternalId  are unique 
-                result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToUpdate);
+                result.SetStatus(ValidateMediaFileExternalIdUniqueness(groupId, assetFileToUpdate));
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
                     return result;
@@ -740,7 +740,7 @@ namespace Core.Catalog.CatalogManagement
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = validateCdnReponse;
+                    result.SetStatus(validateCdnReponse);
                     return result;
                 }
                 else if (assetFileToUpdate.CdnAdapaterProfileId.HasValue && assetFileToUpdate.CdnAdapaterProfileId.Value == 0)
@@ -749,7 +749,7 @@ namespace Core.Catalog.CatalogManagement
                     if (GroupDefaultCdnAdapter == null || GroupDefaultCdnAdapter.Status == null || GroupDefaultCdnAdapter.Status.Code != (int)eResponseStatus.OK
                         || GroupDefaultCdnAdapter.Adapter == null || GroupDefaultCdnAdapter.Adapter.ID <= 0)
                     {
-                        result.Status = new Status((int)eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
+                        result.SetStatus(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
                         return result;
                     }
 
@@ -809,7 +809,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Objects != null)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)

@@ -1,26 +1,27 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.Social;
+using ConfigurationManager;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Social.SocialFeed;
+using Core.Social.SocialFeed.SocialFeedJsonTemplates;
+using Core.Users;
+using DAL;
+using KLogMonitor;
+using LinqToTwitter;
+using Newtonsoft.Json;
+using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Script.Serialization;
-using ODBCWrapper;
-using Core.Social.SocialFeed;
-using Core.Social.SocialFeed.SocialFeedJsonTemplates;
-using LinqToTwitter;
-using KLogMonitor;
-using System.Reflection;
-using DAL;
 using TVinciShared;
-using ApiObjects;
-using Core.Users;
-using ApiObjects.Response;
-using Core.Catalog.Request;
-using Core.Catalog;
-using ApiObjects.Social;
-using Core.Catalog.Response;
-using Newtonsoft.Json;
 
 namespace Core.Social
 {
@@ -39,32 +40,40 @@ namespace Core.Social
             private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
             static readonly string FB_GRAPH_SOCIALFEED_FIELDS = "posts?fields=from,message,link,picture,created_time,likes.limit(1).summary(true),comments.limit(25).fields(message,from,like_count,created_time)";
-            static readonly string FB_GRAPH_URI_PREFIX = Utils.GetValFromConfig("FB_GRAPH_URI");
+            static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.FacebookConfiguration.GraphURI.Value;
             static Dictionary<int, string> _accessTokenDict = new Dictionary<int, string>();
             static object _locker = new object();
 
             static public List<SocialFeedItem> GetFacebookSocialFeed(string pageName, int numOfPosts, string accessToken)
             {
-                int nStatus = 0;
+                List<SocialFeedItem> result = new List<SocialFeed.SocialFeedItem>();
+                int httpStatus = 0;
 
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat("{0}/{1}/{2}&access_token={3}", FB_GRAPH_URI_PREFIX, pageName, FB_GRAPH_SOCIALFEED_FIELDS, accessToken);
 
-                string fbRespStr = Utils.SendGetHttpReq(sb.ToString(), ref nStatus, string.Empty, string.Empty);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+                string fbRespStr = Utils.SendGetHttpReq(sb.ToString(), ref httpStatus, string.Empty, string.Empty);
 
-                while (parsedResp.data.Count < numOfPosts)
+                if (httpStatus >= 200 && httpStatus < 300)
                 {
-                    FacebookResp tmpResp = GetNextPage(parsedResp.paging.next);
-                    if (tmpResp.data.Count > 0)
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+
+                    while (parsedResp.data.Count < numOfPosts)
                     {
-                        parsedResp.data.AddRange(tmpResp.data);
+                        FacebookResp tmpResp = GetNextPage(parsedResp.paging.next);
+                        if (tmpResp.data.Count > 0)
+                        {
+                            parsedResp.data.AddRange(tmpResp.data);
+                        }
+                        else
+                            break;
                     }
-                    else
-                        break;
+
+                    result = ParsePlatformResp(parsedResp, eSocialPlatform.Facebook);
                 }
-                return ParsePlatformResp(parsedResp, eSocialPlatform.Facebook);
+
+                return result;
             }
 
             static private FacebookResp GetNextPage(string nextPageUrl)
@@ -104,8 +113,8 @@ namespace Core.Social
 
         public static class Twitter
         {
-            static readonly string TWITTER_CONSUMER_KEY = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY");
-            static readonly string TWITTER_CONSUMER_SECRET = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET");
+            public static readonly string TWITTER_CONSUMER_KEY = ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value;
+            public static readonly string TWITTER_CONSUMER_SECRET = ApplicationConfiguration.TwitterConfiguration.ConsumerSecret.Value;
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
 
@@ -180,7 +189,7 @@ namespace Core.Social
         public static class InApp
         {
             static public List<SocialFeedItem> GetInAppSocialFeed(int assetId, ApiObjects.eAssetType assetType, int groupId, int numOfPosts)
-            {   
+            {
                 string signatureString = Guid.NewGuid().ToString();
                 AssetCommentsRequest request = new AssetCommentsRequest()
                 {
@@ -369,7 +378,7 @@ namespace Core.Social
                 }
             }
 
-            cbManager.Set(cacheKey, response, (uint)WS_Utils.GetTcmIntValue(SOCIAL_FEED_TAGS_TTL_KEY));
+            cbManager.Set(cacheKey, response, (uint)ApplicationConfiguration.SocialFeedConfiguration.TagsTTL.IntValue);
 
             return response;
         }
@@ -389,7 +398,7 @@ namespace Core.Social
             return retVal;
         }
 
-        public static SocialFeedResponse GetSocialFeed(int groupId, string userId, int assetId, ApiObjects.eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex, 
+        public static SocialFeedResponse GetSocialFeed(int groupId, string userId, int assetId, ApiObjects.eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex,
             long createDateSince, SocialFeedOrderBy orderBy)
         {
             Core.Social.SocialFeed.SocialFeedResponse response = new Core.Social.SocialFeed.SocialFeedResponse()
@@ -399,7 +408,7 @@ namespace Core.Social
             };
 
             Core.Social.SocialFeed.SocialFeedMediaTag mediaTag = null;
-            
+
             try
             {
                 if (socialPlatform == eSocialPlatform.InApp)
@@ -432,7 +441,7 @@ namespace Core.Social
                 else
                 {
                     cacheKey = string.Format("social_feed_platform={0}_tagValue={1}_userId={2}_groupId={3}", socialPlatform, mediaTag.Value, userId, groupId);
-                   
+
                 }
 
                 CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
@@ -448,26 +457,26 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
-                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, Core.Social.Utils.GetValFromConfig("FB_TOKEN_KEY")));
+                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
+                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
                                 }
                                 catch (Exception)
                                 {
                                     //Fallback to app token in case user token is invalid 
-                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
+                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
                                         SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                 }
                             }
                             // User wasn't found or has no facebook access_token
                             else
                             {
-                                socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
+                                socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
                                     SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                             }
                             break;
 
                         case eSocialPlatform.InApp:
-                            socialPlatformFeed = SocialFeedUtils.InApp.GetInAppSocialFeed(assetId, assetType, groupId, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_InApp_item_count"));
+                            socialPlatformFeed = SocialFeedUtils.InApp.GetInAppSocialFeed(assetId, assetType, groupId, ApplicationConfiguration.SocialFeedConfiguration.InAppItemCount.IntValue);
                             break;
 
                         case eSocialPlatform.Twitter:
@@ -475,22 +484,25 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"), TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET"), userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value,
+                                        Twitter.TWITTER_CONSUMER_SECRET, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
                                 }
                                 catch (Exception)
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                 }
                             }
                             else
                                 // User wasn't found or has no twitter access_token
-                                socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                             break;
                     }
 
                     // add to cache
+                    uint expiration = (uint)ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(socialPlatform.ToString()).IntValue;
 
-                    cbManager.Set(cacheKey, socialPlatformFeed, (uint)WS_Utils.GetTcmIntValue(string.Format(SOCIAL_FEED_PLATFORM_TTL_KEY_FORMAT, socialPlatform)));
+                    
+                    cbManager.Set(cacheKey, socialPlatformFeed, expiration);
                 }
 
                 if (socialPlatformFeed != null)

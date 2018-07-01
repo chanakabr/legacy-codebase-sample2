@@ -7,7 +7,8 @@ namespace ApiObjects
     public enum eHttpRequestType
     {
         Post,
-        Get
+        Get,
+        Delete
     }
 
     public enum UserStatus
@@ -45,7 +46,8 @@ namespace ApiObjects
         Geo = 3,
         Device = 4,
         UserType = 5,
-        AnonymousAccessBlock = 6
+        AnonymousAccessBlock = 6,
+        AssetUserBlock = 7
     }
 
     public enum RuleType
@@ -53,7 +55,8 @@ namespace ApiObjects
         Parental = 0,
         Geo = 1,
         UserType = 2,
-        Device = 3
+        Device = 3,
+        AssetUser = 4
     }
 
     public enum eMailTemplateType
@@ -84,7 +87,8 @@ namespace ApiObjects
         Parental = 1,
         Purchase = 2,
         Device = 3,
-        EPG = 4
+        EPG = 4,
+        AssetUser = 5
     }
 
     [Serializable]
@@ -499,7 +503,8 @@ namespace ApiObjects
         MigrateStatistics,
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks,
-        ReminderCleanupIteration
+        ReminderCleanupIteration,
+        PurgeUsers
     }
 
 
@@ -752,7 +757,9 @@ namespace ApiObjects
         recordingsCleanup = 2,
         notificationCleanup = 3,
         reminderCleanup = 4,
-        assetLifeCycleRuleScheduledTasks = 5
+        assetLifeCycleRuleScheduledTasks = 5,
+        purgeScheduledTasks = 6,
+        assetRuleScheduledTasks = 7
     }
 
     public enum SearchSeriesRecordingsTimeOptions
@@ -855,11 +862,13 @@ namespace ApiObjects
         Trailer,
         CatchUp,
         StartOver,
-        Playback
+        Playback,
+        Download
     }
 
     public enum StreamerType
     {
+        none = -1,
         applehttp = 0,
         mpegdash = 1,
         url = 2,
@@ -1053,6 +1062,39 @@ namespace ApiObjects
         Topic = 1,
         Image = 2,
         File = 3
+    }
+
+    public enum RuleActionType
+    {
+        Block,
+        StartDateOffset,
+        EndDateOffset,
+        UserBlock
+    }
+
+    public enum AssetRuleConditionType
+    {
+        Asset,
+        Country,
+        Concurrency
+    }
+
+    public enum RuleActionTaskType
+    {
+        LifeCycle = 0,
+        Asset = 1
+    }
+
+    public enum AssetRuleType
+    {
+        AssetRule = 0,
+        AssetUserRule = 1
+    }
+
+    public enum UrlType
+    {
+        playmanifest,
+        direct
     }
 
 }

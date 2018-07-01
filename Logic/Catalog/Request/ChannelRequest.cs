@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ODBCWrapper;
-using TVinciShared;
-using System.Runtime.Serialization;
-using System.Reflection;
-using System.Net;
-using System.Xml.Serialization;
-using System.IO;
-using System.Xml;
-using System.Data;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Server;
-using Tvinci.Core.DAL;
-using ApiObjects.SearchObjects;
-
+﻿using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog.Cache;
-using GroupsCacheManager;
 using Core.Catalog.Response;
+using GroupsCacheManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -255,7 +247,7 @@ namespace Core.Catalog.Request
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    if (Utils.IsGroupIDContainedInConfig(nGroupId, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                    if (Utils.IsGroupIDContainedInConfig(nGroupId, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                     {
                         result = new List<int>();
                         Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(windowTime, DateTime.UtcNow, nGroupId, media);
@@ -339,7 +331,7 @@ namespace Core.Catalog.Request
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
-                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, oLanguage);
         }

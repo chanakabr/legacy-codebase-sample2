@@ -66,6 +66,15 @@ namespace Core.Catalog.Request
         public bool shouldDateSearchesApplyToAllTypes;
 
         /// <summary>
+        /// Defines if the search is internal and should search in internalReservedUnifiedSearchNumericFields
+        /// </summary>
+        [DataMember]
+        public bool isInternalSearch;
+
+        [DataMember]
+        public bool shouldIgnoreEndDate;
+
+        /// <summary>
         /// add new GroupID to Search assets ONLY in specific group 
         /// </summary>
         [DataMember]
@@ -333,7 +342,7 @@ namespace Core.Catalog.Request
 
         internal virtual bool GetShouldUseSearchEndDate()
         {
-            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);
+            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);            
         }
     }
 }

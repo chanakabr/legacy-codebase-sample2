@@ -4,6 +4,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
@@ -765,7 +766,8 @@ namespace Core.Notification
             }
 
             // get bulk from TCM
-            int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
+
+            int engagementBulkMessages = ApplicationConfiguration.EngagementsConfiguration.NumberOfBulkMessageEngagements.IntValue;
             if (engagementBulkMessages == 0)
                 engagementBulkMessages = NUM_OF_BULK_MESSAGE_ENGAGEMENTS;
 
@@ -776,7 +778,7 @@ namespace Core.Notification
                 numOfBulkMessages++;
 
             // get number of allowed threads
-            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -910,7 +912,8 @@ namespace Core.Notification
             userEngagements.RemoveAll(x => x.IsEngagementSent);
 
             // generate coupon according to user count 
-            List<Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, userEngagements.Count, engagement.CouponGroupId);
+            Status status = null;
+            List<Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, userEngagements.Count, engagement.CouponGroupId, out status);
             if (coupons == null || coupons.Count != userEngagements.Count)
             {
                 log.ErrorFormat("Number of coupons not equal to users number. engagementBulkId: {0}, requested coupons: {1}, received: {2} ",
@@ -942,7 +945,7 @@ namespace Core.Notification
             }
 
             // get number of engagements threads
-            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -977,7 +980,7 @@ namespace Core.Notification
 
             return true;
         }
-        
+
         private static MessageTemplate GetMessageTemplate(int partnerId, eEngagementType eEngagementType)
         {
             MessageTemplate engagementTemplate = null;
@@ -1111,7 +1114,7 @@ namespace Core.Notification
             Status result = new Status() { Code = (int)eResponseStatus.Error };
 
             // get maximum allowed push 
-            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1426,7 +1429,7 @@ namespace Core.Notification
             }
 
             // get maximum allowed push 
-            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1472,39 +1475,13 @@ namespace Core.Notification
 
             if (!string.IsNullOrEmpty(phoneNumber))
             {
-                List<EndPointData> usersEndPointDatas = new List<EndPointData>();
-
-                // prepare SMS
-                usersEndPointDatas.Add(new EndPointData()
+                // send SMS                
+                var success = NotificationAdapter.SendSms(groupId, message, phoneNumber);
+                if (!success)
                 {
-                    EndPointArn = phoneNumber,
-                    ExtraData = userId.ToString()
-                });
-
-                // prepare SMS 
-                WSEndPointPublishData publishData = new WSEndPointPublishData();
-                publishData.EndPoints = usersEndPointDatas;
-                publishData.Message = new MessageData()
-                {
-                    Alert = message
-                };
-
-                // send SMS
-                List<WSEndPointPublishDataResult> smsPublishResults = NotificationAdapter.PublishToEndPoint(groupId, publishData);
-                if (smsPublishResults == null)
-                {
-                    log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
+                    log.ErrorFormat("Error at SendSMS. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
                     result = new Status() { Code = (int)eResponseStatus.Error };
                     return result;
-                }
-
-                // log SMS results
-                foreach (var smsPublishResult in smsPublishResults)
-                {
-                    if (string.IsNullOrEmpty(smsPublishResult.ResultMessageId))
-                        log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
-                    else
-                        log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
                 }
 
                 result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

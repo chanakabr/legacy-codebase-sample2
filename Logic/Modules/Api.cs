@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Response;
@@ -6,6 +7,7 @@ using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
+using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog.Response;
 using Core.Pricing;
@@ -45,7 +47,7 @@ namespace Core.Api
                 throw ex;
             }
         }
-
+        
         public static ChannelObject TVAPI_GetMedias(int groupId, InitializationObject oInitObj, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
         {
             try
@@ -1638,7 +1640,7 @@ namespace Core.Api
 
         public static ApiObjects.CountryLocaleResponse GetCountryList(int groupId, List<int> countryIds)
         {
-            return Core.Api.api.GetCountryList(countryIds, groupId);
+            return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
         }
 
         public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
@@ -1814,9 +1816,10 @@ namespace Core.Api
             return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
         }
 
-        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, string externalFileId, string ip, string udid)
+        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
+            string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
-            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid);
+            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType, recordingId);
         }
 
         public static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip)
@@ -1829,9 +1832,104 @@ namespace Core.Api
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }
 
-        public static DrmAdapterListResponse GetDrmAdapters(int groupId)
+        public static List<long> GetUserWatchedMediaIds(int groupId, int userId)
         {
-            return Core.Api.api.GetDrmAdapters(groupId);
+            return Core.Api.api.GetUserWatchedMediaIds(groupId, userId);
+        }
+
+        public static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
+        {
+            return Core.Api.api.AddAssetRule(groupId, assetRule);
+        }
+
+        public static Status DeleteAssetRule(int groupId, long id)
+        {
+            return Core.Api.api.DeleteAssetRule(groupId, id);
+        }
+
+        public static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId, SlimAsset slimAsset = null)
+        {
+            return Core.Api.api.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
+        }
+
+        public static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRuleRequest)
+        {
+            return Core.Api.api.UpdateAssetRule(groupId, assetRuleRequest);
+        }
+
+        public static bool DoActionAssetRules()
+        {
+            bool result = false;
+
+            try
+            {
+                result = Core.Api.api.DoActionAssetRules();
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Error in DoActionAssetRules", ex);
+            }
+
+            return result;
+        }
+
+        #region AssetUserRule
+        
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
+        {
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+        }
+        
+        public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
+        {
+            return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
+        }
+        
+        public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
+        {
+            return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+        }
+        
+        public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId);
+        }
+        
+        public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.AddAssetUserRuleToUser(userId, ruleId, groupId);
+        }
+        
+        public static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
+        }
+
+        public static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
+        {
+            return Core.Api.api.GetAssetRule(groupId, assetRuleId);
+        }
+
+        #endregion
+
+        public static GenericListResponse<DeviceConcurrencyPriority> GetConcurrencyPartner(int groupId)
+        {
+            GenericListResponse<DeviceConcurrencyPriority> response = new GenericListResponse<DeviceConcurrencyPriority>();
+            var deviceConcurrencyPriority = Core.Api.api.GetDeviceConcurrencyPriority(groupId);
+
+            if (deviceConcurrencyPriority != null)
+            {
+                response.Objects.Add(deviceConcurrencyPriority);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        public static Status UpdateConcurrencyPartner(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate)
+        {
+            return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
         }
     }
 }

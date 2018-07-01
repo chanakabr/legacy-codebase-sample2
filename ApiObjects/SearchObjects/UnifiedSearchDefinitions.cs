@@ -53,9 +53,6 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseStartDateForMedia;
         [JsonProperty()]
         [DataMember]
-        public bool shouldUseEndDateForMedia;
-        [JsonProperty()]
-        [DataMember]
         public bool shouldIgnoreDeviceRuleID = false;
         [JsonProperty()]
         [DataMember]
@@ -290,6 +287,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool shouldDateSearchesApplyToAllTypes;
 
+        /// <summary>
+        /// Defines if the search is internal and should search in internalReservedUnifiedSearchNumericFields
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool isInternalSearch;
+
         [JsonProperty()]
         [DataMember]
         public int exactGroupId
@@ -367,6 +371,33 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool isAllowedToViewInactiveAssets { get; set; }
 
+        public List<string> PersonalData { get; set; }
+
+        /// <summary>
+        /// The country Id of the calling user for geo availability 
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public int countryId;
+
+        /// <summary>
+        /// Asset user rule phrase to append to main query with not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public BooleanPhraseNode assetUserRulePhrase;
+
+        /// <summary>
+        /// Asset user rule IDs to consider in personal cache
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public List<long> assetUserRuleIds;
+
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldIgnoreEndDate;
+
         #endregion
 
         #region Ctor
@@ -384,7 +415,7 @@ namespace ApiObjects.SearchObjects
             shouldSearchEpg = false;
             shouldUseFinalEndDate = false;
             shouldUseStartDateForMedia = true;
-            shouldUseEndDateForMedia = true;
+            shouldIgnoreEndDate = false;
             shouldUseEndDateForEpg = true;
             shouldUseStartDateForEpg = true;
 
@@ -406,12 +437,19 @@ namespace ApiObjects.SearchObjects
 
             shouldUseSearchEndDate = false;
             shouldDateSearchesApplyToAllTypes = false;
+            isInternalSearch = false;
 
             distinctGroup = new KeyValuePair<string, string>();
 
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
-        }
 
+            PersonalData = new List<string>();
+
+            countryId = 0;
+
+            assetUserRuleIds = new List<long>();
+
+        }
 
         #endregion
 
