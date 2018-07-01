@@ -40,8 +40,8 @@ namespace ApiObjects.MediaMarks
 
         // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
         // TODO SHIR - add this fun to DR
-        [JsonProperty("assetConcurrencyRuleIds")]
-        public List<long> AssetConcurrencyRuleIds { get; set; }
+        [JsonProperty("assetMediaConcurrencyRuleIds")]
+        public List<long> AssetMediaConcurrencyRuleIds { get; set; }
 
         [JsonProperty("deviceFamilyId")]
         public int DeviceFamilyId { get; set; }
@@ -88,7 +88,7 @@ namespace ApiObjects.MediaMarks
                 CreatedAt = Utils.UnixTimestampToDateTime(this.CreatedAt),
                 CreatedAtEpoch = this.TimeStamp,
                 MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds,
-                AssetConcurrencyRuleIds = this.AssetConcurrencyRuleIds,
+                AssetMediaConcurrencyRuleIds = this.AssetMediaConcurrencyRuleIds,
                 DeviceFamilyId = this.DeviceFamilyId,
                 Location = location,
                 NpvrID = this.NpvrId,

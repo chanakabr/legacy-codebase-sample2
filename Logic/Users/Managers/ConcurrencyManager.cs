@@ -208,8 +208,8 @@ namespace Core.Users
                             {
                                 assetDevicePlayData = devicePlayData.FindAll
                                     (x => !x.UDID.Equals(udid) &&
-                                     x.AssetConcurrencyRuleIds != null &&
-                                     x.AssetConcurrencyRuleIds.Contains(currAssetRuleId) &&
+                                     x.AssetMediaConcurrencyRuleIds != null &&
+                                     x.AssetMediaConcurrencyRuleIds.Contains(currAssetRuleId) &&
                                      x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                                 break;
                             }

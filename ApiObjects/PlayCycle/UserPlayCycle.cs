@@ -23,9 +23,11 @@ namespace ApiObjects.PlayCycle
 
         [JsonProperty("MediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
-        
-        [JsonProperty("AssetConcurrencyRuleIds")]
-        public List<long> AssetConcurrencyRuleIds { get; set; }
+
+        // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
+        // TODO SHIR - add this fun to DR
+        [JsonProperty("AssetMediaConcurrencyRuleIds")]
+        public List<long> AssetMediaConcurrencyRuleIds { get; set; }
 
         public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds, List<long> assetConcurrencyRuleIds)
         {
@@ -34,7 +36,7 @@ namespace ApiObjects.PlayCycle
             CreateDateMs = createDateMs;
             DomainID = domainID;
             MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-            AssetConcurrencyRuleIds = assetConcurrencyRuleIds;
+            AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds;
         }
     }
 }
