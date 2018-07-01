@@ -105,6 +105,24 @@ namespace WebAPI.Models.General
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public string SessionUserId { get; set; }
 
+        /// <summary>
+        /// Create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Update date
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         public KalturaAppToken()
         {
         }
@@ -121,6 +139,8 @@ namespace WebAPI.Models.General
             Status = appToken.Status;
             Token = appToken.Token;
             SessionUserId = appToken.SessionUserId;
+            CreateDate = appToken.CreateDate;
+            UpdateDate = appToken.UpdateDate;
         }
 
         internal int getSessionDuration()

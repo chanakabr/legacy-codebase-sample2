@@ -35,6 +35,7 @@
     <WarningLevel>0</WarningLevel>
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -215,8 +216,8 @@
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Clients\ClientUtils.cs" />
+    <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
@@ -225,10 +226,10 @@
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\MediaFileTypeController.cs" />
+    <Compile Include="Controllers\AssetUserRuleController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\AssetStructController.cs" />
     <Compile Include="Controllers\UploadTokenController.cs" />
-    <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -251,7 +252,7 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
-    <Compile Include="Models\General\KalturaGenericListResponse .cs" />
+    <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMeta .cs" />
     <Compile Include="Models\Catalog\KalturaChannelOrder.cs" />
@@ -280,7 +281,12 @@
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
+    <Compile Include="Controllers\AssetRuleController.cs" />
+    <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
+    <Compile Include="Controllers\DiscountDetailsController.cs" />
+    <Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\SsoAdapterProfileController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -312,7 +318,6 @@
     <Compile Include="Exceptions\ClientExternalException.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Handlers\ExtWsPagesHendler.cs" />
-    <Compile Include="Managers\CouchbaseManager.cs" />
     <Compile Include="Managers\JsonManager.cs" />
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
@@ -321,25 +326,37 @@
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
+    <Compile Include="Managers\Scheme\BlockHttpMethods.cs" />
     <Compile Include="Managers\Scheme\SchemeBase.cs" />
     <Compile Include="Managers\Scheme\Deprecated.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
+    <Compile Include="Models\Partner\KalturaConcurrencyPartnerConfig.cs" />
+    <Compile Include="Models\Partner\KalturaPartnerConfigurationFilter.cs" />
+    <Compile Include="Models\API\KalturaAssetUserRule.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleFilter.cs" />
+    <Compile Include="Models\API\KalturaCondition.cs" />
+    <Compile Include="Models\API\KalturaAssetUserRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStruct.cs" />
-    <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaLinearMediaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaMediaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaImageType.cs" />
     <Compile Include="Models\Catalog\KalturaMetaDataType.cs" />
     <Compile Include="Models\Catalog\KalturaProgramAsset.cs" />
     <Compile Include="Models\Catalog\KalturaRecordingAsset.cs" />
+    <Compile Include="Models\API\KalturaAssetRule.cs" />
+    <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaPersonalListSearchFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaUrlType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
     <Compile Include="Models\General\KalturaAggregationCountOrderBy.cs" />
@@ -347,8 +364,12 @@
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
     <Compile Include="Models\Notification\KalturaEmailMessage.cs" />
+    <Compile Include="Models\Notification\KalturaPersonalList.cs" />
     <Compile Include="Models\Pricing\KalturaCollectionPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCollection.cs" />
+    <Compile Include="Models\Pricing\KalturaCouponGenerationOptions.cs" />
+    <Compile Include="Models\Pricing\KalturaDiscount.cs" />
+    <Compile Include="Models\Pricing\KalturaDiscountDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlanFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPriceDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
@@ -359,6 +380,8 @@
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
     <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
+    <Compile Include="Models\Users\KalturaSSOAdapterProfile.cs" />
+    <Compile Include="Models\Users\KalturaSSOAdapterProfileListResponse.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />
@@ -929,6 +952,7 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
+    <Compile Include="Utils\JsonPFormatter.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
@@ -1085,6 +1109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Configuration\" />
     <Folder Include="Models\API\KSQLChannel\" />
   </ItemGroup>
   <ItemGroup>
@@ -1094,6 +1119,10 @@
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>

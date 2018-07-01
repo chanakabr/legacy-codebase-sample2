@@ -569,8 +569,7 @@ namespace WebAPI.Clients
             OrderDir order = OrderDir.DESC;
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
-
-
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -581,7 +580,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, null, true);
                 }
             }
             catch (Exception ex)
@@ -624,7 +623,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, null);
                 }
             }
             catch (Exception ex)
@@ -655,16 +654,9 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { assetId }, new List<KalturaCatalogWith>());
-
-            if (mediaInfoResponse == null ||
-                mediaInfoResponse.Objects == null ||
-                mediaInfoResponse.Objects.Count == 0)
-            {
-                throw new ClientException((int)StatusCode.NotFound, "asset not found");
-            }
-
+            
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = assetId;
             followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name) ? mediaInfoResponse.Objects[0].Name.ToString() : string.Empty;
@@ -692,7 +684,7 @@ namespace WebAPI.Clients
 
         internal KalturaFollowTvSeries AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
         {
-            FollowResponse response = null;
+            GenericResponse<FollowDataBase> response = null;
             FollowDataTvSeries followDataNotification = null;
             KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
             followData.AssetId = asset_id;
@@ -705,14 +697,9 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
-                                            0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
-
-            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
-            {
-                throw new ClientException((int)StatusCode.NotFound, "asset not found");
-            }
-
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
+                                                                                    0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
+            
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
@@ -736,7 +723,60 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            KalturaFollowTvSeries result = AutoMapper.Mapper.Map<KalturaFollowTvSeries>(response.Follow);
+            KalturaFollowTvSeries result = AutoMapper.Mapper.Map<KalturaFollowTvSeries>(response.Object);
+            return result;
+        }
+
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
+        {
+            GetUserFollowsResponse response = null;
+
+            // create order object
+            OrderDir order = OrderDir.DESC;
+            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
+                order = OrderDir.ASC;
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListTypes, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPersonalListItems.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse()
+            {
+                PersonalListList = Mapper.Map<List<KalturaPersonalList>>(response.Follows),
+                TotalCount = response.TotalCount
+            };
+            
+            return result;
+        }
+
+        internal void DeletePersonalListItemFromUser(int groupId, int userID, long personalListId)
+        {
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, personalListId);
+            ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
+        }
+
+        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
+        {
+            Func<FollowDataBase, GenericResponse<FollowDataBase>> addPersonalListItemToUserFunc = (FollowDataBase personalListItemToFollow) =>
+                Core.Notification.Module.AddPersonalListItemToUser(userID, groupId, personalListItemToFollow);
+
+            KalturaPersonalList result =
+                ClientUtils.GetResponseFromWS<KalturaPersonalList, FollowDataBase>(kalturaPersonalList, addPersonalListItemToUserFunc);
+
             return result;
         }
 
@@ -1234,9 +1274,7 @@ namespace WebAPI.Clients
             AnnouncementsResponse response = null;
             List<KalturaTopic> result = null;
             KalturaTopicResponse ret = null;
-
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1272,8 +1310,7 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncementsOlderThan()
         {
             Status response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1397,8 +1434,6 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1466,8 +1501,7 @@ namespace WebAPI.Clients
         internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
         {
             Status response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1534,7 +1568,11 @@ namespace WebAPI.Clients
 
             if (response.Reminders != null && response.Reminders.Count > 0)
             {
-                result = Mapper.Map<List<KalturaReminder>>(response.Reminders);
+                result = new List<KalturaReminder>();
+                foreach (var reminder in response.Reminders)
+                {
+                    result.Add(Mapper.Map<KalturaAssetReminder>(reminder));
+                }
             }
             ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };
 

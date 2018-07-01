@@ -46,6 +46,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "context")]
         public KalturaPlaybackContextType? Context { get; set; }
 
+        /// <summary>
+        /// Url type
+        /// </summary>
+        [DataMember(Name = "urlType")]
+        [JsonProperty("urlType")]
+        [XmlElement(ElementName = "urlType")]
+        public KalturaUrlType UrlType { get; set; }
+
         public List<long> GetMediaFileIds()
         {
             List<long> list = new List<long>();
@@ -70,7 +78,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
 
-        internal void Validate(Catalog.KalturaAssetType assetType)
+        internal void Validate(Catalog.KalturaAssetType assetType, string assetId)
         {
             Validate();
 
@@ -78,10 +86,17 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 if (((Context.Value == KalturaPlaybackContextType.CATCHUP || Context.Value == KalturaPlaybackContextType.START_OVER) && assetType != Catalog.KalturaAssetType.epg) ||
                     (Context.Value == KalturaPlaybackContextType.TRAILER && assetType != Catalog.KalturaAssetType.media) ||
-                    (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg))
+                    (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg)||
+                    (Context.Value == KalturaPlaybackContextType.DOWNLOAD && assetType == Catalog.KalturaAssetType.epg))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
                 }
+            }
+
+            int validAssetId = 0;
+            if (!int.TryParse(assetId, out validAssetId) || validAssetId == 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetId");
             }
         }
     }

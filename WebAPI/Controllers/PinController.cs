@@ -94,6 +94,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to set</param>
         /// <returns>The PIN</returns>
         [Route("update"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -219,6 +220,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / Fail</returns>
         [Route("updateOldStandard"), HttpPost]
         [OldStandardAction("update")]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
@@ -276,6 +278,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("validate"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.NoPinDefined)]

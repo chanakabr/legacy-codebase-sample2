@@ -1,0 +1,90 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_List",
+      "service": "ParentalRule",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Enable",
+      "service": "ParentalRule",
+      "action": "Enable",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Disable",
+      "service": "ParentalRule",
+      "action": "Disable",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_DisableDefault",
+      "service": "ParentalRule",
+      "action": "DisableDefault",
+      "type": "Action"
+    },
+    {
+      "permissions": [        
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Add",
+      "service": "ParentalRule",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [        
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Delete",
+      "service": "ParentalRule",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Update",
+      "service": "ParentalRule",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRule_Get",
+      "service": "ParentalRule",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

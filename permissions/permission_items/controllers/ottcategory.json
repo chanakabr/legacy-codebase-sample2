@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "OttCategory_Get",
+      "service": "OttCategory",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

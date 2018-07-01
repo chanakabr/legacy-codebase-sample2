@@ -15,6 +15,7 @@ using KLogMonitor;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
 using WebAPI.Models.API;
+using ConfigurationManager;
 
 namespace WebAPI.ClientManagers
 {
@@ -35,8 +36,8 @@ namespace WebAPI.ClientManagers
         {
             try
             {
-                groupKeyFormat = TCMClient.Settings.Instance.GetValue<string>("group_key_format");
-                groupCacheTtlSeconds = TCMClient.Settings.Instance.GetValue<int>("group_cache_ttl_seconds");
+                groupKeyFormat = ApplicationConfiguration.GroupsManagerConfiguration.KeyFormat.Value;
+                groupCacheTtlSeconds = ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.IntValue;
                 syncObj = new object();
                 syncLock = new ReaderWriterLockSlim();
             }

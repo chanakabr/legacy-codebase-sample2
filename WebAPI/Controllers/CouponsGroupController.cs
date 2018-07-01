@@ -1,0 +1,267 @@
+﻿using ApiObjects.Response;
+using Core.Pricing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Http;
+using System.Web.Http.Description;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [RoutePrefix("_service/couponsGroup/action")]
+    public class CouponsGroupController : ApiController
+    {
+        /// <summary>
+        /// Generate a coupon 
+        /// </summary>
+        /// <param name="id">Coupon group identifier</param>
+        /// <param name="couponGenerationOptions">Coupon generation options</param>
+        [Route("generate"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.InvalidCouponGroup)]
+        [Throws(eResponseStatus.CouponCodeAlreadyExists)]
+        [Throws(eResponseStatus.CouponCodeNotInTheRightLength)]
+        public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
+        {
+            KalturaStringValueArray result = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                if (couponGenerationOptions is KalturaPublicCouponGenerationOptions)
+                {
+                    KalturaPublicCouponGenerationOptions couponGeneration = (KalturaPublicCouponGenerationOptions)couponGenerationOptions;
+
+                    if (string.IsNullOrEmpty(couponGeneration.Code))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
+                    }
+
+                    // call client
+                    result = ClientsManager.PricingClient().GeneratePublicCode(groupId, id, couponGeneration.Code);
+                }
+                else if (couponGenerationOptions is KalturaRandomCouponGenerationOptions)
+                {
+                    KalturaRandomCouponGenerationOptions couponGeneration = (KalturaRandomCouponGenerationOptions)couponGenerationOptions;
+
+                    if (couponGeneration.NumberOfCoupons <= 0)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "numberOfCoupons");
+                    }
+
+                    if (couponGeneration.NumberOfCoupons > 50000)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "numberOfCoupons", 50000);
+                    }
+
+                    bool useLetters = couponGeneration.UseLetters.HasValue ? couponGeneration.UseLetters.Value : true;
+                    bool useNumbers = couponGeneration.UseNumbers.HasValue ? couponGeneration.UseNumbers.Value : true;
+                    bool useSpecialCharacters = couponGeneration.UseSpecialCharacters.HasValue ? couponGeneration.UseSpecialCharacters.Value : true;
+
+                    // call client
+                    result = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, useLetters, useNumbers, useSpecialCharacters);
+                }
+                else
+                {
+                    throw new InternalServerErrorException();
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns information about coupons group
+        /// </summary>
+        /// <param name="id">Coupons group ID</param>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaCouponsGroup Get(long id)
+        {
+            KalturaCouponsGroup couponsGroup = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                couponsGroup = ClientsManager.PricingClient().GetCouponsGroup(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return couponsGroup;
+        }
+
+        /// <summary>
+        /// Update coupons group 
+        /// </summary>    
+        /// <param name="id">Coupons group identifier</param>        
+        /// <param name="couponsGroup">Coupons group</param>        
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        public KalturaCouponsGroup Update(long id, KalturaCouponsGroup couponsGroup)
+        {
+            KalturaCouponsGroup response = null;
+
+            try
+            {
+                if (id <= 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
+                }
+
+                if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+                }
+
+                if (couponsGroup.MaxUsesNumber.HasValue && couponsGroup.MaxHouseholdUses.HasValue && couponsGroup.MaxUsesNumber < couponsGroup.MaxHouseholdUses)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "maxHouseholdUses", "maxUsesNumber");
+                }
+
+                couponsGroup.Id = id.ToString();
+
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().UpdateCouponsGroup(groupId, id, couponsGroup);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns information about partner coupons groups
+        /// </summary>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaCouponsGroupListResponse List()
+        {
+            KalturaCouponsGroupListResponse couponsGroups = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                couponsGroups = ClientsManager.PricingClient().GetCouponsGroups(groupId);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return couponsGroups;
+        }
+
+        /// <summary>
+        /// Delete a coupons group
+        /// </summary>
+        /// <param name="id">Coupons group identifier</param>        
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
+        public bool Delete(long id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                if (id <= 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
+                }
+
+                // call client
+                response = ClientsManager.PricingClient().DeleteCouponsGroups(groupId, id);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Add coupons group 
+        /// </summary>    
+        /// <param name="couponsGroup">Coupons group</param>        
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        public KalturaCouponsGroup Add(KalturaCouponsGroup couponsGroup)
+        {
+            KalturaCouponsGroup response = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(couponsGroup.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+
+                if (!couponsGroup.DiscountId.HasValue && !couponsGroup.DiscountCode.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountId");
+                }
+
+                if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate )
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");                    
+                }
+
+                if (couponsGroup.MaxUsesNumber.HasValue && couponsGroup.MaxHouseholdUses.HasValue && couponsGroup.MaxUsesNumber < couponsGroup.MaxHouseholdUses)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "maxHouseholdUses", "maxUsesNumber");
+                }
+
+                if (!couponsGroup.MaxUsesNumber.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "maxUsesNumber");
+                }
+
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().AddCouponsGroup(groupId, couponsGroup);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    }
+}

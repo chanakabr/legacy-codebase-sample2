@@ -5,10 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using AutoMapper;
+using ConfigurationManager;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System.IO;
+using System.Net;
+using WebAPI.Models.DMS;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -32,7 +40,8 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+
+                log.Error("Exception received while calling client service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -61,7 +70,7 @@ namespace WebAPI.Clients
             GenericResponse<T> response = null;
 
             try
-            {                
+            {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = funcInWS();
@@ -69,7 +78,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.Error("Exception received while calling catalog service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -113,7 +122,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.Error("Exception received while calling catalog service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -126,8 +135,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
-            if (response.Objects != null && response.Objects.Count > 0)
+
+            if (response.HasObjects())
             {
                 result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
@@ -136,7 +145,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal static bool GetResponseStatusFromWS(Func<Status> funcInWS)
+        internal static void GetResponseStatusFromWS(Func<Status> funcInWS)
         {
             Status status = null;
 
@@ -149,7 +158,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.Error("Exception received while calling catalog service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -162,8 +171,55 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status.Code, status.Message);
             }
+        }
+
+        internal static bool GetBoolResponseStatusFromWS(Func<Status> funcInWS)
+        {
+            Status status = null;
+
+            try
+            {
+                GetResponseStatusFromWS(funcInWS);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
             return true;
         }
+
+        internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
+            where U : KalturaOTTObject
+        {
+            Status status = null;
+
+            try
+            {
+                T dataToFunc = AutoMapper.Mapper.Map<T>(kalturaOTTObject);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    status = funcInWS(dataToFunc);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(status.Code, status.Message);
+            }
+        }
+
     }
 }

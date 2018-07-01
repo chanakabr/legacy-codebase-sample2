@@ -118,15 +118,16 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private readonly Options _jilOptions;
+        protected readonly Options _jilOptions;
 
-        private JsonManager jsonManager;
+        protected JsonManager jsonManager;
 
         public JilFormatter()
         {
             _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
             MediaTypeMappings.Add(new QueryStringMapping("format", "1", "application/json"));
+            MediaTypeMappings.Add(new QueryStringMapping("responseFormat", "json", "application/json"));
 
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
             SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
@@ -157,7 +158,7 @@ namespace WebAPI.Utils
             return Task.FromResult(this.DeserializeFromStream(type, readStream));
         }
 
-        private object DeserializeFromStream(Type type, Stream readStream)
+        protected object DeserializeFromStream(Type type, Stream readStream)
         {
             try
             {
@@ -178,31 +179,56 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null)
+                string json = PrepareResponse(type, value);
+
+                streamWriter.Write(json);
+                
+                return Task.FromResult(writeStream);
+            }
+        }
+
+        protected string PrepareResponse(Type type, object value)
+        {
+            if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null)
+            {
+                object result = ((StatusWrapper)value).Result;
+                StatusWrapper statusWrapper = ((StatusWrapper)value);
+                if (result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    object result = ((StatusWrapper)value).Result;
-                    StatusWrapper statusWrapper = ((StatusWrapper)value);
-                    if (result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                    if (OldStandardAttribute.isCurrentRequestOldVersion())
                     {
-                        if (OldStandardAttribute.isCurrentRequestOldVersion())
-                        {
-                            dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
-                            statusWrapper.Result = oldStandardObject;
-                        }
+                        dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
+                        statusWrapper.Result = oldStandardObject;
                     }
-                    else if (result.GetType().IsGenericType && result.GetType().GetGenericArguments()[0].IsSubclassOf(typeof(KalturaOTTObject)))
+                }
+                else if (result.GetType().IsGenericType && result.GetType().GetGenericArguments()[0].IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    List<OldStandardObject> list = new List<OldStandardObject>();
+                    foreach (KalturaOTTObject item in (dynamic)result)
                     {
-                        List<OldStandardObject> list = new List<OldStandardObject>();
-                        foreach (KalturaOTTObject item in (dynamic)result)
-                        {
-                            list.Add(new OldStandardObject(item));
-                        }
-                        statusWrapper.Result = list;
+                        list.Add(new OldStandardObject(item));
                     }
-                    else if (result.GetType().IsArray) // is multirequest
+                    statusWrapper.Result = list;
+                }
+                else if (result.GetType().IsArray) // is multirequest
+                {
+                    List<object> list = new List<object>();
+                    foreach (object item in (dynamic)result)
                     {
-                        List<object> list = new List<object>();
-                        foreach (object item in (dynamic)result)
+                        if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                        {
+                            list.Add(item);
+                        }
+                        else if (item.GetType().IsSubclassOf(typeof(ApiException)))
+                        {
+                            list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message, ((ApiException)item).Args));
+                        }
+                        else if (item.GetType().IsSubclassOf(typeof(Exception)))
+                        {
+                            InternalServerErrorException ex = new InternalServerErrorException();
+                            list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ((ApiException)item).Args));
+                        }
+                        else
                         {
                             if (item == null)
                             {
@@ -226,17 +252,12 @@ namespace WebAPI.Utils
                                 list.Add(item);
                             }
                         }
-                        statusWrapper.Result = list;
                     }
+                    statusWrapper.Result = list;
                 }
-
-                string json = jsonManager.Serialize(value);
-                streamWriter.Write(json);
-                
-                //JSON.Serialize(value, streamWriter, _jilOptions);
-
-                return Task.FromResult(writeStream);
             }
+
+            return jsonManager.Serialize(value);
         }
     }
 }

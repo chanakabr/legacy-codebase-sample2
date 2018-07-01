@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace Validator
         static void Main(string[] args)
         {
             bool valid = SchemeManager.Validate();
+
+            valid &= ApplicationConfiguration.Validate();
+
             Console.Read();
 
             if (valid)

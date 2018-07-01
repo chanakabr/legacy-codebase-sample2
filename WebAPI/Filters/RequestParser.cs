@@ -1,15 +1,19 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
@@ -17,16 +21,13 @@ using System.Web.Http.Filters;
 using WebAPI.ClientManagers;
 using WebAPI.Controllers;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Billing;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.Managers;
-using WebAPI.Managers.Scheme;
-using System.Runtime.Serialization;
-using WebAPI.Models.Billing;
 using WebAPI.Models.MultiRequest;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
 using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
@@ -41,6 +42,7 @@ namespace WebAPI.Filters
         public static ApiExceptionType MISSING_PARAMETER = new ApiExceptionType(StatusCode.MissingParameter, StatusCode.InvalidActionParameters, "Missing parameter [@parameter@]", "parameter");
         public static ApiExceptionType INDEX_NOT_ZERO_BASED = new ApiExceptionType(StatusCode.MultirequestIndexNotZeroBased, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, response index is not zero based");
         public static ApiExceptionType INVALID_INDEX = new ApiExceptionType(StatusCode.MultirequestInvalidIndex, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid response index");
+        public static ApiExceptionType GENERIC_METHOD = new ApiExceptionType(StatusCode.MultirequestGenericMethod, StatusCode.InvalidService, "Invalid multirequest service, invalid service: [@service@], action: [@action@]", "service", "action");
 
         public RequestParserException()
             : this(INVALID_MULTIREQUEST_TOKEN)
@@ -75,8 +77,8 @@ namespace WebAPI.Filters
         private const string CB_SECTION_NAME = "tokens";
         private const string UPLOAD_FOLDER = "C:\\tmp\\tvp-api\\"; // TODO take from configuration
 
-        private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
-        private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
+        private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
+        private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
@@ -565,6 +567,7 @@ namespace WebAPI.Filters
                         currentAction = pair.FirstOrDefault().Value;
                     }
                 }
+
                 pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "pathData");
                 if (pair != null)
                 {
@@ -1053,7 +1056,6 @@ namespace WebAPI.Filters
                         if (schemaArgument.Name.Equals(name))
                             schemaArgument.Validate(methodInfo, name, value);
                     }
-
                     
                     methodParams.Add(value);
                 }
@@ -1395,7 +1397,7 @@ namespace WebAPI.Filters
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            KS ks = KS.CreateKSFromApiToken(token);
+            KS ks = KS.CreateKSFromApiToken(token, ksVal);
 
             if (!ks.IsValid)
             {

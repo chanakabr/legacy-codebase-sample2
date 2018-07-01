@@ -16,7 +16,6 @@ namespace WebAPI.Models.API
     /// </summary>
     public class KalturaCurrencyFilter : KalturaFilter<KalturaCurrencyOrderBy>
     {
-
         /// <summary>
         /// Currency codes
         /// </summary>
@@ -51,6 +50,5 @@ namespace WebAPI.Models.API
 
             return list;
         }
-
     }
 }

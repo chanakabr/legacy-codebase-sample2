@@ -1,0 +1,25 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNPartnerSettings_Get",
+      "service": "CDNPartnerSettings",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Manager"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNPartnerSettings_Update",
+      "service": "CDNPartnerSettings",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

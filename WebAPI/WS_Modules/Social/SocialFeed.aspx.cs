@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ApiObjects;
+using ApiObjects.Social;
+using ConfigurationManager;
 using Core.Social;
 using Core.Social.SocialFeed;
-using System.Web.Script.Serialization;
-using System.Linq;
-using TVinciShared;
-using KLogMonitor;
-using System.Reflection;
 using Core.Users;
-using ApiObjects;
-using ApiObjects.Social;
-
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Web.Script.Serialization;
+using TVinciShared;
 
 namespace WS_Social.SocialFeed
 {
@@ -42,26 +42,26 @@ namespace WS_Social.SocialFeed
                                 {
                                     try
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"), Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, Core.Social.Utils.GetValFromConfig("FB_TOKEN_KEY")));
+                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
                                     }
                                     catch (Exception)
                                     {
                                         //Fallback to app token in case user token is invalid 
                                         FacebookWrapper facebookWrapper = new FacebookWrapper(groupId);
-                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"), SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
+                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                     }
                                 }
                                 // User wasn't found or has no facebook access_token
                                 else
                                 {
-                                    socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"), SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
+                                    socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                 }
                                 break;
 
                             case eSocialPlatform.InApp:
                                 int mediaId;
                                 if (int.TryParse(queryParam, out mediaId))
-                                    socialPlatformResp = SocialFeedUtils.InApp.GetInAppSocialFeed(mediaId, groupId, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_InApp_item_count"));
+                                    socialPlatformResp = SocialFeedUtils.InApp.GetInAppSocialFeed(mediaId, groupId, ApplicationConfiguration.SocialFeedConfiguration.InAppItemCount.IntValue);
                                 break;
 
                             case eSocialPlatform.Twitter:
@@ -69,21 +69,22 @@ namespace WS_Social.SocialFeed
                                 {
                                     try
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"), TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET"), userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value, ApplicationConfiguration.TwitterConfiguration.ConsumerSecret.Value, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
                                     }
                                     catch (Exception)
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                     }
                                 }
                                 else
                                     // User wasn't found or has no twitter access_token
-                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                 break;
                         }
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         Response.Write(serializer.Serialize(socialPlatformResp));
-                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes(WS_Utils.GetTcmIntValue(string.Format("SocialFeed_{0}_TTL", platform))));
+
+                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes((ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(platform.ToString()).DoubleValue)));
                     }
                     catch (Exception ex)
                     {

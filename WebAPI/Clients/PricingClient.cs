@@ -1,8 +1,13 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Pricing;
+using ApiObjects.Response;
+using Core.Pricing;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.ServiceModel;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -11,13 +16,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.Utils;
-using System.Net;
-using System.ServiceModel;
-using ApiObjects.Response;
 using WebAPI.ObjectsConvertor.Mapping;
-using Core.Pricing;
-using ApiObjects.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -34,7 +34,7 @@ namespace WebAPI.Clients
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
-            
+
             SubscriptionOrderBy wsOrderBy = PricingMappings.ConvertSubscriptionOrderBy(orderBy);
 
             try
@@ -98,18 +98,16 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal KalturaCoupon GetCouponStatus(int groupId, string couponCode)
+        internal KalturaCoupon GetCouponStatus(int groupId, string couponCode, long householdId)
         {
             CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
-
-            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode);
+                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode, householdId);
                 }
             }
             catch (Exception ex)
@@ -138,7 +136,7 @@ namespace WebAPI.Clients
             PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
 
-            
+
 
             try
             {
@@ -169,17 +167,17 @@ namespace WebAPI.Clients
 
             return result;
         }
-              
-        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+
+        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long householdId)
         {
             CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
-                       
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode, householdId);
                 }
             }
             catch (Exception ex)
@@ -206,7 +204,7 @@ namespace WebAPI.Clients
         internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
             KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
-            SubscriptionSetsResponse response = null;            
+            SubscriptionSetsResponse response = null;
 
             try
             {
@@ -276,7 +274,7 @@ namespace WebAPI.Clients
 
             try
             {
-                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);               
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -408,7 +406,7 @@ namespace WebAPI.Clients
         }
 
         internal bool DeleteSubscriptionSet(int groupId, long setId)
-        {            
+        {
             Status response = null;
 
             try
@@ -735,7 +733,7 @@ namespace WebAPI.Clients
             return pricePlanResponse;
         }
 
-        
+
         internal List<KalturaSubscription> GetSubscriptionsDataByProductCodes(int groupId, List<string> productCodes, KalturaSubscriptionOrderBy orderBy)
         {
             SubscriptionsResponse response = null;
@@ -836,6 +834,300 @@ namespace WebAPI.Clients
             subscriptions = PricingMappings.ConvertToIntList(response.Ids);
 
             return subscriptions;
+        }
+
+        internal KalturaStringValueArray GenerateCode(int groupId, long couponGroupId, int numberOfCoupons, bool useLetters, bool useNumbers, bool useSpecialCharacters)
+        {
+            KalturaStringValueArray stringValueArray = null;
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            Status status = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var coupons = Core.Pricing.Module.GenerateCoupons(groupId, numberOfCoupons, couponGroupId, out status, useLetters, useNumbers, useSpecialCharacters);
+                    response.Status = status;
+                    if (coupons != null && coupons.Count > 0)
+                    {
+                        response.Codes = coupons.Select(x => x.code).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            stringValueArray = PricingMappings.BuildCouponCodeList(response.Codes);
+
+            return stringValueArray;
+        }
+
+        internal KalturaStringValueArray GeneratePublicCode(int groupId, long couponGroupId, string code)
+        {
+            KalturaStringValueArray stringValueArray = null;
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            Status status = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var coupons = Core.Pricing.Module.GeneratePublicCode(groupId, couponGroupId, code, out status);
+                    response.Status = status;
+
+                    if (coupons != null && coupons.Count > 0)
+                    {
+                        response.Codes = coupons.Select(x => x.code).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            stringValueArray = PricingMappings.BuildCouponCodeList(response.Codes);
+
+            return stringValueArray;
+        }
+
+        internal KalturaCouponsGroup GetCouponsGroup(int groupId, long id)
+        {
+            CouponsGroupResponse response = null;
+            KalturaCouponsGroup couponsGroup = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetCouponsGroup(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            couponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
+
+            return couponsGroup;
+        }
+
+        internal KalturaCouponsGroupListResponse GetCouponsGroups(int groupId)
+        {
+            CouponsGroupsResponse response = null;
+            KalturaCouponsGroupListResponse couponsGroups = new KalturaCouponsGroupListResponse();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetCouponsGroups(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            couponsGroups.couponsGroups = AutoMapper.Mapper.Map<List<KalturaCouponsGroup>>(response.CouponsGroups);
+            couponsGroups.TotalCount = couponsGroups.couponsGroups != null ? couponsGroups.couponsGroups.Count : 0;
+
+            return couponsGroups;
+        }
+
+        internal KalturaCouponsGroup UpdateCouponsGroup(int groupId, long id, KalturaCouponsGroup kCouponsGroup)
+        {
+            CouponsGroupResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request                        
+                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, id, kCouponsGroup.Name,
+                        kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
+                        kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
+                        kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
+                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
+                        kCouponsGroup.DiscountId.HasValue ? kCouponsGroup.DiscountId : kCouponsGroup.DiscountCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaCouponsGroup kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
+
+            return kalturaCouponsGroup;
+        }
+
+        internal bool DeleteCouponsGroups(int groupId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.DeleteCouponsGroups(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaCouponsGroup AddCouponsGroup(int groupId, KalturaCouponsGroup kCouponsGroup)
+        {
+            CouponsGroupResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //kCouponsGroup.descriptions TODO: 
+                    // fire request                 
+                    DateTime startDate = new DateTime(1970, 1, 1);
+                    DateTime endDate = DateTime.MaxValue;
+
+                    if (kCouponsGroup.StartDate.HasValue)
+                    {
+                        startDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value);
+                    }
+
+                    if (kCouponsGroup.EndDate.HasValue)
+                    {
+                        endDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value);
+                    }
+
+                    response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name, startDate, endDate,
+                        kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
+                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
+                        kCouponsGroup.DiscountId.HasValue ? kCouponsGroup.DiscountId.Value : kCouponsGroup.DiscountCode.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaCouponsGroup kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
+
+            return kalturaCouponsGroup;
+        }
+
+        internal List<KalturaDiscountDetails> GetDiscounts(int groupId, List<long> discountIds, string currency)
+        {
+            GenericListResponse<DiscountDetails> response = null;
+            List<KalturaDiscountDetails> discounts = new List<KalturaDiscountDetails>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetDiscountsByCurrency(groupId, discountIds, currency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            discounts = AutoMapper.Mapper.Map<List<KalturaDiscountDetails>>(response.Objects);
+
+            return discounts;
         }
     }
 }

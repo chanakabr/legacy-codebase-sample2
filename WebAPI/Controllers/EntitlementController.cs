@@ -325,6 +325,7 @@ namespace WebAPI.Controllers
         [OldStandardArgument("productType", "product_type")]
         [OldStandardArgument("contentId", "content_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("productId", MinInteger = 1)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -336,6 +337,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
         [Throws(eResponseStatus.UnKnownPPVModule)]
         [Throws(eResponseStatus.MissingBasePackage)]
+        [Throws(eResponseStatus.InvalidProductType)]
+        [Throws(eResponseStatus.InvalidContentId)]
+        [Throws(eResponseStatus.UnknownPriceReason)]
+        [Throws(eResponseStatus.PurchaseFailed)]
+        [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
+        [Throws(eResponseStatus.IncorrectPrice)]
+        [Throws(eResponseStatus.NoMediaRelatedToFile)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
@@ -348,8 +358,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, userId, domainID, contentId, productId,
-                    productType, history, string.Empty);
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements
+                    (groupId, userId, domainID, contentId, productId, productType, history, string.Empty);
             }
             catch (ClientException ex)
             {

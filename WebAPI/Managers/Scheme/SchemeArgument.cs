@@ -39,6 +39,11 @@ namespace WebAPI.Managers.Scheme
 
         internal void Validate(MethodInfo methodInfo, string argument, object value)
         {
+            if (value == null)
+            {
+                return;
+            }
+
             string service = getServiceId(methodInfo.DeclaringType);
             string action = FirstCharacterToLower(methodInfo.Name);
             string name = string.Format("{0}.{1}.{2}", service, action, argument);

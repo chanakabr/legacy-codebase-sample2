@@ -1051,7 +1051,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+                return Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, 0);
             }
             else
             {
@@ -1077,7 +1077,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.SetCouponUsed(nGroupID, sCouponCode, sSiteGUID);
+                return Core.Pricing.Module.SetCouponUsed(nGroupID, sCouponCode, sSiteGUID, 0);
             }
             else
             {
@@ -1099,7 +1099,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.SetCouponUses(nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode);
+                return Core.Pricing.Module.SetCouponUses(nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode, 0);
             }
             else
             {
@@ -1767,12 +1767,31 @@ namespace WS_Pricing
         }
 
         [WebMethod]
-        public virtual List<Coupon> GenerateCoupons(string sWSUserName, string sWSPassword, int numberOfCoupons, long couponGroupId)
-        {           
+        public virtual List<Coupon> GenerateCoupons(string sWSUserName, string sWSPassword, int numberOfCoupons, long couponGroupId, 
+            bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
+        {
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GenerateCoupons(nGroupID, numberOfCoupons, couponGroupId);
+                Status status = null;
+                return Core.Pricing.Module.GenerateCoupons(nGroupID, numberOfCoupons, couponGroupId, out status, useLetters, useNumbers, useSpecialCharacters);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+                return null;
+            }
+        }
+
+        [WebMethod]
+        public virtual List<Coupon> GeneratePublicCoupons(string sWSUserName, string sWSPassword, long couponGroupId, string code)
+        {
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
+            if (nGroupID != 0)
+            {
+                Status status = null;
+                return Core.Pricing.Module.GeneratePublicCode(nGroupID, couponGroupId, code,  out status);
             }
             else
             {

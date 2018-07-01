@@ -8,14 +8,30 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+
+    /// <summary>
+    /// Asset file details
+    /// </summary>
+    [Serializable]
+    public class KalturaAssetFile : KalturaOTTObject
+    {
+        /// <summary>
+        /// URL of the media file to be played
+        /// </summary>
+        [DataMember(Name = "url")]
+        [JsonProperty(PropertyName = "url")]
+        [XmlElement(ElementName = "url")]
+        public string Url { get; set; }
+    }
+
     /// <summary>
     /// Media file details
     /// </summary>
     [Serializable]
-    public class KalturaMediaFile : KalturaOTTObject
+    public class KalturaMediaFile : KalturaAssetFile
     {
 
-        private const string GENESIS_VERSION = "4.6.0.0";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         /// <summary>
         /// Unique identifier for the asset
@@ -41,8 +57,9 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public string Type { get; set; }
+
 
         /// <summary>
         /// Device types identifier as defined in the system
@@ -92,7 +109,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "billingType")]
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public string BillingType { get; set; } 
 
         /// <summary>
@@ -102,7 +119,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "quality")]
         [XmlElement(ElementName = "quality")]        
         [JsonIgnore]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public string Quality { get; set; }
 
         /// <summary>
@@ -157,7 +174,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "productCode")]
         [XmlElement(ElementName = "productCode")]
         [JsonIgnore]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public string ProductCode { get; set; }
 
         /// <summary>
@@ -283,4 +300,5 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaMediaFile> Files { get; set; }
     }
+
 }

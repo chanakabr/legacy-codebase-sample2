@@ -14,6 +14,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace WebAPI.Managers
 {
@@ -24,10 +25,7 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string CB_SECTION_NAME = "tokens";
-        private const string REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY = "revoked_ks_max_ttl_seconds";
-        private const string USERS_SESSIONS_KEY_FORMAT_TCM_KEY = "users_sessions_key_format";
-        private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "revoked_ks_key_format";
-        private const string REVOKED_SESSION_KEY_FORMAT_TCM_KEY = "revoked_session_key_format";
+
         private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
@@ -110,7 +108,7 @@ namespace WebAPI.Managers
             };
         }
 
-        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null)
+        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string,string> privileges = null)
         {
             KalturaLoginSession session = new KalturaLoginSession();
 
@@ -124,7 +122,7 @@ namespace WebAPI.Managers
             Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
+            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, privileges);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data
@@ -307,6 +305,9 @@ namespace WebAPI.Managers
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
 
+            //ValidateUser(groupId, userId);
+            //ValidateUdid(groupId, udid);
+
             // set udid in payload
             WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
             {
@@ -330,8 +331,14 @@ namespace WebAPI.Managers
             // 9. privileges - we do not support it so copy from app token
             var privilagesList = new Dictionary<string, string>();
 
-            privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
-            privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
+            {
+                privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
+            }
+            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            {
+                privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+            }
 
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
             {
@@ -341,7 +348,7 @@ namespace WebAPI.Managers
                     foreach (var privilige in splitedPrivileges)
                     {
                         var splitedPrivilege = privilige.Split(':');
-                        if (splitedPrivilege != null && splitedPrivilege.Length > 0)
+                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilagesList.ContainsKey(splitedPrivilege[0]))
                         {
                             if (splitedPrivilege.Length == 2)
                             {
@@ -378,7 +385,7 @@ namespace WebAPI.Managers
 
             return response;
         }
-
+        
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
         {
             // validate partner id
@@ -406,6 +413,18 @@ namespace WebAPI.Managers
             appToken.Token = Utils.Utils.Generate32LengthGuid();
 
             // 3. set default values for empty properties
+            List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
+
+            int utcNow = (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+
+            if (appToken.getExpiry() == 0 && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
+            {
+                appToken.Expiry = utcNow + group.AppTokenMaxExpirySeconds;
+            }
+
+            appToken.CreateDate = utcNow;
+            appToken.UpdateDate = utcNow;
+
             // session duration
             if (appToken.SessionDuration == null || appToken.SessionDuration <= 0 || appToken.SessionDuration > group.AppTokenSessionMaxDurationSeconds)
             {
@@ -429,7 +448,7 @@ namespace WebAPI.Managers
 
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
-            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) : 0;
+            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)utcNow : 0;
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
@@ -539,12 +558,7 @@ namespace WebAPI.Managers
             string revokedKsKeyFormat = group.RevokedKsKeyFormat;
             if (string.IsNullOrEmpty(revokedKsKeyFormat))
             {
-                revokedKsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_KS_KEY_FORMAT_TCM_KEY);
-
-                if (string.IsNullOrEmpty(revokedKsKeyFormat))
-                {
-                    revokedKsKeyFormat = REVOKED_KS_KEY_FORMAT;
-                }
+                revokedKsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
             }
 
             return revokedKsKeyFormat;
@@ -555,8 +569,8 @@ namespace WebAPI.Managers
             string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
-                revokedSessionKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_SESSION_KEY_FORMAT_TCM_KEY);
-
+                revokedSessionKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
+                
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {
                     revokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
@@ -568,7 +582,7 @@ namespace WebAPI.Managers
 
         private static int GetRevokedKsMaxTtlSeconds(Group group)
         {
-            return group.RevokedKsMaxTtlSeconds == 0 ? TCMClient.Settings.Instance.GetValue<int>(REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY) : group.RevokedKsMaxTtlSeconds;
+            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.IntValue : group.RevokedKsMaxTtlSeconds;
         }
 
         internal static bool RevokeSessions(int groupId, string userId)
@@ -586,6 +600,13 @@ namespace WebAPI.Managers
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
         {
+            // Check if KS already validated by gateway
+            string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
+            if(ksRandomHeader == ks.Random)
+            {
+                return true;
+            }
+
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
             {
                 return false;
@@ -621,7 +642,7 @@ namespace WebAPI.Managers
                 }
             }
 
-            if (ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
                 string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
@@ -642,7 +663,7 @@ namespace WebAPI.Managers
             string userSessionsKeyFormat = group.UserSessionsKeyFormat;
             if (string.IsNullOrEmpty(userSessionsKeyFormat))
             {
-                userSessionsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(USERS_SESSIONS_KEY_FORMAT_TCM_KEY);
+                userSessionsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(userSessionsKeyFormat))
                 {
@@ -740,5 +761,38 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
+        public static void RevokeDeviceSessions(int groupId, long householdId, string udid)
+        {
+            List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+
+            if (householdUserIds == null || householdUserIds.Count == 0)
+                return;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            long utcNow = Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+
+            foreach (string userId in householdUserIds)
+            {
+                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration))
+                {
+                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for UDID = {0}, userId = {1}", udid, userId);
+                }
+            }
+        }
+
+        private static void ValidateUdid(int groupId, string udid)
+        {
+            if (string.IsNullOrEmpty(udid))
+                return;
+
+            List<string> udids = HouseholdUtils.GetHouseholdUdids(groupId);
+
+            if (udids == null || udids.Contains(udid))
+            {
+                log.ErrorFormat("ValidateUdid: UDID not found in household. UDID = {0}", udid);
+                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
+            }
+        }
     }
 }

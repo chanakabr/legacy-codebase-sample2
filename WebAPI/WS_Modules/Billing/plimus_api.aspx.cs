@@ -734,7 +734,7 @@ namespace WS_Billing
             //}
 
             //Response.Redirect(string.Format("{0}?=status={1}&desc={2}", sBaseRedirect, Server.UrlEncode(status), Server.UrlEncode(description)), endResponse);
-            string redirectUrl = TVinciShared.WS_Utils.GetTcmConfigValue("REDIRECT_PILMUS_URL"); 
+            string redirectUrl = TVinciShared.WS_Utils.GetTcmConfigValue("REDIRECT_PILMUS_URL"); //  TCM not relevant anymore 
             Response.Redirect(string.Format("{0}?status={1}&desc={2}", redirectUrl, Server.UrlEncode(status), Server.UrlEncode(description)), endResponse);
 
         }

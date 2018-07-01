@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaChannel : KalturaOTTObject
     {
 
-        private const string GENESIS_VERSION = "4.6.0.0";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         /// <summary>
         /// Unique identifier for the channel
@@ -45,7 +45,7 @@ namespace WebAPI.Models.Catalog
         public string SystemName { get; set; }
 
         /// <summary>
-        /// Channel description
+        /// Cannel description
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
@@ -60,7 +60,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         [SchemeProperty(ReadOnly = true)]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         [OldStandardProperty("asset_types")]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         [Obsolete]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
         
@@ -83,7 +83,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "media_types")]
         [JsonIgnore]
         [Obsolete]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public List<KalturaIntegerValue> MediaTypes { get; set; }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression")]
         [OldStandardProperty("filter_expression")]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public string FilterExpression
         {
             get;
@@ -118,7 +118,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "order")]
         [JsonProperty("order")]
         [XmlElement(ElementName = "order", IsNullable = true)]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         public KalturaAssetOrderBy? Order
         {
             get;
@@ -131,7 +131,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "groupBy")]
         [JsonProperty("groupBy")]
         [XmlElement(ElementName = "groupBy", IsNullable = true)]
-        [Deprecated(GENESIS_VERSION)]
+        [Deprecated(OPC_MERGE_VERSION)]
         [Obsolete]
         public KalturaAssetGroupBy GroupBy
         {

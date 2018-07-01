@@ -58,7 +58,8 @@ namespace WebAPI.EventNotifications
                 eventObject = ottObject,
                 eventType = action,
                 eventObjectType = destination.Name,
-                systemName = systemName
+                systemName = systemName,
+                partnerId = objectEvent.PartnerId
             };
 
             return eventWrapper;

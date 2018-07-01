@@ -46,6 +46,15 @@ namespace WebAPI.Models.General
             get;
             set;
         }
+
+        [DataMember(Name = "partnerId")]
+        [JsonProperty(PropertyName = "partnerId")]
+        [XmlElement(ElementName = "partnerId")]
+        public int partnerId
+        {
+            get;
+            set;
+        }
     }
 
     [Serializable]

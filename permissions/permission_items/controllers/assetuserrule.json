@@ -1,0 +1,89 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_List",
+      "service": "AssetUserRule",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_AddRuleToUser",
+      "service": "AssetUserRule",
+      "action": "AddRuleToUser",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_RemoveRuleToUser",
+      "service": "AssetUserRule",
+      "action": "RemoveRuleToUser",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_AttachUser",
+      "service": "AssetUserRule",
+      "action": "AttachUser",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_DetachUser",
+      "service": "AssetUserRule",
+      "action": "DetachUser",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_Add",
+      "service": "AssetUserRule",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_Delete",
+      "service": "AssetUserRule",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetUserRule_Update",
+      "service": "AssetUserRule",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

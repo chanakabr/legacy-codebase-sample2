@@ -128,8 +128,10 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-                string siteGuid = KS.GetFromRequest().UserId;
-                ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), bookmark.getPosition(), bookmark.PlayerData.action.ToString(), bookmark.PlayerData.getAverageBitRate(), bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate());
+                string userId = KS.GetFromRequest().UserId;
+                ClientsManager.CatalogClient().AddBookmark(groupId, userId, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), 
+                                                           bookmark.getPosition(), bookmark.PlayerData.action.ToString(), bookmark.PlayerData.getAverageBitRate(), 
+                                                           bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate(), bookmark.ProgramId);
             }
 
             catch (ClientException ex)

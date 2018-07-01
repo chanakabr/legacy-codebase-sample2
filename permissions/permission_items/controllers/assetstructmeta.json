@@ -1,0 +1,27 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStructMeta_List",
+      "service": "AssetStructMeta",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStructMeta_Update",
+      "service": "AssetStructMeta",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

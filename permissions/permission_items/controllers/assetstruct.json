@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStruct_List",
+      "service": "AssetStruct",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStruct_Add",
+      "service": "AssetStruct",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStruct_Delete",
+      "service": "AssetStruct",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStruct_Update",
+      "service": "AssetStruct",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

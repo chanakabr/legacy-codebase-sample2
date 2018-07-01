@@ -29,13 +29,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -43,17 +43,17 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "AssetTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "GroupBy":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Images":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Order":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -65,17 +65,27 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCouponsGroup":
+                    switch (propertyName)
+                    {
+                        case "Descriptions":
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
+                        case "DiscountCode":
+                            return DeprecatedAttribute.IsDeprecated("4.8.2.0");
+                    };
+                    break;
+                    
                 case "KalturaDynamicChannel":
                     switch (propertyName)
                     {
                         case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Images":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Order":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -99,19 +109,19 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "CatchUpBuffer":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableRecordingPlaybackNonEntitledChannel":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "TrickPlayBuffer":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -119,17 +129,17 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "AssetTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "GroupBy":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Images":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Order":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -137,19 +147,19 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "CatchUpBuffer":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableRecordingPlaybackNonEntitledChannel":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "TrickPlayBuffer":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -157,13 +167,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "BillingType":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Quality":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Type":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -171,13 +181,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "AssetType":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
                         case "FieldName":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
                         case "PartnerId":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
                         case "Type":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
                     };
                     break;
                     
@@ -185,15 +195,15 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "AssetTypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "FeaturesIn":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "FieldNameEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "FieldNameNotEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "TypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -205,13 +215,13 @@ namespace WebAPI.Reflection
                         case "AdsPolicy":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "BillingType":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Quality":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "Type":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -235,13 +245,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -249,13 +259,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
                     };
                     break;
                     
@@ -1299,6 +1309,12 @@ namespace WebAPI.Reflection
                     ret = new Dictionary<string, string>() { 
                         {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                    };
+                    break;
+                    
+                case "KalturaDiscount":
+                    ret = new Dictionary<string, string>() { 
+                        {"currencySign", "currency_sign"},
                     };
                     break;
                     
@@ -2432,6 +2448,8 @@ namespace WebAPI.Reflection
                 case "KalturaAppToken":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "Expiry":
                             return "expiry";
                         case "HashType":
@@ -2452,6 +2470,8 @@ namespace WebAPI.Reflection
                             return "status";
                         case "Token":
                             return "token";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -2551,6 +2571,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetCondition":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "ksql";
+                    }
+                    break;
+                    
                 case "KalturaAssetCount":
                     switch(property.Name)
                     {
@@ -2578,6 +2606,14 @@ namespace WebAPI.Reflection
                     {
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaAssetFile":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
                     }
                     break;
                     
@@ -2714,6 +2750,46 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
+                    }
+                    break;
+                    
+                case "KalturaAssetRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleBase":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetApplied":
+                            return "assetApplied";
+                        case "ConditionsContainType":
+                            return "conditionsContainType";
+                    }
+                    break;
+                    
+                case "KalturaAssetRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -2861,6 +2937,32 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetUserRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "AttachedUserIdEqualCurrent":
+                            return "attachedUserIdEqualCurrent";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaBaseAssetInfo":
                     switch(property.Name)
                     {
@@ -2886,8 +2988,6 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -2910,6 +3010,8 @@ namespace WebAPI.Reflection
                     {
                         case "GroupBy":
                             return "groupBy";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -2962,6 +3064,8 @@ namespace WebAPI.Reflection
                             return "position";
                         case "PositionOwner":
                             return "positionOwner";
+                        case "ProgramId":
+                            return "programId";
                         case "User":
                             return "user";
                         case "UserId":
@@ -3176,6 +3280,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannelFilter":
                     switch(property.Name)
                     {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
                         case "KSql":
@@ -3312,6 +3418,36 @@ namespace WebAPI.Reflection
                             return "subscriptionId";
                         case "TotalRenewalIterations":
                             return "totalRenewalIterations";
+                    }
+                    break;
+                    
+                case "KalturaConcurrencyCondition":
+                    switch(property.Name)
+                    {
+                        case "ConcurrencyLimitationType":
+                            return "concurrencyLimitationType";
+                        case "Limit":
+                            return "limit";
+                    }
+                    break;
+                    
+                case "KalturaConcurrencyPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DeviceFamilyIds":
+                            return "deviceFamilyIds";
+                        case "EvictionPolicy":
+                            return "evictionPolicy";
+                    }
+                    break;
+                    
+                case "KalturaCondition":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -3466,8 +3602,20 @@ namespace WebAPI.Reflection
                             return "mainLanguageCode";
                         case "Name":
                             return "name";
+                        case "TimeZoneId":
+                            return "timeZoneId";
                         case "VatPercent":
                             return "vatPercent";
+                    }
+                    break;
+                    
+                case "KalturaCountryCondition":
+                    switch(property.Name)
+                    {
+                        case "Countries":
+                            return "countries";
+                        case "Not":
+                            return "not";
                     }
                     break;
                     
@@ -3496,8 +3644,12 @@ namespace WebAPI.Reflection
                     {
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "LeftUses":
+                            return "leftUses";
                         case "Status":
                             return "status";
+                        case "TotalUses":
+                            return "totalUses";
                     }
                     break;
                     
@@ -3508,10 +3660,16 @@ namespace WebAPI.Reflection
                             return "couponGroupType";
                         case "Descriptions":
                             return "descriptions";
+                        case "DiscountCode":
+                            return "discountCode";
+                        case "DiscountId":
+                            return "discountId";
                         case "EndDate":
                             return "endDate";
                         case "Id":
                             return "id";
+                        case "MaxHouseholdUses":
+                            return "maxHouseholdUses";
                         case "MaxUsesNumber":
                             return "maxUsesNumber";
                         case "MaxUsesNumberOnRenewableSub":
@@ -3520,6 +3678,14 @@ namespace WebAPI.Reflection
                             return "name";
                         case "StartDate":
                             return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaCouponsGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "couponsGroups":
+                            return "objects";
                     }
                     break;
                     
@@ -3672,6 +3838,44 @@ namespace WebAPI.Reflection
                     {
                         case "LastAccessDateGreaterThanOrEqual":
                             return "lastAccessDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaDiscount":
+                    switch(property.Name)
+                    {
+                        case "Percentage":
+                            return "percentage";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "EndtDate":
+                            return "endDate";
+                        case "Id":
+                            return "id";
+                        case "MultiCurrencyDiscount":
+                            return "multiCurrencyDiscount";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaDiscountDetailsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Discounts":
+                            return "objects";
                     }
                     break;
                     
@@ -5345,6 +5549,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOTTUserDynamicDataList":
+                    switch(property.Name)
+                    {
+                        case "DynamicData":
+                            return "dynamicData";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaOTTUserFilter":
                     switch(property.Name)
                     {
@@ -5405,6 +5619,22 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "ParentalRule":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPartnerConfigurationFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerConfigurationTypeEqual":
+                            return "partnerConfigurationTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaPartnerConfigurationListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;
@@ -5631,6 +5861,46 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalList":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
+                        case "PartnerListType":
+                            return "partnerListType";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListListResponse":
+                    switch(property.Name)
+                    {
+                        case "PersonalListList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPersonalListSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "PartnerListTypeIn":
+                            return "partnerListTypeIn";
+                    }
+                    break;
+                    
                 case "KalturaPin":
                     switch(property.Name)
                     {
@@ -5678,6 +5948,8 @@ namespace WebAPI.Reflection
                             return "mediaProtocol";
                         case "StreamerType":
                             return "streamerType";
+                        case "UrlType":
+                            return "urlType";
                     }
                     break;
                     
@@ -6011,6 +6283,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPublicCouponGenerationOptions":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                    }
+                    break;
+                    
                 case "KalturaPurchase":
                     switch(property.Name)
                     {
@@ -6086,6 +6366,20 @@ namespace WebAPI.Reflection
                             return "externalToken";
                         case "Token":
                             return "token";
+                    }
+                    break;
+                    
+                case "KalturaRandomCouponGenerationOptions":
+                    switch(property.Name)
+                    {
+                        case "NumberOfCoupons":
+                            return "numberOfCoupons";
+                        case "UseLetters":
+                            return "useLetters";
+                        case "UseNumbers":
+                            return "useNumbers";
+                        case "UseSpecialCharacters":
+                            return "useSpecialCharacters";
                     }
                     break;
                     
@@ -6310,6 +6604,8 @@ namespace WebAPI.Reflection
                 case "KalturaRelatedFilter":
                     switch(property.Name)
                     {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
                         case "KSql":
@@ -6376,6 +6672,8 @@ namespace WebAPI.Reflection
                 case "KalturaRuleAction":
                     switch(property.Name)
                     {
+                        case "Description":
+                            return "description";
                         case "Type":
                             return "type";
                     }
@@ -6412,6 +6710,14 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "TypeIn":
                             return "typeIn";
+                    }
+                    break;
+                    
+                case "KalturaSearchAssetListFilter":
+                    switch(property.Name)
+                    {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                     }
                     break;
                     
@@ -6755,6 +7061,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSSOAdapterProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "ExternalIdentifier":
+                            return "externalIdentifier";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                    }
+                    break;
+                    
+                case "KalturaSSOAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "SSOAdapters":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaStringValueArray":
                     switch(property.Name)
                     {
@@ -6984,6 +7318,16 @@ namespace WebAPI.Reflection
                     {
                         case "Tags":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaTimeOffsetRuleAction":
+                    switch(property.Name)
+                    {
+                        case "Offset":
+                            return "offset";
+                        case "TimeZone":
+                            return "timeZone";
                     }
                     break;
                     
@@ -7629,6 +7973,128 @@ namespace WebAPI.Reflection
             }
             
             return null;
+        }
+        
+        public static bool IsHttpMethodBlocked(MethodInfo methodInfo, string httpMethod)
+        {
+            bool ret = false;
+            switch (methodInfo.DeclaringType.Name)
+            {
+                case "OttUserController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "Login":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "LoginWithPin":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "setInitialPassword":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "UpdateLoginData":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "updatePassword":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+                case "PinController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "Update":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "UpdateOldStandard":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "Validate":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+                case "SocialController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "GetByToken":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "GetByTokenOldStandard":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "Login":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+            }
+            
+            return ret;
         }
         
     }

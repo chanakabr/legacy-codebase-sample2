@@ -1,0 +1,47 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserRole_List",
+      "service": "UserRole",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "userrole_Add",
+      "service": "userrole",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "userrole_Delete",
+      "service": "userrole",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "userrole_Update",
+      "service": "userrole",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -143,6 +143,11 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", MinLong = 1)]
         public KalturaUserRole Update(long id, KalturaUserRole role)
         {
+            if (id < 1)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETER, "id");
+            }
+
             KalturaUserRole response = null;
 
             int groupId = KS.GetFromRequest().GroupId;

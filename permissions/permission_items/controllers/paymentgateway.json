@@ -1,0 +1,89 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_List",
+      "service": "PaymentGateway",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_Get",
+      "service": "PaymentGateway",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_Set",
+      "service": "PaymentGateway",
+      "action": "Set",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_Delete",
+      "service": "PaymentGateway",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_SetPaymentMethod",
+      "service": "PaymentGateway",
+      "action": "SetPaymentMethod",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_RemovePaymentMethod",
+      "service": "PaymentGateway",
+      "action": "RemovePaymentMethod",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_ForceRemovePaymentMethod",
+      "service": "PaymentGateway",
+      "action": "ForceRemovePaymentMethod",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

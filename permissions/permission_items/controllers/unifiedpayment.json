@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UnifiedPayment_GetNextRenewal",
+      "service": "UnifiedPayment",
+      "action": "GetNextRenewal",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

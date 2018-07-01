@@ -22,7 +22,7 @@ namespace WebAPI.Managers.Scheme
 
         public static bool IsDeprecated(string version)
         {
-            if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+            if (HttpContext.Current == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
                 return false;
 
             Version deprecationVersion = new Version(version);

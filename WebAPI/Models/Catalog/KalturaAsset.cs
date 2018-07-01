@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
     abstract public class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
 
-        private const string GENESIS_VERSION = "4.6.0.0";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         /// <summary>
         /// Unique identifier for the asset
@@ -144,7 +144,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
-        [Deprecated(GENESIS_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
-        [Deprecated(GENESIS_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
-        [Deprecated(GENESIS_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
-        [Deprecated(GENESIS_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>

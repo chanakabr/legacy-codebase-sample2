@@ -7,6 +7,8 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -19,8 +21,10 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using WebAPI.Models.Partner;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
@@ -83,7 +87,8 @@ namespace WebAPI.Clients
             roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
 
             return roles;
-        }       
+
+        }
 
         #region Parental Rules
 
@@ -121,14 +126,11 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
-
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -155,7 +157,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }       
+        }
 
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
@@ -191,7 +193,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-
+        
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
             KalturaUserRole userRole = new KalturaUserRole();
@@ -1444,7 +1446,7 @@ namespace WebAPI.Clients
         internal bool DeleteParentalRule(int groupId, long id, long userId)
         {
             Func<Status> deleteAssetStructFunc = () => Core.Api.api.DeleteParentalRule(groupId, id, userId);
-            return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetStructFunc);
         }
 
         #endregion
@@ -2474,9 +2476,6 @@ namespace WebAPI.Clients
         {
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
-
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3618,7 +3617,8 @@ namespace WebAPI.Clients
             }
         }
 
-        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId, string udid, out string code, out string message)
+        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId,
+            string udid, KalturaPlaybackContextType? context, string recordingId, out string code, out string message)
         {
             StringResponse drmAdapterResponse = null;
             message = null;
@@ -3626,9 +3626,17 @@ namespace WebAPI.Clients
 
             try
             {
+                PlayContextType contextType  = PlayContextType.Playback;
+
+                if (context.HasValue)
+                {
+                    contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download? PlayContextType.Download: PlayContextType.Playback;
+                }
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId, externalFileId, Utils.Utils.GetClientIP(), udid);
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId,
+                        externalFileId, Utils.Utils.GetClientIP(), udid, contextType, recordingId);
                 }
             }
             catch (Exception ex)
@@ -3656,41 +3664,161 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
-        internal KalturaDrmProfileListResponse GetDrmAdapters(int groupId)
+        #region AssetRule
+
+        internal KalturaAssetRule UpdateAssetRule(int groupId, long id, KalturaAssetRule assetRule)
         {
-            KalturaDrmProfileListResponse result = new KalturaDrmProfileListResponse() { TotalCount = 0 };
+            assetRule.Id = id;
 
-            DrmAdapterListResponse response = null;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetDrmAdapters(groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            Func<AssetRule, GenericResponse<AssetRule>> updateAssetRuleFunc = (AssetRule assetRuleToUpdate) =>
+                Core.Api.Module.UpdateAssetRule(groupId, assetRuleToUpdate);
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.Adapters.Count > 0)
-            {
-                result.TotalCount = response.Adapters.Count;
-                result.Adapters = AutoMapper.Mapper.Map<List<KalturaDrmProfile>>(response.Adapters);
-            }
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, updateAssetRuleFunc);
 
             return result;
+        }
+
+        internal KalturaAssetRule AddAssetRule(int groupId, KalturaAssetRule assetRule)
+        {
+            Func<AssetRule, GenericResponse<AssetRule>> addAssetRuleFunc = (AssetRule assetRuleToAdd) =>
+                Core.Api.Module.AddAssetRule(groupId, assetRuleToAdd);
+
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, addAssetRuleFunc);
+
+            return result;
+        }
+
+        internal bool DeleteAssetRule(int groupId, long id)
+        {
+            Func<Status> deleteAssetRuleFunc = () => Core.Api.Module.DeleteAssetRule(groupId, id);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetRuleFunc);
+
+            return true;
+        }
+
+        internal KalturaAssetRuleListResponse GetAssetRules(int groupId, KalturaAssetRuleFilter filter)
+        {
+            AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
+
+            SlimAsset slimAsset = null;
+
+            if (filter.AssetApplied != null)
+            {
+                slimAsset = Mapper.Map<SlimAsset>(filter.AssetApplied);
+            }
+            
+            KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
+
+            Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
+               Core.Api.Module.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
+
+            KalturaGenericListResponse<KalturaAssetRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetRule, AssetRule>(getAssetRulesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaAssetRule GetAssetRule(int groupId, long assetRuleId)
+        {
+            Func<GenericResponse<AssetRule>> getAssetRuleFunc = () => 
+                Core.Api.Module.GetAssetRule(groupId, assetRuleId);
+
+            KalturaAssetRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(getAssetRuleFunc);
+            return result;
+        }
+        #endregion
+
+        #region AssetUserRule
+
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null)
+        {
+            KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
+
+            Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
+               Core.Api.Module.GetAssetUserRuleList(groupId, userId);
+
+            KalturaGenericListResponse<KalturaAssetUserRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule AddAssetUserRule(int groupId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> addAssetUserRuleFunc = (AssetUserRule assetUserRuleToAdd) =>
+                Core.Api.Module.AddAssetUserRule(groupId, assetUserRuleToAdd);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, addAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule)
+        {
+            Func<AssetUserRule, GenericResponse<AssetUserRule>> updateAssetUserRuleFunc = (AssetUserRule assetUserRuleToUpdate) =>
+                Core.Api.Module.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+
+            KalturaAssetUserRule result =
+                ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, updateAssetUserRuleFunc);
+
+            return result;
+        }
+        
+        internal void DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        {
+            Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
+        }
+
+        internal void AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> addAssetUserRuleToUserFunc = () => Core.Api.Module.AddAssetUserRuleToUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(addAssetUserRuleToUserFunc);
+        }
+        
+        internal void DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
+        {
+            Func<Status> deleteAssetUserRuleFromUserFunc = () => Core.Api.Module.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
+            ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFromUserFunc);
+        }
+
+        #endregion
+
+        internal KalturaPartnerConfigurationListResponse GetConcurrencyPartner(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<DeviceConcurrencyPriority>> getConcurrencyPartnerFunc = () =>
+                Core.Api.Module.GetConcurrencyPartner(groupId);
+
+            KalturaGenericListResponse<KalturaConcurrencyPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>(getConcurrencyPartnerFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal bool UpdateConcurrencyPartner(int groupId, KalturaConcurrencyPartnerConfig partnerConfig)
+        {
+            Func<DeviceConcurrencyPriority, Status> updateConcurrencyPartnerFunc = 
+                (DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate) => 
+                    Core.Api.Module.UpdateConcurrencyPartner(groupId, deviceConcurrencyPriorityToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>(updateConcurrencyPartnerFunc, partnerConfig);
+
+            return true;
         }
 
     }

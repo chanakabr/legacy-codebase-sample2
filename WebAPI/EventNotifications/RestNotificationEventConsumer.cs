@@ -12,6 +12,8 @@ using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
+using System.Web.Hosting;
+using KlogMonitorHelper;
 
 namespace WebAPI
 {
@@ -187,7 +189,8 @@ namespace WebAPI
             // Perform the actions for this event
             foreach (var action in actions.Values)
             {
-                log.DebugFormat("Notification event action: action name = {0}", action.FriendlyName);
+                log.DebugFormat("Notification event action: action name = {0}, partner {1}, event type {2}, event action {3}, specific notification is {4}", 
+                    action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
                 try
                 {
@@ -253,11 +256,30 @@ namespace WebAPI
             }
             else
             {
-                Task t = Task.Factory.StartNew(() =>
+                // save context data - for multi threading operations
+                ContextData contextData = new ContextData();
+
+                HostingEnvironment.QueueBackgroundWorkItem((obj) =>
                 {
-                    action.Handle(kalturaEvent, eventWrapper);
-                }
-                );
+                    try
+                    {
+                        contextData.Load();
+
+                        log.DebugFormat("Start async action: action name = {0}, partner {1},  specific notification is {2}",
+                            action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
+
+                        action.Handle(kalturaEvent, eventWrapper);
+
+                        log.DebugFormat("Finished async action: action name = {0}, partner {1},  specific notification is {2}",
+                            action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
+
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error when performing async action. partner {0}, system name {1}, ex = {2}",
+                            kalturaEvent.PartnerId, action.SystemName, ex);
+                    }
+                });
             }
         }
 

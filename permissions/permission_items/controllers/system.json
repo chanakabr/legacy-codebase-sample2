@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "System_GetCountry",
+      "service": "System",
+      "action": "GetCountry",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

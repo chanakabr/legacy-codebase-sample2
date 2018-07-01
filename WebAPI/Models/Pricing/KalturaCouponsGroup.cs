@@ -39,6 +39,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Deprecated("4.8.0.0")]       
         public List<KalturaTranslationToken> Descriptions { get; set; }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxUsesNumber")]
         [XmlElement(ElementName = "maxUsesNumber", IsNullable = true)]
         [OldStandardProperty("max_uses_number")]
+        [SchemeProperty(MinInteger = 1)]
         public int? MaxUsesNumber { get; set; }
 
         /// <summary>
@@ -75,6 +77,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxUsesNumberOnRenewableSub")]
         [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
         [OldStandardProperty("max_uses_number_on_renewable_sub")]
+        [SchemeProperty(MinInteger = 0)]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
 
 
@@ -84,10 +87,52 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponGroupType")]
         [JsonProperty("couponGroupType")]
         [XmlElement(ElementName = "couponGroupType", IsNullable = true)]
-        public KalturaCouponGroupType? CouponGroupType
-        {
-            get;
-            set;
-        }
+        public KalturaCouponGroupType? CouponGroupType { get; set; }
+
+        /// <summary>
+        /// Maximum number of uses per household for each coupon in the group
+        /// </summary>
+        [DataMember(Name = "maxHouseholdUses")]
+        [JsonProperty("maxHouseholdUses")]
+        [XmlElement(ElementName = "maxHouseholdUses", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public int? MaxHouseholdUses { get; set; }
+
+        /// <summary>
+        /// Discount code
+        /// </summary>
+        [DataMember(Name = "discountCode")]
+        [JsonProperty("discountCode")]
+        [XmlElement(ElementName = "discountCode", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        [Deprecated("4.8.2.0")]
+        public long? DiscountCode { get; set; }
+
+        /// <summary>
+        /// Discount ID
+        /// </summary>
+        [DataMember(Name = "discountId")]
+        [JsonProperty("discountId")]
+        [XmlElement(ElementName = "discountId", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public long? DiscountId { get; set; }
     }
+
+    /// <summary>
+    /// Coupons group list
+    /// </summary>
+    [DataContract(Name = "KalturaCouponsGroupListResponse", Namespace = "")]
+    [XmlRoot("KalturaCouponsGroupListResponse")]
+    public class KalturaCouponsGroupListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of coupons groups
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaCouponsGroup> couponsGroups { get; set; }
+    }
+
 }

@@ -13,6 +13,7 @@ using KlogMonitorHelper;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using ConfigurationManager;
 
 namespace WebAPI
 {
@@ -22,11 +23,19 @@ namespace WebAPI
 
         protected void Application_Start()
         {
-            TCMClient.Settings.Instance.Init();
+            InitializeLogging();
+
+            // Configuration
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+        }
+
+        private static void InitializeLogging()
+        {
             // build log4net partial file name
             string partialLogName = string.Empty;
 

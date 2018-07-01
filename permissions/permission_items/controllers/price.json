@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Price_List",
+      "service": "Price",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

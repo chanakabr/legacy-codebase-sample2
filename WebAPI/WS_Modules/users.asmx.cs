@@ -669,7 +669,7 @@ namespace WS_Users
         {
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
 
@@ -2103,6 +2103,12 @@ namespace WS_Users
                 HttpContext.Current.Response.StatusCode = 404;
             }
             return response;
+        }
+
+        [WebMethod]
+        public bool Purge()
+        {
+            return Core.Users.Module.Purge();
         }
     }
 }

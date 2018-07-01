@@ -23,6 +23,7 @@ namespace WebAPI.Models.Catalog
         /// epg_channel_id – the channel identifier of the EPG program. *****Deprecated, please use linear_media_id instead*****
         /// linear_media_id – the linear media identifier of the EPG program.
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+        /// asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
         /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
@@ -37,6 +38,7 @@ namespace WebAPI.Models.Catalog
         public string KSql { get; set; }
 
         /// <summary>
+        /// (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
         /// Comma separated list of asset types to search within. 
         /// Possible values: 0 – EPG linear programs entries; 1 - Recordings; Any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.
@@ -52,7 +54,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
-        public string IdIn { get; set; }
+        public string IdIn { get; set; }       
 
         internal List<int> getTypeIn()
         {

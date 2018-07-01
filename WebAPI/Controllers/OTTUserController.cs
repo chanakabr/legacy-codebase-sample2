@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +55,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
@@ -107,6 +109,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("extraParams", "extra_params")]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -247,6 +250,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.UserExternalError)]
+        [SchemeArgument("password", MaxLength = 128)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -255,6 +259,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
+
             try
             {
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
@@ -318,6 +323,7 @@ namespace WebAPI.Controllers
         /// <param name="password">New password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("setInitialPassword"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
@@ -398,6 +404,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("updatePassword"), HttpPost]
         [ApiAuthorize(true)]
+        [BlockHttpMethods("GET")]
         [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
         public void updatePassword(int userId, string password)
         {
@@ -466,6 +473,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InsideLockTime)]
         [Throws(eResponseStatus.UserAllreadyLoggedIn)]
         [Route("updateLoginData"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("oldPassword", "old_password")]
@@ -790,8 +798,8 @@ namespace WebAPI.Controllers
             try
             {
                 string userId = KS.GetFromRequest().UserId;
-                string key = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_key");
-                string iv = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_iv");
+                string key = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionKey.Value;
+                string iv = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionIV.Value;
 
                 if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
                 {

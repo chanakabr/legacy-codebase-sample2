@@ -33,27 +33,31 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         public bool Delete(string udid)
         {
+            bool res = false;
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
                 var userRoles = RolesManager.GetRoleIds(ks);
                 if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
                 {
-                    return ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
+                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
                 }
                 else
                 {
-                    return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
+
+                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return true;
+            return res;
         }
 
         /// <summary>

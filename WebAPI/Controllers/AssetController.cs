@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
-                pager  = new KalturaFilterPager();
+                pager = new KalturaFilterPager();
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAssetInfoFilter.IDs");
             }
-            
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -79,12 +79,8 @@ namespace WebAPI.Controllers
                             }
 
 
-                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, udid, language,
                                 pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
-
-                            // if no response - return not found status 
-                            if (response == null || response.Objects == null || response.Objects.Count == 0)
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
                         break;
                     case KalturaCatalogReferenceBy.EPG_INTERNAL:
@@ -131,7 +127,7 @@ namespace WebAPI.Controllers
 
                             var withList = with.Select(x => x.type).ToList();
                             response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                            pager.getPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty);
+                            pager.getPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty, false);
                         }
                         break;
                 }
@@ -151,8 +147,8 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize]        
-        public KalturaAssetListResponse List(KalturaAssetFilter filter = null,  KalturaFilterPager pager = null)
+        [ApiAuthorize]
+        public KalturaAssetListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
 
@@ -164,7 +160,7 @@ namespace WebAPI.Controllers
             string language = Utils.Utils.GetLanguageFromRequest();
             string format = Utils.Utils.GetFormatFromRequest();
             KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
-      
+
             // parameters validation
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -179,35 +175,90 @@ namespace WebAPI.Controllers
             }
 
             bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
-           
+
             try
             {
                 // external channel 
                 if (filter is KalturaChannelExternalFilter)
                 {
-                    KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;                   
+                    KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText, channelExternalFilter.DynamicOrderBy);
                 }
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
-                {
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                {                    
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
-                        regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
+
+                    if (filter is KalturaSearchAssetListFilter && ((KalturaSearchAssetListFilter)filter).ExcludeWatched)
+                    {                        
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
+
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        var groupbys = regularAssetFilter.getGroupByValue();
+                        if (groupbys != null && groupbys.Count > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                        }
+
+                        response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
+                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData,
+                            regularAssetFilter.DynamicOrderBy);
+                    }
+                    else
+                    {
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
+                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
+                    }
                 }
+
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
                 //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
                 else if (filter is KalturaRelatedFilter)
                 {
                     KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
-                    response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy, relatedFilter.DynamicOrderBy,
-                    relatedFilter.getGroupByValue(), responseProfile);
+
+                    if (relatedFilter.ExcludeWatched)
+                    {
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
+
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        var groupbys = relatedFilter.getGroupByValue();
+                        if (groupbys != null && groupbys.Count > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                        }
+
+                        response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(groupId, userId, domainId, udid,
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
+                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
+                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy, relatedFilter.getGroupByValue(), responseProfile);
+                    }
                 }
                 //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
                 //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
@@ -241,14 +292,30 @@ namespace WebAPI.Controllers
                 }
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
-                {
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                {                    
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
-                    if (pager == null)
-                        pager = new KalturaFilterPager();
+                    if (channelFilter.ExcludeWatched)
+                    {
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
 
-                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
-                                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(),
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
+                    }
+                    else
+                    {
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
+                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
+                    }
                 }
                 else if (filter is KalturaBundleFilter)
                 {
@@ -261,8 +328,14 @@ namespace WebAPI.Controllers
                 {
                     KalturaScheduledRecordingProgramFilter scheduledRecordingFilter = (KalturaScheduledRecordingProgramFilter)filter;
                     response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), 
-                                    pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
-                                    scheduledRecordingFilter.DynamicOrderBy);
+                        pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
+                        scheduledRecordingFilter.DynamicOrderBy);
+                }
+                else if (filter is KalturaPersonalListSearchFilter)
+                {
+                    KalturaPersonalListSearchFilter pesrsonalListFilter = (KalturaPersonalListSearchFilter)filter;
+                    response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language, pesrsonalListFilter.Ksql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
+                        pager.getPageIndex(), pager.getPageSize(), pesrsonalListFilter.GetPartnerListTypeIn(), responseProfile);
                 }
                 else
                 {
@@ -315,8 +388,9 @@ namespace WebAPI.Controllers
                             }
 
                             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
-                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);                          
                         }
+
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         {
@@ -337,6 +411,7 @@ namespace WebAPI.Controllers
 
                             response = epgRes.Objects.First();
                         }
+
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         {
@@ -407,14 +482,9 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
-                            // if no response - return not found status 
-                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                            {
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                            }
+                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, udid, language,
+                                0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
                             response = mediaRes.Objects.First();
                         }
@@ -471,16 +541,21 @@ namespace WebAPI.Controllers
         /// <param name="filter_types">List of asset types to search within. 
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.</param>
-        /// <param name="filter"> <![CDATA[
+        /// <param name="filter">      
+        /// <![CDATA[
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-        /// geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+        /// epg_id, media_id - for specific asset IDs.
+        /// geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
         /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+        /// user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
         /// epg_channel_id – the channel identifier of the EPG program.
-        /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+        /// entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+        /// asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
         /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-        /// Search values are limited to 20 characters each.
+        /// Logical conjunction: and, or. 
+        /// Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
@@ -521,9 +596,9 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
+                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
                 request_id,
-                with.Select(x => x.type).ToList());
+                with.Select(x => x.type).ToList(), false);
             }
             catch (ClientException ex)
             {
@@ -699,7 +774,7 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-                        
+
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
 
@@ -735,11 +810,20 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+        /// <param name="filter_query"> /// <![CDATA[
+        /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+        /// epg_id, media_id - for specific asset IDs.
+        /// geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
+        /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+        /// user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+        /// epg_channel_id – the channel identifier of the EPG program.
+        /// entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+        /// asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
         /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-        /// Search values are limited to 20 characters each.
+        /// Logical conjunction: and, or. 
+        /// Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <remarks>Possible status codes: 
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
@@ -767,14 +851,14 @@ namespace WebAPI.Controllers
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
-            
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
 
                 var withList = with.Select(x => x.type).ToList();
                 response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                    pager.getPageIndex(), pager.PageSize, withList, id, order_by, filter_query);
+                    pager.getPageIndex(), pager.PageSize, withList, id, order_by, filter_query, false);
             }
             catch (ClientException ex)
             {
@@ -863,10 +947,10 @@ namespace WebAPI.Controllers
         public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext response = null;
-           
+
             KS ks = KS.GetFromRequest();
 
-            contextDataParams.Validate(assetType);
+            contextDataParams.Validate(assetType, assetId);
 
             try
             {
@@ -879,19 +963,22 @@ namespace WebAPI.Controllers
                     //if sources left after building DRM data, build the manifest URL
                     if (response.Sources.Count > 0)
                     {
-                        string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
-
-                        foreach (var source in response.Sources)
+                        if (contextDataParams.UrlType != KalturaUrlType.DIRECT) // no need to built Url in case of urlType us direct
                         {
-                            StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                                baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                            string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
-                            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                            foreach (var source in response.Sources)
                             {
-                                url.AppendFormat("/ks/{0}", ks.ToString());
-                            }
+                                StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                                    baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
 
-                            source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                                if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                                {
+                                    url.AppendFormat("/ks/{0}", ks.ToString());
+                                }
+
+                                source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                            }
                         }
 
                         if (response.Messages == null)
@@ -964,7 +1051,7 @@ namespace WebAPI.Controllers
             try
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
+                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
                     regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
             }
             catch (ClientException ex)
@@ -999,7 +1086,7 @@ namespace WebAPI.Controllers
             KS ks = KS.GetFromRequest();
             string userId = ks.UserId;
 
-            contextDataParams.Validate(assetType);
+            contextDataParams.Validate(assetType, assetId);
 
             try
             {

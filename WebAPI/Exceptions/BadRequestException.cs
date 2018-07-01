@@ -48,6 +48,8 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENT_MAX_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] maximum value is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MIN_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum value is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
+        public static ApiExceptionType ARGUMENTS_VALUES_DUPLICATED = new ApiExceptionType(StatusCode.ArgumentsDuplicate, StatusCode.BadRequest, "Argument [@argument@] can not appear twice", "argument");
+        public static ApiExceptionType INVALID_AGRUMENT_VALUE = new ApiExceptionType(StatusCode.InvalidArgumentValue, StatusCode.BadRequest, "Argument [@argument@] value must be of type [@value@]", "argument", "value");
 
         public static ApiExceptionType MEDIA_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.MediaIdsMustBeNumeric, StatusCode.BadRequest, "Media ids must be numeric");
         public static ApiExceptionType EPG_INTERNAL_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.EpgInternalIdsMustBeNumeric, StatusCode.BadRequest, "EPG internal ids must be numeric");
@@ -55,6 +57,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType DUPLICATE_ASSET = new ApiExceptionType(StatusCode.DuplicateAsset, StatusCode.BadRequest, "Duplicate asset: id [@id@] type = [@type@]", "id", "type");
         public static ApiExceptionType DUPLICATE_FILE = new ApiExceptionType(StatusCode.DuplicateFile, StatusCode.BadRequest, "Duplicate file: id [@id@]", "id");
         public static ApiExceptionType UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE = new ApiExceptionType(StatusCode.UnableToCreateHouseholdForRole, StatusCode.BadRequest, "Unable to create household for role");
+        public static ApiExceptionType HTTP_METHOD_NOT_SUPPORTED = new ApiExceptionType(StatusCode.HttpMethodNotSupported, StatusCode.BadRequest, "HTTP [@argument@] method not supported", "argument" );
 
         public BadRequestException()
             : this(BAD_REQUEST)

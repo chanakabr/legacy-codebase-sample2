@@ -67,6 +67,8 @@ namespace WebAPI.Managers.Models
             }
         }
 
+        public string Random { get; set; }
+
         public string OriginalUserId { get; set; }
 
         public KalturaSessionType SessionType
@@ -174,6 +176,7 @@ namespace WebAPI.Managers.Models
             }
 
             //parse fields
+            ks.Random = string.Concat(Array.ConvertAll(fieldsWithRandom.Take(BLOCK_SIZE).ToArray(), b => b.ToString("X2"))); // byte array to hex string
             string fieldsString = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
             string[] fields = fieldsString.Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -300,7 +303,7 @@ namespace WebAPI.Managers.Models
             return (KS)HttpContext.Current.Items[RequestParser.REQUEST_KS];
         }
 
-        public static KS CreateKSFromApiToken(ApiToken token)
+        public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
         {
             KS ks = new KS()
             {
@@ -308,7 +311,8 @@ namespace WebAPI.Managers.Models
                 userId = token.UserId,
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
-                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid })
+                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid }),
+                encryptedValue = tokenVal
             };
 
             return ks;

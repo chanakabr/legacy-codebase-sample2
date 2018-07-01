@@ -33,5 +33,23 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaCouponStatus Status { get; set; }
+
+        /// <summary>
+        /// Total available coupon uses
+        /// </summary>
+        [DataMember(Name = "totalUses")]
+        [JsonProperty("totalUses")]
+        [XmlElement(ElementName = "totalUses")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? TotalUses { get; set; }
+
+        /// <summary>
+        /// Left coupon uses
+        /// </summary>
+        [DataMember(Name = "leftUses")]
+        [JsonProperty("leftUses")]
+        [XmlElement(ElementName = "leftUses")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? LeftUses { get; set; }
     }
 }

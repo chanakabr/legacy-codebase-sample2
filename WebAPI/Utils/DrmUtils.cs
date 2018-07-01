@@ -1,4 +1,6 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
+using Core.Users;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,6 @@ namespace WebAPI.Utils
 {
     public static class DrmUtils
     {
-        private const string BASE_UDRM_URL_TCM_KEY = "UDRM_URL";
         private const string UDRM_CENC_LICENSED_URL_FORMAT = "{0}/cenc/{1}/license?custom_data={2}&signature={3}";
         private const string UDRM_LICENSED_URL_FORMAT = "{0}/{1}/license?custom_data={2}&signature={3}";
         private const string PLAYREADY = "playready";
@@ -60,7 +61,9 @@ namespace WebAPI.Utils
         internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
         {
             string response = null;
-            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ? group.UDrmUrl : TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
+            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ?
+                group.UDrmUrl :
+                ApplicationConfiguration.UDRMUrl.Value;
 
             customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
             signature = HttpUtility.UrlEncode(signature);
@@ -175,9 +178,10 @@ namespace WebAPI.Utils
                 // custom DRM adapter / profile
                 else if (source.DrmId > 0)
                 {
-                    string code, message;
-                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value, source.ExternalId, KSUtils.ExtractKSPayload().UDID,
-                        out code, out message);
+                    string code, message, recordingId = string.Empty;
+
+                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value,
+                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, recordingId, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))
@@ -219,11 +223,8 @@ namespace WebAPI.Utils
                 {
                     response.Actions = new List<KalturaRuleAction>();
                 }
-                response.Actions.Add(new KalturaRuleAction()
-                {
-                    Type = KalturaRuleActionType.BLOCK
-                });
+                response.Actions.Add(new KalturaAccessControlBlockAction());
             }
-        }
+        }      
     }
 }

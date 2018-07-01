@@ -48,6 +48,9 @@ namespace WebAPI.Controllers
             if (methodInfo == null)
                 throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
 
+            if (Reflection.DataModel.IsHttpMethodBlocked(methodInfo, HttpContext.Current.Request.HttpMethod))
+                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+
             classInstance = (ApiController)Activator.CreateInstance(controller, null);
         }
 

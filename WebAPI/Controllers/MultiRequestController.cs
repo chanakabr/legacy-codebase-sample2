@@ -199,13 +199,21 @@ namespace WebAPI.Controllers
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
-                            parameters = (Dictionary<string, object>) translateMultirequestTokens(parameters, responses);
+                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
                         }
                         RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
                         MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
+                        if (methodInfo.IsGenericMethod)
+                        {
+                            responses = new object[1];
+                            responses[0] = new RequestParserException(RequestParserException.GENERIC_METHOD, request[i].Service, request[i].Action);
+                            break;
+                        }
+
                         List<Object> methodParams = RequestParser.buildActionArguments(methodInfo, parameters);
                         object controllerInstance = Activator.CreateInstance(controller, null);
                         response = methodInfo.Invoke(controllerInstance, methodParams.ToArray());
+
                     }
                     catch (ApiException e)
                     {
@@ -217,7 +225,7 @@ namespace WebAPI.Controllers
                     }
                 }
 
-                if(response is ApiException) 
+                if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
                 }

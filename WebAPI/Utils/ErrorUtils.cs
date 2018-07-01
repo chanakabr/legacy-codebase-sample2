@@ -24,6 +24,16 @@ namespace WebAPI.Utils
                 throw new ClientException((int)StatusCode.Timeout, StatusCode.Timeout.ToString());
             }
 
+            if (ex.InnerException is ClientException)
+            {
+                throw ex.InnerException;
+            }
+
+            if (ex.InnerException is BadRequestException)
+            {
+                throw ex.InnerException;
+            }
+
             if (ex is Exception)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());

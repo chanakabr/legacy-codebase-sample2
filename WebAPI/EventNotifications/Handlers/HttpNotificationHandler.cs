@@ -40,7 +40,8 @@ namespace WebAPI.EventNotifications
                     eventObject = eventWrapper.eventObject,
                     eventObjectType = eventWrapper.eventObjectType,
                     eventType = eventWrapper.eventType,
-                    objectType = eventWrapper.objectType
+                    objectType = eventWrapper.objectType,
+                    partnerId = kalturaEvent.PartnerId
                 }
                 );
         }
@@ -292,6 +293,8 @@ namespace WebAPI.EventNotifications
                     {
                         sr = new StreamReader(webResponse.GetResponseStream());
                         res = sr.ReadToEnd();
+
+                        log.DebugFormat("Http request URL = {0} body = {1} response = {2}", this.Url, postBody, res);
                     }
                     finally
                     {
@@ -302,7 +305,7 @@ namespace WebAPI.EventNotifications
             }
             catch (HttpException ex)
             {
-                log.Error("Error in SendPostHttpReq HttpException", ex);
+                log.Error("Error in SendHttpRequest HttpException", ex);
             }
             catch (WebException ex)
             {
@@ -312,7 +315,7 @@ namespace WebAPI.EventNotifications
                 }
 
                 //if (ex.Response
-                log.Error("Error in SendPostHttpReq WebException", ex);
+                log.Error("Error in SendHttpRequest WebException", ex);
                 StreamReader errorStream = null;
                 try
                 {
@@ -424,7 +427,7 @@ namespace WebAPI.EventNotifications
             }
             catch (Exception ex)
             {
-                log.Debug("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
+                log.Error("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
 
                 if (webResponse != null)
                 {

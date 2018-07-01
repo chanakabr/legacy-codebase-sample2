@@ -17,6 +17,7 @@ using Core.Users;
 using Core.Billing;
 using ApiObjects.Social;
 using ApiObjects.Billing;
+using ConfigurationManager;
 
 namespace WS_Social
 {
@@ -113,7 +114,7 @@ namespace WS_Social
 
                     //facebook handshake 
                     string url = string.Format("{0}/oauth/access_token?client_id={1}&redirect_uri={2}&client_secret={3}&code={4}",
-                        Core.Social.Utils.GetValFromConfig("FB_GRAPH_URI"),
+                        ApplicationConfiguration.FacebookConfiguration.GraphURI.Value,                        
                         fbc.sFBKey,
                         HttpUtility.UrlEncode(fbc.sFBCallback),
                         fbc.sFBSecret,
@@ -327,8 +328,8 @@ namespace WS_Social
             }
             //Search user with facebook id 
             UserResponseObject uObj = Core.Social.Utils.GetUserDataByFacebookID(fbUser.id, nGroupID);
-
-            string key = Core.Social.Utils.GetValFromConfig("FB_TOKEN_KEY");
+                        
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string sEncryptToken = Core.Social.Utils.Encrypt(accessToken, key);
 
             fro.fbUser = fbUser;
@@ -409,7 +410,7 @@ namespace WS_Social
             UserResponseObject uObj = new UserResponseObject();
             FacebookResponseObject fro = new FacebookResponseObject();
 
-            string key = Core.Social.Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string sEncryptToken = Core.Social.Utils.Encrypt(accessToken, key);
 
             FacebookManager fbManager = FacebookManager.GetInstance;

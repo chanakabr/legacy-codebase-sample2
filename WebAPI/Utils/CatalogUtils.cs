@@ -1,26 +1,26 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Catalog.Response;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
 using System.Web;
-using AutoMapper;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Models;
 using WebAPI.Models.Catalog;
-using WebAPI.ObjectsConvertor;
 using WebAPI.Models.General;
-using KLogMonitor;
-using WebAPI.Managers.Models;
-using WebAPI.Managers;
-using Core.Catalog;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using ApiObjects.SearchObjects;
-using ApiObjects;
-using Catalog.Response;
+using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Utils
@@ -82,7 +82,7 @@ namespace WebAPI.Utils
             return passed;
         }
 
-        private static void GetAssetsFromCatalog(BaseRequest request, int cacheDuration, 
+        private static void GetAssetsFromCatalog(BaseRequest request, int cacheDuration,
             List<long> missingMediaIds, List<long> missingEpgIds,
             out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog,
             bool managementData = false)
@@ -170,8 +170,8 @@ namespace WebAPI.Utils
 
         // Gets medias and epgs from cache
         // Returns true if all assets were found in cache, false if at least one is missing or not up to date
-        private static bool GetAssetsFromCache(List<BaseObject> ids, int language, out List<MediaObj> medias, 
-            out List<ProgramObj> epgs, 
+        private static bool GetAssetsFromCache(List<BaseObject> ids, int language, out List<MediaObj> medias,
+            out List<ProgramObj> epgs,
             out List<long> missingMediaIds, out List<long> missingEpgIds)
         {
             bool result = true;
@@ -218,19 +218,22 @@ namespace WebAPI.Utils
                     switch (id.AssetType)
                     {
                         case eAssetTypes.MEDIA:
-                        mediaKeys.Add(key);
-                        break;
+                            mediaKeys.Add(key);
+                            break;
                         case eAssetTypes.EPG:
                         case eAssetTypes.NPVR:
-                        epgKeys.Add(key);
-                        break;default:
-                        throw new Exception("Unexpected AsssetType");
+                            epgKeys.Add(key);
+                            break;
+                        default:
+                            throw new Exception("Unexpected AsssetType");
                     }
                 }
-             
+
                 // Media - Get the medias from cache, Cast the results, return false if at least one is missing
-                result = RetriveAssetsFromCache(mediaKeys, MEDIA_CACHE_KEY_PREFIX, language, out medias, out missingMediaIds) &&
-                    RetriveAssetsFromCache(epgKeys, EPG_CACHE_KEY_PREFIX, language, out epgs, out missingEpgIds);
+                bool mediaCacheResult = RetriveAssetsFromCache(mediaKeys, MEDIA_CACHE_KEY_PREFIX, language, out medias, out missingMediaIds);
+                bool epgCacheResult = RetriveAssetsFromCache(epgKeys, EPG_CACHE_KEY_PREFIX, language, out epgs, out missingEpgIds);
+                result = mediaCacheResult && epgCacheResult;
+
             }
 
             return result;
@@ -264,8 +267,6 @@ namespace WebAPI.Utils
             return result;
         }
 
-        
-
         internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
             var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
@@ -294,7 +295,7 @@ namespace WebAPI.Utils
             List<BaseObject> finalResult = new List<BaseObject>();
             List<MediaObj> medias = new List<MediaObj>();
             List<ProgramObj> epgs = new List<ProgramObj>();
-            
+
             List<MediaObj> mediasFromCatalog = new List<MediaObj>();
             List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
             List<ProgramObj> recordingsFromCatalog = new List<ProgramObj>();
@@ -349,60 +350,60 @@ namespace WebAPI.Utils
                 switch (item.AssetType)
                 {
                     case eAssetTypes.EPG:
-                    {
-                        baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == item.AssetId).FirstOrDefault();
-                        if (baseObject != null)
-                            finalResult.Add(baseObject);
-                        break;
-                    }
+                        {
+                            baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == item.AssetId).FirstOrDefault();
+                            if (baseObject != null)
+                                finalResult.Add(baseObject);
+                            break;
+                        }
                     case eAssetTypes.NPVR:
-                    {
-                        string epgId = string.Empty;
-                        RecordingType? scheduledRecordingType = null;
-                        var searchResult = item as RecordingSearchResult;
-                        if (searchResult != null)
                         {
-                            epgId = searchResult.EpgId;
-                            scheduledRecordingType = searchResult.RecordingType;
-                        }
-                        else
-                        {
-                            var watchHistory = item as UserWatchHistory;
-
-                            if (watchHistory != null)
+                            string epgId = string.Empty;
+                            RecordingType? scheduledRecordingType = null;
+                            var searchResult = item as RecordingSearchResult;
+                            if (searchResult != null)
                             {
-                                epgId = watchHistory.EpgId.ToString();
+                                epgId = searchResult.EpgId;
+                                scheduledRecordingType = searchResult.RecordingType;
                             }
-                        }
-
-                        baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
-                        long recordingId;
-                        if (baseObject != null && long.TryParse(item.AssetId, out recordingId) && recordingId > 0)
-                        {
-                            ProgramObj programObject = baseObject as ProgramObj;
-                            RecordingObj recordingObject = new RecordingObj()
+                            else
                             {
-                                RecordingId = recordingId,
-                                RecordingType = ConditionalAccessMappings.ConvertNullableRecordingType(scheduledRecordingType),
-                                Program = programObject
-                            };
+                                var watchHistory = item as UserWatchHistory;
 
-                            finalResult.Add(recordingObject);
+                                if (watchHistory != null)
+                                {
+                                    epgId = watchHistory.EpgId.ToString();
+                                }
+                            }
+
+                            baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
+                            long recordingId;
+                            if (baseObject != null && long.TryParse(item.AssetId, out recordingId) && recordingId > 0)
+                            {
+                                ProgramObj programObject = baseObject as ProgramObj;
+                                RecordingObj recordingObject = new RecordingObj()
+                                {
+                                    RecordingId = recordingId,
+                                    RecordingType = ConditionalAccessMappings.ConvertNullableRecordingType(scheduledRecordingType),
+                                    Program = programObject
+                                };
+
+                                finalResult.Add(recordingObject);
+                            }
+
+                            break;
                         }
-
-                        break;
-                    }
 
                     case eAssetTypes.MEDIA:
-                    {
-                        baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();
-                        if (baseObject != null)
-                            finalResult.Add(baseObject);
-                        break;
-                    }
+                        {
+                            baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();
+                            if (baseObject != null)
+                                finalResult.Add(baseObject);
+                            break;
+                        }
                     case eAssetTypes.UNKNOWN:
                     default:
-                    break;
+                        break;
                 }
             }
 
@@ -585,7 +586,6 @@ namespace WebAPI.Utils
             return result;
         }
 
-
         //internal static KalturaAssetListResponse GetBundleAssets(BundleAssetsRequest request, string key, int cacheDuration)
         //{
 
@@ -624,9 +624,9 @@ namespace WebAPI.Utils
                 if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                 {
                     assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
-                }                
-            }         
-           
+                }
+            }
+
             var assets = GetOrderedAssets(assetsBaseDataList, request, cacheDuration, managementData);
 
             if (assets != null)
@@ -684,9 +684,9 @@ namespace WebAPI.Utils
                             };
 
                             asset.relatedObjects.Add(profileName, kiv);
-                        }                      
+                        }
                     }
-                }                
+                }
 
                 return tempAssets;
             }
@@ -695,6 +695,206 @@ namespace WebAPI.Utils
                 return null;
             }
             return null;
-        }        
+        }
+
+        public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,
+            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request)
+        {
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+
+            // build request
+            request = new UnifiedSearchRequest()
+            {
+                m_sSignature = signature,
+                m_sSignString = signString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                filterQuery = filter,
+                m_dServerTime = serverTime,
+                order = order,
+                assetTypes = assetTypes,
+                m_sSiteGuid = userId.ToString(),
+                domainId = domainId
+            };
+
+            // fire unified search request
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            return searchResponse;
+        }
+
+        internal static List<long> GetUserWatchedMediaIds(int groupId, int userId)
+        {
+            List<long> mediaIds = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    mediaIds = Core.Api.Module.GetUserWatchedMediaIds(groupId, userId);
+                    if (mediaIds == null)
+                    {
+                        log.ErrorFormat("Error while getting user watchedMediaIds. groupId: {0}, userId:{1}", groupId, userId);
+                    }
+                }
+
+                log.DebugFormat("return from Api.GetUserWatchedMediaIds. groupId: {0}, userId: {1}", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return mediaIds;
+        }
+
+        public static UnifiedSearchResponse GetChannelAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int internalChannelId,
+            string filterQuery, DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref InternalChannelRequest request)
+        {
+            UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
+
+            // build request
+            request = new InternalChannelRequest()
+            {
+                m_sSignature = signature,
+                m_sSignString = signString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userId.ToString(),
+                domainId = domainId,
+                order = order,
+                internalChannelID = internalChannelId.ToString(),
+                filterQuery = filterQuery,
+                m_dServerTime = serverTime,
+                m_bIgnoreDeviceRuleID = false
+            };
+
+            // fire request
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, failoverCacheKey))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (channelResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+            }
+
+            return channelResponse;
+        }
+
+        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language,
+            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group,
+            string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request)
+        {
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+
+            // build request
+            request = new MediaRelatedRequest()
+            {
+                m_sSignature = signature,
+                m_sSignString = signString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nMediaID = mediaId,
+                m_nMediaTypes = mediaTypes,
+                m_sSiteGuid = userId.ToString(),
+                domainId = domainId,
+                m_sFilter = filter,
+                OrderObj = order
+            };
+
+            // fire request            
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (searchResponse.status != null && searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            return searchResponse;
+        }
+
+        internal static void UpdateEpgTags(List<KalturaAsset> assets, List<BaseObject> searchResults)
+        {
+            if (assets == null)
+            {
+                return;
+            }
+
+            BaseObject unifiedSearchResult = null;
+            RecommendationSearchResult recommendationSearchResult = null;
+
+            foreach (var asset in assets)
+            {
+                unifiedSearchResult = searchResults.FirstOrDefault(x => x.AssetId == asset.Id.Value.ToString());
+                if (unifiedSearchResult is RecommendationSearchResult)
+                {
+                    recommendationSearchResult = unifiedSearchResult as RecommendationSearchResult;
+                    if (recommendationSearchResult.TagsExtraData != null)
+                    {
+                        if (asset.Tags == null)
+                        {
+                            asset.Tags = new SerializableDictionary<string, KalturaMultilingualStringValueArray>();
+                        }
+
+                        foreach (var extraData in recommendationSearchResult.TagsExtraData)
+                        {
+                            if (!asset.Tags.ContainsKey(extraData.Key))
+                            {
+                                asset.Tags.Add(extraData.Key, new KalturaMultilingualStringValueArray());
+                                LanguageContainer lc = new LanguageContainer() { LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(), Value = extraData.Value };
+                                asset.Tags[extraData.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(new LanguageContainer[1] { lc }) });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

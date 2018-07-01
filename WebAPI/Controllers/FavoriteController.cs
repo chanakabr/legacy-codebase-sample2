@@ -191,10 +191,11 @@ namespace WebAPI.Controllers
             List<KalturaFavorite> favorites = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string udid = filter.UdidEqualCurrent.HasValue && filter.UdidEqualCurrent.Value ? KSUtils.ExtractKSPayload().UDID : null;
-
+            
             if (filter == null)
                 filter = new KalturaFavoriteFilter();
+
+            string udid = filter.UdidEqualCurrent.HasValue && filter.UdidEqualCurrent.Value ? KSUtils.ExtractKSPayload().UDID : null;
 
             try
             {
@@ -269,7 +270,7 @@ namespace WebAPI.Controllers
                     mediaIds = favorites.Where(m => (m.AssetId != 0) == true).Select(x => Convert.ToInt32(x.AssetId)).Distinct().ToList();
 
                     KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId,
-                        (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
+                        udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     foreach (var favorite in favorites)

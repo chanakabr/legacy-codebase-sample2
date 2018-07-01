@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
+using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
@@ -314,7 +315,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
-
+            
             // Country
             Mapper.CreateMap<Core.Users.Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))

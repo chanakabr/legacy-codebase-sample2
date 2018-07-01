@@ -145,12 +145,54 @@ namespace WebAPI.Utils
             if (domain == null)
                 return false;
 
-            if (domain.MasterUsers != null && domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() != null)
+            if (domain.MasterUsers != null && domain.MasterUsers.FirstOrDefault(u => u.Id == userID) != null)
             {
                 return true;
             }
 
             return false;
+        }
+
+        public static List<string> GetHouseholdUdids(int groupID, bool withPending = false, int householdId = 0)
+        {
+            KalturaHousehold domain = null;
+
+            if (householdId == 0)
+            {
+                var ks = KS.GetFromRequest();
+                if (ks == null)
+                    return null;
+
+                string userID = ks.UserId;
+
+                if (userID == "0")
+                    return null;
+
+                domain = GetHouseholdFromRequest();
+                if (domain == null)
+                    return null;
+            }
+            else
+            {
+                try
+                {
+                    domain = ClientsManager.DomainsClient().GetDomainInfo(groupID, householdId);
+                }
+                catch (ClientException ex)
+                {
+                    log.Error("GetHouseholdIDByKS: got ClientException for GetDomainInfo", ex);
+                    return null;
+                }
+            }
+
+            List<string> udids = new List<string>();
+
+            var devices = ClientsManager.DomainsClient().GetHouseholdDevices(groupID, domain, null);
+
+            if (devices != null)
+                udids = devices.Objects.Select(d => d.Udid).ToList();
+
+            return udids;
         }
     }
 }

@@ -44,8 +44,9 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public int? IdEqual { get; set; }
-               
+
         /// <summary>
+        /// (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
         /// Comma separated list of asset types to search within. 
         /// Possible values: any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted –   same type as the provided asset.
@@ -54,6 +55,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("typeIn")]
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }
+
+        /// <summary>
+        /// Exclude watched asset. 
+        /// </summary>
+        [DataMember(Name = "excludeWatched")]
+        [JsonProperty("excludeWatched")]
+        [XmlElement(ElementName = "excludeWatched", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool ExcludeWatched { get; set; }
 
         public int getMediaId()
         {

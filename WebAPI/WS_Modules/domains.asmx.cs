@@ -899,11 +899,13 @@ namespace WS_Domains
                 return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
 
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
+
             if (nGroupID != 0)
             {
                 return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation,
-                    nRuleID > 0 ? new List<int>() { nRuleID } : null, nMediaID);
+                    nRuleID > 0 ? new List<int>() { nRuleID } : null, null, nMediaID);
             }
+
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
         }
 

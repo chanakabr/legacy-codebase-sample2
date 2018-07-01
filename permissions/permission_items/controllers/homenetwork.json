@@ -1,0 +1,53 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HomeNetwork_Add",
+      "service": "HomeNetwork",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HomeNetwork_Update",
+      "service": "HomeNetwork",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HomeNetwork_Update",
+      "service": "HomeNetwork",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HomeNetwork_List",
+      "service": "HomeNetwork",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

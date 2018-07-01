@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetComment_List",
+      "service": "AssetComment",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetComment_Add",
+      "service": "AssetComment",
+      "action": "Add",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

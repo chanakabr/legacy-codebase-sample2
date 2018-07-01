@@ -126,12 +126,17 @@ namespace WebAPI.Managers.Models
         ArgumentsConflictEachOther = 500061,
         UnableToCreateHouseholdForRole = 500062,
         ExternalError = 500063,
-        DuplicateLanguageSent = 500064,
-        InvalidValueForFeature = 500065,
-        DefaultLanguageMustBeSent = 500066,
-        GroupDoesNotContainLanguage = 500067,        
-        GlobalLanguageParameterMustBeAsterisk = 500068,
-        MultiValueWasNotSentForMetaDataTypeString = 500069,
-        TagTranslationNotAllowed = 500070
+        MultirequestGenericMethod = 500064,
+        HttpMethodNotSupported = 500065,
+        ArgumentsDuplicate = 500066,
+        InvalidArgumentValue = 500067,
+        UnknownEnumValue = 500068,
+        DuplicateLanguageSent = 500069,
+        InvalidValueForFeature = 500070,
+        DefaultLanguageMustBeSent = 500071,
+        GroupDoesNotContainLanguage = 500072,
+        GlobalLanguageParameterMustBeAsterisk = 500073,
+        MultiValueWasNotSentForMetaDataTypeString = 500074,
+        TagTranslationNotAllowed = 500075
     }
 }

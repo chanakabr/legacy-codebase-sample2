@@ -93,6 +93,22 @@ namespace WebAPI.Managers.Models
         [XmlElement(ElementName = "sessionUserId")]
         public string SessionUserId { get; set; }
 
+        /// <summary>
+        /// Create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Update date
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        public long UpdateDate { get; set; }
+
         public AppToken()
         {
         }
@@ -109,6 +125,8 @@ namespace WebAPI.Managers.Models
             Token = kalturaAppToken.Token;
             SessionUserId = kalturaAppToken.SessionUserId;
             SessionPrivileges = kalturaAppToken.SessionPrivileges;
+            CreateDate = kalturaAppToken.CreateDate;
+            UpdateDate = kalturaAppToken.UpdateDate;
         }
 
         /// <summary>
