@@ -23,7 +23,9 @@ namespace ApiObjects.PlayCycle
 
         [JsonProperty("MediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
-        
+
+        // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
+        // TODO SHIR - add this fun to DR
         [JsonProperty("AssetMediaConcurrencyRuleIds")]
         public List<long> AssetMediaConcurrencyRuleIds { get; set; }
 
