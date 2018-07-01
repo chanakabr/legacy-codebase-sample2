@@ -2256,7 +2256,7 @@ namespace Tvinci.Core.DAL
                 (udid, mediaId, userId, timeStamp, ePlayType.MEDIA, mediaTypeId, action, deviceFamilyId, createdAt, programId, string.Empty)
             {
                 MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                AssetConcurrencyRuleIds = assetConcurrencyRuleIds
+                AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds
             };
 
             int limitRetries = RETRY_LIMIT;
@@ -4216,7 +4216,7 @@ namespace Tvinci.Core.DAL
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
                     playCycleSession.DomainID = domainID;
-                    playCycleSession.AssetConcurrencyRuleIds = assetConcurrencyRuleIds;
+                    playCycleSession.AssetMediaConcurrencyRuleIds = assetConcurrencyRuleIds;
                 }
                 else
                 {
