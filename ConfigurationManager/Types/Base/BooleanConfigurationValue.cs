@@ -13,7 +13,13 @@ namespace ConfigurationManager
 
         public BooleanConfigurationValue(string key, ConfigurationValue parent) : base(key, parent)
         {
+            string stringValue = this.ObjectValue.ToString();
 
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                this.ObjectValue = false;
+                LogError("Empty/null value for boolean value", ConfigurationValidationErrorLevel.Failure);
+            }
         }
 
         internal override bool Validate()
