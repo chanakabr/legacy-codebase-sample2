@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -161,12 +162,7 @@ namespace WebAPI.Models.API
                 HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
                 if (featuresHashSet != null && featuresHashSet.Count > 0)
                 {
-                    string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_pattern");
-                    if (string.IsNullOrEmpty(allowedPattern))
-                    {
-                        allowedPattern = FEATURES_PATTERN;
-                    }
-
+                    string allowedPattern = ApplicationConfiguration.MetaFeaturesPattern.Value;
                     Regex regex = new Regex(allowedPattern);
                     foreach (string feature in featuresHashSet)
                     {
