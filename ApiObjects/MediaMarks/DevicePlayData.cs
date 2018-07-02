@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
 using ODBCWrapper;
+using ApiObjects.Catalog;
 
 namespace ApiObjects.MediaMarks
 {
@@ -25,9 +26,6 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("action")]
         public string AssetAction { get; set; }
-
-        [JsonProperty("assetTypeId")]
-        public int AssetTypeId { get; set; }
 
         [JsonProperty("timeStamp")]
         public long TimeStamp { get; set; }
@@ -59,8 +57,8 @@ namespace ApiObjects.MediaMarks
             playType = ePlayType.MEDIA.ToString();
             NpvrId = string.Empty;
         }
-
-        public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, int assetTypeId, string action, 
+        
+        public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
                               int deviceFamilyId, long createdAt,long programId, string npvrId)
         {
             this.UDID = udid;
@@ -68,15 +66,14 @@ namespace ApiObjects.MediaMarks
             this.UserId = userId;
             this.TimeStamp = timeStamp;
             this.playType = playType.ToString();
-            this.AssetAction = action;
-            this.AssetTypeId = assetTypeId;
+            this.AssetAction = action.ToString();
             this.DeviceFamilyId = deviceFamilyId;
             this.CreatedAt = createdAt;
             this.ProgramId = programId;
             this.NpvrId = npvrId;
         }
 
-        public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration)
+        public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId)
         {
             return new UserMediaMark()
             {
@@ -85,7 +82,7 @@ namespace ApiObjects.MediaMarks
                 UserID = this.UserId,
                 playType = this.playType,
                 AssetAction = this.AssetAction,
-                AssetTypeId = this.AssetTypeId,
+                AssetTypeId = assetTypeId,
                 CreatedAt = Utils.UnixTimestampToDateTime(this.CreatedAt),
                 CreatedAtEpoch = this.TimeStamp,
                 MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds,

@@ -73,7 +73,7 @@ namespace Core.Users
             try
             {
                 // Get all domain media marks
-                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, 
+                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(GetDomainDevices(domain.m_nDomainID, groupId),
                                                                                        new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, 
                                                                                        Utils.CONCURRENCY_MILLISEC_THRESHOLD);
 
@@ -180,7 +180,7 @@ namespace Core.Users
                 }
 
                 List<DevicePlayData> devicePlayData = 
-                    CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, playTypes, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                    CatalogDAL.GetDomainPlayDataList(GetDomainDevices(domain.m_nDomainID, groupId), playTypes, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
 
                 if (devicePlayData == null || devicePlayData.Count == 0)
                 {

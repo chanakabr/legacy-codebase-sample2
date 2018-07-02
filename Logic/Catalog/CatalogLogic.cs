@@ -2479,7 +2479,7 @@ namespace Core.Catalog
             }
         }
         
-        public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, string assetAction, int mediaTypeId,
+        public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, MediaPlayActions assetAction, int mediaTypeId,
                                           List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, int domainId = 0, 
                                           ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {

@@ -154,7 +154,7 @@ namespace Core.Catalog.Request
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, 
-                                                fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, null, null, null, request.m_oMediaPlayRequestData.ProgramId,
+                                                fileDuration, MediaPlayActions.HIT, (int)eAssetTypes.NPVR, null, null, null, request.m_oMediaPlayRequestData.ProgramId,
                                                 0, ePlayType.NPVR, false, false, recordingId);
                 }
 
@@ -274,7 +274,7 @@ namespace Core.Catalog.Request
                     bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
 
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, 
+                                                nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action, nMediaTypeID, 
                                                 mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, mediaHitRequest.m_oMediaPlayRequestData.ProgramId,
                                                 domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
                 }

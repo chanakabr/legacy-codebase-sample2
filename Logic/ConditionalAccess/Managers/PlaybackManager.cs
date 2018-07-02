@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace Core.ConditionalAccess
 {
@@ -253,7 +254,8 @@ namespace Core.ConditionalAccess
                                         {
                                             PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
                                                                            string.Empty, domainId, groupId);
-                                            cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, assetEpgRuleIds);
+                                            cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, 
+                                                                assetEpgRuleIds, programId);
                                         }
                                     }
                                 }
@@ -327,9 +329,11 @@ namespace Core.ConditionalAccess
             return adsData;
         }
 
-        public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
+        public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
+                                                           long fileId, string ip, string udid, PlayContextType playContextType)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
             try
             {
                 long mediaId;
@@ -407,7 +411,8 @@ namespace Core.ConditionalAccess
                     if (domainId > 0 && Utils.IsItemPurchased(price))
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, assetEpgRuleIds);
+                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, assetEpgRuleIds, 
+                                            program.EPG_ID);
                     }
                 }
             }
@@ -511,7 +516,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static PlayManifestResponse GetEpgLicensedLink(BaseConditionalAccess cas, int groupId, string userId, EPGChannelProgrammeObject program, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context)
+        private static PlayManifestResponse GetEpgLicensedLink(BaseConditionalAccess cas, int groupId, string userId, EPGChannelProgrammeObject program, MediaFile file, 
+                                                               string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -528,8 +534,8 @@ namespace Core.ConditionalAccess
                     int actionType = Utils.MapActionTypeForAdapter(formatType);
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID, (int)file.MediaId, (int)file.Id,
-                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(programStartTime), actionType, ip);
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID, 
+                                                                            (int)file.MediaId, (int)file.Id, programStartTime.ToUnixTimestamp(), actionType, ip);
                     response.Url = link != null ? link.Url : null;
                 }
                 else

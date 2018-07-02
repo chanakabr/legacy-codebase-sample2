@@ -1998,9 +1998,10 @@ namespace Core.Users
         {
             Dictionary<int, int> concurrentCount = null;
             List<DevicePlayData> devicePlayData =
-                    CatalogDAL.GetDomainPlayDataList(this.m_nDomainID, 
+                    CatalogDAL.GetDomainPlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
                                                  new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG }, 
                                                  Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+
             if (devicePlayData != null)
             {
                 concurrentCount = new Dictionary<int, int>();
@@ -2688,7 +2689,7 @@ namespace Core.Users
                 if (npvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
                 {
                     List<DevicePlayData> devicePlayDataList =
-                        CatalogDAL.GetDomainPlayDataList(domainId,
+                        CatalogDAL.GetDomainPlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
                                                      new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
                                                      Utils.CONCURRENCY_MILLISEC_THRESHOLD);
                     

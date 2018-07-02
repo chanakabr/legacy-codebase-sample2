@@ -21,7 +21,7 @@ namespace Core.Catalog.Response
 
         public MediaMarkResponse()
         {
-
+            this.status = new Status();
         }
     }
 }
