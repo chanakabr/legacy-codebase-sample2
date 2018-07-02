@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaPlaybackContext : KalturaOTTObject
+    public partial class KalturaPlaybackContext : KalturaOTTObject
     {
         /// <summary>
         /// Sources

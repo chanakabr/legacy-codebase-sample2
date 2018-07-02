@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaAdsContext : KalturaOTTObject
+    public partial class KalturaAdsContext : KalturaOTTObject
     {
         /// <summary>
         /// Sources
@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaAdsSource> Sources { get; set; }
     }
 
-    public class KalturaAdsSource : KalturaOTTObject
+    public partial class KalturaAdsSource : KalturaOTTObject
     {
         /// <summary>
         /// File unique identifier

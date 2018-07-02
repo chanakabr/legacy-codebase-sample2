@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Category details
     /// </summary>
-    public class KalturaOTTCategory : KalturaOTTObject
+    public partial class KalturaOTTCategory : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the category

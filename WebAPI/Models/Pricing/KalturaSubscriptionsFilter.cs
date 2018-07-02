@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Pricing
 {
     [Obsolete]
-    public class KalturaSubscriptionsFilter : KalturaOTTObject
+    public partial class KalturaSubscriptionsFilter : KalturaOTTObject
     {
         /// <summary>
         /// Subscription identifiers or file identifier (only 1) to get the subscriptions by

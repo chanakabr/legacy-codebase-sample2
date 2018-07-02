@@ -13,7 +13,7 @@ namespace WebAPI.Models.General
     /// Base list wrapper
     /// </summary>
     [Serializable]
-    public class KalturaListResponse : KalturaOTTObject
+    public partial class KalturaListResponse : KalturaOTTObject
     {
         /// <summary>
         /// Total items

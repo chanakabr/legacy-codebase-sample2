@@ -11,7 +11,7 @@ namespace WebAPI.Models.DMS
     /// Configurations group tags info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaConfigurationGroupTagListResponse : KalturaListResponse
+    public partial class KalturaConfigurationGroupTagListResponse : KalturaListResponse
     {
         /// <summary>
         /// Configuration group tags

@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaAssetInfoFilter : KalturaOTTObject
+    public partial class KalturaAssetInfoFilter : KalturaOTTObject
     {
         /// <summary>
         /// Filtering condition

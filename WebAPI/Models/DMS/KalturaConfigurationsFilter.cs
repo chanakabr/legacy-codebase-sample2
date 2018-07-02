@@ -12,7 +12,7 @@ namespace WebAPI.Models.DMS
     /// <summary>
     /// Configuration filter
     /// </summary>
-    public class KalturaConfigurationsFilter : KalturaFilter<KalturaConfigurationsOrderBy>
+    public partial class KalturaConfigurationsFilter : KalturaFilter<KalturaConfigurationsOrderBy>
     {
         /// <summary>
         /// the ID of the configuration group for which to return related configurations

@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// List of personal assets
     /// </summary>
     [Obsolete]
-    public class KalturaPersonalAssetListResponse : KalturaListResponse
+    public partial class KalturaPersonalAssetListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets
@@ -31,7 +31,7 @@ namespace WebAPI.Models.Catalog
     }
 
     [Obsolete]
-    public class KalturaPersonalAsset : KalturaOTTObject
+    public partial class KalturaPersonalAsset : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Country details
     /// </summary>
-    public class KalturaCountry : KalturaOTTObject
+    public partial class KalturaCountry : KalturaOTTObject
     {
         /// <summary>
         /// Country identifier

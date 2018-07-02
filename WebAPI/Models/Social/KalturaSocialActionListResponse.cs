@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialActionListResponse : KalturaListResponse
+    public partial class KalturaSocialActionListResponse : KalturaListResponse
     {
         /// <summary>
         /// The social actions

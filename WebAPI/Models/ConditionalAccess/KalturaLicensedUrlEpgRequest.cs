@@ -11,7 +11,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaLicensedUrlEpgRequest : KalturaLicensedUrlMediaRequest
+    public partial class KalturaLicensedUrlEpgRequest : KalturaLicensedUrlMediaRequest
     {
         /// <summary>
         /// The stream type to get the URL for

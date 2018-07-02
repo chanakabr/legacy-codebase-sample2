@@ -14,7 +14,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Application token
     /// </summary>
-    public class KalturaAppToken : KalturaOTTObject
+    public partial class KalturaAppToken : KalturaOTTObject
     {
         /// <summary>
         /// The id of the application token

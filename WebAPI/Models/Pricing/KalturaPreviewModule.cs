@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Preview module
     /// </summary>
-    public class KalturaPreviewModule : KalturaOTTObject
+    public partial class KalturaPreviewModule : KalturaOTTObject
     {
         /// <summary>
         /// Preview module identifier

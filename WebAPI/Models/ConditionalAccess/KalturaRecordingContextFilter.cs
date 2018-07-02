@@ -19,7 +19,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering assets
     /// </summary>
     [Serializable]
-    public class KalturaRecordingContextFilter : KalturaFilter<KalturaRecordingContextOrderBy>
+    public partial class KalturaRecordingContextFilter : KalturaFilter<KalturaRecordingContextOrderBy>
     {
 
         /// <summary>

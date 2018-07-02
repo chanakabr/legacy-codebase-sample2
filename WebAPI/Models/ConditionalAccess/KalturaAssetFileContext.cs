@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaAssetFileContext : KalturaOTTObject
+    public partial class KalturaAssetFileContext : KalturaOTTObject
     {
         /// <summary>
         /// viewLifeCycle

@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaDeviceFamilyListResponse : KalturaListResponse
+    public partial class KalturaDeviceFamilyListResponse : KalturaListResponse
     {
         /// <summary>
         /// Device families

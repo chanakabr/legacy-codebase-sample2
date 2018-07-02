@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Recordings info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaRecordingListResponse : KalturaListResponse
+    public partial class KalturaRecordingListResponse : KalturaListResponse
     {
         /// <summary>
         /// Recordings

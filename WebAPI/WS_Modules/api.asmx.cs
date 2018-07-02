@@ -4245,13 +4245,15 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
+        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude,
+                                                bool? shouldOverrideExistingExludeSettings, List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExcludeSettings)
         {
             bool result = false;
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings,
+                                                                        layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings);
             }
             else
             {
@@ -4262,19 +4264,15 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings)
+        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings,
+                                                    string layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, bool shouldOverrideExistingInvalidationKeyExcludeSettings)
         {
             bool response = false;
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                if (layeredCacheSettingsToExclude == null)
-                {
-                    layeredCacheSettingsToExclude = new string[0];
-                }
-
-                response = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
+                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings,
+                                                                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, shouldOverrideExistingInvalidationKeyExcludeSettings);
             }
             else
             {

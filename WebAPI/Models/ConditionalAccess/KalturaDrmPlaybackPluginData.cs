@@ -13,7 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
 {
     [XmlInclude(typeof(KalturaFairPlayPlaybackPluginData))]
     [XmlInclude(typeof(KalturaCustomDrmPlaybackPluginData))]
-    public class KalturaDrmPlaybackPluginData : KalturaPluginData
+    public partial class KalturaDrmPlaybackPluginData : KalturaPluginData
     {
         /// <summary>
         /// Scheme
@@ -32,11 +32,11 @@ namespace WebAPI.Models.ConditionalAccess
         public string LicenseURL { get; set; }
     }
 
-    public class KalturaPluginData : KalturaOTTObject
+    public partial class KalturaPluginData : KalturaOTTObject
     {
     }
 
-    public class KalturaFairPlayPlaybackPluginData : KalturaDrmPlaybackPluginData
+    public partial class KalturaFairPlayPlaybackPluginData : KalturaDrmPlaybackPluginData
     {
         /// <summary>
         /// Custom data string
@@ -47,7 +47,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string Certificate { get; set; }
     }
 
-    public class KalturaCustomDrmPlaybackPluginData : KalturaDrmPlaybackPluginData
+    public partial class KalturaCustomDrmPlaybackPluginData : KalturaDrmPlaybackPluginData
     {
         /// <summary>
         /// Custom DRM license data

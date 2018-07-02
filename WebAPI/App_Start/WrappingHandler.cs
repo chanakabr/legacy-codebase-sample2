@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 
 namespace WebAPI.App_Start
 {
-    public class KalturaApiExceptionArg : KalturaOTTObject
+    public partial class KalturaApiExceptionArg : KalturaOTTObject
     {
         /// <summary>
         /// Argument name
@@ -36,9 +36,39 @@ namespace WebAPI.App_Start
         public string value { get; set; }
     }
 
+
+    [DataContract(Name = "error")]
+    public partial class KalturaAPIExceptionWrapper : KalturaSerializable
+    {
+        [DataMember(Name = "error")]
+        [JsonProperty(PropertyName = "error")]
+        public KalturaAPIException error { get; set; }
+    }
+
+    public partial class KalturaAPIException : KalturaSerializable
+    {
+        [JsonProperty(PropertyName = "objectType")]
+        [DataMember(Name = "objectType")]
+        public string objectType { get { return this.GetType().Name; } set { } }
+
+        [JsonProperty(PropertyName = "code")]
+        [DataMember(Name = "code")]
+        public string code { get; set; }
+
+        [JsonProperty(PropertyName = "message")]
+        [DataMember(Name = "message")]
+        public string message { get; set; }
+
+        [JsonProperty(PropertyName = "args")]
+        [DataMember(Name = "args")]
+        public List<KalturaApiExceptionArg> args { get; set; }
+    }
+
+
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string MUTLIREQUEST = "multirequest";
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -50,6 +80,8 @@ namespace WebAPI.App_Start
             log.DebugFormat("API Request - {0} {1}",
                             request.RequestUri.OriginalString,            // 0
                             await request.Content.ReadAsStringAsync());   // 1 
+
+            ExtractActionToLog(request.RequestUri);
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
@@ -120,32 +152,55 @@ namespace WebAPI.App_Start
             return newResponse;
         }
 
-        [DataContract(Name = "error")]
-        public class KalturaAPIExceptionWrapper
+        private static void ExtractActionToLog(Uri uri)
         {
-            [JsonProperty(PropertyName = "error")]
-            public KalturaAPIException error { get; set; }
-        }
+            var segments = uri.Segments;
+            bool isActionExtracted = false;
+            try
+            {
+                if (segments != null && segments.Length > 0)
+                {
+                    for (int i = 0; i < segments.Length; i++)
+                    {
+                        if (segments[i].ToLower() == "service/")
+                        {
+                            string service = string.Empty;
+                            string action = string.Empty;
+                            if (i + 3 < segments.Length)
+                            {
+                                service = segments[i + 1].Replace("/", string.Empty);
+                                action = segments[i + 3].Replace("/", string.Empty);
+                                bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
+                                HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
+                            }
+                            else
+                            {
+                                service = MUTLIREQUEST;
+                                action = MUTLIREQUEST;
+                            }
 
-        public class KalturaAPIException
-        {
-            [JsonProperty(PropertyName = "objectType")]
-            [DataMember(Name = "objectType")]
-            public string objectType { get { return this.GetType().Name; } set { } }
+                            // add action to log
+                            HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                                string.IsNullOrEmpty(service) ? "null" : service,
+                                string.IsNullOrEmpty(action) ? "null" : action);
+                            isActionExtracted = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to extract action+service from request URL. Original request: {0}, ex: {1}", uri.OriginalString, ex);
+            }
 
-            [JsonProperty(PropertyName = "code")]
-            public string code { get; set; }
-
-            [JsonProperty(PropertyName = "message")]
-            public string message { get; set; }
-
-            [JsonProperty(PropertyName = "args")]
-            public KalturaApiExceptionArg[] args { get; set; }
+            if (!isActionExtracted)
+                log.WarnFormat("Could not extract action + service from request query. Original request: {0}", uri.OriginalString);
         }
 
         public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaApiExceptionArg[] arguments = null)
         {
-            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments } };
+            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments == null ? null : arguments.ToList() } };
         }
 
         public static string HandleError(string errorMsg, string stack)

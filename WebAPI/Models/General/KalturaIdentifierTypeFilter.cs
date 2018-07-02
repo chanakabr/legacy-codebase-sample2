@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// Identifier filter 
     /// </summary>
     [Obsolete]
-    public class KalturaIdentifierTypeFilter : KalturaOTTObject
+    public partial class KalturaIdentifierTypeFilter : KalturaOTTObject
     {
         /// <summary>
         ///The identifier

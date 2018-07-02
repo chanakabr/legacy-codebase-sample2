@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaUserSocialActionResponse : KalturaOTTObject
+    public partial class KalturaUserSocialActionResponse : KalturaOTTObject
     {
         /// <summary>
         /// socialAction
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Social
         public List<KalturaNetworkActionStatus> NetworkStatus { get; set; }
     }
 
-    public class KalturaNetworkActionStatus : KalturaOTTObject
+    public partial class KalturaNetworkActionStatus : KalturaOTTObject
     {
         /// <summary>
         /// Status 

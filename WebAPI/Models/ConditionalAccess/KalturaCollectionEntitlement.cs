@@ -5,7 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaCollectionEntitlement : KalturaEntitlement
+    public partial class KalturaCollectionEntitlement : KalturaEntitlement
     {
     }
 }

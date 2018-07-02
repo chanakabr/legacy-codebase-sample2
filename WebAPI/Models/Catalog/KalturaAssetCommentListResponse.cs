@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
 
-    public class KalturaAssetCommentListResponse : KalturaListResponse        
+    public partial class KalturaAssetCommentListResponse : KalturaListResponse        
     {
         /// <summary>
         /// Assets

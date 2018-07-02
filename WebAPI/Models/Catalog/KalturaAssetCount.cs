@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Asset counts wrapper - represents a group
     /// </summary>
     [Serializable]
-    public class KalturaAssetCountListResponse : KalturaListResponse
+    public partial class KalturaAssetCountListResponse : KalturaListResponse
     {
         /// <summary>
         /// Count of assets that match filter result, regardless of group by result
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset count - represents a specific value of the field, its count and its sub groups.
     /// </summary>
-    public class KalturaAssetCount : KalturaOTTObject
+    public partial class KalturaAssetCount : KalturaOTTObject
     {
         /// <summary>
         /// Value
@@ -87,7 +87,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Single aggregation objects
     /// </summary>
-    public class KalturaAssetsCount : KalturaOTTObject
+    public partial class KalturaAssetsCount : KalturaOTTObject
     {
         /// <summary>
         /// Field name

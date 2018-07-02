@@ -15,7 +15,7 @@ namespace WebAPI.Models.Pricing
     /// Price 
     /// </summary>
     [Serializable]
-    public class KalturaPrice : KalturaOTTObject
+    public partial class KalturaPrice : KalturaOTTObject
     {
         /// <summary>
         ///Price

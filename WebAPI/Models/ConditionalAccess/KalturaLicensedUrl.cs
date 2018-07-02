@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaLicensedUrl : KalturaOTTObject
+    public partial class KalturaLicensedUrl : KalturaOTTObject
     {
         /// <summary>
         /// Main licensed URL

@@ -10,7 +10,7 @@ using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaScheduledRecordingProgramFilter : KalturaAssetFilter
+    public partial class KalturaScheduledRecordingProgramFilter : KalturaAssetFilter
     {
 
         /// <summary>

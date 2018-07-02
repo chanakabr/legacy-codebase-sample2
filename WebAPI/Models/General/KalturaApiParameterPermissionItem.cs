@@ -17,7 +17,7 @@ namespace WebAPI.Models.General
 	    USAGE = 7
     }
 
-    public class KalturaApiParameterPermissionItem : KalturaPermissionItem
+    public partial class KalturaApiParameterPermissionItem : KalturaPermissionItem
     {
         /// <summary>
         /// API object name

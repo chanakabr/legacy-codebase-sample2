@@ -13,7 +13,7 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway profile 
     /// </summary>
-    public class KalturaPaymentGatewayProfile : KalturaPaymentGatewayBaseProfile
+    public partial class KalturaPaymentGatewayProfile : KalturaPaymentGatewayBaseProfile
     {
         /// <summary>
         /// Payment gateway is active status
@@ -143,7 +143,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     [DataContract(Name = "PaymentGatewayProfiles", Namespace = "")]
     [XmlRoot("PaymentGatewayProfiles")]
-    public class KalturaPaymentGatewayProfileListResponse : KalturaListResponse
+    public partial class KalturaPaymentGatewayProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of payment-gateway profiles

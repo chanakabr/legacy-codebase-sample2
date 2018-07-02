@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset meta
     /// </summary>
-    public class KalturaMeta : KalturaOTTObject
+    public partial class KalturaMeta : KalturaOTTObject
     {
         /// <summary>
         /// Meta name for the partner

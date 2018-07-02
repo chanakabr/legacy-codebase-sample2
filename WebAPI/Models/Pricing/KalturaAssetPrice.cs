@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    public class KalturaAssetPrice : KalturaOTTObject
+    public partial class KalturaAssetPrice : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier  

@@ -11,7 +11,7 @@ namespace WebAPI.Models.DMS
     /// Configuration group devices info wrapper 
     /// </summary>
     [Serializable]
-    public class KalturaConfigurationGroupDeviceListResponse : KalturaListResponse
+    public partial class KalturaConfigurationGroupDeviceListResponse : KalturaListResponse
     {
         /// <summary>
         /// Configuration group devices

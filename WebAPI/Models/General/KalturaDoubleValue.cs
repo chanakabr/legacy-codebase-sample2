@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A string representation to return an array of doubles
     /// </summary>
-    public class KalturaDoubleValue : KalturaValue
+    public partial class KalturaDoubleValue : KalturaValue
     {
         /// <summary>
         /// Value

@@ -14,7 +14,7 @@ namespace WebAPI.Models.Notification
         NONE
     }
 
-    public class KalturaInboxMessageFilter : KalturaFilter<KalturaInboxMessageOrderBy>
+    public partial class KalturaInboxMessageFilter : KalturaFilter<KalturaInboxMessageOrderBy>
     {
         public override KalturaInboxMessageOrderBy GetDefaultOrderByValue()
         {

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Social
     /// <summary>
     /// Returns social configuration for the partner 
     /// </summary>  
-    public class KalturaSocialConfig : KalturaOTTObject
+    public partial class KalturaSocialConfig : KalturaOTTObject
     {
        
     }

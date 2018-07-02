@@ -8,7 +8,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFeed : KalturaOTTObject
+    public partial class KalturaFeed : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier

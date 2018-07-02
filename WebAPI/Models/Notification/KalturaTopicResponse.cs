@@ -13,7 +13,7 @@ namespace WebAPI.Models.Notification
     [DataContract(Name = "KalturaTopicResponse", Namespace = "")]
     [XmlRoot("KalturaTopicResponse")]
     [Obsolete]
-    public class KalturaTopicResponse : KalturaListResponse
+    public partial class KalturaTopicResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaTopicListResponse", Namespace = "")]
     [XmlRoot("KalturaTopicListResponse")]
-    public class KalturaTopicListResponse : KalturaListResponse
+    public partial class KalturaTopicListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list

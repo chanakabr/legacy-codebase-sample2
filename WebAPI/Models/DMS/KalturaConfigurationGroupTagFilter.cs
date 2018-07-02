@@ -12,7 +12,7 @@ namespace WebAPI.Models.DMS
     /// <summary>
     /// Configuration group tag filter
     /// </summary>
-    public class KalturaConfigurationGroupTagFilter: KalturaFilter<KalturaConfigurationGroupTagOrderBy>
+    public partial class KalturaConfigurationGroupTagFilter : KalturaFilter<KalturaConfigurationGroupTagOrderBy>
     {
         /// <summary>
         /// the ID of the configuration group for which to return related configurations group tags

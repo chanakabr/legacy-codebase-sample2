@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaCDNPartnerSettings : KalturaOTTObject
+    public partial class KalturaCDNPartnerSettings : KalturaOTTObject
     {
         /// <summary>
         /// Default CDN adapter identifier

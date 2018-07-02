@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
-    public class KalturaAssetReminder : KalturaReminder
+    public partial class KalturaAssetReminder : KalturaReminder
     {
         /// <summary>
         /// Asset id

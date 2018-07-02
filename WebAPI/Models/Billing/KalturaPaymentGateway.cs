@@ -5,7 +5,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    public class KalturaPaymentGateway : KalturaOTTObject
+    public partial class KalturaPaymentGateway : KalturaOTTObject
     {
         /// <summary>
         /// payment gateway 

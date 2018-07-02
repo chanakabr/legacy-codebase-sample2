@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialUserConfig : KalturaSocialConfig
+    public partial class KalturaSocialUserConfig : KalturaSocialConfig
     {
         /// <summary>
         /// List of action permission items

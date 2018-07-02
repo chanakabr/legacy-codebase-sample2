@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Collection price details
     /// </summary>
-    public class KalturaCollectionPrice : KalturaProductPrice
+    public partial class KalturaCollectionPrice : KalturaProductPrice
     {
     }
 }

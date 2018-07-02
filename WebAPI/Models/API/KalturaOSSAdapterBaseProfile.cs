@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS adapter basic
     /// </summary>
-    public class KalturaOSSAdapterBaseProfile : KalturaOTTObject
+    public partial class KalturaOSSAdapterBaseProfile : KalturaOTTObject
     {
         /// <summary>
         /// OSS adapter id

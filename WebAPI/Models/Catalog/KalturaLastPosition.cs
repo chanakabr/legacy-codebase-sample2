@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     [Obsolete]
     [DataContract(Name = "LastPosition", Namespace = "")]
     [XmlRoot("LastPosition")]
-    public class KalturaLastPositionListResponse : KalturaListResponse
+    public partial class KalturaLastPositionListResponse : KalturaListResponse
     {
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Obsolete]
     [Serializable]
-    public class KalturaLastPosition : KalturaOTTObject
+    public partial class KalturaLastPosition : KalturaOTTObject
     {
         /// <summary>
         ///User identifier
@@ -65,7 +65,7 @@ namespace WebAPI.Models.Catalog
 
     [Serializable]
     [Obsolete]
-    public class KalturaLastPositionFilter : KalturaOTTObject
+    public partial class KalturaLastPositionFilter : KalturaOTTObject
     {
         /// <summary>
         /// Assets identifier

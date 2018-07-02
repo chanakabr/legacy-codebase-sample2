@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export tasks filter
     /// </summary>
-    public class KalturaExportTaskFilter : KalturaFilter<KalturaExportTaskOrderBy>
+    public partial class KalturaExportTaskFilter : KalturaFilter<KalturaExportTaskOrderBy>
     {
 
         /// <summary>

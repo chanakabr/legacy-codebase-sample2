@@ -11,7 +11,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaPurchaseBase : KalturaOTTObject
+    public partial class KalturaPurchaseBase : KalturaOTTObject
     {
         /// <summary>
         /// Identifier for the package from which this content is offered
@@ -44,7 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
-    public class KalturaPurchase : KalturaPurchaseBase
+    public partial class KalturaPurchase : KalturaPurchaseBase
     {
         /// <summary>
         /// Identifier for paying currency, according to ISO 4217
@@ -120,7 +120,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
-    public class KalturaPurchaseSession : KalturaPurchase
+    public partial class KalturaPurchaseSession : KalturaPurchase
     {
         /// <summary>
         /// Preview module identifier (relevant only for subscription)
@@ -149,7 +149,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
-    public class KalturaExternalReceipt : KalturaPurchaseBase
+    public partial class KalturaExternalReceipt : KalturaPurchaseBase
     {
         /// <summary>
         /// A unique identifier that was provided by the In-App billing service to validate the purchase

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device brand details
     /// </summary>
-    public class KalturaDeviceBrand : KalturaOTTObject
+    public partial class KalturaDeviceBrand : KalturaOTTObject
     {
         /// <summary>
         /// Device brand identifier

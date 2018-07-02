@@ -15,7 +15,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaPushMessage", Namespace = "")]
     [XmlRoot("KalturaPushMessage")]
-    public class KalturaPushMessage : KalturaOTTObject
+    public partial class KalturaPushMessage : KalturaOTTObject
     {
         /// <summary>
         /// The message that will be presented to the user.

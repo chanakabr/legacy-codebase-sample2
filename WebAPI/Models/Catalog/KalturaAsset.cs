@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Asset wrapper
     /// </summary>
     [Serializable]
-    public class KalturaAssetListResponse : KalturaListResponse
+    public partial class KalturaAssetListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets
@@ -32,7 +32,7 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public class KalturaAsset : KalturaOTTObject, KalturaIAssetable
+    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
         /// Unique identifier for the asset
@@ -179,7 +179,7 @@ namespace WebAPI.Models.Catalog
     /// Program-asset info
     /// </summary>
     [Serializable]
-    public class KalturaProgramAsset : KalturaAsset
+    public partial class KalturaProgramAsset : KalturaAsset
     {
         /// <summary>
         /// EPG channel identifier
@@ -226,7 +226,7 @@ namespace WebAPI.Models.Catalog
     /// Media-asset info
     /// </summary>
     [Serializable]
-    public class KalturaMediaAsset : KalturaAsset
+    public partial class KalturaMediaAsset : KalturaAsset
     {
         /// <summary>
         /// External identifiers
@@ -310,7 +310,7 @@ namespace WebAPI.Models.Catalog
     /// Recording-asset info
     /// </summary>
     [Serializable]
-    public class KalturaRecordingAsset : KalturaProgramAsset
+    public partial class KalturaRecordingAsset : KalturaProgramAsset
     {
         /// <summary>
         /// Recording identifier

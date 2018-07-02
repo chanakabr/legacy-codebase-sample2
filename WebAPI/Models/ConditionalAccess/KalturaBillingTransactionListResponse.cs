@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transactions
     /// </summary>
     [Serializable]
-    public class KalturaBillingTransactionListResponse : KalturaListResponse
+    public partial class KalturaBillingTransactionListResponse : KalturaListResponse
     {
         /// <summary>
         ///Transactions
@@ -31,7 +31,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [Serializable]
     [XmlInclude(typeof(KalturaUserBillingTransaction))]
-    public class KalturaBillingTransaction : KalturaOTTObject
+    public partial class KalturaBillingTransaction : KalturaOTTObject
     {
         /// <summary>
         ///Reciept Code
@@ -197,7 +197,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaUserBillingTransaction : KalturaBillingTransaction
+    public partial class KalturaUserBillingTransaction : KalturaBillingTransaction
     {
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]

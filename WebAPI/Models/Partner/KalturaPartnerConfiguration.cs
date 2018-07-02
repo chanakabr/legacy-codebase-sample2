@@ -9,7 +9,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner  base configuration
     /// </summary>
-    public abstract class KalturaPartnerConfiguration : KalturaOTTObject
+    public abstract partial class KalturaPartnerConfiguration : KalturaOTTObject
     {
     }
 

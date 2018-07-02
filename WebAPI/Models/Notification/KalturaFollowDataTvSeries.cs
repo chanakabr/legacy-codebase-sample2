@@ -12,7 +12,7 @@ namespace WebAPI.Models.Notification
 {
     [Serializable]
     [Obsolete]
-    public class KalturaFollowDataTvSeries : KalturaFollowDataBase
+    public partial class KalturaFollowDataTvSeries : KalturaFollowDataBase
     {
         /// <summary>
         /// Asset Id
@@ -24,7 +24,7 @@ namespace WebAPI.Models.Notification
         public int AssetId { get; set; }
     }
 
-    public class KalturaFollowTvSeries : KalturaFollowDataBase
+    public partial class KalturaFollowTvSeries : KalturaFollowDataBase
     {
         /// <summary>
         /// Asset Id
@@ -42,7 +42,7 @@ namespace WebAPI.Models.Notification
         START_DATE_ASC
     }
 
-    public class KalturaFollowTvSeriesFilter : KalturaFilter<KalturaFollowTvSeriesOrderBy>
+    public partial class KalturaFollowTvSeriesFilter : KalturaFilter<KalturaFollowTvSeriesOrderBy>
     {
         public override KalturaFollowTvSeriesOrderBy GetDefaultOrderByValue()
         {

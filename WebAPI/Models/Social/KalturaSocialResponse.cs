@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialResponse : KalturaOTTObject
+    public partial class KalturaSocialResponse : KalturaOTTObject
     {
         /// <summary>
         /// User model status

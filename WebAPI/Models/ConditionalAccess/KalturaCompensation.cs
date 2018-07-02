@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Compensation request parameters
     /// </summary>
-    public class KalturaCompensation : KalturaOTTObject
+    public partial class KalturaCompensation : KalturaOTTObject
     {
         /// <summary>
         /// Compensation identifier

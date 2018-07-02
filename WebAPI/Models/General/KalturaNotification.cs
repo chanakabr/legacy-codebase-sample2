@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 namespace WebAPI.Models.General
 {
     [Serializable]
-    public class KalturaNotification : KalturaOTTObject
+    public partial class KalturaNotification : KalturaOTTObject
     {
         [DataMember(Name = "object")]
         [JsonProperty(PropertyName = "object")]

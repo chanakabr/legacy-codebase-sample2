@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     [XmlInclude(typeof(KalturaAssetMetaOrTagGroupBy))]
     [XmlInclude(typeof(KalturaAssetFieldGroupBy))]
-    public abstract class KalturaAssetGroupBy : KalturaOTTObject
+    public abstract partial class KalturaAssetGroupBy : KalturaOTTObject
     {
         public abstract string GetValue();
     }
@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
     /// Group by a tag or meta - according to the name that appears in the system (similar to KSQL)
     /// </summary>
     [Serializable]
-    public class KalturaAssetMetaOrTagGroupBy : KalturaAssetGroupBy
+    public partial class KalturaAssetMetaOrTagGroupBy : KalturaAssetGroupBy
     {
         /// <summary>
         /// Group by a tag or meta - according to the name that appears in the system (similar to KSQL)
@@ -57,7 +57,7 @@ namespace WebAPI.Models.Catalog
     /// Group by a field that is defined in enum
     /// </summary>
     [Serializable]
-    public class KalturaAssetFieldGroupBy : KalturaAssetGroupBy
+    public partial class KalturaAssetFieldGroupBy : KalturaAssetGroupBy
     {
         /// <summary>
         /// Group by a specific field that is defined in enum

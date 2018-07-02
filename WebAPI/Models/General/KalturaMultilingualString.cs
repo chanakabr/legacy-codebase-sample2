@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Pricing;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -14,7 +15,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Translated string
     /// </summary>
-    public class KalturaMultilingualString : KalturaOTTObject, IXmlSerializable
+    public partial class KalturaMultilingualString : KalturaOTTObject
     {
         private string language;
         private string defaultLanguage;
@@ -45,49 +46,7 @@ namespace WebAPI.Models.General
         {
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
-
-        public XmlSchema GetSchema()
-        {
-            return null;
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteString(ToString());
-
-            if (writer is CustomXmlFormatter.CustomXmlWriter)
-            {
-                if (language == null || !language.Equals("*"))
-                {
-                    return;
-                }
-
-                CustomXmlFormatter.CustomXmlWriter customXmlWriter = writer as CustomXmlFormatter.CustomXmlWriter;
-
-                string name = customXmlWriter.GetCurrentElementName();
-                string multilingualName = GetMultilingualName(name);
-
-                if (Values != null)
-                {
-                    writer.WriteEndElement();
-                    writer.WriteStartElement(multilingualName);
-
-                    foreach (KalturaTranslationToken value in Values)
-                    {
-                        writer.WriteStartElement("item");
-                        writer.WriteElementString("objectType", value.GetType().Name);
-                        writer.WriteElementString("language", value.Language);
-                        writer.WriteElementString("value", value.Value);
-                        writer.WriteEndElement();
-                    }                    
-                }
-            }
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-        }
-
+        
         /// <summary>
         /// All values in different languages
         /// </summary>
@@ -127,6 +86,32 @@ namespace WebAPI.Models.General
             }
 
             return null;
+        }
+
+        public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
+        {
+            string ret = "\"" + propertyName + "\": \"" + ToString() + "\"";
+
+            string language = Utils.Utils.GetLanguageFromRequest();
+            if (Values != null && language != null && language.Equals("*"))
+            {
+                string multilingualName = KalturaMultilingualString.GetMultilingualName(propertyName);
+                ret += ", \"" + multilingualName + "\": [" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+            }
+            return ret;
+        }
+
+        public string ToCustomXml(Version currentVersion, bool omitObsolete, string propertyName)
+        {
+            string ret = "<" + propertyName + ">" + ToString() + "</" + propertyName + ">";
+
+            string language = Utils.Utils.GetLanguageFromRequest();
+            if (Values != null && language != null && language.Equals("*"))
+            {
+                string multilingualName = KalturaMultilingualString.GetMultilingualName(propertyName);
+                ret += "<" + multilingualName + "><item>" + String.Join("</item><item>", Values.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item></" + multilingualName + ">";
+            }
+            return ret;
         }
     }
 }

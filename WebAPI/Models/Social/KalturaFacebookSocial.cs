@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaFacebookSocial : KalturaSocial
+    public partial class KalturaFacebookSocial : KalturaSocial
     {
     }
 }

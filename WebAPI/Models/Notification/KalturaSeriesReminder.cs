@@ -7,7 +7,7 @@ using WebAPI.Managers.Scheme;
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
-    public class KalturaSeriesReminder : KalturaReminder
+    public partial class KalturaSeriesReminder : KalturaReminder
     {
         /// <summary>
         /// Series identifier

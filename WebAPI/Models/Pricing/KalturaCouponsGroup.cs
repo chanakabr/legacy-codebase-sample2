@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupons group details
     /// </summary>
-    public class KalturaCouponsGroup : KalturaOTTObject
+    public partial class KalturaCouponsGroup : KalturaOTTObject
     {
         /// <summary>
         /// Coupon group identifier

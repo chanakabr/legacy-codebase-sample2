@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaBundleFilter : KalturaAssetFilter
+    public partial class KalturaBundleFilter : KalturaAssetFilter
     {
         /// <summary>
         ///Bundle Id. 

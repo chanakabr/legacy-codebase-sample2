@@ -18,7 +18,7 @@ namespace WebAPI.Models.Pricing
         START_DATE_DESC
     }
 
-    public class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
+    public partial class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
         /// Comma separated subscription IDs to get the subscriptions by

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription Dependency Set
     /// </summary>
-    public class KalturaSubscriptionDependencySet : KalturaSubscriptionSet
+    public partial class KalturaSubscriptionDependencySet : KalturaSubscriptionSet
     {
 
         /// <summary>

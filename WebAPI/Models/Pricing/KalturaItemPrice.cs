@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// PPV price details
     /// </summary>
     [Obsolete]
-    public class KalturaItemPrice : KalturaProductPrice
+    public partial class KalturaItemPrice : KalturaProductPrice
     {
         /// <summary>
         /// Media file identifier  

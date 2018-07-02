@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A string representation to return an array of booleans
     /// </summary>
-    public class KalturaBooleanValue : KalturaValue
+    public partial class KalturaBooleanValue : KalturaValue
     {
         /// <summary>
         /// Value

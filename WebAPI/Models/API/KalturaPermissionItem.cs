@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     [XmlInclude(typeof(KalturaApiActionPermissionItem))]
     [XmlInclude(typeof(KalturaApiArgumentPermissionItem))]
     [XmlInclude(typeof(KalturaApiParameterPermissionItem))]
-    public class KalturaPermissionItem : KalturaOTTObject
+    public partial class KalturaPermissionItem : KalturaOTTObject
     {
         /// <summary>
         /// Permission item identifier

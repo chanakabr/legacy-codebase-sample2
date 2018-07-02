@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaAccessControlMessage : KalturaOTTObject
+    public partial class KalturaAccessControlMessage : KalturaOTTObject
     {
         /// <summary>
         /// Message

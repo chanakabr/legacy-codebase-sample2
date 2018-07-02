@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaRecordingContextListResponse : KalturaListResponse
+    public partial class KalturaRecordingContextListResponse : KalturaListResponse
     {
         /// <summary>
         /// Recording contexts

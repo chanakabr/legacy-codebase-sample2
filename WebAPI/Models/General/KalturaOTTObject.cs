@@ -10,9 +10,35 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Reflection;
 
 namespace WebAPI.Models.General
 {
+    public interface IKalturaSerializable
+    {
+        string ToJson(Version currentVersion, bool omitObsolete);
+
+        string PropertiesToXml(Version currentVersion, bool omitObsolete);
+    }
+
+    public class KalturaSerializable : IKalturaSerializable
+    {
+        public virtual string ToJson(Version currentVersion, bool omitObsolete)
+        {
+            return "{" + PropertiesToJson(currentVersion, omitObsolete) + "}";
+        }
+
+        public virtual string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            return "";
+        }
+
+        protected virtual string PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            return "";
+        }
+    }
+
     public interface IKalturaOTTObject
     {
     }
@@ -20,7 +46,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base class
     /// </summary>
-    public class KalturaOTTObject : IKalturaOTTObject
+    public partial class KalturaOTTObject : KalturaSerializable, IKalturaOTTObject
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]

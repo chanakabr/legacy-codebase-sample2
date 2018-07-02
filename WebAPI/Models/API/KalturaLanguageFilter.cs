@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Language filter
     /// </summary>
-    public class KalturaLanguageFilter : KalturaFilter<KalturaLanguageOrderBy>
+    public partial class KalturaLanguageFilter : KalturaFilter<KalturaLanguageOrderBy>
     {
 
         /// <summary>

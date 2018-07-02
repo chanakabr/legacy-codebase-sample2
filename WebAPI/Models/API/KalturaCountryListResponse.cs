@@ -11,7 +11,7 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaCountryListResponse : KalturaListResponse
+    public partial class KalturaCountryListResponse : KalturaListResponse
     {
         /// <summary>
         /// Countries

@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaRegionalChannel : KalturaOTTObject
+    public partial class KalturaRegionalChannel : KalturaOTTObject
     {
         /// <summary>
         /// The identifier of the linear media representing the channel

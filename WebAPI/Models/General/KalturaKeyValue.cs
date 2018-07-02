@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.General
 {
-    public class KalturaKeyValue : KalturaOTTObject
+    public partial class KalturaKeyValue : KalturaOTTObject
     {
         /// <summary>
         /// Key

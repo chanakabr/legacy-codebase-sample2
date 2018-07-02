@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Define client request optional configurations
     /// </summary>
-    public class KalturaRequestConfiguration : KalturaOTTObject
+    public partial class KalturaRequestConfiguration : KalturaOTTObject
     {
         /// <summary>
         /// Impersonated partner id

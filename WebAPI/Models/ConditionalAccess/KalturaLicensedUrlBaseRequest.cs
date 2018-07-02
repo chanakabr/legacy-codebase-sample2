@@ -11,7 +11,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaLicensedUrlBaseRequest : KalturaOTTObject
+    public partial class KalturaLicensedUrlBaseRequest : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier

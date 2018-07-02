@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetStatisticsQuery : KalturaOTTObject
+    public partial class KalturaAssetStatisticsQuery : KalturaOTTObject
     {
         /// <summary>
         /// Comma separated list of asset identifiers.

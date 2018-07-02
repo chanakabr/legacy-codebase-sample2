@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Price plan
     /// </summary>
-    public class KalturaPricePlan : KalturaUsageModule
+    public partial class KalturaPricePlan : KalturaUsageModule
     {
         /// <summary>
         /// Denotes whether or not this object can be renewed
@@ -66,7 +66,7 @@ namespace WebAPI.Models.Pricing
         public long? PriceDetailsId { get; set; }
     }
 
-    public class KalturaPricePlanListResponse : KalturaListResponse
+    public partial class KalturaPricePlanListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of price plans

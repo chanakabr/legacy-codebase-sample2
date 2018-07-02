@@ -15,7 +15,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaAnnouncementListResponse", Namespace = "")]
     [XmlRoot("KalturaAnnouncementListResponse")]
-    public class KalturaAnnouncementListResponse : KalturaListResponse
+    public partial class KalturaAnnouncementListResponse : KalturaListResponse
     {
         /// <summary>
         /// Announcements
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Notification
     /// <summary>
     /// order announcements
     /// </summary>
-    public class KalturaAnnouncementFilter : KalturaFilter<KalturaAnnouncementOrderBy>
+    public partial class KalturaAnnouncementFilter : KalturaFilter<KalturaAnnouncementOrderBy>
     {
         public override KalturaAnnouncementOrderBy GetDefaultOrderByValue()
         {
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Notification
     [DataContract(Name = "KalturaAssetsPositionsResponse", Namespace = "")]
     [XmlRoot("KalturaMessageAnnouncementListResponse")]
     [Obsolete]
-    public class KalturaMessageAnnouncementListResponse : KalturaListResponse
+    public partial class KalturaMessageAnnouncementListResponse : KalturaListResponse
     {
         /// <summary>
         /// Announcements

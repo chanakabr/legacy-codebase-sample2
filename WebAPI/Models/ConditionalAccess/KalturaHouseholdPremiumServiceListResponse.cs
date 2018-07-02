@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [DataContract(Name = "PremiumServices", Namespace = "")]
     [XmlRoot("PremiumServices")]
-    public class KalturaHouseholdPremiumServiceListResponse : KalturaListResponse
+    public partial class KalturaHouseholdPremiumServiceListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of premium services

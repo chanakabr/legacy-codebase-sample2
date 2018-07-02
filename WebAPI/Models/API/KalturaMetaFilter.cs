@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Meta filter
     /// </summary>
-    public class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
+    public partial class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
     {
         /// <summary>
         /// Meta system field name to filter by

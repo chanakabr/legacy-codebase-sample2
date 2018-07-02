@@ -18,7 +18,7 @@ namespace WebAPI.Models.Pricing
         NAME_DESC
     }
 
-    public class KalturaSubscriptionSetFilter : KalturaFilter<KalturaSubscriptionSetOrderBy>
+    public partial class KalturaSubscriptionSetFilter : KalturaFilter<KalturaSubscriptionSetOrderBy>
     {
         /// <summary>
         /// Comma separated identifiers

@@ -5,39 +5,13 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Models.General;
+using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Models
 {
-    //[DataContract]
-    //public class Status
-    //{
-    //    [DataMember(Name = "code")]
-    //    public int Code { get; set; }
-
-    //    [DataMember(Name = "message")]
-    //    public string Message { get; set; }
-
-    //    [DataMember(Name = "request_id")]
-    //    public string RequestID { get; set; }
-
-    //    [DataMember(Name = "execution_time")]
-    //    public float ExecutionTime { get; set; }
-
-    //    public Status(int code, string message, Guid reqID, float executionTime)
-    //    {
-    //        Code = code;
-    //        Message = message;
-    //        RequestID = reqID.ToString();
-    //        ExecutionTime = executionTime;
-    //    }
-
-    //    public Status()
-    //    {
-    //    }
-    //}
-
     [DataContract]
-    public class StatusWrapper
+    public partial class StatusWrapper : KalturaSerializable
     {
         public StatusWrapper()
         {

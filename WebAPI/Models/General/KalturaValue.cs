@@ -17,7 +17,7 @@ namespace WebAPI.Models.General
     [XmlInclude(typeof(KalturaDoubleValue))]
     [XmlInclude(typeof(KalturaMultilingualStringValue))]
     [XmlInclude(typeof(KalturaLongValue))]    
-    public abstract class KalturaValue : KalturaOTTObject
+    public abstract partial class KalturaValue : KalturaOTTObject
     {
         /// <summary>
         /// Description

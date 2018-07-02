@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Report filter
     /// </summary>
-    abstract public class KalturaReportFilter : KalturaFilter<KalturaReportOrderBy>
+    abstract public partial class KalturaReportFilter : KalturaFilter<KalturaReportOrderBy>
     {
         public override KalturaReportOrderBy GetDefaultOrderByValue()
         {

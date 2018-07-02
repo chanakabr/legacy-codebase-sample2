@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
         NONE
     }
 
-    public class KalturaAssetHistoryFilter : KalturaFilter<KalturaAssetHistoryOrderBy>
+    public partial class KalturaAssetHistoryFilter : KalturaFilter<KalturaAssetHistoryOrderBy>
     {
         public override KalturaAssetHistoryOrderBy GetDefaultOrderByValue()
         {
