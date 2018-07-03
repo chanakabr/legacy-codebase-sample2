@@ -2189,8 +2189,9 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsert_UsersMediaMark(int userId, string udid, int mediaId, int loactionSec, int fileDuration, MediaPlayActions action,
                                                          int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
-                                                         List<long> assetEpgRuleIds, int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel, long programId)
-        {
+                                                         List<long> assetEpgRuleIds, int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel, 
+                                                         long programId, bool isReportingMode)
+        {   
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
 
@@ -2202,7 +2203,7 @@ namespace Tvinci.Core.DAL
                 AssetEpgConcurrencyRuleIds = assetEpgRuleIds
             };
 
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData);
+            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
 
             //Now storing this by the mediaID
             string mmKey = UtilsDal.getUserMediaMarkDocKey(userId, mediaId);
@@ -2238,7 +2239,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersNpvrMark(int userId, string udid, string assetId, int loactionSec,int fileDuration, MediaPlayActions action, 
-                                                        long recordingId, int deviceFamilyId, bool isFirstPlay, long programId)
+                                                        long recordingId, int deviceFamilyId, bool isFirstPlay, long programId, bool isReportingMode)
         {
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
@@ -2246,7 +2247,7 @@ namespace Tvinci.Core.DAL
             DevicePlayData devicePlayData = new DevicePlayData
                (udid, int.Parse(assetId), userId, timeStamp, ePlayType.NPVR, action, deviceFamilyId, createdAt, programId, recordingId.ToString());
 
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData);
+            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
 
             string mmKey = UtilsDal.getUserNpvrMarkDocKey(userId, assetId);
             int limitRetries = RETRY_LIMIT;
@@ -2271,8 +2272,8 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static void UpdateOrInsert_UsersEpgMark(int userId, string udid, int assetID, int loactionSec, int fileDuration,
-                                                       MediaPlayActions action, bool isFirstPlay, int deviceFamilyId, long programId)
+        public static void UpdateOrInsert_UsersEpgMark(int userId, string udid, int assetID, int loactionSec, int fileDuration, MediaPlayActions action, 
+                                                       bool isFirstPlay, int deviceFamilyId, long programId, bool isReportingMode)
         {
 
             long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -2281,7 +2282,7 @@ namespace Tvinci.Core.DAL
             DevicePlayData devicePlayData = new DevicePlayData
                (udid, assetID, userId, timeStamp, ePlayType.EPG, action, deviceFamilyId, createdAt, programId, string.Empty);
 
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData);
+            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
 
             string mmKey = UtilsDal.getUserEpgMarkDocKey(userId, assetID.ToString());
             UserMediaMark userMediaMark = devicePlayData.ConvertToUserMediaMark(loactionSec, fileDuration, (int)eAssetTypes.EPG);
@@ -2296,22 +2297,25 @@ namespace Tvinci.Core.DAL
             UpdateOrInsert_UserEpgMarkOrHit(mediaHitsManager, r, userMediaMark, mmKey);
         }
 
-        public static Random UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData)
+        public static Random UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData, bool isReportingMode)
         {
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
-            while (limitRetries >= 0)
+            if (!isReportingMode)
             {
-                if (!SaveDomainPlayData(devicePlayData))
+                while (limitRetries >= 0)
                 {
-                    Thread.Sleep(r.Next(50));
-                    limitRetries--;
+                    if (!SaveDomainPlayData(devicePlayData))
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                        break;
                 }
-                else
-                    break;
             }
-
+            
             return r;
         }
 
@@ -4237,7 +4241,7 @@ namespace Tvinci.Core.DAL
                     AssetEpgConcurrencyRuleIds = assetEpgRuleIds
                 };
 
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData);
+                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false);
             }
             
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
