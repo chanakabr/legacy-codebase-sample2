@@ -19,16 +19,16 @@ namespace TVPApiServices
     public interface IPlayerService
     {        
         [OperationContract]
-        Media GetMediaInfo(InitializationObject initObj, long MediaID, string picSize);
+        PlayerService.MediaWrapper GetMediaInfo(InitializationObject initObj, long MediaID, string picSize);
 
         [OperationContract]
         string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation);
+        string MediaMark(InitializationObject initObj, action Action, ActionHelper.FileHolder fileParam, int iLocation, long programId);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation);
+        string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation, long programId);
 
         [OperationContract]
         string MediaLastPosition(InitializationObject initObj, int MediaId);

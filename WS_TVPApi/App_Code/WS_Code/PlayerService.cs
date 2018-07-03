@@ -25,7 +25,7 @@ namespace TVPApiServices
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
-    public class PlayerService : System.Web.Services.WebService
+    public class PlayerService : WebService, IPlayerService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -47,7 +47,7 @@ namespace TVPApiServices
             public Media Media { get; set; }
             public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] Rules { get; set; }
         }
-
+        
         /// <summary>
         /// RetrieveMediaXML
         /// </summary>
@@ -112,8 +112,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
-        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation)
+        [System.Xml.Serialization.XmlInclude(typeof(ActionHelper.FileHolder))]
+        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, ActionHelper.FileHolder fileParam, 
+                                int iLocation, long programId)
         {
             string sRet = string.Empty;
 
@@ -123,7 +124,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation, string.Empty);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iLocation, string.Empty, fileParam, programId);
                 }
                 catch (Exception ex)
                 {
@@ -139,7 +140,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
-        public string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation)
+        public string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation, long programId)
         {
             string sRet = string.Empty;
 
@@ -149,7 +150,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, string.Empty);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, string.Empty, programId);
                 }
                 catch (Exception ex)
                 {

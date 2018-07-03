@@ -1337,7 +1337,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [PrivateMethod]
-        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
+        public string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId)
         {
             string sRet = string.Empty;
 
@@ -1348,9 +1348,9 @@ namespace TVPApiServices
                 try
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ?
-                        Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA : Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iMediaID, iFileID, iLocation, NPVRID, assetType, 0, 0, 0);
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ? Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA :
+                        Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iLocation, NPVRID, programId, iMediaID, iFileID, assetType);
                 }
                 catch (Exception ex)
                 {
@@ -1367,7 +1367,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [PrivateMethod]
-        public string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData)
+        public string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData, long programId)
         {
             string sRet = string.Empty;
 
@@ -1409,9 +1409,9 @@ namespace TVPApiServices
                             return "Invalid Asset id";
                         }
                     }
-
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, eAssetType,
-                        PlayerAssetData.averageBitRate, PlayerAssetData.currentBitRate, PlayerAssetData.totalBitRate);
+                    
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, PlayerAssetData.location, npvrId, programId, mediaId, fileID, eAssetType,
+                                                  PlayerAssetData.averageBitRate, PlayerAssetData.currentBitRate, PlayerAssetData.totalBitRate);
                 }
                 catch (Exception ex)
                 {
@@ -1428,7 +1428,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
         [PrivateMethod]
-        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID)
+        public string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId)
         {
             string sRet = string.Empty;
 
@@ -1439,8 +1439,7 @@ namespace TVPApiServices
                 try
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, mediaType, iMediaID, iFileID, iLocation, NPVRID);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, NPVRID, programId);
                 }
                 catch (Exception ex)
                 {
