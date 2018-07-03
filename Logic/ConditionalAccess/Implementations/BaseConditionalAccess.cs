@@ -10875,7 +10875,7 @@ namespace Core.ConditionalAccess
                 Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(userId, mediaId, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
             }
         }
-        
+
         internal DomainResponseStatus CheckMediaConcurrency(string userId, Int32 mediaFileId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
                                                             string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetMediaRuleIds, 
                                                             ref List<long> assetEpgRuleIds, long programId)
@@ -10956,9 +10956,9 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
-                
+
                 // validate Concurrency for domain
-                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency,
+                validationResponse = Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency,
                                                                                   mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, mediaId, programId);
 
                 // get domainID from response

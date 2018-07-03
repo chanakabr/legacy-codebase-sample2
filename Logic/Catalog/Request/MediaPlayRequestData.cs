@@ -39,7 +39,15 @@ namespace Core.Catalog.Request
         public string m_sMediaTypeId;
         [DataMember]
         public long ProgramId;
-        
+        [DataMember]
+        public bool IsReportingMode;
+        // TODO SHIR - IF TRUE NO CONCURRENCY CHECKS AND UPDATES, DEFAULT IS FALSE
+
+        public MediaPlayRequestData()
+        {
+            this.IsReportingMode = false;
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("MediaPlayRequestData obj: ");
@@ -55,6 +63,7 @@ namespace Core.Catalog.Request
             sb.Append(String.Concat(" Current Bitrate: ", m_nCurrentBitRate));
             sb.Append(String.Concat(" Asset Type: ", m_eAssetType));
             sb.Append(String.Concat(" Program Id: ", ProgramId));
+            sb.Append(String.Concat(" Is Reporting Mode: ", IsReportingMode));
 
             return sb.ToString();
         }

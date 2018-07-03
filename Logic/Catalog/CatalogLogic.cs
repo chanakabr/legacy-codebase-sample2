@@ -2480,8 +2480,8 @@ namespace Core.Catalog
         }
         
         public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, MediaPlayActions assetAction, int mediaTypeId,
-                                          List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, int domainId = 0, 
-                                          ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+                                          List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, bool isReportingMode,
+                                          int domainId = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
             if (CatalogLogic.IsAnonymousUser(userId))
             {
@@ -2519,16 +2519,17 @@ namespace Core.Catalog
                 switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, 
-                                                                 assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, assetMediaRuleIds, 
-                                                                 assetEpgRuleIds, deviceFamilyId, finishedPercentThreshold, isLinearChannel, programId);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, assetAction, mediaTypeId, 
+                                                                 isFirstPlay, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, deviceFamilyId, 
+                                                                 finishedPercentThreshold, isLinearChannel, programId, isReportingMode);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, isFirstPlay, programId);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, 
+                                                                isFirstPlay, programId, isReportingMode);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), 
-                                                               playTime, duration, assetAction, isFirstPlay, deviceFamilyId, programId);
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, assetAction, isFirstPlay, 
+                                                               deviceFamilyId, programId, isReportingMode);
                         break;
 
                     default:
