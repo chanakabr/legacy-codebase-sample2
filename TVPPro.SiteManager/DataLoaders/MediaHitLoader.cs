@@ -9,6 +9,7 @@ using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.Services;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -18,6 +19,7 @@ namespace TVPPro.SiteManager.DataLoaders
         private FlashLoadersParams m_FlashLoadersParams;
 
         #region properties
+
         public long MediaID
         {
             get
@@ -30,7 +32,7 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-        public long     FileID
+        public long FileID
         {
             get
             {
@@ -210,6 +212,7 @@ namespace TVPPro.SiteManager.DataLoaders
             }
 
         }
+
         protected string TvmPass
         {
             get
@@ -239,8 +242,7 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             return eCacheMode.Never;
         }
-
-
+        
         public override object BCExecute(eExecuteBehaivor behaivor)
         {
             return Execute();
@@ -251,7 +253,12 @@ namespace TVPPro.SiteManager.DataLoaders
             bool shouldUseNewCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
             {
-                CatalogLoaders.MediaHitLoader mediaMarkLoader = new CatalogLoaders.MediaHitLoader(TvmUser, SiteHelper.GetClientIP(), SiteGUID, DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action, Duration);
+                // TODO SHIR - ASK IRENA ABOUT THE PROGRAM_ID HERE
+                long programId = 0;
+                CatalogLoaders.MediaHitLoader mediaMarkLoader =
+                    new CatalogLoaders.MediaHitLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), SiteGUID, DeviceUDID, 
+                                                      (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action, Duration, programId);
+
                 return mediaMarkLoader.Execute() as string;
             }
             else
@@ -259,8 +266,7 @@ namespace TVPPro.SiteManager.DataLoaders
                 return base.Execute();
             }
         }
-
-
+        
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             MediaHit result = new MediaHit();

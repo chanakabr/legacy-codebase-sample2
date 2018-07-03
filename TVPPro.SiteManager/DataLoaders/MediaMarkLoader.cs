@@ -9,6 +9,7 @@ using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.Services;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -307,7 +308,12 @@ namespace TVPPro.SiteManager.DataLoaders
             bool shouldUseNewCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
             {
-                CatalogLoaders.MediaMarkLoader mediaMarkLoader = new CatalogLoaders.MediaMarkLoader(TvmUser, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(), DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action.ToString(), MediaDuration, ErrorCode, ErrorMessage, CDNID);
+                // TODO SHIR - ASK IRA ABOUT THE PROGRAM_ID HERE
+                long programId = 0;
+                CatalogLoaders.MediaMarkLoader mediaMarkLoader = 
+                    new CatalogLoaders.MediaMarkLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(),
+                                                       DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action.ToString(),
+                                                       MediaDuration, ErrorCode, ErrorMessage, CDNID, programId);
                 return mediaMarkLoader.Execute() as string;
             }
             else
