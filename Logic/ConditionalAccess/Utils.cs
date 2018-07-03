@@ -1329,21 +1329,44 @@ namespace Core.ConditionalAccess
                         return price;
                     }
 
+                    bool blockDoublePurchase = false;
                     theReason = PriceReason.ForPurchase;
                     int domainID = 0;
                     List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainID);
                     DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subCode, domainID);
+                    int entitmlemntCount = 0;
+
                     if (dt != null)
                     {
-                        int nCount = dt.Rows.Count;
-                        if (nCount > 0)
+                        entitmlemntCount = dt.Rows.Count;
+                        if (entitmlemntCount > 0)
                         {
-                            price.m_dPrice = 0.0;
                             theReason = PriceReason.SubscriptionPurchased;
+
+                            if (subscription.m_bIsRecurring)
+                            {
+                                price.m_dPrice = 0.0;
+                            }
+                            else if (entitmlemntCount == 1)
+                            {
+                                object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
+
+                                if (dbBlockDoublePurchase != null &&
+                                    dbBlockDoublePurchase != DBNull.Value &&
+                                    bool.TryParse(dbBlockDoublePurchase.ToString(), out blockDoublePurchase) &&
+                                    blockDoublePurchase)
+                                {
+                                    price.m_dPrice = -1;
+                                }
+                            }
+                            else
+                            {
+                                price.m_dPrice = -1;
+                            }
                         }
                     }
 
-                    if (theReason != PriceReason.SubscriptionPurchased)
+                    if (theReason != PriceReason.SubscriptionPurchased || !blockDoublePurchase)
                     {
                         if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
                         {
@@ -3852,13 +3875,15 @@ namespace Core.ConditionalAccess
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
-                    for (int i = 0; i < subs.Rows.Count; i++)
+                    DataRow[] subsRows = subs.Select().OrderBy(u => u["END_DATE"]).ToArray();
+
+                    foreach (var subsRow in subsRows)
                     {
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         int gracePeriodMinutes = 0;
-                        GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
+                        GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
                                                             ref purchaseDate, ref endDate, ref gracePeriodMinutes);
 
                         // decide which is the correct end period

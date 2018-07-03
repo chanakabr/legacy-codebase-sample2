@@ -16622,6 +16622,12 @@ namespace Core.ConditionalAccess
                 householdId = ODBCWrapper.Utils.ExtractValue<long>(dataRow, "domain_id");
             }
 
+            if (endDateFromRow < DateTime.UtcNow.AddSeconds(2))
+            {
+                string key = LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(householdId);
+                LayeredCache.Instance.SetInvalidationKey(key);
+            }
+
             SubscriptionPurchase subscriptionPurchase = new Modules.SubscriptionPurchase(this.m_nGroupID)
             {
                 purchaseId = purchaseId,
