@@ -886,8 +886,9 @@ namespace WS_Domains
         [System.Xml.Serialization.XmlInclude(typeof(ValidationType))]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
         [System.Xml.Serialization.XmlInclude(typeof(ValidationResponseObject))]
-        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
+        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID,long lSiteGuid, 
+                                                                 long lDomainID, ValidationType eValidation, int nRuleID = 0, int nMediaConcurrencyLimit = 0, 
+                                                                 int nMediaID = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
@@ -903,7 +904,7 @@ namespace WS_Domains
             if (nGroupID != 0)
             {
                 return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation,
-                    nRuleID > 0 ? new List<int>() { nRuleID } : null, null, null, nMediaID);
+                                                                    nRuleID > 0 ? new List<int>() { nRuleID } : null, null, null, nMediaID);
             }
 
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);

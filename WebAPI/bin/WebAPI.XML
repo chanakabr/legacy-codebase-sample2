@@ -5993,6 +5993,11 @@
             Program Id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.IsReportingMode">
+            <summary>
+            isReportingMode
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.action">
             <summary>
             Action

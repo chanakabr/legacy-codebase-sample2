@@ -74,6 +74,20 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "programId")]
         public long ProgramId { get; set; }
 
+        // TODO SHIR - EDIT + ADD TO DR
+        /// <summary>
+        /// isReportingMode
+        /// </summary>
+        [DataMember(Name = "isReportingMode")]
+        [JsonProperty("isReportingMode")]
+        [XmlElement(ElementName = "isReportingMode")]
+        public bool IsReportingMode { get; set; }
+
+        public KalturaBookmark()
+        {
+            this.IsReportingMode = false;
+        }
+
         internal int getPosition()
         {
             return Position.HasValue ? Position.Value : 0;
