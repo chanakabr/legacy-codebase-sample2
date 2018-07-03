@@ -151,7 +151,7 @@ namespace Core.Catalog.Request
             }
         }
 
-        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
+        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache,
             List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
@@ -196,43 +196,26 @@ namespace Core.Catalog.Request
                                      // or if at least one of the media types of the channel exists in the request
                                      typeIntersection.Count() > 0)
                                  {
-                                     if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache);
+
+                                     // If specific types were requested
+                                     if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))
                                      {
-                                         UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache);
-
-                                         // If specific types were requested
-                                         if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))
+                                         // if channel has specific types defined
+                                         if (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
+                                             !currentChannel.m_nMediaType.Contains(0))
                                          {
-                                             // if channel has specific types defined
-                                             if (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
-                                                 !currentChannel.m_nMediaType.Contains(0))
-                                             {
-                                                 // Search request will be the intersection of the request types and the channel types
-                                                 definitions.mediaTypes.AddRange(typeIntersection.Select(t => int.Parse(t)));
-                                             }
-                                             else
-                                             // if specific types were requested but channel is oblivious to this - use the request types
-                                             {
-                                                 definitions.mediaTypes.AddRange(mediaTypes.Select(t => int.Parse(t)));
-                                             }
+                                             // Search request will be the intersection of the request types and the channel types
+                                             definitions.mediaTypes.AddRange(typeIntersection.Select(t => int.Parse(t)));
                                          }
-
-                                         searchObjectsArray[channelIndex] = definitions;
-                                     }
-                                     else
-                                     {
-                                         MediaSearchObj channelSearchObject = CatalogLogic.BuildBaseChannelSearchObject(currentChannel, request,
-                                             order, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, deviceRuleIds, groupInCache.GetGroupDefaultLanguage());
-
-                                         if ((currentChannel.m_nMediaType.Contains(0)) &&
-                                             !(mediaTypes.Contains<string>("0")) && mediaTypes.Length > 0)
+                                         else
+                                         // if specific types were requested but channel is oblivious to this - use the request types
                                          {
-                                             channelSearchObject.m_sMediaTypes =
-                                                 string.Join(";", typeIntersection);
+                                             definitions.mediaTypes.AddRange(mediaTypes.Select(t => int.Parse(t)));
                                          }
-                                         channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
-                                         searchObjectsArray[channelIndex] = channelSearchObject;
                                      }
+
+                                     searchObjectsArray[channelIndex] = definitions;
                                  }
                              }
                          }
