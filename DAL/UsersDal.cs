@@ -1147,7 +1147,7 @@ namespace DAL
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
                 sp.AddParameter("@UserName", sUserName);
-                sp.AddParameter("@GroupID", nParentGroupID);                
+                sp.AddParameter("@GroupID", nParentGroupID);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
