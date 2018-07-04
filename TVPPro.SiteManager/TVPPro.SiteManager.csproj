@@ -504,26 +504,8 @@
     <None Include="DataEntities\dsChannels.xss">
       <DependentUpon>dsChannels.xsd</DependentUpon>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.wsdl" />
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\TvinciPlatform.Notification\NotificationService1.wsdl" />
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService11.wsdl" />
     <None Include="Service References\TvinciPlatform.Notification\NotificationService51.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -536,10 +518,28 @@
     <None Include="Service References\TvinciPlatform.Notification\NotificationService54.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService6.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService810.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService7.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService811.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService812.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService813.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService814.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService815.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService88.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService89.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Notification\TVPPro.SiteManager.TvinciPlatform.Notification.NotificationMessage.datasource">
@@ -1268,9 +1268,6 @@
     <None Include="Service References\TvinciPlatform.Notification\NotificationService1.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Web References\TvinciPlatform.Billing\ws_billing_module.disco" />
   </ItemGroup>
   <ItemGroup>
@@ -1287,6 +1284,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
