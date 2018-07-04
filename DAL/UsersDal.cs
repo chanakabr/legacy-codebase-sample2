@@ -1147,71 +1147,78 @@ namespace DAL
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
                 sp.AddParameter("@UserName", sUserName);
-                sp.AddParameter("@GroupID", nParentGroupID);                
+                sp.AddParameter("@GroupID", nParentGroupID);
                 DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 1)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    DataTable userDetails = ds.Tables[0];
-                    DataTable domainDetails = ds.Tables[1];
-                    if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
-                    {
-                        DataRow dr = userDetails.Rows[0];
-                        if (nUserID <= 0)
-                        {
-                            nUserID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                        }
-                        int activateStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "ACTIVATE_STATUS"); ;
-                        int isActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVATION_NEEDED");
-                        string facebookbId = ODBCWrapper.Utils.GetSafeStr(dr, "FACEBOOK_ID");
-                        if (string.IsNullOrEmpty(sUserName))
-                        {
-                            sUserName = ODBCWrapper.Utils.GetSafeStr(dr, "USERNAME");
-                        }
-                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                        if (isActivationNeeded == 0 || activateStatus == 1 || !string.IsNullOrEmpty(facebookbId))
-                        {
-                            res = DALUserActivationState.Activated;
-                        }
-                        else if (isActivationNeeded == 1 && createDate.AddHours(nActivationMustHours) > DateTime.UtcNow)
-                        {
-                            res = DALUserActivationState.Activated;
-                            isGracePeriod = true;
-                        }
-                        else
-                        {
-                            res = DALUserActivationState.NotActivated;
-                        }
-
-                        if (domainDetails != null && domainDetails.Rows != null && domainDetails.Rows.Count > 0)
-                        {
-                            DataRow domainRow = domainDetails.Rows[0];
-                            int domainID = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "DOMAIN_ID");
-                            bool isMaster = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_MASTER") == 1;
-                            bool isSuspended = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_SUSPENDED") == 1;
-                            int status = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "STATUS");
-
-                            if (domainID == 0)
-                            {
-                                res = DALUserActivationState.UserWIthNoDomain;
-                            }
-                            else if (status == 3)
-                            {
-                                res = DALUserActivationState.NotActivatedByMaster;
-                            }
-                            else if (isSuspended)
-                            {
-                                res = DALUserActivationState.UserDomainSuspended;
-                            }
-                        }
-
-                    }
-
-                    else
+                    // in case sent userid doesnt exist
+                    if (ds.Tables.Count == 1)
                     {
                         res = DALUserActivationState.UserDoesNotExist;
                     }
-                }
+                    else
+                    {
+                        DataTable userDetails = ds.Tables[0];
+                        DataTable domainDetails = ds.Tables[1];
+                        if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
+                        {
+                            DataRow dr = userDetails.Rows[0];
+                            if (nUserID <= 0)
+                            {
+                                nUserID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            }
+                            int activateStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "ACTIVATE_STATUS"); ;
+                            int isActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVATION_NEEDED");
+                            string facebookbId = ODBCWrapper.Utils.GetSafeStr(dr, "FACEBOOK_ID");
+                            if (string.IsNullOrEmpty(sUserName))
+                            {
+                                sUserName = ODBCWrapper.Utils.GetSafeStr(dr, "USERNAME");
+                            }
 
+                            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+
+                            if (isActivationNeeded == 0 || activateStatus == 1 || !string.IsNullOrEmpty(facebookbId))
+                            {
+                                res = DALUserActivationState.Activated;
+                            }
+                            else if (isActivationNeeded == 1 && createDate.AddHours(nActivationMustHours) > DateTime.UtcNow)
+                            {
+                                res = DALUserActivationState.Activated;
+                                isGracePeriod = true;
+                            }
+                            else
+                            {
+                                res = DALUserActivationState.NotActivated;
+                            }
+
+                            if (domainDetails != null && domainDetails.Rows != null && domainDetails.Rows.Count > 0)
+                            {
+                                DataRow domainRow = domainDetails.Rows[0];
+                                int domainID = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "DOMAIN_ID");
+                                bool isMaster = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_MASTER") == 1;
+                                bool isSuspended = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_SUSPENDED") == 1;
+                                int status = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "STATUS");
+
+                                if (domainID == 0)
+                                {
+                                    res = DALUserActivationState.UserWIthNoDomain;
+                                }
+                                else if (status == 3)
+                                {
+                                    res = DALUserActivationState.NotActivatedByMaster;
+                                }
+                                else if (isSuspended)
+                                {
+                                    res = DALUserActivationState.UserDomainSuspended;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            res = DALUserActivationState.UserDoesNotExist;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
