@@ -151,7 +151,7 @@ namespace Core.Catalog.Request
             }
         }
 
-        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
+        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache,
             List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
