@@ -33,7 +33,7 @@ namespace Core.Users
         protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
         private const string PURGE_TASK = "distributed_tasks.process_purge";
-        private const double MAX_SERVER_TIME_DIF = 5;
+        private const double MAX_SERVER_TIME_DIF = 55; //BEO-5280
         private const double HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
         private const string ROUTING_KEY_PURGE = "PROCESS_PURGE";
 
