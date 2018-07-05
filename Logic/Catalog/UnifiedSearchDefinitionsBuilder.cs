@@ -481,12 +481,28 @@ namespace Core.Catalog
             return result;
         }
 
-        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
-            BaseRequest request,
-            OrderObj order,
-            int parentGroupID, Group group)
+        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions, BaseRequest request, OrderObj order, int parentGroupID, Group group)
         {
             int[] fileTypes = null;
+            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+            List<int> linearChannelMediaTypes = new List<int>();
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildEntitlementSearchDefinitions", parentGroupID);
+                    return;
+                }
+                else if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManagement.CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))
+                {
+                    linearChannelMediaTypes.Add((int)catalogGroupCache.AssetStructsMapBySystemName[CatalogManagement.CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME].Id);
+                }
+            }
+            else if (group != null)
+            {
+                linearChannelMediaTypes.AddRange(group.linearChannelMediaTypes);
+            }
 
             if (request.m_oFilter != null)
             {
@@ -536,7 +552,7 @@ namespace Core.Catalog
                 // Also add linear channel media type so that we get them in the next search
                 if (definitions.shouldSearchEpg)
                 {
-                    selectedMediaTypes = selectedMediaTypes.Union(group.linearChannelMediaTypes.Select(t => t.ToString()));
+                    selectedMediaTypes = selectedMediaTypes.Union(linearChannelMediaTypes.Select(t => t.ToString()));
                 }
 
                 entitlementMediaTypes = selectedMediaTypes.ToArray();
@@ -549,24 +565,36 @@ namespace Core.Catalog
                     order, entitlementMediaTypes, definitions.deviceRuleId);
             }
 
-            if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
+            if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
-                // Convert the file type that we received in request (taken from groups_media_type)
-                // into the file type that the media file knows (based on the table media_files)
-                entitlementSearchDefinitions.fileTypes = new List<int>();
-
-                if (fileTypes != null)
+                if (doesGroupUsesTemplates)
                 {
-                    foreach (var fileType in fileTypes)
+                    GenericListResponse<CatalogManagement.MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
+                    if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK
+                        && mediaFileTypesResponse.Objects != null && mediaFileTypesResponse.Objects.Count > 0)
                     {
-                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        entitlementSearchDefinitions.fileTypes.AddRange(mediaFileTypesResponse.Objects.Select(x => (int)x.Id));
+                    }
+                }
+                else if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
+                {
+                    // Convert the file type that we received in request (taken from groups_media_type)
+                    // into the file type that the media file knows (based on the table media_files)
+                    entitlementSearchDefinitions.fileTypes = new List<int>();
+
+                    if (fileTypes != null)
+                    {
+                        foreach (var fileType in fileTypes)
+                        {
+                            entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        }
                     }
                 }
             }
 
             // TODO: Maybe this will be the method that gets the FREE epg channel IDs
             var entitledChannelIds =
-                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, group.linearChannelMediaTypes);
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes);
 
             epgChannelIds.AddRange(entitledChannelIds);
 

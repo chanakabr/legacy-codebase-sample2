@@ -1295,41 +1295,40 @@ namespace Core.Catalog
             {
                 HashSet<string> allMetas = new HashSet<string>();
                 HashSet<string> allTags = new HashSet<string>();
-                if (definitions.shouldSearchMedia)
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                if (!doesGroupUsesTemplates)
                 {
-                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                    if (definitions.shouldSearchMedia)
                     {
-                        foreach (var meta in metasInGroup)
+                        foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
                         {
-                            allMetas.Add(meta.Value.ToLower());
+                            foreach (var meta in metasInGroup)
+                            {
+                                allMetas.Add(meta.Value.ToLower());
+                            }
+                        }
+
+                        foreach (var tagInGroup in group.m_oGroupTags.Values)
+                        {
+                            allTags.Add(tagInGroup.ToLower());
                         }
                     }
 
-                    foreach (var tagInGroup in group.m_oGroupTags.Values)
+                    if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
                     {
-                        allTags.Add(tagInGroup.ToLower());
+                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            allMetas.Add(meta);
+                        }
+
+                        foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                        {
+                            allTags.Add(tag);
+                        }
                     }
                 }
-
-                if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
-                {
-                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
-                    {
-                        allMetas.Add(meta);
-                    }
-
-                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
-                    {
-                        allTags.Add(tag);
-                    }
-                }
-
-                definitions.groupBy = new List<KeyValuePair<string, string>>();
-                string distinctGroupByFormatted = string.Empty;
-
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
-                if (doesGroupUsesTemplates)
+                else
                 {
                     try
                     {
@@ -1344,6 +1343,9 @@ namespace Core.Catalog
                         log.Error(string.Format("Failed TryGetCatalogGroupCacheFromCache for groupId: {0} on BuildSearchGroupBy", groupId), ex);
                     }
                 }
+
+                definitions.groupBy = new List<KeyValuePair<string, string>>();
+                string distinctGroupByFormatted = string.Empty;
 
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {

@@ -18,8 +18,8 @@ namespace Core.Catalog.CatalogManagement
         #region Constants and Readonly
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+        public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
 
         #endregion
 
@@ -82,9 +82,10 @@ namespace Core.Catalog.CatalogManagement
                         if (assetStructs == null || assetStructs.Count == 0)
                         {
                             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
-                        }
+                        }                                                
+                        
+                        catalogGroupCache = new CatalogGroupCache(groupId.Value, languages, assetStructs, topics);                        
 
-                        catalogGroupCache = new CatalogGroupCache(languages, assetStructs, topics);
                         res = true;
                     }
                 }
