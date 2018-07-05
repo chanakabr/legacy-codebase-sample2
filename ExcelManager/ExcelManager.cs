@@ -19,12 +19,13 @@ namespace ExcelManager
     {
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string excelTemplateDir = string.Format("{0}\\ExcelTemplates\\", Directory.GetCurrentDirectory());
+        private static readonly string excelTemplateDir = string.Format("{0}ExcelTemplates\\", AppDomain.CurrentDomain.BaseDirectory);
         private static object locker = new object();
         private static ExcelManager instance = null;
-        private const int MAX_COLUMNS = 254;
+        private const int MAX_COLUMNS = 254; 
         private const int MAX_ROWS = 500;
         private const int EXCEL_DEFINITION_ROW = 1;
+        private const int ACCOUNT_DEFINITION_ROW = 2;
         private const string WITH_FILES = "with_files";
         private const string WITHOUT_FILES = "without_files";
         private const string WITH_Images = "with_images";
@@ -59,7 +60,10 @@ namespace ExcelManager
 
         #endregion
 
-        private ExcelManager() { }
+        private ExcelManager()
+        {
+            Directory.CreateDirectory(excelTemplateDir);
+        }
 
         public static ExcelManager Instance
         {
@@ -352,11 +356,9 @@ namespace ExcelManager
                 }
 
                 Microsoft.Office.Interop.Excel.Application app = new Microsoft.Office.Interop.Excel.Application();
-                app.Visible = true;
-                app.DisplayAlerts = true;
-                //app.SheetsInNewWorkbook = 1;
-                Microsoft.Office.Interop.Excel.Workbook workbook = app.Workbooks.Add(Microsoft.Office.Interop.Excel.XlWBATemplate.xlWBATWorksheet);
-                Microsoft.Office.Interop.Excel.Worksheet sheet = workbook.Worksheets[1];
+                Microsoft.Office.Interop.Excel.Workbook workbook = app.Workbooks.Add();
+                Microsoft.Office.Interop.Excel.Worksheet sheet = workbook.ActiveSheet;
+                Dictionary<int, string> indexToAccountDescMap = new Dictionary<int, string>();
                 int columnIndex = 1;
 
                 #region MediaAsset
@@ -375,6 +377,7 @@ namespace ExcelManager
                     };
 
                     sheet.Cells[EXCEL_DEFINITION_ROW, columnIndex] = Newtonsoft.Json.JsonConvert.SerializeObject(defColumn);
+                    sheet.Cells[ACCOUNT_DEFINITION_ROW, columnIndex] = custAtt.SystemName;
                     columnIndex++;
                 }
 
@@ -401,6 +404,7 @@ namespace ExcelManager
                     };
 
                     sheet.Cells[EXCEL_DEFINITION_ROW, columnIndex] = Newtonsoft.Json.JsonConvert.SerializeObject(defColumn);
+                    sheet.Cells[ACCOUNT_DEFINITION_ROW, columnIndex] = topic.Name;
                     columnIndex++;
                 }
 
@@ -426,6 +430,7 @@ namespace ExcelManager
                                 };
 
                                 sheet.Cells[EXCEL_DEFINITION_ROW, columnIndex] = Newtonsoft.Json.JsonConvert.SerializeObject(defColumn);
+                                sheet.Cells[ACCOUNT_DEFINITION_ROW, columnIndex] = string.Format("{0}_{1}", fileType.Name, property.Name);
                                 columnIndex++;
                             }
                         }
@@ -454,6 +459,7 @@ namespace ExcelManager
                                 };
 
                                 sheet.Cells[EXCEL_DEFINITION_ROW, columnIndex] = Newtonsoft.Json.JsonConvert.SerializeObject(defColumn);
+                                sheet.Cells[ACCOUNT_DEFINITION_ROW, columnIndex] = string.Format("{0}_{1}", imageType.SystemName, property.Name);
                                 columnIndex++;
                             }
                         }
@@ -463,7 +469,9 @@ namespace ExcelManager
                 #endregion
 
                 string tempSavedFileName = string.Format("{0}_{1}_{2}_{3}.xls", excelTemplateDir, mediaType, shouldGenerateFiles ? WITH_FILES : WITHOUT_FILES, shouldGenerateImages ? WITH_Images : WITHOUT_Images);
-                workbook.SaveAs(tempSavedFileName);
+                workbook.SaveAs(tempSavedFileName, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookNormal, System.Reflection.Missing.Value, System.Reflection.Missing.Value, false, false,
+                        Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlShared, false, false, System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                        System.Reflection.Missing.Value);
                 workbook.Close(true, Type.Missing, Type.Missing);
                 app.Quit();
 
