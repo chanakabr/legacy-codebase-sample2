@@ -467,27 +467,14 @@ namespace TVinciShared
                     if (sValue.ToString() == "")
                         sValue = "-";
 
-
                     if (m_hiddenFields.ContainsKey(sName.ToUpper()) && (bool)(m_hiddenFields[sName.ToUpper()]) == true)
                         continue;
+                    
                     if (m_ImageFields.ContainsKey(sName.ToUpper()))
                     {
                         string sFileName = sValue.ToString();
-                        string sFileExt = ".jpg";
-                        string sBP = sBasePicsURL;
-                        if (m_theDataTable.Columns.Contains("group_id"))
-                        {
-                            object oGroupID = m_theDataTable.DefaultView[pageIndx].Row["group_id"];
-                            if (oGroupID != DBNull.Value && oGroupID != null)
-                                sBP = PageUtils.GetBasePicURL(int.Parse(oGroupID.ToString()));
-                        }
-                        if (sValue.ToString().LastIndexOf('.') > 0)
-                        {
-                            sFileExt = sValue.ToString().Substring(sValue.ToString().LastIndexOf('.'));
-                            sFileName = sValue.ToString().Substring(0, sValue.ToString().LastIndexOf('.'));
-
-                        }
-                        if (sFileName != "" && sFileName != "-")
+                        
+                        if (!string.IsNullOrEmpty(sFileName) && sFileName != "-")
                         {
                             if (ImageUtils.IsDownloadPicWithImageServer())
                             {
@@ -515,12 +502,19 @@ namespace TVinciShared
                                     sFileName = sFileName.Replace(replace, "_tn");
                                 }
 
-                                sTable.Append("<td><img src='" + sFileName);
-                                sTable.Append("'/></td>");
+                                sTable.AppendFormat("<td><img src='{0}'/></td>", sFileName);
                             }   
                         }
                         else
                         {
+                            string sBP = sBasePicsURL;
+                            if (m_theDataTable.Columns.Contains("group_id"))
+                            {
+                                object oGroupID = m_theDataTable.DefaultView[pageIndx].Row["group_id"];
+                                if (oGroupID != DBNull.Value && oGroupID != null)
+                                    sBP = PageUtils.GetBasePicURL(int.Parse(oGroupID.ToString()));
+                            }
+
                             Int32 nPicID = PageUtils.GetDefaultPICID(nGroupID);
                             string sPicURL = "-";
                             if (nPicID != 0)
