@@ -421,6 +421,7 @@ namespace Core.Catalog.CatalogManagement
                 response.Objects = GetGroupMediaFileTypes(groupId);
                 if (response.Objects != null)
                 {
+                    response.TotalItems = response.Objects.Count;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }

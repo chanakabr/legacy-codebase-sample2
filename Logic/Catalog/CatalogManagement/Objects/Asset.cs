@@ -15,14 +15,14 @@ namespace Core.Catalog.CatalogManagement
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public eAssetTypes AssetType { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true)]
+        [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.NAME_META_SYSTEM_NAME)]
         public string Name { get; set; }
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         // Name in other languages other then default (when language="*")        
         public List<LanguageContainer> NamesWithLanguages { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true)]
+        [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.DESCRIPTION_META_SYSTEM_NAME)]
         public string Description { get; set; }
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
@@ -35,10 +35,10 @@ namespace Core.Catalog.CatalogManagement
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public DateTime? UpdateDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? StartDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? EndDate { get; set; }
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
@@ -50,7 +50,7 @@ namespace Core.Catalog.CatalogManagement
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Image> Images { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true, IsKeyProperty = true)]
+        [ExcelTemplateAttribute(PropertyValueRequired = true, IsKeyProperty = true, SystemName = AssetManager.EXTERNAL_ID_META_SYSTEM_NAME)]
         public string CoGuid{ get; set; }
 
         public Asset()

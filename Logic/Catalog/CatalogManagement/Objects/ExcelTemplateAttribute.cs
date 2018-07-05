@@ -14,5 +14,7 @@ namespace Core.Catalog.CatalogManagement
         public bool IgnoreWhenGeneratingTemplate { get; set; }
 
         public bool IsKeyProperty { get; set; }
+
+        public string SystemName { get; set; }
     }
 }
