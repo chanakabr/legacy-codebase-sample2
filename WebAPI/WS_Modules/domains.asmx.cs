@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using Core.Users;
 using KLogMonitor;
@@ -903,8 +904,16 @@ namespace WS_Domains
 
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation,
-                                                                    nRuleID > 0 ? new List<int>() { nRuleID } : null, null, null, nMediaID);
+                var devicePlayData = new DevicePlayData()
+                {
+                    UDID = sUDID,
+                    AssetId = nMediaID,
+                    UserId = int.Parse(lSiteGuid.ToString()),
+                    DomainId = int.Parse(lDomainID.ToString()),
+                    MediaConcurrencyRuleIds = nRuleID > 0 ? new List<int>() { nRuleID } : null
+                };
+
+                return Core.Domains.Module.ValidateLimitationModule(nGroupID, nDeviceBrandID, eValidation, devicePlayData);
             }
 
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);

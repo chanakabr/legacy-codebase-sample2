@@ -73,10 +73,9 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("programId")]
         [XmlElement(ElementName = "programId")]
         public long ProgramId { get; set; }
-
-        // TODO SHIR - EDIT + ADD TO DR
+        
         /// <summary>
-        /// isReportingMode
+        /// Indicates if the current request is in reporting mode (hit)
         /// </summary>
         [DataMember(Name = "isReportingMode")]
         [JsonProperty("isReportingMode")]
