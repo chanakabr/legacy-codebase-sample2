@@ -4561,7 +4561,13 @@ namespace Tvinci.Core.DAL
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
             string key = GetDomainDevicesKey(domainId);
-            return UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key).ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
+            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
+            if (domainDevices != null)
+            {
+                return domainDevices.ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
+            }
+
+            return null;
         }
         
         private static string GetDevicePlayDataKey(string udid)
@@ -4583,7 +4589,7 @@ namespace Tvinci.Core.DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
-        public static List<DevicePlayData> GetDomainPlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl)
+        public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid)
         {            
             if (domainDevices != null && domainDevices.Count > 0)
             {
@@ -4615,7 +4621,8 @@ namespace Tvinci.Core.DAL
 
                         List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
                         
-                        var filteredDevices = domainPlayData.Where(x => Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                        var filteredDevices = domainPlayData.Where(x => !x.UDID.Equals(udid) && 
+                            Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
                             // either the list is empty (which means all play types) or x's type is in the list)
                             (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
                             !playActions.Contains(x.AssetAction.ToLower())).ToList();
