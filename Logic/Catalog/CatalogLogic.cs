@@ -2479,63 +2479,60 @@ namespace Core.Catalog
             }
         }
         
-        public static void UpdateFollowMe(int groupId, string assetId, string userId, int playTime, string udid, int duration, MediaPlayActions assetAction, int mediaTypeId,
-                                          List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, bool isReportingMode,
-                                          int domainId = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+        public static void UpdateFollowMe(DevicePlayData devicePlayData, int groupId, int locationSec, int duration, MediaPlayActions action, eExpirationTTL ttl,
+                                          bool isReportingMode, int mediaTypeId, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
-            if (CatalogLogic.IsAnonymousUser(userId))
+            if (devicePlayData.UserId == 0)
             {
                 return;
             }
 
-            if (domainId < 1)
+            if (devicePlayData.DomainId < 1)
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
                 bool isMaster = false;
-                domainId = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(userId), ref opID, ref isMaster, ref eSuspendStat);
+                devicePlayData.DomainId = DomainDal.GetDomainIDBySiteGuid(groupId, devicePlayData.UserId, ref opID, ref isMaster, ref eSuspendStat);
             }
 
             // take finished percent threshold
-            int finishedPercentThreshold = 0;
-            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", groupId, 86400);
-            if (dbThresholdVal == null ||
-                dbThresholdVal == DBNull.Value ||
-                !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
+            int finishedPercentThreshold = GetFinishedPercentThreshold(groupId, 86400);
+
+            if (devicePlayData.DomainId > 0)
             {
-                finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-            }
-            
-            if (domainId > 0)
-            {
-                Dictionary<string, int> domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
-                
-                int deviceFamilyId = 0;
-                if (domainDevices != null && domainDevices.ContainsKey(udid))
+                if (devicePlayData.DeviceFamilyId == 0)
                 {
-                    deviceFamilyId = domainDevices[udid];
+                    devicePlayData.DeviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
                 }
-                
-                switch (ePlayType)
+
+                switch (devicePlayData.GetPlayType())
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, assetAction, mediaTypeId, 
-                                                                 isFirstPlay, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, deviceFamilyId, 
-                                                                 finishedPercentThreshold, isLinearChannel, programId, isReportingMode);
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, mediaTypeId,
+                                                                isLinearChannel, finishedPercentThreshold, ttl);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(int.Parse(userId), udid, assetId, playTime, duration, assetAction, recordingId, deviceFamilyId, 
-                                                                isFirstPlay, programId, isReportingMode);
+                        CatalogDAL.UpdateOrInsertUsersNpvrMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, recordingId, ttl);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(int.Parse(userId), udid, int.Parse(assetId), playTime, duration, assetAction, isFirstPlay, 
-                                                               deviceFamilyId, programId, isReportingMode);
+                        CatalogDAL.UpdateOrInsertUsersEpgMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, ttl);
                         break;
-
                     default:
                         break;
                 }
             }
+        }
+
+        internal static int GetFinishedPercentThreshold(int groupId, int cacheSec)
+        {
+            int finishedPercentThreshold = 0;
+            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", groupId, cacheSec);
+            if (dbThresholdVal == null || dbThresholdVal == DBNull.Value || !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
+            {
+                finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
+            }
+
+            return finishedPercentThreshold;
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -4343,72 +4340,31 @@ namespace Core.Catalog
 
         public static int GetLastPosition(int mediaID, int userID)
         {
-
             if (mediaID == 0 || userID == 0)
                 return 0;
 
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID, int mediaID, int mediaFileID, int platform, 
-                                          int countryID, PlayCycleSession playCycleSession, long programId, ePlayType playType = ePlayType.MEDIA)
+        internal static bool IsConcurrent(int groupId, ref DevicePlayData devicePlayData)
         {
             bool result = true;
-            long siteGuidLong = 0;
 
-            if (!Int64.TryParse(siteGuid, out siteGuidLong))
-            {
-                throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", siteGuid, udid, groupID));
-            }
-
-            if (siteGuidLong == 0)
+            if (devicePlayData.UserId == 0)
             {
                 // concurrency limitation does not apply for anonymous users.
-                // anonymous user is identified by receiving SiteGuid=0 from the clients.
+                // anonymous user is identified by receiving UserId=0 from the clients.
                 return false;
             }
 
-            // Get mediaConcurrencyRuleIds from PlayCycleSession on CB
-            List<int> mediaConcurrencyRuleIds = null;
-
-            if (playType == ePlayType.MEDIA)
-            {
-                if (playCycleSession != null)
-                {
-                    if (playCycleSession.MediaConcurrencyRuleIds != null && playCycleSession.MediaConcurrencyRuleIds.Count > 0)
-                    {
-                        mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
-                    }
-                    else if (playCycleSession.MediaConcurrencyRuleID > 0)
-                    {
-                        mediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
-                    }
-                }
-                else // get from DB incase getting from CB failed
-                {
-                    int mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
-                    if (mediaConcurrencyRuleID > 0)
-                    {
-                        mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleID };
-                    }
-                }
-            }
-
-            // Get AssetRules
-            List<long> assetMediaRulesIds = null;
-            List<long> assetEpgRulesIds = null;
-            ConditionalAccess.Utils.GetAssetRuleIds(playCycleSession, groupID, mediaID, ref programId, out assetMediaRulesIds, out assetEpgRulesIds);
-
-            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule
-                (groupID, udid, 0, siteGuidLong, domainID, ValidationType.Concurrency, 
-                 mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, mediaID, programId);
+            ValidationResponseObject domainsResp = Domains.Module.ValidateLimitationModule(groupId, 0, ValidationType.Concurrency, devicePlayData);
 
             if (domainsResp == null)
             {
-                throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
+                throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", devicePlayData, groupId));
             }
 
-            domainID = (int)domainsResp.m_lDomainID;
+            devicePlayData.DomainId = (int)domainsResp.m_lDomainID;
             switch (domainsResp.m_eStatus)
             {
                 case DomainResponseStatus.ConcurrencyLimitation:
@@ -4424,21 +4380,21 @@ namespace Core.Catalog
                     }
                 default:
                     {
-                        throw new Exception(GetIsConcurrentLogMsg(
-                            String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                        throw new Exception(GetIsConcurrentLogMsg
+                            (String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), devicePlayData, groupId));
                     }
             }
 
             return result;
         }
 
-        private static string GetIsConcurrentLogMsg(string sMessage, string sSiteGuid, string sUDID, int nGroupID)
+        private static string GetIsConcurrentLogMsg(string message, DevicePlayData devicePlayData, int groupId)
         {
             StringBuilder sb = new StringBuilder("IsConcurrent Err. ");
-            sb.Append(sMessage);
-            sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
-            sb.Append(String.Concat(" UDID: ", sUDID));
-            sb.Append(String.Concat(" Group ID: ", nGroupID));
+            sb.Append(message);
+            sb.Append(String.Concat(" User Id: ", devicePlayData.UserId));
+            sb.Append(String.Concat(" UDID: ", devicePlayData.UDID));
+            sb.Append(String.Concat(" Group ID: ", groupId));
 
             return sb.ToString();
         }

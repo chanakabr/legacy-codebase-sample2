@@ -61,15 +61,8 @@ namespace Core.Catalog.Request
                 CheckSignature(baseRequest);
 
                 // take finished percent threshold 
-                int finishedPercentThreshold = 0;
-                object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", m_nGroupID, 3600);
-                if (dbThresholdVal == null ||
-                    dbThresholdVal == DBNull.Value ||
-                    !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
-                {
-                    finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                }
-
+                int finishedPercentThreshold = CatalogLogic.GetFinishedPercentThreshold(m_nGroupID, 3600);
+                
                 // get results
                 int totalItems = 0;
 

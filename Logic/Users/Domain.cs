@@ -787,7 +787,7 @@ namespace Core.Users
             // if next allowed action is in future, return LimitationPeriod status
             // Since frequency is defined at domain level, and not in device family level, we can pass a fictive (0)
             // device brand id to ValidateFrequency method
-            if (!forceRemove && ValidateFrequency(udid, 0) == DomainResponseStatus.LimitationPeriod)
+            if (!forceRemove && ValidateFrequency(udid) == DomainResponseStatus.LimitationPeriod)
             {
                 return DomainResponseStatus.LimitationPeriod;
             }
@@ -1035,7 +1035,7 @@ namespace Core.Users
             /** 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
              **     device brand id to ValidateFrequency method
             **/
-            if (!bIsEnable && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
+            if (!bIsEnable && ValidateFrequency(sUDID) == DomainResponseStatus.LimitationPeriod)
             {
                 domainResponseStatus = DomainResponseStatus.LimitationPeriod;
                 return domainResponseStatus;
@@ -1463,12 +1463,12 @@ namespace Core.Users
             }
         }
         
-        public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
+        public DomainResponseStatus ValidateFrequency(string udid)
         {
             // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
             if (DeviceFamiliesMapping != null)
             {
-                DeviceContainer deviceFamily = GetDeviceContainerByUdid(sUDID);
+                DeviceContainer deviceFamily = GetDeviceContainerByUdid(udid);
 
                 if (deviceFamily != null && deviceFamily.m_oLimitationsManager != null && deviceFamily.m_oLimitationsManager.Frequency == 0)
                 {

@@ -19,33 +19,32 @@ namespace Core.Users
     public class ConcurrencyManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
-        public static DomainResponseStatus Validate(List<int> mediaRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds,
-            Domain domain, int mediaId, string udid, int groupId, int deviceBrandId, int deviceFamilyId, long programId)
+       
+        public static DomainResponseStatus Validate(DevicePlayData devicePlayData, Domain domain, int groupId, int deviceFamilyId)
         {
             DomainResponseStatus status = DomainResponseStatus.UnKnown;
 
-            if (mediaRuleIds != null && mediaRuleIds.Count > 0)
+            if (devicePlayData.MediaConcurrencyRuleIds != null && devicePlayData.MediaConcurrencyRuleIds.Count > 0)
             {
-                status = ValidateMediaConcurrency(mediaRuleIds, domain, mediaId, udid, groupId, deviceFamilyId);
+                status = ValidateMediaConcurrency(devicePlayData.MediaConcurrencyRuleIds, domain, devicePlayData.AssetId, devicePlayData.UDID, groupId, deviceFamilyId);
             }
 
-            if (assetMediaRuleIds != null && assetMediaRuleIds.Count > 0 &&
+            if (devicePlayData.AssetMediaConcurrencyRuleIds != null && devicePlayData.AssetMediaConcurrencyRuleIds.Count > 0 &&
                 (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown))
             {
-                status = ValidateAssetRulesConcurrency(groupId, assetMediaRuleIds, domain, udid, mediaId, deviceFamilyId, eAssetTypes.MEDIA);
+                status = ValidateAssetRulesConcurrency(groupId, devicePlayData.AssetMediaConcurrencyRuleIds, domain, devicePlayData.UDID, devicePlayData.AssetId, deviceFamilyId, eAssetTypes.MEDIA);
             }
 
-            if (assetEpgRuleIds != null && assetEpgRuleIds.Count > 0 &&
+            if (devicePlayData.AssetEpgConcurrencyRuleIds != null && devicePlayData.AssetEpgConcurrencyRuleIds.Count > 0 &&
                 (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown))
             {
-                status = ValidateAssetRulesConcurrency(groupId, assetEpgRuleIds, domain, udid, programId, deviceFamilyId, eAssetTypes.EPG);
+                status = ValidateAssetRulesConcurrency(groupId, devicePlayData.AssetEpgConcurrencyRuleIds, domain, devicePlayData.UDID, devicePlayData.ProgramId, deviceFamilyId, eAssetTypes.EPG);
             }
 
             // if it's MediaConcurrencyLimitation no need to check this one 
             if (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown)
             {
-                status = ValidateDeviceFamilyConcurrency(udid, deviceBrandId, domain, groupId, deviceFamilyId);
+                status = ValidateDeviceFamilyConcurrency(devicePlayData.UDID, domain, groupId, deviceFamilyId);
             }
 
             return status;
@@ -202,7 +201,7 @@ namespace Core.Users
                     }
                     
                     ConcurrencyCondition concurrencyCondition = currAssetRule.Conditions.FirstOrDefault(x => x is ConcurrencyCondition) as ConcurrencyCondition;
-                    if (concurrencyCondition == null)
+                    if (concurrencyCondition == null || concurrencyCondition.Limit == 0)
                     {
                         continue;
                     }
@@ -299,7 +298,7 @@ namespace Core.Users
             return assetDevicePlayData;
         }
 
-        private static DomainResponseStatus ValidateDeviceFamilyConcurrency(string udid, int nDeviceBrandId, Domain domain, int groupId, int deviceFamilyId)
+        private static DomainResponseStatus ValidateDeviceFamilyConcurrency(string udid, Domain domain, int groupId, int deviceFamilyId)
         {
             if (string.IsNullOrEmpty(udid))
             {
@@ -349,16 +348,21 @@ namespace Core.Users
             return DomainResponseStatus.OK;
         }
 
-        private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, string udid, Domain domain, int deviceFamilyId, IEnumerable<int> otherDeviceFamilyIds)
+        private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, string udid, Domain domain, int currDeviceFamilyId, IEnumerable<int> otherDeviceFamilyIds)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
 
             if (deviceConcurrencyPriority != null)
             {
-                int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(deviceFamilyId);
+                int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(currDeviceFamilyId);
 
                 if (currDevicePriorityIndex != -1)
                 {
+                    if (deviceConcurrencyPriority.PriorityOrder == DowngradePolicy.LIFO)
+                    {
+                        otherDeviceFamilyIds = otherDeviceFamilyIds.Reverse();
+                    }
+
                     foreach (var otherDeviceFamilyId in otherDeviceFamilyIds)
                     {
                         int otherDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(otherDeviceFamilyId);
@@ -397,6 +401,19 @@ namespace Core.Users
             }
 
             return domainDevices;
+        }
+
+        internal static int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid)
+        {
+            int deviceFamilyId = 0;
+            Dictionary<string, int> domainDevices = GetDomainDevices(domainId, groupId);
+            
+            if (domainDevices != null && domainDevices.ContainsKey(udid))
+            {
+                deviceFamilyId = domainDevices[udid];
+            }
+
+            return deviceFamilyId;
         }
     }
 }

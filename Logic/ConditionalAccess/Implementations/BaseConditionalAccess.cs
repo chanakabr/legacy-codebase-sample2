@@ -10791,7 +10791,8 @@ namespace Core.ConditionalAccess
                     }
                     
                     // create PlayCycle
-                    CreatePlayCycle(userId, mediaFileId, ip, udid, mediaId, mediaConcurrencyRuleIds, domainID, assetMediaRuleIds, assetEpgRuleIds, programId);
+                    CreateDevicePlayData(userId, mediaFileId, ip, udid, mediaId, mediaConcurrencyRuleIds, 
+                                                     domainID, assetMediaRuleIds, assetEpgRuleIds, programId, eExpirationTTL.Long);
                 }
 
             }
@@ -10832,47 +10833,42 @@ namespace Core.ConditionalAccess
         /// <param name="mediaConcurrencyRuleIds"></param>
         /// <param name="domainId"></param>
         /// <param name="assetConcurrencyRuleIds"></param>
-        public void CreatePlayCycle(string userId, Int32 mediaFileID, string userIp, string udid, int mediaId, List<int> mediaConcurrencyRuleIds, 
-                                    int domainId, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId)
+        public void CreateDevicePlayData(string userId, Int32 mediaFileID, string userIp, string udid, int mediaId, List<int> mediaConcurrencyRuleIds, 
+                                                     int domainId, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, eExpirationTTL ttl)
         {
-            int ruleID = 0;
-            
-            // take the first rule (probably will be just one rule)
-            if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
-            {
-                ruleID = mediaConcurrencyRuleIds[0];
-            }
-
             // create PlayCycle
-            string sPlayCycleKey;
-            PlayCycleSession playCycleSession = null;
+            string playCycleKey;
+            DevicePlayData devicePlayData = null;
             if (!Utils.IsAnonymousUser(userId))
             {
-                var domainDevices = ConcurrencyManager.GetDomainDevices(domainId, this.m_nGroupID);
-                int deviceFamilyId = 0;
-                if (domainDevices != null && domainDevices.ContainsKey(udid))
-                {
-                    deviceFamilyId = domainDevices[udid];
-                }
+                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, this.m_nGroupID, udid);
 
-                playCycleSession = CatalogDAL.InsertPlayCycleSession(userId, mediaFileID, m_nGroupID, udid, 0, domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, 
-                                                                     assetEpgRuleIds, mediaId, programId, deviceFamilyId);
+                devicePlayData = CatalogDAL.InsertDevicePlayDataToCB(int.Parse(userId), udid, domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, mediaId, programId,
+                                                                 deviceFamilyId, ePlayType.MEDIA, string.Empty, ttl);
             }
 
-            if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
+            if (devicePlayData != null && !string.IsNullOrEmpty(devicePlayData.PlayCycleKey))
             {
-                sPlayCycleKey = playCycleSession.PlayCycleKey;
+                playCycleKey = devicePlayData.PlayCycleKey;
             }
             else
             {
-                sPlayCycleKey = Guid.NewGuid().ToString();
+                playCycleKey = Guid.NewGuid().ToString();
             }
 
             /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
             if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
+                int ruleID = 0;
+
+                // take the first rule (probably will be just one rule)
+                if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
+                {
+                    ruleID = mediaConcurrencyRuleIds[0];
+                }
+
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(userId, mediaId, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
+                CatalogDAL.InsertPlayCycleKey(userId, mediaId, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, playCycleKey);
             }
         }
 
@@ -10892,9 +10888,6 @@ namespace Core.ConditionalAccess
 
             try
             {
-                int nDeviceFamilyBrand = 0;
-                long lSiteGuid = 0;
-                long.TryParse(userId, out lSiteGuid);
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
 
                 int bmID = 0;
@@ -10957,9 +10950,23 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                int nUserId = 0;
+                int.TryParse(userId, out nUserId);
+
+                var devicePlayData = new DevicePlayData()
+                {
+                    UDID = udid,
+                    AssetId = mediaId,
+                    UserId = nUserId,
+                    ProgramId = programId,
+                    DomainId = domainId,
+                    MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
+                    AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
+                    AssetEpgConcurrencyRuleIds = assetEpgRuleIds
+                };
+
                 // validate Concurrency for domain
-                validationResponse = Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency,
-                                                                                  mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, mediaId, programId);
+                validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, devicePlayData);
 
                 // get domainID from response
                 if (validationResponse != null)

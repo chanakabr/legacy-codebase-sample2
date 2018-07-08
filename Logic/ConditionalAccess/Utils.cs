@@ -8475,37 +8475,7 @@ namespace Core.ConditionalAccess
 
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
         }
-
-        public static void GetAssetRuleIds(PlayCycleSession playCycleSession, int groupId, int mediaId, ref long programId, 
-                                    out List<long> assetMediaRuleIds, out List<long> assetEpgRuleIds)
-        {
-            assetMediaRuleIds = null;
-            assetEpgRuleIds = null;
-
-            if (playCycleSession != null)
-            {
-                if (playCycleSession.AssetMediaRuleIds != null && playCycleSession.AssetMediaRuleIds.Count > 0)
-                {
-                    assetMediaRuleIds = playCycleSession.AssetMediaRuleIds;
-                }
-                else
-                {
-                    assetMediaRuleIds = GetAssetMediaRuleIds(groupId, mediaId);
-                    playCycleSession.AssetMediaRuleIds = assetMediaRuleIds;
-                }
-
-                if (playCycleSession.AssetEpgRuleIds != null && playCycleSession.AssetEpgRuleIds.Count > 0)
-                {
-                    assetEpgRuleIds = playCycleSession.AssetEpgRuleIds;
-                }
-                else
-                {
-                    assetEpgRuleIds = GetAssetEpgRuleIds(groupId, mediaId, ref programId);
-                    playCycleSession.AssetEpgRuleIds = assetEpgRuleIds;
-                }
-            }
-        }
-
+        
         public static List<long> GetAssetMediaRuleIds(int groupId, int mediaId)
         {
             List<long> assetMediaRuleIds = new List<long>();

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using ApiObjects.Rules;
+using ApiObjects.MediaMarks;
 
 namespace Core.Domains
 {
@@ -632,31 +633,27 @@ namespace Core.Domains
             return response;
         }
 
-        
-        public static ValidationResponseObject ValidateLimitationModule(int nGroupID, string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, 
-                                                                        ValidationType eValidation, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRulesIds, 
-                                                                        List<long> assetEpgRulesIds, int nMediaID = 0, long programId = 0)
+        public static ValidationResponseObject ValidateLimitationModule(int groupId, int deviceBrandId, ValidationType validationType, DevicePlayData devicePlayData)
         {
-            // add siteguid to logs/monitor
+            // add UserId to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
             {
-                HttpContext.Current.Items[Constants.USER_ID] = lSiteGuid;
+                HttpContext.Current.Items[Constants.USER_ID] = devicePlayData.UserId;
             }
 
-            if (lDomainID < 1 && lSiteGuid < 1)
-                return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
+            if (devicePlayData.DomainId < 1 && devicePlayData.UserId < 1)
+                return new ValidationResponseObject(DomainResponseStatus.UnKnown, devicePlayData.DomainId);
 
-            Core.Users.BaseDomain baseDomain = null;
-            Utils.GetBaseImpl(ref baseDomain, nGroupID);
+            BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, groupId);
             if (baseDomain != null)
             {
-                return baseDomain.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, mediaConcurrencyRuleIds, 
-                                                           assetMediaRulesIds, assetEpgRulesIds, nMediaID, programId);
+                return baseDomain.ValidateLimitationModule(deviceBrandId, validationType, devicePlayData);
             }
-            return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
+
+            return new ValidationResponseObject(DomainResponseStatus.UnKnown, devicePlayData.DomainId);
         }
 
-        
         public static ValidationResponseObject ValidateLimitationNpvr(int nGroupID, string sUDID, int nDeviceBrandID,
             long lSiteGuid, long lDomainID, ValidationType eValidation, int nNpvrConcurrencyLimit = 0, string sNpvrID = default(string))
         {

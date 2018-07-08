@@ -46,5 +46,21 @@ namespace ApiObjects.PlayCycle
             this.AssetMediaRuleIds = assetMediaRuleIds;
             this.AssetEpgRuleIds = assetEpgRuleIds;
         }
+
+        public List<int> GetMediaConcurrencyRuleIds()
+        {
+            List<int> mediaConcurrencyRuleIds = null;
+
+            if (this.MediaConcurrencyRuleIds != null && this.MediaConcurrencyRuleIds.Count > 0)
+            {
+                mediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds;
+            }
+            else if (this.MediaConcurrencyRuleID > 0)
+            {
+                mediaConcurrencyRuleIds = new List<int>() { this.MediaConcurrencyRuleID };
+            }
+            
+            return mediaConcurrencyRuleIds;
+        }
     }
 }

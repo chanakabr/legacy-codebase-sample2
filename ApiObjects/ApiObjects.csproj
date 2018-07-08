@@ -143,6 +143,7 @@
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
     <Compile Include="MediaMarks\DevicePlayData.cs" />
+    <Compile Include="MediaMarks\DomainDevice.cs" />
     <Compile Include="Notification\SMSNotificationData.cs" />
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
