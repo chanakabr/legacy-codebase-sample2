@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">bulk action id</param>
         /// <returns></returns>
-        [Route("serveLog "), HttpPost]
+        [Route("serveLog"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaBulk ServeLog(long id)
