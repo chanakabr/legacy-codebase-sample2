@@ -2737,6 +2737,8 @@ namespace WebAPI.Reflection
                     {
                         case "IsFinishedWatching":
                             return "finishedWatching";
+                        case "IsReportingMode":
+                            return "isReportingMode";
                         case "PlayerData":
                             return "playerData";
                         case "Position":
