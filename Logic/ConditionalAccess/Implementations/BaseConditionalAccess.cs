@@ -16641,5 +16641,48 @@ namespace Core.ConditionalAccess
 
             return result;
         }
+
+        internal ApiObjects.Response.Status NotifyRecording(ApiObjects.TimeShiftedTv.Recording recording, bool? isProtected, long userId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                Domain domain = null;
+                long domainId = 0;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    response = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(recording.ExternalRecordingId))
+                {
+                    // error code
+                }
+
+                switch (recording.RecordingStatus)
+                {
+                    case TstvRecordingStatus.Recorded:
+                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, recording, domainId, userId);
+                        break;
+                    case TstvRecordingStatus.Deleted:
+                        response = RecordingsManager.Instance.NotifyDeleteRecording(recording.ExternalDomainRecordingId, domainId);
+                        break;
+                    default:
+                        // error code
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed NotifyRecording for externalDomainRecordingId: {0} and id: {1}", recording != null 
+                            && string.IsNullOrEmpty(recording.ExternalDomainRecordingId) ? recording.ExternalDomainRecordingId : string.Empty, userId), ex);
+            }
+
+            return response;
+        }
     }
 }

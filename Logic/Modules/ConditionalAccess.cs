@@ -3323,5 +3323,15 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+
+        public static Status NotifyRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, bool? isProtected, long userId)
+        {
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            ApiObjects.Response.Status status = t.NotifyRecording(recording, isProtected, userId);
+
+            return status;
+        }
+
     }
 }
