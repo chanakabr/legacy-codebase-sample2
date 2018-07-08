@@ -721,6 +721,36 @@ namespace DAL
             return dt;
         }
 
+        public static bool NotifyRecording(int groupId, Recording recording, DateTime viewableUntilDate, long domainId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("NotifyRecording");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@EpgId", recording.EpgId);
+            sp.AddParameter("@EpgChannelId", recording.ChannelId);
+            sp.AddParameter("@ExternalRecordingId", recording.ExternalRecordingId);
+            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);
+            sp.AddParameter("@RecordingStatus", recording.RecordingStatus);
+            sp.AddParameter("@startDate", recording.EpgStartDate);
+            sp.AddParameter("@endDate", recording.EpgEndDate);
+            sp.AddParameter("@GetStatusRetries", recording.GetStatusRetries);
+            sp.AddParameter("@ViewableUntilDate", viewableUntilDate);
+            sp.AddParameter("@ViewableUntilEpoch", recording.ViewableUntilDate);
+            sp.AddParameter("@Crid", recording.Crid);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool NotifyDeleteRecording(string externalDomainRecordingId, long domainId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("NotifyDeleteRecording");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@ExternalDomainRecordingId", externalDomainRecordingId);
+            sp.AddParameter("@DomainId", domainId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
         public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, ref long maxDomainSeriesId)
         {
             HashSet<long> domainSeriesIds = new HashSet<long>();
