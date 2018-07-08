@@ -10932,6 +10932,7 @@ namespace Core.ConditionalAccess
 
                     if (domainResponse != null && domainResponse.Domain != null)
                     {
+                        domainId = domainResponse.Domain.m_nDomainID;
                         int dlmId = domainResponse.Domain.m_nLimit;
 
                         List<int> limitationModulesRules = Core.Api.Module.GetMediaConcurrencyRulesByDomainLimitionModule(this.m_nGroupID, dlmId);

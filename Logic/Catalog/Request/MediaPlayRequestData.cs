@@ -66,6 +66,13 @@ namespace Core.Catalog.Request
                 List<int> mediaConcurrencyRuleIds = null;
                 List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+
+                //get domain by user
+                if (domainId == 0)
+                {
+                    domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
+                }
+                
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
 
                 currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 

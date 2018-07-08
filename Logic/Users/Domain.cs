@@ -1786,7 +1786,7 @@ namespace Core.Users
         {
             InitDeviceFamilyMapping();
 
-            if (!UdidToDeviceFamilyIdMapping.ContainsKey(udid))
+            if (!string.IsNullOrEmpty(udid) && deviceFamilyId > 0 && !UdidToDeviceFamilyIdMapping.ContainsKey(udid))
             {
                 UdidToDeviceFamilyIdMapping.Add(udid, deviceFamilyId);
             }
@@ -1796,7 +1796,7 @@ namespace Core.Users
         {
             InitDeviceFamilyMapping();
 
-            if (!DeviceFamiliesMapping.ContainsKey(deviceFamilyId))
+            if (deviceFamilyId > 0 && !DeviceFamiliesMapping.ContainsKey(deviceFamilyId))
             {
                 DeviceFamiliesMapping.Add(deviceFamilyId, deviceFamily);
             }
@@ -1988,71 +1988,93 @@ namespace Core.Users
             return res;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="udid"></param>
-        /// <param name="totalConcurrentStreamsWithoutGivenDevice"></param>
-        /// <returns>Dictionary with key: deviceFamilyId, value: amount of devices</returns>
-        public Dictionary<int, int> GetConcurrentCount(string udid, ref int totalConcurrentStreamsWithoutGivenDevice)
+        // TODO SHIR - TALK WITH IRA
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="udid"></param>
+        ///// <param name="totalConcurrentStreamsWithoutGivenDevice"></param>
+        ///// <returns>Dictionary with key: deviceFamilyId, value: amount of devices</returns>
+        //public Dictionary<int, int> GetConcurrentCount(string udid, ref int totalConcurrentStreamsWithoutGivenDevice, int deviceFamilyId)
+        //{
+        //    MapUdidToDeviceFamilyId(udid, deviceFamilyId);
+        //    Dictionary<int, int> concurrentCount = null;
+        //    List<DevicePlayData> devicePlayDataList =
+        //            CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
+        //                                             new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG }, 
+        //                                             Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
+
+        //    if (devicePlayDataList != null)
+        //    {
+        //        concurrentCount = new Dictionary<int, int>();
+
+        //        totalConcurrentStreamsWithoutGivenDevice = devicePlayDataList.Count;
+
+        //        foreach (DevicePlayData devicePlayData in devicePlayDataList)
+        //        {
+        //            MapUdidToDeviceFamilyId(devicePlayData.UDID, devicePlayData.DeviceFamilyId);
+
+        //            if (devicePlayData.DeviceFamilyId > 0)
+        //            {
+        //                if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, devicePlayData.DeviceFamilyId))
+        //                {
+        //                    // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
+        //                    if (concurrentCount.ContainsKey(devicePlayData.DeviceFamilyId))
+        //                    {
+        //                        // increment by one
+        //                        concurrentCount[devicePlayData.DeviceFamilyId]++;
+        //                    }
+        //                    else
+        //                    {
+        //                        // add the device family id to dictionary
+        //                        concurrentCount.Add(devicePlayData.DeviceFamilyId, 1);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    // agnostic to device limitation, decrement total streams count by one.
+        //                    totalConcurrentStreamsWithoutGivenDevice--;
+        //                }
+        //            }
+        //        } // end foreach
+        //    }
+
+        //    return concurrentCount;
+        //}
+
+        public List<DevicePlayData> GetConcurrentCount(string udid, ref int concurrentDeviceFamilyIdCount, int deviceFamilyId)
         {
-            Dictionary<int, int> concurrentCount = null;
-            List<DevicePlayData> devicePlayData =
-                    CatalogDAL.GetDomainPlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
-                                                 new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG }, 
-                                                 Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+            MapUdidToDeviceFamilyId(udid, deviceFamilyId);
+            concurrentDeviceFamilyIdCount = 0;
+            List<DevicePlayData> streamingDevicePlayData = new List<DevicePlayData>();
+            List<DevicePlayData> devicePlayDataList =
+                    CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
+                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG },
+                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
 
-            if (devicePlayData != null)
+            if (devicePlayDataList != null)
             {
-                concurrentCount = new Dictionary<int, int>();
-                var filteredDevicePlayData = devicePlayData.Where(x => !x.UDID.Equals(udid));
-                
-                if (filteredDevicePlayData != null)
+                foreach (DevicePlayData devicePlayData in devicePlayDataList)
                 {
-                    totalConcurrentStreamsWithoutGivenDevice = 
-                        filteredDevicePlayData.Count(x => x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                    MapUdidToDeviceFamilyId(devicePlayData.UDID, devicePlayData.DeviceFamilyId);
 
-                    foreach (DevicePlayData userMediaMark in filteredDevicePlayData)
+                    if (devicePlayData.DeviceFamilyId > 0)
                     {
-                        int nDeviceFamilyID = 0;
-                        if (!UdidToDeviceFamilyIdMapping.TryGetValue(userMediaMark.UDID, out nDeviceFamilyID) || nDeviceFamilyID == 0)
+                        if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, devicePlayData.DeviceFamilyId))
                         {
-                            // the device family id does not exist in Domain cache. Grab it from DB.
-                            nDeviceFamilyID = userMediaMark.DeviceFamilyId;
+                            // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
+                            if (devicePlayData.DeviceFamilyId == deviceFamilyId)
+                            {
+                                concurrentDeviceFamilyIdCount++;
+                            }
 
-                            if (nDeviceFamilyID > 0)
-                            {
-                                UdidToDeviceFamilyIdMapping.Add(userMediaMark.UDID, nDeviceFamilyID);
-                            }
+                            streamingDevicePlayData.Add(devicePlayData);
                         }
-
-                        if (nDeviceFamilyID > 0)
-                        {
-                            if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, nDeviceFamilyID))
-                            {
-                                // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
-                                if (concurrentCount.ContainsKey(nDeviceFamilyID))
-                                {
-                                    // increment by one
-                                    concurrentCount[nDeviceFamilyID]++;
-                                }
-                                else
-                                {
-                                    // add the device family id to dictionary
-                                    concurrentCount.Add(nDeviceFamilyID, 1);
-                                }
-                            }
-                            else
-                            {
-                                // agnostic to device limitation, decrement total streams count by one.
-                                totalConcurrentStreamsWithoutGivenDevice--;
-                            }
-                        }
-                    } // end foreach
+                    }
                 }
             }
 
-            return concurrentCount;
+            return streamingDevicePlayData;
         }
 
         private DomainResponseStatus CheckUserLimit(int nDomainID, int nUserGuid)
@@ -2677,7 +2699,7 @@ namespace Core.Users
         /// <param name="domainId"></param>
         /// <param name="npvr"></param>
         /// <returns></returns>
-        internal DomainResponseStatus ValidateNpvrConcurrency(int npvrConcurrencyLimit, long domainId, string npvr)
+        internal DomainResponseStatus ValidateNpvrConcurrency(int npvrConcurrencyLimit, long domainId, string npvr, string udid)
         {
             try
             {
@@ -2689,9 +2711,9 @@ namespace Core.Users
                 if (npvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
                 {
                     List<DevicePlayData> devicePlayDataList =
-                        CatalogDAL.GetDomainPlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
+                        CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
                                                      new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
-                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
                     
                     if (devicePlayDataList != null)
                     {

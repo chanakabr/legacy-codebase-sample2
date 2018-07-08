@@ -159,6 +159,13 @@ namespace Core.Catalog.Request
 
                     var devicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, false, ePlayType.NPVR, 0, 
                                                                                            recordingId.ToString(), platform, countryId);
+
+                    if (devicePlayData == null)
+                    {
+                        response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                        response.m_sDescription = "No devicePlayData";
+                        return response;
+                    }
                     
                     CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, locationSec, fileDuration, MediaPlayActions.HIT, eExpirationTTL.Short,
                                                 this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false, recordingId);
@@ -220,7 +227,11 @@ namespace Core.Catalog.Request
 
                 var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, action, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA, 
                                                                                            this.domainId, string.Empty, platform, countryId);
-                
+                if (currDevicePlayData == null)
+                {
+                    mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    return mediaHitResponse;
+                }
                 this.domainId = currDevicePlayData.DomainId;
 
                 // 4. TODO SHIR ask ira if need to check only if linear?

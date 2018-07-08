@@ -767,11 +767,23 @@ namespace Core.Users
                     return response;
                 }
 
+                if (deviceFamilyId > 0)
+                {
+                    if (devicePlayData.DeviceFamilyId == 0)
+                    {
+                        devicePlayData.DeviceFamilyId = deviceFamilyId;
+                    }
+                    else if (devicePlayData.DeviceFamilyId != deviceFamilyId)
+                    {
+                        response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                        return response;
+                    }                }
+
                 switch (validationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            response.m_eStatus = ConcurrencyManager.Validate(devicePlayData, domain, m_nGroupID, deviceFamilyId);
+                            response.m_eStatus = ConcurrencyManager.Validate(devicePlayData, domain, m_nGroupID);
                             break;
                         }
                     case ValidationType.Frequency:
@@ -794,52 +806,47 @@ namespace Core.Users
         /// <summary>
         /// This method return status via ValidationResponseObject object if there is a limitation to play this npvrID
         /// </summary>
-        /// <param name="sUDID"></param>
-        /// <param name="nDeviceBrandID"></param>
-        /// <param name="lSiteGuid"></param>
-        /// <param name="lDomainID"></param>
+        /// <param name="udid"></param>
+        /// <param name="deviceBrandId"></param>
+        /// <param name="userId"></param>
+        /// <param name="domainId"></param>
         /// <param name="eValidationType"></param>
         /// <param name="nNpvrConcurrencyLimit"></param>
         /// <param name="sNpvrID"></param>
         /// <returns></returns>
-        public virtual ValidationResponseObject ValidateLimitationNpvr(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
+        public virtual ValidationResponseObject ValidateLimitationNpvr(string udid, int deviceBrandId, long userId, long domainId, ValidationType eValidationType,
             int nNpvrConcurrencyLimit = 0, string sNpvrID = default(string))
         {
-            ValidationResponseObject res = new ValidationResponseObject();
+            ValidationResponseObject response = new ValidationResponseObject();
 
-            Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
+            Domain domain = GetDomainForValidation(userId, domainId);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
                 int deviceFamilyId = 0;
                 //to add here isDevicePlayValid
-                bool bisDevicePlayValid = IsDevicePlayValid(sUDID, domain, out deviceFamilyId);
+                bool isDevicePlayValid = IsDevicePlayValid(udid, domain, out deviceFamilyId);
 
-                res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
-                if (!bisDevicePlayValid)
+                response.m_lDomainID = domainId > 0 ? domainId : domain.m_nDomainID;
+                if (!isDevicePlayValid)
                 {
-                    res.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
-                    return res;
+                    response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                    return response;
                 }
 
                 switch (eValidationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            res.m_eStatus = domain.ValidateNpvrConcurrency(nNpvrConcurrencyLimit, res.m_lDomainID, sNpvrID);
+                            response.m_eStatus = domain.ValidateNpvrConcurrency(nNpvrConcurrencyLimit, response.m_lDomainID, sNpvrID, udid);
                             break;
                         }
                     case ValidationType.Frequency:
-                        {
-                            break;
-                        }
                     default:
-                        {
-                            break;
-                        }
+                        break;
                 }
-            } // end if
+            }
 
-            return res;
+            return response;
         }
 
         public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID, int? roleId = null)

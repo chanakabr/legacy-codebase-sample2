@@ -245,8 +245,12 @@ namespace Core.Catalog.Request
 
             DevicePlayData devicePlayData = 
                 this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, (mediaPlayAction == MediaPlayActions.FIRST_PLAY), 
-                                                                       playType, this.domainId, recordingId.ToString(), platform, countryId, ttl);
-            
+                                                                       playType, recordingId.ToString(), platform, countryId, ttl);
+            if (devicePlayData == null)
+            {
+                return;
+            }
+
             switch (mediaPlayAction)
             {
                 case MediaPlayActions.ERROR:
@@ -409,6 +413,13 @@ namespace Core.Catalog.Request
                                                              ref nExitFull, ref nSendToFriend, ref nLoad, ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, 
                                                              ref fileDuration, ref nMediaTypeID, this.m_oMediaPlayRequestData.ProgramId, 
                                                              this.m_oMediaPlayRequestData.IsReportingMode);
+
+                    if (devicePlayData == null)
+                    {
+                        response.status.Set((int)eResponseStatus.Error, "No devicePlayData");
+                        return response;
+                    }
+
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
@@ -566,12 +577,15 @@ namespace Core.Catalog.Request
             var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, mediaPlayAction, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA,
                                                                                        this.domainId, string.Empty, platform, countryId, ttl);
 
+            if (currDevicePlayData == null)
+            {
+                return null;
+            }
+
             if (currDevicePlayData.DomainId > 0)
             {
                 domainId = currDevicePlayData.DomainId;
             }
-
-            this.domainId = currDevicePlayData.DomainId;
             
             switch (mediaPlayAction)
             {
