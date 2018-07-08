@@ -2457,6 +2457,36 @@ namespace WebAPI.Clients
             return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
         }
 
+        internal bool NotifyRecording(int groupId, KalturaRecording recording, KalturaRecordingStatus recordingStatus, bool? isProtected, long userId)
+        {
+            Status status = null;
 
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    Recording casRecording = Mapper.Map<Recording>(recording);
+                    casRecording.RecordingStatus = ConditionalAccessMappings.ConvertKalturaRecordingStatus(recordingStatus);
+                    status = Core.ConditionalAccess.Module.NotifyRecording(groupId, casRecording, isProtected, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling cas service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(status.Code, status.Message);
+            }
+
+            return true;
+        }
     }
 }

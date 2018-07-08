@@ -286,5 +286,31 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="recording"></param>
+        /// <returns></returns>
+        [Route("Notify"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool Notify(KalturaRecording recording, KalturaRecordingStatus recordingStatus, bool? isProtected)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, recording, recordingStatus, isProtected, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

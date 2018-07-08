@@ -1445,8 +1445,8 @@ namespace WebAPI.Clients
 
         internal bool DeleteParentalRule(int groupId, long id, long userId)
         {
-            Func<Status> deleteAssetStructFunc = () => Core.Api.api.DeleteParentalRule(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetStructFunc);
+            Func<Status> deleteParentalRuletFunc = () => Core.Api.api.DeleteParentalRule(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteParentalRuletFunc);
         }
 
         #endregion
