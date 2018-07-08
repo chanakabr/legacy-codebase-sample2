@@ -1387,7 +1387,7 @@ namespace Core.ConditionalAccess
                                     {
                                         if (IsDoublePurchase) // reminder message
                                         {
-                                            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, endDate.Value);
+                                            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
                                             PurchaseManager.SendRenewalReminder(data, householdId);
                                         }
 
@@ -1528,8 +1528,10 @@ namespace Core.ConditionalAccess
 
                         if (eta > DateTime.UtcNow)
                         {
+
                             RenewTransactionData newData = new RenewTransactionData(data.GroupId, masterSiteGuid, data.purchaseId, data.billingGuid,
-                                data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                                data.endDate, eta, data.type == eSubscriptionRenewRequestType.Reminder ? eSubscriptionRenewRequestType.Reminder : eSubscriptionRenewRequestType.RenewalReminder);
+                            
                             bool enqueueSuccessful = queue.Enqueue(newData, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, data.GroupId));
 
                             if (!enqueueSuccessful)

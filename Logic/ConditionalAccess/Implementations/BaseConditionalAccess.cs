@@ -16588,7 +16588,7 @@ namespace Core.ConditionalAccess
             return RenewManager.UnifiedRenewalReminder(this, this.m_nGroupID, siteGuid, householdId, processId, endDate);
         }
 
-        internal bool SubscriptionEnds(string siteGuid, long householdId, long purchaseId, long endDate)
+        internal bool SubscriptionEnds(string siteGuid, long householdId, long purchaseId, long endDate, bool isReminder)
         {
             bool result = false;
 
@@ -16622,7 +16622,7 @@ namespace Core.ConditionalAccess
                 householdId = ODBCWrapper.Utils.ExtractValue<long>(dataRow, "domain_id");
             }
 
-            if (endDateFromRow < DateTime.UtcNow.AddSeconds(2))
+            if (!isReminder && endDateFromRow < DateTime.UtcNow.AddSeconds(2))
             {
                 string key = LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(householdId);
                 LayeredCache.Instance.SetInvalidationKey(key);
@@ -16643,7 +16643,9 @@ namespace Core.ConditionalAccess
                 currency = currency,
             };
 
-            result = subscriptionPurchase.Notify(null, "SubscriptionEnded");
+            string type = isReminder ? "SubscriptionEndedReminder" : "SubscriptionEnded";
+
+            result = subscriptionPurchase.Notify(null, type);
 
             return result;
         }
