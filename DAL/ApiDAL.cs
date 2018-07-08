@@ -576,20 +576,17 @@ namespace DAL
             return null;
         }
 
-        public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
+        public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
         {
             bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
-
-            int nUserID = 0;
-            int.TryParse(sSiteGUID, out nUserID);
-
+            
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;
             ret.nMediaID = nMediaID;
-            ret.sSiteGUID = sSiteGUID;
+            ret.sSiteGUID = userID;
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);//CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
+            string docKey = UtilsDal.GetUserMediaMarkDocKey(userID, nMediaID);
 
             var data = cbManager.Get<string>(docKey);
             bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
@@ -620,7 +617,7 @@ namespace DAL
             }
             else if (bGetDBData)
             {
-                Get_MediaMark_DB(nMediaID, sSiteGUID, nGroupID, ret);
+                Get_MediaMark_DB(nMediaID, userID, nGroupID, ret);
             }
 
             return ret;
@@ -1086,13 +1083,13 @@ namespace DAL
             return resultList;
         }
 
-        public static bool CleanUserHistory(string siteGuid, List<int> lMediaIDs)
+        public static bool CleanUserHistory(string userId, List<int> lMediaIDs)
         {
             try
             {
                 bool retVal = true;
                 int nSiteGuid = 0;
-                int.TryParse(siteGuid, out nSiteGuid);
+                int.TryParse(userId, out nSiteGuid);
 
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
                 var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
@@ -1121,7 +1118,7 @@ namespace DAL
 
                 foreach (int nMediaID in lMediaIDs)
                 {
-                    string documentKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
+                    string documentKey = UtilsDal.GetUserMediaMarkDocKey(userId, nMediaID);
 
                     // Irena - make sure doc type is right
                     bool markResult = mediaMarkManager.Remove(documentKey);

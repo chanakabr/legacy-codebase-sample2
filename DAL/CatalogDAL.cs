@@ -33,11 +33,13 @@ namespace Tvinci.Core.DAL
         private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
-
+        
         /// <summary>
         /// 5
         /// </summary>
         private const int RETRY_LIMIT = 5;
+        public const int SHORT_TTL = 65;
+        public const int LONG_TTL = 86400; // 24 HOURS
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -87,7 +89,7 @@ namespace Tvinci.Core.DAL
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             // get document of media mark
-            object document = cbManager.Get<object>(UtilsDal.getUserMediaMarkDocKey(siteGuid, mediaId));
+            object document = cbManager.Get<object>(UtilsDal.GetUserMediaMarkDocKey(siteGuid, mediaId));
 
             if (document != null)
             {
@@ -188,19 +190,16 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string sSiteGuid)
+        public static List<UserMediaMark> Get_PersonalLastDevice(List<int> nMediaIDs, string userId)
         {
             List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
             List<UserMediaMark> lRes = new List<UserMediaMark>();
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             List<string> docKeysList = new List<string>();
-
-            int nUserID = 0;
-            int.TryParse(sSiteGuid, out nUserID);
-
+            
             foreach (int nMediaID in nMediaIDs)
             {
-                docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
+                docKeysList.Add(UtilsDal.GetUserMediaMarkDocKey(userId, nMediaID));
             }
 
             IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
@@ -605,7 +604,7 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid,
+        private static bool UpdateOrInsertUsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid,
             ref int limitRetries, Random r, string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
             bool locationStatusChanged = false;
@@ -1479,13 +1478,15 @@ namespace Tvinci.Core.DAL
 
         public static int GetLastPosition(int mediaID, int userID)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            string key = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
-            var data = cbManager.Get<string>(key);
-            if (data == null)
-                return 0;
-            var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
-            return umm.LastMark.Location;
+            string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key);
+
+            if (umm != null)
+            {
+                return umm.LastMark.Location;
+            }
+
+            return 0;
         }
         
         public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
@@ -1864,9 +1865,9 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static int GetRuleIDPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nPlatform)
+        public static int GetMediaConcurrencyRuleIdPlayCycleKey(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nPlatform)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRuleIDPlayCycleKey");
+            StoredProcedure sp = new StoredProcedure("GetRuleIDPlayCycleKey");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             sp.AddParameter("@SiteGuid", sSiteGuid);
@@ -2074,57 +2075,7 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-
-        public static string GetOrInsert_PlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform,
-            long countryID, int mcRuleID, int groupID, bool justInsert)
-        {
-            string res = string.Empty;
-            StoredProcedure sp = new StoredProcedure("GetOrInsert_PlayCycleKey");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@SiteGuid", siteGuid ?? string.Empty);
-            sp.AddParameter("@MediaID", mediaID);
-            sp.AddParameter("@MediaFileID", mediaFileID);
-            sp.AddParameter("@DeviceUDID", udid);
-            sp.AddParameter("@Platform", platform);
-            sp.AddParameter("@CountryID", countryID);
-            sp.AddParameter("@RuleID", mcRuleID);
-            sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@JustInsert", justInsert);
-
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["PLAY_CYCLE_KEY"]);
-                }
-            }
-
-            return res;
-        }
-
-        public static void InsertPlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform, long countryID, int mcRuleID, int groupID, string playCycleKey)
-        {
-            StoredProcedure sp = new StoredProcedure("Insert_PlayCycleKey");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@SiteGuid", siteGuid);
-            sp.AddParameter("@MediaID", mediaID);
-            sp.AddParameter("@MediaFileID", mediaFileID);
-            sp.AddParameter("@DeviceUDID", udid);
-            sp.AddParameter("@Platform", platform);
-            sp.AddParameter("@CountryID", countryID);
-            sp.AddParameter("@RuleID", mcRuleID);
-            sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@PlayCycleKey", playCycleKey);
-            sp.ExecuteNonQuery();
-        }
-
-        public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey, int nRuleID = 0)
-        {
-            GetOrInsert_PlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform, nCountryID, nRuleID, nGroupID, true);
-        }
-
+        
         public static void Insert_MediaMarkHitActionData(long watcherID, string sessionID, long groupID, long ownerGroupID,
             long mediaID, long mediaFileID, long billingTypeID, long cdnID, long duration, long countryID, long playerID,
             long firstPlayCounter, long playCounter, long loadCounter, long pauseCounter, long stopCounter, long fullScreenCounter,
@@ -2187,30 +2138,29 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsert_UsersMediaMark(int userId, string udid, int mediaId, int loactionSec, int fileDuration, MediaPlayActions action,
-                                                         int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
-                                                         List<long> assetEpgRuleIds, int deviceFamilyId, int finishedPercentThreshold, bool isLinearChannel, 
-                                                         long programId, bool isReportingMode)
-        {   
-            long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
+        public static void UpdateOrInsertUsersMediaMark(DevicePlayData devicePlayData, MediaPlayActions action, bool isFirstPlay, bool isReportingMode, int loactionSec, 
+                                                        int fileDuration, int mediaTypeId, bool isLinearChannel, int finishedPercentThreshold, eExpirationTTL ttl)
+        {
+            devicePlayData.AssetAction = action.ToString();
+            devicePlayData.TimeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            devicePlayData.CreatedAt = isFirstPlay ? devicePlayData.TimeStamp : devicePlayData.CreatedAt;
 
-            DevicePlayData devicePlayData = new DevicePlayData
-                (udid, mediaId, userId, timeStamp, ePlayType.MEDIA, action, deviceFamilyId, createdAt, programId, string.Empty)
+            if (action == MediaPlayActions.STOP || action == MediaPlayActions.FINISH)
             {
-                MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
-                AssetEpgConcurrencyRuleIds = assetEpgRuleIds
-            };
-
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
+                DeleteDevicePlayData(devicePlayData.UDID);
+            }
+            else
+            {
+                UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, ttl);
+            }
 
             //Now storing this by the mediaID
-            string mmKey = UtilsDal.getUserMediaMarkDocKey(userId, mediaId);
+            string mmKey = UtilsDal.GetUserMediaMarkDocKey(devicePlayData.UserId.ToString(), devicePlayData.AssetId);
             int limitRetries = RETRY_LIMIT;
             bool success = false;
             bool shouldUpdateLocation = false;
             UserMediaMark userMediaMark = devicePlayData.ConvertToUserMediaMark(loactionSec, fileDuration, mediaTypeId);
+            Random r = new Random();
 
             // media hits interest us only on media that are not linear channel - if it is a linear channel, we are not interested in the location
             // because it is a live, constant, "endless" stream
@@ -2219,7 +2169,7 @@ namespace Tvinci.Core.DAL
                 var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
                 while (limitRetries >= 0 && !success)
                 {
-                    shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitsManager, udid, ref limitRetries, r, mmKey, ref success, userMediaMark, finishedPercentThreshold);
+                    shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitsManager, devicePlayData.UDID, ref limitRetries, r, mmKey, ref success, userMediaMark, finishedPercentThreshold);
                 }
             }
 
@@ -2233,32 +2183,39 @@ namespace Tvinci.Core.DAL
 
                 while (limitRetries >= 0 && !success)
                 {
-                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarksManager, udid, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
+                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, devicePlayData.UDID, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
                 }
             }
         }
 
-        public static void UpdateOrInsert_UsersNpvrMark(int userId, string udid, string assetId, int loactionSec,int fileDuration, MediaPlayActions action, 
-                                                        long recordingId, int deviceFamilyId, bool isFirstPlay, long programId, bool isReportingMode)
+        public static void UpdateOrInsertUsersNpvrMark(DevicePlayData devicePlayData, MediaPlayActions action, bool isFirstPlay, bool isReportingMode, int loactionSec, 
+                                                       int fileDuration, long recordingId, eExpirationTTL ttl)
         {
-            long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
+            devicePlayData.AssetAction = action.ToString();
+            devicePlayData.TimeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            devicePlayData.CreatedAt = isFirstPlay ? devicePlayData.TimeStamp : devicePlayData.CreatedAt;
+            devicePlayData.NpvrId = recordingId.ToString();
 
-            DevicePlayData devicePlayData = new DevicePlayData
-               (udid, int.Parse(assetId), userId, timeStamp, ePlayType.NPVR, action, deviceFamilyId, createdAt, programId, recordingId.ToString());
-
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
-
-            string mmKey = UtilsDal.getUserNpvrMarkDocKey(userId, assetId);
+            if (action == MediaPlayActions.STOP || action == MediaPlayActions.FINISH)
+            {
+                DeleteDevicePlayData(devicePlayData.UDID);
+            }
+            else
+            {
+                UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, ttl);
+            }
+            
+            string mmKey = UtilsDal.GetUserNpvrMarkDocKey(devicePlayData.UserId, devicePlayData.NpvrId);
             int limitRetries = RETRY_LIMIT;
             bool hitSuccess = false;
             bool shouldUpdateLocation = false;
             UserMediaMark userMediaMark = devicePlayData.ConvertToUserMediaMark(loactionSec, fileDuration, (int)eAssetTypes.NPVR);
+            Random r = new Random();
 
             var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             while (limitRetries >= 0 && !hitSuccess)
             {
-                shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, udid, ref limitRetries, r, mmKey, ref hitSuccess, userMediaMark, 95);
+                shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitManager, devicePlayData.UDID, ref limitRetries, r, mmKey, ref hitSuccess, userMediaMark, 95);
             }
 
             bool markSuccess = false;
@@ -2267,25 +2224,30 @@ namespace Tvinci.Core.DAL
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
                 while (limitRetries >= 0 && !markSuccess)
                 {
-                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, udid, ref limitRetries, r, mmKey, ref markSuccess, userMediaMark);
+                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, devicePlayData.UDID, ref limitRetries, r, mmKey, ref markSuccess, userMediaMark);
                 }
             }
         }
 
-        public static void UpdateOrInsert_UsersEpgMark(int userId, string udid, int assetID, int loactionSec, int fileDuration, MediaPlayActions action, 
-                                                       bool isFirstPlay, int deviceFamilyId, long programId, bool isReportingMode)
+        public static void UpdateOrInsertUsersEpgMark(DevicePlayData devicePlayData, MediaPlayActions action, bool isFirstPlay, bool isReportingMode, int loactionSec,
+                                                        int fileDuration, eExpirationTTL ttl)
         {
+            devicePlayData.AssetAction = action.ToString();
+            devicePlayData.TimeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            devicePlayData.CreatedAt = isFirstPlay ? devicePlayData.TimeStamp : devicePlayData.CreatedAt;
 
-            long timeStamp = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            long createdAt = GetOldDevicePlayDataCreatedAt(isFirstPlay, timeStamp, udid);
+            if (action == MediaPlayActions.STOP || action == MediaPlayActions.FINISH)
+            {
+                DeleteDevicePlayData(devicePlayData.UDID);
+            }
+            else
+            {
+                UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, ttl);
+            }
 
-            DevicePlayData devicePlayData = new DevicePlayData
-               (udid, assetID, userId, timeStamp, ePlayType.EPG, action, deviceFamilyId, createdAt, programId, string.Empty);
-
-            Random r = UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode);
-
-            string mmKey = UtilsDal.getUserEpgMarkDocKey(userId, assetID.ToString());
+            string mmKey = UtilsDal.GetUserEpgMarkDocKey(devicePlayData.UserId, devicePlayData.AssetId);
             UserMediaMark userMediaMark = devicePlayData.ConvertToUserMediaMark(loactionSec, fileDuration, (int)eAssetTypes.EPG);
+            Random r = new Random();
 
             if (isFirstPlay)
             {
@@ -2297,16 +2259,16 @@ namespace Tvinci.Core.DAL
             UpdateOrInsert_UserEpgMarkOrHit(mediaHitsManager, r, userMediaMark, mmKey);
         }
 
-        public static Random UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData, bool isReportingMode)
+        public static void UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData, bool isReportingMode, eExpirationTTL ttl)
         {
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-
             if (!isReportingMode)
             {
+                int limitRetries = RETRY_LIMIT;
+                Random r = new Random();
+
                 while (limitRetries >= 0)
                 {
-                    if (!SaveDomainPlayData(devicePlayData))
+                    if (!SaveDevicePlayData(devicePlayData, ttl))
                     {
                         Thread.Sleep(r.Next(50));
                         limitRetries--;
@@ -2315,26 +2277,8 @@ namespace Tvinci.Core.DAL
                         break;
                 }
             }
-            
-            return r;
         }
-
-        private static long GetOldDevicePlayDataCreatedAt(bool isFirstPlay, long timeStamp, string udid)
-        {
-            long createdAt = timeStamp;
-
-            if (!isFirstPlay)
-            {
-                var oldDevicePlayData = GetDevicePlayData(udid);
-                if (oldDevicePlayData != null)
-                {
-                    createdAt = oldDevicePlayData.CreatedAt;
-                }
-            }
-
-            return createdAt;
-        }
-
+        
         private static bool UpdateOrInsert_UserEpgMarkOrHit(CouchbaseManager.CouchbaseManager manager, Random r, UserMediaMark dev, string mmKey)
         {
             bool success = false;
@@ -2378,7 +2322,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastPosition(string NpvrID, int userID)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            string key = UtilsDal.getUserNpvrMarkDocKey(userID, NpvrID);
+            string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
             var data = cbManager.Get<string>(key);
             if (data == null)
                 return 0;
@@ -2465,16 +2409,20 @@ namespace Tvinci.Core.DAL
             switch (assetType)
             {
                 case eAssetTypes.EPG:
-                    foreach (int userID in users)
+                    long epgId;
+                    if (long.TryParse(assetID, out epgId))
                     {
-                        userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
-                        userKeys.Add(userDocKey);
+                        foreach (int userID in users)
+                        {
+                            userDocKey = UtilsDal.GetUserEpgMarkDocKey(userID, epgId);
+                            userKeys.Add(userDocKey);
+                        }
                     }
                     break;
                 case eAssetTypes.NPVR:
                     foreach (int userID in users)
                     {
-                        userDocKey = UtilsDal.getUserNpvrMarkDocKey(userID, assetID);
+                        userDocKey = UtilsDal.GetUserNpvrMarkDocKey(userID, assetID);
                         userKeys.Add(userDocKey);
                     }
                     break;
@@ -2484,7 +2432,7 @@ namespace Tvinci.Core.DAL
                     {
                         foreach (int userID in users)
                         {
-                            userDocKey = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
+                            userDocKey = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
                             userKeys.Add(userDocKey);
                         }
                     }
@@ -2529,9 +2477,9 @@ namespace Tvinci.Core.DAL
             // create Keys 
             List<string> keys = new List<string>();
             string docKey = string.Empty;
-            foreach (int user in usersKey)
+            foreach (int userId in usersKey)
             {
-                docKey = UtilsDal.getUserMediaMarkDocKey(user, media_id);
+                docKey = UtilsDal.GetUserMediaMarkDocKey(userId.ToString(), media_id);
                 keys.Add(docKey);
             }
             // get all documents from CB
@@ -4226,115 +4174,102 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static PlayCycleSession InsertPlayCycleSession(string userId, int mediaFileId, int groupId, string udid, int platform, int domainId, 
-                                                              List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, 
-                                                              int mediaId, long programId, int deviceFamilyId)
+        public static string GetOrInsertPlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform,
+                                                     long countryID, int mcRuleID, int groupID, bool justInsert)
         {
-            // save firstPlay in cache
-            if (deviceFamilyId > 0)
+            string res = string.Empty;
+            StoredProcedure sp = new StoredProcedure("GetOrInsert_PlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", siteGuid ?? string.Empty);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@RuleID", mcRuleID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@JustInsert", justInsert);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                DevicePlayData devicePlayData = new DevicePlayData
-                    (udid, mediaId, int.Parse(userId), 0, ePlayType.MEDIA, MediaPlayActions.NONE, deviceFamilyId, 0, programId, string.Empty)
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                    AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
-                    AssetEpgConcurrencyRuleIds = assetEpgRuleIds
-                };
-
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false);
-            }
-            
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
-            int limitRetries = RETRY_LIMIT;
-            PlayCycleSession playCycleSession = null;
-            Random sleepVal = new Random();
-
-            // create new playCycleKey even when updating an existing document since its a new session
-            string playCycleKey = Guid.NewGuid().ToString();
-
-            try
-            {
-                int mediaConcurrencyRuleID = (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0) ? mediaConcurrencyRuleIds[0] : 0;
-                string docKey = UtilsDal.GetPlayCycleKey(userId, mediaFileId, groupId, udid, platform);
-
-                ulong version;
-                playCycleSession = cbClient.GetWithVersion<PlayCycleSession>(docKey, out version);
-
-                if (version != 0 && playCycleSession != null)
-                {
-                    playCycleSession.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-                    playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
-                    playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-                    playCycleSession.PlayCycleKey = playCycleKey;
-                    playCycleSession.DomainID = domainId;
-                    playCycleSession.AssetMediaRuleIds = assetMediaRuleIds;
-                    playCycleSession.AssetEpgRuleIds = assetEpgRuleIds;
-                }
-                else
-                {
-                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainId,
-                                                            mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
-                }
-
-                int ttl = CB_PLAYCYCLE_DOC_EXPIRY_MIN;
-                bool shouldUseTtl = ttl > 0;
-
-                bool setResult = cbClient.SetWithVersionWithRetry<PlayCycleSession>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl * 60));
-
-                if (!setResult)
-                {
-                    playCycleSession = null;
+                    res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["PLAY_CYCLE_KEY"]);
                 }
             }
-            catch (Exception ex)
+
+            return res;
+        }
+
+        /// <summary>
+        /// only insert (with no checks)
+        /// </summary>
+        /// <param name="siteGuid"></param>
+        /// <param name="mediaID"></param>
+        /// <param name="mediaFileID"></param>
+        /// <param name="udid"></param>
+        /// <param name="platform"></param>
+        /// <param name="countryID"></param>
+        /// <param name="mcRuleID"></param>
+        /// <param name="groupID"></param>
+        /// <param name="playCycleKey"></param>
+        public static void InsertPlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform, long countryID,
+                                              int mcRuleID, int groupID, string playCycleKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@RuleID", mcRuleID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PlayCycleKey", playCycleKey);
+            sp.ExecuteNonQuery();
+        }
+
+        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, 
+                                                          List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType, 
+                                                          string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
+        {
+            DevicePlayData devicePlayData = GetDevicePlayData(udid);
+            if (devicePlayData != null)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetMediaRuleIds: {7}, assetEpgRuleIds: {8} Exception: {9}",
-                    userId, groupId, udid, platform,
-                    mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0", 
-                    playCycleKey, mediaFileId,
-                    assetMediaRuleIds != null ? string.Join(",", assetMediaRuleIds) : "0",
-                    assetEpgRuleIds != null ? string.Join(",", assetEpgRuleIds) : "0",
-                    ex.Message);
+                devicePlayData.UserId = userId;
+                devicePlayData.DomainId = domainId;
+                devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+                devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
+                devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
+                devicePlayData.AssetId = assetId;
+                devicePlayData.ProgramId = programId;
+                devicePlayData.DeviceFamilyId = deviceFamilyId;
+                devicePlayData.playType = playType.ToString();
+                devicePlayData.NpvrId = npvrId;
+            }
+            // save firstPlay in cache 
+            // TODO SHIR - CHECK THE IF
+            else if (deviceFamilyId > 0)
+            {
+                devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
+                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
             }
 
-            if (playCycleSession == null)
+            if (devicePlayData != null)
             {
-                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, assetMediaRuleIds: {7}, assetEpgRuleIds: {8}",
-                                 userId, groupId, udid, platform,
-                                 mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0",
-                                 playCycleKey, mediaFileId,
-                                 assetMediaRuleIds != null ? string.Join(",", assetMediaRuleIds) : "0",
-                                 assetEpgRuleIds != null ? string.Join(",", assetEpgRuleIds) : "0");
+                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
             }
-            return playCycleSession;
+                        
+            return devicePlayData;
         }
 
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
-
-            PlayCycleSession playCycleSession = null;
-            try
-            {
-                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
-                double ttl = (double)CB_PLAYCYCLE_DOC_EXPIRY_MIN;
-                bool shouldUseTtl = ttl > 0;
-
-                playCycleSession = cbClient.Get<PlayCycleSession>(docKey);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed GetUserPlayCycle, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}, Exception: {5}",
-                                 siteGuid, groupID, UDID, platform, MediaFileID, ex.Message);
-            }
-
-            if (playCycleSession == null)
-            {
-                log.ErrorFormat("Error in GetUserPlayCycle, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}",
-                                 siteGuid, groupID, UDID, platform, MediaFileID);
-            }
-
-            return playCycleSession;
+            string key = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
+            return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key);
         }
 
         public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
@@ -4619,24 +4554,33 @@ namespace Tvinci.Core.DAL
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
-            return UtilsDal.SaveObjectInCB<Dictionary<string, int>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevices);
+            List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value } ));
+            return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList);
         }
 
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
             string key = GetDomainDevicesKey(domainId);
-            return UtilsDal.GetObjectFromCB<Dictionary<string, int>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
+            return UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key).ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
         }
-
-        private static string GetDomainPlayDataKey(string udid)
+        
+        private static string GetDevicePlayDataKey(string udid)
         {
             return string.Format("device_play_data_{0}", udid);
         }
 
-        private static bool SaveDomainPlayData(DevicePlayData devicePlayData)
+        private static bool SaveDevicePlayData(DevicePlayData devicePlayData, eExpirationTTL expirationTTL)
         {
-            string key = GetDomainPlayDataKey(devicePlayData.UDID);
-            return UtilsDal.SaveObjectInCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, devicePlayData, 65);
+            string key = GetDevicePlayDataKey(devicePlayData.UDID);
+            uint ttl = (uint)(expirationTTL == eExpirationTTL.Short ? SHORT_TTL : LONG_TTL);
+
+            return UtilsDal.SaveObjectInCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, devicePlayData, ttl);
+        }
+
+        public static bool DeleteDevicePlayData(string udid)
+        {
+            string key = GetDevicePlayDataKey(udid);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
         public static List<DevicePlayData> GetDomainPlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl)
@@ -4646,7 +4590,7 @@ namespace Tvinci.Core.DAL
                 List<string> keys = new List<string>();
                 foreach (var currDevice in domainDevices)
                 {
-                    keys.Add(GetDomainPlayDataKey(currDevice.Key));
+                    keys.Add(GetDevicePlayDataKey(currDevice.Key));
                 }
 
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
@@ -4690,7 +4634,7 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData GetDevicePlayData(string udid)
         {
-            string key = GetDomainPlayDataKey(udid);
+            string key = GetDevicePlayDataKey(udid);
             return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
     }

@@ -1275,11 +1275,6 @@ namespace DAL
             return nActivationStatus;
         }
         
-        public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStat)
-        {
-            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster, ref eSuspendStat);
-        }
-
         public static List<int> GetDomainIDsByEmail(int nGroupID, string sEmail)
         {
             List<int> lDomainIDs = new List<int>();
@@ -1742,7 +1737,7 @@ namespace DAL
             return null;
         }
 
-        public static long Get_DomainDataBySiteGuid(int nGroupID, long lSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eDomainSuspendStatus)
+        public static int GetDomainIDBySiteGuid(int nGroupID, long lSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eDomainSuspendStatus)
         {
             long res = 0;
             StoredProcedure sp = new StoredProcedure("Get_DomainDataBySiteGuid");
@@ -1767,7 +1762,7 @@ namespace DAL
                 }
             }
 
-            return res;
+            return (int)res;
         }
 
         public static DataTable Get_DomainDevices(int nGroupID, long lDomainID)
