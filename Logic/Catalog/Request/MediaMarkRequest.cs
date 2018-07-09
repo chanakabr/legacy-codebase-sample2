@@ -244,8 +244,9 @@ namespace Core.Catalog.Request
             }
 
             DevicePlayData devicePlayData = 
-                this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, (mediaPlayAction == MediaPlayActions.FIRST_PLAY), 
-                                                                       playType, recordingId.ToString(), platform, countryId, ttl);
+                this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, this.IsLinearChannel(mediaTypeId), 
+                                                                       playType, this.domainId, recordingId.ToString(), platform, countryId, ttl);
+
             if (devicePlayData == null)
             {
                 return;

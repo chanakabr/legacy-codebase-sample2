@@ -157,7 +157,9 @@ namespace Core.Catalog.Request
                         countryId = Utils.GetIP2CountryId(this.m_nGroupID, this.m_sUserIP);
                     }
 
-                    var devicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, false, ePlayType.NPVR, 0, 
+                    bool isLinearChannel = IsLinearChannel((int)this.m_oMediaPlayRequestData.m_eAssetType);
+
+                    var devicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, isLinearChannel, ePlayType.NPVR, 0, 
                                                                                            recordingId.ToString(), platform, countryId);
 
                     if (devicePlayData == null)
