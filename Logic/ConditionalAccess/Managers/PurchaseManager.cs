@@ -1385,7 +1385,14 @@ namespace Core.ConditionalAccess
                                     else
                                     // If subscription is not recurring, enqueue subscription ends message
                                     {
-                                        if (IsDoublePurchase) // reminder message
+                                        object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
+                                        bool blockDoublePurchase = false;
+                                        if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value)
+                                        {
+                                            bool.TryParse(dbBlockDoublePurchase.ToString(), out blockDoublePurchase);
+                                        }
+
+                                        if (!blockDoublePurchase) // reminder message
                                         {
                                             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
                                             PurchaseManager.SendRenewalReminder(data, householdId);
