@@ -4548,7 +4548,7 @@ namespace Tvinci.Core.DAL
 
         private static string GetDomainDevicesKey(long domainId)
         {
-            return string.Format("domain_devices_{0}", domainId);
+            return string.Format("domain_devices_mapping_{0}", domainId);
         }
         
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
