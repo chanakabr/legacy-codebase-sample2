@@ -1931,5 +1931,10 @@ namespace Core.Api
         {
             return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
         }
+
+        public static DrmAdapterListResponse GetDrmAdapters(int groupId)
+        {
+            return Core.Api.api.GetDrmAdapters(groupId);
+        }
     }
 }
