@@ -209,30 +209,18 @@ namespace DAL
         #endregion
 
         #region Keys
-
-        public static string getUserMediaMarkDocKey(int nSiteUserGuid, int nMediaID)
+        
+        public static string GetUserMediaMarkDocKey(string siteUserGuid, int mediaId)
         {
-            return string.Format("u{0}_m{1}", nSiteUserGuid, nMediaID);
+            return string.Format("u{0}_m{1}", siteUserGuid, mediaId);
         }
 
-        public static string getUserMediaMarkDocKey(string sSiteUserGuid, int nMediaID)
+        public static string GetUserNpvrMarkDocKey(int siteUserGuid, string npvrId)
         {
-            return string.Format("u{0}_m{1}", sSiteUserGuid, nMediaID);
+            return string.Format("u{0}_n{1}", siteUserGuid, npvrId);
         }
-
-        public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
-        {
-            return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
-
-        }
-
-        public static string getUserNpvrMarkDocKey(string userId, int npvrId)
-        {
-            return string.Format("u{0}_n{1}", userId, npvrId);
-
-        }
-
-        public static string getUserEpgMarkDocKey(int userID, string epgID)
+        
+        public static string GetUserEpgMarkDocKey(int userID, long epgID)
         {
             return string.Format("u{0}_epg{1}", userID, epgID);
         }

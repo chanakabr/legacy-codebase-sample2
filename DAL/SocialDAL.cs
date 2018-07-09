@@ -163,7 +163,7 @@ namespace DAL
 
                 foreach (int nUserID in lFriendsList)
                 {
-                    docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
+                    docKeysList.Add(UtilsDal.GetUserMediaMarkDocKey(nUserID.ToString(), nMediaID));
                 }
 
                 IDictionary<string, MediaMarkLog> res = cbManager.GetValues<MediaMarkLog>(docKeysList, true, true);
@@ -184,7 +184,7 @@ namespace DAL
 
             foreach (int userID in lFriendsGuidList)
             {
-                docKeysList.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userID, nMediaID));
+                docKeysList.Add(DAL.UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), nMediaID));
             }
 
             IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
