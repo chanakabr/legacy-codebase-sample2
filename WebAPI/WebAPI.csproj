@@ -223,6 +223,7 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetStructMetaController.cs" />
     <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\MediaFileTypeController.cs" />

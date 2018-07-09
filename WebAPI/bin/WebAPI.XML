@@ -417,6 +417,11 @@
             <param name="id">bulk action id</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.DrmProfileController.List">
+            <summary>
+            Returns all DRM adapters for partner
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.MediaFileController.Add(WebAPI.Models.Catalog.KalturaMediaFile)">
             <summary>
             Add a new media file
