@@ -50,7 +50,6 @@ namespace SubscriptionRenewHandler
                             success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
                             break;
                         }
-                    case eSubscriptionRenewRequestType.Reminder:
                     case eSubscriptionRenewRequestType.GiftCardReminder:
                         {
                             success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
@@ -74,10 +73,11 @@ namespace SubscriptionRenewHandler
                             }
                             break;
                         }
+                    case eSubscriptionRenewRequestType.Reminder:
                     case eSubscriptionRenewRequestType.SubscriptionEnds:
                         {
                             success = Core.ConditionalAccess.Module.SubscriptionEnds(request.GroupID, request.SiteGuid, request.HouseholdId, 
-                                request.PurchaseId, request.EndDate);
+                                request.PurchaseId, request.EndDate, requestType == eSubscriptionRenewRequestType.Reminder);
                             break;
                         }
                     default:
