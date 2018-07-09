@@ -2862,8 +2862,14 @@ namespace WebAPI.Reflection
                 case "KalturaAssetStruct":
                     switch(property.Name)
                     {
+                        case "ConnectedParentMetaId":
+                            return "connectedParentMetaId";
+                        case "ConnectingMetaId":
+                            return "connectingMetaId";
                         case "CreateDate":
                             return "createDate";
+                        case "Features":
+                            return "features";
                         case "Id":
                             return "id";
                         case "IsProtected":
@@ -2872,6 +2878,10 @@ namespace WebAPI.Reflection
                             return "metaIds";
                         case "Name":
                             return "name";
+                        case "ParentId":
+                            return "parentId";
+                        case "PluralName":
+                            return "pluralName";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":

@@ -79,12 +79,12 @@ namespace WebAPI.Controllers
             }
 
             assetStruct.Name.Validate("multilingualName");
-            if (string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
+            if (string.IsNullOrEmpty(assetStruct.SystemName) || string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            assetStruct.ValidateMetaIds();
+            assetStruct.Validate();
             try
             {                
                 response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStruct, userId);
@@ -111,6 +111,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
+        [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
@@ -129,12 +130,13 @@ namespace WebAPI.Controllers
                 }
             }
 
-            if (assetStruct.SystemName != null && assetStruct.SystemName.Trim() == string.Empty)
+            if (assetStruct.SystemName != null &&  assetStruct.SystemName.Trim() == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
+            
+            assetStruct.Validate();
 
-            assetStruct.ValidateMetaIds();
             try
             {                
                 response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStruct, userId);

@@ -6527,6 +6527,31 @@
             Specifies when was the Asset Struct last updated. Date and time represented as epoch.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Features">
+            <summary>
+            List of supported features
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.PluralName">
+            <summary>
+            Plural Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ParentId">
+            <summary>
+            AssetStruct parent Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ConnectingMetaId">
+            <summary>
+            connectingMetaId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ConnectedParentMetaId">
+            <summary>
+            connectedParentMetaId
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLinearMediaAsset">
             <summary>
             Linear media asset info
