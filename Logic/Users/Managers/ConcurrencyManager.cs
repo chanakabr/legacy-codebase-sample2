@@ -46,6 +46,11 @@ namespace Core.Users
             {
                 status = ValidateDeviceFamilyConcurrency(devicePlayData, groupId, domain);
             }
+            
+            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
+            {
+                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
+            }
 
             return status;
         }
@@ -215,11 +220,11 @@ namespace Core.Users
                     List<DevicePlayData> assetDevicePlayData = null;
                     if (assetType == eAssetTypes.MEDIA)
                     {
-                        assetDevicePlayData = GetAssetMediaDevicePlayData(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
+                        assetDevicePlayData = GetAssetMediaDevicePlayDataByRestrictionPolicy(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
                     }
                     else if (assetType == eAssetTypes.EPG)
                     {
-                        assetDevicePlayData = GetAssetEpgDevicePlayData(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
+                        assetDevicePlayData = GetAssetEpgDevicePlayDataByRestrictionPolicy(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
                     }
                      
 
@@ -242,8 +247,8 @@ namespace Core.Users
             return DomainResponseStatus.OK;
         }
 
-        private static List<DevicePlayData> GetAssetMediaDevicePlayData(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData, 
-                                                                        long mediaId, int assetRuleId)
+        private static List<DevicePlayData> GetAssetMediaDevicePlayDataByRestrictionPolicy(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData, 
+                                                                                           long mediaId, int assetRuleId)
         {
             List<DevicePlayData> assetDevicePlayData = null;
 
@@ -266,8 +271,8 @@ namespace Core.Users
             return assetDevicePlayData;
         }
 
-        private static List<DevicePlayData> GetAssetEpgDevicePlayData(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData,
-                                                                      long programId, int assetRuleId)
+        private static List<DevicePlayData> GetAssetEpgDevicePlayDataByRestrictionPolicy(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData,
+                                                                                         long programId, int assetRuleId)
         {
             List<DevicePlayData> assetDevicePlayData = null;
 
@@ -374,20 +379,20 @@ namespace Core.Users
         private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, DevicePlayData currDevicePlayData, List<DevicePlayData> otherDeviceFamilyIds)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
-
+            
             if (deviceConcurrencyPriority != null)
             {
                 int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(currDevicePlayData.DeviceFamilyId);
 
                 if (currDevicePriorityIndex != -1)
                 {
-                    List<DevicePlayData> lst = new List<DevicePlayData>();
+                    List<DevicePlayData> devicesWithSameFamilyId = new List<DevicePlayData>();
 
                     foreach (var otherDeviceFamilyId in otherDeviceFamilyIds.OrderBy(x => x.CreatedAt))
                     {
                         if (currDevicePlayData.DeviceFamilyId == otherDeviceFamilyId.DeviceFamilyId)
                         {
-                            lst.Add(otherDeviceFamilyId);
+                            devicesWithSameFamilyId.Add(otherDeviceFamilyId);
                         }
 
                         int otherDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(otherDeviceFamilyId.DeviceFamilyId);
@@ -397,16 +402,16 @@ namespace Core.Users
                         }
                     }
 
-                    if (lst.Count > 0)
+                    if (devicesWithSameFamilyId.Count > 0)
                     {
                         if (deviceConcurrencyPriority.PriorityOrder == DowngradePolicy.FIFO &&
-                            (lst[0].CreatedAt < currDevicePlayData.CreatedAt || currDevicePlayData.CreatedAt == 0))
+                            (devicesWithSameFamilyId[0].CreatedAt < currDevicePlayData.CreatedAt))
                         {
                             return DomainResponseStatus.OK;
                         }
 
                         if (deviceConcurrencyPriority.PriorityOrder == DowngradePolicy.LIFO &&
-                           lst[lst.Count - 1].CreatedAt > currDevicePlayData.CreatedAt && 
+                           devicesWithSameFamilyId[devicesWithSameFamilyId.Count - 1].CreatedAt > currDevicePlayData.CreatedAt && 
                            currDevicePlayData.CreatedAt != 0)
                         {
                             return DomainResponseStatus.OK;
