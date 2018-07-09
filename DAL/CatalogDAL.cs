@@ -1488,65 +1488,7 @@ namespace Tvinci.Core.DAL
 
             return 0;
         }
-
-        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, List<ePlayType> playTypes)
-        {
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
-
-            string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
-            var data = domainMarksManager.Get<string>(docKey);
-
-            if (data == null)
-                return null;
-
-            List<string> playTypesStrings = new List<string>();
-
-            if (playTypes != null)
-            {
-                // If all - leave it as an empty list. empty list means everything
-                if (!playTypes.Contains(ePlayType.ALL))
-                {
-                    playTypesStrings = playTypes.Select(t => t.ToString()).ToList();
-                }
-            }
-
-            Random r = new Random();
-            List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
-
-            DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                // either the list is empty (which means all play types) or x's type is in the list)
-                (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
-                !playActions.Contains(x.AssetAction.ToLower())).ToList();
-
-            //Cleaning old ones...
-            int limitRetries = RETRY_LIMIT;
-            while (limitRetries >= 0)
-            {
-                ulong version;
-                var marks = domainMarksManager.GetWithVersion<string>(docKey, out version);
-
-                DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks);
-
-                dm.devices = dm.devices.Where(x =>
-                    x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                    // either the list is empty (which means all play types) or x's type is in the list)
-                    (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
-
-                bool res = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
-
-                if (!res)
-                {
-                    Thread.Sleep(r.Next(50));
-                    limitRetries--;
-                }
-                else
-                    break;
-            }
-
-            return domainMarks.devices;
-        }
-
+        
         public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
@@ -4187,34 +4129,43 @@ namespace Tvinci.Core.DAL
                                                           List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType, 
                                                           string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
         {
-            DevicePlayData devicePlayData = GetDevicePlayData(udid);
-            if (devicePlayData != null)
+            if (mediaPlayAction == MediaPlayActions.STOP || mediaPlayAction == MediaPlayActions.FINISH)
             {
-                devicePlayData.UserId = userId;
-                devicePlayData.DomainId = domainId;
-                devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-                devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
-                devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
-                devicePlayData.AssetId = assetId;
-                devicePlayData.ProgramId = programId;
-                devicePlayData.DeviceFamilyId = deviceFamilyId;
-                devicePlayData.playType = playType.ToString();
-                devicePlayData.NpvrId = npvrId;
+                DeleteDevicePlayData(udid);
+                return null;
             }
-            // save firstPlay in cache 
-            // TODO SHIR - CHECK THE IF
-            else if (deviceFamilyId > 0)
+            else
             {
-                devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
-            }
+                DevicePlayData devicePlayData = GetDevicePlayData(udid);
+                if (devicePlayData != null)
+                {
+                    devicePlayData.AssetId = assetId;
+                    devicePlayData.UserId = userId;
+                    devicePlayData.playType = playType.ToString();
+                    devicePlayData.AssetAction = mediaPlayAction.ToString();
+                    devicePlayData.DeviceFamilyId = deviceFamilyId;
+                    devicePlayData.ProgramId = programId;
+                    devicePlayData.NpvrId = npvrId;
+                    devicePlayData.DomainId = domainId;
+                    devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+                    devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
+                    devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
+                }
+                // save firstPlay in cache 
+                // TODO SHIR - CHECK THE IF
+                else if (deviceFamilyId > 0)
+                {
+                    devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
+                                                        domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
+                }
 
-            if (devicePlayData != null)
-            {
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
+                if (devicePlayData != null)
+                {
+                    CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
+                }
+
+                return devicePlayData;
             }
-                        
-            return devicePlayData;
         }
 
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
@@ -4540,50 +4491,36 @@ namespace Tvinci.Core.DAL
         }
 
         public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid)
-        {            
+        {
             if (domainDevices != null && domainDevices.Count > 0)
             {
-                List<string> keys = new List<string>();
-                foreach (var currDevice in domainDevices)
+                List<string> devicePlayDataKeys = new List<string>();
+                foreach (var domainDevice in domainDevices)
                 {
-                    keys.Add(GetDevicePlayDataKey(currDevice.Key));
+                    devicePlayDataKeys.Add(GetDevicePlayDataKey(domainDevice.Key));
                 }
 
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+                List<DevicePlayData> devicePlayDataList = UtilsDal.GetObjectListFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, devicePlayDataKeys);
 
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-                try
+                if (devicePlayDataList != null && devicePlayDataList.Count > 0)
                 {
-                    var cbValues = cbManager.GetValues<string>(keys, true);
+                    List<string> playTypesString = new List<string>();
 
-                    if (cbValues != null)
+                    // If all - leave it as an empty list. empty list means everything
+                    if (playTypes != null && !playTypes.Contains(ePlayType.ALL))
                     {
-                        List<DevicePlayData> domainPlayData = 
-                            new List<DevicePlayData>(cbValues.Select(x => JsonConvert.DeserializeObject<DevicePlayData>(x.Value, jsonSerializerSettings)));
-                        
-                        List<string> playTypesStrings = new List<string>();
-
-                        // If all - leave it as an empty list. empty list means everything
-                        if (playTypes != null && !playTypes.Contains(ePlayType.ALL))
-                        {
-                            playTypesStrings.AddRange(playTypes.Select(t => t.ToString()));
-                        }
-
-                        List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
-                        
-                        var filteredDevices = domainPlayData.Where(x => !x.UDID.Equals(udid) && 
-                            Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
-                            // either the list is empty (which means all play types) or x's type is in the list)
-                            (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
-                            !playActions.Contains(x.AssetAction.ToLower())).ToList();
-
-                        return filteredDevices;
+                        playTypesString.AddRange(playTypes.Select(t => t.ToString()));
                     }
+
+                    HashSet<string> playActions = new HashSet<string>() { MediaPlayActions.FINISH.ToString().ToUpper(), MediaPlayActions.STOP.ToString().ToUpper() };
+
+                    return devicePlayDataList.Where(x => !x.UDID.Equals(udid) &&
+                                                         Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                                                         (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
+                                                         !playActions.Contains(x.AssetAction.ToUpper())).ToList();
                 }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to GetDomainPlayData. keys: {0}, ex: {1}", string.Join(", ", keys), ex);
-                }
+
+                return devicePlayDataList;
             }
 
             return null;
@@ -4642,10 +4579,11 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority,
-                                                bool? isPredefined, long userId)
+        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, 
+                                                List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
+                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetStruct");
+            StoredProcedure sp = new StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
@@ -4656,14 +4594,20 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@Features", features);
+            sp.AddParameter("@ConnectingMetaId", connectingMetaId);
+            sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
+            sp.AddParameter("@PluralName", pluralName);
+            sp.AddParameter("@ParentId", parentId);
 
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
-                                                bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
+        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, 
+                                                string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId,
+                                                string features, long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
+            StoredProcedure sp = new StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
@@ -4674,8 +4618,14 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@Features", features);
+            sp.AddParameter("@ConnectingMetaId", connectingMetaId);
+            sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
+            sp.AddParameter("@PluralName", pluralName);
+            sp.AddParameter("@ParentId", parentId);
 
             return sp.ExecuteDataSet();
+            // TODO SHIR - ASK LIOR IF NEED TO ALSO update ALL children BY PARENT_ID/CONNECTED_PARENT_META_ID..
         }
 
         public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality,
@@ -4703,6 +4653,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
+            // TODO SHIR - ASK LIOR IF NEED TO ALSO DELETE ALL children BY PARENT_ID/CONNECTED_PARENT_META_ID..
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
