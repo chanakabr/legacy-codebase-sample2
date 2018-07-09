@@ -10346,10 +10346,10 @@ namespace Core.Api
                     switch (asset.Value)
                     {
                         case eAssetTypes.NPVR:
-                            assetHistoryKeys.Add(DAL.UtilsDal.getUserNpvrMarkDocKey(userId, asset.Key));
+                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserNpvrMarkDocKey(int.Parse(userId), asset.Key.ToString()));
                             break;
                         case eAssetTypes.MEDIA:
-                            assetHistoryKeys.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userId, asset.Key));
+                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserMediaMarkDocKey(userId, asset.Key));
                             break;
                         default:
                             break;

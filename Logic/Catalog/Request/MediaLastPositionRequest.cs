@@ -109,7 +109,7 @@ namespace Core.Catalog.Request
         private MediaLastPositionResponse ProcessMediaLastPositionRequest(MediaLastPositionRequest request)
         {
             MediaLastPositionResponse response = new MediaLastPositionResponse();
-            int nSiteGuid = 0;
+            int userId = 0;
             int pos = 0;
 
             if (request.data.m_nMediaID == 0)
@@ -117,9 +117,9 @@ namespace Core.Catalog.Request
                 response.m_sStatus = "INVALID_PARAMS";
             }
             //non-anonymous user
-            else if (!string.IsNullOrEmpty(request.data.m_sSiteGuid) && Int32.TryParse(request.data.m_sSiteGuid, out nSiteGuid) || nSiteGuid != 0)
+            else if (!string.IsNullOrEmpty(request.data.m_sSiteGuid) && Int32.TryParse(request.data.m_sSiteGuid, out userId) || userId != 0)
             {
-                pos = CatalogLogic.GetLastPosition(request.data.m_nMediaID, nSiteGuid);
+                pos = CatalogLogic.GetLastPosition(request.data.m_nMediaID, userId);
             }
 
             response.Location = pos;

@@ -34,10 +34,11 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("mediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
 
-        // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
-        // TODO SHIR - add this fun to DR
         [JsonProperty("assetMediaConcurrencyRuleIds")]
         public List<long> AssetMediaConcurrencyRuleIds { get; set; }
+
+        [JsonProperty("assetEpgConcurrencyRuleIds")]
+        public List<long> AssetEpgConcurrencyRuleIds { get; set; }
 
         [JsonProperty("deviceFamilyId")]
         public int DeviceFamilyId { get; set; }

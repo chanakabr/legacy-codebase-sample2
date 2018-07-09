@@ -102,4 +102,10 @@ namespace ApiObjects.Catalog
         HOUSEHOLD = 0,
         PERSONAL = 1
     }
+
+    public enum eExpirationTTL
+    {
+        Short,
+        Long
+    }
 }

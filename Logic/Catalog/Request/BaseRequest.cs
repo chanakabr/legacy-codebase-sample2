@@ -13,6 +13,7 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using DAL;
 using Core.Catalog.Response;
+using GroupsCacheManager;
 
 namespace Core.Catalog.Request
 {
@@ -171,10 +172,28 @@ namespace Core.Catalog.Request
                 throw new Exception("Signatures don't match");
         }     
       
-
         protected virtual void CheckRequestValidness()
         {
             // To be overriden in the inheriting class
+        }
+
+        protected bool IsLinearChannel(int mediaTypeId)
+        {
+            bool isLinearChannel = false;
+            var group = new GroupManager().GetGroup(this.m_nGroupID);
+
+            if (group != null)
+            {
+                // make sure media types list is initialized
+                group.GetMediaTypes();
+
+                if (group.linearChannelMediaTypes != null && group.linearChannelMediaTypes.Contains(mediaTypeId))
+                {
+                    isLinearChannel = true;
+                }
+            }
+
+            return isLinearChannel;
         }
 
         public override string ToString()

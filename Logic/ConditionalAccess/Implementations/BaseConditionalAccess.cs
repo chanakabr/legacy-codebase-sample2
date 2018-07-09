@@ -7,6 +7,7 @@ using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.MediaIndexingObjects;
+using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
 using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
@@ -37,6 +38,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -10598,7 +10600,7 @@ namespace Core.ConditionalAccess
         }
         
         public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
-                                                             string languageCode, string deviceName, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
+                                                             string languageCode, string udid, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
                                                              ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid, long programId = 0)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
@@ -10616,7 +10618,7 @@ namespace Core.ConditionalAccess
                 // validate parameters
                 if ((eLinkType != eObjectType.Recording && string.IsNullOrEmpty(basicLink)) || mediaFileId <= 0)
                 {
-                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", userId, mediaFileId, deviceName, basicLink));
+                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", userId, mediaFileId, udid, basicLink));
 
                     response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
@@ -10640,7 +10642,7 @@ namespace Core.ConditionalAccess
                     blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
                 }
 
-                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, userId, couponCode, true, languageCode, deviceName, ip, null, blockEntitlement);
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, userId, couponCode, true, languageCode, udid, ip, null, blockEntitlement);
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -10695,9 +10697,10 @@ namespace Core.ConditionalAccess
                     DomainResponseStatus mediaConcurrencyResponse;
                     int domainID = 0;
                     List<int> mediaConcurrencyRuleIds = null;
-                    List<long> assetConcurrencyRuleIds = null;
-                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, deviceName, prices, nMediaID, ip, 
-                                                                     ref mediaConcurrencyRuleIds, ref domainID, ref assetConcurrencyRuleIds, programId);
+                    List<long> assetMediaRuleIds = null;
+                    List<long> assetEpgRuleIds = null;
+                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, nMediaID, ip, ref mediaConcurrencyRuleIds, 
+                                                                     ref domainID, ref assetMediaRuleIds, ref assetEpgRuleIds, programId);
 
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
@@ -10709,7 +10712,7 @@ namespace Core.ConditionalAccess
 
                     if (Utils.IsItemPurchased(prices[0]))
                     {
-                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileId, ip, countryCode, languageCode, deviceName, couponCode, domainID, m_nGroupID);
+                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, domainID, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
                     else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && 
@@ -10751,7 +10754,7 @@ namespace Core.ConditionalAccess
                     else if (!string.IsNullOrEmpty(CdnStrID))
                     {
                         Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(userId, mediaFileId.ToString(),
-                            fileMainUrl, ip, countryCode, languageCode, deviceName, couponCode);
+                            fileMainUrl, ip, countryCode, languageCode, udid, couponCode);
 
                         // TO DO if dynamic call to right provider to get the URL
                         if (eLinkType == eObjectType.Media && bIsDynamic)
@@ -10788,7 +10791,8 @@ namespace Core.ConditionalAccess
                     }
                     
                     // create PlayCycle
-                    CreatePlayCycle(userId, mediaFileId, ip, deviceName, nMediaID, mediaConcurrencyRuleIds, domainID, assetConcurrencyRuleIds);
+                    CreateDevicePlayData(userId, mediaFileId, ip, udid, mediaId, mediaConcurrencyRuleIds, 
+                                                     domainID, assetMediaRuleIds, assetEpgRuleIds, programId, eExpirationTTL.Long);
                 }
 
             }
@@ -10806,7 +10810,7 @@ namespace Core.ConditionalAccess
                 sb.Append(String.Concat(" Referrer: ", refferer));
                 sb.Append(String.Concat(" Country Cd: ", countryCode));
                 sb.Append(String.Concat(" Lng Cd: ", languageCode));
-                sb.Append(String.Concat(" Device Name: ", deviceName));
+                sb.Append(String.Concat(" Device Name: ", udid));
                 sb.Append(String.Concat(" Coupon Cd: ", couponCode));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
 
@@ -10825,53 +10829,57 @@ namespace Core.ConditionalAccess
         /// <param name="mediaFileID"></param>
         /// <param name="userIp"></param>
         /// <param name="udid"></param>
-        /// <param name="mediaID"></param>
+        /// <param name="mediaId"></param>
         /// <param name="mediaConcurrencyRuleIds"></param>
-        /// <param name="domainID"></param>
+        /// <param name="domainId"></param>
         /// <param name="assetConcurrencyRuleIds"></param>
-        public void CreatePlayCycle(string userId, Int32 mediaFileID, string userIp, string udid, int mediaID, 
-                                    List<int> mediaConcurrencyRuleIds, int domainID, List<long> assetConcurrencyRuleIds)
+        public void CreateDevicePlayData(string userId, Int32 mediaFileID, string userIp, string udid, int mediaId, List<int> mediaConcurrencyRuleIds, 
+                                                     int domainId, List<long> assetMediaRuleIds, List<long> assetEpgRuleIds, long programId, eExpirationTTL ttl)
         {
-            int ruleID = 0;
-            
-            // take the first rule (probably will be just one rule)
-            if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
-            {
-                ruleID = mediaConcurrencyRuleIds[0];
-            }
-
             // create PlayCycle
-            string sPlayCycleKey;
-            PlayCycleSession playCycleSession = null;
+            string playCycleKey;
+            DevicePlayData devicePlayData = null;
             if (!Utils.IsAnonymousUser(userId))
             {
-                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession
-                    (userId, mediaFileID, m_nGroupID, udid, 0, domainID, mediaConcurrencyRuleIds, assetConcurrencyRuleIds);
+                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, this.m_nGroupID, udid);
+
+                devicePlayData = CatalogDAL.InsertDevicePlayDataToCB(int.Parse(userId), udid, domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, mediaId, programId,
+                                                                 deviceFamilyId, ePlayType.MEDIA, string.Empty, ttl);
             }
 
-            if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
+            if (devicePlayData != null && !string.IsNullOrEmpty(devicePlayData.PlayCycleKey))
             {
-                sPlayCycleKey = playCycleSession.PlayCycleKey;
+                playCycleKey = devicePlayData.PlayCycleKey;
             }
             else
             {
-                sPlayCycleKey = Guid.NewGuid().ToString();
+                playCycleKey = Guid.NewGuid().ToString();
             }
 
             /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
             if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
+                int ruleID = 0;
+
+                // take the first rule (probably will be just one rule)
+                if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
+                {
+                    ruleID = mediaConcurrencyRuleIds[0];
+                }
+
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(userId, mediaID, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
+                CatalogDAL.InsertPlayCycleKey(userId, mediaId, mediaFileID, udid, 0, nCountryID, ruleID, m_nGroupID, playCycleKey);
             }
         }
 
         internal DomainResponseStatus CheckMediaConcurrency(string userId, Int32 mediaFileId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
-                                                            string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetRuleIds, long programId)
+                                                            string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetMediaRuleIds, 
+                                                            ref List<long> assetEpgRuleIds, long programId)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
             mediaConcurrencyRuleIds = new List<int>();
-            assetRuleIds = new List<long>();
+            assetMediaRuleIds = new List<long>();
+            assetEpgRuleIds = new List<long>();
 
             if (Utils.IsAnonymousUser(userId))
             {
@@ -10880,9 +10888,6 @@ namespace Core.ConditionalAccess
 
             try
             {
-                int nDeviceFamilyBrand = 0;
-                long lSiteGuid = 0;
-                long.TryParse(userId, out lSiteGuid);
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
 
                 int bmID = 0;
@@ -10890,7 +10895,8 @@ namespace Core.ConditionalAccess
                 eBusinessModule eBM = eBusinessModule.PPV;
 
                 // Get AssetRules
-                assetRuleIds = Utils.GetAssetRuleIds(this.m_nGroupID, mediaId, ref programId);
+                assetMediaRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
+                assetEpgRuleIds = Utils.GetAssetEpgRuleIds(this.m_nGroupID, mediaId, ref programId);
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -10926,6 +10932,7 @@ namespace Core.ConditionalAccess
 
                     if (domainResponse != null && domainResponse.Domain != null)
                     {
+                        domainId = domainResponse.Domain.m_nDomainID;
                         int dlmId = domainResponse.Domain.m_nLimit;
 
                         List<int> limitationModulesRules = Core.Api.Module.GetMediaConcurrencyRulesByDomainLimitionModule(this.m_nGroupID, dlmId);
@@ -10944,9 +10951,23 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                int nUserId = 0;
+                int.TryParse(userId, out nUserId);
+
+                var devicePlayData = new DevicePlayData()
+                {
+                    UDID = udid,
+                    AssetId = mediaId,
+                    UserId = nUserId,
+                    ProgramId = programId,
+                    DomainId = domainId,
+                    MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
+                    AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
+                    AssetEpgConcurrencyRuleIds = assetEpgRuleIds
+                };
+
                 // validate Concurrency for domain
-                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, udid, nDeviceFamilyBrand, lSiteGuid, domainId, Users.ValidationType.Concurrency,
-                                                                                  mediaConcurrencyRuleIds, assetRuleIds, mediaId, programId);
+                validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, devicePlayData);
 
                 // get domainID from response
                 if (validationResponse != null)
@@ -16066,10 +16087,11 @@ namespace Core.ConditionalAccess
                     }
 
                     List<int> mediaConcurrencyRuleIds = null;
-                    List<long> assetConcurrencyRuleIds = null;
+                    List<long> assetMediaRuleIds = null;
+                    List<long> assetEpgRuleIds = null;
                     int householdId = (int)domainId;
-                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp,
-                                                                                          ref mediaConcurrencyRuleIds, ref householdId, ref assetConcurrencyRuleIds, recording.EpgId);
+                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref mediaConcurrencyRuleIds, 
+                                                                                          ref householdId, ref assetMediaRuleIds, ref assetEpgRuleIds, recording.EpgId);
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));
@@ -16334,9 +16356,10 @@ namespace Core.ConditionalAccess
                                                           UrlType urlType)
         {
             List<int> mediaConcurrencyRuleIds = null;
-            List<long> assetConcurrencyRuleIds = null;
-            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, 
-                                                      context, ip, udid, out filePrice, out mediaConcurrencyRuleIds, out assetConcurrencyRuleIds, urlType);
+            List<long> assetMediaRuleIds = null;
+            List<long> assetEpgRuleIds = null;
+            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, 
+                                                      out filePrice, out mediaConcurrencyRuleIds, out assetMediaRuleIds, out assetEpgRuleIds, urlType);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)
