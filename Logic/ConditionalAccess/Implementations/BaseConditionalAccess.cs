@@ -16622,7 +16622,21 @@ namespace Core.ConditionalAccess
                 householdId = ODBCWrapper.Utils.ExtractValue<long>(dataRow, "domain_id");
             }
 
-            if (!isReminder && endDateFromRow < DateTime.UtcNow.AddSeconds(2))
+            string type = "SubscriptionEnded";
+
+            if (isReminder)
+            {
+                List<int> lUsersIds = ConditionalAccess.Utils.GetDomainsUsers((int)householdId, m_nGroupID);
+                DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subscriptionCode, (int)householdId);
+
+                if (dt != null && dt.Rows.Count > 1)
+                {
+                    return true;
+                }
+
+                type = "SubscriptionEndedReminder";
+            }
+            else if (endDateFromRow < DateTime.UtcNow.AddSeconds(2))
             {
                 string key = LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(householdId);
                 LayeredCache.Instance.SetInvalidationKey(key);
@@ -16642,8 +16656,6 @@ namespace Core.ConditionalAccess
                 country = country,
                 currency = currency,
             };
-
-            string type = isReminder ? "SubscriptionEndedReminder" : "SubscriptionEnded";
 
             result = subscriptionPurchase.Notify(null, type);
 

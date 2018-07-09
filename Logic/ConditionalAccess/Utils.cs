@@ -2670,7 +2670,7 @@ namespace Core.ConditionalAccess
             return lDomainsUsers;
         }
 
-        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, bool bGetAlsoPendingUsers = true)
+        public static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, bool bGetAlsoPendingUsers = true)
         {
 
             List<int> intUsersList = new List<int>();
