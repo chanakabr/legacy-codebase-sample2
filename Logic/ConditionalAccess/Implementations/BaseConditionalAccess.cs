@@ -16642,7 +16642,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal ApiObjects.Response.Status NotifyRecording(ApiObjects.TimeShiftedTv.Recording recording, bool? isProtected, long userId)
+        internal ApiObjects.Response.Status NotifyRecording(ApiObjects.TimeShiftedTv.Recording recording, string externalEpgId, bool? isProtected, long userId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -16665,10 +16665,14 @@ namespace Core.ConditionalAccess
 
                 switch (recording.RecordingStatus)
                 {
+                    case TstvRecordingStatus.Scheduled:
+                    case TstvRecordingStatus.Recording:
                     case TstvRecordingStatus.Recorded:
-                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, recording, domainId, userId);
+                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, recording, externalEpgId, isProtected, domainId, userId);
                         break;
+                    case TstvRecordingStatus.Canceled:
                     case TstvRecordingStatus.Deleted:
+                    case TstvRecordingStatus.Failed:
                         response = RecordingsManager.Instance.NotifyDeleteRecording(recording.ExternalDomainRecordingId, domainId);
                         break;
                     default:

@@ -754,7 +754,7 @@ namespace Core.Recordings
             }
         }
 
-        internal Status NotifyRecording(int groupId, Recording recording, long domainId, long userId)
+        internal Status NotifyRecording(int groupId, Recording recording, string externalEpgId, bool? isProtected, long domainId, long userId)
         {
             Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -765,7 +765,7 @@ namespace Core.Recordings
                     return result;
                 }
 
-                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
+                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByExternalIds(groupId, new List<string>() { { externalEpgId } });
                 if (epgs == null || epgs.Count != 1)
                 {
                     log.DebugFormat("Failed Getting EPGs from Catalog when calling NotifyRecording, DomainId: {0}, UserId: {1}, EpgId: {2}", domainId, userId, recording.EpgId);
@@ -776,6 +776,12 @@ namespace Core.Recordings
                 if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
                     && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
                 {
+                    recording.EpgId = epgs[0].EPG_ID;
+                    long channelId;
+                    if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
+                    {
+                        recording.ChannelId = channelId;
+                    }
                     recording.Crid = epgs[0].CRID;
                     recording.EpgStartDate = epgStartDate;
                     recording.EpgEndDate = epgEndDate;

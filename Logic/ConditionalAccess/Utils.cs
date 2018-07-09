@@ -8578,5 +8578,41 @@ namespace Core.ConditionalAccess
 
             return programs;
         }
+
+        internal static List<EPGChannelProgrammeObject> GetEpgsByExternalIds(int nGroupID, List<string> epgExternalIds)
+        {
+            List<EPGChannelProgrammeObject> epgs = null;
+
+            try
+            {
+                EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest();
+                request.m_nGroupID = nGroupID;
+                //don't get the same EPG from catalog
+                request.pids = epgExternalIds.ToArray();
+                request.m_oFilter = new Filter();
+                FillCatalogSignature(request);
+
+                EpgProgramResponse response = request.GetResponse(request) as EpgProgramResponse;
+                if (response != null && response.m_nTotalItems > 0 && response.m_lObj != null && response.m_lObj.Count > 0)
+                {
+                    epgs = new List<EPGChannelProgrammeObject>();
+                    foreach (ProgramObj program in response.m_lObj)
+                    {
+                        // no need to check epg status since catalog returns only active epg's
+                        if (program.AssetType == eAssetTypes.EPG && program.m_oProgram != null && program.m_oProgram.EPG_ID > 0)
+                        {
+                            epgs.Add(program.m_oProgram);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed GetEpgsByExternalIds Request To Catalog", ex);
+            }
+
+            return epgs;
+        }
     }
 }

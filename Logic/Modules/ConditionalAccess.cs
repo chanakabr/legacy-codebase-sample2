@@ -3324,11 +3324,11 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static Status NotifyRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, bool? isProtected, long userId)
+        public static Status NotifyRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, string externalEpgId, bool? isProtected, long userId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            ApiObjects.Response.Status status = t.NotifyRecording(recording, isProtected, userId);
+            ApiObjects.Response.Status status = t.NotifyRecording(recording, externalEpgId, isProtected, userId);
 
             return status;
         }
