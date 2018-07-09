@@ -16629,7 +16629,7 @@ namespace Core.ConditionalAccess
                 List<int> lUsersIds = ConditionalAccess.Utils.GetDomainsUsers((int)householdId, m_nGroupID);
                 DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subscriptionCode, (int)householdId);
 
-                if (dt != null && dt.Rows.Count > 1)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 1)
                 {
                     return true;
                 }
