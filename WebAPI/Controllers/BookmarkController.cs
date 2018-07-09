@@ -131,7 +131,8 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
                 ClientsManager.CatalogClient().AddBookmark(groupId, userId, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), 
                                                            bookmark.getPosition(), bookmark.PlayerData.action.ToString(), bookmark.PlayerData.getAverageBitRate(), 
-                                                           bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate(), bookmark.ProgramId);
+                                                           bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate(), bookmark.ProgramId, 
+                                                           bookmark.IsReportingMode);
             }
 
             catch (ClientException ex)
@@ -169,7 +170,9 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 string siteGuid = KS.GetFromRequest().UserId;
-                ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data.getLocation(), player_asset_data.action, player_asset_data.getAverageBitRate(), player_asset_data.getTotalBitRate(), player_asset_data.getCurrentBitRate());
+                ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data.getLocation(), 
+                                                           player_asset_data.action, player_asset_data.getAverageBitRate(), player_asset_data.getTotalBitRate(), 
+                                                           player_asset_data.getCurrentBitRate());
             }
             catch (ClientException ex)
             {
