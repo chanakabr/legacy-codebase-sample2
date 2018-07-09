@@ -24,7 +24,7 @@ namespace WebAPI.Models.ConditionalAccess
         public long? Id { get; set; }
 
         /// <summary>
-        /// Recording state: scheduled/recording/recorded/canceled/failed/does_not_exists/deleted
+        /// Recording state: scheduled/recording/recorded/canceled/failed/deleted
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]

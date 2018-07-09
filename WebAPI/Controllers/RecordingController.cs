@@ -170,7 +170,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.FilterExpression,
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.Ksql,
                                                                                      pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
@@ -287,14 +287,17 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Notify on an external recording
         /// </summary>
-        /// <param name="recording"></param>
+        /// <param name="recording">Recording object</param>
+        /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
+        /// <param name="externalEpgId">Epg external identifier</param>
+        /// <param name="isProtected">is the recording protected by the user</param>
         /// <returns></returns>
         [Route("Notify"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Notify(KalturaRecording recording, KalturaRecordingStatus recordingStatus, bool? isProtected)
+        public bool Notify(KalturaRecording recording, KalturaRecordingStatus recordingStatus, string externalEpgId, bool? isProtected)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -302,7 +305,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, recording, recordingStatus, isProtected, userId);
+                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, recording, recordingStatus, externalEpgId, isProtected, userId);
             }
             catch (ClientException ex)
             {

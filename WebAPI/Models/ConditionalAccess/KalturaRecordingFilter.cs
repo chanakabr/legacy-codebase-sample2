@@ -29,20 +29,31 @@ namespace WebAPI.Models.ConditionalAccess
         public string StatusIn { get; set; }
 
         /// <summary>
-        /// KSQL expression
+        /// KSQL expression, deprecated, please use ksql
         /// </summary>
         [DataMember(Name = "filterExpression")]
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(MaxLength = 2048)]
+        [Deprecated("5.0.0.0")]
         public string FilterExpression { get; set; }
 
-        //public string IdIn
-        //{
-        //    get;
-        //    set;
-        //}
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "ksql")]
+        [JsonProperty("ksql")]
+        [XmlElement(ElementName = "ksql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MaxLength = 2048)]
+        public string Ksql { get; set; }
+
+        public string IdIn
+        {
+            get;
+            set;
+        }
 
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()
         {

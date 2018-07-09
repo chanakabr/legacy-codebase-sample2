@@ -6442,6 +6442,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
+                        case "ExternalId":
+                            return "externalId";
                         case "Id":
                             return "id";
                         case "IsProtected":

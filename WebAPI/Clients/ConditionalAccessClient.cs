@@ -2457,7 +2457,7 @@ namespace WebAPI.Clients
             return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
         }
 
-        internal bool NotifyRecording(int groupId, KalturaRecording recording, KalturaRecordingStatus recordingStatus, bool? isProtected, long userId)
+        internal bool NotifyRecording(int groupId, KalturaRecording recording, KalturaRecordingStatus recordingStatus, string externalEpgId, bool? isProtected, long userId)
         {
             Status status = null;
 
@@ -2467,7 +2467,7 @@ namespace WebAPI.Clients
                 {
                     Recording casRecording = Mapper.Map<Recording>(recording);
                     casRecording.RecordingStatus = ConditionalAccessMappings.ConvertKalturaRecordingStatus(recordingStatus);
-                    status = Core.ConditionalAccess.Module.NotifyRecording(groupId, casRecording, isProtected, userId);
+                    status = Core.ConditionalAccess.Module.NotifyRecording(groupId, casRecording, externalEpgId, isProtected, userId);
                 }
             }
             catch (Exception ex)
