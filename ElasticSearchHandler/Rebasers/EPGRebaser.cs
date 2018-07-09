@@ -48,7 +48,7 @@ namespace ElasticSearchHandler
             string indexName = ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId);
 
             TvinciEpgBL epgBL = new TvinciEpgBL(groupId);
-            var groupEpgs = epgBL.GetGroupEpgs(maxResults, 0, null, null);
+            var groupEpgs = epgBL.GetGroupEpgs(maxResults, 0, null, null, true);
 
             log.DebugFormat("Rebase index - GetGroupEpgs return {0} epg", groupEpgs.Count);
 
