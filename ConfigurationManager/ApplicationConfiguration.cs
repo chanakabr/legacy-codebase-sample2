@@ -121,6 +121,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PwwawpMaxResultsSize;
         public static NumericConfigurationValue PwlalPMaxResultsSize;
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
+        public static StringConfigurationValue MetaFeaturesPattern;
 
         #endregion
 
@@ -133,7 +134,6 @@ namespace ConfigurationManager
         private static bool isSilent = false;
 
         #endregion
-
 
         #region Public Static Methods
 
@@ -523,6 +523,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 4
             };
+            MetaFeaturesPattern = new ConfigurationManager.StringConfigurationValue("meta_features_pattern")
+            {
+                DefaultValue = @"\W|[^ ]{64}[^ ]",
+                ShouldAllowEmpty = true
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -623,7 +628,8 @@ namespace ConfigurationManager
                     AdyenPSPReferenceRegexOverride,
                     PwwawpMaxResultsSize,
                     PwlalPMaxResultsSize,
-                    PreviewModuleNumOfCancelOrRefundAttempts
+                    PreviewModuleNumOfCancelOrRefundAttempts,
+                    MetaFeaturesPattern
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

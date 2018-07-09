@@ -1532,7 +1532,7 @@ namespace APILogic.Notification
             foreach (var availableTopic in availableTopics)
             {
                 // search for VOD Meta to notify
-                if (!availableTopic.IsTag && assetVod.m_lMetas != null)
+                if (!availableTopic.MultipleValue && assetVod.m_lMetas != null)
                 {
                     var assetMetasForNotification = assetVod.m_lMetas.Where(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName.ToLower() == availableTopic.Name.ToLower());
                     if (assetMetasForNotification.Count() > 0)
@@ -1543,7 +1543,7 @@ namespace APILogic.Notification
                 }
 
                 // search for VOD Tag to notify
-                if (availableTopic.IsTag && assetVod.m_lTags != null)
+                if (availableTopic.MultipleValue && assetVod.m_lTags != null)
                 {
                     var assetTagsForNotification = assetVod.m_lTags.Where(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName.ToLower() == availableTopic.Name.ToLower());
                     if (assetTagsForNotification.Count() > 0)
@@ -1663,14 +1663,14 @@ namespace APILogic.Notification
 
                     // check if program contains an allowed meta notification
 
-                    if (!availableTopic.IsTag && program.m_oProgram.EPG_Meta != null)
+                    if (!availableTopic.MultipleValue && program.m_oProgram.EPG_Meta != null)
                     {
                         if (program.m_oProgram.EPG_Meta.Exists(x => x.Key.ToLower() == availableTopic.Name.ToLower()))
                             programNotificationTopics = program.m_oProgram.EPG_Meta.Where(x => x.Key.ToLower() == availableTopic.Name.ToLower()).ToList();
                     }
 
                     // check if program contains an allowed tag notification
-                    if (availableTopic.IsTag && program.m_oProgram.EPG_TAGS != null)
+                    if (availableTopic.MultipleValue && program.m_oProgram.EPG_TAGS != null)
                     {
                         if (program.m_oProgram.EPG_TAGS.Exists(x => x.Key.ToLower() == availableTopic.Name.ToLower()))
                         {

@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog
-{
+{    
+
     [DataContract]
     public class FileMedia
     {
+        public const string HANDLING_TYPE = "CLIP";
+
         [DataMember]
         public Int32 m_nFileId;
         [DataMember]
@@ -112,6 +115,26 @@ namespace Core.Catalog
             m_bIsPreSkipEnabled = isPreSkipEnabled;
             m_bIsPostSkipEnabled = isPostSkipEnabled;
 
+        }
+
+        public FileMedia(CatalogManagement.AssetFile assetFile, CatalogManagement.MediaFileType fileType)
+        {
+            this.m_nFileId = (int)assetFile.Id;
+            this.m_nMediaID = (int)assetFile.AssetId;                        
+            this.m_nDuration = assetFile.Duration.HasValue ? Convert.ToDouble(assetFile.Duration.Value) : 0;            
+            this.HandlingType = HANDLING_TYPE;
+            this.m_sUrl = assetFile.Url;
+            this.m_sAltUrl = assetFile.AltStreamingCode;
+            this.m_sBillingType = assetFile.BillingType.ToString();
+            this.m_nCdnID = (int)assetFile.CdnAdapaterProfileId;
+            this.m_nAltCdnID = (int)assetFile.AlternativeCdnAdapaterProfileId;            
+            this.m_sCoGUID = assetFile.ExternalId;
+            this.m_sAltCoGUID = assetFile.AltExternalId;
+            this.m_sLanguage = assetFile.Language;
+            this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage.HasValue && assetFile.IsDefaultLanguage.Value ? 1 : 0;
+            this.FileSize = assetFile.FileSize.HasValue ? assetFile.FileSize.Value : 0;
+            this.Quality = fileType.Quality.ToString();
+            this.m_sFileFormat = fileType.Name;
         }
 
         private void initializeAdvertisingMembers()

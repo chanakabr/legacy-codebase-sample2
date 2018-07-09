@@ -72,10 +72,24 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        [DataMember]
+        [JsonProperty()]
+        public bool isSlidingWindowFromRestApi { get; set; }
+
         [JsonProperty()]
         public DateTime m_dSlidingWindowStartTimeField
         {
-            get { return GetSlidingWindowStart(lu_min_period_id); }
+            get
+            {
+                if (isSlidingWindowFromRestApi)
+                {
+                    return DateTime.UtcNow.AddMinutes(-lu_min_period_id);
+                }
+                else
+                {
+                    return GetSlidingWindowStart(lu_min_period_id);
+                }
+            }
         }
 
 

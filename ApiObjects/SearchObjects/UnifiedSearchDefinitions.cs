@@ -50,13 +50,13 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseFinalEndDate;
         [JsonProperty()]
         [DataMember]
-        public bool shouldUseStartDate;
+        public bool shouldUseStartDateForMedia;
         [JsonProperty()]
         [DataMember]
         public bool shouldIgnoreDeviceRuleID = false;
         [JsonProperty()]
         [DataMember]
-        public bool shouldAddActive = true;
+        public bool shouldAddIsActiveTerm = true;
 
         [JsonProperty()]
         [DataMember]
@@ -99,14 +99,14 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public bool defaultStartDate;
+        public bool shouldUseStartDateForEpg;
 
         /// <summary>
         /// Whether or not use the default end date range filter or not
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public bool defaultEndDate;
+        public bool shouldUseEndDateForEpg;
 
         [JsonProperty()]
         [DataMember]
@@ -365,7 +365,11 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public UserInterestsMetasAndTags userPreferences;
+        public UserInterestsMetasAndTags userPreferences;        
+
+        [JsonProperty()]
+        [DataMember]
+        public bool isAllowedToViewInactiveAssets { get; set; }
 
         public List<string> PersonalData { get; set; }
 
@@ -410,9 +414,10 @@ namespace ApiObjects.SearchObjects
 
             shouldSearchEpg = false;
             shouldUseFinalEndDate = false;
-            shouldUseStartDate = true;
-            defaultEndDate = true;
-            defaultStartDate = true;
+            shouldUseStartDateForMedia = true;
+            shouldIgnoreEndDate = false;
+            shouldUseEndDateForEpg = true;
+            shouldUseStartDateForEpg = true;
 
             filterPhrase = null;
             deviceRuleId = null;

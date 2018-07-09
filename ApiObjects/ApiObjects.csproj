@@ -138,6 +138,7 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
+    <Compile Include="DrmAdapter\DrmAdapterListResponse.cs" />
     <Compile Include="DBFieldMappingAttribute.cs" />
     <Compile Include="DrmAdapter\DrmAdapterResponse.cs" />
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
@@ -147,8 +148,8 @@
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
-    <Compile Include="Response\GenericResponse.cs" />
     <Compile Include="Response\GenericListResponse.cs" />
+    <Compile Include="Response\GenericResponse.cs" />
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="Rules\AssetRuleCondition.cs" />
@@ -158,6 +159,9 @@
     <Compile Include="Rules\AssetUserRule.cs" />
     <Compile Include="Rules\AssetRule.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
+    <Compile Include="SearchObjects\ChannelSearchDefinitions.cs" />
+    <Compile Include="SearchObjects\TagSearchDefinitions.cs" />
+    <Compile Include="SearchObjects\TagValue.cs" />
     <Compile Include="SSOAdapter\SSOAdapter.cs" />
     <Compile Include="SSOAdapter\SSOAdapterParam.cs" />
     <Compile Include="SSOAdapter\SSOAdaptersResponse.cs" />

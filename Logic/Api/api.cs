@@ -44,6 +44,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Api
 {
@@ -830,8 +831,7 @@ namespace Core.Api
             }
             return bRet;
         }
-
-
+    
         static public List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
         {
             List<int> nMedias = new List<int>();
@@ -888,6 +888,7 @@ namespace Core.Api
 
             return nMedias.Distinct().ToList();
         }
+
         static public Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice)
         {
 
@@ -1356,7 +1357,6 @@ namespace Core.Api
             return ret;
         }
 
-
         static public ApiObjects.MediaMarkObject GetMediaMark(Int32 nGroupID, Int32 nMediaID, string sSiteGUID)
         {
             MediaMarkObject mmo = new MediaMarkObject();
@@ -1535,7 +1535,6 @@ namespace Core.Api
             return retVal;
         }
 
-
         static public int InserEPGScheduleToChannel(int groupID, int channelID, string xml, bool deleteOld)
         {
             XmlDocument xmlDoc = new XmlDocument();
@@ -1611,9 +1610,10 @@ namespace Core.Api
                     }
                 }
             }
+
             return res;
-        }
-        
+        }       
+
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
             List<int> result = new List<int>();
@@ -2536,7 +2536,6 @@ namespace Core.Api
             return isBlocked;
         }
 
-
         static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
         {
             bool result = true;
@@ -3227,11 +3226,11 @@ namespace Core.Api
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.mediaTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.mediaTagTypeId.HasValue ? parentalRule.mediaTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.Parental,
                         AllTagValues = parentalRule.mediaTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 
@@ -3246,11 +3245,11 @@ namespace Core.Api
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.epgTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.epgTagTypeId.HasValue ? parentalRule.epgTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.EPG,
                         AllTagValues = parentalRule.epgTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 
@@ -4389,7 +4388,6 @@ namespace Core.Api
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
 
-
         internal static Tuple<List<int>, bool> Get_MCRulesIdsByDeviceLimitationModule(Dictionary<string, object> funcParams)
         {
             bool result = false;
@@ -4657,7 +4655,7 @@ namespace Core.Api
 
         #region Parental Rules
 
-        public static ParentalRulesResponse GetParentalRules(int groupId)
+        public static ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true)
         {
             ParentalRulesResponse response = new ParentalRulesResponse()
             {
@@ -4666,22 +4664,27 @@ namespace Core.Api
 
             try
             {
-                List<ParentalRule> rules = null;
+                List<ParentalRule> tempRules = null;
                 string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
-                bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref rules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                        groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref tempRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey });
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetParentalRules - Failed get data from cache groupId = {0}", groupId));
                     response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-
-                response.rules = rules;
-                response.status = new ApiObjects.Response.Status()
+                else if (shouldGetOnlyActive)
                 {
-                    Code = (int)eResponseStatus.OK
-                };
+                    response.rules = new List<ParentalRule>(tempRules.Where(x => x.isActive.HasValue && x.isActive.Value));
+                }
+                else
+                {
+                    response.rules = new List<ParentalRule>(tempRules);
+                }
+
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -5339,38 +5342,23 @@ namespace Core.Api
             {
                 try
                 {
-                    List<ParentalRule> groupsParentalRules = null;
-                    List<long> mediaRuleIds = new List<long>();
-                    Dictionary<long, eRuleLevel> userParentalRules = null;
-
-                    // group rules                 
-                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
-                    // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key,
-                        ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules,
-                        new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
-
-                    if (!cacheResult || groupsParentalRules == null)
-                    {
-                        log.Error(string.Format("GetParentalMediaRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
-                        return null;
-                    }
-
-                    if (groupsParentalRules.Count == 0)
+                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
+                        || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
                         return response;
                     }
 
+                    List<ParentalRule> groupsParentalRules = new List<ParentalRule>(prResponse.rules);
+                    List<long> mediaRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
+
                     // media rules id 
-                    key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
-                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
-                        new Dictionary<string, object>()
-                            {
-                                { "groupId", groupId },
-                                { "mediaId", mediaId },
-                                { "groupsParentalRules", groupsParentalRules }
-                            },
-                        groupId, LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                    string key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                            { "mediaId", mediaId }, { "groupsParentalRules", groupsParentalRules } }, groupId,
+                                                                            LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>()
+                                                                            { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
                     if (!cacheResult)
                     {
@@ -5606,36 +5594,21 @@ namespace Core.Api
             {
                 try
                 {
-                    List<ParentalRule> groupParentalRules = null;
-                    List<long> epgRuleIds = new List<long>();
-                    Dictionary<long, eRuleLevel> userParentalRules = null;
-
-                    // group rules                 
-                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
-                    // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref groupParentalRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                            groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
-                    if (!cacheResult || groupParentalRules == null)
-                    {
-                        log.Error(string.Format("GetParentalEPGRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
-                        return null;
-                    }
-
-                    if (groupParentalRules.Count == 0)
+                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
+                        || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
                         return response;
                     }
 
+                    List<ParentalRule> groupsParentalRules = new List<ParentalRule>(prResponse.rules);
+                    List<long> epgRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
+
                     // epg rules id 
-                    key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
-                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
-                        new Dictionary<string, object>()
-                            {
-                                { "groupId", groupId },
-                                { "epgId", epgId },
-                                { "groupParentalRules", groupParentalRules }
-                            },
-                        groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                    string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
+                    bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "epgId", epgId },
+                                                                            { "groupParentalRules", groupsParentalRules } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
                     if (!cacheResult)
                     {
@@ -5670,13 +5643,13 @@ namespace Core.Api
                             else
                             {
                                 // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
-                                rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
+                                rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
                             }
                         }
-                        else if (groupParentalRules.Count > 0) // check on group rules 
+                        else if (groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
-                            rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault).ToList();
+                            rules = groupsParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault).ToList();
                         }
                     }
 
@@ -5844,7 +5817,6 @@ namespace Core.Api
             return response;
         }
 
-
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
             ParentalRulesTagsResponse response = new ParentalRulesTagsResponse();
@@ -5862,19 +5834,8 @@ namespace Core.Api
                     foreach (var rule in rules)
                     {
                         // Transform lists of tags from ParentalRule class to lists of tag values
-                        response.mediaTags.AddRange(
-                            rule.mediaTagValues.Select(tag => (new IdValuePair()
-                            {
-                                id = rule.mediaTagTypeId,
-                                value = tag
-                            })));
-
-                        response.epgTags.AddRange(
-                            rule.epgTagValues.Select(tag => (new IdValuePair()
-                            {
-                                id = rule.epgTagTypeId,
-                                value = tag
-                            })));
+                        response.mediaTags.AddRange(rule.mediaTagValues.Select(tag => (new IdValuePair() { id = rule.mediaTagTypeId.HasValue ? rule.mediaTagTypeId.Value : 0, value = tag })));
+                        response.epgTags.AddRange(rule.epgTagValues.Select(tag => (new IdValuePair() { id = rule.epgTagTypeId.HasValue ? rule.epgTagTypeId.Value : 0, value = tag })));
                     }
 
                     response.status = new ApiObjects.Response.Status()
@@ -5889,6 +5850,217 @@ namespace Core.Api
                         string.Format("Error in GetUserParentalRuleTags: group = {0}, user = {3}, ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace, siteGuid),
                         ex);
                 }
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> AddParentalRule(int groupId, ParentalRule parentalRuleToAdd, long userId)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                if (result.status.Code != (int)eResponseStatus.OK && result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.name == parentalRuleToAdd.name) > 0)
+                {
+                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddParentalRule", groupId);
+                }
+
+                if (parentalRuleToAdd.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.mediaTagTypeId.Value))
+                {
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (parentalRuleToAdd.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToAdd.epgTagTypeId.Value))
+                {
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                DataSet ds = ApiDAL.InsertParentalRule(groupId, parentalRuleToAdd.name, parentalRuleToAdd.description, parentalRuleToAdd.order.Value, parentalRuleToAdd.mediaTagTypeId,
+                                                    parentalRuleToAdd.mediaTagValues, parentalRuleToAdd.epgTagTypeId, parentalRuleToAdd.epgTagValues, parentalRuleToAdd.blockAnonymousAccess.Value,
+                                                    parentalRuleToAdd.ruleType.Value, parentalRuleToAdd.isActive, userId);
+                List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
+                if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id > 0)
+                {
+                    response.Object = rules[0];
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after AddParentalRule", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddParentalRule for groupId: {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> UpdateParentalRule(int groupId, long id, ParentalRule parentalRuleToUpdate, long userId)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response.SetStatus(result.status);
+                    return response;
+                }
+
+                if (result.rules == null || result.rules.Count == 0 || result.rules.Count(x => x.id == id) != 1)
+                {
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (!string.IsNullOrEmpty(parentalRuleToUpdate.name) && result.rules.Count(x => x.name == parentalRuleToUpdate.name) > 0)
+                {
+                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateParentalRule", groupId);
+                }
+
+                if (parentalRuleToUpdate.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.mediaTagTypeId.Value))
+                {
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (parentalRuleToUpdate.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.epgTagTypeId.Value))
+                {
+                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    ParentalRule currentParentalRule = result.rules.Where(x => x.id == id).First();
+                    bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
+                    if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
+                    {
+                        shouldUpdateMediaTagValues = false;
+                    }
+
+                    bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
+                    if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
+                    {
+                        shouldUpdateEpgTagValues = false;
+                    }
+
+                    DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
+                                                            shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
+                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);                    
+                    List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
+                    if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
+                    {
+                        response.Object = rules[0];
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after UpdateParentalRule", invalidationKey);
+                        }
+                    }
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateParentalRule with groupId: {0} and id: {1}", groupId, id), ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ParentalRule> GetParentalRule(int groupId, long id, bool isAllowedToViewInactiveAssets)
+        {
+            GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response.SetStatus(result.status);
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    response.Object = result.rules.Where(x => x.id == id).First();
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetParentalRule with groupId: {0} and id: {1}", groupId, id), ex);
+            }
+
+            return response;
+        }
+
+        public static Status DeleteParentalRule(int groupId, long id, long userId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                if (result.status.Code != (int)eResponseStatus.OK)
+                {
+                    response = new Status((int)result.status.Code, result.status.Message);
+                    return response;
+                }
+
+                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                {
+                    if (result.rules.Where(x => x.id == id).First().isDefault)
+                    {
+                        response = new Status((int)eResponseStatus.CanNotDeleteDefaultParentalRule, eResponseStatus.CanNotDeleteDefaultParentalRule.ToString());
+                        return response;
+                    }
+
+                    if (ApiDAL.DeleteParentalRule(groupId, id, userId))
+                    {
+                        response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {                            
+                            log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after DeleteParentalRule", invalidationKey);
+                        }
+                    }
+                }
+                else
+                {
+                    response = new Status((int)eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteParentalRule for groupId: {0} and id: {1}", groupId, id), ex);
             }
 
             return response;
@@ -6982,7 +7154,6 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7319,7 +7490,6 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7384,7 +7554,6 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -8543,62 +8712,27 @@ namespace Core.Api
             return result;
         }
 
-        public static TimeShiftedTvPartnerSettingsResponse GetTimeShiftedTvPartnerSettings(int groupID)
+        public static TimeShiftedTvPartnerSettingsResponse GetTimeShiftedTvPartnerSettings(int groupId)
         {
             TimeShiftedTvPartnerSettingsResponse response = new TimeShiftedTvPartnerSettingsResponse();
-
             try
             {
-                DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
-                if (dr == null)
+                response.Settings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (response.Settings != null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, eResponseStatus.TimeShiftedTvPartnerSettingsNotFound.ToString());
-                }
-                else
-                {
-                    int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
-                    int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
-                    int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
-                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
-                    long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
-                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
-                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
-                    int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
-                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
-                    int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", 0);
-                    int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
-                    int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
-                    int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
-                    int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
-                    int series_recording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
-                    int enable_recording_playback_non_entitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
-                    int enable_recording_playback_non_existing = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
-                    int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
-                    int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
-
-                    if (recordingScheduleWindow > -1)
-                    {
-                        response.Settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod,
-                                                series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy,
-                                                protectionPolicy, recoveryGracePeriod);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-                }
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }                
             }
 
             catch (Exception ex)
             {
-                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupID, ex.Message, ex.StackTrace), ex);
+                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupId, ex.Message, ex.StackTrace), ex);
             }
 
             return response;
         }
 
-        public static ApiObjects.Response.Status UpdateTimeShiftedTvPartnerSettings(int groupID, TimeShiftedTvPartnerSettings settings)
+        public static ApiObjects.Response.Status UpdateTimeShiftedTvPartnerSettings(int groupId, TimeShiftedTvPartnerSettings settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -8620,16 +8754,25 @@ namespace Core.Api
                 }
                 else
                 {
-                    if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupID, settings))
+                    if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupId, settings))
                     {
-                        response = UpdateTimeShiftedTvEpgChannelsSettings(groupID, settings);
+                        response = UpdateTimeShiftedTvEpgChannelsSettings(groupId, settings);
+                        // invalidate the tstv object in layered cache
+                        string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        }
+
+                        // invalidate all the linear medias
+                        Catalog.CatalogManagement.AssetManager.InvalidateGroupLinearAssets(groupId);
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                log.Error("UpdateTimeShiftedTvPartnerSettings - " + string.Format("Error in UpdateTimeShiftedTvPartnerSettings: groupID = {0}, settings = {1}, ex = {2}", groupID, ex.Message, settings.ToString(), ex.StackTrace), ex);
+                log.Error("UpdateTimeShiftedTvPartnerSettings - " + string.Format("Error in UpdateTimeShiftedTvPartnerSettings: groupID = {0}, settings = {1}, ex = {2}", groupId, ex.Message, settings.ToString(), ex.StackTrace), ex);
                 response.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                 response.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
             }
@@ -8684,8 +8827,13 @@ namespace Core.Api
 
                 bool isSet = DAL.ApiDAL.DeleteCDNAdapter(groupID, adapterId);
                 if (isSet)
-                {
+                {                    
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupID, adapterId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
                 }
                 else
                 {
@@ -9521,7 +9669,7 @@ namespace Core.Api
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
 
                                 Type = ApiObjects.MetaType.String,
-                                IsTag = false,
+                                MultipleValue = false,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9542,7 +9690,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.TagsDisplayName),
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true,
+                                MultipleValue = true,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9593,7 +9741,7 @@ namespace Core.Api
                                     Name = metaVal.Value,
                                     Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
                                     PartnerId = partnerId,
-                                    IsTag = false
+                                    MultipleValue = false
                                 };
 
                                 meta.Id = BuildMetaId(meta, metaVal.Key);
@@ -9616,7 +9764,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = tagVal.Value,
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true
+                                MultipleValue = true
                             };
 
                             meta.PartnerId = GetPartnerIdforTag(tagVal, group);
@@ -9736,7 +9884,7 @@ namespace Core.Api
         private static string BuildMetaId(Meta meta, string metaDBId)
         {
             string prefix = meta.AssetType == eAssetTypes.MEDIA && meta.Type == ApiObjects.MetaType.String ? "_NAME" : "";
-            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.IsTag ? 1 : 0, metaDBId, prefix));
+            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.MultipleValue ? 1 : 0, metaDBId, prefix));
         }
 
         private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)

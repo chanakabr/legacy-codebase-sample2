@@ -1,9 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
+using Catalog.Response;
 using ConfigurationManager;
 using Core.Catalog.Request;
+using Core.Catalog.Response;
 using DAL;
+using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -246,7 +250,7 @@ namespace Core.Catalog
 
         //This method is used specifically for Lucene cases when we get a search result which does not consist of an update date (Lucene does not hold update_date
         //within its documents and therefore we need to go to the DB and return the media update date
-        public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults)
+        public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults, int groupId)
         {
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
             List<SearchResult> lMediaRes = new List<SearchResult>();
@@ -256,7 +260,15 @@ namespace Core.Catalog
                 {
                     List<int> mediaIds = lSearchResults.Select(item => item.assetID).ToList();
 
-                    DataTable dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
+                    DataTable dt = null;
+                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        dt = CatalogDAL.GetAssetUpdateDate(mediaIds, eObjectType.Media);
+                    }
+                    else
+                    {
+                        dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
+                    }
 
                     SearchResult oMediaRes = new SearchResult();
                     if (dt != null)
@@ -301,7 +313,7 @@ namespace Core.Catalog
                 {
                     DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
 
-                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList());
+                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
                 }
                 else
                 {
@@ -986,12 +998,12 @@ namespace Core.Catalog
                                     {
                                         if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
                                         {
-                                            medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
+                                            medias[nTagMediaID].m_dTagValues.Add(sTagName, new HashSet<string>());
                                         }
 
-                                        if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                        if (!medias[nTagMediaID].m_dTagValues[sTagName].Contains(val))
                                         {
-                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(val);
                                         }
                                     }
                                 }
@@ -1098,15 +1110,13 @@ namespace Core.Catalog
                                     oMedia = mediaTranslations[nTagMediaID][nLangID];
                                     string sTagTypeName = group.m_oGroupTags[mttn];
 
-                                    if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
+                                    if (!oMedia.m_dTagValues.ContainsKey(sTagTypeName))
                                     {
-                                        oMedia.m_dTagValues[sTagTypeName][tagID] = val;
+                                        oMedia.m_dTagValues.Add(sTagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
                                     }
-                                    else
+                                    if (!oMedia.m_dTagValues[sTagTypeName].Contains(val))
                                     {
-                                        Dictionary<long, string> dTemp = new Dictionary<long, string>();
-                                        dTemp[tagID] = val;
-                                        oMedia.m_dTagValues[sTagTypeName] = dTemp;
+                                        oMedia.m_dTagValues[sTagTypeName].Add(val);
                                     }
                                 }
                             }
@@ -1171,7 +1181,6 @@ namespace Core.Catalog
 
             return epgChannelIdToLinearMediaIdMap;
         }
-
 
         internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
         {
@@ -1240,8 +1249,10 @@ namespace Core.Catalog
         {
             if (string.IsNullOrEmpty(metaName))
             {
-                return true;// no need to check we'll use default order 
+                // no need to check we'll use default order 
+                return true;
             }
+
             if (shouldSearchMedia)
             {
                 // check meta in Media
@@ -1256,6 +1267,7 @@ namespace Core.Catalog
                     return false;
                 }
             }
+
             if (shouldSearchEpg || shouldSearchRecordings)
             {
                 if (group.m_oEpgGroupSettings == null)
@@ -1277,39 +1289,58 @@ namespace Core.Catalog
             return true;
         }
 
-        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields)
+        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
                 HashSet<string> allMetas = new HashSet<string>();
                 HashSet<string> allTags = new HashSet<string>();
-
-                if (definitions.shouldSearchMedia)
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                if (!doesGroupUsesTemplates)
                 {
-                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                    if (definitions.shouldSearchMedia)
                     {
-                        foreach (var meta in metasInGroup)
+                        foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
                         {
-                            allMetas.Add(meta.Value.ToLower());
+                            foreach (var meta in metasInGroup)
+                            {
+                                allMetas.Add(meta.Value.ToLower());
+                            }
+                        }
+
+                        foreach (var tagInGroup in group.m_oGroupTags.Values)
+                        {
+                            allTags.Add(tagInGroup.ToLower());
                         }
                     }
 
-                    foreach (var tagInGroup in group.m_oGroupTags.Values)
+                    if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
                     {
-                        allTags.Add(tagInGroup.ToLower());
+                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            allMetas.Add(meta);
+                        }
+
+                        foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                        {
+                            allTags.Add(tag);
+                        }
                     }
                 }
-
-                if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
+                else
                 {
-                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                    try
                     {
-                        allMetas.Add(meta);
+                        if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildSearchGroupBy", groupId);
+                            return;
+                        }
                     }
-
-                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                    catch (Exception ex)
                     {
-                        allTags.Add(tag);
+                        log.Error(string.Format("Failed TryGetCatalogGroupCacheFromCache for groupId: {0} on BuildSearchGroupBy", groupId), ex);
                     }
                 }
 
@@ -1322,21 +1353,37 @@ namespace Core.Catalog
                     string requestGroupBy = lowered;
                     bool valid = false;
 
-                    if (allMetas.Contains(lowered))
-                    {
-                        valid = true;
-                        requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                    }
-                    else if (allTags.Contains(lowered))
-                    {
-                        valid = true;
-                        requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                    }
-                    else if (reservedGroupByFields.Contains(lowered))
+                    if (reservedGroupByFields.Contains(lowered))
                     {
                         valid = true;
                     }
-
+                    else if (doesGroupUsesTemplates)
+                    {
+                        if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type == ApiObjects.MetaType.Tag)
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }
+                        else if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type != ApiObjects.MetaType.Tag)
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                    }
+                    else
+                    {
+                        if (allMetas.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                        else if (allTags.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }                        
+                    }
+                    
                     if (!valid)
                     {
                         throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
@@ -1353,6 +1400,7 @@ namespace Core.Catalog
                     }
                 }
 
+
                 definitions.groupByOrder = searchGroupBy.groupByOrder;
                 definitions.topHitsCount = searchGroupBy.topHitsCount;
 
@@ -1368,6 +1416,144 @@ namespace Core.Catalog
                     definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
                 }
             }
+        }
+
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupDeviceRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<int, string> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupDeviceRules(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new Dictionary<int, string>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
+                                {
+                                    result.Add(id, name);
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                res = result != null;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDeviceRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
+        }
+
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<int, string> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupGeoblockRules(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new Dictionary<int, string>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
+                                {
+                                    result.Add(id, name);
+                                }
+                            }
+                                                                                
+                        }                        
+                    }
+                }
+
+                res = result != null;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupGeoblockRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
+        }
+
+        private static Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = new List<int>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    {
+                        int? groupId, mediaId;
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as int?;
+
+                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                        if (searcher != null)
+                        {
+                            if (searcher is ElasticsearchWrapper)
+                            {
+                                if (groupId.HasValue && mediaId.HasValue)
+                                {
+                                    result = searcher.GetMediaChannels(groupId.Value, mediaId.Value);
+                                    res = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaChannels faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(result, res);
+        }
+
+        internal static List<int> GetChannelsContainingMedia(int groupId, int mediaId)
+        {
+            List<int> result = null;
+            try
+            {
+                List<string> invalidationKeys = new List<string>() { LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId) };
+                invalidationKeys.AddRange(LayeredCacheKeys.GetAssetMultipleInvalidationKeys(groupId, ApiObjects.eAssetTypes.MEDIA.ToString(), mediaId));
+                string key = LayeredCacheKeys.GetChannelsContainingMediaKey(mediaId);
+                if (!LayeredCache.Instance.Get<List<int>>(key, ref result, GetMediaChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId } },
+                                                            groupId, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys))
+                {
+                    log.ErrorFormat("Failed getting channels containing media from LayeredCache, groupId: {0}, mediaId: {1}, key: {2}", groupId, mediaId, key);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannelsContainingMedia for groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return result;
         }
     }
 }

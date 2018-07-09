@@ -3048,8 +3048,8 @@ namespace Core.ConditionalAccess
 
 
                         var pp_description = (from descValue in pp.m_sDescription
-                                              where descValue.m_sLanguageCode3 == sLanguageCode
-                                              select descValue.m_sValue.ToString()).FirstOrDefault();
+                                              where descValue.LanguageCode == sLanguageCode
+                                              select descValue.Value.ToString()).FirstOrDefault();
 
                         ClaimObj = new InAppItemObject(pp.m_sObjectVirtualName, pp_description.ToString(), dChargePrice.ToString(), sCurrencyCode, nCustomDataID.ToString(), MY_SELLER_ID, 60, "Google", "google/payments/inapp/item/v1", 0);
 
@@ -3075,8 +3075,8 @@ namespace Core.ConditionalAccess
 
 
                         var sp_description = (from descValue in sp.m_sDescription
-                                              where descValue.m_sLanguageCode3 == sLanguageCode
-                                              select descValue.m_sValue.ToString()).FirstOrDefault();
+                                              where descValue.LanguageCode == sLanguageCode
+                                              select descValue.Value.ToString()).FirstOrDefault();
 
 
                         string sNumberOfRecPeriods = sp.m_nNumberOfRecPeriods == 0 ? null : sp.m_nNumberOfRecPeriods.ToString();
@@ -4461,70 +4461,85 @@ namespace Core.ConditionalAccess
             return channelsList;
         }
 
-        internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
+        private static Tuple<TimeShiftedTvPartnerSettings, bool> GetTimeShiftedTvPartnerSettings(Dictionary<string, object> funcParams)
         {
-            string key = string.Format("TstvAccountSettings_{0}", groupID);
-            TimeShiftedTvPartnerSettings settings = null;
+            TimeShiftedTvPartnerSettings tstvAccountSettings = null;
             try
             {
-                if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
                 {
-                    lock (lck)
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
                     {
-                        if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
+                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value);
+                        if (dr != null)
                         {
-                            log.Debug("Getting TSTV Settings from DB");
-                            DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
-                            if (dr != null)
-                            {
-                                int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
-                                int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
-                                int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
-                                int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
-                                long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
-                                long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
-                                long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
-                                int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                                long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
-                                long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
-                                int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", 0);
-                                int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
-                                int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
-                                int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
-                                int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
-                                int enableSeriesRecording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
-                                int recordingPlaybackNonEntitledChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
-                                int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-                                int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
-                                int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
-                                int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
+                            int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
+                            int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
+                            int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
+                            int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
+                            long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
+                            long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
+                            long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
+                            int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
+                            long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
+                            long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
+                            int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", 0);
+                            int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
+                            int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
+                            int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
+                            int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
+                            int enableSeriesRecording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
+                            int recordingPlaybackNonEntitledChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
+                            int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
+                            int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
+                            int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
+                            int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
 
-                                if (recordingScheduleWindow > -1)
-                                {
-                                    settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
-                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy, recoveryGracePeriod);
-                                    TvinciCache.WSCache.Instance.Add(key, settings);
-                                }
+                            if (recordingScheduleWindow > -1)
+                            {
+                                tstvAccountSettings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
+                                            trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
+                                            protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
+                                            recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy, recoveryGracePeriod);
                             }
                         }
                     }
                 }
-                else if (settings == null)
-                {
-                    log.Error("TSTV settings is null");
-                }
-
-                log.DebugFormat("current TSTV settings values are: {0}", settings != null ? settings.ToString() : "null");
             }
-
             catch (Exception ex)
             {
-                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupID, ex.Message, ex.StackTrace), ex);
+                log.Error(string.Format("GetTimeShiftedTvPartnerSettings failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return settings;
+            bool res = tstvAccountSettings != null;
+
+            return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, res);
+        }
+
+        internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
+        {
+            TimeShiftedTvPartnerSettings tstvAccountSettings = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetTstvAccountSettingsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<TimeShiftedTvPartnerSettings>(key, ref tstvAccountSettings, GetTimeShiftedTvPartnerSettings, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                groupId, LayeredCacheConfigNames.GET_TSTV_ACCOUNT_SETTINGS_CACHE_CONFIG_NAME, new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting tstv account settings from LayeredCache, groupId: {0}", groupId);
+                }
+                else
+                {
+                    log.DebugFormat("current TSTV settings values are: {0}", tstvAccountSettings != null ? tstvAccountSettings.ToString() : "null");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTimeShiftedTvPartnerSettings for groupId: {0}", groupId), ex);
+            }
+
+            return tstvAccountSettings;
         }
 
         internal static List<EPGChannelProgrammeObject> GetEpgsByIds(int nGroupID, List<long> epgIds)
@@ -6775,9 +6790,12 @@ namespace Core.ConditionalAccess
 
             try
             {
+                long parsedAssetId = 0;
+                long.TryParse(assetId, out parsedAssetId);
                 bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
                 new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId }, { "domain", domain }, { "udid", udid } },
-                groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
+                groupId, LayeredCacheConfigNames.MEDIA_ID_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME,
+                parsedAssetId > 0 ? LayeredCacheKeys.GetAssetMultipleInvalidationKeys(groupId, assetType.ToString(), parsedAssetId) : new List<string>());
 
                 if (cacheResult && tupleResult != null)
                 {
@@ -7229,9 +7247,9 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
-                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams,
-                                                                    groupId, LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
-
+                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
+                                                                    LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
+                                                                    LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
                 if (res && domainEntitlements != null)
                 {
                     // remove expired PPV's
@@ -7345,20 +7363,6 @@ namespace Core.ConditionalAccess
             }
 
             return res && domainEntitlements != null;
-        }
-
-        private static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
-        {
-            return new List<string>()
-            {
-                LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId),
-                LayeredCacheKeys.GetPurchaseInvalidationKey(domainId),
-                LayeredCacheKeys.GetGrantEntitlementInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId),
-                LayeredCacheKeys.GetRenewInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId)
-            };
         }
 
         private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)

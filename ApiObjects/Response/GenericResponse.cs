@@ -1,4 +1,9 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace ApiObjects.Response
 {
     public class GenericResponse<T>
@@ -32,6 +37,12 @@ namespace ApiObjects.Response
             this.Status.Message = message;
         }
 
+        public void SetStatus(int responseStatusCode, string message)
+        {
+            this.Status.Code = responseStatusCode;
+            this.Status.Message = message;
+        }
+
         public void SetStatus(Status status)
         {
             if (status != null)
@@ -40,5 +51,6 @@ namespace ApiObjects.Response
                 this.Status.Message = status.Message;
             }
         }
+
     }
 }

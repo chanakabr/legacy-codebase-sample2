@@ -96,7 +96,7 @@ namespace Core.Catalog.Request
                             }
 
                             List<BaseSearchObject> searchObjectsList = 
-                                BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj);
+                                BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, nParentGroupID);
 
                             if (searchObjectsList != null && searchObjectsList.Count > 0)
                             {
@@ -152,7 +152,7 @@ namespace Core.Catalog.Request
         }
 
         public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order)
+            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order, int groupId)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
@@ -196,7 +196,8 @@ namespace Core.Catalog.Request
                                      // or if at least one of the media types of the channel exists in the request
                                      typeIntersection.Count() > 0)
                                  {
-                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache);
+
+                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId);
 
                                      // If specific types were requested
                                      if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))

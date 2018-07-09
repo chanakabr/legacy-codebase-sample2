@@ -1,4 +1,5 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,6 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using ElasticSearch.Searcher;
 using ElasticSearch.Common;
-using ApiObjects;
 using System.Collections;
 using System.Collections.Concurrent;
 using Core.Catalog.Cache;
@@ -17,6 +17,7 @@ using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
 using Catalog.Response;
+using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
 
 namespace Core.Catalog
@@ -33,6 +34,8 @@ namespace Core.Catalog
         public const int STATUS_NOT_FOUND = 404;
         public const int STATUS_INTERNAL_ERROR = 500;
 
+        protected const string CHANNEL_SEARCH_IS_ACTIVE = "is_active";
+        protected const string CHANNEL_SEARCH_IS_ACTIVE_VALUE = "1";
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
@@ -661,9 +664,11 @@ namespace Core.Catalog
                 DateTime endDate = epgSearch.m_dEndDate;
                 
                 CatalogCache catalogCache = CatalogCache.Instance();
-
-                int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);                
-                epgSearch.m_bSearchEndDate = catalogCache.IsTstvSettingsExists(nParentGroupID);
+                int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
+                if (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(nParentGroupID) != null)
+                {
+                    epgSearch.m_bSearchEndDate = true;
+                }
 
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
@@ -695,7 +700,7 @@ namespace Core.Catalog
                     string sQuery = queries[0];
                     searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
                     lDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
-                        //DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+                    //DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
                 }
                 else
                 {
@@ -1122,7 +1127,8 @@ namespace Core.Catalog
                     unifiedSearchDefinitions.topHitsCount = 1;
                 }
             }
-            else if (!string.IsNullOrEmpty(distinctGroup.Key) && 
+            // if there is group by
+            else if (!string.IsNullOrEmpty(distinctGroup.Key) &&
                 (orderBy == OrderBy.META || orderBy == OrderBy.NAME))
             {
                 isOrderedByString = true;
@@ -1141,11 +1147,13 @@ namespace Core.Catalog
             }
             else
             {
+                // normal case - regular page index and size
                 queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.From = unifiedSearchDefinitions.from;
 
-                if (queryParser.PageSize == 0 && 
+                // no group by and page size is 0 means we want all documents
+                if (queryParser.PageSize == 0 &&
                     (unifiedSearchDefinitions.groupBy == null ||
                     unifiedSearchDefinitions.groupBy.Count == 0))
                 {
@@ -1171,7 +1179,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -1199,7 +1207,7 @@ namespace Core.Catalog
                         topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
                     }
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded =
                        ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
@@ -1382,7 +1390,7 @@ namespace Core.Catalog
             UnifiedSearchResult result = null;
             string assetId = doc.asset_id.ToString();
             var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
-            
+
             if (definitions.shouldReturnExtendedSearchResult)
             {
                 result = new ExtendedSearchResult()
@@ -1463,7 +1471,7 @@ namespace Core.Catalog
         }
 
         private static void ReorderBuckets(
-            ESAggregationsResult aggregationResult, int pageIndex, int pageSize, 
+            ESAggregationsResult aggregationResult, int pageIndex, int pageSize,
             KeyValuePair<string, string> distinctGroup, Dictionary<string, ElasticSearchApi.ESAssetDocument> idToDocument, List<long> orderedIds)
         {
             var bucketMapping = new Dictionary<string, ESAggregationBucket>();
@@ -1660,16 +1668,16 @@ namespace Core.Catalog
             filterSettings.AddChild(endDateRange);
             filterSettings.AddChild(tagsFilter);
             filteredQuery.Filter.FilterSettings = filterSettings;
- 
+
             // Create an aggregation search object for each association tag we have
             foreach (var associationTag in associationTags)
             {
                 ESTerm filter = new ESTerm(true)
-                    {
-                        Key = "media_type_id",
-                        // key of association tag is the child media type
-                        Value = associationTag.Key.ToString()
-                    };
+                {
+                    Key = "media_type_id",
+                    // key of association tag is the child media type
+                    Value = associationTag.Key.ToString()
+                };
 
                 ESFilterAggregation currentAggregation = new ESFilterAggregation(filter)
                 {
@@ -1841,7 +1849,7 @@ namespace Core.Catalog
 
             #region define date filter
 
-            if ((startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue)) || 
+            if ((startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue)) ||
                 (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue)))
             {
                 ESRange dateRange = new ESRange(false)
@@ -1873,29 +1881,29 @@ namespace Core.Catalog
             switch (orderBy)
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                {
-                    actionName = CatalogLogic.STAT_ACTION_FIRST_PLAY;
-                    break;
-                }
+                    {
+                        actionName = CatalogLogic.STAT_ACTION_FIRST_PLAY;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
-                {
-                    actionName = CatalogLogic.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = CatalogLogic.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                {
-                    actionName = CatalogLogic.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = CatalogLogic.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                {
-                    actionName = CatalogLogic.STAT_ACTION_LIKE;
-                    break;
-                }
+                    {
+                        actionName = CatalogLogic.STAT_ACTION_LIKE;
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             ESTerm actionTerm = new ESTerm(false)
@@ -2042,7 +2050,7 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
             }
-            
+
 
             #endregion
 
@@ -2317,23 +2325,23 @@ namespace Core.Catalog
                             switch (assetType)
                             {
                                 case eAssetTypes.MEDIA:
-                                {
-                                    assetIdField = "fields.media_id";
-                                    break;
-                                }
+                                    {
+                                        assetIdField = "fields.media_id";
+                                        break;
+                                    }
                                 case eAssetTypes.EPG:
-                                {
-                                    assetIdField = "fields.epg_id";
-                                    break;
-                                }
+                                    {
+                                        assetIdField = "fields.epg_id";
+                                        break;
+                                    }
                                 default:
-                                {
-                                    break;
-                                }
+                                    {
+                                        break;
+                                    }
                             }
 
                             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            DateTime update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date");                            
+                            DateTime update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date");
 
                             // Find the asset in the list with this ID, set its update date
                             assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;
@@ -2390,7 +2398,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2491,26 +2499,26 @@ namespace Core.Catalog
 
                 List<string> documents = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
 
-                List<ESBulkRequestObj<string>> lBulkObj = new List<ESBulkRequestObj<string>>();           
+                List<ESBulkRequestObj<string>> lBulkObj = new List<ESBulkRequestObj<string>>();
                 int sizeOfBulk = 500;
 
                 foreach (var document in documents)
                 {
-                        lBulkObj.Add(new ESBulkRequestObj<string>()
-                        {
-                            docID = document,
-                            index = index,
-                            type = type,
-                            Operation = eOperation.delete
-                        });
+                    lBulkObj.Add(new ESBulkRequestObj<string>()
+                    {
+                        docID = document,
+                        index = index,
+                        type = type,
+                        Operation = eOperation.delete
+                    });
 
-                        if (lBulkObj.Count >= sizeOfBulk)
-                        {
-                            Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => api.CreateBulkRequest(lBulkObj));
-                            t.Wait();
-                            
-                            lBulkObj = new List<ESBulkRequestObj<string>>();
-                        }
+                    if (lBulkObj.Count >= sizeOfBulk)
+                    {
+                        Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => api.CreateBulkRequest(lBulkObj));
+                        t.Wait();
+
+                        lBulkObj = new List<ESBulkRequestObj<string>>();
+                    }
                 }
 
                 if (lBulkObj.Count > 0)
@@ -2704,6 +2712,549 @@ namespace Core.Catalog
 
             return result;
         }
+
+        #region Tags
+
+        public List<TagValue> SearchTags(TagSearchDefinitions definitions, CatalogGroupCache catalogGroupCache, out int totalItems)
+        {
+            List<TagValue> result = new List<TagValue>();
+            totalItems = 0;
+
+            #region Build filtered query
+
+            BoolQuery query = new BoolQuery();
+
+            // Create the bool query of the topic Id and the value (autocomplete)
+            ESTerm topicTerm = new ESTerm(true)
+            {
+                Key = "topic_id",
+                Value = definitions.TopicId.ToString()
+            };
+
+            query.AddChild(topicTerm, CutWith.AND);
+
+            IESTerm valueTerm = null;
+
+            // if we have a specific language - we will search it only
+            if (definitions.Language != null)
+            {
+                valueTerm = CreateTagValueTerm(definitions.Language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
+            }
+            else
+            {
+                // if we don't have a specific language - we will search all languageas using OR between them
+                BoolQuery boolQuery = new BoolQuery();
+
+                foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                {
+                    var currentTerm = CreateTagValueTerm(language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
+
+                    boolQuery.AddChild(currentTerm, CutWith.OR);
+                }
+
+                valueTerm = boolQuery;
+            }
+
+            if (valueTerm != null)
+            {
+                query.AddChild(valueTerm, CutWith.AND);
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = definitions.PageIndex,
+                PageSize = definitions.PageSize,
+                Query = query
+            };
+
+            filteredQuery.ESSort.Add(new ESOrderObj()
+            {
+                m_sOrderValue = "value",
+                m_eOrderDir = OrderDir.ASC
+            });
+
+            filteredQuery.ReturnFields.Clear();
+
+            #endregion
+
+            #region Perform search
+
+            string searchQueryString = filteredQuery.ToString();
+
+            string type = string.Empty;
+
+            // if we have a specific language
+            if (definitions.Language != null)
+            {
+                if (!definitions.Language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", definitions.Language.Code);
+                }
+                else
+                {
+                    type = "tag";
+                }
+            }
+            // no language = all languages
+            else
+            {
+                StringBuilder typeBuilder = new StringBuilder();
+
+                // combine all language codes together
+                foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                {
+                    string currentType = string.Empty;
+
+                    if (!language.IsDefault)
+                    {
+                        currentType = string.Format("tag_{0}", language.Code);
+                    }
+                    else
+                    {
+                        currentType = "tag";
+                    }
+
+                    typeBuilder.Append(currentType);
+                    typeBuilder.Append(",");
+                }
+
+                if (typeBuilder.Length > 0)
+                {
+                    typeBuilder.Remove(typeBuilder.Length - 1, 1);
+                }
+
+                type = typeBuilder.ToString();
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(definitions.GroupId);
+
+            string searchResultString = m_oESApi.Search(index, type, ref searchQueryString);
+
+            #endregion
+
+            #region Parse result
+
+            if (string.IsNullOrEmpty(searchResultString))
+            {
+                return result;
+            }
+
+            var jsonObj = JObject.Parse(searchResultString);
+
+            if (jsonObj != null)
+            {
+                JToken tempToken;
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                if (totalItems > 0)
+                {
+                    foreach (var item in jsonObj.SelectToken("hits.hits"))
+                    {
+                        var itemSource = item["_source"];
+                        var tagValue = itemSource.ToObject<TagValue>();
+
+                        if (string.IsNullOrEmpty(tagValue.value))
+                        {
+                            foreach (var subSubItem in itemSource)
+                            {
+                                JProperty property = subSubItem as JProperty;
+
+                                if (property != null && property.Name.Contains("value"))
+                                {
+                                    tagValue.value = (itemSource[property.Name] as JValue).Value.ToString();
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        result.Add(tagValue);
+                    }
+                }
+            }
+
+            #endregion
+
+            return result;
+        }
+
+        private static IESTerm CreateTagValueTerm(LanguageObj language, string autocompleteValue, string exactValue)
+        {
+            IESTerm term = null;
+            string key = "value";
+
+            // not default language - add suffix
+            if (!language.IsDefault)
+            {
+                key = string.Format("value_{0}", language.Code);
+            }
+
+            string value = string.Empty;
+
+            // whether it is autocomplete or not
+            if (!string.IsNullOrEmpty(autocompleteValue))
+            {
+                key = string.Format("{0}.autocomplete", key);
+                value = autocompleteValue.ToLower();
+                term = new ESMatchQuery(null)
+                {
+                    Field = key,
+                    eOperator = CutWith.AND,
+                    Query = value
+                };
+            }
+            else if (!string.IsNullOrEmpty(exactValue))
+            {
+                value = exactValue.ToLower();
+                term = new ESTerm(false)
+                {
+                    Key = key,
+                    Value = value
+                };
+            }
+            
+
+            return term;
+        }
+
+        public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            // dictionary contains all language ids and its  code (string)
+            var languages = group.LanguageMapByCode.Values;
+
+            ESTerm term = new ESTerm(true)
+            {
+                Key = "tag_id",
+                Value = tagId.ToString()
+            };
+
+            ESQuery query = new ESQuery(term);
+            string queryString = query.ToString();
+
+            foreach (var language in languages)
+            {
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                bool deleteResult = m_oESApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                if (!deleteResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing delete query";
+                }
+            }
+
+            return status;
+        }
+
+        public ApiObjects.Response.Status DeleteTagsByTopic(int groupId, CatalogGroupCache group, long topicId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            // dictionary contains all language ids and its  code (string)
+            var languages = group.LanguageMapByCode.Values;
+
+            ESTerm term = new ESTerm(true)
+            {
+                Key = "topic_id",
+                Value = topicId.ToString()
+            };
+
+            ESQuery query = new ESQuery(term);
+            string queryString = query.ToString();
+
+            foreach (var language in languages)
+            {
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                bool deleteResult = m_oESApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                if (!deleteResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing delete query";
+                }
+            }
+
+            return status;
+        }
+
+        public ApiObjects.Response.Status UpdateTag(int groupId, CatalogGroupCache group, TagValue tag)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            List<TagValue> tagsToInsert = new List<TagValue>();
+
+            int defaultLanguageId = tag.languageId;
+
+            if (defaultLanguageId == 0)
+            {
+                defaultLanguageId = group.DefaultLanguage.ID;
+            }
+
+            tagsToInsert.Add(new TagValue() {
+                createDate = tag.createDate,
+                languageId = defaultLanguageId,
+                tagId = tag.tagId,
+                topicId = tag.topicId,
+                updateDate = tag.updateDate,
+                value = tag.value
+            });
+
+            foreach (var languageContainer in tag.TagsInOtherLanguages)
+            {
+                int languageId = 0;
+
+                if (group.LanguageMapByCode.ContainsKey(languageContainer.LanguageCode))
+                {
+                    languageId = group.LanguageMapByCode[languageContainer.LanguageCode].ID;
+
+                    if (languageId > 0)
+                    {
+                        tagsToInsert.Add(new TagValue()
+                        {
+                            createDate = tag.createDate,
+                            languageId = languageId,
+                            tagId = tag.tagId,
+                            topicId = tag.topicId,
+                            updateDate = tag.updateDate,
+                            value = languageContainer.Value
+                        });
+                    }
+                }
+            }
+
+            ESSerializerV2 serializer = new ESSerializerV2();
+
+            foreach (var tagToInsert in tagsToInsert)
+            {
+                // insert only tags with valid language id
+                if (tagToInsert.languageId == 0)
+                {
+                    continue;
+                }
+
+                var language = group.LanguageMapById[tagToInsert.languageId];
+                string suffix = null;
+
+                if (!language.IsDefault)
+                {
+                    suffix = language.Code;
+                }
+
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                // Serialize tag and create a bulk request for it
+                string serializedTag = serializer.SerializeTagValueObject(tagToInsert, language);
+
+                string id = string.Format("{0}_{1}", tagToInsert.tagId, tagToInsert.languageId);
+                bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
+
+                if (!insertResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing insert query";
+                }
+            }
+
+            return status;
+        }
+
+        #endregion
+
+        #region Channels
+
+        public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
+        {
+            List<int> result = new List<int>();            
+
+            #region Build filtered query
+
+            BoolQuery query = new BoolQuery();
+            
+            ESTerm valueTerm = null;
+            ESTerms idsTerm = null;
+
+            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
+            {
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "name.autocomplete",
+                    Value = definitions.AutocompleteSearchValue.ToLower()
+                };
+            }
+            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
+            {
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "name",
+                    Value = definitions.ExactSearchValue
+                };
+            }
+            else if (definitions.SpecificChannelIds != null && definitions.SpecificChannelIds.Count > 0)
+            {
+                idsTerm = new ESTerms(true)
+                {
+                    Key = "_id"
+                };
+
+                idsTerm.Value.AddRange(definitions.SpecificChannelIds.Select(x => x.ToString()));
+            }
+
+            if (valueTerm != null)
+            {
+                query.AddChild(valueTerm, CutWith.AND);
+            }
+            else if (idsTerm != null)
+            {
+                query.AddChild(idsTerm, CutWith.AND);
+            }
+
+            QueryFilter queryFilter = null;
+            if (!definitions.isAllowedToViewInactiveAssets)
+            {
+                BaseFilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
+                filterSettings.AddChild(new ESTerm(true)
+                {
+                    Key = CHANNEL_SEARCH_IS_ACTIVE,
+                    Value = CHANNEL_SEARCH_IS_ACTIVE_VALUE
+                });
+
+                queryFilter = new QueryFilter() { FilterSettings = filterSettings };
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = definitions.PageIndex,
+                PageSize = definitions.PageSize,
+                Query = query,
+                Filter = queryFilter
+            };
+
+            string orderValue = "_id";
+
+            switch (definitions.OrderBy)
+            {
+                case ChannelOrderBy.Name:
+                    {
+                        orderValue = "name";
+                        break;
+                    }
+                case ChannelOrderBy.CreateDate:
+                    {
+                        orderValue = "create_date";
+                        break;
+                    }
+                case ChannelOrderBy.Id:
+                    {
+                        orderValue = "_id";
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            filteredQuery.ESSort.Add(new ESOrderObj()
+            {
+                m_sOrderValue = orderValue,
+                m_eOrderDir = definitions.OrderDirection
+            });
+
+            filteredQuery.ReturnFields.Clear();
+
+            #endregion
+
+            #region Perform search
+
+            string searchQueryString = filteredQuery.ToString();
+
+            string type = "channel";
+
+            string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(definitions.GroupId);
+
+            string searchResultString = m_oESApi.Search(index, type, ref searchQueryString);
+
+            #endregion
+
+            #region Parse result
+
+            var jsonObj = JObject.Parse(searchResultString);
+
+            if (jsonObj != null)
+            {
+                JToken tempToken;
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                if (totalItems > 0)
+                {
+                    foreach (var item in jsonObj.SelectToken("hits.hits"))
+                    {
+                        var source = item["_source"];
+
+
+                        string id = ((tempToken = source.SelectToken("channel_id")) == null ? string.Empty : (string)tempToken);
+                        int channelId = 0;
+                        if (int.TryParse(id, out channelId) && channelId > 0)
+                        {
+                            result.Add(channelId);
+                        }
+                    }
+                }
+            }
+
+            #endregion
+
+            return result;
+        }    
+
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

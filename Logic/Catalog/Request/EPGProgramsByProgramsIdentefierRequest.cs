@@ -67,8 +67,8 @@ namespace Core.Catalog.Request
                     shouldSearchEpg = true,
                     pageIndex = 0,
                     pageSize = request.pids.Count(),
-                    shouldAddActive = true,
-                    shouldUseStartDate = false,
+                    shouldAddIsActiveTerm = true,
+                    shouldUseStartDateForMedia = false,
                     shouldUseFinalEndDate = false,
                     shouldUseSearchEndDate = false,
                     epgDaysOffest = 365

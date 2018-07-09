@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -100,6 +101,33 @@ namespace Core.Catalog.Response
             CatchUpBuffer = 0;
             TrickPlayBuffer = 0;
             EnableRecordingPlaybackNonEntitledChannel = false;
+        }
+
+        public MediaObj(int groupId, MediaAsset mediaAsset)
+            : base()
+        {
+            AssetId = mediaAsset.Id.ToString();
+            m_sName = string.Copy(mediaAsset.Name);
+            Name = mediaAsset.NamesWithLanguages.ToArray();
+            m_sDescription = string.Copy(mediaAsset.Description);
+            Description = mediaAsset.DescriptionsWithLanguages.ToArray();
+            EntryId = string.Copy(mediaAsset.EntryId);
+            CoGuid = string.Copy(mediaAsset.CoGuid);
+            m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
+            m_dCreationDate = mediaAsset.CreateDate.Value;
+            m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;                        
+            m_dStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value : DateTime.MinValue;
+            m_dEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value : DateTime.MaxValue;
+            m_dCatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value : DateTime.MinValue;
+            AssetType = eAssetTypes.MEDIA;
+            IsActive = mediaAsset.IsActive.HasValue ? mediaAsset.IsActive.Value : false;
+            m_dUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value : DateTime.MinValue;
+            m_lMetas = new List<Metas>(mediaAsset.Metas);
+            m_lTags = new List<Tags>(mediaAsset.Tags);
+            GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
+            DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
+            m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
+            m_lPicture = ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
         }
     }
 

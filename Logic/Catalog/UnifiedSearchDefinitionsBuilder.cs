@@ -46,21 +46,37 @@ namespace Core.Catalog
             try
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
-
-                int parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
-
-                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
-                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
-                definitions.isInternalSearch = request.isInternalSearch;
-
+                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
+                definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
+                int parentGroupID = request.m_nGroupID;
+                GroupManager groupManager = null;
+                Group group = null;
+                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+                if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetDefinitions", parentGroupID);
+                    return definitions;
+                }
+                else
+                {
+                    parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                    groupManager = new GroupManager();
+                    group = groupManager.GetGroup(parentGroupID);
+                }                                    
 
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(parentGroupID);
+                definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
+                if (definitions.isAllowedToViewInactiveAssets)
+                {
+                    definitions.shouldAddIsActiveTerm = false;
+                    definitions.shouldIgnoreDeviceRuleID = true;
+                }
 
                 if (request.filterTree != null)
                 {
-                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
                 }
 
                 // Get days offset for EPG search from TCM
@@ -70,7 +86,7 @@ namespace Core.Catalog
 
                 if (request.m_oFilter != null)
                 {
-                    definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                    definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
                     definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                     definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
                     if (!definitions.shouldIgnoreDeviceRuleID)
@@ -79,7 +95,9 @@ namespace Core.Catalog
                     }
                 }
 
-                definitions.shouldIgnoreEndDate = request.shouldIgnoreEndDate;
+                // in case operator is searching we override the existing value
+                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;                
+                definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets || request.shouldIgnoreEndDate;
 
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
@@ -142,7 +160,15 @@ namespace Core.Catalog
                     definitions.shouldSearchMedia = true;
                 }
 
-                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                HashSet<int> mediaTypes = null;
+                if (doesGroupUsesTemplates)
+                {
+                    mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
+                }
+                else
+                {
+                    mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                }
 
                 if (mediaTypes != null)
                 {
@@ -157,12 +183,23 @@ namespace Core.Catalog
                     }
                 }
 
-                if (order.m_eOrderBy == OrderBy.META && 
-                    !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                if (order.m_eOrderBy == OrderBy.META)
                 {
-                    //return error - meta not erxsits
-                    log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
-                    throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                    if (doesGroupUsesTemplates)
+                    {
+                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
+                        {
+                            //return error - meta not erxsits
+                            log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                            throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                        }
+                    }
+                    else if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                    {
+                        //return error - meta not erxsits
+                        log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                        throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                    }
                 }
 
                 #endregion
@@ -324,7 +361,7 @@ namespace Core.Catalog
 
                 #region Group By
 
-                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields);
+                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
                 #endregion
 
@@ -350,7 +387,7 @@ namespace Core.Catalog
 
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
                 {
-                    GetUserAssetRulesPhrase(request, group, ref definitions);
+                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID);
                 }
 
                 #endregion
@@ -365,7 +402,7 @@ namespace Core.Catalog
             return definitions;
         }
 
-        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions)
+        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId)
         {
             long userId = long.Parse(request.m_sSiteGuid);
 
@@ -392,7 +429,7 @@ namespace Core.Catalog
                     BooleanPhraseNode notPhrase = null;
                     BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
 
-                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group, groupId);
 
                     definitions.assetUserRulePhrase = notPhrase;
                 }
@@ -444,12 +481,28 @@ namespace Core.Catalog
             return result;
         }
 
-        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
-            BaseRequest request,
-            OrderObj order,
-            int parentGroupID, Group group)
+        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions, BaseRequest request, OrderObj order, int parentGroupID, Group group)
         {
             int[] fileTypes = null;
+            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+            List<int> linearChannelMediaTypes = new List<int>();
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildEntitlementSearchDefinitions", parentGroupID);
+                    return;
+                }
+                else if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManagement.CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))
+                {
+                    linearChannelMediaTypes.Add((int)catalogGroupCache.AssetStructsMapBySystemName[CatalogManagement.CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME].Id);
+                }
+            }
+            else if (group != null)
+            {
+                linearChannelMediaTypes.AddRange(group.linearChannelMediaTypes);
+            }
 
             if (request.m_oFilter != null)
             {
@@ -499,7 +552,7 @@ namespace Core.Catalog
                 // Also add linear channel media type so that we get them in the next search
                 if (definitions.shouldSearchEpg)
                 {
-                    selectedMediaTypes = selectedMediaTypes.Union(group.linearChannelMediaTypes.Select(t => t.ToString()));
+                    selectedMediaTypes = selectedMediaTypes.Union(linearChannelMediaTypes.Select(t => t.ToString()));
                 }
 
                 entitlementMediaTypes = selectedMediaTypes.ToArray();
@@ -512,24 +565,36 @@ namespace Core.Catalog
                     order, entitlementMediaTypes, definitions.deviceRuleId);
             }
 
-            if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
+            if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
-                // Convert the file type that we received in request (taken from groups_media_type)
-                // into the file type that the media file knows (based on the table media_files)
-                entitlementSearchDefinitions.fileTypes = new List<int>();
-
-                if (fileTypes != null)
+                if (doesGroupUsesTemplates)
                 {
-                    foreach (var fileType in fileTypes)
+                    GenericListResponse<CatalogManagement.MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
+                    if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK
+                        && mediaFileTypesResponse.Objects != null && mediaFileTypesResponse.Objects.Count > 0)
                     {
-                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        entitlementSearchDefinitions.fileTypes.AddRange(mediaFileTypesResponse.Objects.Select(x => (int)x.Id));
+                    }
+                }
+                else if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
+                {
+                    // Convert the file type that we received in request (taken from groups_media_type)
+                    // into the file type that the media file knows (based on the table media_files)
+                    entitlementSearchDefinitions.fileTypes = new List<int>();
+
+                    if (fileTypes != null)
+                    {
+                        foreach (var fileType in fileTypes)
+                        {
+                            entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        }
                     }
                 }
             }
 
             // TODO: Maybe this will be the method that gets the FREE epg channel IDs
             var entitledChannelIds =
-                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, group.linearChannelMediaTypes);
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes);
 
             epgChannelIds.AddRange(entitledChannelIds);
 

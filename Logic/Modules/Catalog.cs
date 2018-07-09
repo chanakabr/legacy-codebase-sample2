@@ -137,22 +137,18 @@ namespace Core.Catalog
             return isChannelUpdatingSucceeded;
         }
 
-        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
+        public static bool UpdateIndex(List<int> objectIds, int groupId, eAction action)
         {
-            var groupId = nGroupId;
-            var objectIDs = lMediaIds;
-            var action = eAction;
-
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
 
             bool bIsUpdateIndexSucceeded = false;
 
-            if (objectIDs != null && objectIDs.Count > 0 && groupId > 0)
+            if (objectIds != null && objectIds.Count > 0 && groupId > 0)
             {
                 try
                 {
-                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateIndex(objectIDs.ConvertAll<long>(i => (long)i), groupId, action);
+                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateIndex(objectIds.ConvertAll<long>(i => (long)i), groupId, action);
                 }
                 catch
                 {

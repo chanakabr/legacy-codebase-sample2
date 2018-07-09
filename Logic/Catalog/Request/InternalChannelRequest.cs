@@ -23,7 +23,9 @@ namespace Core.Catalog.Request
         public ApiObjects.SearchObjects.OrderObj order;
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
-        
+        [DataMember]
+        public bool isAllowedToViewInactiveAssets;
+
         #endregion
 
         #region Ctor
@@ -59,9 +61,14 @@ namespace Core.Catalog.Request
                 request.m_dServerTime = DateTime.UtcNow;
             }
 
-
             return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults, out aggregationsResult);
 
         }
+
+        internal virtual bool GetShouldUseSearchEndDate()
+        {
+            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);
+        }
+
     }
 }

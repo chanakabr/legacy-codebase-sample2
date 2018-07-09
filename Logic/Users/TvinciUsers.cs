@@ -1632,11 +1632,11 @@ namespace Core.Users
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.mediaTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.mediaTagTypeId.HasValue ? parentalRule.mediaTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.Parental,
                         AllTagValues = parentalRule.mediaTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 
@@ -1651,11 +1651,11 @@ namespace Core.Users
                         RuleID = (int)parentalRule.id,
                         IsActive = true,
                         Name = parentalRule.name,
-                        TagTypeID = parentalRule.epgTagTypeId,
-                        OrderNum = parentalRule.order,
+                        TagTypeID = parentalRule.epgTagTypeId.HasValue ? parentalRule.epgTagTypeId.Value : 0,
+                        OrderNum = parentalRule.order.Value,
                         GroupRuleType = eGroupRuleType.EPG,
                         AllTagValues = parentalRule.epgTagValues,
-                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess.Value,
                         BlockType = eBlockType.Validation
                     };
 

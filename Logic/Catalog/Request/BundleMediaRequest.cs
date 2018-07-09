@@ -188,7 +188,7 @@ namespace Core.Catalog.Request
 
                                         if (oSearchResults != null)
                                         {
-                                            lMediaRes = Utils.GetMediaUpdateDate(oSearchResults.m_resultIDs);
+                                            lMediaRes = Utils.GetMediaUpdateDate(oSearchResults.m_resultIDs, oBaseRequest.m_nGroupID);
                                         }
 
                                         if (lMediaRes != null && lMediaRes.Count > 0)

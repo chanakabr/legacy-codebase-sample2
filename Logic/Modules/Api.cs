@@ -5,6 +5,7 @@ using ApiObjects.BulkExport;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
@@ -824,9 +825,9 @@ namespace Core.Api
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static ParentalRulesResponse GetParentalRules(int groupId)
-        {
-            return Core.Api.api.GetParentalRules(groupId);
+        public static ParentalRulesResponse GetParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
+        {            
+            return Core.Api.api.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
         }
 
         /// <summary>
@@ -1473,19 +1474,10 @@ namespace Core.Api
         }
 
         #region KSQL Channel
-        public static KSQLChannelResponse InsertKSQLChannel(int groupId, KSQLChannel channel)
-        {
-            return APILogic.CRUD.KSQLChannelsManager.Insert(groupId, channel);
-        }
 
-        public static ApiObjects.Response.Status DeleteKSQLChannel(int groupId, int channelId)
+        public static KSQLChannelResponse SetKSQLChannel(int groupId, KSQLChannel channel, long userId)
         {
-            return APILogic.CRUD.KSQLChannelsManager.Delete(groupId, channelId);
-        }
-
-        public static KSQLChannelResponse SetKSQLChannel(int groupId, KSQLChannel channel)
-        {
-            return APILogic.CRUD.KSQLChannelsManager.Set(groupId, channel);
+            return APILogic.CRUD.KSQLChannelsManager.Set(groupId, channel, userId);
         }
 
         public static KSQLChannelResponse GetKSQLChannel(int groupId, int channelId)
@@ -1651,7 +1643,7 @@ namespace Core.Api
             return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
+        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
         {
             return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
         }

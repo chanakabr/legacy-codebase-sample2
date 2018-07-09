@@ -60,14 +60,27 @@ namespace ApiObjects
             get;
             set;
         }
-        
+
+        [DataMember]
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
+
+        [DataMember]
+        public string SystemName
+        {
+            get;
+            set;
+        }
+
         [DataMember]
         public string Description
         {
             get;
             set;
         }
-        
+
+        [DataMember]
+        public List<LanguageContainer> DescriptionInOtherLanguages { get; set; }
+
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj Order
         {

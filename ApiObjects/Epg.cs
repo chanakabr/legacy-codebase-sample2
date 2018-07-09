@@ -51,6 +51,10 @@ namespace ApiObjects
         [JsonProperty("pic_id")]
         public int PicID { get; set; }
 
+        // TODO: Lior - only temporary solution for linear media id until we handle new epg ingest
+        [JsonProperty("linear_media_id")]
+        public long LinearMediaId { get; set; }
+
         [JsonProperty("basic")]
         public EpgBasicData BasicData { get; protected set; }
         [JsonProperty("stats")]

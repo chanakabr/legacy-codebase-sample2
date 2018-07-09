@@ -95,6 +95,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
 
+        [DataMember]
+        public bool isAllowedToViewInactiveAssets;
+
         #endregion
 
         #region Ctor
@@ -134,6 +137,7 @@ namespace Core.Catalog.Request
             this.nameAndDescription = nameAndDescription;
             this.shouldIgnoreDeviceRuleID = false;
             this.exactGroupId = 0;
+            this.isAllowedToViewInactiveAssets = false;
         }
 
         #endregion
@@ -338,7 +342,7 @@ namespace Core.Catalog.Request
 
         internal virtual bool GetShouldUseSearchEndDate()
         {
-            return CatalogCache.Instance().IsTstvSettingsExists(this.m_nGroupID);
+            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);            
         }
     }
 }

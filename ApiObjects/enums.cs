@@ -105,7 +105,11 @@ namespace ApiObjects
         [EnumMember]
         EpgChannel = 3,
         [EnumMember]
-        Recording = 4
+        Recording = 4,
+        [EnumMember]
+        Tag = 5,
+        [EnumMember]
+        ChannelMetadata = 6
     }
 
     [Serializable]
@@ -312,7 +316,8 @@ namespace ApiObjects
         Channel = 1,
         Category = 2,
         DefaultPic = 3,
-        LogoPic = 4
+        LogoPic = 4,
+        ImageType = 5
     }
 
     [Serializable]
@@ -442,7 +447,7 @@ namespace ApiObjects
         OK = 1,
 
         [EnumMember]
-        Failed = 2
+        Failed = 2,
     }
 
     [Serializable]
@@ -777,12 +782,13 @@ namespace ApiObjects
 
     public enum MetaType
     {
-        All,
-        String,
-        Number,
-        Bool,
-        Tag,
-        DateTime
+        All = 0,
+        String = 1,
+        Number = 2,
+        Bool = 3,
+        Tag = 4,
+        DateTime = 5,
+        MultilingualString = 6
     }
 
     public enum MetaFieldName
@@ -963,7 +969,8 @@ namespace ApiObjects
         RENEW_SUBSCRIPTION = 4,
         PURCHASE_SERVICE = 5,
         LOGIN = 6,
-        DELETE_ALL_APP_TOKENS = 7
+        DELETE_ALL_APP_TOKENS = 7,
+        VIEW_INACTIVE_ASSETS = 8
     }
 
     public enum PermissionItems
@@ -1003,6 +1010,16 @@ namespace ApiObjects
         Delete = 1
     }
 
+    public enum MediaFileTypeQuality
+    {
+        None = 0,
+        Adaptive = 1,
+        SD = 2,
+        HD_720 = 3,
+        HD_1080 = 4,
+        UHD_4K = 5
+    }
+
     public enum MailMessageType
     {
         SystemAnnouncement = 0,
@@ -1016,6 +1033,35 @@ namespace ApiObjects
     {
         V1_0 = 1,
         V2_0 = 2
+    }
+
+    public enum TstvState
+    {
+        Inherited = 0,
+        Enabled = 1,
+        Disabled = 2        
+    }
+
+    public enum MediaAssetType
+    {
+        Media = 0,
+        Linear = 1
+    }
+
+    public enum LinearChannelType
+    {
+        Unknown = 0,
+        Dtt = 1,
+        Ott = 2,
+        Dtt_and_ott = 3
+    }
+
+    public enum ExcelColumnType
+    {
+        Asset = 0,
+        Topic = 1,
+        Image = 2,
+        File = 3
     }
 
     public enum RuleActionType
@@ -1050,4 +1096,5 @@ namespace ApiObjects
         playmanifest,
         direct
     }
+
 }
