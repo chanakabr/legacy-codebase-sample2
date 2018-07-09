@@ -412,7 +412,7 @@ namespace Core.ConditionalAccess
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                         cas.CreateDevicePlayData(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, 
-                                                             assetEpgRuleIds, program.EPG_ID, ApiObjects.Catalog.eExpirationTTL.Long);
+                                                             assetEpgRuleIds, program != null ? program.EPG_ID : 0, ApiObjects.Catalog.eExpirationTTL.Long);
                     }
                 }
             }
