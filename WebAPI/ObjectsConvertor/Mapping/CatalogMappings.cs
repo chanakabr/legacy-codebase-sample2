@@ -2057,15 +2057,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             KalturaValue value = null;
             foreach (var meta in list)
             {
-                if (meta.m_oTagMeta.m_sType == typeof(bool).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Bool.ToString())
+                string currentMetaType = meta.m_oTagMeta.m_sType;
+                string currentMetaTypeLowered = currentMetaType.ToLower();
+
+                if (currentMetaTypeLowered == typeof(bool).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.Bool.ToString())
                 {
                     value = new KalturaBooleanValue() { value = meta.m_sValue == "1" ? true : false };
                 }
-                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(string).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.String.ToString())
+                else if (currentMetaTypeLowered == typeof(string).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.String.ToString())
                 {
                     value = new KalturaStringValue() { value = meta.m_sValue };
                 }
-                else if (meta.m_oTagMeta.m_sType == ApiObjects.MetaType.MultilingualString.ToString())
+                else if (currentMetaType == ApiObjects.MetaType.MultilingualString.ToString())
                 {
                     if (string.IsNullOrEmpty(meta.m_sValue))
                     {
@@ -2076,11 +2079,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value.ToList(), meta.m_sValue) };
                     }
                 }
-                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(double).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Number.ToString())
+                else if (currentMetaTypeLowered == typeof(double).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.Number.ToString())
                 {
                     value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue, NumberStyles.Float, CultureInfo.InvariantCulture) };
                 }
-                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(DateTime).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.DateTime.ToString())
+                else if (currentMetaTypeLowered == typeof(DateTime).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.DateTime.ToString())
                 {
                     if (!string.IsNullOrEmpty(meta.m_sValue))
                     {
