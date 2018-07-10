@@ -409,7 +409,6 @@ namespace Reflector
             {
                 file.WriteLine(tab + "                            return " + controller.Name + "." + action.Name + "(" + args + ");");
             }
-            file.WriteLine(tab + "                            ");
         }
 
         private void wrtieExecAction()
@@ -439,6 +438,9 @@ namespace Reflector
                 List<MethodInfo> actions = controller.GetMethods().ToList();
                 actions.Sort(new MethodInfoComparer());
 
+                List<string> leftOldStandard = new List<string>();
+                List<string> doneOldStandard = new List<string>();
+
                 foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
@@ -451,11 +453,16 @@ namespace Reflector
                     {
                         continue;
                     }
+                    doneOldStandard.Add(actionAttribute.Name);
+                    if(leftOldStandard.Contains(actionAttribute.Name))
+                    {
+                        leftOldStandard.Remove(actionAttribute.Name);
+                    }
 
                     oldStandardActionAttribute = action.GetCustomAttribute<OldStandardActionAttribute>(true);
-                    if(oldStandardActionAttribute != null)
+                    if(oldStandardActionAttribute != null && !doneOldStandard.Contains(oldStandardActionAttribute.oldName))
                     {
-                        continue;
+                        leftOldStandard.Add(oldStandardActionAttribute.oldName);
                     }
 
                     file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
@@ -474,6 +481,26 @@ namespace Reflector
                     }
                     
                     wrtieExecAction(action, false);
+                    file.WriteLine("                            ");
+                }
+                foreach(string oldStandardName in leftOldStandard)
+                {
+                    file.WriteLine("                        case \"" + oldStandardName + "\":");
+
+                    foreach (MethodInfo oldAction in actions)
+                    {
+                        oldStandardActionAttribute = oldAction.GetCustomAttribute<OldStandardActionAttribute>(true);
+                        if (oldStandardActionAttribute != null && oldStandardActionAttribute.oldName == oldStandardName)
+                        {
+                            file.WriteLine("                            if(isOldVersion)");
+                            file.WriteLine("                            {");
+                            wrtieExecAction(oldAction, true);
+                            file.WriteLine("                            }");
+                            break;
+                        }
+                    }
+                    file.WriteLine("                            break;");
+                    file.WriteLine("                            ");
                 }
 
                 file.WriteLine("                    }");
