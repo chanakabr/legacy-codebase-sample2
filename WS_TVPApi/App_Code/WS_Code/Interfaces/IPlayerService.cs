@@ -25,10 +25,10 @@ namespace TVPApiServices
         string GetMediaLicenseLink(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, action Action, ActionHelper.FileHolder fileParam, int iLocation, long programId);
+        string MediaMark(InitializationObject initObj, action Action, ActionHelper.FileHolder fileParam, int iLocation, long programId, bool isReportingMode = false);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation, long programId);
+        string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation, long programId, bool isReportingMode = false);
 
         [OperationContract]
         string MediaLastPosition(InitializationObject initObj, int MediaId);
