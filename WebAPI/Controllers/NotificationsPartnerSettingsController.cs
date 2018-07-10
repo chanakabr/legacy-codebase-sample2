@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/notificationsPartnerSettings/action")]
-    public class NotificationsPartnerSettingsController : ApiController
+    [Service("notificationsPartnerSettings")]
+    public class NotificationsPartnerSettingsController : IKalturaController
     {
         /// <summary>
         /// Retrieve the partner notification settings.       
@@ -24,10 +24,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The notification settings that apply for the partner</returns>
         /// 
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaNotificationsPartnerSettings Get()
+        static public KalturaNotificationsPartnerSettings Get()
         {
             KalturaNotificationsPartnerSettings response = null;
 
@@ -51,11 +51,11 @@ namespace WebAPI.Controllers
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply for the partner</returns>        
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaPartnerNotificationSettings GetOldStandard()
+        static public KalturaPartnerNotificationSettings GetOldStandard()
         {
             KalturaPartnerNotificationSettings response = null;
 
@@ -81,13 +81,13 @@ namespace WebAPI.Controllers
         /// Push notification false = 8001 
         /// </remarks>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.PushNotificationFalse)]
         [Throws(eResponseStatus.MailNotificationAdapterNotExist)]
-        public bool Update(KalturaNotificationsPartnerSettings settings)
+        static public bool Update(KalturaNotificationsPartnerSettings settings)
         {
             bool response = false;
 
@@ -113,12 +113,12 @@ namespace WebAPI.Controllers
         /// Push notification false = 8001 
         /// </remarks>
         /// <returns></returns>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PushNotificationFalse)]
-        public bool UpdateOldStandard(KalturaPartnerNotificationSettings settings)
+        static public bool UpdateOldStandard(KalturaPartnerNotificationSettings settings)
         {
             bool response = false;
 

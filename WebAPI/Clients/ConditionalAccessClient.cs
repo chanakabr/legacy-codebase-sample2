@@ -1799,12 +1799,12 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language,
-                                                                WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType contextType)
+                                                                KalturaContextType contextType)
         {
             KalturaAssetFileContext kalturaResponse = null;
             EntitlementResponse response = null;
             bool isRecording = false;
-            if (contextType == KalturaAssetFileContext.KalturaContextType.recording)
+            if (contextType == KalturaContextType.recording)
             {
                 isRecording = true;
             }
@@ -1830,7 +1830,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
             // convert response        
-            kalturaResponse = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaAssetFileContext>(response);
+            kalturaResponse = Mapper.Map<KalturaAssetFileContext>(response);
             //kalturaResponse = new KalturaAssetFileContext()
             //    {
             //        Duration = response

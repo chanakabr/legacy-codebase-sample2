@@ -13,12 +13,13 @@ using WebAPI.Controllers;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using WebAPI.Models.Renderers;
+using System.Net;
 
 namespace Reflector
 {
     class DataModel : Base
     {
-        public DataModel() : base("..\\..\\..\\WebAPI\\Reflection\\DataModel.cs", typeof(KalturaOTTObject))
+        public DataModel() : base("..\\..\\..\\WebAPI\\Reflection\\DataModel.cs")
         {
 
         }
@@ -27,12 +28,17 @@ namespace Reflector
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
+            file.WriteLine("using System.Net;");
             file.WriteLine("using System.Collections.Generic;");
             file.WriteLine("using System.Linq;");
             file.WriteLine("using System.Reflection;");
             file.WriteLine("using System.Web;");
+            file.WriteLine("using WebAPI.Controllers;");
+            file.WriteLine("using WebAPI.Exceptions;");
+            file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
+            types.GroupBy(type => type.Namespace).Select(group => group.First().Namespace).ToList().ForEach(name => file.WriteLine("using " + name + ";"));
             file.WriteLine("");
             file.WriteLine("namespace WebAPI.Reflection");
             file.WriteLine("{");
@@ -42,15 +48,10 @@ namespace Reflector
 
         protected override void wrtieBody()
         {
-            wrtieIsDeprecated();
-            wrtieIsObsolete();
-            wrtieMethodOldMembers();
-            wrtieTypeOldMembers();
             wrtiePropertyApiName();
-            wrtieValidateAuthorization();
-            wrtieServeActionContentType();
-            wrtieIsNewStandardOnly();
-            wrtieGetNewObjectType();
+            wrtieExecAction();
+            wrtieGetMethodParams();
+            wrtieGetFailureHttpCode();
         }
 
         protected override void wrtieFooter()
@@ -58,44 +59,26 @@ namespace Reflector
             file.WriteLine("    }");
             file.WriteLine("}");
         }
-
-        private void wrtieGetNewObjectType()
+        
+        private void wrtieGetFailureHttpCode()
         {
-            file.WriteLine("        public static Type getNewObjectType(string objectType)");
+            file.WriteLine("        public static HttpStatusCode? getFailureHttpCode(string service, string action)");
             file.WriteLine("        {");
-            file.WriteLine("            switch (objectType)");
-            file.WriteLine("            {");
-
-            foreach (Type type in types)
-            {
-                NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
-                if (newObjectTypeAttribue != null)
-                {
-                    file.WriteLine("                case \"" + GetTypeName(type) + "\":");
-                    file.WriteLine("                    return typeof(" + newObjectTypeAttribue.type.FullName + ");");
-                    file.WriteLine("                    ");
-                }
-            }
-
-            file.WriteLine("            }");
-            file.WriteLine("            ");
-            file.WriteLine("            return null;");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
-
-        }
-
-        private void wrtieServeActionContentType()
-        {
-            file.WriteLine("        public static string getServeActionContentType(MethodInfo action)");
-            file.WriteLine("        {");
-            file.WriteLine("            switch (action.DeclaringType.Name)");
+            file.WriteLine("            service = service.ToLower();");
+            file.WriteLine("            action = action.ToLower();");
+            file.WriteLine("            switch (service)");
             file.WriteLine("            {");
 
             bool needed;
 
             foreach (Type controller in controllers)
             {
+                ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute == null)
+                {
+                    continue;
+                }
+
                 needed = false;
                 List<MethodInfo> actions = controller.GetMethods().ToList();
                 actions.Sort(new MethodInfoComparer());
@@ -105,8 +88,8 @@ namespace Reflector
                     if (action.DeclaringType != controller)
                         continue;
 
-                    SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
-                    if (serve != null)
+                    FailureHttpCodeAttribute failureHttpCodeAttribute = action.GetCustomAttribute<FailureHttpCodeAttribute>(true);
+                    if (failureHttpCodeAttribute != null)
                     {
                         needed = true;
                     }
@@ -115,8 +98,8 @@ namespace Reflector
                 if (!needed)
                     continue;
 
-                file.WriteLine("                case \"" + controller.Name + "\":");
-                file.WriteLine("                    switch(action.Name)");
+                file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
+                file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
 
                 foreach (MethodInfo action in actions)
@@ -124,11 +107,12 @@ namespace Reflector
                     if (action.DeclaringType != controller)
                         continue;
 
-                    SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
-                    if (serve != null)
+                    ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    FailureHttpCodeAttribute failureHttpCodeAttribute = action.GetCustomAttribute<FailureHttpCodeAttribute>(true);
+                    if (failureHttpCodeAttribute != null && actionAttribute != null)
                     {
-                        file.WriteLine("                        case \"" + action.Name + "\":");
-                        file.WriteLine("                            return \"" + serve.ContentType + "\";");
+                        file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
+                        file.WriteLine("                            return HttpStatusCode." + Enum.GetName(typeof(HttpStatusCode), failureHttpCodeAttribute.HttpStatusCode) + ";");
                         file.WriteLine("                            ");
                     }
                 }
@@ -145,23 +129,46 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
-        private void wrtieValidateAuthorization()
+        private string varToString(object value)
         {
-            file.WriteLine("        public static void validateAuthorization(MethodInfo action, string serviceName, string actionName)");
-            file.WriteLine("        {");
-            file.WriteLine("            bool silent = false;");
-            file.WriteLine("            switch (action.DeclaringType.Name)");
-            file.WriteLine("            {");
+            if(value is null)
+            {
+                return "null";
+            }
+            if(value is bool)
+            {
+                return value.ToString().ToLower();
+            }
 
-            bool authNeeded;
-            bool nonSilentNeeded;
-            bool returnNeeded;
+            return value.ToString();
+        }
+
+        private void wrtieGetMethodParams()
+        {
+            List<PropertyInfo> schemeArgumentProperties = typeof(SchemeArgumentAttribute).GetProperties().ToList();
+
+            file.WriteLine("        public static Dictionary<string, MethodParam> getMethodParams(string service, string action)");
+            file.WriteLine("        {");
+            file.WriteLine("            service = service.ToLower();");
+            file.WriteLine("            action = action.ToLower();");
+            file.WriteLine("            Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();");
+            file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+            file.WriteLine("            string paramName;");
+            file.WriteLine("            switch (service)");
+            file.WriteLine("            {");
 
             foreach (Type controller in controllers)
             {
-                authNeeded = false;
-                nonSilentNeeded = false;
-                returnNeeded = false;
+                ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute == null)
+                {
+                    continue;
+                }
+
+                file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
+                file.WriteLine("                    switch(action)");
+                file.WriteLine("                    {");
 
                 List<MethodInfo> actions = controller.GetMethods().ToList();
                 actions.Sort(new MethodInfoComparer());
@@ -169,53 +176,170 @@ namespace Reflector
                 foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
+                    {
                         continue;
-
-                    ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
-                    if (authorization == null)
-                    {
-                        returnNeeded = true;
                     }
-                    else
+
+                    ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    if (actionAttribute == null)
                     {
-                        authNeeded = true;
-                        nonSilentNeeded = nonSilentNeeded || authorization.Silent;
-                    }
-                }
-                if (!authNeeded)
-                {
-                    file.WriteLine("                case \"" + controller.Name + "\":");
-                    file.WriteLine("                    return;");
-                    file.WriteLine("                    ");
-                    continue;
-                }
-
-                if (!nonSilentNeeded && !returnNeeded)
-                    continue;
-
-                file.WriteLine("                case \"" + controller.Name + "\":");
-                file.WriteLine("                    switch(action.Name)");
-                file.WriteLine("                    {");
-
-                foreach (MethodInfo action in actions)
-                {
-                    if (action.DeclaringType != controller)
                         continue;
+                    }
 
-                    ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
-                    if (authorization == null)
+                    file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
+
+                    ParameterInfo[] parameters = action.GetParameters();
+                    IEnumerable<SchemeArgumentAttribute> schemaArguments = action.GetCustomAttributes<SchemeArgumentAttribute>();
+                    IEnumerable<OldStandardArgumentAttribute> oldStandardArgumentAttributes = action.GetCustomAttributes<OldStandardArgumentAttribute>(true);
+                    foreach (ParameterInfo parameter in parameters)
                     {
-                        file.WriteLine("                        case \"" + action.Name + "\":");
-                        file.WriteLine("                            return;");
-                        file.WriteLine("                            ");
+                        string paramName = "paramName";
+                        bool hasOldStandard = false;
+                        foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
+                        {
+                            if (oldStandardArgumentAttribute.newName == parameter.Name)
+                            {
+                                hasOldStandard = true;
+                                break;
+                            }
+                        }
+                        if (hasOldStandard)
+                        {
+                            file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
+                            foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
+                            {
+                                if (oldStandardArgumentAttribute.newName == parameter.Name)
+                                {
+                                    if (oldStandardArgumentAttribute.sinceVersion != null)
+                                    {
+                                        file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) > 0)");
+                                        file.WriteLine("                            {");
+                                        file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                            }");
+                                    }
+                                }
+                            }
+                            foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
+                            {
+                                if (oldStandardArgumentAttribute.newName == parameter.Name)
+                                {
+                                    if (oldStandardArgumentAttribute.sinceVersion == null)
+                                    {
+                                        file.WriteLine("                            if(isOldVersion)");
+                                        file.WriteLine("                            {");
+                                        file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                            }");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            paramName = "\"" + parameter.Name + "\"";
+                        }
+                        file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
+                        if (parameter.IsOptional)
+                        {
+                            file.WriteLine("                                IsOptional = true,");
+                            file.WriteLine("                                DefaultValue = " + varToString(parameter.DefaultValue) + ",");
+                        }
+                        if (parameter.ParameterType.IsGenericType)
+                        {
+                            if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            {
+                                file.WriteLine("                                IsNullable = true,");
+                                Type nullableType = Nullable.GetUnderlyingType(parameter.ParameterType);
+                                file.WriteLine("                                Type = typeof(" + nullableType.Name + "),");
+                                if (nullableType.IsEnum)
+                                {
+                                    file.WriteLine("                                IsEnum = true,");
+                                }
+                            }
+                            else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
+                            {
+                                file.WriteLine("                                IsList = true,");
+                                file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + "),");
+                                file.WriteLine("                                Type = typeof(List<" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + ">),");
+                            }
+                            else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
+                            {
+                                file.WriteLine("                                IsMap = true,");
+                                file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
+                                file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
+                            }
+                        }
+                        else if (parameter.ParameterType.IsEnum)
+                        {
+                            file.WriteLine("                                IsEnum = true,");
+                            file.WriteLine("                                Type = typeof(" + parameter.ParameterType.Name + "),");
+                        }
+                        else
+                        {
+                            if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
+                            {
+                                file.WriteLine("                                IsKalturaObject = true,");
+                                if (typeof(KalturaMultilingualString).IsAssignableFrom(parameter.ParameterType))
+                                {
+                                    file.WriteLine("                                IsKalturaMultilingualString = true,");
+                                }
+                            }
+                            else if (parameter.ParameterType == typeof(DateTime))
+                            {
+                                file.WriteLine("                                IsDateTime = true,");
+                            }
+                            file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "),");
+                        }
+                        
+                        foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
+                        {
+                            if (schemaArgument.Name.Equals(parameter.Name))
+                            {
+                                file.WriteLine("                                SchemeArgument = new RuntimeSchemeArgumentAttribute(\"" + parameter.Name + "\", \"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\") {");
+                                schemeArgumentProperties.ForEach(schemeArgumentProperty => {
+                                    object val = schemeArgumentProperty.GetValue(schemaArgument);
+                                    if (val != null)
+                                    {
+                                        if (schemeArgumentProperty.Name != "Name" && schemeArgumentProperty.Name != "TypeId")
+                                        {
+                                            if (schemeArgumentProperty.PropertyType == typeof(bool))
+                                            {
+                                                file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                            }
+                                            else if (schemeArgumentProperty.PropertyType == typeof(int))
+                                            {
+                                                if ((int)val != int.MinValue && (int)val != int.MaxValue)
+                                                {
+                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                                }
+                                            }
+                                            else if (schemeArgumentProperty.PropertyType == typeof(long))
+                                            {
+                                                if ((long)val != long.MinValue && (long)val != long.MaxValue)
+                                                {
+                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                                }
+                                            }
+                                            else if (schemeArgumentProperty.PropertyType == typeof(float))
+                                            {
+                                                if ((float)val != float.MinValue && (float)val != float.MaxValue)
+                                                { 
+                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val + ",");
+                                            }
+                                        }
+                                    }
+                                });
+                                file.WriteLine("                                },");
+                            }
+                        }
+                        file.WriteLine("                            });");
                     }
-                    else if (authorization.Silent)
-                    {
-                        file.WriteLine("                        case \"" + action.Name + "\":");
-                        file.WriteLine("                            silent = true;");
-                        file.WriteLine("                            break;");
-                        file.WriteLine("                            ");
-                    }
+                    file.WriteLine("                            return ret;");
+                    file.WriteLine("                            ");
                 }
 
                 file.WriteLine("                    }");
@@ -225,56 +349,98 @@ namespace Reflector
 
             file.WriteLine("            }");
             file.WriteLine("            ");
-            file.WriteLine("            RolesManager.ValidateActionPermitted(serviceName, actionName, silent);");
+            file.WriteLine("            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);");
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
 
-        private void wrtieIsNewStandardOnly()
+        private void wrtieExecAction()
         {
-            file.WriteLine("        public static bool isNewStandardOnly(PropertyInfo property)");
+            file.WriteLine("        public static object execAction(string service, string action, List<object> methodParams)");
             file.WriteLine("        {");
-            file.WriteLine("            switch (property.DeclaringType.Name)");
+            file.WriteLine("            service = service.ToLower();");
+            file.WriteLine("            action = action.ToLower();");
+            file.WriteLine("            switch (service)");
             file.WriteLine("            {");
-
-            bool needed = false;
-
-            foreach (Type type in types)
+            
+            foreach (Type controller in controllers)
             {
-                needed = false;
-
-                List<PropertyInfo> properties = type.GetProperties().ToList();
-                properties.Sort(new PropertyInfoComparer());
-
-                foreach (PropertyInfo property in properties)
+                ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if(serviceAttribute == null)
                 {
-                    if (property.DeclaringType != type)
-                        continue;
-
-                    OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>();
-                    if (onlyNewStandard != null)
-                    {
-                        needed = true;
-                    }
-                }
-                if (!needed)
                     continue;
+                }
 
-                file.WriteLine("                case \"" + type.Name + "\":");
-                file.WriteLine("                    switch(property.Name)");
+                file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
+                file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
+                
+                List<MethodInfo> actions = controller.GetMethods().ToList();
+                actions.Sort(new MethodInfoComparer());
 
-                foreach (PropertyInfo property in properties)
+                foreach (MethodInfo action in actions)
                 {
-                    if (property.DeclaringType != type)
-                        continue;
-
-                    OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>();
-                    if (onlyNewStandard != null)
+                    if (action.DeclaringType != controller)
                     {
-                        file.WriteLine("                        case \"" + property.Name + "\":");
-                        file.WriteLine("                            return true;");
+                        continue;
                     }
+
+                    ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    if (actionAttribute == null)
+                    {
+                        continue;
+                    }
+
+                    file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
+
+                    BlockHttpMethodsAttribute blockHttpMethods = action.GetCustomAttribute<BlockHttpMethodsAttribute>(true);
+                    if (blockHttpMethods != null && blockHttpMethods.HttpMethods != null && blockHttpMethods.HttpMethods.Count > 0)
+                    {
+                        List<string> conditions = new List<string>();
+                        foreach(string httpMethod in blockHttpMethods.HttpMethods)
+                        {
+                            conditions.Add("HttpContext.Current.Request.HttpMethod.ToLower() == \"" + httpMethod.ToLower() + "\"");
+                        }
+                        file.WriteLine("                            if(" + String.Join(" || ", conditions) + ")");
+                        file.WriteLine("                            {");
+                        file.WriteLine("                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());");
+                        file.WriteLine("                            }");
+                    }
+
+                    ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
+                    if (authorization != null)
+                    {
+                        if (authorization.Silent)
+                        {
+                            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", true);");
+                        }
+                        else
+                        {
+                            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", false);");
+                        }
+                    }
+
+                    SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
+                    if (serve != null)
+                    {
+                        file.WriteLine("                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
+                    }
+
+                    string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+                    if (action.IsGenericMethod)
+                    {
+                        file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + action.Name + "\"), methodParams);");
+                    }
+                    else if (action.ReturnType == typeof(void))
+                    {
+                        file.WriteLine("                            " + controller.Name + "." + action.Name + "(" + args + ");");
+                        file.WriteLine("                            return null;");
+                    }
+                    else
+                    {
+                        file.WriteLine("                            return " + controller.Name + "." + action.Name + "(" + args + ");");
+                    }
+                    file.WriteLine("                            ");
                 }
 
                 file.WriteLine("                    }");
@@ -284,7 +450,7 @@ namespace Reflector
 
             file.WriteLine("            }");
             file.WriteLine("            ");
-            file.WriteLine("            return false;");
+            file.WriteLine("            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);");
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
@@ -308,7 +474,9 @@ namespace Reflector
                 foreach (PropertyInfo property in properties)
                 {
                     if (property.DeclaringType != type)
+                    {
                         continue;
+                    }
 
                     DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
                     if (dataMember != null && !dataMember.Name.Equals(property.Name))
@@ -347,199 +515,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-
-        private void wrtieIsObsoleteCase(Type type)
-        {
-            List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
-            properties.Sort(new PropertyInfoComparer());
-
-            if (properties.Count == 0)
-                return;
-
-            List<string> propertyNames = new List<string>();
-            foreach (PropertyInfo property in properties)
-            {
-                if (property.GetCustomAttribute<ObsoleteAttribute>() != null)
-                {
-                    propertyNames.Add(property.Name);
-                }
-            }
-            if (propertyNames.Count == 0)
-                return;
-
-            propertyNames.Sort();
-
-            file.WriteLine("                case \"" + type.Name + "\":");
-            file.WriteLine("                    switch (propertyName)");
-            file.WriteLine("                    {");
-
-            foreach (string propertyName in propertyNames)
-            {
-                file.WriteLine("                        case \"" + propertyName + "\":");
-            }
-
-            file.WriteLine("                            return true;");
-            file.WriteLine("                    };");
-            file.WriteLine("                    break;");
-            file.WriteLine("                    ");
-        }
-
-        private void wrtieIsDeprecatedCase(Type type)
-        {
-            List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
-            properties.Sort(new PropertyInfoComparer());
-
-            if (properties.Count == 0)
-                return;
-
-            Dictionary<string, string> propertyNames = new Dictionary<string, string>();
-            foreach (PropertyInfo property in properties)
-            {
-                DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>();
-                if (deprecated != null)
-                {
-                    propertyNames.Add(property.Name, deprecated.SinceVersion);
-                }
-            }
-            if (propertyNames.Count == 0)
-                return;
-            
-            file.WriteLine("                case \"" + type.Name + "\":");
-            file.WriteLine("                    switch (propertyName)");
-            file.WriteLine("                    {");
-
-            foreach (KeyValuePair<string, string> property in propertyNames)
-            {
-                file.WriteLine("                        case \"" + property.Key + "\":");
-                file.WriteLine("                            return DeprecatedAttribute.IsDeprecated(\"" + property.Value + "\");");
-            }
-
-            file.WriteLine("                    };");
-            file.WriteLine("                    break;");
-            file.WriteLine("                    ");
-        }
-
-        private void wrtieIsDeprecated()
-        {
-            file.WriteLine("        public static bool IsDeprecated(Type type, string propertyName)");
-            file.WriteLine("        {");
-            file.WriteLine("            switch (type.Name)");
-            file.WriteLine("            {");
-
-            foreach (Type type in types)
-            {
-                wrtieIsDeprecatedCase(type);
-            }
-
-            file.WriteLine("            }");
-            file.WriteLine("            ");
-            file.WriteLine("            return false;");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
-        }
-
-        private void wrtieIsObsolete()
-        {
-            file.WriteLine("        public static bool IsObsolete(Type type, string propertyName)");
-            file.WriteLine("        {");
-            file.WriteLine("            switch (type.Name)");
-            file.WriteLine("            {");
-
-            foreach (Type type in types)
-            {
-                wrtieIsObsoleteCase(type);
-            }
-
-            file.WriteLine("            }");
-            file.WriteLine("            ");
-            file.WriteLine("            return IsDeprecated(type, propertyName);");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
-        }
-
-        private void wrtieMethodOldMembers()
-        {
-            file.WriteLine("        public static Dictionary<string, string> getOldMembers(MethodInfo action, Version currentVersion)");
-            file.WriteLine("        {");
-            file.WriteLine("            Dictionary<string, string> ret = null;");
-            file.WriteLine("            switch (action.DeclaringType.Name)");
-            file.WriteLine("            {");
-
-            foreach (Type controller in controllers)
-            {
-                bool hasOldStandard = false;
-
-                List<MethodInfo> actions = controller.GetMethods().ToList();
-                actions.Sort(new MethodInfoComparer());
-
-                foreach (MethodInfo method in actions)
-                {
-                    if (method.DeclaringType != controller)
-                        continue;
-
-                    OldStandardArgumentAttribute[] attributes = (OldStandardArgumentAttribute[])Attribute.GetCustomAttributes(method, typeof(OldStandardArgumentAttribute));
-                    hasOldStandard = hasOldStandard || attributes.Length > 0;
-                }
-
-                if (!hasOldStandard)
-                    continue;
-
-                file.WriteLine("                case \"" + controller.Name + "\":");
-                file.WriteLine("                    switch(action.Name)");
-                file.WriteLine("                    {");
-
-                foreach (MethodInfo method in actions)
-                {
-                    if (method.DeclaringType != controller)
-                        continue;
-
-                    List<OldStandardArgumentAttribute> attributes = ((IEnumerable<OldStandardArgumentAttribute>)Attribute.GetCustomAttributes(method, typeof(OldStandardArgumentAttribute))).ToList();
-                    if (attributes.Count == 0)
-                        continue;
-
-                    attributes.Sort(new OldStandardArgumentAttributeComparer());
-
-                    file.WriteLine("                        case \"" + method.Name + "\":");
-                    file.WriteLine("                            ret = new Dictionary<string, string>() { ");
-                    foreach (OldStandardArgumentAttribute attribute in attributes)
-                    {
-                        if (attribute.sinceVersion == null)
-                        {
-                            file.WriteLine("                                 {\"" + attribute.newName + "\", \"" + attribute.oldName + "\"},");
-                        }
-                    }
-                    file.WriteLine("                            };");
-
-                    foreach (OldStandardArgumentAttribute attribute in attributes)
-                    {
-                        if (attribute.sinceVersion == null)
-                        {
-                            continue;
-                        }
-                        file.WriteLine("                            if (currentVersion != null && currentVersion.CompareTo(new Version(\"" + attribute.sinceVersion + "\")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)");
-                        file.WriteLine("                            {");
-                        file.WriteLine("                                if (ret.ContainsKey(\"" + attribute.newName + "\"))");
-                        file.WriteLine("                                {");
-                        file.WriteLine("                                    ret.Remove(\"" + attribute.newName + "\");");
-                        file.WriteLine("                                }");
-                        file.WriteLine("                                ret.Add(\"" + attribute.newName + "\", \"" + attribute.oldName + "\");");
-                        file.WriteLine("                            }");
-                    }
-                    file.WriteLine("                            break;");
-                }
-
-                file.WriteLine("                    }");
-                file.WriteLine("                    break;");
-                file.WriteLine("                    ");
-            }
-
-            file.WriteLine("            }");
-            file.WriteLine("            ");
-            file.WriteLine("            return ret;");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
-        }
-
+        
         private void wrtieTypeOldMembersCase(Type type)
         {
             List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).ToList();
@@ -612,72 +588,6 @@ namespace Reflector
 
             file.WriteLine("                    break;");
             file.WriteLine("                    ");
-        }
-
-        private void wrtieControllerOldMembersCase(Type controller)
-        {
-            List<MethodInfo> actions = controller.GetMethods().ToList();
-            actions.Sort(new MethodInfoComparer());
-
-            List<MethodInfo> oldStandardActions = new List<MethodInfo>();
-            foreach (MethodInfo action in actions)
-            {
-                if (action.DeclaringType != controller)
-                    continue;
-
-                OldStandardActionAttribute oldStandardAction = action.GetCustomAttribute<OldStandardActionAttribute>(true);
-                if (oldStandardAction != null)
-                {
-                    oldStandardActions.Add(action);
-                }
-            }
-
-            if (oldStandardActions.Count == 0)
-                return;
-
-            file.WriteLine("                case \"" + controller.Name + "\":");
-            file.WriteLine("                    ret = new Dictionary<string, string>() { ");
-            foreach (MethodInfo action in oldStandardActions)
-            {
-                OldStandardActionAttribute oldStandardAction = action.GetCustomAttribute<OldStandardActionAttribute>(true);
-                RouteAttribute route = action.GetCustomAttribute<RouteAttribute>();
-
-                string newName = action.Name;
-                if (route != null)
-                {
-                    newName = route.Template;
-                }
-
-                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardAction.oldName.ToLower() + "\"},");
-            }
-            file.WriteLine("                    };");
-            file.WriteLine("                    break;");
-            file.WriteLine("                    ");
-        }
-
-        private void wrtieTypeOldMembers()
-        {
-            file.WriteLine("        public static Dictionary<string, string> getOldMembers(Type type, Version currentVersion)");
-            file.WriteLine("        {");
-            file.WriteLine("            Dictionary<string, string> ret = null;");
-            file.WriteLine("            switch (type.Name)");
-            file.WriteLine("            {");
-
-            foreach (Type type in types)
-            {
-                wrtieTypeOldMembersCase(type);
-            }
-
-            foreach (Type type in controllers)
-            {
-                wrtieControllerOldMembersCase(type);
-            }
-
-            file.WriteLine("            }");
-            file.WriteLine("            ");
-            file.WriteLine("            return ret;");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
         }
     }
 }

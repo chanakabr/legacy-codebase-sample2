@@ -21,7 +21,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner configuration filter 
     /// </summary>
-    public class KalturaPartnerConfigurationFilter : KalturaFilter<KalturaPartnerConfigurationOrderBy>
+    public partial class KalturaPartnerConfigurationFilter : KalturaFilter<KalturaPartnerConfigurationOrderBy>
     {
         /// <summary>
         /// Indicates which partner configuration list to return

@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cdnAdapterProfile/action")]
-    public class CdnAdapterProfileController : ApiController
+    [Service("cdnAdapterProfile")]
+    public class CdnAdapterProfileController : IKalturaController
     {
         /// <summary>
         /// Returns all CDN adapters for partner
@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <remarks> 
         /// 
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaCDNAdapterProfileListResponse List()
+        static public KalturaCDNAdapterProfileListResponse List()
         {
             KalturaCDNAdapterProfileListResponse response = null;
 
@@ -50,12 +50,12 @@ namespace WebAPI.Controllers
         /// Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
         /// </remarks>
         /// <param name="adapterId">CDN adapter identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
-        public bool Delete(int adapterId)
+        static public bool Delete(int adapterId)
         {
             bool response = false;
 
@@ -82,13 +82,13 @@ namespace WebAPI.Controllers
         /// Adapter NameRequired = 5005, AdapterUrlRequired = 5013, SystemNameMustBeUnique = 5019, SystemNameRequired = 5020
         /// </remarks>
         /// <param name="adapter">CDN adapter object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.AliasMustBeUnique)]
         [Throws(eResponseStatus.AliasRequired)]
-        public KalturaCDNAdapterProfile Add(KalturaCDNAdapterProfile adapter)
+        static public KalturaCDNAdapterProfile Add(KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
 
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="adapterId">CDN adapter id to update</param>       
         /// <param name="adapter">CDN adapter Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.AliasMustBeUnique)]
         [Throws(eResponseStatus.AliasRequired)]
-        public KalturaCDNAdapterProfile Update(int adapterId, KalturaCDNAdapterProfile adapter)
+        static public KalturaCDNAdapterProfile Update(int adapterId, KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
 
@@ -150,12 +150,12 @@ namespace WebAPI.Controllers
         /// AdapterIdentifierRequired = 10001, AdapterNotExists = 10000
         /// </remarks>
         /// <param name="adapterId">CDN adapter identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
-        public KalturaCDNAdapterProfile GenerateSharedSecret(int adapterId)
+        static public KalturaCDNAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDNAdapterProfile response = null;
 

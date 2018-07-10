@@ -19,8 +19,8 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/collection/action")]
-    public class CollectionController : ApiController
+    [Service("collection")]
+    public class CollectionController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaCollectionListResponse List(KalturaCollectionFilter filter)
+        static public KalturaCollectionListResponse List(KalturaCollectionFilter filter)
         {
             KalturaCollectionListResponse response = new KalturaCollectionListResponse();
 

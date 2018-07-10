@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/notification/action")]
-    public class NotificationController : ApiController
+    [Service("notification")]
+    public class NotificationController : IKalturaController
     {
         /// <summary>
         /// Registers the device push token to the push service
@@ -22,10 +22,10 @@ namespace WebAPI.Controllers
         /// 
         /// </remarks>
         /// <returns></returns>
-        [Route("setDevicePushToken"), HttpPost]
+        [Action("setDevicePushToken")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool SetDevicePushToken(string pushToken)
+        static public bool SetDevicePushToken(string pushToken)
         {
             bool response = false;
 
@@ -57,10 +57,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="identifier">In case type is "announcement", identifier should be the announcement ID. In case type is "system", identifier should be "login" (the login topic)</param>        
         /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
-        [Route("register"), HttpPost]
+        [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
+        static public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;
 
@@ -118,10 +118,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="userId">User identifications</param>        
         /// <param name="pushMessage">Message push data</param>     
-        [Route("sendPush"), HttpPost]
+        [Action("sendPush")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool SendPush(int userId, KalturaPushMessage pushMessage)
+        static public bool SendPush(int userId, KalturaPushMessage pushMessage)
         {
             bool response = false;
 
@@ -158,10 +158,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <param name="message">Message to send</param>     
-        [Route("sendSms"), HttpPost]
+        [Action("sendSms")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool SendSms(string message)
+        static public bool SendSms(string message)
         {
             bool response = false;
 

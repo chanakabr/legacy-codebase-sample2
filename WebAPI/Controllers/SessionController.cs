@@ -13,18 +13,18 @@ using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/session/action")]
-    public class SessionController : ApiController
+    [Service("session")]
+    public class SessionController : IKalturaController
     {
         /// <summary>
         /// Parses KS
         /// </summary>
         /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("session", RequiresPermission = true)]
 
-        public KalturaSession Get(string session = null)
+        static public KalturaSession Get(string session = null)
         {
             KS ks;
 
@@ -56,12 +56,12 @@ namespace WebAPI.Controllers
         /// Parses KS
         /// </summary>
         /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [OldStandardArgument("session", "ks_to_parse")]
         [Obsolete]
-        public KalturaSessionInfo GetOldStandard(string session = null)
+        static public KalturaSessionInfo GetOldStandard(string session = null)
         {
             KS ks;
 
@@ -91,11 +91,11 @@ namespace WebAPI.Controllers
         /// Switching the user in the session by generating a new session for a new user within the same household
         /// </summary>
         /// <param name="userIdToSwitch">The identifier of the user to change</param>
-        [Route("switchUser"), HttpPost]
+        [Action("switchUser")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotActivated)]
-        public KalturaLoginSession SwitchUser(string userIdToSwitch)
+        static public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
             KalturaLoginSession loginSession = null;
             KS ks = KS.GetFromRequest();
@@ -138,10 +138,10 @@ namespace WebAPI.Controllers
         /// Revokes all the sessions (KS) of a given user 
         /// </summary>
         /// <param name="userId">The identifier of the user to change</param>
-        [Route("revoke"), HttpPost]
+        [Action("revoke")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Revoke()
+        static public bool Revoke()
         {
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;

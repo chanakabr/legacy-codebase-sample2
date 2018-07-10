@@ -49,9 +49,8 @@ namespace Reflector
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
             file.WriteLine("using System.Linq;");
-            file.WriteLine("using System.Web;");
-            file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using System.Collections.Generic;");
+            file.WriteLine("using WebAPI.Managers.Scheme;");
         }
 
         protected override void wrtieBody()
@@ -95,17 +94,28 @@ namespace Reflector
 
                 DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
                 string propertyName = property.Name;
-                bool obsoleteHandled = !IsObsolete(property);
-                string isObsolete = !obsoleteHandled ? "!omitObsolete && " : "";
+                List<string> conditions = new List<string>();
+
+                OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>(false);
+                if (onlyNewStandard != null)
+                {
+                    conditions.Add("!isOldVersion");
+                }
+
+                if (IsObsolete(property))
+                {
+                    conditions.Add("!omitObsolete");
+                }
 
                 string deprecationVersion = DeprecationVersion(property);
-                bool deprecationHandled = deprecationVersion == null;
-                string isDeprecated = deprecationHandled ? "" : "!DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion) && ";
-                
+                if(deprecationVersion != null)
+                {
+                    conditions.Add("!DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion)");
+                }                
 
                 PropertyType propertyType = PropertyType.NATIVE;
                 string tab = "";
-                string genericType = "";
+                string realType = property.PropertyType.Name;
 
                 if (typeof(IKalturaSerializable).IsAssignableFrom(property.PropertyType))
                 {
@@ -132,6 +142,7 @@ namespace Reflector
                     if (property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         Type InnerType = property.PropertyType.GetGenericArguments()[0];
+                        realType = InnerType.Name;
                         if (InnerType.IsEnum)
                         {
                             propertyType = PropertyType.ENUM;
@@ -144,41 +155,29 @@ namespace Reflector
                         {
                             propertyType = PropertyType.NATIVE;
                         }
-                        tab = "    ";
-                        obsoleteHandled = true;
-                        deprecationHandled = true;
-                        file.WriteLine("            if(" + isObsolete + isDeprecated + propertyName + ".HasValue)");
-                        file.WriteLine("            {");
+                        conditions.Add(propertyName + ".HasValue");
                     }
                     else if (property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                     {
                         propertyType = typeof(IKalturaOTTObject).IsAssignableFrom(property.PropertyType.GetGenericArguments()[0]) ? PropertyType.ARRAY : PropertyType.NUMERIC_ARRAY;
-                        genericType = property.PropertyType.GetGenericArguments()[0].Name;
-                        switch (genericType)
+                        realType = property.PropertyType.GetGenericArguments()[0].Name;
+                        switch (realType)
                         {
                             case "Int64":
-                                genericType = "long";
+                                realType = "long";
                                 break;
 
                             case "Int32":
-                                genericType = "int";
+                                realType = "int";
                                 break;
                         }
-                        tab = "    ";
-                        obsoleteHandled = true;
-                        deprecationHandled = true;
-                        file.WriteLine("            if(" + isObsolete + isDeprecated + propertyName + " != null && " + propertyName + ".Count > 0)");
-                        file.WriteLine("            {");
+                        conditions.Add(propertyName + " != null");
                     }
                     else if (property.PropertyType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
                     {
                         propertyType = PropertyType.MAP;
-                        genericType = property.PropertyType.GetGenericArguments()[1].Name;
-                        tab = "    ";
-                        obsoleteHandled = true;
-                        deprecationHandled = true;
-                        file.WriteLine("            if(" + isObsolete + isDeprecated + propertyName + " != null && " + propertyName + ".Count > 0)");
-                        file.WriteLine("            {");
+                        realType = property.PropertyType.GetGenericArguments()[1].Name;
+                        conditions.Add(propertyName + " != null");
                     }
                 }
                 else if (property.PropertyType.IsEnum)
@@ -186,31 +185,15 @@ namespace Reflector
                     propertyType = PropertyType.ENUM;
                 }
 
-                if(propertyType == PropertyType.STRING || propertyType == PropertyType.OBJECT || propertyType == PropertyType.GENERIC_OBJECT)
+                if (propertyType == PropertyType.STRING || propertyType == PropertyType.OBJECT || propertyType == PropertyType.GENERIC_OBJECT)
                 {
-                    tab = "    ";
-                    obsoleteHandled = true;
-                    deprecationHandled = true;
-                    file.WriteLine("            if(" + isObsolete + isDeprecated + propertyName + " != null)");
-                    file.WriteLine("            {");
+                    conditions.Add(propertyName + " != null");
                 }
 
-                if (deprecationHandled && !obsoleteHandled)
+                if(conditions.Count > 0)
                 {
                     tab = "    ";
-                    file.WriteLine("            if(!omitObsolete)");
-                    file.WriteLine("            {");
-                }
-                else if (!deprecationHandled && obsoleteHandled)
-                {
-                    tab = "    ";
-                    file.WriteLine("            if(!DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion))");
-                    file.WriteLine("            {");
-                }
-                else if (!deprecationHandled && !obsoleteHandled)
-                {
-                    tab = "    ";
-                    file.WriteLine("            if(!omitObsolete && !DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion))");
+                    file.WriteLine("            if(" + String.Join(" && ", conditions) + ")");
                     file.WriteLine("            {");
                 }
 
@@ -222,7 +205,7 @@ namespace Reflector
                         break;
 
                     case PropertyType.ENUM:
-                        value = propertyName + ".GetHashCode()";
+                        value = "\"\\\"\" + Enum.GetName(typeof(" + realType + "), " + propertyName + ") + \"\\\"\"";
                         break;
 
                     case PropertyType.BOOLEAN:
@@ -326,11 +309,11 @@ namespace Reflector
                     {
                         if (oldStandardProperty.sinceVersion != null)
                         {
-                            file.WriteLine(tab + "            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0 || currentVersion.CompareTo(new Version(\"" + oldStandardProperty.sinceVersion + "\")) > 0)");
+                            file.WriteLine(tab + "            if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardProperty.sinceVersion + "\")) > 0)");
                         }
                         else
                         {
-                            file.WriteLine(tab + "            if (currentVersion == null || currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) < 0)");
+                            file.WriteLine(tab + "            if (currentVersion == null || isOldVersion)");
                         }
                         file.WriteLine(tab + "            {");
                         if (serializeType == SerializeType.JSON)
@@ -366,25 +349,13 @@ namespace Reflector
             }
         }
     
-        private string getTypeName(Type type)
-        {
-            if(type.IsGenericType)
-            {
-                Regex regex = new Regex("^[^`]+");
-                Match match = regex.Match(type.Name);
-                return match.Value + "<T>";
-
-            }
-
-            return type.Name;
-        }
-
         private void wrtiePartialClass(Type type)
         {
-            file.WriteLine("    public partial class " + getTypeName(type));
+            file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
             file.WriteLine("        protected override string PropertiesToJson(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            List<string> ret = new List<string>();");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.JSON);
@@ -393,6 +364,7 @@ namespace Reflector
             file.WriteLine("        ");
             file.WriteLine("        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            string ret = \"\";");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.XML);

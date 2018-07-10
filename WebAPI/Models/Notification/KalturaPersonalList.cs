@@ -12,7 +12,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaPersonalList : KalturaOTTObject
+    public partial class KalturaPersonalList : KalturaOTTObject
     {
         /// <summary>
         /// Id
@@ -78,7 +78,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaPersonalListListResponse", Namespace = "")]
     [XmlRoot("KalturaPersonalListListResponse")]
-    public class KalturaPersonalListListResponse : KalturaListResponse
+    public partial class KalturaPersonalListListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
@@ -96,7 +96,7 @@ namespace WebAPI.Models.Notification
         CREATE_DATE_ASC
     }
 
-    public class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
+    public partial class KalturaPersonalListFilter : KalturaFilter<KalturaPersonalListOrderBy>
     {
         /// <summary>
         /// Comma separated list of partner list types to search within. 

@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/meta/action")]
-    public class MetaController : ApiController
+    [Service("meta")]
+    public class MetaController : IKalturaController
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Meta filter</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
+         [Action("list")]
          [ApiAuthorize]
-         public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
+         static public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
          {
              KalturaMetaListResponse response = null;
 
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
          /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
          /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
          /// </remarks>
-         [Route("update"), HttpPost]
+         [Action("update")]
          [ApiAuthorize]
          [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
          [Throws(eResponseStatus.NoMetaToUpdate)]
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
          [Throws(eResponseStatus.MetaNotBelongtoPartner)]
          [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
          [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]        
-         public KalturaMeta Update(string id, KalturaMeta meta)
+         static public KalturaMeta Update(string id, KalturaMeta meta)
          {
              KalturaMeta response = null;
              meta.Id = id;

@@ -12,7 +12,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner concurrency configuration
     /// </summary>
-    public class KalturaConcurrencyPartnerConfig : KalturaPartnerConfiguration
+    public partial class KalturaConcurrencyPartnerConfig : KalturaPartnerConfiguration
     {
         /// <summary>
         /// Comma separated list of device Family Ids order by their priority.

@@ -17,8 +17,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/socialComment/action")]
-    public class SocialCommentController : ApiController
+    [Service("socialComment")]
+    public class SocialCommentController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -28,9 +28,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Country filter</param>
         /// <param name="pager">Pager</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSocialCommentListResponse List(KalturaSocialCommentFilter filter, KalturaFilterPager pager = null)
+        static public KalturaSocialCommentListResponse List(KalturaSocialCommentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaSocialCommentListResponse response = null;
 

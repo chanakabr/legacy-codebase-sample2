@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaPersonalListSearchFilter : KalturaBaseSearchAssetFilter
+    public partial class KalturaPersonalListSearchFilter : KalturaBaseSearchAssetFilter
     {
         /// <summary>
         /// Comma separated list of partner list types to search within. 

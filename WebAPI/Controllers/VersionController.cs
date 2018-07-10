@@ -9,15 +9,16 @@ using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/version/action")]
+    [Service("version")]
     [Obsolete]
-    public class VersionController : ApiController
+    public class VersionController : IKalturaController
     {
         /// <summary>
         /// Returns information about the current version

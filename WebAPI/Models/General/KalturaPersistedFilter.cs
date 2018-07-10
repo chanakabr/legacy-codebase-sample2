@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Models.General
 {
-    public abstract partial class KalturaPersistedFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaPersistedFilter<KalturaT> : KalturaFilter<KalturaT> where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.

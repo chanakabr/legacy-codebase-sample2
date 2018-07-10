@@ -15,9 +15,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/userAssetsList/action")]
+    [Service("userAssetsList")]
     [Obsolete]
-    public class UserAssetsListController : ApiController
+    public class UserAssetsListController : IKalturaController
     {
         /// <summary>
         /// Retrieve the user’s private asset lists 
@@ -25,10 +25,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidUser)]
-        public List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
+        static public List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
         {
             List<KalturaUserAssetsList> response = null;
 

@@ -104,6 +104,7 @@ namespace WebAPI.Managers.Models
         HttpMethodNotSupported = 500065,
         ArgumentsDuplicate = 500066,
         InvalidArgumentValue = 500067,
-        UnknownEnumValue = 500068
+        UnknownEnumValue = 500068,
+        InvalidObjectType = 500069,
     }
 }

@@ -9,8 +9,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationGroup/action")]
-    public class ConfigurationGroupController : ApiController
+    [Service("configurationGroup")]
+    public class ConfigurationGroupController : IKalturaController
     {
         /// <summary>
         /// Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
@@ -18,14 +18,14 @@ namespace WebAPI.Controllers
         /// <param name="id">Configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroup Get(string id)
+        static public KalturaConfigurationGroup Get(string id)
         {
             KalturaConfigurationGroup response = null;
             int partnerId = KS.GetFromRequest().GroupId;
@@ -51,11 +51,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationGroupListResponse List()
+        static public KalturaConfigurationGroupListResponse List()
         {
             KalturaConfigurationGroupListResponse response = null;
 
@@ -79,12 +79,12 @@ namespace WebAPI.Controllers
         /// <param name="configurationGroup">Configuration group</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002</remarks>        
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Add(KalturaConfigurationGroup configurationGroup)
+        static public KalturaConfigurationGroup Add(KalturaConfigurationGroup configurationGroup)
         {
             KalturaConfigurationGroup response = null;
 
@@ -109,13 +109,13 @@ namespace WebAPI.Controllers
         /// <param name="configurationGroup">Configuration group</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003</remarks>        
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Update(string id, KalturaConfigurationGroup configurationGroup)
+        static public KalturaConfigurationGroup Update(string id, KalturaConfigurationGroup configurationGroup)
         {
             KalturaConfigurationGroup response = null;
 
@@ -142,13 +142,13 @@ namespace WebAPI.Controllers
         /// <param name="id">Configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public bool Delete(string id)
+        static public bool Delete(string id)
         {
             bool response = false;
 

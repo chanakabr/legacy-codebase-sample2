@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaEngagementAdapter> List()
+        static public List<KalturaEngagementAdapter> List()
         {
             List<KalturaEngagementAdapter> response = null;
 
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Delete(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Delete(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Add(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Add(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -135,7 +135,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Update(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Update(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

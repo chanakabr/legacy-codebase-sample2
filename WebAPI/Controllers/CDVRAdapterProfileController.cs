@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cDVRAdapterProfile/action")]
-    public class CDVRAdapterProfileController : ApiController
+    [Service("cDVRAdapterProfile")]
+    public class CDVRAdapterProfileController : IKalturaController
     {
         /// <summary>
         /// Returns all C-DVR adapters for partner
@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// <remarks> 
         /// 
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaCDVRAdapterProfileListResponse List()
+        static public KalturaCDVRAdapterProfileListResponse List()
         {
             List<KalturaCDVRAdapterProfile> list = null;
 
@@ -49,11 +49,11 @@ namespace WebAPI.Controllers
         /// <remarks> 
         /// 
         /// </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public List<KalturaCDVRAdapterProfile> ListOldStandard()
+        static public List<KalturaCDVRAdapterProfile> ListOldStandard()
         {
             List<KalturaCDVRAdapterProfile> response = null;
 
@@ -79,11 +79,11 @@ namespace WebAPI.Controllers
         /// Possible status codes: Adapter does not exist = 10000
         /// </remarks>
         /// <param name="adapterId">C-DVR adapter identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterNotExists)]
-        public bool Delete(int adapterId)
+        static public bool Delete(int adapterId)
         {
             bool response = false;
             
@@ -110,13 +110,13 @@ namespace WebAPI.Controllers
         /// Adapter Name is required = 5005, Adapter URL is required = 5013, External identifier is required = 6016, External identifier must be unique = 6040
         /// </remarks>
         /// <param name="adapter">C-DVR adapter object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaCDVRAdapterProfile Add(KalturaCDVRAdapterProfile adapter)
+        static public KalturaCDVRAdapterProfile Add(KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
 
@@ -144,14 +144,14 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="adapterId">C-DVR adapter identifier</param>       
         /// <param name="adapter">C-DVR adapter Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.AdapterNotExists)]
-        public KalturaCDVRAdapterProfile Update(int adapterId, KalturaCDVRAdapterProfile adapter)
+        static public KalturaCDVRAdapterProfile Update(int adapterId, KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
 
@@ -179,7 +179,7 @@ namespace WebAPI.Controllers
         /// Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, External identifier required = 6016, Adapter does not exist = 10000
         /// </remarks>
         /// <param name="adapter">C-DVR adapter Object</param>       
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("update")]
         [Obsolete]
@@ -188,7 +188,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.AdapterNotExists)]
-        public KalturaCDVRAdapterProfile UpdateOldStandard(KalturaCDVRAdapterProfile adapter)
+        static public KalturaCDVRAdapterProfile UpdateOldStandard(KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
 
@@ -215,13 +215,13 @@ namespace WebAPI.Controllers
         /// Adapter identifier is required = 10001, AdapterNotExists = 10000
         /// </remarks>
         /// <param name="adapterId">C-DVR adapter identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.AdapterNotExists)]
-        public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapterId)
+        static public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDVRAdapterProfile response = null;
 

@@ -17,8 +17,8 @@ using KLogMonitor;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/system/action")]
-    public class SystemController : ApiController
+    [Service("system")]
+    public class SystemController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -29,12 +29,12 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:  Country was not found = 4025
         /// </remarks>
-        [Route("getCountry"), HttpPost]
+        [Action("getCountry")]
         [Obsolete]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.CountryNotFound)]
-        public KalturaCountry GetCountry(string ip = null)
+        static public KalturaCountry GetCountry(string ip = null)
         {
             KalturaCountry response = null;
 
@@ -61,9 +61,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns true
         /// </summary>
-        [Route("ping"), HttpPost]
+        [Action("ping")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Ping()
+        static public bool Ping()
         {
             log.Error("in rest method");
 
@@ -73,9 +73,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns current server timestamp
         /// </summary>
-        [Route("getTime"), HttpPost]
+        [Action("getTime")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public long GetTime()
+        static public long GetTime()
         {
             DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
             return Utils.Utils.DateTimeToUnixTimestamp(serverTime, false);
@@ -84,9 +84,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns current server version
         /// </summary>
-        [Route("getVersion"), HttpPost]
+        [Action("getVersion")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public string GetVersion()
+        static public string GetVersion()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);

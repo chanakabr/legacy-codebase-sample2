@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/coupon/action")]
-    public class CouponController : ApiController
+    [Service("coupon")]
+    public class CouponController : IKalturaController
     {
         /// <summary>
         /// Returns information about a coupon
@@ -23,10 +23,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Coupon not valid = 3020
         ///    </remarks>
         /// <param name="code">Coupon code</param>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.CouponNotValid)]
-        public KalturaCoupon Get(string code)
+        static public KalturaCoupon Get(string code)
         {
             KalturaCoupon coupon = null;
 

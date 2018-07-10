@@ -11,7 +11,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "SSOAdapters", Namespace = "")]
     [XmlRoot("SSOAdapters")]
-    public class KalturaSSOAdapterProfileListResponse : KalturaListResponse
+    public partial class KalturaSSOAdapterProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of payment-gateway profiles

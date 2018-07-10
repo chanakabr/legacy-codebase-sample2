@@ -19,7 +19,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset user rule filter
     /// </summary>
-    public class KalturaAssetUserRuleFilter : KalturaFilter<KalturaAssetUserRuleOrderBy>
+    public partial class KalturaAssetUserRuleFilter : KalturaFilter<KalturaAssetUserRuleOrderBy>
     {
         /// <summary>
         /// Indicates if to get the asset user rule list for the attached user or for the entire group

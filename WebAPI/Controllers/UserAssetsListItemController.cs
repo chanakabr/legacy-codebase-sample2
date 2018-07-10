@@ -13,17 +13,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/userAssetsListItem/action")]
-    public class UserAssetsListItemController : ApiController
+    [Service("userAssetsListItem")]
+    public class UserAssetsListItemController : IKalturaController
     {
         /// <summary>
         /// Adds a new item to user’s private asset list
         /// </summary>
         /// <param name="userAssetsListItem">A list item to add</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaUserAssetsListItem Add(KalturaUserAssetsListItem userAssetsListItem)
+        static public KalturaUserAssetsListItem Add(KalturaUserAssetsListItem userAssetsListItem)
         {
             KalturaUserAssetsListItem response = null;
 
@@ -61,11 +61,11 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.ItemNotFound)]
-        public KalturaUserAssetsListItem Get(string assetId, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType itemType)
+        static public KalturaUserAssetsListItem Get(string assetId, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType itemType)
         {
             KalturaUserAssetsListItem response = null;
 
@@ -91,12 +91,12 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.ItemNotFound)]
-        public KalturaUserAssetsListItem GetOldStandard(KalturaUserAssetsListItem userAssetsListItem)
+        static public KalturaUserAssetsListItem GetOldStandard(KalturaUserAssetsListItem userAssetsListItem)
         {
             KalturaUserAssetsListItem response = null;
 
@@ -128,11 +128,11 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.ItemNotFound)]
-        public bool Delete(string assetId, KalturaUserAssetsListType listType)
+        static public bool Delete(string assetId, KalturaUserAssetsListType listType)
         {
             bool response = false;
 
@@ -163,12 +163,12 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
-        [Route("deleteOldStandard"), HttpPost]
+        [Action("deleteOldStandard")]
         [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.ItemNotFound)]
-        public bool DeleteOldStandard(KalturaUserAssetsListItem userAssetsListItem)
+        static public bool DeleteOldStandard(KalturaUserAssetsListItem userAssetsListItem)
         {
             bool response = false;
 

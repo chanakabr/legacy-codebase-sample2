@@ -16,18 +16,18 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/priceDetails/action")]
-    public class PriceDetailsController : ApiController
+    [Service("priceDetails")]
+    public class PriceDetailsController : IKalturaController
     {
         /// <summary>
         /// Returns the list of available prices, can be filtered by price IDs
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidCurrency)]
-        public KalturaPriceDetailsListResponse List(KalturaPriceDetailsFilter filter = null)
+        static public KalturaPriceDetailsListResponse List(KalturaPriceDetailsFilter filter = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string currency = Utils.Utils.GetCurrencyFromRequest();

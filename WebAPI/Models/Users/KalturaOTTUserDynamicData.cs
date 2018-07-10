@@ -44,7 +44,7 @@ namespace WebAPI.Models.Users
     }
 
     [DataContract(Name = "userDynamicData")]
-    public class KalturaOTTUserDynamicDataList : KalturaOTTObject
+    public partial class KalturaOTTUserDynamicDataList : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

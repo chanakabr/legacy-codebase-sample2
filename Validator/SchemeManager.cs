@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Text.RegularExpressions;
+using WebAPI.Controllers;
 
 namespace Validator.Managers.Scheme
 {
@@ -139,7 +140,7 @@ namespace Validator.Managers.Scheme
             if (obsolete != null)
                 return !strict;
 
-            if (type.IsSubclassOf(typeof(ApiController)))
+            if (typeof(IKalturaController).IsAssignableFrom(type))
                 return ValidateService(type, strict);
 
             bool valid = true;

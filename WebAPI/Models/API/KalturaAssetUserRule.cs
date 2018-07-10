@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset user rule
     /// </summary>
-    public class KalturaAssetUserRule : KalturaAssetRuleBase
+    public partial class KalturaAssetUserRule : KalturaAssetRuleBase
     {
         /// <summary>
         /// List of Ksql conditions for the user rule
@@ -77,7 +77,7 @@ namespace WebAPI.Models.API
         }
     }
 
-    public class KalturaAssetUserRuleListResponse : KalturaListResponse
+    public partial class KalturaAssetUserRuleListResponse : KalturaListResponse
     {
         /// <summary>
         /// Asset user rules

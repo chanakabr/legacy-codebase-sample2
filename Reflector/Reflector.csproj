@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base.cs" />
+    <Compile Include="Deserializer.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="DataModel.cs" />
     <Compile Include="Program.cs" />

@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/notificationsSettings/action")]
-    public class NotificationsSettingsController : ApiController
+    [Service("notificationsSettings")]
+    public class NotificationsSettingsController : IKalturaController
     {
         /// <summary>
         /// Retrieve the user’s notification settings.    
@@ -23,10 +23,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The notification settings that apply</returns>
         /// 
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaNotificationsSettings Get()
+        static public KalturaNotificationsSettings Get()
         {
             KalturaNotificationsSettings response = null;
 
@@ -51,11 +51,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The notification settings that apply</returns>
         /// 
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaNotificationSettings GetOldStandard()
+        static public KalturaNotificationSettings GetOldStandard()
         {
             KalturaNotificationSettings response = null;
 
@@ -81,11 +81,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The notification settings that apply for the user</returns>
         /// 
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public bool Update(KalturaNotificationsSettings settings)
+        static public bool Update(KalturaNotificationsSettings settings)
         {
             bool response = false;
 
@@ -111,11 +111,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The notification settings that apply for the user</returns>
         /// 
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
-        public bool UpdateOldStandard(KalturaNotificationSettings settings)
+        static public bool UpdateOldStandard(KalturaNotificationSettings settings)
         {
             bool response = false;
 
@@ -142,12 +142,12 @@ namespace WebAPI.Controllers
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply for the user</returns>
-        [Route("updateWithToken"), HttpPost]
+        [Action("updateWithToken")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        public bool UpdateWithToken(KalturaNotificationsSettings settings, string token, int partnerId)
+        static public bool UpdateWithToken(KalturaNotificationsSettings settings, string token, int partnerId)
         {
             bool response = false;
 

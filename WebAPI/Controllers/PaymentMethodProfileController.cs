@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/paymentMethodProfile/action")]
-    public class PaymentMethodProfileController : ApiController
+    [Service("paymentMethodProfile")]
+    public class PaymentMethodProfileController : IKalturaController
     {
         /// <summary>
         /// TBD
@@ -22,10 +22,10 @@ namespace WebAPI.Controllers
         /// Possible status codes: TBD       
         /// Payment gateway not exist = 6008
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public KalturaPaymentMethodProfileListResponse List(KalturaPaymentMethodProfileFilter filter)
+        static public KalturaPaymentMethodProfileListResponse List(KalturaPaymentMethodProfileFilter filter)
         {
             List<KalturaPaymentMethodProfile> list = null;
 
@@ -54,12 +54,12 @@ namespace WebAPI.Controllers
         /// Possible status codes: TBD       
         /// Payment gateway not exist = 6008
         /// </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public List<KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
+        static public List<KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
         {
             List<KalturaPaymentMethodProfile> response = null;
 
@@ -91,12 +91,12 @@ namespace WebAPI.Controllers
         /// Possible status codes: 
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
         /// </remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNameRequired)]
-        public KalturaPaymentMethodProfile Add(KalturaPaymentMethodProfile paymentMethod)
+        static public KalturaPaymentMethodProfile Add(KalturaPaymentMethodProfile paymentMethod)
         {
             KalturaPaymentMethodProfile response = null;
 
@@ -124,14 +124,14 @@ namespace WebAPI.Controllers
         /// Possible status codes: 
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
         /// </remarks>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNameRequired)]
-        public KalturaPaymentMethodProfile AddOldStandard(int payment_gateway_id, KalturaPaymentMethodProfile payment_method)
+        static public KalturaPaymentMethodProfile AddOldStandard(int payment_gateway_id, KalturaPaymentMethodProfile payment_method)
         {
             KalturaPaymentMethodProfile response = null;
 
@@ -159,13 +159,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: 
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
         /// </remarks>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.PaymentMethodIdRequired)]
-        public KalturaPaymentMethodProfile Update(int paymentMethodId, KalturaPaymentMethodProfile paymentMethod)
+        static public KalturaPaymentMethodProfile Update(int paymentMethodId, KalturaPaymentMethodProfile paymentMethod)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -191,7 +191,7 @@ namespace WebAPI.Controllers
         /// Possible status codes: 
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
         /// </remarks>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
@@ -201,7 +201,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.PaymentMethodIdRequired)]
-        public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentMethodProfile paymentMethod)
+        static public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentMethodProfile paymentMethod)
         {
             bool response = false;
 
@@ -228,13 +228,13 @@ namespace WebAPI.Controllers
         ///  Possible status codes: 
         ///  Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
         /// </remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.PaymentMethodIdRequired)]
-        public bool Delete(int paymentMethodId)
+        static public bool Delete(int paymentMethodId)
         {
             bool response = false;
 
@@ -262,7 +262,7 @@ namespace WebAPI.Controllers
         ///  Possible status codes: 
         ///  Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
         /// </remarks>
-        [Route("deleteOldStandard"), HttpPost]
+        [Action("deleteOldStandard")]
         [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
@@ -270,7 +270,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.PaymentMethodIdRequired)]
-        public bool DeleteOldStandard(int payment_gateway_id, int payment_method_id)
+        static public bool DeleteOldStandard(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
 

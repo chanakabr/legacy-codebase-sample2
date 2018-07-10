@@ -6,13 +6,14 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ppv/action")]
-    public class PpvController : ApiController
+    [Service("ppv")]
+    public class PpvController : IKalturaController
     {
         /// <summary>
         /// Returns ppv object by internal identifier
@@ -20,9 +21,9 @@ namespace WebAPI.Controllers
         /// <param name="id">ppv identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaPpv Get(long id)
+        static public KalturaPpv Get(long id)
         {
             KalturaPpv response = null;
 

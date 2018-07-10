@@ -9,15 +9,16 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/epgChannel/action")]
+    [Service("epgChannel")]
     [Obsolete]
-    public class EpgChannelController : ApiController
+    public class EpgChannelController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -28,9 +29,9 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null)
+        static public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null)
         {
             List<KalturaEPGChannelAssets> response = null;
 

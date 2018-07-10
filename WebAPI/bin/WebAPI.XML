@@ -348,7 +348,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
+        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
             </summary>

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Partner
     {
     }
 
-    public class KalturaPartnerConfigurationListResponse : KalturaListResponse
+    public partial class KalturaPartnerConfigurationListResponse : KalturaListResponse
     {
         /// <summary>
         /// Partner Configurations

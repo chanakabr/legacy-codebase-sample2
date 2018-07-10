@@ -17,20 +17,20 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/favorite/action")]
-    public class FavoriteController : ApiController
+    [Service("favorite")]
+    public class FavoriteController : IKalturaController
     {
         /// <summary>
         /// Add media to user's favorite list
         /// </summary>        
         /// <param name="favorite">Favorite details.</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        public KalturaFavorite Add(KalturaFavorite favorite)
+        static public KalturaFavorite Add(KalturaFavorite favorite)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
@@ -67,14 +67,14 @@ namespace WebAPI.Controllers
         /// <param name="media_id">Media id</param>
         /// <param name="extra_data">Extra data</param>        
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        public bool AddOldStandard(string media_id, string media_type = null, string extra_data = null)
+        static public bool AddOldStandard(string media_id, string media_type = null, string extra_data = null)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -112,12 +112,12 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="id">Media identifier</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -143,14 +143,14 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="media_ids">Media identifiers</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
-        [Route("deleteOldStandard"), HttpPost]
+        [Action("deleteOldStandard")]
         [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        public bool DeleteOldStandard(List<KalturaIntegerValue> media_ids)
+        static public bool DeleteOldStandard(List<KalturaIntegerValue> media_ids)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -182,11 +182,11 @@ namespace WebAPI.Controllers
         /// </summary>            
         /// <param name="filter">Request filter</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null)
+        static public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null)
         {
             List<KalturaFavorite> favorites = null;
 
@@ -228,13 +228,13 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaFavoriteListResponse ListOldStandard(KalturaFavoriteFilter filter = null, List<KalturaCatalogWithHolder> with = null, string udid = null)
+        static public KalturaFavoriteListResponse ListOldStandard(KalturaFavoriteFilter filter = null, List<KalturaCatalogWithHolder> with = null, string udid = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;

@@ -25,102 +25,13 @@ using WebAPI.Managers;
 
 namespace WebAPI.Utils
 {
-    class OldStandardObject : DynamicObject
-    {
-        private readonly Dictionary<string, object> _fields = new Dictionary<string, object>();
-
-        [JsonIgnore]
-        public Dictionary<string, object> Extra { get { return _fields; } }
-
-        public OldStandardObject(KalturaOTTObject ottObject)
-        {
-            Type type = ottObject.GetType();
-            Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(type);
-
-            var properties = type.GetProperties();
-            foreach (PropertyInfo property in properties)
-            {
-                object value = property.GetValue(ottObject);
-                if (value == null || DataModel.isNewStandardOnly(property))
-                    continue;
-
-                string name = getApiName(property);
-
-                if (property.PropertyType == typeof(KalturaMultilingualString))
-                {
-                    value = ((KalturaMultilingualString)value).ToString();
-                }
-                else if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
-                {
-                    value = new OldStandardObject((KalturaOTTObject)value);
-                }
-                else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType)
-                {
-                    if (property.PropertyType.GetGenericArguments().Count() == 1 && (property.PropertyType.GetGenericArguments()[0].IsSubclassOf(typeof(KalturaOTTObject))))
-                    {
-                        var array = new List<OldStandardObject>();
-                        foreach(KalturaOTTObject item in (IEnumerable<KalturaOTTObject>)value)
-                        {
-                            array.Add(new OldStandardObject(item));
-                        }
-                        value = array;
-                    }
-                    else if (property.PropertyType.GetGenericArguments().Count() == 2 && property.PropertyType.GetGenericArguments()[1].IsSubclassOf(typeof(KalturaOTTObject)))
-                    {
-                        Type itemType = property.PropertyType.GetGenericArguments()[1];
-                        var dictionary = new Dictionary<string, OldStandardObject>();
-                        foreach (dynamic item in (dynamic)value)
-                        {
-                            string itemKey = item.Key;
-                            KalturaOTTObject itemValue = item.Value;
-                            dictionary.Add(itemKey, new OldStandardObject(itemValue));
-                        }
-                        value = dictionary;
-                    }
-                }
-
-                _fields[name] = value;
-                if (oldStandardProperties != null && oldStandardProperties.ContainsKey(name))
-                {
-                    _fields[oldStandardProperties[name]] = value;
-                }
-            }
-        }
-
-        private KeyValuePair<string, T> castPair<T>(T type, object value)
-        {
-            return (KeyValuePair<string, T>)value;
-        }
-
-        private string getApiName(PropertyInfo property)
-        {
-            return DataModel.getApiName(property);
-        }
-
-        public override IEnumerable<string> GetDynamicMemberNames()
-        {
-            return Extra.Keys;
-        }
-
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            return _fields.TryGetValue(binder.Name, out result);
-        }
-
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            _fields[binder.Name] = value;
-            return true;
-        }
-    }
-
     public class JilFormatter : MediaTypeFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly Options _jilOptions;
 
-        private JsonManager jsonManager;
+        protected JsonManager jsonManager;
 
         public JilFormatter()
         {
@@ -136,11 +47,7 @@ namespace WebAPI.Utils
 
         public override bool CanReadType(Type type)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-            return true;
+            return false;
         }
 
         public override bool CanWriteType(Type type)
@@ -151,34 +58,12 @@ namespace WebAPI.Utils
             }
             return true;
         }
-
-        public override Task<object> ReadFromStreamAsync(Type type, Stream readStream, System.Net.Http.HttpContent content, IFormatterLogger formatterLogger)
-        {
-            return Task.FromResult(this.DeserializeFromStream(type, readStream));
-        }
-
-        private object DeserializeFromStream(Type type, Stream readStream)
-        {
-            try
-            {
-                using (var reader = new StreamReader(readStream))
-                {
-                    MethodInfo method = typeof(JSON).GetMethod("Deserialize", new Type[] { typeof(TextReader), typeof(Options) });
-                    MethodInfo generic = method.MakeGenericMethod(type);
-                    return generic.Invoke(this, new object[] { reader, _jilOptions });
-                }
-            }
-            catch
-            {
-                throw new BadRequestException();
-            }
-        }
-
+        
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json = jsonManager.Serialize(value, true);
+                string json = jsonManager.Serialize(value);
                 streamWriter.Write(json);
                 return Task.FromResult(writeStream);
             }

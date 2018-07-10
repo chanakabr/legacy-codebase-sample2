@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/inboxMessage/action")]
-    public class InboxMessageController : ApiController
+    [Service("inboxMessage")]
+    public class InboxMessageController : IKalturaController
     {
 
         /// <summary>
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// User inbox messages not exist = 8020
         /// </remarks>
         /// <param name="id">message id</param>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserInboxMessagesNotExist)]
-        public KalturaInboxMessage Get(string id)
+        static public KalturaInboxMessage Get(string id)
         {
             KalturaInboxMessage response = null;
 
@@ -62,11 +62,11 @@ namespace WebAPI.Controllers
         /// </remarks>     
         /// <param name="filter">filter</param>   
         /// <param name="pager">Page size and index</param>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MessageIdentifierRequired)]
         [Throws(eResponseStatus.UserInboxMessagesNotExist)]
-        public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaInboxMessageListResponse response = null;
 
@@ -110,10 +110,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="id">Message identifier</param>        
         /// <param name="status">Message status</param>        
-        [Route("updateStatus"), HttpPost]
+        [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool UpdateStatus(string id, KalturaInboxMessageStatus status)
+        static public bool UpdateStatus(string id, KalturaInboxMessageStatus status)
         {
             bool response = false;
 

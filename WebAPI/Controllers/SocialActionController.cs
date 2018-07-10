@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/socialAction/action")]
-    public class SocialActionController : ApiController
+    [Service("socialAction")]
+    public class SocialActionController : IKalturaController
     {
         /// <summary>
         /// Insert new user social action
@@ -23,10 +23,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011
         /// </remarks>       
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public KalturaUserSocialActionResponse Add(KalturaSocialAction socialAction)
+        static public KalturaUserSocialActionResponse Add(KalturaSocialAction socialAction)
         {
             KalturaUserSocialActionResponse response = null;
 
@@ -70,9 +70,9 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: OK , Error
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSocialActionListResponse List(KalturaSocialActionFilter filter, KalturaFilterPager pager = null)
+        static public KalturaSocialActionListResponse List(KalturaSocialActionFilter filter, KalturaFilterPager pager = null)
         {
             KalturaSocialActionListResponse response = null;
 
@@ -104,10 +104,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011, SocialActionIdDoseNotExists = 7016, 
         /// </remarks>       
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public List<KalturaNetworkActionStatus> Delete(string id)
+        static public List<KalturaNetworkActionStatus> Delete(string id)
         {
             List<KalturaNetworkActionStatus> response = null;
 

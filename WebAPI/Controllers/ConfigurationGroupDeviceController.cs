@@ -10,22 +10,27 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationGroupDevice/action")]
-    public class ConfigurationGroupDeviceController : ApiController
+    [Service("configurationGroupDevice")]
+    public class ConfigurationGroupDeviceController : IKalturaController
     {
+        public ConfigurationGroupDeviceController()
+        {
+
+        }
+
         /// <summary>
         /// Return the configuration group to which a specific device is associated to
         /// </summary>
         /// <param name="udid">Device UDID</param>        
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroupDevice Get(string udid)
+        static public KalturaConfigurationGroupDevice Get(string udid)
         {
             KalturaConfigurationGroupDevice response = null;
             int partnerId = KS.GetFromRequest().GroupId;
@@ -52,11 +57,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter option for configuration group identifier</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationGroupDeviceListResponse List(KalturaConfigurationGroupDeviceFilter filter, KalturaFilterPager pager = null)
+        static public KalturaConfigurationGroupDeviceListResponse List(KalturaConfigurationGroupDeviceFilter filter, KalturaFilterPager pager = null)
         {
             KalturaConfigurationGroupDeviceListResponse response = null;
 
@@ -87,14 +92,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="configurationGroupDevice">Configuration group device</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003 </remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.NotExist)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public bool Add(KalturaConfigurationGroupDevice configurationGroupDevice)
+        static public bool Add(KalturaConfigurationGroupDevice configurationGroupDevice)
         {
             bool response = false;
 
@@ -125,13 +130,13 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool Delete(string udid)
+        static public bool Delete(string udid)
         {
             bool response = false;
 

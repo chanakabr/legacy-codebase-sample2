@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/language/action")]
-    public class LanguageController : ApiController
+    [Service("language")]
+    public class LanguageController : IKalturaController
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">language filter</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
+         [Action("list")]
          [ApiAuthorize]
-         public KalturaLanguageListResponse List(KalturaLanguageFilter filter)
+         static public KalturaLanguageListResponse List(KalturaLanguageFilter filter)
          {
              KalturaLanguageListResponse response = null;
              int groupId = KS.GetFromRequest().GroupId;

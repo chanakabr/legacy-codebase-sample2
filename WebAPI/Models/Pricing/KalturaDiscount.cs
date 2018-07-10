@@ -14,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Discount
     /// </summary>
-    public class KalturaDiscount : KalturaPrice
+    public partial class KalturaDiscount : KalturaPrice
     {
         /// <summary>
         /// The discount percentage
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Discount details
     /// </summary>
-    public class KalturaDiscountDetails : KalturaOTTObject
+    public partial class KalturaDiscountDetails : KalturaOTTObject
     {
         /// <summary>
         /// The discount ID
@@ -74,7 +74,7 @@ namespace WebAPI.Models.Pricing
         public long EndtDate { get; set; }
     }
 
-    public class KalturaDiscountDetailsListResponse : KalturaListResponse
+    public partial class KalturaDiscountDetailsListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of price details

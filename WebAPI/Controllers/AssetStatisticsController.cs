@@ -12,18 +12,18 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetStatistics/action")]
-    public class AssetStatisticsController : ApiController
+    [Service("assetStatistics")]
+    class AssetStatisticsController : IKalturaController
     {
         /// <summary>
         /// Returns statistics for given list of assets by type and / or time period
         /// </summary>
         /// <param name="query">Query for assets statistics</param>
         /// <remarks></remarks>
-        [Route("query"), HttpPost]
+        [Action("query")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetStatisticsListResponse Query(KalturaAssetStatisticsQuery query)
+        static public KalturaAssetStatisticsListResponse Query(KalturaAssetStatisticsQuery query)
         {
             List<KalturaAssetStatistics> response = null;
 

@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/householdPaymentGateway/action")]
-    public class HouseholdPaymentGatewayController : ApiController
+    [Service("householdPaymentGateway")]
+    public class HouseholdPaymentGatewayController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -27,10 +27,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// User Suspended = 2001
         /// </remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaHouseholdPaymentGatewayListResponse List()
+        static public KalturaHouseholdPaymentGatewayListResponse List()
         {
             List<KalturaHouseholdPaymentGateway> list = null;
 
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>
         /// <param name="chargeId">The billing user account identifier for this household at the given payment gateway</param>        
-        [Route("setChargeID"), HttpPost]
+        [Action("setChargeID")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHousehold)]
         [Throws(eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway)]
-        public bool SetChargeID(string paymentGatewayExternalId, string chargeId)
+        static public bool SetChargeID(string paymentGatewayExternalId, string chargeId)
         {
             bool response = false;
 
@@ -100,13 +100,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>        
-        [Route("getChargeID"), HttpPost]
+        [Action("getChargeID")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ChargeIdNotSetToHousehold)]
-        public string GetChargeID(string paymentGatewayExternalId)
+        static public string GetChargeID(string paymentGatewayExternalId)
         {
             string chargeId = string.Empty;
 
@@ -137,7 +137,7 @@ namespace WebAPI.Controllers
         /// payment gateway not valid = 6043
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
-        [Route("enable"), HttpPost]
+        [Action("enable")]
         [OldStandardAction("set")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdAlreadySetToPaymentGateway)]
         [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
-        public bool Enable(int paymentGatewayId)
+        static public bool Enable(int paymentGatewayId)
         {
             bool response = false;
 
@@ -180,7 +180,7 @@ namespace WebAPI.Controllers
         /// payment gateway selection is disabled = 6028, service forbidden = 500004
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
-        [Route("disable"), HttpPost]
+        [Action("disable")]
         [ApiAuthorize]
         [OldStandardAction("delete")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -189,7 +189,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
         [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
-        public bool Disable(int paymentGatewayId)
+        static public bool Disable(int paymentGatewayId)
         {
             bool response = false;
 
@@ -223,13 +223,13 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
         /// </remarks>
-        [Route("invoke"), HttpPost]
+        [Action("invoke")]
         [ApiAuthorize]
         [OldStandardArgument("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.SignatureMismatch)]
-        public Models.Billing.KalturaPaymentGatewayConfiguration Invoke(int paymentGatewayId, string intent, List<KalturaKeyValue> extraParameters)
+        static public Models.Billing.KalturaPaymentGatewayConfiguration Invoke(int paymentGatewayId, string intent, List<KalturaKeyValue> extraParameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
@@ -255,11 +255,11 @@ namespace WebAPI.Controllers
         /// Suspends all the entitlements of the given payment gateway
         /// </summary>
         /// <param name="paymentGatewayId">Payment gateway ID</param>                
-        [Route("suspend"), HttpPost]
+        [Action("suspend")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public void Suspend(int paymentGatewayId)
+        static public void Suspend(int paymentGatewayId)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
@@ -280,11 +280,11 @@ namespace WebAPI.Controllers
         /// Resumes all the entitlements of the given payment gateway
         /// </summary>
         /// <param name="paymentGatewayId">Payment gateway ID</param>                
-        [Route("resume"), HttpPost]
+        [Action("resume")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public void Resume(int paymentGatewayId)
+        static public void Resume(int paymentGatewayId)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 

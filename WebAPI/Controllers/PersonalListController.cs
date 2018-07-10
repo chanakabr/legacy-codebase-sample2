@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/personalList/action")]
-    public class PersonalListController : ApiController
+    [Service("personalList")]
+    public class PersonalListController : IKalturaController
     {
         /// <summary>
         /// List user's tv personal item to follow.
@@ -25,10 +25,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Personal list filter</param>
         /// <param name="pager">pager</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidUser)]
-        public KalturaPersonalListListResponse List(KalturaPersonalListFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaPersonalListListResponse List(KalturaPersonalListFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaPersonalListListResponse response = null;
 
@@ -64,11 +64,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="personalList">Follow personal list item request parameters</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
         [Throws(eResponseStatus.InvalidUser)]
-        public KalturaPersonalList Add(KalturaPersonalList personalList)
+        static public KalturaPersonalList Add(KalturaPersonalList personalList)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
@@ -106,13 +106,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="personalListId">personalListId identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [SchemeArgument("personalListId", MinLong = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.AnnouncementNotFound)]
         [Throws(eResponseStatus.InvalidUser)]
-        public void Delete(long personalListId)
+        static public void Delete(long personalListId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;

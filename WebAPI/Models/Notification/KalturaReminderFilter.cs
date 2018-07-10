@@ -38,7 +38,7 @@ namespace WebAPI.Models.Notification
     }
 
     [NewObjectType(typeof(KalturaAssetReminderFilter))]
-    public abstract partial class KalturaReminderFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaReminderFilter<KalturaT> : KalturaFilter<KalturaT> where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// <![CDATA[

@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/multirequest")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiAuthorize]
-    public class MultiRequestController : ApiController
+    public class MultiRequestController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -196,29 +196,15 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
-                        // add action to log
-                        string action = string.IsNullOrEmpty(request[i].Action) ? "null" : request[i].Action;
-                        HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", string.IsNullOrEmpty(request[i].Service) ? "null" : request[i].Service, action);
-                        bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
-                        HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
                             parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
                         }
                         RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                        MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
-                        if (methodInfo.IsGenericMethod)
-                        {
-                            responses = new object[1];
-                            responses[0] = new RequestParserException(RequestParserException.GENERIC_METHOD, request[i].Service, request[i].Action);
-                            break;
-                        }
-
-                        List<Object> methodParams = RequestParser.buildActionArguments(methodInfo, parameters);
-                        object controllerInstance = Activator.CreateInstance(controller, null);
-                        response = methodInfo.Invoke(controllerInstance, methodParams.ToArray());
-
+                        Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                        List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                        response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                     }
                     catch (ApiException e)
                     {

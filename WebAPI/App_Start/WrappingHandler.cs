@@ -72,7 +72,7 @@ namespace WebAPI.App_Start
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-           
+
             // get request ID
             HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
 
@@ -98,7 +98,7 @@ namespace WebAPI.App_Start
                 return response;
 
             object content = null;
-            string message = "";            
+            string message = "";
             int subCode = (int)StatusCode.OK;
             response.TryGetContentValue(out content);
 
@@ -106,7 +106,7 @@ namespace WebAPI.App_Start
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
                 subCode = payload.code;
-                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);                
+                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
                 content = prepareExceptionResponse(payload.code, message, payload.arguments);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
                 {
@@ -170,8 +170,6 @@ namespace WebAPI.App_Start
                             {
                                 service = segments[i + 1].Replace("/", string.Empty);
                                 action = segments[i + 3].Replace("/", string.Empty);
-                                bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
-                                HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
                             }
                             else
                             {

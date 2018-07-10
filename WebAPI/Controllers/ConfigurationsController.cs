@@ -10,8 +10,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurations/action")]
-    public class ConfigurationsController : ApiController
+    [Service("configurations")]
+    public class ConfigurationsController : IKalturaController
     {
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
@@ -24,13 +24,13 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
-        [Route("serveByDevice"), HttpPost]     
+        [Action("serveByDevice")]     
         [SchemeServeAttribute]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
+        static public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
         {
             string response = null;
 
@@ -79,14 +79,14 @@ namespace WebAPI.Controllers
         /// <param name="id">Configuration identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurations Get(string id)
+        static public KalturaConfigurations Get(string id)
         {
             KalturaConfigurations response = null;
 
@@ -114,11 +114,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter option for configuration group id.</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationsListResponse List(KalturaConfigurationsFilter filter)
+        static public KalturaConfigurationsListResponse List(KalturaConfigurationsFilter filter)
         {
             KalturaConfigurationsListResponse response = null;
 
@@ -145,13 +145,13 @@ namespace WebAPI.Controllers
         /// <param name="configurations">Device configuration</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.AlreadyExist)]
-        public KalturaConfigurations Add(KalturaConfigurations configurations)
+        static public KalturaConfigurations Add(KalturaConfigurations configurations)
         {
             KalturaConfigurations response = null;
 
@@ -189,7 +189,7 @@ namespace WebAPI.Controllers
         /// <param name="configurations">configuration to update</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
@@ -197,7 +197,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.PartnerMismatch)]
         [Throws(eResponseStatus.AlreadyExist)]
-        public KalturaConfigurations Update(string id, KalturaConfigurations configurations)
+        static public KalturaConfigurations Update(string id, KalturaConfigurations configurations)
         {
             KalturaConfigurations response = null;
 
@@ -235,13 +235,13 @@ namespace WebAPI.Controllers
         /// <param name="id">Configuration identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public bool Delete(string id)
+        static public bool Delete(string id)
         {
             bool response = false;
 

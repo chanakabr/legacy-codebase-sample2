@@ -1021,9 +1021,9 @@ namespace WS_API
                 return null;
             }
         }
-       
 
-     
+
+
 
         [WebMethod]
         public UnifiedSearchResult[] GetChannelAssets(string username, string password, int channelId, int pageIndex, int pageSize)
@@ -1059,7 +1059,7 @@ namespace WS_API
                 return null;
             }
         }
-          
+
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(FileTypeContainer))]
@@ -2846,7 +2846,7 @@ namespace WS_API
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
-                OSSAdapterResponse  response = new OSSAdapterResponse();
+                OSSAdapterResponse response = new OSSAdapterResponse();
                 response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                 response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
                 return response;
@@ -3385,7 +3385,7 @@ namespace WS_API
             return new BulkExportTaskResponse()
             {
                 Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };;
+            }; ;
         }
 
         [WebMethod]
@@ -4094,7 +4094,7 @@ namespace WS_API
             return null;
         }
 
-        [WebMethod]        
+        [WebMethod]
         public ApiObjects.CountryResponse GetCountryList(string sWSUserName, string sWSPassword, List<int> countryIds)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
@@ -4164,7 +4164,7 @@ namespace WS_API
 
         [WebMethod]
         public FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, FriendlyAssetLifeCycleRule rule)
-            
+
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
@@ -4252,8 +4252,7 @@ namespace WS_API
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings,
-                                                                        layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings);
+                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
             }
             else
             {
@@ -4271,8 +4270,7 @@ namespace WS_API
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings,
-                                                                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, shouldOverrideExistingInvalidationKeyExcludeSettings);
+                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings);
             }
             else
             {
@@ -4297,12 +4295,6 @@ namespace WS_API
                 response.Status = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
                 return response;
             }
-        }
-
-        [WebMethod]
-        public bool DoActionAssetRules()
-        {
-            return Core.Api.Module.DoActionAssetRules();
         }
     }
 }

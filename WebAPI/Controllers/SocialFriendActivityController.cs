@@ -17,8 +17,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/socialFriendActivity/action")]
-    public class SocialFriendActivityController : ApiController
+    [Service("socialFriendActivity")]
+    public class SocialFriendActivityController : IKalturaController
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -28,9 +28,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Social friend activity filter</param>
         /// <param name="pager">Pager</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
+         [Action("list")]
          [ApiAuthorize]
-         public KalturaSocialFriendActivityListResponse List(KalturaSocialFriendActivityFilter filter = null, KalturaFilterPager pager = null)
+         static public KalturaSocialFriendActivityListResponse List(KalturaSocialFriendActivityFilter filter = null, KalturaFilterPager pager = null)
          {
              KalturaSocialFriendActivityListResponse response = null;
 

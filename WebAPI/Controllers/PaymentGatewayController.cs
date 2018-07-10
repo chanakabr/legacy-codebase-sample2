@@ -13,9 +13,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/paymentGateway/action")]
+    [Service("paymentGateway")]
     [Obsolete]
-    public class PaymentGatewayController : ApiController
+    public class PaymentGatewayController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// User Suspended = 2001
         /// </remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserSuspended)]
-        public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List()
+        static public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// payment gateway not valid = 6043
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        [Route("set"), HttpPost]
+        [Action("set")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdAlreadySetToPaymentGateway)]
         [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
-        public bool Set(int payment_gateway_id)
+        static public bool Set(int payment_gateway_id)
         {
             bool response = false;
 
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         /// payment gateway selection is disabled = 6028, service forbidden = 500004
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [Throws(eResponseStatus.UserSuspended)]
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
         [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
-        public bool Delete(int paymentGatewayId)
+        static public bool Delete(int paymentGatewayId)
         {
             bool response = false;
 
@@ -143,7 +143,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_method_id">Payment method Identifier</param> 
-        [Route("setPaymentMethod"), HttpPost]
+        [Action("setPaymentMethod")]
         [ApiAuthorize]
         [SchemeArgument("payment_gateway_id", MinInteger = 1)]
         [SchemeArgument("payment_method_id", MinInteger = 1)]
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
         [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
-        public bool SetPaymentMethod(int payment_gateway_id, int payment_method_id)
+        static public bool SetPaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
 
@@ -188,7 +188,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_method_id">Payment method Identifier</param>
         /// <returns></returns>
-        [Route("removePaymentMethod"), HttpPost]
+        [Action("removePaymentMethod")]
         [ApiAuthorize]
         [SchemeArgument("payment_gateway_id", MinInteger = 1)]
         [SchemeArgument("payment_method_id", MinInteger = 1)]
@@ -196,7 +196,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodIsUsedByHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
-        public bool RemovePaymentMethod(int payment_gateway_id, int payment_method_id)
+        static public bool RemovePaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
 
@@ -231,14 +231,14 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_method_id">Payment method Identifier</param>
         /// <returns></returns>
-        [Route("forceRemovePaymentMethod"), HttpPost]
+        [Action("forceRemovePaymentMethod")]
         [ApiAuthorize]
         [SchemeArgument("payment_gateway_id", MinInteger = 1)]
         [SchemeArgument("payment_method_id", MinInteger = 1)]
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
-        public bool ForceRemovePaymentMethod(int payment_gateway_id, int payment_method_id)
+        static public bool ForceRemovePaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
 

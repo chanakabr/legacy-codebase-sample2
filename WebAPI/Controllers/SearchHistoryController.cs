@@ -19,8 +19,8 @@ using WebAPI.Models.API;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/searchHistory/action")]
-    public class SearchHistoryController : ApiController
+    [Service("searchHistory")]
+    public class SearchHistoryController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -31,9 +31,9 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50></param>
         /// <remarks>Possible status codes: 
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSearchHistoryListResponse List(KalturaSearchHistoryFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaSearchHistoryListResponse List(KalturaSearchHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSearchHistoryListResponse response = null;
 
@@ -79,10 +79,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter of search history</param>
         /// <returns></returns>
-        [Route("clean"), HttpPost]
+        [Action("clean")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Clean(KalturaSearchHistoryFilter filter = null)
+        static public bool Clean(KalturaSearchHistoryFilter filter = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -107,9 +107,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">ID of the search history reference as shown in the list action</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(string id)
+        static public bool Delete(string id)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;

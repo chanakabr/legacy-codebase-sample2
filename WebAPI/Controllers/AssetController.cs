@@ -20,8 +20,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/asset/action")]
-    public class AssetController : ApiController
+    [Service("asset")]
+    public class AssetController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -34,12 +34,12 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
-        public KalturaAssetInfoListResponse ListOldStandard(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+        static public KalturaAssetInfoListResponse ListOldStandard(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -145,9 +145,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filtering the assets request</param>
         /// <param name="pager">Paging the request</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaAssetListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
 
@@ -352,11 +352,11 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset identifier</param>                
         /// <param name="assetReferenceType">Asset type</param>
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
-        public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
+        static public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;
 
@@ -450,12 +450,12 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
-        public KalturaAssetInfo GetOldStandard(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
+        static public KalturaAssetInfo GetOldStandard(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfo response = null;
 
@@ -566,7 +566,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <param name="request_id">Current request identifier (used for paging)</param>
         /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
-        [Route("search"), HttpPost]
+        [Action("search")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("filter", MaxLength = 2048)]
@@ -574,7 +574,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IndexMissing)]
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.InvalidSearchField)]
-        public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
+        static public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
             List<KalturaCatalogWithHolder> with = null, KalturaFilterPager pager = null, string request_id = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -621,11 +621,11 @@ namespace WebAPI.Controllers
         /// <param name="order_by"> Required sort option to apply for the identified assets. If omitted – will use newest.</param>
         /// <param name="size"><![CDATA[Maximum number of assets to return.  Possible range 1 ≤ size ≥ 10. If omitted or not in range – default to 5]]></param>
         /// <remarks>Possible status codes: Missing index = 4003</remarks>
-        [Route("autocomplete"), HttpPost]
+        [Action("autocomplete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.IndexMissing)]
-        public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
+        static public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null)
         {
             KalturaSlimAssetInfoWrapper response = null;
@@ -669,11 +669,11 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("related"), HttpPost]
+        [Action("related")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
-        public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
+        static public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
             List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -717,11 +717,11 @@ namespace WebAPI.Controllers
         /// <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>        
         /// <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>        
         /// <remarks></remarks>
-        [Route("relatedExternal"), HttpPost]
+        [Action("relatedExternal")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("asset_id", MinInteger = 1)]
-        public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
+        static public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null, string free_param = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -767,10 +767,10 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 10 is used. Value greater than 20 will set to 20.</param>
         /// <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>  
         /// <remarks></remarks>
-        [Route("searchExternal"), HttpPost]
+        [Action("searchExternal")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
+        static public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -830,7 +830,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
         /// </remarks>
-        [Route("channel"), HttpPost]
+        [Action("channel")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
@@ -839,7 +839,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.InvalidSearchField)]
         [Throws(eResponseStatus.ObjectNotExist)]
-        public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+        static public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string filter_query = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -885,7 +885,7 @@ namespace WebAPI.Controllers
         /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
         /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
-        [Route("externalChannel"), HttpPost]
+        [Action("externalChannel")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
@@ -899,7 +899,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidSearchField)]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.ExternalChannelNotExist)]
-        public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+        static public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, float? utc_offset = null, string free_param = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -939,14 +939,14 @@ namespace WebAPI.Controllers
         /// <param name="assetId">Asset identifier</param>
         /// <param name="assetType">Asset type</param>
         /// <param name="contextDataParams">Parameters for the request</param>
-        [Route("getPlaybackContext"), HttpPost]
+        [Action("getPlaybackContext")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
-        public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext response = null;
 
@@ -1012,10 +1012,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
         /// <returns></returns>
-        [Route("count"), HttpPost]
+        [Action("count")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
+        static public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;
 
@@ -1070,7 +1070,7 @@ namespace WebAPI.Controllers
         /// <param name="assetId">Asset identifier</param>
         /// <param name="assetType">Asset type</param>
         /// <param name="contextDataParams">Parameters for the request</param>
-        [Route("getAdsContext"), HttpPost]
+        [Action("getAdsContext")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.RecordingNotFound)]
@@ -1081,7 +1081,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NotEntitled)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
-        public KalturaAdsContext GetAdsContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        static public KalturaAdsContext GetAdsContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaAdsContext response = null;
 

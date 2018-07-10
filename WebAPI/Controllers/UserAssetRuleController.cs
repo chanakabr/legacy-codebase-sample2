@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/userAssetRule/action")]
-    public class UserAssetRuleController : ApiController
+    [Service("userAssetRule")]
+    public class UserAssetRuleController : IKalturaController
     {
         /// <summary>
         /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
@@ -25,11 +25,11 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="filter">Filter</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaGenericRuleListResponse ListOldStandard(KalturaGenericRuleFilter filter)
+        static public KalturaGenericRuleListResponse ListOldStandard(KalturaGenericRuleFilter filter)
         {
             List<KalturaGenericRule> response = null;
 
@@ -75,14 +75,14 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="filter">Filter</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
+        static public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
         {
             List<KalturaUserAssetRule> response = null;
 

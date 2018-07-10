@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset rule base
     /// </summary>
-    public abstract class KalturaAssetRuleBase : KalturaOTTObject
+    public abstract partial class KalturaAssetRuleBase : KalturaOTTObject
     {
         /// <summary>
         /// ID

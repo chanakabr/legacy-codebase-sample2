@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/entitlement/action")]
-    public class EntitlementController : ApiController
+    [Service("entitlement")]
+    public class EntitlementController : IKalturaController
     {
         /// <summary>
         /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="productType">The product type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
-        [Route("cancel"), HttpPost]
+        [Action("cancel")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
         [OldStandardArgument("productType", "transaction_type")]
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
-        public bool Cancel(int assetId, KalturaTransactionType productType)
+        static public bool Cancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
 
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         /// <param name="productType">The product type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000</remarks>
-        [Route("forceCancel"), HttpPost]
+        [Action("forceCancel")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
         [OldStandardArgument("productType", "transaction_type")]
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
-        public bool ForceCancel(int assetId, KalturaTransactionType productType)
+        static public bool ForceCancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
 
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
         /// <param name="subscriptionId">Subscription Code</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
-        [Route("cancelRenewal"), HttpPost]
+        [Action("cancelRenewal")]
         [ApiAuthorize]
         [OldStandardArgument("subscriptionId", "subscription_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
-        public void CancelRenewal(string subscriptionId)
+        static public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -164,11 +164,11 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Request filter</param>
         /// <remarks></remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
+        static public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
@@ -210,9 +210,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>
         /// <param name="pager">Request pager</param>1
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
+        static public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
@@ -265,10 +265,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>
         /// <param name="pager">Paging the request</param>
         /// <remarks></remarks>
-        [Route("listExpired"), HttpPost]
+        [Action("listExpired")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaEntitlementListResponse ListExpired(KalturaEntitlementsFilter filter, KalturaFilterPager pager = null)
+        static public KalturaEntitlementListResponse ListExpired(KalturaEntitlementsFilter filter, KalturaFilterPager pager = null)
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
@@ -319,7 +319,7 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
         ///,       
         /// </remarks>
-        [Route("grant"), HttpPost]
+        [Action("grant")]
         [ApiAuthorize]
         [OldStandardArgument("productId", "product_id")]
         [OldStandardArgument("productType", "product_type")]
@@ -346,7 +346,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoMediaRelatedToFile)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
-        public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
+        static public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
 
@@ -385,7 +385,7 @@ namespace WebAPI.Controllers
         /// <param name="couponCode">Coupon code</param>
         /// <param name="extraParams">Custom extra parameters (changes between different billing providers)</param>
         /// <param name="encryptedCvv">Encrypted credit card CVV</param>
-        [Route("buy"), HttpPost]
+        [Action("buy")]
         [Obsolete]
         [ApiAuthorize]
         [OldStandardArgument("itemId", "item_id")]
@@ -400,7 +400,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExpiredCard)]
         [Throws(eResponseStatus.CellularPermissionsError)]
         [Throws(eResponseStatus.UnKnownBillingProvider)]
-        public KalturaBillingResponse Buy(string itemId, bool isSubscription, double price, string currency, string couponCode, string extraParams,
+        static public KalturaBillingResponse Buy(string itemId, bool isSubscription, double price, string currency, string couponCode, string extraParams,
             string encryptedCvv, int fileId = 0, string udid = null)
         {
             KalturaBillingResponse response = null;
@@ -438,14 +438,14 @@ namespace WebAPI.Controllers
         /// Possible status codes: 
         /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, Reconciliation too frequent = 3029, Adapter application failure = 6012
         /// </remarks>
-        [Route("externalReconcile"), HttpPost]
+        [Action("externalReconcile")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.ReconciliationFrequencyLimitation)]
         [Throws(eResponseStatus.AdapterAppFailure)]
-        public bool ExternalReconcile()
+        static public bool ExternalReconcile()
         {
             bool response = false;
 
@@ -475,9 +475,9 @@ namespace WebAPI.Controllers
         /// InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,
         /// PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
         /// </remarks>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
-        public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
+        static public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -511,10 +511,10 @@ namespace WebAPI.Controllers
         /// UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
         ///,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
         /// </remarks>
-        [Route("swap"), HttpPost]
+        [Action("swap")]
         [ApiAuthorize]       
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Swap(int currentProductId, int newProductId, bool history)
+        static public bool Swap(int currentProductId, int newProductId, bool history)
         {
             bool response = false;
 
@@ -539,13 +539,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="scheduledSubscriptionId">Scheduled Subscription Identifier</param>
         /// <returns></returns>
-        [Route("cancelScheduledSubscription"), HttpPost]
+        [Action("cancelScheduledSubscription")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("scheduledSubscriptionId", MinLong = 1)]
         [Throws(eResponseStatus.ScheduledSubscriptionNotFound)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
-        public bool CancelScheduledSubscription(long scheduledSubscriptionId)
+        static public bool CancelScheduledSubscription(long scheduledSubscriptionId)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -568,10 +568,10 @@ namespace WebAPI.Controllers
         /// Returns the data about the next renewal 
         /// </summary>                
         /// <param name="id">Purchase Id</param>
-        [Route("getNextRenewal"), HttpPost]
+        [Action("getNextRenewal")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaEntitlementRenewal GetNextRenewal(int id)
+        static public KalturaEntitlementRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);

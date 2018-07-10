@@ -140,7 +140,7 @@ namespace Validator.Managers.Scheme
 
         private void Load()
         {
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
+            controllers = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType));
             exceptions = assembly.GetTypes().Where(myType => myType.IsClass && (myType.IsSubclassOf(typeof(ApiException)) || myType == typeof(ApiException)));
 
             foreach (Type exception in exceptions.OrderBy(exception => exception.Name))

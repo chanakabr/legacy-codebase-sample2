@@ -15,9 +15,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/price/action")]
+    [Service("price")]
     [Obsolete]
-    public class PriceController : ApiController
+    public class PriceController : IKalturaController
     {
 
         /// <summary>
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>
         /// <param name="coupon_code">Discount coupon code</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null)
+        static public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null)
         {
             List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();

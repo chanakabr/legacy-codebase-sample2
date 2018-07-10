@@ -20,8 +20,8 @@ using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/subscriptionSet/action")]
-    public class SubscriptionSetController : ApiController
+    [Service("subscriptionSet")]
+    public class SubscriptionSetController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">SubscriptionSet filter</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSubscriptionSetListResponse List(KalturaSubscriptionSetFilter filter = null)
+        static public KalturaSubscriptionSetListResponse List(KalturaSubscriptionSetFilter filter = null)
         {
             if (filter == null)
             {
@@ -90,11 +90,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="subscriptionSet">SubscriptionSet Object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
-        public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
+        static public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -143,13 +143,13 @@ namespace WebAPI.Controllers
         /// <param name="id">SubscriptionSet Identifier</param>
         /// <param name="subscriptionSet">SubscriptionSet Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         [SchemeArgument("id", MinLong=1)]       
-        public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
+        static public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -189,11 +189,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">SubscriptionSet Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -216,11 +216,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">SubscriptionSet Identifier</param>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaSubscriptionSet Get(long id)
+        static public KalturaSubscriptionSet Get(long id)
         {
             KalturaSubscriptionSet response = null;
             int groupId = KS.GetFromRequest().GroupId;

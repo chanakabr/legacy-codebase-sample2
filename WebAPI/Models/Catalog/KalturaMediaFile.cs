@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// Asset file details
     /// </summary>
     [Serializable]
-    public class KalturaAssetFile : KalturaOTTObject
+    public partial class KalturaAssetFile : KalturaOTTObject
     {
         /// <summary>
         /// URL of the media file to be played
@@ -27,7 +27,7 @@ namespace WebAPI.Models.Catalog
     /// Media file details
     /// </summary>
     [Serializable]
-    public class KalturaMediaFile : KalturaAssetFile
+    public partial class KalturaMediaFile : KalturaAssetFile
     {
         /// <summary>
         /// Unique identifier for the asset

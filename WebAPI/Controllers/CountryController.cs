@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/country/action")]
-    public class CountryController : ApiController
+    [Service("country")]
+    public class CountryController : IKalturaController
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Country filter</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
+         [Action("list")]
          [ApiAuthorize]
-         public KalturaCountryListResponse List(KalturaCountryFilter filter)
+        static public KalturaCountryListResponse List(KalturaCountryFilter filter)
          {
              KalturaCountryListResponse response = null;
 

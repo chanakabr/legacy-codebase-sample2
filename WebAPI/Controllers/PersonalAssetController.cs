@@ -18,9 +18,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/personalAsset/action")]
+    [Service("personalAsset")]
     [Obsolete]
-    public class PersonalAssetController : ApiController
+    public class PersonalAssetController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -31,11 +31,11 @@ namespace WebAPI.Controllers
         /// <param name="assets">Assets and files which we want their data</param>
         /// <param name="with">Which data will be returned</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(WebAPI.Managers.Models.StatusCode.DuplicateAsset)]
         [Throws(WebAPI.Managers.Models.StatusCode.DuplicateFile)]
-        public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with)
+        static public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with)
         {
             KalturaPersonalAssetListResponse response = null;
 

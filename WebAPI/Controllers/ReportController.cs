@@ -10,22 +10,22 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/report/action")]
-    public class ReportController : ApiController
+    [Service("report")]
+    public class ReportController : IKalturaController
     {
         /// <summary>
         /// Return a device configuration retrieval log request for a specific device.
         /// </summary>
         /// <param name="udid">Device UDID</param>        
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaReport Get(string udid)
+        static public KalturaReport Get(string udid)
         {
             KalturaReport response = null;
             int partnerId = KS.GetFromRequest().GroupId;
@@ -52,11 +52,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter option for from date (sec)</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaReportListResponse List(KalturaReportFilter filter, KalturaFilterPager pager = null)
+        static public KalturaReportListResponse List(KalturaReportFilter filter, KalturaFilterPager pager = null)
         {
             KalturaReportListResponse response = null;
 

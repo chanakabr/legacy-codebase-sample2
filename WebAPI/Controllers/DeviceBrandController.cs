@@ -6,22 +6,23 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/deviceBrand/action")]
-    public class DeviceBrandController : ApiController
+    [Service("deviceBrand")]
+    public class DeviceBrandController : IKalturaController
     {
 
         /// <summary>
         /// Return a list of the available device brands.
         /// </summary>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaDeviceBrandListResponse List()
+        static public KalturaDeviceBrandListResponse List()
         {
             KalturaDeviceBrandListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;

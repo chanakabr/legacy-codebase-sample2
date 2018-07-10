@@ -13,11 +13,11 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    public class BaseCategoryController : ApiController
+    public class BaseCategoryController
     {
         [NonAction]
         [SchemeArgument("id", MinInteger = 1)]
-        public virtual KalturaOTTCategory Get(int id)
+        static public KalturaOTTCategory Get(int id)
         {
             KalturaOTTCategory response = null;
 
@@ -46,36 +46,36 @@ namespace WebAPI.Controllers
         }
     }
 
-    [RoutePrefix("_service/ottCategory/action")]
-    public class OttCategoryController : BaseCategoryController
+    [Service("ottCategory")]
+    public class OttCategoryController : IKalturaController
     {
         /// <summary>
         /// Retrieve the list of categories (hierarchical) and their associated channels
         /// </summary>
         /// <param name="id">Category Identifier</param>
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public override KalturaOTTCategory Get(int id)
+        static public KalturaOTTCategory Get(int id)
         {
-            return base.Get(id);
+            return BaseCategoryController.Get(id);
         }
     }
 
-    [RoutePrefix("_service/category/action")]
+    [Service("category")]
     [Obsolete]
-    public class CategoryController : BaseCategoryController
+    public class CategoryController : IKalturaController
     {
         /// <summary>
         /// Retrieve the list of categories (hierarchical) and their associated channels
         /// </summary>
         /// <param name="id">Category Identifier</param>
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public override KalturaOTTCategory Get(int id)
+        static public KalturaOTTCategory Get(int id)
         {
-            return base.Get(id);
+            return BaseCategoryController.Get(id);
         }
     }
 }

@@ -55,13 +55,18 @@ namespace Reflector
         protected List<Type> controllers;
         protected StreamWriter file;
 
-        public Base(string path, Type baseClass)
+        public Base(string path, Type baseClass = null)
         {
+            if(baseClass == null)
+            {
+                baseClass = typeof(KalturaOTTObject);
+            }
+
             assembly = Assembly.Load("WebAPI");
             types = assembly.GetTypes().Where(myType => myType.IsClass && baseClass.IsAssignableFrom(myType)).ToList();
             types.Sort(new TypeComparer());
 
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController))).ToList();
+            controllers = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType)).ToList();
             controllers.Sort(new TypeComparer());
 
             file = new StreamWriter(path);
@@ -80,14 +85,14 @@ namespace Reflector
         protected abstract void wrtieBody();
         protected abstract void wrtieFooter();
 
-        protected string GetTypeName(Type type)
+        protected string GetTypeName(Type type, bool addGenericDefinition = false)
         {
             if (type == typeof(String))
                 return "string";
             if (type == typeof(DateTime))
                 return "int";
             if (type == typeof(long) || type == typeof(Int64))
-                return "bigint";
+                return "long";
             if (type == typeof(Int32))
                 return "int";
             if (type == typeof(double) || type == typeof(float))
@@ -97,11 +102,14 @@ namespace Reflector
             if (type.IsEnum)
                 return type.Name;
 
-            if (typeof(KalturaRenderer).IsAssignableFrom(type))
-                return "file";
-
             Regex regex = new Regex("^[^`]+");
             Match match = regex.Match(type.Name);
+
+            if (type.IsGenericType && addGenericDefinition)
+            {
+                return match.Value + "<" + String.Join(", ", type.GetGenericArguments().Select(t => GetTypeName(t))) + ">";
+            }
+
             return match.Value;
         }
     }

@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/currency/action")]
-    public class CurrencyController : ApiController
+    [Service("currency")]
+    public class CurrencyController : IKalturaController
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">currency filter</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
+         [Action("list")]
          [ApiAuthorize]
-         public KalturaCurrencyListResponse List(KalturaCurrencyFilter filter)
+        static public KalturaCurrencyListResponse List(KalturaCurrencyFilter filter)
          {
              KalturaCurrencyListResponse response = null;
              int groupId = KS.GetFromRequest().GroupId;

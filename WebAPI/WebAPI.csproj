@@ -245,6 +245,7 @@
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\DiscountDetailsController.cs" />
     <Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\IKalturaController.cs" />
     <Compile Include="Controllers\SsoAdapterProfileController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
@@ -291,6 +292,7 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Managers\Scheme\Service.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
     <Compile Include="Models\Partner\KalturaConcurrencyPartnerConfig.cs" />
     <Compile Include="Models\Partner\KalturaPartnerConfigurationFilter.cs" />
@@ -892,7 +894,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Reflection\DataModel.cs" />
+    <Compile Include="Reflection\KalturaJsonDeserializer.cs" />
     <Compile Include="Reflection\KalturaJsonSerializer.cs" />
+    <Compile Include="Reflection\MethodParam.cs" />
     <Compile Include="Swagger.ashx.cs">
       <DependentUpon>Swagger.ashx</DependentUpon>
     </Compile>

@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/timeShiftedTvPartnerSettings/action")]
-    public class TimeShiftedTvPartnerSettingsController : ApiController
+    [Service("timeShiftedTvPartnerSettings")]
+    public class TimeShiftedTvPartnerSettingsController : IKalturaController
     {
 
         /// <summary>
@@ -22,11 +22,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotFound = 5022</remarks>   
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound)]
-        public KalturaTimeShiftedTvPartnerSettings Get()
+        static public KalturaTimeShiftedTvPartnerSettings Get()
         {
             KalturaTimeShiftedTvPartnerSettings response = null;
 
@@ -49,13 +49,13 @@ namespace WebAPI.Controllers
         /// <param name="settings">Time shifted TV settings</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>  
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNotSent)]
         [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent)]
-        public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
+        static public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
         {
             bool response = false;
 

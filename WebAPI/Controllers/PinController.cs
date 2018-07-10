@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/pin/action")]
-    public class PinController : ApiController
+    [Service("pin")]
+    public class PinController : IKalturaController
     {
         /// <summary>
         /// Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.NoPinDefined)]
-        public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
+        static public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             KalturaPin pinResponse = null;
 
@@ -93,14 +93,14 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">PIN to set</param>
         /// <returns>The PIN</returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin, int? ruleId = null)
+        static public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin, int? ruleId = null)
         {
             KalturaPin response = null;
 
@@ -156,11 +156,11 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
+        static public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             KalturaPinResponse pinResponse = null;
 
@@ -218,12 +218,12 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [Obsolete]
-        public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
+        static public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -277,7 +277,7 @@ namespace WebAPI.Controllers
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
-        [Route("validate"), HttpPost]
+        [Action("validate")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -286,7 +286,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public bool Validate(string pin, KalturaPinType type, int? ruleId = null)
+        static public bool Validate(string pin, KalturaPinType type, int? ruleId = null)
         {
             bool success = false;
             
