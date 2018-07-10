@@ -100,10 +100,10 @@ namespace TVPApiServices
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
+        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
+        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId);
 
         [OperationContract]
         MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID);
