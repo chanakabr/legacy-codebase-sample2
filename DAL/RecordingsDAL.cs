@@ -725,30 +725,33 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("NotifyRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
-            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@UserId", userId);
+            sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@EpgId", recording.EpgId);
             sp.AddParameter("@EpgChannelId", recording.ChannelId);
             sp.AddParameter("@ExternalRecordingId", recording.ExternalRecordingId);
             sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);
             sp.AddParameter("@RecordingStatus", recording.RecordingStatus);
+            sp.AddParameter("@RecordingType", recording.Type);
             sp.AddParameter("@startDate", recording.EpgStartDate);
-            sp.AddParameter("@endDate", recording.EpgEndDate);
-            sp.AddParameter("@GetStatusRetries", recording.GetStatusRetries);
+            sp.AddParameter("@endDate", recording.EpgEndDate);            
             sp.AddParameter("@ViewableUntilDate", viewableUntilDate);
             sp.AddParameter("@ViewableUntilEpoch", recording.ViewableUntilDate);
             sp.AddParameter("@Crid", recording.Crid);
 
-            return sp.ExecuteReturnValue<bool>();
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool NotifyDeleteRecording(string externalDomainRecordingId, long domainId)
+        public static bool NotifyDeleteRecording(int groupId, string externalDomainRecordingId, long domainId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("NotifyDeleteRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@ExternalDomainRecordingId", externalDomainRecordingId);
             sp.AddParameter("@DomainId", domainId);
 
-            return sp.ExecuteReturnValue<bool>();
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, ref long maxDomainSeriesId)
