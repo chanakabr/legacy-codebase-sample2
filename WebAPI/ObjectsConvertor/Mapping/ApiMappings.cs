@@ -52,20 +52,41 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Parental Rules
 
-            // ParentalRule
+            // ParentalRule to KalturaParentalRule
             Mapper.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue() { value = x }).ToList()))
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
                 .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
                 .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue() { value = x }).ToList()))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType.Value)));
+
+            // KalturaParentalRule to ParentalRule
+            Mapper.CreateMap<KalturaParentalRule, ParentalRule>()
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => x.value).ToList()))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)))
+                .ForMember(dest => dest.id, opt => opt.Ignore())
+                .ForMember(dest => dest.level, opt => opt.Ignore());
 
             // PinResponse
             Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
@@ -273,49 +294,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region KSQL Channel
-            Mapper.CreateMap<WebAPI.Models.API.KalturaChannelProfile, KSQLChannel>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderToOrderObj(src.Order)))
-               ;
 
-            Mapper.CreateMap<KSQLChannel, WebAPI.Models.API.KalturaChannelProfile>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)))
-               ;
-
-            Mapper.CreateMap<KalturaChannel, KSQLChannel>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertAssetOrderToOrderObj(src.Order)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertAssetGroupByToGroupBy(src.GroupBy)))
-
-               ;
-
-            Mapper.CreateMap<KSQLChannel, KalturaChannel>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToAssetOrder(src.Order)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertGroupByToAssetGroupBy(src.GroupBy)))
-               ;
 
             #endregion
 
@@ -469,7 +448,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Meta, KalturaMeta>()
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
               .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertFieldName(src.FieldName)))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -482,7 +461,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
-             .ForMember(dest => dest.IsTag, opt => opt.MapFrom(src => ConvertIsTag(src.Type)))
+             .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
              .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -504,6 +483,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.service))
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
+
+            #endregion
+
+            #region DRM Adapter
+
+            Mapper.CreateMap<DrmAdapter, KalturaDrmProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.ExternalIdentifier))
+              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             #endregion
 
@@ -1419,7 +1411,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = WebAPI.Models.API.KalturaParentalRuleType.TV_SERIES;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown parental rule type");
+            }
+
+            return result;
+        }
+
+        private static eParentalRuleType? ConvertParentalRuleType(KalturaParentalRuleType? ruleType)
+        {
+            eParentalRuleType? result = null;
+            if (ruleType.HasValue)
+            {
+                switch (ruleType.Value)
+                {
+                    case KalturaParentalRuleType.ALL:
+                        result = eParentalRuleType.All;
+                        break;
+                    case KalturaParentalRuleType.MOVIES:
+                        result = eParentalRuleType.Movies;
+                        break;
+                    case KalturaParentalRuleType.TV_SERIES:
+                        result = eParentalRuleType.TVSeries;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaParentalRuleType");
+                }
             }
 
             return result;
@@ -1688,53 +1704,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
             return result;
-        }
-
-        public static OrderObj ConvertAssetOrderToOrderObj(KalturaAssetOrderBy order)
-        {
-            OrderObj result = new OrderObj();
-
-            switch (order)
-            {
-                case KalturaAssetOrderBy.NAME_ASC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
-                    break;
-                case KalturaAssetOrderBy.NAME_DESC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.VIEWS_DESC:
-                    result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.RATINGS_DESC:
-                    result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.VOTES_DESC:
-                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.START_DATE_DESC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.RELEVANCY_DESC:
-                    result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.START_DATE_ASC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
-                    break;
-                case KalturaAssetOrderBy.LIKES_DESC:
-                    result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-            }
-            return result;
-        }
+        }        
 
         public static KalturaOrder ConvertOrderObjToOrder(OrderObj orderObj)
         {
@@ -1803,81 +1773,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }
-
-        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderBy OrderBy, OrderDir OrderDir)
-        {
-            KalturaAssetOrderBy result = KalturaAssetOrderBy.START_DATE_DESC;
-
-            switch (OrderBy)
-            {
-                case OrderBy.VIEWS:
-                    {
-                        result = KalturaAssetOrderBy.VIEWS_DESC;
-                        break;
-                    }
-                case OrderBy.RATING:
-                    {
-                        result = KalturaAssetOrderBy.RATINGS_DESC;
-                        break;
-                    }
-                case OrderBy.VOTES_COUNT:
-                    {
-                        result = KalturaAssetOrderBy.VOTES_DESC;
-                        break;
-                    }
-                case OrderBy.START_DATE:
-                    {
-                        if (OrderDir == OrderDir.DESC)
-                        {
-                            result = KalturaAssetOrderBy.START_DATE_DESC;
-                        }
-                        else
-                        {
-                            result = KalturaAssetOrderBy.START_DATE_ASC;
-                        }
-                        break;
-                    }
-                case OrderBy.NAME:
-                    {
-                        if (OrderDir == OrderDir.ASC)
-                        {
-                            result = KalturaAssetOrderBy.NAME_ASC;
-                        }
-                        else
-                        {
-                            result = KalturaAssetOrderBy.NAME_DESC;
-                        }
-                        break;
-                    }
-                case OrderBy.RELATED:
-                    {
-                        result = KalturaAssetOrderBy.RELEVANCY_DESC;
-                        break;
-                    }
-                case OrderBy.META:
-                case OrderBy.CREATE_DATE:
-                case OrderBy.RECOMMENDATION:
-                case OrderBy.RANDOM:
-                case OrderBy.LIKE_COUNTER:
-                case OrderBy.NONE:
-                case OrderBy.ID:
-                default:
-                    break;
-            }
-
-            return result;
-        }
-
-        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderObj orderObj)
-        {
-            if (orderObj == null)
-            {
-                return KalturaAssetOrderBy.START_DATE_DESC;
-            }
-
-            return ConvertOrderObjToAssetOrder(orderObj.m_eOrderBy, orderObj.m_eOrderDir);
-        }
+        }        
 
         public static CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {

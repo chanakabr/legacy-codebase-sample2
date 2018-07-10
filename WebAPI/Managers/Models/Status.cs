@@ -105,6 +105,13 @@ namespace WebAPI.Managers.Models
         ArgumentsDuplicate = 500066,
         InvalidArgumentValue = 500067,
         UnknownEnumValue = 500068,
+        DuplicateLanguageSent = 500069,
+        InvalidValueForFeature = 500070,
+        DefaultLanguageMustBeSent = 500071,
+        GroupDoesNotContainLanguage = 500072,
+        GlobalLanguageParameterMustBeAsterisk = 500073,
+        MultiValueWasNotSentForMetaDataTypeString = 500074,
+        TagTranslationNotAllowed = 500075,
         InvalidObjectType = 500069,
     }
 }

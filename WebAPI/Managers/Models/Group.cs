@@ -90,6 +90,12 @@ namespace WebAPI.Managers.Models
         [JsonProperty("app_token_max_expiry_seconds")]
         public int AppTokenMaxExpirySeconds { get; set; }
 
+        [JsonProperty("upload_token_key_format")]
+        public string UploadTokenKeyFormat { get; set; }
+
+        [JsonProperty("upload_token_expiry_seconds")]
+        public int UploadTokenExpirySeconds { get; set; }
+
         [JsonProperty("users_sessions_key_format")]
         public string UserSessionsKeyFormat { get; set; }
 

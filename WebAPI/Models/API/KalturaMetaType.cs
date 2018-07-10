@@ -5,6 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.API
 {
+    [Serializable]
     public enum KalturaMetaType
     {
         STRING,

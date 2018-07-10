@@ -1,37 +1,72 @@
 ﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [Service("channel")]
-    public class ChannelController : IKalturaController
+    [RoutePrefix("_service/channel/action")]
+    public class ChannelController : ApiController
     {
+        /// <summary>
+        /// Returns channel        
+        /// </summary>
+        /// <param name="id">Channel Identifier</param>
+        /// <remarks></remarks>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinInteger = 1)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        public KalturaChannel Get(int id)
+        {
+            KalturaChannel response = null;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;            
+
+            try
+            {
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
         /// <summary>
         /// Returns channel info        
         /// </summary>
         /// <param name="id">Channel Identifier</param>
-        /// <remarks></remarks>
-        [Action("get")]
+        /// <remarks></remarks>        
+        [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("get")]
+        [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
-        static public KalturaChannel Get(int id)
+        public KalturaChannel GetOldStandard(int id)
         {
             KalturaChannel response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -63,21 +98,21 @@ namespace WebAPI.Controllers
         /// ObjectNotExist = 4018
         /// </remarks>
         /// <param name="channelId">channel identifier</param>
-        [Action("delete")]
+        [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandardArgument("channelId", "channel_id")]
         [Throws(eResponseStatus.IdentifierRequired)]
         [Throws(eResponseStatus.ObjectNotExist)]
-        static public bool Delete(int channelId)
+        public bool Delete(int channelId)
         {
             bool response = false;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteKSQLChannel(groupId, channelId);
+                response = ClientsManager.CatalogClient().DeleteChannel(groupId, channelId, userId);
             }
             catch (ClientException ex)
             {
@@ -88,7 +123,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new channel for partner. Currently supports only KSQL channel
+        /// Insert new channel for partner. Supports KalturaDynamicChannel or KalturaManualChannel
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
@@ -96,20 +131,45 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005,
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
-        [Action("add")]
+        [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        static public KalturaChannel Add(KalturaChannel channel)
+        [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
+        [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
+            Type manualChannelType = typeof(KalturaManualChannel);
+            Type dynamicChannelType = typeof(KalturaDynamicChannel);
+            Type channelType = typeof(KalturaChannel);
+            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+            {
+                if (channel.OrderBy == null)
+                {
+                    channel.OrderBy = new KalturaChannelOrder() { orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC };
+                }
+
+                // Validate channel
+                channel.ValidateForInsert();
+            }
 
             try
             {
-                // call client
-                response = ClientsManager.ApiClient().InsertKSQLChannel(groupId, channel);
+                // KalturaManualChannel or KalturaDynamicChannel                             
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
+                }
+                // KalturaChannel (backward comparability)
+                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
+                }
+
             }
             catch (ClientException ex)
             {
@@ -120,7 +180,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update channel details. Currently supports only KSQL channel
+        /// Update channel details. Supports KalturaDynamicChannel or KalturaManualChannel
         /// </summary>
         /// <remarks>
         /// Possible status codes:
@@ -128,24 +188,41 @@ namespace WebAPI.Controllers
         /// NoObjectToInsert = 4019,
         /// NameRequired = 5005
         /// </remarks>
-        /// <param name="channelId">Channel identifier</param>      
+        /// <param name="id">Channel identifier</param>      
         /// <param name="channel">KSQL channel Object</param>       
-        [Action("update")]
+        [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        static public KalturaChannel Update(int channelId, KalturaChannel channel)
+        public KalturaChannel Update(int id, KalturaChannel channel)
         {
             KalturaChannel response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
-            channel.Id = channelId;
+            Type manualChannelType = typeof(KalturaManualChannel);
+            Type dynamicChannelType = typeof(KalturaDynamicChannel);
+            Type channelType = typeof(KalturaChannel);
+            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+            {
+                // Validate channel
+                channel.ValidateForUpdate();
+            }
 
             try
             {
-                // call client
-                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel);
+                // KalturaManualChannel or KalturaDynamicChannel                             
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, userId);
+                }
+                // KalturaChannel (backward compatability)
+                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    channel.Id = id;
+                    response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
+                }
+
             }
             catch (ClientException ex)
             {
@@ -164,22 +241,22 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005,
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
-        [Action("addOldStandard")]
+        [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [OldStandardAction("add")]
         [Obsolete]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        static public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
+        public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertKSQLChannelProfile(groupId, channel);
+                response = ClientsManager.CatalogClient().InsertKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -199,23 +276,23 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>       
-        [Action("updateOldStandard")]
+        [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        static public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
+        public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannelProfile(groupId, channel);
+                response = ClientsManager.CatalogClient().SetKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -224,5 +301,67 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Get the list of tags for the partner
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        /// <param name="pager">Page size and index</param>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
+        {
+            KalturaChannelListResponse response = null;
+
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
+
+            if (filter == null)
+            {
+                filter = new KalturaChannelsFilter();
+            }
+
+            try
+            {                
+                // validate filter
+                filter.Validate();
+
+                KS ks = KS.GetFromRequest();
+                int groupId = ks.GroupId;
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);                
+
+                if (filter.MediaIdEqual > 0)
+                {
+                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
+                }
+                else if (filter.IdEqual > 0)
+                {
+                    // get by id
+                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isAllowedToViewInactiveAssets);
+                    response = new KalturaChannelListResponse() { TotalCount = 1, Channels = new List<KalturaChannel>() { channel } };
+                }                
+                else if (!string.IsNullOrEmpty(filter.NameEqual))
+                {
+                    //search using ChannelEqual
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
+                }
+                else
+                {
+                    //search using ChannelLike
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+
     }
 }

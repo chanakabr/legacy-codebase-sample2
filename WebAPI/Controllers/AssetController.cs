@@ -11,6 +11,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -151,8 +152,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            KS ks = KS.GetFromRequest();            
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -186,7 +188,7 @@ namespace WebAPI.Controllers
                 }
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
-                {
+                {                    
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
 
                     if (filter is KalturaSearchAssetListFilter && ((KalturaSearchAssetListFilter)filter).ExcludeWatched)
@@ -214,11 +216,13 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
-                        regularAssetFilter.getGroupByValue(), responseProfile);
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
+                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
                     }
                 }
+
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
                 //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
@@ -288,7 +292,7 @@ namespace WebAPI.Controllers
                 }
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
-                {
+                {                    
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (channelFilter.ExcludeWatched)
                     {
@@ -308,9 +312,9 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy,
-                        responseProfile);
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
+                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
                     }
                 }
                 else if (filter is KalturaBundleFilter)
@@ -358,9 +362,7 @@ namespace WebAPI.Controllers
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         static public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
-            KalturaAsset response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            KalturaAsset response = null;            
 
             if (string.IsNullOrEmpty(id))
             {
@@ -369,31 +371,26 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                KS ks = KS.GetFromRequest();
+                int groupId = ks.GroupId;
+                string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = Utils.Utils.GetLanguageFromRequest();
+                string language = Utils.Utils.GetLanguageFromRequest();                
 
                 switch (assetReferenceType)
                 {
                     case KalturaAssetReferenceType.media:
                         {
-                            int mediaId;
-                            if (!int.TryParse(id, out mediaId))
+                            long mediaId;
+                            if (!long.TryParse(id, out mediaId))
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            var mediaRes = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 1,
-                                string.Format("media_id = '{0}'", mediaId), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
-                           
-                            // if no response - return not found status 
-                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                            {
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                            }
-
-                            response = mediaRes.Objects.First();
+                            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);                          
                         }
+
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         {
@@ -414,6 +411,7 @@ namespace WebAPI.Controllers
 
                             response = epgRes.Objects.First();
                         }
+
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         {
@@ -1101,5 +1099,234 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Add a new asset
+        /// </summary>
+        /// <param name="asset">Asset object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]                
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.InvalidMetaType)]
+        [Throws(eResponseStatus.InvalidValueSentForMeta)]
+        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        public KalturaAsset Add(KalturaAsset asset)
+        {
+            KalturaAsset response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (asset.Name == null || asset.Name.Values == null || asset.Name.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            asset.Name.Validate("multilingualName");
+
+            if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+            }
+
+            if (asset.Description != null)
+            {
+                asset.Description.Validate("multilingualDescription");
+            }
+
+            if (!asset.Type.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+            }
+
+            if (string.IsNullOrEmpty(asset.ExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            asset.ValidateMetas();
+            asset.ValidateTags();
+
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+
+            if ((kalturaMediaAssetType.IsAssignableFrom(asset.GetType())) && !(asset as KalturaMediaAsset).Status.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+            }
+
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                KalturaLinearMediaAsset linearAsset = asset as KalturaLinearMediaAsset;
+                linearAsset.ValidateForInsert();
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().AddAsset(groupId, asset, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete an existing asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]        
+        [SchemeArgument("id", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                result = ClientsManager.CatalogClient().DeleteAsset(groupId, id, assetReferenceType, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// update an existing asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <param name="asset">Asset object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.InvalidMetaType)]
+        [Throws(eResponseStatus.InvalidValueSentForMeta)]
+        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [SchemeArgument("id", MinLong = 1)]        
+        public KalturaAsset Update(long id, KalturaAsset asset)
+        {
+            KalturaAsset response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (asset.Name != null)
+            {
+                if ((asset.Name.Values == null || asset.Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    asset.Name.Validate("multilingualName");
+                }
+            }
+
+            if (asset.Description != null)
+            {
+                if ((asset.Description.Values == null || asset.Description.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    asset.Description.Validate("multilingualDescription");
+                }
+            }
+
+            if (asset.ExternalId != null && asset.ExternalId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            asset.ValidateMetas();
+            asset.ValidateTags();
+
+            if (asset is KalturaLinearMediaAsset)
+            {
+                (asset as KalturaLinearMediaAsset).ValidateForUpdate();
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateAsset(groupId, id, asset, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// remove metas and tags from asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <param name="idIn">comma separated ids of metas and tags</param>
+        /// <returns></returns>
+        [Route("removeMetasAndTags"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.CanNotRemoveBasicMetaIds)]
+        [SchemeArgument("id", MinLong = 1)]
+        [SchemeArgument("idIn", DynamicMinInt = 1)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            HashSet<long> topicIds = new HashSet<long>();
+            if (string.IsNullOrEmpty(idIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "topicIds");
+            }
+            else
+            {
+                string[] stringValues = idIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value))
+                    {
+                        topicIds.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "topicIdIn");
+                    }
+                }
+            }
+
+            try
+            {
+                result = ClientsManager.CatalogClient().RemoveTopicsFromAsset(groupId, id, assetReferenceType, topicIds, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

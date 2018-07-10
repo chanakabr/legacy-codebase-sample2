@@ -2,29 +2,15 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    /// <summary>
-    /// Asset wrapper
-    /// </summary>
-    [Serializable]
-    public partial class KalturaAssetListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Assets
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaAsset> Objects { get; set; }
-    }
-
     /// <summary>
     /// Asset info
     /// </summary>
@@ -34,6 +20,9 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaMediaAsset))]
     abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
+
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
+
         /// <summary>
         /// Unique identifier for the asset
         /// </summary>
@@ -50,6 +39,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
+        [SchemeProperty(InsertOnly = true)]
         public int? Type { get; set; }
 
         /// <summary>
@@ -75,6 +65,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -84,6 +75,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "mediaFiles", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "mediaFiles", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaMediaFile> MediaFiles { get; set; }
 
         /// <summary>
@@ -117,7 +109,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
-        [XmlElement(ElementName = "startDate")]
+        [XmlElement(ElementName = "startDate", IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -125,8 +117,26 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
-        [XmlElement(ElementName = "endDate")]
+        [XmlElement(ElementName = "endDate", IsNullable = true)]
         public long? EndDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the Asset was created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the Asset last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
 
         /// <summary>
         /// Enable cDVR
@@ -134,6 +144,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -142,6 +153,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -150,6 +162,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -158,179 +171,60 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
+        [Deprecated(OPC_MERGE_VERSION)]        
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
-        /// External identifier for the media file
+        /// External identifier for the asset
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]
-        [JsonIgnore]
+        [XmlElement(ElementName = "externalId")]        
         public string ExternalId { get; set; }
 
         internal int getType()
         {
             return Type.HasValue ? (int)Type : 0;
         }
-    }
 
-    /// <summary>
-    /// Program-asset info
-    /// </summary>
-    [Serializable]
-    public partial class KalturaProgramAsset : KalturaAsset
-    {
-        /// <summary>
-        /// EPG channel identifier
-        /// </summary>
-        [DataMember(Name = "epgChannelId")]
-        [JsonProperty(PropertyName = "epgChannelId")]
-        [XmlElement(ElementName = "epgChannelId")]
-        public long? EpgChannelId { get; set; }
-
-        /// <summary>
-        /// EPG identifier
-        /// </summary>
-        [DataMember(Name = "epgId")]
-        [JsonProperty(PropertyName = "epgId")]
-        [XmlElement(ElementName = "epgId")]
-        public string EpgId { get; set; }
-
-        /// <summary>
-        /// Ralated media identifier
-        /// </summary>
-        [DataMember(Name = "relatedMediaId")]
-        [JsonProperty(PropertyName = "relatedMediaId")]
-        [XmlElement(ElementName = "relatedMediaId")]
-        public long? RelatedMediaId { get; set; }
-
-        /// <summary>
-        /// Unique identifier for the program
-        /// </summary>
-        [DataMember(Name = "crid")]
-        [JsonProperty(PropertyName = "crid")]
-        [XmlElement(ElementName = "crid")]
-        public string Crid { get; set; }
-
-        /// <summary>
-        /// Id of linear media asset
-        /// </summary>
-        [DataMember(Name = "linearAssetId")]
-        [JsonProperty(PropertyName = "linearAssetId")]
-        [XmlElement(ElementName = "linearAssetId")]
-        public long? LinearAssetId { get; set; }
-    }
-
-    /// <summary>
-    /// Media-asset info
-    /// </summary>
-    [Serializable]
-    public partial class KalturaMediaAsset : KalturaAsset
-    {
-        /// <summary>
-        /// External identifiers
-        /// </summary>
-        [DataMember(Name = "externalIds")]
-        [JsonProperty(PropertyName = "externalIds")]
-        [XmlElement(ElementName = "externalIds")]
-        public string ExternalIds { get; set; }
-
-        /// <summary>
-        /// Catch-up buffer
-        /// </summary>
-        [DataMember(Name = "catchUpBuffer")]
-        [JsonProperty(PropertyName = "catchUpBuffer")]
-        [XmlElement(ElementName = "catchUpBuffer")]
-        public long? CatchUpBuffer { get; set; }
-
-        /// <summary>
-        /// Trick-play buffer
-        /// </summary>
-        [DataMember(Name = "trickPlayBuffer")]
-        [JsonProperty(PropertyName = "trickPlayBuffer")]
-        [XmlElement(ElementName = "trickPlayBuffer")]
-        public long? TrickPlayBuffer { get; set; }
-
-        /// <summary>
-        /// Enable Recording playback for non entitled channel
-        /// </summary>
-        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
-        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
-        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
-        [SchemeProperty(ReadOnly = true)]
-        public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
-
-        /// <summary>
-        /// Asset type description 
-        /// </summary>                
-        [DataMember(Name = "typeDescription")]
-        [JsonProperty(PropertyName = "typeDescription")]
-        [XmlElement(ElementName = "typeDescription")]
-        [JsonIgnore]        
-        public string TypeDescription { get; set; }
-
-        /// <summary>
-        /// Entry Identifier
-        /// </summary>
-        [DataMember(Name = "entryId")]
-        [JsonProperty(PropertyName = "entryId")]
-        [XmlElement(ElementName = "entryId")]    
-        public string EntryId { get; set; }
-
-        /// <summary>
-        /// Device rule
-        /// </summary>
-        [DataMember(Name = "deviceRule")]
-        [JsonProperty(PropertyName = "deviceRule")]
-        [XmlElement(ElementName = "deviceRule")]
-        [JsonIgnore]        
-        public string DeviceRule { get; set; }
-
-        /// <summary>
-        /// Geo block rule
-        /// </summary>
-        [DataMember(Name = "geoBlockRule")]
-        [JsonProperty(PropertyName = "geoBlockRule")]
-        [XmlElement(ElementName = "geoBlockRule")]
-        [JsonIgnore]        
-        public string GeoBlockRule { get; set; }
-
-        /// <summary>
-        /// Watch permission rule
-        /// </summary>
-        [DataMember(Name = "watchPermissionRule")]
-        [JsonProperty(PropertyName = "watchPermissionRule")]
-        [XmlElement(ElementName = "watchPermissionRule")]
-        [JsonIgnore]
-        public string WatchPermissionRule { get; set; }
-    }
-
-    /// <summary>
-    /// Recording-asset info
-    /// </summary>
-    [Serializable]
-    public partial class KalturaRecordingAsset : KalturaProgramAsset
-    {
-        /// <summary>
-        /// Recording identifier
-        /// </summary>
-        [DataMember(Name = "recordingId")]
-        [JsonProperty(PropertyName = "recordingId")]
-        [XmlElement(ElementName = "recordingId")]
-        public string RecordingId
+        internal void ValidateTags()
         {
-            get;
-            set;
+            if (Tags != null && Tags.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
+                {                    
+                    if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
+                    {
+                        foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
+                        {
+                            List<ApiObjects.LanguageContainer> noneDefaultLanugageContainer = item.value.GetNoneDefaultLanugageContainer();
+                            if (noneDefaultLanugageContainer != null && noneDefaultLanugageContainer.Count > 0)
+                            {
+                                throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                            }
+                        }
+                    }
+
+                }
+            }
         }
 
-        /// <summary>
-        /// Recording Type: single/season/series
-        /// </summary>
-        [DataMember(Name = "recordingType")]
-        [JsonProperty(PropertyName = "recordingType")]
-        [XmlElement(ElementName = "recordingType", IsNullable = true)]
-        public WebAPI.Models.ConditionalAccess.KalturaRecordingType? RecordingType { get; set; }
+        internal void ValidateMetas()
+        {
+            if (Metas != null && Metas.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaValue> metaValues in Metas)
+                {
+                    if (metaValues.Value.GetType() == typeof(KalturaMultilingualStringValue))
+                    {
+                        KalturaMultilingualStringValue multilingualStringValue = metaValues.Value as KalturaMultilingualStringValue;
+                        if (multilingualStringValue != null)
+                        {
+                            multilingualStringValue.value.Validate(metaValues.Key);
+                        }
+                    }
+                }
+            }            
+        }
     }
-    
 }

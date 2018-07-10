@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetCDNRAdapters(groupId);
+                response = ClientsManager.ApiClient().GetCDNAdapters(groupId);
             }
             catch (ClientException ex)
             {

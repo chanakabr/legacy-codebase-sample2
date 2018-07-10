@@ -17,6 +17,11 @@ using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Renderers;
+using WebAPI.Controllers;
+using System.Text.RegularExpressions;
+using WebAPI.App_Start;
+using System.Net.Http;
+using Newtonsoft.Json;
 using WebAPI.Utils;
 
 namespace Validator.Managers.Scheme
@@ -775,6 +780,10 @@ namespace Validator.Managers.Scheme
             if (obsolete != null)
                 return;
 
+            JsonIgnoreAttribute jsonIgnore = property.GetCustomAttribute<JsonIgnoreAttribute>(true);
+            if (jsonIgnore != null)
+                return;
+
             DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
             if (deprecated != null)
                 return;
@@ -944,6 +953,9 @@ namespace Validator.Managers.Scheme
                 return "bool";
             if (type.IsEnum)
                 return type.Name;
+
+            if (type == typeof(KalturaOTTFile))
+                return "file";
 
             if (typeof(KalturaRenderer).IsAssignableFrom(type))
                 return "file";

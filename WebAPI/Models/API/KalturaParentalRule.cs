@@ -23,7 +23,7 @@ namespace WebAPI.Models.API
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public long? id { get; set; }
+        public long id { get; set; }
 
         /// <summary>
         /// Rule display name
@@ -31,6 +31,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1, MaxLength = 100)]
         public string name { get; set; }
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
+        [SchemeProperty(MaxLength = 1024)]
         public string description { get; set; }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace WebAPI.Models.API
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
         [OldStandardProperty("rule_type")]
-        public KalturaParentalRuleType ruleType { get; set; }
+        public KalturaParentalRuleType? ruleType { get; set; }
 
         /// <summary>
         /// Media tag values that trigger rule
@@ -112,7 +114,8 @@ namespace WebAPI.Models.API
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
         [OldStandardProperty("is_default")]
-        public bool? isDefault { get; set; }
+        [SchemeProperty(ReadOnly = true)]
+        public bool isDefault { get; set; }
 
         /// <summary>
         /// Where was this rule defined account, household or user
@@ -120,7 +123,34 @@ namespace WebAPI.Models.API
         [DataMember(Name = "origin")]
         [JsonProperty("origin")]
         [XmlElement(ElementName = "origin")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaRuleLevel Origin { get; set; }
+
+        /// <summary>
+        /// active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive", IsNullable = true)]
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
 
     }
 

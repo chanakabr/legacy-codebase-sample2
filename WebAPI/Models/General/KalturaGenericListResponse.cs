@@ -1,9 +1,11 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.General
 {
@@ -28,5 +30,13 @@ namespace WebAPI.Models.General
         {
             TotalCount = 0;
         }
+
+        /// <summary>
+        /// real objectType
+        /// </summary>
+        [DataMember(Name = "objectType")]
+        [JsonProperty(PropertyName = "objectType")]
+        [XmlElement(ElementName = "objectType")]
+        public override string objectType { get { return typeof(KalturaT).Name + "ListResponse"; } }
     }
 }

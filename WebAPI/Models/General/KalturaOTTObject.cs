@@ -159,7 +159,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]
         [XmlElement(ElementName = "objectType")]
-        public string objectType { get { return this.GetType().Name; } set { } }
+        public virtual string objectType { get { return this.GetType().Name; } set { } }
 
         [DataMember(Name = "relatedObjects")]
         [JsonProperty(PropertyName = "relatedObjects")]
@@ -173,6 +173,23 @@ namespace WebAPI.Models.General
         public virtual void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
         {
 
+        }
+    }
+
+    /// <summary>
+    /// Base class
+    /// </summary>
+    public class KalturaOTTFile
+    {
+        public KalturaOTTFile(string filepath)
+        {
+            path = filepath;
+        }
+
+        public string path 
+        {
+            get;
+            set;
         }
     }
 }

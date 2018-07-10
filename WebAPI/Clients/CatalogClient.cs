@@ -1,8 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -32,8 +34,10 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
         public string Signature { get; set; }
         public string SignString { get; set; }
+        
         public string SignatureKey
         {
             set
@@ -42,6 +46,594 @@ namespace WebAPI.Clients
                 Signature = GetSignature(SignString, value);
             }
         }
+        
+        #region New Catalog Management    
+
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
+        {
+            KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<AssetStruct>> getAssetStructsListFunc = delegate()
+            {
+                if (metaId > 0)
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicId(groupId, metaId, isProtected);
+                }
+                else
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids, isProtected);
+                }
+            };
+
+            KalturaGenericListResponse<KalturaAssetStruct> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetStruct, AssetStruct>(getAssetStructsListFunc);
+
+            result.AssetStructs = response.Objects;
+            result.TotalCount = response.TotalCount;
+            
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaAssetStructOrderBy.NAME_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.NAME_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.SYSTEM_NAME_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.CREATE_DATE_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.CREATE_DATE_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.UPDATE_DATE_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.UpdateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.UPDATE_DATE_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.UpdateDate).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
+        {
+            Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
+                Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToAdd, userId);
+
+            KalturaAssetStruct result =
+                ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, addAssetStructFunc);
+
+            return result;
+        }
+
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStrcut, long userId)
+        {
+            bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
+            Func<AssetStruct, GenericResponse<AssetStruct>> updateAssetStructFunc = (AssetStruct assetStructToUpdate) =>
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
+
+            KalturaAssetStruct result =
+                ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, updateAssetStructFunc);
+
+            return result;
+        }
+
+        public bool DeleteAssetStruct(int groupId, long id, long userId)
+        {
+            Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetStructFunc);
+        }
+
+        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
+                                                bool? multipleValue = null, long assetStructId = 0)
+        {
+            KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<Topic>> getTopicListFunc = delegate ()
+            {
+                ApiObjects.MetaType metaType = ApiObjects.MetaType.All;
+                if (type.HasValue)
+                {
+                    metaType = CatalogMappings.ConvertToMetaType(type, multipleValue);
+                }
+
+                if (assetStructId > 0)
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructId(groupId, assetStructId, metaType);
+                }
+                else
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByIds(groupId, ids, metaType);
+                }
+            };
+
+            KalturaGenericListResponse<KalturaMeta> response =
+                ClientUtils.GetResponseListFromWS<KalturaMeta, Topic>(getTopicListFunc);
+
+            result.Metas = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaMetaOrderBy.NAME_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaMetaOrderBy.NAME_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaMetaOrderBy.SYSTEM_NAME_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaMetaOrderBy.SYSTEM_NAME_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaMetaOrderBy.CREATE_DATE_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.CREATE_DATE_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.UPDATE_DATE_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.UpdateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.UPDATE_DATE_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.UpdateDate).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
+        {
+            Func<Topic, GenericResponse<Topic>> addTopicFunc = (Topic topicToAdd) =>
+                Core.Catalog.CatalogManagement.CatalogManager.AddTopic(groupId, topicToAdd, userId);
+
+            KalturaMeta result =
+                ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, addTopicFunc);
+
+            return result;
+        }
+
+        public KalturaMeta UpdateMeta(int groupId, long id, KalturaMeta meta, long userId)
+        {
+            Func<Topic, GenericResponse<Topic>> updateTopicFunc = (Topic topicToUpdate) =>
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateTopic(groupId, id, topicToUpdate, userId);
+
+            KalturaMeta result =
+                ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, updateTopicFunc);
+
+            return result;
+        }
+
+        public bool DeleteMeta(int groupId, long id, long userId)
+        {
+            Func<Status> deleteTopicFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTopic(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteTopicFunc);
+        }
+
+        public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
+        {
+            KalturaAsset result = null;
+            GenericResponse<Asset> response = null;
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+
+            try
+            {
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToAdd = null;
+                // in case asset is linear media
+                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToAdd = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // in case asset is media
+                else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // add here else if for epg\recording when needed
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                }
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.AssetManager.AddAsset(groupId, assetType, assetToAdd, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // in case asset is Linear Media
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+            // in case asset is media
+            else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+            // add here else if for epg\recording when needed
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+
+            return result;
+        }
+
+        public bool DeleteAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, long userId)
+        {
+            Func<Status> deleteAssetFunc = delegate ()
+            {
+                eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                return Core.Catalog.CatalogManagement.AssetManager.DeleteAsset(groupId, id, assetType, userId);
+            };
+
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetFunc);
+        }
+
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
+        {
+            KalturaAsset result = null;
+            GenericResponse<Asset> response = null;
+            eAssetTypes assetType = eAssetTypes.UNKNOWN;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    if (doesGroupUsesTemplates)
+                    {
+                        assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                    }
+                    else
+                    {
+                        KalturaAssetListResponse assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                        if (assetListResponse != null && assetListResponse.TotalCount == 1)
+                        {
+                            return assetListResponse.Objects[0];
+                        }
+                        else
+                        {
+                            throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");                            
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            switch (assetType)
+            {
+                case eAssetTypes.MEDIA:
+                    if ((response.Object as MediaAsset).MediaAssetType == MediaAssetType.Linear)
+                    {
+                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                    }
+                    else
+                    {
+                        result = Mapper.Map<KalturaMediaAsset>(response.Object);
+                    }
+
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                    break;
+                case eAssetTypes.EPG:
+                    result = Mapper.Map<KalturaProgramAsset>(response.Object);
+                    break;
+                //TODO : add support when needed for Recording
+                case eAssetTypes.NPVR:
+                    break;
+                case eAssetTypes.UNKNOWN:                    
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+
+            return result;
+        }
+
+        public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
+        {
+            KalturaAsset result = null;
+            GenericResponse<Asset> response = null;
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+            try
+            {
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToUpdate = null;
+                // in case asset is linear media
+                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToUpdate = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // in case asset is media
+                else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // add here else if for epg\recording when needed
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                }
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.AssetManager.UpdateAsset(groupId, id, assetType, assetToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // in case asset is Linear Media
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+            // in case asset is media
+            else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaMediaAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+            // add here else if for epg\recording when needed
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+
+            return result;
+        }
+
+        public bool RemoveTopicsFromAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, HashSet<long> topicIds, long userId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                    switch (assetReferenceType)
+                    {
+                        case KalturaAssetReferenceType.media:
+                            assetType = eAssetTypes.MEDIA;
+                            break;
+                        case KalturaAssetReferenceType.epg_internal:
+                            break;
+                        case KalturaAssetReferenceType.epg_external:
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                            break;
+                    }
+
+                    response = Core.Catalog.CatalogManagement.AssetManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }        
+
+        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+            if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
+            {
+                GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    result.Objects = new List<KalturaAsset>();
+                    // convert assets
+                    Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    foreach (Asset assetToConvert in assetListResponse.Objects)
+                    {
+                        switch (assetToConvert.AssetType)
+                        {
+                            case eAssetTypes.MEDIA:
+                                MediaAsset mediaAssetToConvert = assetToConvert as MediaAsset;
+                                KalturaMediaAsset kalturaMediaAsset = null;
+                                if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
+                                {
+                                    kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);
+                                }
+                                else
+                                {
+                                    kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                                }
+
+                                kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
+                                result.Objects.Add(kalturaMediaAsset);
+                                break;
+                            case eAssetTypes.EPG:
+                                EpgAsset epgAssetToConvert = assetToConvert as EpgAsset;
+                                KalturaProgramAsset kalturaEpgAsset = Mapper.Map<KalturaProgramAsset>(epgAssetToConvert.Epg);
+                                result.Objects.Add(kalturaEpgAsset);
+                                break;
+                            //TODO : add support when needed for Recording
+                            case eAssetTypes.NPVR:
+                                break;
+                            case eAssetTypes.UNKNOWN:                                
+                            default:
+                                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                                break;
+                        }
+                    }                                                            
+                }
+                else if (assetListResponse != null && assetListResponse.Status != null)
+                {
+                    throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.Message.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
+                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            // check if aggregation result have values 
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
+                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
+            {
+                if (doesGroupUsesTemplates)
+                {
+                    List<BaseObject> assetsBaseDataList = new List<BaseObject>();
+                    foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
+                    {
+                        if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                        {
+                            assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
+                        }
+                    }
+
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                }
+                else
+                {
+                    // build the assetsBaseDataList from the hit array 
+                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
+                }
+
+                result.TotalCount = searchResponse.aggregationResults[0].totalItems;
+            }
+            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                if (doesGroupUsesTemplates)
+                {
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                }
+                else
+                {
+                    // get base objects list                    
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
+                }
+
+                result.TotalCount = searchResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
+        public KalturaAssetStructMeta UpdateAssetStructMeta(long assetStructId, long MetaId, KalturaAssetStructMeta assetStructMeta, int groupId, long userId)
+        {
+            Func<AssetStructMeta, GenericResponse<AssetStructMeta>> updateAssetStructMetaFunc = (AssetStructMeta assetStructMetaToUpdate) =>
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStructMeta
+                        (assetStructId, MetaId, assetStructMetaToUpdate, groupId, userId);
+
+            KalturaAssetStructMeta result =
+                ClientUtils.GetResponseFromWS<KalturaAssetStructMeta, AssetStructMeta>(assetStructMeta, updateAssetStructMetaFunc);
+
+            return result;
+        }
+
+        public KalturaAssetStructMetaListResponse GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
+        {
+            KalturaAssetStructMetaListResponse result = new KalturaAssetStructMetaListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<AssetStructMeta>> getAssetStructMetaListFunc = () =>
+               Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructMetaList(groupId, assetStructId, metaId);
+
+            KalturaGenericListResponse<KalturaAssetStructMeta> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetStructMeta, AssetStructMeta>(getAssetStructMetaListFunc);
+
+            result.AssetStructMetas = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }        
+
+        #endregion
 
         public int CacheDuration { get; set; }
 
@@ -69,8 +661,8 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with, bool excludeWatched)
-        {
+                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with, bool excludeWatched)
+{
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // Create catalog order object
@@ -253,7 +845,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -299,7 +891,8 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId
+                domainId = domainId,
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -325,23 +918,8 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
-            // check if aggragation result have values 
-            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
-                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
-            {
-                // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
-                result.TotalCount = searchResponse.aggregationResults[0].totalItems;
-            }
-            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
-            {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
-                // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
-                result.TotalCount = searchResponse.m_nTotalItems;
-            }
+            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isAllowedToViewInactiveAssets, managementData, responseProfile);
 
             return result;
         }
@@ -423,7 +1001,7 @@ namespace WebAPI.Clients
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
             {
                 // get base objects list
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList(); //TODO: check assetsBaseDataList?
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // map counts
                 result.SubCounts = Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
@@ -432,7 +1010,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
@@ -1028,8 +1606,8 @@ namespace WebAPI.Clients
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire request
-            ChannelResponse channelResponse = new ChannelResponse();
-            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(request, out channelResponse, true, key.ToString()))
+            Core.Catalog.Response.ChannelResponse channelResponse = new Core.Catalog.Response.ChannelResponse();
+            if (!CatalogUtils.GetBaseResponse<Core.Catalog.Response.ChannelResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1774,7 +2352,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate, long programId = 0)
+        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, 
+                                  int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate, long programId = 0, bool isReportingMode = false)
         {
             int t;
 
@@ -1817,7 +2396,8 @@ namespace WebAPI.Clients
                     m_nAvgBitRate = averageBitRate,
                     m_nCurrentBitRate = currentBitRate,
                     m_nTotalBitRate = totalBitRate,
-                    ProgramId = programId
+                    ProgramId = programId,
+                    IsReportingMode = isReportingMode
                 }
             };
 
@@ -2106,8 +2686,8 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-            KalturaBaseResponseProfile responseProfile = null)
+                                                            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2148,7 +2728,8 @@ namespace WebAPI.Clients
                 internalChannelID = id.ToString(),
                 filterQuery = filterQuery,
                 m_dServerTime = getServerTime(),
-                m_bIgnoreDeviceRuleID = false
+                m_bIgnoreDeviceRuleID = false,
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             // build failover cache key
@@ -2170,22 +2751,7 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
 
-            if (channelResponse.aggregationResults != null && channelResponse.aggregationResults.Count > 0 &&
-                channelResponse.aggregationResults[0].results != null && channelResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
-            {
-                // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(channelResponse.aggregationResults[0].results, request, CacheDuration, false, responseProfile);
-                result.TotalCount = channelResponse.aggregationResults[0].totalItems;
-            }
-            else if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
-            {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
-
-                // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
-                result.TotalCount = channelResponse.m_nTotalItems;
-            }
+            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
 
             return result;
         }
@@ -2413,7 +2979,7 @@ namespace WebAPI.Clients
                                                      string subHeader, string contextText, string udid, string language)
         {
             KalturaAssetComment result = new KalturaAssetComment();
-            
+
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2639,6 +3205,818 @@ namespace WebAPI.Clients
             if (response.MetaList != null && response.MetaList.Count > 0)
             {
                 result = AutoMapper.Mapper.Map<KalturaMeta>(response.MetaList[0]);
+            }
+
+            return result;
+        }
+
+        internal KalturaTagListResponse SearchTags(int groupId, bool isExcatValue, string value, int topicId, string searchLanguage, int pageIndex, int pageSize)
+        {
+            KalturaTagListResponse result = new KalturaTagListResponse();
+
+            Func<GenericListResponse<ApiObjects.SearchObjects.TagValue>> searchTagsFunc = delegate ()
+            {
+                int searchLanguageId = Utils.Utils.GetLanguageId(groupId, searchLanguage);
+                return Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, searchLanguageId, pageIndex, pageSize);
+            };
+
+            KalturaGenericListResponse<KalturaTag> response =
+                ClientUtils.GetResponseListFromWS<KalturaTag, ApiObjects.SearchObjects.TagValue>(searchTagsFunc);
+
+            result.Tags = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
+        {
+            Func<TagValue, GenericResponse<TagValue>> addTagFunc = (TagValue requestTag) =>
+                Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag, userId);
+
+            KalturaTag result =
+                ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, addTagFunc);
+
+            return result;
+        }
+
+        internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag, long userId)
+        {
+            Func<TagValue, GenericResponse<TagValue>> updateTagFunc = (TagValue tagToUpdate) =>
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, id, tagToUpdate, userId);
+
+            KalturaTag result =
+                ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, updateTagFunc);
+
+            return result;
+        }
+
+        internal bool DeleteTag(int groupId, long id, long userId)
+        {
+            Func<Status> deleteTagFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteTagFunc);
+        }
+
+        internal KalturaImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
+        {
+            KalturaImageTypeListResponse result = new KalturaImageTypeListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<ImageType>> getImageTypesFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetImageTypes(groupId, isSearchByIds, ids);
+
+            KalturaGenericListResponse<KalturaImageType> response =
+                ClientUtils.GetResponseListFromWS<KalturaImageType, ImageType>(getImageTypesFunc);
+
+            result.ImageTypes = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaImageType AddImageType(int groupId, long userId, KalturaImageType imageType)
+        {
+            Func<ImageType, GenericResponse<ImageType>> addImageTypeFunc = (ImageType requestImageType) =>
+                Core.Catalog.CatalogManagement.ImageManager.AddImageType(groupId, requestImageType, userId);
+
+            KalturaImageType result =
+                ClientUtils.GetResponseFromWS<KalturaImageType, ImageType>(imageType, addImageTypeFunc);
+
+            return result;
+        }
+
+        internal KalturaImageType UpdateImageType(int groupId, long userId, long id, KalturaImageType imageType)
+        {
+            Func<ImageType, GenericResponse<ImageType>> updateImageTypeFunc = (ImageType requestImageType) =>
+                Core.Catalog.CatalogManagement.ImageManager.UpdateImageType(groupId, id, requestImageType, userId);
+
+            KalturaImageType result =
+                ClientUtils.GetResponseFromWS<KalturaImageType, ImageType>(imageType, updateImageTypeFunc);
+
+            return result;
+        }
+
+        internal bool DeleteImageType(int groupId, long userId, long id)
+        {
+            Func<Status> deleteImageTypeFunc = () => Core.Catalog.CatalogManagement.ImageManager.DeleteImageType(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteImageTypeFunc);
+        }
+
+        internal KalturaRatioListResponse GetRatios(int groupId)
+        {
+            KalturaRatioListResponse result = new KalturaRatioListResponse();
+
+            Func<GenericListResponse<Core.Catalog.CatalogManagement.Ratio>> getRatiosFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetRatios(groupId);
+
+            KalturaGenericListResponse<KalturaRatio> response =
+                ClientUtils.GetResponseListFromWS<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>(getRatiosFunc);
+
+            result.Ratios = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> imagesIds, bool? isDefault = null)
+        {
+            KalturaImageListResponse result = new KalturaImageListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<Image>> getImagesByIdsFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetImagesByIds(groupId, imagesIds, isDefault);
+
+            KalturaGenericListResponse<KalturaImage> response =
+                ClientUtils.GetResponseListFromWS<KalturaImage, Image>(getImagesByIdsFunc);
+
+            result.Images = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaImageListResponse GetImagesByObject(int groupId, long imageObjectId, KalturaImageObjectType imageObjectType, bool? isDefault = null)
+        {
+            KalturaImageListResponse result = new KalturaImageListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<Image>> getImagesByObjectFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
+
+            KalturaGenericListResponse<KalturaImage> response =
+                ClientUtils.GetResponseListFromWS<KalturaImage, Image>(getImagesByObjectFunc);
+
+            result.Images = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal bool DeleteImage(int groupId, long userId, long id)
+        {
+            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteImageFunc);
+        }
+        
+        internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)
+        {
+            Func<Image, GenericResponse<Image>> addImageFunc = (Image requestImage) =>
+               Core.Catalog.CatalogManagement.ImageManager.AddImage(groupId, requestImage, userId);
+
+            KalturaImage result =
+                ClientUtils.GetResponseFromWS<KalturaImage, Image>(image, addImageFunc);
+
+            return result;
+        }
+
+        internal void SetContent(int groupId, long userId, long id, string url)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.SetContent(groupId, userId, id, url);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        internal KalturaRatio AddRatio(int groupId, long userId, KalturaRatio ratio)
+        {
+            KalturaRatio responseRatio = new KalturaRatio();
+            RatioResponse response = null;
+
+            try
+            {
+                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddRatio(groupId, userId, requestRatio);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratio != null)
+            {
+                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+            }
+
+            return responseRatio;
+        }
+
+        internal KalturaRatio UpdateRatio(int groupId, long userId, KalturaRatio ratio, long ratioId)
+        {
+            KalturaRatio responseRatio = new KalturaRatio();
+            RatioResponse response = null;
+
+            try
+            {
+                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.UpdateRatio(groupId, userId, requestRatio, ratioId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratio != null)
+            {
+                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+            }
+
+            return responseRatio;
+        }
+
+        public KalturaMediaFileTypeListResponse GetMediaFileTypes(int groupId)
+        {
+            KalturaMediaFileTypeListResponse result = new KalturaMediaFileTypeListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<MediaFileType>> getMediaFileTypesFunc = () =>
+               Core.Catalog.CatalogManagement.FileManager.GetMediaFileTypes(groupId);
+
+            KalturaGenericListResponse<KalturaMediaFileType> response =
+                ClientUtils.GetResponseListFromWS<KalturaMediaFileType, MediaFileType>(getMediaFileTypesFunc);
+
+            result.Types = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        public KalturaMediaFileType AddMediaFileType(int groupId, KalturaMediaFileType mediaFileType, long userId)
+        {
+            Func<MediaFileType, GenericResponse<MediaFileType>> addMediaFileTypeFunc = (MediaFileType mediaFileTypeToAdd) =>
+               Core.Catalog.CatalogManagement.FileManager.AddMediaFileType(groupId, mediaFileTypeToAdd, userId);
+
+            KalturaMediaFileType result =
+                ClientUtils.GetResponseFromWS<KalturaMediaFileType, MediaFileType>(mediaFileType, addMediaFileTypeFunc);
+
+            return result;
+        }
+
+        public KalturaMediaFileType UpdateMediaFileType(int groupId, long id, KalturaMediaFileType mediaFileType, long userId)
+        {
+            Func<MediaFileType, GenericResponse<MediaFileType>> updateMediaFileTypeFunc = (MediaFileType mediaFileTypeToUpdate) =>
+                Core.Catalog.CatalogManagement.FileManager.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate, userId);
+
+            KalturaMediaFileType result =
+                ClientUtils.GetResponseFromWS<KalturaMediaFileType, MediaFileType>(mediaFileType, updateMediaFileTypeFunc);
+
+            return result;
+        }
+
+        public bool DeleteMediaFileType(int groupId, long id, long userId)
+        {
+            Func<Status> deleteMediaFileTypeFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFileType(groupId, id, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteMediaFileTypeFunc);
+        }
+
+        internal KalturaMediaFile AddMediaFile(int groupId, KalturaMediaFile assetFile, long userId)
+        {
+            Func<AssetFile, GenericResponse<AssetFile>> insertMediaFileFunc = (AssetFile assetFileToAdd) =>
+                Core.Catalog.CatalogManagement.FileManager.InsertMediaFile(groupId, userId, assetFileToAdd);
+
+            KalturaMediaFile result =
+                ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, insertMediaFileFunc);
+
+            return result;
+        }
+
+        internal bool DeleteMediaFile(int groupId, long userId, long id)
+        {
+            Func<Status> deleteMediaFileFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFile(groupId, userId, id);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteMediaFileFunc);
+        }
+
+        internal KalturaMediaFile UpdateMediaFile(int groupId, long id, KalturaMediaFile assetFile, long userId)
+        {
+            Func<AssetFile, GenericResponse<AssetFile>> updateMediaFileFunc = (AssetFile assetFileToUpdate) =>
+                Core.Catalog.CatalogManagement.FileManager.UpdateMediaFile(groupId, assetFileToUpdate, userId);
+
+            KalturaMediaFile result =
+                ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, updateMediaFileFunc);
+
+            return result;
+        }
+
+        internal KalturaMediaFileListResponse GetMediaFiles(int groupId, long id, long assetId)
+        {
+            KalturaMediaFileListResponse result = new KalturaMediaFileListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<AssetFile>> getMediaFilesFunc = () =>
+               Core.Catalog.CatalogManagement.FileManager.GetMediaFiles(groupId, id, assetId);
+
+            KalturaGenericListResponse<KalturaMediaFile> response =
+                ClientUtils.GetResponseListFromWS<KalturaMediaFile, AssetFile>(getMediaFilesFunc);
+
+            result.Files = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, List<int> specificChannelIds, int pageIndex, int pageSize,
+                                                            KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
+        {
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
+
+            List<GroupsCacheManager.Channel> channels = null;
+            ChannelOrderBy orderBy = ChannelOrderBy.Id;
+            OrderDir orderDirection = OrderDir.NONE;
+
+            switch (channelOrderBy)
+            {
+                case KalturaChannelsOrderBy.NONE:
+                    {
+                        orderBy = ChannelOrderBy.Id;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_ASC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_DESC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Objects != null && response.Objects.Count > 0)
+            {
+                result.Channels = new List<KalturaChannel>();                
+                // convert channels
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                if (dynamicChannels != null)
+                {
+                    result.Channels.AddRange(dynamicChannels);
+                }
+
+                if (manualChannels != null && manualChannels.Count > 0)
+                {
+                    result.Channels.AddRange(manualChannels);
+                }
+
+                result.TotalCount = response.TotalItems;
+            }
+
+            return result;
+        }
+
+        internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
+        {
+            GenericResponse<GroupsCacheManager.Channel> response = null;
+            KalturaChannel result = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while calling GetChannel. groupId: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            // DynamicChannel
+            if (response.Object.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
+            }
+
+            return result;
+        }
+
+        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel, long userId)
+        {
+            KSQLChannelResponse response = null;
+            KalturaChannel result = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
+                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);                 
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while calling InsertKSQLChannel. groupId: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<KalturaChannel>(response.Channel);
+            return result;
+        }
+
+        internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, long userId)
+        {
+            KalturaChannel result = null;
+            GenericResponse<GroupsCacheManager.Channel> response = null;
+
+            try
+            {
+                GroupsCacheManager.Channel channelToAdd = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddChannel(groupId, channelToAdd, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // DynamicChannel
+            if (response.Object.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
+            }
+
+            return result;
+        }
+
+        internal KalturaChannel UpdateChannel(int groupId, int id, KalturaChannel channel, long userId)
+        {
+            KalturaChannel result = null;
+            GenericResponse<GroupsCacheManager.Channel> response = null;
+
+            try
+            {
+                Type manualChannelType = typeof(KalturaManualChannel);
+                GroupsCacheManager.Channel channelToUpdate = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) && ((KalturaManualChannel)channel).MediaIds == null)
+                {
+                    channelToUpdate.m_lManualMedias = null;
+                }
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.UpdateChannel(groupId, id, channelToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // DynamicChannel
+            if (response.Object.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Object);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Object);
+            }
+
+            return result;
+        }
+
+        internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel, long userId)
+        {
+            KSQLChannelResponse response = null;
+            KalturaChannel profile = null;
+
+
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetKSQLChannel. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            profile = Mapper.Map<KalturaChannel>(response.Channel);
+            return profile;
+        }
+
+
+        [Obsolete]
+        internal KalturaChannelProfile InsertKSQLChannelProfile(int groupId, KalturaChannelProfile channel, long userId)
+        {
+            KSQLChannelResponse response = null;
+            KalturaChannelProfile profile = null;
+
+
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
+                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertKSQLChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            profile = Mapper.Map<Models.API.KalturaChannelProfile>(response.Channel);
+            return profile;
+        }
+
+        [Obsolete]
+        internal KalturaChannelProfile SetKSQLChannelProfile(int groupId, KalturaChannelProfile channel, long userId)
+        {
+            KSQLChannelResponse response = null;
+            KalturaChannelProfile profile = null;
+
+
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetKSQLChannel. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
+            return profile;
+        }
+
+        internal bool DeleteChannel(int groupId, int channelId, long userId)
+        {
+            Func<Status> deleteChannelFunc = () => Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
+            return ClientUtils.GetBoolResponseStatusFromWS(deleteChannelFunc);;
+        }
+
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
+        {
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
+
+            List<GroupsCacheManager.Channel> channels = null;
+            ChannelOrderBy orderBy = ChannelOrderBy.Id;
+            OrderDir orderDirection = OrderDir.NONE;
+
+            switch (channelOrderBy)
+            {
+                case KalturaChannelsOrderBy.NONE:
+                    {
+                        orderBy = ChannelOrderBy.Id;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_ASC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_DESC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Objects != null && response.Objects.Count > 0)
+            {
+                result.Channels = new List<KalturaChannel>();
+                // convert channels
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                if (dynamicChannels != null)
+                {
+                    result.Channels.AddRange(dynamicChannels);
+                }
+
+                if (manualChannels != null && manualChannels.Count > 0)
+                {
+                    result.Channels.AddRange(manualChannels);
+                }
+
+                result.TotalCount = response.TotalItems;
             }
 
             return result;

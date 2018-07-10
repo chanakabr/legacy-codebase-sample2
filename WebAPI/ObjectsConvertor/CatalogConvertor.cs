@@ -299,6 +299,14 @@ namespace WebAPI.ObjectsConvertor
                         result.m_eOrderBy = OrderBy.START_DATE;
                         result.m_eOrderDir = OrderDir.ASC;
                         break;
+                    case KalturaAssetOrderBy.CREATE_DATE_ASC:
+                        result.m_eOrderBy = OrderBy.CREATE_DATE;
+                        result.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case KalturaAssetOrderBy.CREATE_DATE_DESC:
+                        result.m_eOrderBy = OrderBy.CREATE_DATE;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
                     case KalturaAssetOrderBy.LIKES_DESC:
                         {
                             result.m_eOrderBy = OrderBy.LIKE_COUNTER;

@@ -85,14 +85,15 @@ namespace WebAPI.Controllers
         static public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
                 if (!filter.EntityReferenceEqual.HasValue)
                 {
-                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId, isAllowedToViewInactiveAssets);
                 }
                 else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.user)
                 {
@@ -256,5 +257,178 @@ namespace WebAPI.Controllers
 
             return success;
         }
+
+        /// <summary>
+        /// Add a new parentalRule
+        /// </summary>
+        /// <param name="parentalRule">parentalRule object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
+        [Throws(eResponseStatus.TagDoesNotExist)]
+        public KalturaParentalRule Add(KalturaParentalRule parentalRule)
+        {
+            KalturaParentalRule response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (string.IsNullOrEmpty(parentalRule.name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            if (!parentalRule.order.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "order");
+            }
+
+            bool isMediaTag = parentalRule.mediaTagTypeId.HasValue;
+            bool isEpgTag = parentalRule.epgTagTypeId.HasValue;
+            if (!isMediaTag && !isEpgTag)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "mediaTagTypeId", "epgTagTypeId");
+            }
+
+            if (isMediaTag && (parentalRule.mediaTagValues == null || parentalRule.mediaTagValues.Count == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "mediaTagTypeId", "mediaTagValues");
+            }
+
+            if (isEpgTag && (parentalRule.epgTagTypeId == null || parentalRule.epgTagValues.Count == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "epgTagTypeId", "epgTagValues");
+            }
+
+            if (!parentalRule.ruleType.HasValue)
+            {
+                // set ruleType default value to ALL if not sent, same as existing behavior on old TVM
+                parentalRule.ruleType = KalturaParentalRuleType.ALL;                
+            }
+
+            if (!parentalRule.blockAnonymousAccess.HasValue)
+            {
+                // set blockAnonymousAccess default value to FALSE if not sent, same as existing behavior on old TVM
+                parentalRule.blockAnonymousAccess = false;
+            }
+
+            try
+            {
+                response = ClientsManager.ApiClient().AddParentalRule(groupId, parentalRule, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update an existing parentalRule
+        /// </summary>
+        /// <param name="id">parentalRule identifier</param>
+        /// <param name="parentalRule">parentalRule object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
+        [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
+        [Throws(eResponseStatus.TagDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
+        {
+            KalturaParentalRule response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (parentalRule.name != null && parentalRule.name == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            bool isMediaTag = parentalRule.mediaTagTypeId.HasValue;
+            bool isEpgTag = parentalRule.epgTagTypeId.HasValue;
+            if (!isMediaTag && !isEpgTag)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "mediaTagTypeId", "epgTagTypeId");
+            }
+
+            if (isMediaTag && (parentalRule.mediaTagValues == null || parentalRule.mediaTagValues.Count == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "mediaTagTypeId", "mediaTagValues");
+            }
+
+            if (isEpgTag && (parentalRule.epgTagTypeId == null || parentalRule.epgTagValues.Count == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "epgTagTypeId", "epgTagValues");
+            }
+
+            try
+            {
+                response = ClientsManager.ApiClient().UpdateParentalRule(groupId, id, parentalRule, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get an existing parentalRule by identifier
+        /// </summary>
+        /// <param name="id">parentalRule identifier</param>        
+        /// <returns></returns>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaParentalRule Get(long id)
+        {
+            KalturaParentalRule response = null;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+
+            try
+            {
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                response = ClientsManager.ApiClient().GetParentalRule(groupId, id, isAllowedToViewInactiveAssets);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete an existing parentalRule
+        /// </summary>
+        /// <param name="id">parentalRule identifier</param>        
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
+        [Throws(eResponseStatus.CanNotDeleteDefaultParentalRule)]
+        [SchemeArgument("id", MinLong = 1)]
+        public bool Delete(long id)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                result = ClientsManager.ApiClient().DeleteParentalRule(groupId, id, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

@@ -73,6 +73,19 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("programId")]
         [XmlElement(ElementName = "programId")]
         public long ProgramId { get; set; }
+        
+        /// <summary>
+        /// Indicates if the current request is in reporting mode (hit)
+        /// </summary>
+        [DataMember(Name = "isReportingMode")]
+        [JsonProperty("isReportingMode")]
+        [XmlElement(ElementName = "isReportingMode")]
+        public bool IsReportingMode { get; set; }
+
+        public KalturaBookmark()
+        {
+            this.IsReportingMode = false;
+        }
 
         internal int getPosition()
         {

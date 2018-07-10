@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using Core.Users;
 using KLogMonitor;
@@ -886,8 +887,9 @@ namespace WS_Domains
         [System.Xml.Serialization.XmlInclude(typeof(ValidationType))]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
         [System.Xml.Serialization.XmlInclude(typeof(ValidationResponseObject))]
-        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
+        public ValidationResponseObject ValidateLimitationModule(string sWSUsername, string sWSPassword, string sUDID, int nDeviceBrandID,long lSiteGuid, 
+                                                                 long lDomainID, ValidationType eValidation, int nRuleID = 0, int nMediaConcurrencyLimit = 0, 
+                                                                 int nMediaID = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
@@ -902,8 +904,16 @@ namespace WS_Domains
 
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation,
-                    nRuleID > 0 ? new List<int>() { nRuleID } : null, null, nMediaID);
+                var devicePlayData = new DevicePlayData()
+                {
+                    UDID = sUDID,
+                    AssetId = nMediaID,
+                    UserId = int.Parse(lSiteGuid.ToString()),
+                    DomainId = int.Parse(lDomainID.ToString()),
+                    MediaConcurrencyRuleIds = nRuleID > 0 ? new List<int>() { nRuleID } : null
+                };
+
+                return Core.Domains.Module.ValidateLimitationModule(nGroupID, nDeviceBrandID, eValidation, devicePlayData);
             }
 
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);

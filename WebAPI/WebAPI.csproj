@@ -222,9 +222,16 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\AssetStructMetaController.cs" />
+    <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\DrmProfileController.cs" />
+    <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
+    <Compile Include="Controllers\MediaFileTypeController.cs" />
     <Compile Include="Controllers\AssetUserRuleController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
+    <Compile Include="Controllers\AssetStructController.cs" />
+    <Compile Include="Controllers\UploadTokenController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -239,6 +246,42 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
+    <Compile Include="Controllers\RatioController.cs" />
+    <Compile Include="Controllers\ImageTypeController.cs" />
+    <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Models\API\KalturaDRMProfile.cs" />
+    <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
+    <Compile Include="Models\General\KalturaGenericListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructMeta .cs" />
+    <Compile Include="Models\Catalog\KalturaChannelOrder.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelsFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaDynamicChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaManualChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFileType.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFileFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFileTypeQuality.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelListResponse.cs" />
+    <Compile Include="Managers\Models\UploadToken.cs" />
+    <Compile Include="Managers\UploadManager.cs" />
+    <Compile Include="Models\Catalog\KalturaUploadedFileTokenResource.cs" />
+    <Compile Include="Models\Catalog\KalturaUrlResource.cs" />
+    <Compile Include="Models\Catalog\KalturaContentResource.cs" />
+    <Compile Include="Models\Catalog\KalturaImageStatus.cs" />
+    <Compile Include="Models\Catalog\KalturaImageObjectType.cs" />
+    <Compile Include="Models\Catalog\KalturaImage.cs" />
+    <Compile Include="Models\Catalog\KalturaImageFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaRatio.cs" />
+    <Compile Include="Models\Catalog\KalturaImageTypeFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaTagFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaTagListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaTag.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
     <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
@@ -304,6 +347,13 @@
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStruct.cs" />
+    <Compile Include="Models\Catalog\KalturaLinearMediaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaImageType.cs" />
+    <Compile Include="Models\Catalog\KalturaMetaDataType.cs" />
+    <Compile Include="Models\Catalog\KalturaProgramAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAsset.cs" />
     <Compile Include="Models\API\KalturaAssetRule.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPersonalListSearchFilter.cs" />
@@ -312,7 +362,6 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaUrlType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
-    <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
     <Compile Include="Models\General\KalturaAggregationCountOrderBy.cs" />
     <Compile Include="Models\General\KalturaDetachedResponseProfile.cs" />
@@ -331,6 +380,9 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
+    <Compile Include="Models\Upload\KalturaBulkListResponse.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
+    <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaSSOAdapterProfile.cs" />
     <Compile Include="Models\Users\KalturaSSOAdapterProfileListResponse.cs" />
@@ -1098,6 +1150,10 @@
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ExcelManager\ExcelManager.csproj">
+      <Project>{B244D457-C486-48A4-8BB2-7ECD008D4054}</Project>
+      <Name>ExcelManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>

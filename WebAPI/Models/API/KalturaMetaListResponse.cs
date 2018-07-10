@@ -23,6 +23,6 @@ namespace WebAPI.Models.API
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaMeta> Objects { get; set; }
+        public List<KalturaMeta> Metas { get; set; }
     }
 }

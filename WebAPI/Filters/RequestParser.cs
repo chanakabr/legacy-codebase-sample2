@@ -29,6 +29,8 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 
 namespace WebAPI.Filters
 {
@@ -74,6 +76,7 @@ namespace WebAPI.Filters
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
         private const string CB_SECTION_NAME = "tokens";
+        private const string UPLOAD_FOLDER = "C:\\tmp\\tvp-api\\"; // TODO take from configuration
 
         private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
@@ -289,27 +292,166 @@ namespace WebAPI.Filters
                 HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
             }
         }
-        
 
-        public async Task<NameValueCollection> ParseFormData(HttpActionContext actionContext)
+        private bool Equals(byte[] source, byte[] separator, int index)
         {
-            if (!actionContext.Request.Content.IsMimeMultipartContent("form-data"))
+            for (int i = 0; i < separator.Length; ++i)
             {
+                if (index + i >= source.Length || source[index + i] != separator[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
+        {
+            Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
+            Regex rgxFileName = new Regex("filename=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
+
+            string fieldStr = Encoding.UTF8.GetString(fieldBytes);
+            string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            string name = null;
+            string fileName = null;
+            
+            int index = 0;
+            foreach (string fieldLine in fieldLines)
+            {
+                if (fieldLine.StartsWith("Content-"))
+                {
+                    MatchCollection matches = rgxName.Matches(fieldLine);
+                    if (matches.Count > 0)
+                    {
+                        name = matches[0].Groups[1].Value;
+
+                        matches = rgxFileName.Matches(fieldLine);
+                        if (matches.Count > 0)
+                        {
+                            fileName = matches[0].Groups[1].Value;
+                        }
+                    }
+                    index += fieldLine.Length + 2; // \r\n
+                }
+                else
+                {
+                    break;
+                }
+            }
+            index += 2; // \r\n
+
+            if (fileName == null)
+            {
+                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index));
+            }
+            else
+            {
+                string filePath = String.Format("{0}\\{1}", UPLOAD_FOLDER, Path.GetRandomFileName());
+                byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
+                Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
+                File.WriteAllBytes(filePath, bytes);
+
+                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath));
+            }
+
+            return new KeyValuePair<string, object>("aaa", "bb");
+        }
+
+        public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)
+        {
+            if (actionContext.Request.Content.IsMimeMultipartContent())
+            {
+                if (!Directory.Exists(UPLOAD_FOLDER))
+                {
+                    Directory.CreateDirectory(UPLOAD_FOLDER);
+                }
+
+                Dictionary<string, object> ret = new Dictionary<string, object>();
+
+                byte[] requestBody = (byte[]) HttpContext.Current.Items["body"];
+                string body = Encoding.UTF8.GetString(requestBody);
+                string boundery = body.Substring(0, body.IndexOf("\r") + 2);
+                byte[] bounderyBytes = Encoding.UTF8.GetBytes(boundery);
+                int index = 0;
+                int length;
+                byte[] fieldBytes;
+                for (int i = 0; i < requestBody.Length; ++i)
+                {
+                    if (Equals(requestBody, bounderyBytes, i))
+                    {
+                        length = i - index;
+                        if (length > 0)
+                        {
+                            fieldBytes = new byte[length];
+                            Array.Copy(requestBody, index, fieldBytes, 0, fieldBytes.Length);
+                            KeyValuePair<string, object> keyValue = ParseFormField(fieldBytes);
+                            ret.Add(keyValue.Key, keyValue.Value);
+                        }
+                        index = i + bounderyBytes.Length;
+                        i += bounderyBytes.Length - 1;
+                    }
+                }
+                length = requestBody.Length - index;
+                if (length > 0)
+                {
+                    fieldBytes = new byte[requestBody.Length - index];
+                    Array.Copy(requestBody, index, fieldBytes, 0, fieldBytes.Length);
+                    KeyValuePair<string, object> keyValue = ParseFormField(fieldBytes);
+                    ret.Add(keyValue.Key, keyValue.Value);
+                }
+
+                /*
+                 * This code works perfect against noed.js, php and postman clients but fails against C# client
+                 * 
+                MultipartMemoryStreamProvider streamProvider = await actionContext.Request.Content.ReadAsMultipartAsync();
+                foreach (StreamContent field in streamProvider.Contents)
+                {
+                    string name = field.Headers.ContentDisposition.Name.Trim(new char[]{'"'});
+
+                    if (field.Headers.ContentDisposition.FileName == null)
+                    {
+                        ret.Add(name, await field.ReadAsStringAsync());
+                    }
+                    else
+                    {
+                        string filePath = String.Format("{0}\\{1}", UPLOAD_FOLDER, Path.GetRandomFileName());
+
+                        Stream stream = await field.ReadAsStreamAsync();
+                        var fileStream = File.Create(filePath);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        stream.CopyTo(fileStream);
+                        fileStream.Close();
+
+                        //byte[] bytes = await field.ReadAsByteArrayAsync();
+                        //File.WriteAllBytes(filePath, bytes);
+
+                        ret.Add(name, new KalturaOTTFile(filePath));
+                    }
+                }
+                 * */
+
+                return ret;
+            }
+            else
+            {   
                 string query = await actionContext.Request.Content.ReadAsStringAsync();
-                return HttpUtility.ParseQueryString(query);
+                NameValueCollection values = HttpUtility.ParseQueryString(query);
+
+                Dictionary<string, object> ret = new Dictionary<string, object>();
+                foreach (string key in values.Keys)
+                {
+                    if (key != null)
+                    {
+                        ret.Add(key, values[key]);
+                    }
+                }
+                if (ret.Count > 0)
+                {
+                    return ret;
+                }
             }
 
-            string uploadFolder = "C:\\"; // TODO take from configuration
-            MultipartFormDataStreamProvider streamProvider = new MultipartFormDataStreamProvider(uploadFolder);
-            MultipartFileStreamProvider multipartFileStreamProvider = await actionContext.Request.Content.ReadAsMultipartAsync(streamProvider);
-
-            // Get the file names.
-            foreach (MultipartFileData file in streamProvider.FileData)
-            {
-                //Do something awesome with the files..
-            }
-
-            return streamProvider.FormData;
+            return null;
         }
 
         public async override void OnActionExecuting(HttpActionContext actionContext)
@@ -327,7 +469,7 @@ namespace WebAPI.Filters
 
             HttpContext.Current.Items[REQUEST_TIME] = DateTime.UtcNow;
 
-            NameValueCollection formData = null;
+            Dictionary<string, object> formData = null;
 
             if (actionContext.Request.Method == HttpMethod.Options)
             {
@@ -337,6 +479,11 @@ namespace WebAPI.Filters
                 actionContext.Response.Headers.Add("Access-Control-Expose-Headers", "Server, Content-Length, Content-Range, Date");
 
                 return;
+            }
+
+            if (actionContext.Request.Method == HttpMethod.Post)
+            {
+                formData = await ParseFormData(actionContext);
             }
 
             var rd = actionContext.ControllerContext.RouteData;
@@ -353,12 +500,11 @@ namespace WebAPI.Filters
                     pathData = rd.Values["pathData"].ToString();
                 }
             }
-            else if (actionContext.Request.Method == HttpMethod.Post)
+            else if(formData != null)
             {
-                formData = await ParseFormData(actionContext);
-                currentController = formData.Get("service");
-                currentAction = formData.Get("action");
-                pathData = formData.Get("pathData");
+                currentController = formData["service"].ToString();
+                currentAction = formData["action"].ToString();
+                pathData = formData["pathData"].ToString();
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
@@ -407,37 +553,50 @@ namespace WebAPI.Filters
             
             if (actionContext.Request.Method == HttpMethod.Post)
             {
-                string result = await actionContext.Request.Content.ReadAsStringAsync();
-                if (HttpContext.Current.Request.ContentType == "application/json" && HttpContext.Current.Request.ContentLength > 0)
+                string json = null;
+
+                if (actionContext.Request.Content.IsMimeMultipartContent() && formData != null && formData.ContainsKey("json"))
                 {
+                    json = formData["json"].ToString();
+                }
+                else if (HttpContext.Current.Request.ContentType == "application/json" && HttpContext.Current.Request.ContentLength > 0)
+                {
+                    string result = await actionContext.Request.Content.ReadAsStringAsync();
                     using (var input = new StringReader(result))
                     {
-                        try
+                        json = input.ReadToEnd();
+                    }
+                }
+
+                if(json != null)
+                {
+                    try
+                    {
+                        JObject reqParams = JObject.Parse(json);
+
+                        if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG])) 
                         {
-                            JObject reqParams = JObject.Parse(input.ReadToEnd());
-
-                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG])) 
+                            //For logging
+                            HttpContext.Current.Items.Remove(Constants.CLIENT_TAG);
+                            if (reqParams["clientTag"] != null)
                             {
-                                //For logging
-                                if (reqParams["clientTag"] != null)
-                                {
-                                    HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
-                                }
-                                else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["clientTag"] != null)
-                                {
-                                    HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.QueryString["clientTag"];
-                                }
+                                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, reqParams["clientTag"]);
                             }
-
-                            if (reqParams["apiVersion"] != null)
+                            else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["clientTag"] != null)
                             {
-                                //For logging and to parse old standard
-                                Version version;
-                                if (!Version.TryParse((string)reqParams["apiVersion"], out version))
-                                    throw new RequestParserException(RequestParserException.INVALID_VERSION, reqParams["apiVersion"]);
-
-                                HttpContext.Current.Items[REQUEST_VERSION] = version;
+                                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, HttpContext.Current.Request.QueryString["clientTag"]);
                             }
+                        }
+
+                        if (reqParams["apiVersion"] != null)
+                        {
+                            //For logging and to parse old standard
+                            Version version;
+                            if (!Version.TryParse((string)reqParams["apiVersion"], out version))
+                                throw new RequestParserException(RequestParserException.INVALID_VERSION, reqParams["apiVersion"]);
+
+                            HttpContext.Current.Items[REQUEST_VERSION] = version;
+                        }
 
                             Dictionary<string, object> requestParams;
                             if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
@@ -853,7 +1012,21 @@ namespace WebAPI.Filters
 
             return methodParams;
         }
-        
+
+        private Dictionary<string, object> groupParams(Dictionary<string, object> tokens)
+        {
+            Dictionary<string, object> paramsDic = new Dictionary<string, object>();
+
+            // group the params by prefix
+            foreach (var kv in tokens)
+            {
+                string[] path = kv.Key.Replace(PARAMS_NESTED_PREFIX, PARAMS_PREFIX).Split(PARAMS_PREFIX);
+                setElementByPath(paramsDic, path.ToList(), kv.Value);
+            }
+
+            return paramsDic;
+        }
+
         private Dictionary<string, object> groupParams(Dictionary<string, string> tokens)
         {
             Dictionary<string, object> paramsDic = new Dictionary<string, object>();
