@@ -56,14 +56,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
             AssetType = assetType;
             ProgramId = programId;
         }
-
-        //public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate,
-        //                       int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, Provider provider)
-        //    : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode,
-        //           errorMessage, mediaCDN)
-        //{
-        //    m_oProvider = provider;
-        //}
         
         #endregion
 

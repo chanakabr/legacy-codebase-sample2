@@ -270,6 +270,19 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<string>(eParameterType.Retrieve, "NPVRID", value);
             }
         }
+
+        public long ProgramId
+        {
+            get
+            {
+                return Parameters.GetParameter<long>(eParameterType.Retrieve, "ProgramId", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<long>(eParameterType.Retrieve, "ProgramId", value);
+            }
+        }
+
         #endregion
 
         public override eCacheMode GetCacheMode()
@@ -308,12 +321,10 @@ namespace TVPPro.SiteManager.DataLoaders
             bool shouldUseNewCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
             {
-                // TODO SHIR - ASK IRA ABOUT THE PROGRAM_ID HERE
-                long programId = 0;
                 CatalogLoaders.MediaMarkLoader mediaMarkLoader = 
                     new CatalogLoaders.MediaMarkLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(),
                                                        DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action.ToString(),
-                                                       MediaDuration, ErrorCode, ErrorMessage, CDNID, programId);
+                                                       MediaDuration, ErrorCode, ErrorMessage, CDNID, ProgramId);
                 return mediaMarkLoader.Execute() as string;
             }
             else
