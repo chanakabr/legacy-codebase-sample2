@@ -111,18 +111,15 @@ namespace ApiObjects.MediaMarks
                 UDID = this.UDID,
                 AssetID = this.AssetId,
                 UserID = this.UserId,
+                Location = location,
+                CreatedAt = Utils.UnixTimestampToDateTime(this.CreatedAt),
+                NpvrID = this.NpvrId,
                 playType = this.playType,
+                FileDuration = fileDuration,
                 AssetAction = this.AssetAction,
                 AssetTypeId = assetTypeId,
-                CreatedAt = Utils.UnixTimestampToDateTime(this.CreatedAt),
                 CreatedAtEpoch = this.TimeStamp,
-                MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds,
-                AssetMediaConcurrencyRuleIds = this.AssetMediaConcurrencyRuleIds,
-                AssetEpgConcurrencyRuleIds = this.AssetEpgConcurrencyRuleIds,
-                DeviceFamilyId = this.DeviceFamilyId,
-                Location = location,
-                NpvrID = this.NpvrId,
-                FileDuration = fileDuration
+                MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds
             };
         }
 
