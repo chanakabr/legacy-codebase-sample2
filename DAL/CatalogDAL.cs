@@ -594,7 +594,6 @@ namespace Tvinci.Core.DAL
                 // If it exists, replace it
                 if (existdev != null)
                 {
-                    userMediaMark.DeviceFamilyId = existdev.DeviceFamilyId;
                     domainMediaMark.devices.Remove(existdev);
                 }
 
