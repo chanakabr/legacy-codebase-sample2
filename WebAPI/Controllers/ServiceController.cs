@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("service/{service_name}")]
+        [Route("service/{service_name}"), HttpPost]
         public async Task<object> Multirequest(string service_name)
         {
             if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("service/{service_name}/action/{action_name}")]
+        [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
             object response = null;
