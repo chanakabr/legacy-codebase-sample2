@@ -88,13 +88,13 @@ namespace TVPApi
         }
         
         public static string MediaMark(InitializationObject initObj, int groupId, PlatformType platform, action Action, int iLocation, string npvrID, long programId,
-                                       long iMediaID, long iFileID, eAssetTypes assetType = eAssetTypes.UNKNOWN, int avgBitRate = 0, int currentBitRate = 0,
+                                       long iMediaID, long iFileID, bool isReportingMode, eAssetTypes assetType = eAssetTypes.UNKNOWN, int avgBitRate = 0, int currentBitRate = 0,
                                        int totalBitRate = 0)
         {
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status status =
                 new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID,
                                                                       npvrID, avgBitRate, currentBitRate, iLocation, totalBitRate, Action.ToString(), string.Empty,
-                                                                      string.Empty, string.Empty, string.Empty, programId, assetType)
+                                                                      string.Empty, string.Empty, string.Empty, programId, isReportingMode, assetType)
                 {
                     Platform = platform.ToString()
                 }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status;
@@ -122,23 +122,23 @@ namespace TVPApi
             }
         }
 
-        public static string MediaMark(InitializationObject initObj, int groupId, PlatformType platform, action Action, int iLocation, string npvrID, FileHolder fileParams, 
-                                       long programId = 0)
+        public static string MediaMark(InitializationObject initObj, int groupId, PlatformType platform, action Action, int iLocation, string npvrID, FileHolder fileParams,
+                                       bool isReportingMode, long programId = 0)
         {
             return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParams.mediaID,
                                                                          (int)fileParams.fileID, npvrID, fileParams.avg_bit_rate_num, fileParams.current_bit_rate_num,
                                                                          iLocation, fileParams.total_bit_rate_num, Action.ToString(), fileParams.duration, string.Empty,
-                                                                         string.Empty, string.Empty, programId)
+                                                                         string.Empty, string.Empty, programId, isReportingMode)
             {
                 Platform = platform.ToString()
             }.Execute() as string;
         }
         
         public static string MediaHit(InitializationObject initObj, int groupId, PlatformType platform, long iMediaID, long iFileID, int iLocation, string npvrID, 
-                                      long programId)
+                                      long programId, bool isReportingMode)
         {
             return new TVPPro.SiteManager.CatalogLoaders.MediaHitLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID,
-                                                                        npvrID, 0, 0, iLocation, 0, string.Empty, string.Empty, programId)
+                                                                        npvrID, 0, 0, iLocation, 0, string.Empty, string.Empty, programId, isReportingMode)
             {
                 Platform = platform.ToString()
             }.Execute() as string;
@@ -150,7 +150,7 @@ namespace TVPApi
             new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)fileParams.mediaID, 
                                                                   (int)fileParams.fileID, npvrID, fileParams.avg_bit_rate_num, fileParams.current_bit_rate_num, 
                                                                   iLocation, fileParams.total_bit_rate_num, string.Empty, fileParams.duration, string.Empty, string.Empty, 
-                                                                  string.Empty, 0)
+                                                                  string.Empty, 0, false)
             {
                 Platform = platform.ToString()
             }.Execute();
@@ -159,11 +159,6 @@ namespace TVPApi
         public static bool SendToFriend(InitializationObject initObj, int groupID, int mediaID, string senderName, string senderEmail, string toEmail, string msg)
         {
             return new ApiApiService(groupID, initObj.Platform).SendToFriend(senderName, senderEmail, toEmail, toEmail, mediaID);
-        }
-
-        public ActionHelper()
-        {
-
-        }
+        }        
     }
 }
