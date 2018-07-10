@@ -348,6 +348,108 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.Add(WebAPI.Models.Catalog.KalturaAsset)">
+            <summary>
+            Add a new asset
+            </summary>
+            <param name="asset">Asset object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetController.Delete(System.Int64,WebAPI.Models.Catalog.KalturaAssetReferenceType)">
+            <summary>
+            Delete an existing asset
+            </summary>
+            <param name="id">Asset Identifier</param>
+            <param name="assetReferenceType">Type of asset</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAsset)">
+            <summary>
+            update an existing asset
+            </summary>
+            <param name="id">Asset Identifier</param>
+            <param name="assetReferenceType">Type of asset</param>
+            <param name="asset">Asset object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetController.RemoveMetasAndTags(System.Int64,WebAPI.Models.Catalog.KalturaAssetReferenceType,System.String)">
+            <summary>
+            remove metas and tags from asset
+            </summary>
+            <param name="id">Asset Identifier</param>
+            <param name="assetReferenceType">Type of asset</param>
+            <param name="idIn">comma separated ids of metas and tags</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructMetaController.List(WebAPI.Models.Catalog.KalturaAssetStructMetaFilter)">
+            <summary>
+            Return a list of asset struct metas for the account with optional filter
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructMetaController.Update(System.Int64,System.Int64,WebAPI.Models.Catalog.KalturaAssetStructMeta)">
+            <summary>
+            Update Asset struct meta
+            </summary>
+            <param name="assetStructId">AssetStruct Identifier</param>
+            <param name="metaId">Meta Identifier</param>
+            <param name="assetStructMeta">AssetStructMeta Object</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Controllers.BulkController">
+            <summary>
+            Bulk service is used to manage bulk actions
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkController.List(WebAPI.Models.Upload.KalturaBulkFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List bulk actions
+            </summary>
+            <param name="filter">Filtering the bulk action request</param>
+            <param name="pager">Paging the request</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BulkController.ServeLog(System.Int64)">
+            <summary>
+            ServeLog action returns the log file for the bulk action
+            </summary>
+            <param name="id">bulk action id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.DrmProfileController.List">
+            <summary>
+            Returns all DRM adapters for partner
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Add(WebAPI.Models.Catalog.KalturaMediaFile)">
+            <summary>
+            Add a new media file
+            </summary>
+            <param name="mediaFile">Media file object</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Delete(System.Int64)">
+            <summary>
+            Delete an existing media file
+            </summary>
+            <param name="id">Media file identifier</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Update(System.Int64,WebAPI.Models.Catalog.KalturaMediaFile)">
+            <summary>
+            update an existing media file
+            </summary>
+            <param name="id">Media file identifier</param>        
+            <param name="mediaFile">Media file object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.List(WebAPI.Models.Catalog.KalturaMediaFileFilter)">
+            <summary>
+            Returns a list of media-file
+            </summary>
+            <param name="filter">Filter</param>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
@@ -367,6 +469,39 @@
             <param name="ks">Kaltura session for the user, not mandatory for anonymous user</param>
             <param name="partnerId">Partner identifier</param>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.List">
+            <summary>
+            Returns a list of media-file types
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Add(WebAPI.Models.Catalog.KalturaMediaFileType)">
+            <summary>
+            Add new media-file type
+            </summary>
+            <param name="mediaFileType">Media-file type</param>
+            <remarks>
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Update(System.Int32,WebAPI.Models.Catalog.KalturaMediaFileType)">
+            <summary>
+            Update existing media-file type
+            </summary>
+            <param name="id">Media-file type identifier</param>
+            <param name="mediaFileType">Media-file type</param>
+            <remarks>
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Delete(System.Int32)">
+            <summary>
+            Delete media-file type by id
+            </summary>
+            <param name="id">Media-file type identifier</param>
+            <remarks>
+            </remarks>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetUserRuleController.List(WebAPI.Models.API.KalturaAssetUserRuleFilter)">
             <summary>
@@ -412,6 +547,48 @@
             </summary>
             <param name="query">Query for assets statistics</param>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.List(WebAPI.Models.Catalog.KalturaAssetStructFilter)">
+            <summary>
+            Return a list of asset structs for the account with optional filter
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Add(WebAPI.Models.Catalog.KalturaAssetStruct)">
+            <summary>
+            Add a new assetStruct
+            </summary>
+            <param name="assetStruct">AssetStruct Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAssetStruct)">
+            <summary>
+            Update an existing assetStruct
+            </summary>
+            <param name="id">AssetStruct Identifier</param>
+            <param name="assetStruct">AssetStruct Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Delete(System.Int64)">
+            <summary>
+            Delete an existing assetStruct
+            </summary>
+            <param name="id">AssetStruct Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UploadTokenController.Add(WebAPI.Models.Upload.KalturaUploadToken)">
+            <summary>
+            Adds new upload token to upload a file
+            </summary>
+            <param name="uploadToken">Upload token details</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UploadTokenController.Upload(System.String,WebAPI.Models.General.KalturaOTTFile)">
+            <summary>
+            Upload a file using the upload token id
+            </summary>
+            <param name="uploadTokenId">Identifier of existing upload-token</param>
+            <param name="fileData">File to upload</param>
         </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
@@ -720,6 +897,118 @@
             <param name="id">Configuration identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.List(WebAPI.Models.Catalog.KalturaImageFilter)">
+            <summary>
+            Get the list of images by different filtering 
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.Add(WebAPI.Models.Catalog.KalturaImage)">
+            <summary>
+            Add a new image 
+            </summary>
+            <param name="image">Image</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.Delete(System.Int64)">
+            <summary>
+            Delete an existing image 
+            </summary>
+            <param name="id">Image ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.SetContent(System.Int64,WebAPI.Models.Catalog.KalturaContentResource)">
+            <summary>
+            Sets the content of an existing image 
+            </summary>
+            <param name="id">Image ID</param>
+            <param name="content">Content of the image to set</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RatioController.List">
+            <summary>
+            Get the list of available ratios
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RatioController.Add(WebAPI.Models.Catalog.KalturaRatio)">
+            <summary>
+            Add new group ratio
+            </summary>
+            <param name="ratio">Ratio to add for the partner</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RatioController.Update(System.Int64,WebAPI.Models.Catalog.KalturaRatio)">
+            <summary>
+            Update group ratio's PrecisionPrecentage
+            </summary>
+            <param name="id">The ratio ID</param>
+            <param name="ratio">Ratio to update for the partner</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter)">
+            <summary>
+            Get the list of image types for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Add(WebAPI.Models.Catalog.KalturaImageType)">
+            <summary>
+            Add a new image type
+            </summary>
+            <param name="imageType">Image type object</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Update(System.Int64,WebAPI.Models.Catalog.KalturaImageType)">
+            <summary>
+            Update an existing image type
+            </summary>
+            <param name="id">Image type ID</param>
+            <param name="imageType">Image type object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Delete(System.Int64)">
+            <summary>
+            Delete an existing image type
+            </summary>
+            <param name="id">Image type ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.List(WebAPI.Models.Catalog.KalturaTagFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get the list of tags for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.Add(WebAPI.Models.Catalog.KalturaTag)">
+            <summary>
+            Add a new tag
+            </summary>
+            <param name="tag">Tag Object</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.Update(System.Int64,WebAPI.Models.Catalog.KalturaTag)">
+            <summary>
+            Update an existing tag
+            </summary>
+            <param name="id">Tag Identifier</param>
+            <param name="tag">Tag Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.Delete(System.Int64)">
+            <summary>
+            Delete an existing tag
+            </summary>
+            <param name="id">Tag Identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
             <summary>
@@ -1163,14 +1452,14 @@
             <param name="pager">Pager</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+        <member name="M:WebAPI.Controllers.MetaController.ListOldStandard(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner
             </summary>
             <param name="filter">Meta filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MetaController.Update(System.String,WebAPI.Models.API.KalturaMeta)">
+        <member name="M:WebAPI.Controllers.MetaController.UpdateOldStandard(System.String,WebAPI.Models.API.KalturaMeta)">
             <summary>
             Update meta's user interest
             </summary>
@@ -1182,6 +1471,35 @@
             NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
             ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
             </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+            <summary>
+            Return a list of metas for the account with optional filter
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.Add(WebAPI.Models.API.KalturaMeta)">
+            <summary>
+            Add a new meta
+            </summary>
+            <param name="meta">Meta Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.Update(System.Int64,WebAPI.Models.API.KalturaMeta)">
+            <summary>
+            Update an existing meta
+            </summary>
+            <param name="id">Meta Identifier</param>
+            <param name="meta">Meta Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.Delete(System.Int64)">
+            <summary>
+            Delete an existing meta
+            </summary>
+            <param name="id">Meta Identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">
             <summary>
@@ -2943,10 +3261,17 @@
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Get(System.Int32)">
             <summary>
-            Returns channel info        
+            Returns channel        
             </summary>
             <param name="id">Channel Identifier</param>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ChannelController.GetOldStandard(System.Int32)">
+            <summary>
+            Returns channel info        
+            </summary>
+            <param name="id">Channel Identifier</param>
+            <remarks></remarks>        
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Delete(System.Int32)">
             <summary>
@@ -2961,7 +3286,7 @@
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.Catalog.KalturaChannel)">
             <summary>
-            Insert new channel for partner. Currently supports only KSQL channel
+            Insert new channel for partner. Supports KalturaDynamicChannel or KalturaManualChannel
             </summary>
             <remarks>
             Possible status codes:     
@@ -2972,7 +3297,7 @@
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Update(System.Int32,WebAPI.Models.Catalog.KalturaChannel)">
             <summary>
-            Update channel details. Currently supports only KSQL channel
+            Update channel details. Supports KalturaDynamicChannel or KalturaManualChannel
             </summary>
             <remarks>
             Possible status codes:
@@ -2980,7 +3305,7 @@
             NoObjectToInsert = 4019,
             NameRequired = 5005
             </remarks>
-            <param name="channelId">Channel identifier</param>      
+            <param name="id">Channel identifier</param>      
             <param name="channel">KSQL channel Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.AddOldStandard(WebAPI.Models.API.KalturaChannelProfile)">
@@ -3005,6 +3330,14 @@
             NameRequired = 5005
             </remarks>
             <param name="channel">KSQL channel Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.ChannelController.List(WebAPI.Models.Catalog.KalturaChannelsFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get the list of tags for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileSettingsController.List">
             <summary>
@@ -3821,6 +4154,35 @@
             <param name="entityReference">Reference type to filter by</param>
             <returns>Success / fail</returns>
         </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Add(WebAPI.Models.API.KalturaParentalRule)">
+            <summary>
+            Add a new parentalRule
+            </summary>
+            <param name="parentalRule">parentalRule object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Update(System.Int64,WebAPI.Models.API.KalturaParentalRule)">
+            <summary>
+            Update an existing parentalRule
+            </summary>
+            <param name="id">parentalRule identifier</param>
+            <param name="parentalRule">parentalRule object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Get(System.Int64)">
+            <summary>
+            Get an existing parentalRule by identifier
+            </summary>
+            <param name="id">parentalRule identifier</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ParentalRuleController.Delete(System.Int64)">
+            <summary>
+            Delete an existing parentalRule
+            </summary>
+            <param name="id">parentalRule identifier</param>        
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionHistoryController.List(WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Gets user or household transaction history.        
@@ -4233,108 +4595,50 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.AppTokenId">
+        <member name="T:WebAPI.Models.API.KalturaDrmProfile">
             <summary>
-            The id of the application token
+            DRM Adapter
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.Expiry">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Id">
             <summary>
-            Expiry time of current token (unix timestamp in seconds)
+            DRM adapter identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.PartnerId">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Name">
             <summary>
-            Partner identifier
+            DRM adapter name
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.SessionDuration">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.IsActive">
             <summary>
-            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
+            DRM adapter active status
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.HashType">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.AdapterUrl">
             <summary>
-            The hash type of the token
+            DRM adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.SessionPrivileges">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Settings">
             <summary>
-            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
+            DRM adapter settings
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.SessionType">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.SystemName">
             <summary>
-            Type of KS (Kaltura Session) that created using the current token
+            DRM adapter alias
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.Status">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.SharedSecret">
             <summary>
-            Application token status
+            DRM shared secret
             </summary>
         </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.Token">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfileListResponse.Adapters">
             <summary>
-            The application token
+            Adapters
             </summary>
-        </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.SessionUserId">
-            <summary>
-            User id of KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.CreateDate">
-            <summary>
-            Create date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Managers.Models.AppToken.UpdateDate">
-            <summary>
-            Update date
-            </summary>
-        </member>
-        <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
-            <summary>
-            calculates the hash of the ks + token string based on the token hash type
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Managers.RolesManager.BuildPermissionItemsDictionary(System.Collections.Generic.List{WebAPI.Models.API.KalturaUserRole})">
-            <summary>
-            Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
-            </summary>
-            <param name="roles">List of roles</param>
-            <returns>Dictionary of dictionaries, where the key of the first dictionary is a string representing a service action pair (format: {service}_{action}) 
-            and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
-            the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
-        </member>
-        <member name="M:WebAPI.Managers.RolesManager.ValidateActionPermitted(System.String,System.String,System.Boolean)">
-            <summary>
-            Checks if an action from a service is allowed
-            </summary>
-            <param name="service">Service name</param>
-            <param name="action">Action name</param>
-            <param name="silent">Fail silently</param>
-        </member>
-        <member name="M:WebAPI.Managers.RolesManager.ValidatePropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
-            <summary>
-            Checks if a property of an object is allowed
-            </summary>
-            <param name="type">Type name</param>
-            <param name="property">Property name</param>
-            <param name="action">Required action</param>
-            <param name="silent">Fail silently</param>
-            <returns>True if the property is permitted, false otherwise</returns>
-        </member>
-        <member name="M:WebAPI.Managers.RolesManager.ValidateArgumentPermitted(System.String,System.String,System.String,System.Boolean)">
-            <summary>
-            Checks if a property of an object is allowed
-            </summary>
-            <param name="service">Controller service name</param>
-            <param name="action">Method action name</param>
-            <param name="argument">Argument name</param>
-            <param name="silent">Fail silently</param>
-            <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
         <member name="T:WebAPI.Models.API.KalturaAssetRuleBase">
             <summary>
@@ -4573,6 +4877,16 @@
             Meta filter
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetStructIdEqual">
+            <summary>
+            Filter Metas that are contained in a specific asset struct
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">
             <summary>
             Meta system field name to filter by
@@ -4586,6 +4900,16 @@
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.TypeEqual">
             <summary>
             Meta type to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.DataTypeEqual">
+            <summary>
+            Meta data type to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.MultipleValueEqual">
+            <summary>
+            Filter metas by multipleValueEqual value
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetTypeEqual">
@@ -4603,7 +4927,7 @@
             Meta list response
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Objects">
+        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Metas">
             <summary>
             A list asset meta
             </summary>
@@ -4613,9 +4937,19 @@
             Asset meta
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Id">
+            <summary>
+            Meta id 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.Name">
             <summary>
             Meta name for the partner
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.SystemName">
+            <summary>
+            Meta system name for the partner
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.FieldName">
@@ -4628,6 +4962,26 @@
              Meta value type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.DataType">
+            <summary>
+             Meta data type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.MultipleValue">
+            <summary>
+             Does the meta contain multiple values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.IsProtected">
+            <summary>
+             Is the meta protected by the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.HelpText">
+            <summary>
+             The help text of the meta to be displayed on the UI.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.AssetType">
             <summary>
             Asset type this meta is related to 
@@ -4635,12 +4989,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.Features">
             <summary>
-            List of supported features 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaMeta.Id">
-            <summary>
-            Meta id 
+            List of supported features
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.ParentId">
@@ -4651,6 +5000,16 @@
         <member name="P:WebAPI.Models.API.KalturaMeta.PartnerId">
             <summary>
             Partner Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.CreateDate">
+            <summary>
+            Specifies when was the meta created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.UpdateDate">
+            <summary>
+            Specifies when was the meta last updated. Date and time represented as epoch.
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
@@ -5597,6 +5956,21 @@
             Where was this rule defined account, household or user
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.IsActive">
+            <summary>
+            active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.CreateDate">
+            <summary>
+            Specifies when was the parental rule created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaParentalRule.UpdateDate">
+            <summary>
+            Specifies when was the parental rule last updated. Date and time represented as epoch.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRuleType">
             <summary>
             Rule type – Movies, TV series or both
@@ -5627,69 +6001,800 @@
             PIN type
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkFilter.StatusEqual">
             <summary>
-            Partner concurrency configuration
+            dynamicOrderBy - order by Meta
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.DeviceFamilyIds">
+        <member name="T:WebAPI.Models.Upload.KalturaBulkListResponse">
             <summary>
-            Comma separated list of device Family Ids order by their priority.
+            Asset wrapper
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.EvictionPolicy">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkListResponse.Objects">
             <summary>
-            Policy of eviction devices
+            bulk items
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
+        <member name="T:WebAPI.Models.Upload.KalturaBulk">
             <summary>
-            Partner configuration filter 
+            
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.PartnerConfigurationTypeEqual">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Id">
             <summary>
-            Indicates which partner configuration list to return
+            Bulk identifier
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Status">
             <summary>
-            Partner billing configuration
+            Status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.CreateDate">
             <summary>
-            configuration value
+            Specifies when was the bulk action created. Date and time represented as epoch
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.UpdateDate">
             <summary>
-            partner configuration type
+            Specifies when was the bulk action last updated. Date and time represented as epoch
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
             <summary>
-            partner configuration type
+            Upload-token identifier
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Status">
             <summary>
-            Holder object for channel enrichment enum
-            </summary>    
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
-            <summary>
-            Partner configuration type
+            Status
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.FileSize">
             <summary>
-            Partner  base configuration
+            File size
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationListResponse.Objects">
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.CreateDate">
             <summary>
-            Partner Configurations
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter">
+            <summary>
+            Filtering Asset Struct Metas
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter.AssetStructIdEqual">
+            <summary>
+            Filter Asset Struct metas that contain a specific asset struct id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter.MetaIdEqual">
+            <summary>
+            Filter Asset Struct metas that contain a specific meta id
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMetaListResponse">
+            <summary>
+            Asset Struct Metas list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMetaListResponse.AssetStructMetas">
+            <summary>
+            A list of asset struct metas
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMeta">
+            <summary>
+            Asset statistics
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.AssetStructId">
+            <summary>
+             Asset Struct id (template_id)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.MetaId">
+            <summary>
+            Meta id (topic_id)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.IngestReferencePath">
+            <summary>
+            IngestReferencePath
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.ProtectFromIngest">
+            <summary>
+            ProtectFromIngest
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.DefaultIngestValue">
+            <summary>
+            DefaultIngestValue
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.CreateDate">
+            <summary>
+            Specifies when was the Asset Struct Meta was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.UpdateDate">
+            <summary>
+            Specifies when was the Asset Struct Meta last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaChannelOrder">
+            <summary>
+            Channel order details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelOrder.DynamicOrderBy">
+            <summary>
+            Channel dynamic order by (meta)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelOrder.orderBy">
+            <summary>
+            Channel order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelOrder.SlidingWindowPeriod">
+            <summary>
+            Sliding window period in minutes, used only when ordering by LIKES_DESC / VOTES_DESC / RATINGS_DESC / VIEWS_DESC
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.IdEqual">
+            <summary>
+            channel identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.MediaIdEqual">
+            <summary>
+            media identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.NameEqual">
+            <summary>
+            Exact channel name to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.NameStartsWith">
+            <summary>
+            Channel name starts with (auto-complete)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.Ksql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program. *****Deprecated, please use linear_media_id instead*****
+            linear_media_id – the linear media identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.AssetTypes">
+            <summary>
+            Asset types in the channel.
+            -26 is EPG
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.GroupBy">
+            <summary>
+            Channel group by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaManualChannel.MediaIds">
+            <summary>
+            A list of comma separated media ids associated with this channel, according to the order of the medias in the channel.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">
+            <summary>
+            Media-file type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Id">
+            <summary>
+            Unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Name">
+            <summary>
+            Unique name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Description">
+            <summary>
+            Unique description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Status">
+            <summary>
+            Indicates if media-file type is active or disabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.CreateDate">
+            <summary>
+            Specifies when was the type was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.UpdateDate">
+            <summary>
+            Specifies when was the type last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.IsTrailer">
+            <summary>
+            Specifies whether playback as trailer is allowed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.StreamerType">
+            <summary>
+            Defines playback streamer type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.DrmProfileId">
+            <summary>
+            DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Quality">
+            <summary>
+             Media file type quality
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.VideoCodecs">
+            <summary>
+            List of comma separated video codecs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.AudioCodecs">
+            <summary>
+            List of comma separated audio codecs
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileTypeListResponse">
+            <summary>
+            Media-file types list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileTypeListResponse.Types">
+            <summary>
+            A list of media-file types
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileFilter.AssetIdEqual">
+            <summary>
+            Asset identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileFilter.IdEqual">
+            <summary>
+            Asset file identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelListResponse.Channels">
+            <summary>
+            A list of channels
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaUploadedFileTokenResource.Token">
+            <summary>
+            Token that returned from uploadToken.add action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaUrlResource.Url">
+            <summary>
+            URL of the content
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Id">
+            <summary>
+            Image ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Version">
+            <summary>
+            Image version 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageTypeId">
+            <summary>
+            Image type ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageObjectId">
+            <summary>
+            ID of the object the image is related to
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageObjectType">
+            <summary>
+            Type of the object the image is related to
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Status">
+            <summary>
+            Image content status 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Url">
+            <summary>
+            Image URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ContentId">
+            <summary>
+            Image content ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.IsDefault">
+            <summary>
+             Specifies if the image is default for atleast one image type.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageListResponse.Images">
+            <summary>
+            A list of images
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.IdIn">
+            <summary>
+            IDs to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.ImageObjectIdEqual">
+            <summary>
+            ID of the object the is related to, to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.ImageObjectTypeEqual">
+            <summary>
+            Type of the object the image is related to, to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.IsDefaultEqual">
+            <summary>
+            Filter images that are default on atleast on image type or not default at any
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Id">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Height">
+            <summary>
+            Height
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Width">
+            <summary>
+            Width
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.PrecisionPrecentage">
+            <summary>
+            Accepted error margin precentage of an image uploaded for this ratio
+            0 - no validation, everything accepted
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatioListResponse.Ratios">
+            <summary>
+            A list of ratios
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageTypeFilter.IdIn">
+            <summary>
+            IDs to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageTypeFilter.RatioIdIn">
+            <summary>
+            Ratio IDs to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.TagEqual">
+            <summary>
+            Tag to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.TagStartsWith">
+            <summary>
+            Tag to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.TypeEqual">
+            <summary>
+            Type identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.LanguageEqual">
+            <summary>
+            Language to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagListResponse.Tags">
+            <summary>
+            A list of partner tags
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTag.Id">
+            <summary>
+            Tag id 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTag.TagTypeId">
+            <summary>
+            Tag Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTag.Tag">
+            <summary>
+            Tag 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetListResponse">
+            <summary>
+            Asset wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetListResponse.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetStructListResponse">
+            <summary>
+            Asset Structs list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructListResponse.AssetStructs">
+            <summary>
+            A list of asset structs
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetStructFilter">
+            <summary>
+            Filtering Asset Structs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdEqual">
+            <summary>
+            Filter Asset Structs that contain a specific meta id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IsProtectedEqual">
+            <summary>
+            Filter Asset Structs by isProtectedEqual value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Id">
+            <summary>
+            Asset Struct id 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Name">
+            <summary>
+            Asset struct name for the partner
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.SystemName">
+            <summary>
+            Asset Struct system name for the partner
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.IsProtected">
+            <summary>
+             Is the Asset Struct protected by the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.MetaIds">
+            <summary>
+            A list of comma separated meta ids associated with this asset struct, returned according to the order.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.CreateDate">
+            <summary>
+            Specifies when was the Asset Struct was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.UpdateDate">
+            <summary>
+            Specifies when was the Asset Struct last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Features">
+            <summary>
+            List of supported features
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.PluralName">
+            <summary>
+            Plural Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ParentId">
+            <summary>
+            AssetStruct parent Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ConnectingMetaId">
+            <summary>
+            connectingMetaId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.ConnectedParentMetaId">
+            <summary>
+            connectedParentMetaId
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaLinearMediaAsset">
+            <summary>
+            Linear media asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvrState">
+            <summary>
+            Enable CDVR, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUpState">
+            <summary>
+            Enable catch-up, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOverState">
+            <summary>
+            Enable start over, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferCatchUp">
+            <summary>
+            buffer Catch-up, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferTrickPlay">
+            <summary>
+            buffer Trick-play, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannelState">
+            <summary>
+            Enable Recording playback for non entitled channel, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlayState">
+            <summary>
+            Enable trick-play, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalEpgIngestId">
+            <summary>
+            External identifier used when ingesting programs for this linear media asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalCdvrId">
+            <summary>
+            External identifier for the CDVR
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CdvrEnabled">
+            <summary>
+            Is CDVR enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpEnabled">
+            <summary>
+            Is catch-up enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.StartOverEnabled">
+            <summary>
+            Is start over enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedCatchUpBuffer">
+            <summary>
+            summed Catch-up buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedTrickPlayBuffer">
+            <summary>
+            summed Trick-play buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.RecordingPlaybackNonEntitledChannelEnabled">
+            <summary>
+            Is recording playback for non entitled channel enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayEnabled">
+            <summary>
+            Is trick-play enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ChannelType">
+            <summary>
+            channel type, possible values: UNKNOWN, DTT, OTT, DTT_AND_OTT
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
+            <summary>
+            Media-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
+            <summary>
+            External identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.CatchUpBuffer">
+            <summary>
+            Catch-up buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
+            <summary>
+            Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
+            <summary>
+            Enable Recording playback for non entitled channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
+            <summary>
+            Asset type description 
+            </summary>                
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
+            <summary>
+            Entry Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRuleId">
+            <summary>
+            Device rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
+            <summary>
+            Device rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRuleId">
+            <summary>
+            Geo block rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
+            <summary>
+            Geo block rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
+            <summary>
+            Watch permission rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Status">
+            <summary>
+             The media asset status
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaImageType">
+            <summary>
+            Image type 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.Id">
+            <summary>
+            Image type ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.SystemName">
+            <summary>
+            System name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.RatioId">
+            <summary>
+            Ration ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.HelpText">
+            <summary>
+            Help text
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.DefaultImageId">
+            <summary>
+            Default image ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageTypeListResponse.ImageTypes">
+            <summary>
+            A list of partner image types
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
+            <summary>
+            Program-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
+            <summary>
+            EPG channel identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgId">
+            <summary>
+            EPG identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.RelatedMediaId">
+            <summary>
+            Ralated media identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
+            <summary>
+            Unique identifier for the program
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.LinearAssetId">
+            <summary>
+            Id of linear media asset
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
+            <summary>
+            Recording-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingId">
+            <summary>
+            Recording identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingType">
+            <summary>
+            Recording Type: single/season/series
             </summary>
         </member>
         <!-- Badly formed XML comment ignored for member "T:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter" -->
@@ -5993,6 +7098,11 @@
             Program Id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.IsReportingMode">
+            <summary>
+            Indicates if the current request is in reporting mode (hit)
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.action">
             <summary>
             Action
@@ -6031,16 +7141,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.DynamicOrderBy">
             <summary>
             dynamicOrderBy - order by Meta
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetListResponse">
-            <summary>
-            Asset wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetListResponse.Objects">
-            <summary>
-            Assets
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAsset">
@@ -6104,6 +7204,16 @@
             Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time and date
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.CreateDate">
+            <summary>
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableCdvr">
             <summary>
             Enable cDVR
@@ -6126,102 +7236,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
             <summary>
-            External identifier for the media file
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
-            <summary>
-            Program-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
-            <summary>
-            EPG channel identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgId">
-            <summary>
-            EPG identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.RelatedMediaId">
-            <summary>
-            Ralated media identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
-            <summary>
-            Unique identifier for the program
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.LinearAssetId">
-            <summary>
-            Id of linear media asset
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
-            <summary>
-            Media-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
-            <summary>
-            External identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.CatchUpBuffer">
-            <summary>
-            Catch-up buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
-            <summary>
-            Trick-play buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
-            <summary>
-            Enable Recording playback for non entitled channel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
-            <summary>
-            Asset type description 
-            </summary>                
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
-            <summary>
-            Entry Identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
-            <summary>
-            Device rule
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
-            <summary>
-            Geo block rule
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
-            <summary>
-            Watch permission rule
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
-            <summary>
-            Recording-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingId">
-            <summary>
-            Recording identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingType">
-            <summary>
-            Recording Type: single/season/series
+            External identifier for the asset
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">
@@ -6270,7 +7285,8 @@
             geo_block - only valid value is "true": When enabled, only assets that are not restricted to the user by geo-block rules will return.
             parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
+            epg_channel_id – the channel identifier of the EPG program. *****Deprecated, please use linear_media_id instead*****
+            linear_media_id – the linear media identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
@@ -6298,6 +7314,25 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCommentListResponse.Objects">
             <summary>
             Assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program. *****Deprecated, please use linear_media_id instead*****
+            linear_media_id – the linear media identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.IdEqual">
@@ -6340,6 +7375,26 @@
             FreeText
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program. *****Deprecated, please use linear_media_id instead*****
+            linear_media_id – the linear media identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.TypeIn">
             <summary>
             (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
@@ -6350,7 +7405,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.IdIn">
             <summary>
-            Comma separated list of EPG channel ids to search within. 
+            Comma separated list of EPG channel ids to search within. *****Deprecated, please use linear_media_id inside kSql instead*****
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchExternalFilter.Query">
@@ -6697,9 +7752,19 @@
             Channel details
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.Id">
+            <summary>
+            Unique identifier for the channel
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Name">
             <summary>
             Channel name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.SystemName">
+            <summary>
+            Channel system name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Description">
@@ -6742,6 +7807,21 @@
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.GroupBy">
             <summary>
             Channel group by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.OrderBy">
+            <summary>
+            Channel order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.CreateDate">
+            <summary>
+            Specifies when was the Channel was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.UpdateDate">
+            <summary>
+            Specifies when was the Channel last updated. Date and time represented as epoch.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
@@ -6886,6 +7966,16 @@
             Device types as defined in the system
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.TypeId">
+            <summary>
+            Device types identifier as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
             <summary>
             Duration of the media file
@@ -6894,6 +7984,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
             <summary>
             External identifier for the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltExternalId">
+            <summary>
+            Alternative external identifier for the media file 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.BillingType">
@@ -6923,7 +8018,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltCdnCode">
             <summary>
-            Alt CDN code
+            Alternative CDN code
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PPVModules">
@@ -6939,6 +8034,76 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.FileSize">
             <summary>
             File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AdditionalData">
+            <summary>
+            Additional Data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingCode">
+            <summary>
+            Alternative streaming code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AlternativeCdnAdapaterProfileId">
+            <summary>
+            Alternative cdn adapter profile identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.EndDate">
+            <summary>
+            EndDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StartDate">
+            <summary>
+            StartDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalStoreId">
+            <summary>
+            ExternalStoreId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.IsDefaultLanguage">
+            <summary>
+            IsDefaultLanguage
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Language">
+            <summary>
+            Language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.OrderNum">
+            <summary>
+            OrderNum
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.OutputProtecationLevel">
+            <summary>
+            OutputProtecationLevel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CdnAdapaterProfileId">
+            <summary>
+            cdn adapter profile identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Status">
+            <summary>
+             The media file status
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileListResponse">
+            <summary>
+            Media-file list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileListResponse.Files">
+            <summary>
+            A list of media-file types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">
@@ -7121,6 +8286,517 @@
             <summary>
             Holder object for Catalog With enum
             </summary>    
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
+            <summary>
+            Generic response list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.Objects">
+            <summary>
+            A list of objects
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.objectType">
+            <summary>
+            real objectType
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
+            <summary>
+            Kaltura Aggregation CountFilter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaDetachedResponseProfile">
+            <summary>
+            Define specific base profile response
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Name">
+            <summary>
+            name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Filter">
+            <summary>
+            filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.RelatedProfiles">
+            <summary>
+            relatedProfiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">
+            <summary>
+            Integer list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValueListResponse.Values">
+            <summary>
+            Interger value items
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
+            <summary>
+            Define KalturaRelatedObjectFilter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValueArray">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValueArray.Objects">
+            <summary>
+            List of string values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Service">
+            <summary>
+            API service name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Action">
+            <summary>
+            API action name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Object">
+            <summary>
+            API object name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
+            <summary>
+            API action type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValue">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter`1">
+            <summary>
+            Base filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualString">
+            <summary>
+            Translated string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualString.Values">
+            <summary>
+            All values in different languages
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMessageTemplateType">
+            <summary>
+            Message template type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
+            <summary>
+            OTT Asset Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Service">
+            <summary>
+            API service name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Action">
+            <summary>
+            API action name
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppToken">
+            <summary>
+            Application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Id">
+            <summary>
+            The id of the application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Expiry">
+            <summary>
+            Expiry time of current token (unix timestamp in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.PartnerId">
+            <summary>
+            Partner identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionDuration">
+            <summary>
+            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.HashType">
+            <summary>
+            The hash type of the token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionPrivileges">
+            <summary>
+            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionType">
+            <summary>
+            Type of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Status">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Token">
+            <summary>
+            The application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionUserId">
+            <summary>
+            User id of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.UpdateDate">
+            <summary>
+            Update date
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppTokenHashType">
+            <summary>
+            Application token hash type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppTokenStatus">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGroupPermission.Group">
+            <summary>
+            Permission identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIdentifierTypeFilter">
+            <summary>
+            Identifier filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.Identifier">
+             <summary>
+            The identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.By">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaLongValue">
+            <summary>
+            A string representation to return an array of longs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaLongValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaBaseResponseProfile">
+            <summary>
+            Define base profile response -  optional configurations
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaDoubleValue">
+            <summary>
+            A string representation to return an array of doubles
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDoubleValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilterPager">
+            <summary>
+            The KalturaFilterPager object enables paging management to be applied upon service list actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageSize">
+            <summary>
+            <![CDATA[The number of objects to retrieve. Possible range 1 ≤ value ≤ 50. If omitted or value < 1 - will be set to 25. If a value > 50 provided – will be set to 50]]>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageIndex">
+            <summary>
+            The page number for which {pageSize} of objects should be retrieved
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaBooleanValue">
+            <summary>
+            A string representation to return an array of booleans
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaBooleanValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTObject">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTFile">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaClientConfiguration">
+            <summary>
+            Define client optional configurations
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ClientTag">
+            <summary>
+            Client Tag
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ApiVersion">
+            <summary>
+            API client version
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
+            <summary>
+            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaReportFilter">
+            <summary>
+            Report filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaReportListResponse">
+            <summary>
+            Reports info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaReportListResponse.Objects">
+            <summary>
+            Reports
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaRequestConfiguration">
+            <summary>
+            Define client request optional configurations
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.PartnerID">
+            <summary>
+            Impersonated partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.UserID">
+            <summary>
+            Impersonated user id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Language">
+            <summary>
+            Content language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
+            <summary>
+            Currency to be used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
+            <summary>
+            Kaltura API session
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.ResponseProfile">
+            <summary>
+            Kaltura response profile object
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaSessionType">
+            <summary>
+            KS type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIntegerValue">
+            <summary>
+            A string representation to return an array of ints
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaStringValue">
+            <summary>
+            A string representation to return an array of strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaStringValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
+            <summary>
+            List of string values
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaValue">
+            <summary>
+            A representation to return an array of values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaValue.description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaTranslationToken">
+            <summary>
+            Container for translation
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Language">
+            <summary>
+            Language code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Value">
+            <summary>
+            Translated value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig">
+            <summary>
+            Partner concurrency configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.DeviceFamilyIds">
+            <summary>
+            Comma separated list of device Family Ids order by their priority.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.EvictionPolicy">
+            <summary>
+            Policy of eviction devices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
+            <summary>
+            Partner configuration filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.PartnerConfigurationTypeEqual">
+            <summary>
+            Indicates which partner configuration list to return
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
+            <summary>
+            Partner billing configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
+            <summary>
+            configuration value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
+            <summary>
+            Holder object for channel enrichment enum
+            </summary>    
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
+            <summary>
+            Partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
+            <summary>
+            Partner  base configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationListResponse.Objects">
+            <summary>
+            Partner Configurations
+            </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
             <summary>
@@ -8284,442 +9960,6 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.HouseholdId">
             <summary>
             The Identifier of the purchasing household
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
-            <summary>
-            Generic response list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.Objects">
-            <summary>
-            A list of objects
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
-            <summary>
-            Kaltura Aggregation CountFilter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaDetachedResponseProfile">
-            <summary>
-            Define specific base profile response
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Name">
-            <summary>
-            name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Filter">
-            <summary>
-            filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.RelatedProfiles">
-            <summary>
-            relatedProfiles
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">
-            <summary>
-            Integer list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIntegerValueListResponse.Values">
-            <summary>
-            Interger value items
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
-            <summary>
-            Define KalturaRelatedObjectFilter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValueArray">
-            <summary>
-            Array of translated strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValueArray.Objects">
-            <summary>
-            List of string values
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Service">
-            <summary>
-            API service name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Action">
-            <summary>
-            API action name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Parameter">
-            <summary>
-            API parameter name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Object">
-            <summary>
-            API object name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Parameter">
-            <summary>
-            API parameter name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
-            <summary>
-            API action type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValue">
-            <summary>
-            Array of translated strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter`1">
-            <summary>
-            Base filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
-            <summary>
-            order by
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualString">
-            <summary>
-            Translated string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualString.Values">
-            <summary>
-            All values in different languages
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMessageTemplateType">
-            <summary>
-            Message template type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
-            <summary>
-            OTT Asset Type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Service">
-            <summary>
-            API service name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Action">
-            <summary>
-            API action name
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppToken">
-            <summary>
-            Application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Id">
-            <summary>
-            The id of the application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Expiry">
-            <summary>
-            Expiry time of current token (unix timestamp in seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.PartnerId">
-            <summary>
-            Partner identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionDuration">
-            <summary>
-            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.HashType">
-            <summary>
-            The hash type of the token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionPrivileges">
-            <summary>
-            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionType">
-            <summary>
-            Type of KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Status">
-            <summary>
-            Application token status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Token">
-            <summary>
-            The application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionUserId">
-            <summary>
-            User id of KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.CreateDate">
-            <summary>
-            Create date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.UpdateDate">
-            <summary>
-            Update date
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppTokenHashType">
-            <summary>
-            Application token hash type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppTokenStatus">
-            <summary>
-            Application token status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaGroupPermission.Group">
-            <summary>
-            Permission identifier
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIdentifierTypeFilter">
-            <summary>
-            Identifier filter 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.Identifier">
-             <summary>
-            The identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.By">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaLongValue">
-            <summary>
-            A string representation to return an array of longs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaLongValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaBaseResponseProfile">
-            <summary>
-            Define base profile response -  optional configurations
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaDoubleValue">
-            <summary>
-            A string representation to return an array of doubles
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDoubleValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilterPager">
-            <summary>
-            The KalturaFilterPager object enables paging management to be applied upon service list actions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageSize">
-            <summary>
-            <![CDATA[The number of objects to retrieve. Possible range 1 ≤ value ≤ 50. If omitted or value < 1 - will be set to 25. If a value > 50 provided – will be set to 50]]>
-            
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageIndex">
-            <summary>
-            The page number for which {pageSize} of objects should be retrieved
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaBooleanValue">
-            <summary>
-            A string representation to return an array of booleans
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaBooleanValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTObject">
-            <summary>
-            Base class
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaClientConfiguration">
-            <summary>
-            Define client optional configurations
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ClientTag">
-            <summary>
-            Client Tag
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ApiVersion">
-            <summary>
-            API client version
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
-            <summary>
-            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaReportFilter">
-            <summary>
-            Report filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaReportListResponse">
-            <summary>
-            Reports info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaReportListResponse.Objects">
-            <summary>
-            Reports
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaRequestConfiguration">
-            <summary>
-            Define client request optional configurations
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.PartnerID">
-            <summary>
-            Impersonated partner id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.UserID">
-            <summary>
-            Impersonated user id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Language">
-            <summary>
-            Content language
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
-            <summary>
-            Currency to be used
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
-            <summary>
-            Kaltura API session
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.ResponseProfile">
-            <summary>
-            Kaltura response profile object
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaSessionType">
-            <summary>
-            KS type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIntegerValue">
-            <summary>
-            A string representation to return an array of ints
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIntegerValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaStringValue">
-            <summary>
-            A string representation to return an array of strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaStringValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
-            <summary>
-            List of string values
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaValue">
-            <summary>
-            A representation to return an array of values
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaValue.description">
-            <summary>
-            Description
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaTranslationToken">
-            <summary>
-            Container for translation
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Language">
-            <summary>
-            Language code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Value">
-            <summary>
-            Translated value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaKeyValue.key">
-            <summary>
-            Key
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaKeyValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">
@@ -12543,6 +13783,139 @@
             <summary>
             Social network 
             </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.UploadTokenId">
+            <summary>
+            The id of the upload token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.PartnerId">
+            <summary>
+            Partner identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.Status">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.CreateDate">
+            <summary>
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.AppTokenId">
+            <summary>
+            The id of the application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.Expiry">
+            <summary>
+            Expiry time of current token (unix timestamp in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.PartnerId">
+            <summary>
+            Partner identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.SessionDuration">
+            <summary>
+            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.HashType">
+            <summary>
+            The hash type of the token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.SessionPrivileges">
+            <summary>
+            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.SessionType">
+            <summary>
+            Type of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.Status">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.Token">
+            <summary>
+            The application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.SessionUserId">
+            <summary>
+            User id of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.UpdateDate">
+            <summary>
+            Update date
+            </summary>
+        </member>
+        <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
+            <summary>
+            calculates the hash of the ks + token string based on the token hash type
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.BuildPermissionItemsDictionary(System.Collections.Generic.List{WebAPI.Models.API.KalturaUserRole})">
+            <summary>
+            Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
+            </summary>
+            <param name="roles">List of roles</param>
+            <returns>Dictionary of dictionaries, where the key of the first dictionary is a string representing a service action pair (format: {service}_{action}) 
+            and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
+            the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.ValidateActionPermitted(System.String,System.String,System.Boolean)">
+            <summary>
+            Checks if an action from a service is allowed
+            </summary>
+            <param name="service">Service name</param>
+            <param name="action">Action name</param>
+            <param name="silent">Fail silently</param>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.ValidatePropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="type">Type name</param>
+            <param name="property">Property name</param>
+            <param name="action">Required action</param>
+            <param name="silent">Fail silently</param>
+            <returns>True if the property is permitted, false otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.ValidateArgumentPermitted(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="service">Controller service name</param>
+            <param name="action">Method action name</param>
+            <param name="argument">Argument name</param>
+            <param name="silent">Fail silently</param>
+            <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
         <member name="T:WebAPI.Swagger">
             <summary>

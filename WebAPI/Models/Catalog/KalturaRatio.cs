@@ -9,7 +9,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaRatio : KalturaOTTObject
+    public partial class KalturaRatio : KalturaOTTObject
     {
         /// <summary>
         /// ID
@@ -81,7 +81,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
-    public class KalturaRatioListResponse : KalturaListResponse
+    public partial class KalturaRatioListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of ratios

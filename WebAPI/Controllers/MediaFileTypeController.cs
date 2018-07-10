@@ -20,7 +20,7 @@ using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/mediaFileType/action")]
+    [Service("mediaFileType")]
     public class MediaFileTypeController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a list of media-file types
         /// </summary>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaMediaFileTypeListResponse List()
         {
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         public bool Delete(int id)

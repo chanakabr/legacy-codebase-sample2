@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelListResponse : KalturaListResponse
+    public partial class KalturaChannelListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of channels

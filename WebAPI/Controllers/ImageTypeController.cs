@@ -18,7 +18,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/imageType/action")]
+    [Service("imageType")]
     public class ImageTypeController : ApiController
     {
         /// <summary>
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null)
         {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         /// <param name="imageType">Image type object</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Image type ID</param>
         /// <param name="imageType">Image type object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Image type ID</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]

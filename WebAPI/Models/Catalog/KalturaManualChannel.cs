@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaManualChannel : KalturaChannel
+    public partial class KalturaManualChannel : KalturaChannel
     {
         /// <summary>
         /// A list of comma separated media ids associated with this channel, according to the order of the medias in the channel.

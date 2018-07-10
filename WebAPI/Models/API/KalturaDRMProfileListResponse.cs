@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaDrmProfileListResponse : KalturaListResponse
+    public partial class KalturaDrmProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// Adapters

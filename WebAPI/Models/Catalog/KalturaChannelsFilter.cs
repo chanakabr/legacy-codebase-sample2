@@ -13,7 +13,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelsFilter : KalturaFilter<KalturaChannelsOrderBy>
+    public partial class KalturaChannelsFilter : KalturaFilter<KalturaChannelsOrderBy>
     {
         /// <summary>
         /// channel identifier to filter by

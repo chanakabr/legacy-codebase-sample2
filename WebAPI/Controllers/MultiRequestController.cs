@@ -19,6 +19,7 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
@@ -26,19 +27,14 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/multirequest")]
+    [Service("multirequest")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiAuthorize]
     public class MultiRequestController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private string getApiName(PropertyInfo property)
-        {
-            return DataModel.getApiName(property);
-        }
-
-        private object translateToken(object parameter, List<string> tokens)
+        static private object translateToken(object parameter, List<string> tokens)
         {
             string token = tokens.ElementAt(0);
             tokens.RemoveAt(0);
@@ -75,7 +71,7 @@ namespace WebAPI.Controllers
                 bool found = false;
                 foreach (PropertyInfo property in properties)
                 {
-                    string name = getApiName(property);
+                    string name = DataModel.getApiName(property);
                     if (!token.Equals(name, StringComparison.CurrentCultureIgnoreCase))
                         continue;
 
@@ -109,7 +105,7 @@ namespace WebAPI.Controllers
             return result;
         }
 
-        private object translateMultirequestTokens(object parameter, object[] responses)
+        static private object translateMultirequestTokens(object parameter, object[] responses)
         {
             if (parameter.GetType() == typeof(string))
             {
@@ -179,8 +175,9 @@ namespace WebAPI.Controllers
         ///</remarks>
         /// <param name="request">Sequential API calls' definitions</param>
         /// <returns></returns>
+        [Action("do")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public object[] Do(KalturaMultiRequestAction[] request)
+        static public object[] Do(KalturaMultiRequestAction[] request)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];

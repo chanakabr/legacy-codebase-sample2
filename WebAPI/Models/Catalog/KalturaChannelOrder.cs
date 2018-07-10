@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel order details
     /// </summary>
-    public class KalturaChannelOrder : KalturaOTTObject
+    public partial class KalturaChannelOrder : KalturaOTTObject
     {
 
         private readonly HashSet<int> SLIDING_WINDOW_ORDER_BY_OPTIONS = new HashSet<int>()

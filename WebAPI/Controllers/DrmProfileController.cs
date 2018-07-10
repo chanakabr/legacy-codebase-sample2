@@ -13,13 +13,13 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/drmProfile/action")]
+    [Service("drmProfile")]
     public class DrmProfileController : ApiController
     {
         /// <summary>
         /// Returns all DRM adapters for partner
         /// </summary>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaDrmProfileListResponse List()
         {

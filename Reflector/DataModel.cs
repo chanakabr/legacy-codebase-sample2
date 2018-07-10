@@ -38,6 +38,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
+            file.WriteLine("using WebAPI.Models.MultiRequest;");
             types.GroupBy(type => type.Namespace).Select(group => group.First().Namespace).ToList().ForEach(name => file.WriteLine("using " + name + ";"));
             file.WriteLine("");
             file.WriteLine("namespace WebAPI.Reflection");
@@ -354,15 +355,75 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
+        private void wrtieExecAction(MethodInfo action, bool indent)
+        {
+            string tab = indent ? "    " : "";
+            Type controller = action.DeclaringType;
+            ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+            ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+
+            BlockHttpMethodsAttribute blockHttpMethods = action.GetCustomAttribute<BlockHttpMethodsAttribute>(true);
+            if (blockHttpMethods != null && blockHttpMethods.HttpMethods != null && blockHttpMethods.HttpMethods.Count > 0)
+            {
+                List<string> conditions = new List<string>();
+                foreach (string httpMethod in blockHttpMethods.HttpMethods)
+                {
+                    conditions.Add("HttpContext.Current.Request.HttpMethod.ToLower() == \"" + httpMethod.ToLower() + "\"");
+                }
+                file.WriteLine(tab + "                            if(" + String.Join(" || ", conditions) + ")");
+                file.WriteLine(tab + "                            {");
+                file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());");
+                file.WriteLine(tab + "                            }");
+            }
+
+            ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
+            if (authorization != null)
+            {
+                if (authorization.Silent)
+                {
+                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", true);");
+                }
+                else
+                {
+                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", false);");
+                }
+            }
+
+            SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
+            if (serve != null)
+            {
+                file.WriteLine(tab + "                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
+            }
+
+            string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            if (action.IsGenericMethod)
+            {
+                file.WriteLine(tab + "                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + action.Name + "\"), methodParams);");
+            }
+            else if (action.ReturnType == typeof(void))
+            {
+                file.WriteLine(tab + "                            " + controller.Name + "." + action.Name + "(" + args + ");");
+                file.WriteLine(tab + "                            return null;");
+            }
+            else
+            {
+                file.WriteLine(tab + "                            return " + controller.Name + "." + action.Name + "(" + args + ");");
+            }
+            file.WriteLine(tab + "                            ");
+        }
+
         private void wrtieExecAction()
         {
             file.WriteLine("        public static object execAction(string service, string action, List<object> methodParams)");
             file.WriteLine("        {");
             file.WriteLine("            service = service.ToLower();");
             file.WriteLine("            action = action.ToLower();");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion();");
             file.WriteLine("            switch (service)");
             file.WriteLine("            {");
-            
+
+            OldStandardActionAttribute oldStandardActionAttribute;
+
             foreach (Type controller in controllers)
             {
                 ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
@@ -391,56 +452,28 @@ namespace Reflector
                         continue;
                     }
 
+                    oldStandardActionAttribute = action.GetCustomAttribute<OldStandardActionAttribute>(true);
+                    if(oldStandardActionAttribute != null)
+                    {
+                        continue;
+                    }
+
                     file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
 
-                    BlockHttpMethodsAttribute blockHttpMethods = action.GetCustomAttribute<BlockHttpMethodsAttribute>(true);
-                    if (blockHttpMethods != null && blockHttpMethods.HttpMethods != null && blockHttpMethods.HttpMethods.Count > 0)
+                    foreach (MethodInfo oldAction in actions)
                     {
-                        List<string> conditions = new List<string>();
-                        foreach(string httpMethod in blockHttpMethods.HttpMethods)
+                        oldStandardActionAttribute = oldAction.GetCustomAttribute<OldStandardActionAttribute>(true);
+                        if(oldStandardActionAttribute != null && oldStandardActionAttribute.oldName == actionAttribute.Name)
                         {
-                            conditions.Add("HttpContext.Current.Request.HttpMethod.ToLower() == \"" + httpMethod.ToLower() + "\"");
-                        }
-                        file.WriteLine("                            if(" + String.Join(" || ", conditions) + ")");
-                        file.WriteLine("                            {");
-                        file.WriteLine("                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());");
-                        file.WriteLine("                            }");
-                    }
-
-                    ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
-                    if (authorization != null)
-                    {
-                        if (authorization.Silent)
-                        {
-                            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", true);");
-                        }
-                        else
-                        {
-                            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", false);");
+                            file.WriteLine("                            if(isOldVersion)");
+                            file.WriteLine("                            {");
+                            wrtieExecAction(oldAction, true);
+                            file.WriteLine("                            }");
+                            break;
                         }
                     }
-
-                    SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
-                    if (serve != null)
-                    {
-                        file.WriteLine("                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
-                    }
-
-                    string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
-                    if (action.IsGenericMethod)
-                    {
-                        file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + action.Name + "\"), methodParams);");
-                    }
-                    else if (action.ReturnType == typeof(void))
-                    {
-                        file.WriteLine("                            " + controller.Name + "." + action.Name + "(" + args + ");");
-                        file.WriteLine("                            return null;");
-                    }
-                    else
-                    {
-                        file.WriteLine("                            return " + controller.Name + "." + action.Name + "(" + args + ");");
-                    }
-                    file.WriteLine("                            ");
+                    
+                    wrtieExecAction(action, false);
                 }
 
                 file.WriteLine("                    }");

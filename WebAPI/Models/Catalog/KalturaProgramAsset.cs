@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// Program-asset info
     /// </summary>
     [Serializable]
-    public class KalturaProgramAsset : KalturaAsset
+    public partial class KalturaProgramAsset : KalturaAsset
     {
         /// <summary>
         /// EPG channel identifier

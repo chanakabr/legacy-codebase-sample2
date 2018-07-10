@@ -18,14 +18,14 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ratio/action")]
+    [Service("ratio")]
     public class RatioController : ApiController
     {
         /// <summary>
         /// Get the list of available ratios
         /// </summary>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaRatioListResponse List()
         {
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="ratio">Ratio to add for the partner</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RatioAlreadyExist)]
         public KalturaRatio Add(KalturaRatio ratio)
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         /// <param name="id">The ratio ID</param>
         /// <param name="ratio">Ratio to update for the partner</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RatioDoesNotExist)]
         public KalturaRatio Update(long id, KalturaRatio ratio)

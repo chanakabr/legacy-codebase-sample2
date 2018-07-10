@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Media-asset info
     /// </summary>
     [Serializable]
-    public class KalturaMediaAsset : KalturaAsset
+    public partial class KalturaMediaAsset : KalturaAsset
     {
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";

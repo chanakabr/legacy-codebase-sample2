@@ -14,7 +14,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetStructMeta/action")]
+    [Service("assetStructMeta")]
     public class AssetStructMetaController : ApiController
     {
         /// <summary>
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]        
         public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
         {
@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
         /// <param name="metaId">Meta Identifier</param>
         /// <param name="assetStructMeta">AssetStructMeta Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaDoesNotExist)]

@@ -21,10 +21,12 @@ using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
+using WebAPI.Models.Upload;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Reflection
 {
@@ -187,6 +189,8 @@ namespace WebAPI.Reflection
                 case "KalturaAsset":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "EnableCatchUp":
@@ -219,6 +223,8 @@ namespace WebAPI.Reflection
                             return "tags";
                         case "Type":
                             return "type";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -564,6 +570,94 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetStruct":
+                    switch(property.Name)
+                    {
+                        case "ConnectedParentMetaId":
+                            return "connectedParentMetaId";
+                        case "ConnectingMetaId":
+                            return "connectingMetaId";
+                        case "CreateDate":
+                            return "createDate";
+                        case "Features":
+                            return "features";
+                        case "Id":
+                            return "id";
+                        case "IsProtected":
+                            return "isProtected";
+                        case "MetaIds":
+                            return "metaIds";
+                        case "Name":
+                            return "name";
+                        case "ParentId":
+                            return "parentId";
+                        case "PluralName":
+                            return "pluralName";
+                        case "SystemName":
+                            return "systemName";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "IsProtectedEqual":
+                            return "isProtectedEqual";
+                        case "MetaIdEqual":
+                            return "metaIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructListResponse":
+                    switch(property.Name)
+                    {
+                        case "AssetStructs":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructMeta":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "CreateDate":
+                            return "createDate";
+                        case "DefaultIngestValue":
+                            return "defaultIngestValue";
+                        case "IngestReferencePath":
+                            return "ingestReferencePath";
+                        case "MetaId":
+                            return "metaId";
+                        case "ProtectFromIngest":
+                            return "protectFromIngest";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructMetaFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetStructIdEqual":
+                            return "assetStructIdEqual";
+                        case "MetaIdEqual":
+                            return "metaIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructMetaListResponse":
+                    switch(property.Name)
+                    {
+                        case "AssetStructMetas":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaAssetUserRule":
                     switch(property.Name)
                     {
@@ -685,6 +779,8 @@ namespace WebAPI.Reflection
                     {
                         case "IsFinishedWatching":
                             return "finishedWatching";
+                        case "IsReportingMode":
+                            return "isReportingMode";
                         case "PlayerData":
                             return "playerData";
                         case "Position":
@@ -731,6 +827,36 @@ namespace WebAPI.Reflection
                             return "fileId";
                         case "totalBitRate":
                             return "totalBitrate";
+                    }
+                    break;
+                    
+                case "KalturaBulk":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaBulkFilter":
+                    switch(property.Name)
+                    {
+                        case "StatusEqual":
+                            return "statusEqual";
+                    }
+                    break;
+                    
+                case "KalturaBulkListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -833,12 +959,16 @@ namespace WebAPI.Reflection
                     {
                         case "AssetTypes":
                             return "assetTypes";
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "FilterExpression":
                             return "filterExpression";
                         case "GroupBy":
                             return "groupBy";
+                        case "Id":
+                            return "id";
                         case "Images":
                             return "images";
                         case "IsActive":
@@ -849,6 +979,12 @@ namespace WebAPI.Reflection
                             return "name";
                         case "Order":
                             return "order";
+                        case "OrderBy":
+                            return "orderBy";
+                        case "SystemName":
+                            return "systemName";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -878,6 +1014,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaChannelListResponse":
+                    switch(property.Name)
+                    {
+                        case "Channels":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaChannelOrder":
+                    switch(property.Name)
+                    {
+                        case "DynamicOrderBy":
+                            return "dynamicOrderBy";
+                        case "SlidingWindowPeriod":
+                            return "period";
+                    }
+                    break;
+                    
                 case "KalturaChannelProfile":
                     switch(property.Name)
                     {
@@ -895,6 +1049,20 @@ namespace WebAPI.Reflection
                             return "name";
                         case "Order":
                             return "order";
+                    }
+                    break;
+                    
+                case "KalturaChannelsFilter":
+                    switch(property.Name)
+                    {
+                        case "IdEqual":
+                            return "idEqual";
+                        case "MediaIdEqual":
+                            return "mediaIdEqual";
+                        case "NameEqual":
+                            return "nameEqual";
+                        case "NameStartsWith":
+                            return "nameStartsWith";
                     }
                     break;
                     
@@ -1453,6 +1621,46 @@ namespace WebAPI.Reflection
                             return "licenseURL";
                         case "Scheme":
                             return "scheme";
+                    }
+                    break;
+                    
+                case "KalturaDrmProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaDrmProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Adapters":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaDynamicChannel":
+                    switch(property.Name)
+                    {
+                        case "AssetTypes":
+                            return "assetTypes";
+                        case "GroupBy":
+                            return "groupBy";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -2242,6 +2450,88 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaImage":
+                    switch(property.Name)
+                    {
+                        case "ContentId":
+                            return "contentId";
+                        case "Id":
+                            return "id";
+                        case "ImageObjectId":
+                            return "imageObjectId";
+                        case "ImageObjectType":
+                            return "imageObjectType";
+                        case "ImageTypeId":
+                            return "imageTypeId";
+                        case "IsDefault":
+                            return "isDefault";
+                        case "Status":
+                            return "status";
+                        case "Url":
+                            return "url";
+                        case "Version":
+                            return "version";
+                    }
+                    break;
+                    
+                case "KalturaImageFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "ImageObjectIdEqual":
+                            return "imageObjectIdEqual";
+                        case "ImageObjectTypeEqual":
+                            return "imageObjectTypeEqual";
+                        case "IsDefaultEqual":
+                            return "isDefaultEqual";
+                    }
+                    break;
+                    
+                case "KalturaImageListResponse":
+                    switch(property.Name)
+                    {
+                        case "Images":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaImageType":
+                    switch(property.Name)
+                    {
+                        case "DefaultImageId":
+                            return "defaultImageId";
+                        case "HelpText":
+                            return "helpText";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "RatioId":
+                            return "ratioId";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "RatioIdIn":
+                            return "ratioIdIn";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "ImageTypes":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaInboxMessage":
                     switch(property.Name)
                     {
@@ -2424,6 +2714,46 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaLinearMediaAsset":
+                    switch(property.Name)
+                    {
+                        case "BufferCatchUp":
+                            return "bufferCatchUp";
+                        case "BufferTrickPlay":
+                            return "bufferTrickPlay";
+                        case "CatchUpEnabled":
+                            return "catchUpEnabled";
+                        case "CdvrEnabled":
+                            return "cdvrEnabled";
+                        case "ChannelType":
+                            return "channelType";
+                        case "EnableCatchUpState":
+                            return "enableCatchUpState";
+                        case "EnableCdvrState":
+                            return "enableCdvrState";
+                        case "EnableRecordingPlaybackNonEntitledChannelState":
+                            return "enableRecordingPlaybackNonEntitledChannelState";
+                        case "EnableStartOverState":
+                            return "enableStartOverState";
+                        case "EnableTrickPlayState":
+                            return "enableTrickPlayState";
+                        case "ExternalCdvrId":
+                            return "externalCdvrId";
+                        case "ExternalEpgIngestId":
+                            return "externalEpgIngestId";
+                        case "RecordingPlaybackNonEntitledChannelEnabled":
+                            return "recordingPlaybackNonEntitledChannelEnabled";
+                        case "StartOverEnabled":
+                            return "startOverEnabled";
+                        case "SummedCatchUpBuffer":
+                            return "summedCatchUpBuffer";
+                        case "SummedTrickPlayBuffer":
+                            return "summedTrickPlayBuffer";
+                        case "TrickPlayEnabled":
+                            return "trickPlayEnabled";
+                    }
+                    break;
+                    
                 case "KalturaListFollowDataTvSeriesResponse":
                     switch(property.Name)
                     {
@@ -2460,6 +2790,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaManualChannel":
+                    switch(property.Name)
+                    {
+                        case "MediaIds":
+                            return "mediaIds";
+                    }
+                    break;
+                    
                 case "KalturaMediaAsset":
                     switch(property.Name)
                     {
@@ -2467,6 +2805,8 @@ namespace WebAPI.Reflection
                             return "catchUpBuffer";
                         case "DeviceRule":
                             return "deviceRule";
+                        case "DeviceRuleId":
+                            return "deviceRuleId";
                         case "EnableRecordingPlaybackNonEntitledChannel":
                             return "enableRecordingPlaybackNonEntitledChannel";
                         case "EntryId":
@@ -2475,6 +2815,10 @@ namespace WebAPI.Reflection
                             return "externalIds";
                         case "GeoBlockRule":
                             return "geoBlockRule";
+                        case "GeoBlockRuleId":
+                            return "geoBlockRuleId";
+                        case "Status":
+                            return "status";
                         case "TrickPlayBuffer":
                             return "trickPlayBuffer";
                         case "TypeDescription":
@@ -2487,34 +2831,120 @@ namespace WebAPI.Reflection
                 case "KalturaMediaFile":
                     switch(property.Name)
                     {
+                        case "AdditionalData":
+                            return "additionalData";
                         case "AltCdnCode":
                             return "altCdnCode";
+                        case "AlternativeCdnAdapaterProfileId":
+                            return "alternativeCdnAdapaterProfileId";
+                        case "AltExternalId":
+                            return "altExternalId";
+                        case "AltStreamingCode":
+                            return "altStreamingCode";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
                             return "billingType";
+                        case "CdnAdapaterProfileId":
+                            return "cdnAdapaterProfileId";
                         case "CdnCode":
                             return "cdnCode";
                         case "CdnName":
                             return "cdnName";
                         case "Duration":
                             return "duration";
+                        case "EndDate":
+                            return "endDate";
                         case "ExternalId":
                             return "externalId";
+                        case "ExternalStoreId":
+                            return "externalStoreId";
                         case "FileSize":
                             return "fileSize";
                         case "HandlingType":
                             return "handlingType";
                         case "Id":
                             return "id";
+                        case "IsDefaultLanguage":
+                            return "isDefaultLanguage";
+                        case "Language":
+                            return "language";
+                        case "OrderNum":
+                            return "orderNum";
+                        case "OutputProtecationLevel":
+                            return "outputProtecationLevel";
                         case "PPVModules":
                             return "ppvModules";
                         case "ProductCode":
                             return "productCode";
                         case "Quality":
                             return "quality";
+                        case "StartDate":
+                            return "startDate";
+                        case "Status":
+                            return "status";
                         case "Type":
                             return "type";
+                        case "TypeId":
+                            return "typeId";
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Files":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileType":
+                    switch(property.Name)
+                    {
+                        case "AudioCodecs":
+                            return "audioCodecs";
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "DrmProfileId":
+                            return "drmProfileId";
+                        case "Id":
+                            return "id";
+                        case "IsTrailer":
+                            return "isTrailer";
+                        case "Name":
+                            return "name";
+                        case "Quality":
+                            return "quality";
+                        case "Status":
+                            return "status";
+                        case "StreamerType":
+                            return "streamerType";
+                        case "UpdateDate":
+                            return "updateDate";
+                        case "VideoCodecs":
+                            return "videoCodecs";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "Types":
+                            return "objects";
                     }
                     break;
                     
@@ -2575,34 +3005,56 @@ namespace WebAPI.Reflection
                     {
                         case "AssetType":
                             return "assetType";
+                        case "CreateDate":
+                            return "createDate";
+                        case "DataType":
+                            return "dataType";
                         case "Features":
                             return "features";
                         case "FieldName":
                             return "fieldName";
+                        case "HelpText":
+                            return "helpText";
                         case "Id":
                             return "id";
+                        case "IsProtected":
+                            return "isProtected";
+                        case "MultipleValue":
+                            return "multipleValue";
                         case "Name":
                             return "name";
                         case "ParentId":
                             return "parentId";
                         case "PartnerId":
                             return "partnerId";
+                        case "SystemName":
+                            return "systemName";
                         case "Type":
                             return "type";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
                 case "KalturaMetaFilter":
                     switch(property.Name)
                     {
+                        case "AssetStructIdEqual":
+                            return "assetStructIdEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
+                        case "DataTypeEqual":
+                            return "dataTypeEqual";
                         case "FeaturesIn":
                             return "featuresIn";
                         case "FieldNameEqual":
                             return "fieldNameEqual";
                         case "FieldNameNotEqual":
                             return "fieldNameNotEqual";
+                        case "IdIn":
+                            return "idIn";
+                        case "MultipleValueEqual":
+                            return "multipleValueEqual";
                         case "TypeEqual":
                             return "typeEqual";
                     }
@@ -2611,7 +3063,7 @@ namespace WebAPI.Reflection
                 case "KalturaMetaListResponse":
                     switch(property.Name)
                     {
-                        case "Objects":
+                        case "Metas":
                             return "objects";
                     }
                     break;
@@ -2863,12 +3315,18 @@ namespace WebAPI.Reflection
                 case "KalturaParentalRule":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "epgTagTypeId":
                             return "epgTag";
+                        case "IsActive":
+                            return "isActive";
                         case "mediaTagTypeId":
                             return "mediaTag";
                         case "Origin":
                             return "origin";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -3648,6 +4106,30 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRatio":
+                    switch(property.Name)
+                    {
+                        case "Height":
+                            return "height";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "PrecisionPrecentage":
+                            return "precisionPrecentage";
+                        case "Width":
+                            return "width";
+                    }
+                    break;
+                    
+                case "KalturaRatioListResponse":
+                    switch(property.Name)
+                    {
+                        case "Ratios":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaRecommendationProfile":
                     switch(property.Name)
                     {
@@ -3849,6 +4331,8 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
+                        case "KSql":
+                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -3945,6 +4429,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "KSql":
+                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -4524,6 +5010,40 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTag":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Tag":
+                            return "tag";
+                        case "TagTypeId":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaTagFilter":
+                    switch(property.Name)
+                    {
+                        case "LanguageEqual":
+                            return "languageEqual";
+                        case "TagEqual":
+                            return "tagEqual";
+                        case "TagStartsWith":
+                            return "tagStartsWith";
+                        case "TypeEqual":
+                            return "typeEqual";
+                    }
+                    break;
+                    
+                case "KalturaTagListResponse":
+                    switch(property.Name)
+                    {
+                        case "Tags":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaTimeOffsetRuleAction":
                     switch(property.Name)
                     {
@@ -4693,6 +5213,38 @@ namespace WebAPI.Reflection
                             return "price";
                         case "UnifiedPaymentId":
                             return "unifiedPaymentId";
+                    }
+                    break;
+                    
+                case "KalturaUploadedFileTokenResource":
+                    switch(property.Name)
+                    {
+                        case "Token":
+                            return "token";
+                    }
+                    break;
+                    
+                case "KalturaUploadToken":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "FileSize":
+                            return "fileSize";
+                        case "Id":
+                            return "id";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaUrlResource":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
                     }
                     break;
                     
@@ -4921,12 +5473,19 @@ namespace WebAPI.Reflection
         {
             service = service.ToLower();
             action = action.ToLower();
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion();
             switch (service)
             {
                 case "announcement":
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "addOldStandard", false);
+                                return AnnouncementController.AddOldStandard((KalturaAnnouncement) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("announcement", "add", false);
                             return AnnouncementController.Add((KalturaAnnouncement) methodParams[0]);
                             
@@ -4943,6 +5502,12 @@ namespace WebAPI.Reflection
                             return AnnouncementController.EnableSystemAnnouncements();
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "listOldStandard", false);
+                                return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("announcement", "list", false);
                             return AnnouncementController.List((KalturaAnnouncementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -4951,6 +5516,12 @@ namespace WebAPI.Reflection
                             return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "updateOldStandard", false);
+                                return AnnouncementController.UpdateOldStandard((KalturaAnnouncement) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("announcement", "update", false);
                             return AnnouncementController.Update((int) methodParams[0], (KalturaAnnouncement) methodParams[1]);
                             
@@ -5004,6 +5575,10 @@ namespace WebAPI.Reflection
                 case "asset":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("asset", "add", false);
+                            return AssetController.Add((KalturaAsset) methodParams[0]);
+                            
                         case "autocomplete":
                             RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
                             return AssetController.Autocomplete((string) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (Nullable<KalturaOrder>) methodParams[3], (Nullable<int>) methodParams[4]);
@@ -5016,11 +5591,21 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("asset", "count", false);
                             return AssetController.Count((KalturaSearchAssetFilter) methodParams[0]);
                             
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("asset", "delete", false);
+                            return AssetController.Delete((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
+                            
                         case "externalchannel":
                             RolesManager.ValidateActionPermitted("asset", "externalChannel", false);
                             return AssetController.ExternalChannel((int) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3], (Nullable<float>) methodParams[4], (string) methodParams[5]);
                             
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("asset", "getOldStandard", false);
+                                return AssetController.GetOldStandard((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (List<KalturaCatalogWithHolder>) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("asset", "get", false);
                             return AssetController.Get((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
                             
@@ -5037,6 +5622,12 @@ namespace WebAPI.Reflection
                             return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("asset", "listOldStandard", false);
+                                return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("asset", "list", false);
                             return AssetController.List((KalturaAssetFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -5052,6 +5643,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("asset", "relatedExternal", false);
                             return AssetController.RelatedExternal((int) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4], (string) methodParams[5]);
                             
+                        case "removemetasandtags":
+                            RolesManager.ValidateActionPermitted("asset", "removeMetasAndTags", false);
+                            return AssetController.RemoveMetasAndTags((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (string) methodParams[2]);
+                            
                         case "search":
                             RolesManager.ValidateActionPermitted("asset", "search", false);
                             return AssetController.Search((Nullable<KalturaOrder>) methodParams[0], (List<KalturaIntegerValue>) methodParams[1], (string) methodParams[2], (List<KalturaCatalogWithHolder>) methodParams[3], (KalturaFilterPager) methodParams[4], (string) methodParams[5]);
@@ -5059,6 +5654,10 @@ namespace WebAPI.Reflection
                         case "searchexternal":
                             RolesManager.ValidateActionPermitted("asset", "searchExternal", false);
                             return AssetController.searchExternal((string) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("asset", "update", false);
+                            return AssetController.Update((long) methodParams[0], (KalturaAsset) methodParams[1]);
                             
                     }
                     break;
@@ -5080,6 +5679,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "clean":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
+                                return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("assetHistory", "clean", false);
                             AssetHistoryController.Clean((KalturaAssetHistoryFilter) methodParams[0]);
                             return null;
@@ -5089,6 +5694,12 @@ namespace WebAPI.Reflection
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("assetHistory", "listOldStandard", false);
+                                return AssetHistoryController.ListOldStandard((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("assetHistory", "list", false);
                             return AssetHistoryController.List((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -5168,6 +5779,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("bookmark", "addOldStandard", true);
+                                return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("bookmark", "add", true);
                             return BookmarkController.Add((KalturaBookmark) methodParams[0]);
                             
@@ -5176,6 +5793,12 @@ namespace WebAPI.Reflection
                             return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("bookmark", "listOldStandard", false);
+                                return BookmarkController.ListOldStandard((KalturaAssetsFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("bookmark", "list", false);
                             return BookmarkController.List((KalturaBookmarkFilter) methodParams[0]);
                             
@@ -5252,6 +5875,12 @@ namespace WebAPI.Reflection
                             return CDVRAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "listOldStandard", false);
+                                return CDVRAdapterProfileController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", false);
                             return CDVRAdapterProfileController.List();
                             
@@ -5260,42 +5889,18 @@ namespace WebAPI.Reflection
                             return CDVRAdapterProfileController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", false);
+                                return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", false);
                             return CDVRAdapterProfileController.Update((int) methodParams[0], (KalturaCDVRAdapterProfile) methodParams[1]);
                             
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", false);
                             return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
-                            
-                    }
-                    break;
-                    
-                case "channel":
-                    switch(action)
-                    {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("channel", "add", false);
-                            return ChannelController.Add((KalturaChannel) methodParams[0]);
-                            
-                        case "addoldstandard":
-                            RolesManager.ValidateActionPermitted("channel", "addOldStandard", false);
-                            return ChannelController.AddOldStandard((KalturaChannelProfile) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("channel", "delete", false);
-                            return ChannelController.Delete((int) methodParams[0]);
-                            
-                        case "get":
-                            RolesManager.ValidateActionPermitted("channel", "get", false);
-                            return ChannelController.Get((int) methodParams[0]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("channel", "update", false);
-                            return ChannelController.Update((int) methodParams[0], (KalturaChannel) methodParams[1]);
-                            
-                        case "updateoldstandard":
-                            RolesManager.ValidateActionPermitted("channel", "updateOldStandard", false);
-                            return ChannelController.UpdateOldStandard((KalturaChannelProfile) methodParams[0]);
                             
                     }
                     break;
@@ -5618,6 +6223,12 @@ namespace WebAPI.Reflection
                             return EntitlementController.Grant((int) methodParams[0], (KalturaTransactionType) methodParams[1], (bool) methodParams[2], (int) methodParams[3]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("entitlement", "listOldStandard", false);
+                                return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("entitlement", "list", false);
                             return EntitlementController.List((KalturaEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -5666,6 +6277,12 @@ namespace WebAPI.Reflection
                             return ExportTaskController.Get((long) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("exportTask", "listOldStandard", false);
+                                return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("exportTask", "list", false);
                             return ExportTaskController.List((KalturaExportTaskFilter) methodParams[0]);
                             
@@ -5674,6 +6291,12 @@ namespace WebAPI.Reflection
                             return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("exportTask", "updateOldStandard", false);
+                                return ExportTaskController.UpdateOldStandard((KalturaExportTask) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("exportTask", "update", false);
                             return ExportTaskController.Update((long) methodParams[0], (KalturaExportTask) methodParams[1]);
                             
@@ -5696,6 +6319,12 @@ namespace WebAPI.Reflection
                             return ExternalChannelProfileController.Delete((int) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
+                                return ExternalChannelProfileController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
                             return ExternalChannelProfileController.List();
                             
@@ -5704,6 +6333,12 @@ namespace WebAPI.Reflection
                             return ExternalChannelProfileController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "updateOldStandard", false);
+                                return ExternalChannelProfileController.UpdateOldStandard((KalturaExternalChannelProfile) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "update", false);
                             return ExternalChannelProfileController.Update((int) methodParams[0], (KalturaExternalChannelProfile) methodParams[1]);
                             
@@ -5718,6 +6353,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "addOldStandard", false);
+                                return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("favorite", "add", false);
                             return FavoriteController.Add((KalturaFavorite) methodParams[0]);
                             
@@ -5726,6 +6367,12 @@ namespace WebAPI.Reflection
                             return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", false);
+                                return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("favorite", "delete", false);
                             return FavoriteController.Delete((int) methodParams[0]);
                             
@@ -5734,6 +6381,12 @@ namespace WebAPI.Reflection
                             return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "listOldStandard", false);
+                                return FavoriteController.ListOldStandard((KalturaFavoriteFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (string) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("favorite", "list", false);
                             return FavoriteController.List((KalturaFavoriteFilter) methodParams[0]);
                             
@@ -5748,6 +6401,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("followTvSeries", "addOldStandard", false);
+                                return FollowTvSeriesController.AddOldStandard((int) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("followTvSeries", "add", false);
                             return FollowTvSeriesController.Add((KalturaFollowTvSeries) methodParams[0]);
                             
@@ -5764,6 +6423,12 @@ namespace WebAPI.Reflection
                             return null;
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("followTvSeries", "listOldStandard", false);
+                                return FollowTvSeriesController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("followTvSeries", "list", false);
                             return FollowTvSeriesController.List((KalturaFollowTvSeriesFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -5786,6 +6451,12 @@ namespace WebAPI.Reflection
                             return HomeNetworkController.Delete((string) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("homeNetwork", "listOldStandard", false);
+                                return HomeNetworkController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("homeNetwork", "list", false);
                             return HomeNetworkController.List();
                             
@@ -5794,6 +6465,12 @@ namespace WebAPI.Reflection
                             return HomeNetworkController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("homeNetwork", "updateOldStandard", false);
+                                return HomeNetworkController.UpdateOldStandard((KalturaHomeNetwork) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("homeNetwork", "update", false);
                             return HomeNetworkController.Update((string) methodParams[0], (KalturaHomeNetwork) methodParams[1]);
                             
@@ -5808,6 +6485,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "addOldStandard", false);
+                                return HouseholdController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("household", "add", false);
                             return HouseholdController.Add((KalturaHousehold) methodParams[0]);
                             
@@ -5824,6 +6507,12 @@ namespace WebAPI.Reflection
                             return HouseholdController.DeleteByOperator((KalturaIdentifierTypeFilter) methodParams[0]);
                             
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "getOldStandard", false);
+                                return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("household", "get", false);
                             return HouseholdController.Get((Nullable<int>) methodParams[0]);
                             
@@ -5864,6 +6553,12 @@ namespace WebAPI.Reflection
                             return HouseholdController.Suspend((Nullable<int>) methodParams[0]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
+                                return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("household", "update", false);
                             return HouseholdController.Update((KalturaHousehold) methodParams[0]);
                             
@@ -5878,6 +6573,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdDevice", "addOldStandard", false);
+                                return HouseholdDeviceController.AddOldStandard((string) methodParams[0], (int) methodParams[1], (string) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("householdDevice", "add", false);
                             return HouseholdDeviceController.Add((KalturaHouseholdDevice) methodParams[0]);
                             
@@ -5913,6 +6614,12 @@ namespace WebAPI.Reflection
                             return HouseholdDeviceController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdDevice", "updateOldStandard", false);
+                                return HouseholdDeviceController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("householdDevice", "update", false);
                             return HouseholdDeviceController.Update((string) methodParams[0], (KalturaHouseholdDevice) methodParams[1]);
                             
@@ -6011,6 +6718,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdPremiumService", "listOldStandard", false);
+                                return HouseholdPremiumServiceController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("householdPremiumService", "list", false);
                             return HouseholdPremiumServiceController.List();
                             
@@ -6035,6 +6748,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdUser", "addOldStandard", false);
+                                return HouseholdUserController.AddOldStandard((string) methodParams[0], (bool) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("householdUser", "add", false);
                             return HouseholdUserController.Add((KalturaHouseholdUser) methodParams[0]);
                             
@@ -6099,6 +6818,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", false);
+                                return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("licensedUrl", "get", false);
                             return LicensedUrlController.Get((KalturaLicensedUrlBaseRequest) methodParams[0]);
                             
@@ -6127,16 +6852,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "meta":
+                case "multirequest":
                     switch(action)
                     {
-                        case "list":
-                            RolesManager.ValidateActionPermitted("meta", "list", false);
-                            return MetaController.List((KalturaMetaFilter) methodParams[0]);
-                            
-                        case "update":
-                            RolesManager.ValidateActionPermitted("meta", "update", false);
-                            return MetaController.Update((string) methodParams[0], (KalturaMeta) methodParams[1]);
+                        case "do":
+                            return MultiRequestController.Do((KalturaMultiRequestAction[]) methodParams[0]);
                             
                     }
                     break;
@@ -6167,6 +6887,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "getOldStandard", false);
+                                return NotificationsPartnerSettingsController.GetOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", false);
                             return NotificationsPartnerSettingsController.Get();
                             
@@ -6175,6 +6901,12 @@ namespace WebAPI.Reflection
                             return NotificationsPartnerSettingsController.GetOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "updateOldStandard", false);
+                                return NotificationsPartnerSettingsController.UpdateOldStandard((KalturaPartnerNotificationSettings) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", false);
                             return NotificationsPartnerSettingsController.Update((KalturaNotificationsPartnerSettings) methodParams[0]);
                             
@@ -6189,6 +6921,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "getOldStandard", false);
+                                return NotificationsSettingsController.GetOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("notificationsSettings", "get", false);
                             return NotificationsSettingsController.Get();
                             
@@ -6197,6 +6935,12 @@ namespace WebAPI.Reflection
                             return NotificationsSettingsController.GetOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "updateOldStandard", false);
+                                return NotificationsSettingsController.UpdateOldStandard((KalturaNotificationSettings) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("notificationsSettings", "update", false);
                             return NotificationsSettingsController.Update((KalturaNotificationsSettings) methodParams[0]);
                             
@@ -6230,6 +6974,12 @@ namespace WebAPI.Reflection
                             return OssAdapterProfileController.Get((int) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "listOldStandard", false);
+                                return OssAdapterProfileController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", false);
                             return OssAdapterProfileController.List();
                             
@@ -6238,6 +6988,12 @@ namespace WebAPI.Reflection
                             return OssAdapterProfileController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "updateOldStandard", false);
+                                return OssAdapterProfileController.UpdateOldStandard((KalturaOSSAdapterProfile) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", false);
                             return OssAdapterProfileController.Update((int) methodParams[0], (KalturaOSSAdapterProfile) methodParams[1]);
                             
@@ -6301,6 +7057,12 @@ namespace WebAPI.Reflection
                             return OttUserController.FacebookLogin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ottUser", "getOldStandard", false);
+                                return OttUserController.GetOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("ottUser", "get", false);
                             return OttUserController.Get();
                             
@@ -6345,6 +7107,11 @@ namespace WebAPI.Reflection
                             return OttUserController.ResendActivationToken((int) methodParams[0], (string) methodParams[1]);
                             
                         case "resetpassword":
+                            if(isOldVersion)
+                            {
+                                return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                                
+                            }
                             return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
                             
                         case "setinitialpassword":
@@ -6391,6 +7158,14 @@ namespace WebAPI.Reflection
                 case "parentalrule":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("parentalRule", "add", false);
+                            return ParentalRuleController.Add((KalturaParentalRule) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("parentalRule", "delete", false);
+                            return ParentalRuleController.Delete((long) methodParams[0]);
+                            
                         case "disable":
                             RolesManager.ValidateActionPermitted("parentalRule", "disable", false);
                             return ParentalRuleController.Disable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
@@ -6403,13 +7178,27 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("parentalRule", "enable", false);
                             return ParentalRuleController.Enable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
                             
+                        case "get":
+                            RolesManager.ValidateActionPermitted("parentalRule", "get", false);
+                            return ParentalRuleController.Get((long) methodParams[0]);
+                            
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", false);
+                                return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("parentalRule", "list", false);
                             return ParentalRuleController.List((KalturaParentalRuleFilter) methodParams[0]);
                             
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", false);
                             return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("parentalRule", "update", false);
+                            return ParentalRuleController.Update((long) methodParams[0], (KalturaParentalRule) methodParams[1]);
                             
                     }
                     break;
@@ -6472,6 +7261,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "addOldStandard", false);
+                                return PaymentGatewayProfileController.AddOldStandard((KalturaPaymentGatewayProfile) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", false);
                             return PaymentGatewayProfileController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
                             
@@ -6492,6 +7287,12 @@ namespace WebAPI.Reflection
                             return PaymentGatewayProfileController.GetConfiguration((string) methodParams[0], (string) methodParams[1], (List<KalturaKeyValue>) methodParams[2]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "listOldStandard", false);
+                                return PaymentGatewayProfileController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", false);
                             return PaymentGatewayProfileController.List();
                             
@@ -6500,6 +7301,12 @@ namespace WebAPI.Reflection
                             return PaymentGatewayProfileController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "updateOldStandard", false);
+                                return PaymentGatewayProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", false);
                             return PaymentGatewayProfileController.Update((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
                             
@@ -6514,6 +7321,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "addOldStandard", false);
+                                return PaymentGatewayProfileSettingsController.AddOldStandard((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", false);
                             return PaymentGatewayProfileSettingsController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
                             
@@ -6540,6 +7353,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "addOldStandard", false);
+                                return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", false);
                             return PaymentMethodProfileController.Add((KalturaPaymentMethodProfile) methodParams[0]);
                             
@@ -6548,6 +7367,12 @@ namespace WebAPI.Reflection
                             return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             
                         case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "deleteOldStandard", false);
+                                return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", false);
                             return PaymentMethodProfileController.Delete((int) methodParams[0]);
                             
@@ -6556,6 +7381,12 @@ namespace WebAPI.Reflection
                             return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "listOldStandard", false);
+                                return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", false);
                             return PaymentMethodProfileController.List((KalturaPaymentMethodProfileFilter) methodParams[0]);
                             
@@ -6564,6 +7395,12 @@ namespace WebAPI.Reflection
                             return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
+                                return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", false);
                             return PaymentMethodProfileController.Update((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
                             
@@ -6588,6 +7425,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("personalFeed", "listOldStandard", false);
+                                return PersonalFeedController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("personalFeed", "list", false);
                             return PersonalFeedController.List((KalturaPersonalFeedFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -6621,6 +7464,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("pin", "getOldStandard", false);
+                                return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("pin", "get", false);
                             return PinController.Get((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             
@@ -6629,6 +7478,16 @@ namespace WebAPI.Reflection
                             return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                {
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                }
+                                RolesManager.ValidateActionPermitted("pin", "updateOldStandard", false);
+                                return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
+                                
+                            }
                             if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
@@ -6713,6 +7572,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "getOldStandard", false);
+                                return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("purchaseSettings", "get", false);
                             return PurchaseSettingsController.Get((KalturaEntityReferenceBy) methodParams[0]);
                             
@@ -6721,6 +7586,12 @@ namespace WebAPI.Reflection
                             return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "updateOldStandard", false);
+                                return PurchaseSettingsController.UpdateOldStandard((int) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("purchaseSettings", "update", false);
                             return PurchaseSettingsController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPurchaseSettings) methodParams[1]);
                             
@@ -6747,6 +7618,12 @@ namespace WebAPI.Reflection
                             return RecommendationProfileController.GenerateSharedSecret((int) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "listOldStandard", false);
+                                return RecommendationProfileController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("recommendationProfile", "list", false);
                             return RecommendationProfileController.List();
                             
@@ -6755,6 +7632,12 @@ namespace WebAPI.Reflection
                             return RecommendationProfileController.ListOldStandard();
                             
                         case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "updateOldStandard", false);
+                                return RecommendationProfileController.UpdateOldStandard((KalturaRecommendationProfile) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("recommendationProfile", "update", false);
                             return RecommendationProfileController.Update((int) methodParams[0], (KalturaRecommendationProfile) methodParams[1]);
                             
@@ -6831,6 +7714,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("registrySettings", "listOldStandard", false);
+                                return RegistrySettingsController.ListOldStandard();
+                                
+                            }
                             RolesManager.ValidateActionPermitted("registrySettings", "list", false);
                             return RegistrySettingsController.List();
                             
@@ -6933,6 +7822,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("session", "getOldStandard", false);
+                                return SessionController.GetOldStandard((string) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("session", "get", false);
                             return SessionController.Get((string) methodParams[0]);
                             
@@ -6987,6 +7882,16 @@ namespace WebAPI.Reflection
                             return SocialController.Get((KalturaSocialNetwork) methodParams[0]);
                             
                         case "getbytoken":
+                            if(isOldVersion)
+                            {
+                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                {
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                }
+                                RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", false);
+                                return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
+                                
+                            }
                             if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
@@ -7014,6 +7919,12 @@ namespace WebAPI.Reflection
                             return SocialController.Login((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
                             
                         case "merge":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "mergeOldStandard", false);
+                                return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("social", "merge", false);
                             return SocialController.Merge((string) methodParams[0], (KalturaSocialNetwork) methodParams[1]);
                             
@@ -7022,6 +7933,12 @@ namespace WebAPI.Reflection
                             return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
                             
                         case "register":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "registerOldStandard", false);
+                                return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("social", "register", false);
                             return SocialController.Register((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
                             
@@ -7030,6 +7947,12 @@ namespace WebAPI.Reflection
                             return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
                             
                         case "unmerge":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "unmergeOldStandard", false);
+                                return SocialController.UnmergeOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaSocialNetwork) methodParams[3]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("social", "unmerge", false);
                             return SocialController.Unmerge((KalturaSocialNetwork) methodParams[0]);
                             
@@ -7084,6 +8007,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
+                                return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("subscription", "list", false);
                             return SubscriptionController.List((KalturaSubscriptionFilter) methodParams[0]);
                             
@@ -7169,6 +8098,12 @@ namespace WebAPI.Reflection
                             return TopicController.Get((int) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("topic", "listOldStandard", false);
+                                return TopicController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("topic", "list", false);
                             return TopicController.List((KalturaTopicFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -7200,6 +8135,12 @@ namespace WebAPI.Reflection
                             return TransactionController.ProcessReceipt((int) methodParams[0], (KalturaTransactionType) methodParams[1], (string) methodParams[2], (string) methodParams[3], (int) methodParams[4]);
                             
                         case "purchase":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", false);
+                                return TransactionController.PurchaseOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("transaction", "purchase", false);
                             return TransactionController.Purchase((KalturaPurchase) methodParams[0]);
                             
@@ -7240,6 +8181,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", false);
+                                return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("transactionHistory", "list", false);
                             return TransactionHistoryController.List((KalturaTransactionHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
@@ -7264,6 +8211,12 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetRule", "listOldStandard", false);
+                                return UserAssetRuleController.ListOldStandard((KalturaGenericRuleFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("userAssetRule", "list", false);
                             return UserAssetRuleController.List((KalturaUserAssetRuleFilter) methodParams[0]);
                             
@@ -7292,6 +8245,12 @@ namespace WebAPI.Reflection
                             return UserAssetsListItemController.Add((KalturaUserAssetsListItem) methodParams[0]);
                             
                         case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "deleteOldStandard", false);
+                                return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", false);
                             return UserAssetsListItemController.Delete((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1]);
                             
@@ -7300,6 +8259,12 @@ namespace WebAPI.Reflection
                             return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
                             
                         case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "getOldStandard", false);
+                                return UserAssetsListItemController.GetOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("userAssetsListItem", "get", false);
                             return UserAssetsListItemController.Get((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1], (KalturaUserAssetsListItemType) methodParams[2]);
                             
@@ -7366,6 +8331,12 @@ namespace WebAPI.Reflection
                             return UserRoleController.Delete((long) methodParams[0]);
                             
                         case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userRole", "listOldStandard", false);
+                                return UserRoleController.ListOldStandard((KalturaUserRoleFilter) methodParams[0]);
+                                
+                            }
                             RolesManager.ValidateActionPermitted("userRole", "list", false);
                             return UserRoleController.List((KalturaUserRoleFilter) methodParams[0]);
                             
@@ -7557,6 +8528,13 @@ namespace WebAPI.Reflection
                 case "asset":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("asset", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAsset),
+                            });
+                            return ret;
+                            
                         case "autocomplete":
                             ret.Add("query", new MethodParam(){
                                 Type = typeof(string),
@@ -7633,6 +8611,22 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSearchAssetFilter),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetReferenceType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
                             });
                             return ret;
                             
@@ -7856,6 +8850,31 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "removemetasandtags":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "removeMetasAndTags") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetReferenceType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
+                            });
+                            ret.Add("idIn", new MethodParam(){
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("idIn", "asset", "removeMetasAndTags") {
+                                    RequiresPermission = false,
+                                    DynamicMinInt = 1,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
                         case "search":
                             ret.Add("order_by", new MethodParam(){
                                 IsNullable = true,
@@ -7927,6 +8946,22 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaCatalogWithHolder),
                                 Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("asset", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAsset),
                             });
                             return ret;
                             
@@ -8332,66 +9367,6 @@ namespace WebAPI.Reflection
                             ret.Add("adapter", new MethodParam(){
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDVRAdapterProfile),
-                            });
-                            return ret;
-                            
-                    }
-                    break;
-                    
-                case "channel":
-                    switch(action)
-                    {
-                        case "add":
-                            ret.Add("channel", new MethodParam(){
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaChannel),
-                            });
-                            return ret;
-                            
-                        case "addoldstandard":
-                            ret.Add("channel", new MethodParam(){
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaChannelProfile),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            paramName = "channelId";
-                            if(isOldVersion)
-                            {
-                                paramName = "channel_id";
-                            }
-                            ret.Add(paramName, new MethodParam(){
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
-                        case "get":
-                            ret.Add("id", new MethodParam(){
-                                Type = typeof(int),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "channel", "get") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinInteger = 1,
-                                },
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("channelId", new MethodParam(){
-                                Type = typeof(int),
-                            });
-                            ret.Add("channel", new MethodParam(){
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaChannel),
-                            });
-                            return ret;
-                            
-                        case "updateoldstandard":
-                            ret.Add("channel", new MethodParam(){
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaChannelProfile),
                             });
                             return ret;
                             
@@ -10121,25 +11096,12 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "meta":
+                case "multirequest":
                     switch(action)
                     {
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaMetaFilter),
-                            });
-                            return ret;
-                            
-                        case "update":
-                            ret.Add("id", new MethodParam(){
-                                Type = typeof(string),
-                            });
-                            ret.Add("meta", new MethodParam(){
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaMeta),
+                        case "do":
+                            ret.Add("request", new MethodParam(){
+                                Type = typeof(KalturaMultiRequestAction[]),
                             });
                             return ret;
                             
@@ -10653,6 +11615,25 @@ namespace WebAPI.Reflection
                 case "parentalrule":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("parentalRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaParentalRule),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
                         case "disable":
                             paramName = "ruleId";
                             if(isOldVersion)
@@ -10705,6 +11686,18 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 IsKalturaObject = true,
@@ -10716,6 +11709,22 @@ namespace WebAPI.Reflection
                             ret.Add("filter", new MethodParam(){
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("parentalRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaParentalRule),
                             });
                             return ret;
                             

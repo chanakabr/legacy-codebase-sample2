@@ -14,7 +14,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetStruct : KalturaOTTObject
+    public partial class KalturaAssetStruct : KalturaOTTObject
     {
         /// <summary>
         /// Asset Struct id 

@@ -17,7 +17,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/mediaFile/action")]
+    [Service("mediaFile")]
     public class MediaFileController : ApiController
     {
         /// <summary>
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="mediaFile">Media file object</param>        
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Media file identifier</param>        
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Media file identifier</param>        
         /// <param name="mediaFile">Media file object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [Throws(eResponseStatus.MediaFileNotBelongToAsset)]
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         /// Returns a list of media-file
         /// </summary>
         /// <param name="filter">Filter</param>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaMediaFileListResponse List(KalturaMediaFileFilter filter = null)
         {

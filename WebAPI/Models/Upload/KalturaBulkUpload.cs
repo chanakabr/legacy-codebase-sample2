@@ -13,7 +13,7 @@ namespace WebAPI.Models.Upload
     /// <summary>
     /// 
     /// </summary>
-    public class KalturaBulk : KalturaOTTObject
+    public partial class KalturaBulk : KalturaOTTObject
     {
 
         /// <summary>

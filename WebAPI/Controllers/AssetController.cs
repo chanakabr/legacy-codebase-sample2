@@ -1105,7 +1105,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="asset">Asset object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]                
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
@@ -1113,7 +1113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
-        public KalturaAsset Add(KalturaAsset asset)
+        static public KalturaAsset Add(KalturaAsset asset)
         {
             KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -1180,12 +1180,12 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset Identifier</param>
         /// <param name="assetReferenceType">Type of asset</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]        
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
+        static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -1210,7 +1210,7 @@ namespace WebAPI.Controllers
         /// <param name="assetReferenceType">Type of asset</param>
         /// <param name="asset">Asset object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
@@ -1218,8 +1218,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
-        [SchemeArgument("id", MinLong = 1)]        
-        public KalturaAsset Update(long id, KalturaAsset asset)
+        [SchemeArgument("id", MinLong = 1)]
+        static public KalturaAsset Update(long id, KalturaAsset asset)
         {
             KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -1280,7 +1280,7 @@ namespace WebAPI.Controllers
         /// <param name="assetReferenceType">Type of asset</param>
         /// <param name="idIn">comma separated ids of metas and tags</param>
         /// <returns></returns>
-        [Route("removeMetasAndTags"), HttpPost]
+        [Action("removeMetasAndTags")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.CanNotRemoveBasicMetaIds)]
@@ -1288,7 +1288,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("idIn", DynamicMinInt = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
+        static public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

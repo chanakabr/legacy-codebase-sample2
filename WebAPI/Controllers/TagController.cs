@@ -17,7 +17,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/tag/action")]
+    [Service("tag")]
     public class TagController : ApiController
     {
         /// <summary>
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
         {
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag Object</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]        
         [Throws(eResponseStatus.TagAlreadyInUse)]        
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Tag Identifier</param>
         /// <param name="tag">Tag Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.TagDoesNotExist)]
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Tag Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]

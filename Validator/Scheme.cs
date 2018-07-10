@@ -237,7 +237,14 @@ namespace Validator.Managers.Scheme
                     if (type.GetType() == typeof(ApiException.ApiExceptionType))
                     {
                         ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
-                        errors.Add((int)exceptionType.statusCode, type);
+                        if (errors.ContainsKey((int)exceptionType.statusCode))
+                        {
+                            throw new Exception("Error code " + exceptionType.statusCode + " appears twice: ApiException.ApiExceptionType." + exceptionType.name);
+                        }
+                        else
+                        {
+                            errors.Add((int)exceptionType.statusCode, type);
+                        }
                     }
                     else if (type.GetType() == typeof(ApiException.ClientExceptionType))
                     {

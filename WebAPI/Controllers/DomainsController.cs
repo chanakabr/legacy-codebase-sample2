@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{domain_id}/parental/rules/{rule_id}"), HttpPost]
+        [Action("{domain_id}/parental/rules/{rule_id}")]
         public bool EnableParentalRule([FromUri] string group_id, [FromUri] int domain_id, [FromUri] long rule_id)
         {
             bool success = false;
@@ -186,7 +186,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/parental/pin"), HttpPost]
+        [Action("{domain_id}/parental/pin")]
         public bool SetParentalPIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;
@@ -264,7 +264,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase/settings/"), HttpPost]
+        [Action("{domain_id}/purchase/settings/")]
         public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int setting)
         {
             bool success = false;
@@ -342,7 +342,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase/pin"), HttpPost]
+        [Action("{domain_id}/purchase/pin")]
         public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;

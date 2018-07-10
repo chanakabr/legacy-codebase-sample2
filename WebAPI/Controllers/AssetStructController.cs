@@ -15,7 +15,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetStruct/action")]
+    [Service("assetStruct")]
     public class AssetStructController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
         {
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// <param name="id">AssetStruct Identifier</param>
         /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
@@ -154,7 +154,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">AssetStruct Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]

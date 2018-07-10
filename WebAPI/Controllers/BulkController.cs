@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     /// <summary>
     /// Bulk service is used to manage bulk actions
     /// </summary>
-    [RoutePrefix("_service/bulk/action")]
+    [Service("bulk")]
     public class BulkController: ApiController
     {
 
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filtering the bulk action request</param>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]        
         public KalturaBulkListResponse List(KalturaBulkFilter filter = null,  KalturaFilterPager pager = null)
         {
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">bulk action id</param>
         /// <returns></returns>
-        [Route("serveLog"), HttpPost]
+        [Action("serveLog")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaBulk ServeLog(long id)

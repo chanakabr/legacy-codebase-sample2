@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
-    public class KalturaAssetStructMeta : KalturaOTTObject
+    public partial class KalturaAssetStructMeta : KalturaOTTObject
     {
         /// <summary>
         ///  Asset Struct id (template_id)

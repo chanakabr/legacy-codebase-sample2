@@ -263,11 +263,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="parentalRule">parentalRule object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
         [Throws(eResponseStatus.TagDoesNotExist)]
-        public KalturaParentalRule Add(KalturaParentalRule parentalRule)
+        static public KalturaParentalRule Add(KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -329,13 +329,13 @@ namespace WebAPI.Controllers
         /// <param name="id">parentalRule identifier</param>
         /// <param name="parentalRule">parentalRule object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
+        static public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -379,11 +379,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">parentalRule identifier</param>        
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaParentalRule Get(long id)
+        static public KalturaParentalRule Get(long id)
         {
             KalturaParentalRule response = null;
             KS ks = KS.GetFromRequest();
@@ -407,12 +407,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">parentalRule identifier</param>        
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeleteDefaultParentalRule)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

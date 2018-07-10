@@ -17,6 +17,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Text.RegularExpressions;
 using System.Net.Http;
+using WebAPI.Controllers;
 
 namespace Validator.Managers.Scheme
 {
@@ -138,10 +139,14 @@ namespace Validator.Managers.Scheme
         {
             ObsoleteAttribute obsolete = type.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
+            {
                 return !strict;
+            }
 
-            if (type.IsSubclassOf(typeof(ApiController)))
+            if (typeof(IKalturaController).IsAssignableFrom(type))
+            {
                 return ValidateService(type, strict);
+            }
 
             bool valid = true;
 

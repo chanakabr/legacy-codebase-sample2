@@ -574,7 +574,7 @@ namespace WebAPI.Filters
                     {
                         JObject reqParams = JObject.Parse(json);
 
-                        if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG])) 
+                        if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
                         {
                             //For logging
                             HttpContext.Current.Items.Remove(Constants.CLIENT_TAG);
@@ -598,54 +598,53 @@ namespace WebAPI.Filters
                             HttpContext.Current.Items[REQUEST_VERSION] = version;
                         }
 
-                            Dictionary<string, object> requestParams;
-                            if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
-                            {
-                                requestParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
-                            }
-                            else
-                            {
-                                requestParams = reqParams.ToObject<Dictionary<string, object>>();
-                            }
-                            setRequestContext(requestParams, currentController, currentAction);
+                        Dictionary<string, object> requestParams;
+                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                        {
+                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                        }
+                        else
+                        {
+                            requestParams = reqParams.ToObject<Dictionary<string, object>>();
+                        }
+                        setRequestContext(requestParams, currentController, currentAction);
 
-                            List<Object> methodParams;
-                            if (currentController == "multirequest")
-                            {
-                                methodParams = buildMultirequestActions(requestParams);
-                            }
-                            else
-                            {
-                                Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
-                                methodParams = RequestParser.buildActionArguments(methodArgs, requestParams);
-                            }
-                            HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
-                        }
-                        catch (UnauthorizedException e)
+                        List<Object> methodParams;
+                        if (currentController == "multirequest")
                         {
-                            createErrorResponse(actionContext, (int)e.Code, e.Message);
-                            return;
+                            methodParams = buildMultirequestActions(requestParams);
                         }
-                        catch (RequestParserException e)
+                        else
                         {
-                            createErrorResponse(actionContext, e.Code, e.Message);
-                            return;
+                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
+                            methodParams = RequestParser.buildActionArguments(methodArgs, requestParams);
                         }
-                        catch (ApiException e)
-                        {
-                            createErrorResponse(actionContext, (int)e.Code, e.Message);
-                            return;
-                        }
-                        catch (JsonReaderException)
-                        {
-                            createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                            return;
-                        }
-                        catch (FormatException)
-                        {
-                            createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                            return;
-                        }
+                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                    }
+                    catch (UnauthorizedException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (RequestParserException e)
+                    {
+                        createErrorResponse(actionContext, e.Code, e.Message);
+                        return;
+                    }
+                    catch (ApiException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (JsonReaderException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
+                    }
+                    catch (FormatException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
                     }
                 }
                 else if ((HttpContext.Current.Request.ContentType == "text/xml" || HttpContext.Current.Request.ContentType == "application/xml") 

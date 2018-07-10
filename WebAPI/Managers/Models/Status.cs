@@ -112,6 +112,6 @@ namespace WebAPI.Managers.Models
         GlobalLanguageParameterMustBeAsterisk = 500073,
         MultiValueWasNotSentForMetaDataTypeString = 500074,
         TagTranslationNotAllowed = 500075,
-        InvalidObjectType = 500069,
+        InvalidObjectType = 500076,
     }
 }

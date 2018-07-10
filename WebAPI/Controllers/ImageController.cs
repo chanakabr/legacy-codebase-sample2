@@ -18,7 +18,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/image/action")]
+    [Service("image")]
     public class ImageController : ApiController
     {
         /// <summary>
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaImageListResponse List(KalturaImageFilter filter = null)
         {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         /// <param name="image">Image</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Image ID</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Image ID</param>
         /// <param name="content">Content of the image to set</param>
         /// <returns></returns>
-        [Route("setContent"), HttpPost]
+        [Action("setContent")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

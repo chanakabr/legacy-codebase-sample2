@@ -14,7 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("meta")]
-    public class MetaController : IKalturaController
+    public class MetaController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -23,11 +23,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Meta filter</param>
         /// <remarks></remarks>
-         [Route("list"), HttpPost]
-         [ApiAuthorize]
-         public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
-         {
-             KalturaMetaListResponse response = null;
+        [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
+        [ApiAuthorize]
+        [Obsolete]
+        static public KalturaMetaListResponse ListOldStandard(KalturaMetaFilter filter = null)
+        {
+            KalturaMetaListResponse response = null;
 
             if (filter == null)
             {
@@ -49,38 +51,38 @@ namespace WebAPI.Controllers
             return response;
         }
 
-         /// <summary>
-         /// Update meta's user interest
-         /// </summary>
-         /// <param name="id">Meta identifier</param>           
-         /// <param name="meta">Meta</param>           
-         /// <returns></returns>
-         /// <remarks>
-         /// Possible status codes: 
-         /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
-         /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
-         /// </remarks>
-         [Route("update"), HttpPost]
-         [ApiAuthorize]
-         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-         [Throws(eResponseStatus.NoMetaToUpdate)]
-         [Throws(eResponseStatus.NameRequired)]
-         [Throws(eResponseStatus.NotaTopicInterestMeta)]
-         [Throws(eResponseStatus.ParentDuplicateAssociation)]
-         [Throws(eResponseStatus.MetaNotAUserinterest)]
-         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
-         [Throws(eResponseStatus.ParentIdNotAUserInterest)]
-         [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
-         [Throws(eResponseStatus.MetaNotFound)]
-         [Throws(eResponseStatus.MetaNotBelongtoPartner)]
-         [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
-         [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]        
-         public KalturaMeta Update(string id, KalturaMeta meta)
-         {
-             KalturaMeta response = null;
-             meta.Id = id;
-
-             int groupId = KS.GetFromRequest().GroupId;
+        /// <summary>
+        /// Update meta's user interest
+        /// </summary>
+        /// <param name="id">Meta identifier</param>           
+        /// <param name="meta">Meta</param>           
+        /// <returns></returns>
+        /// <remarks>
+        /// Possible status codes: 
+        /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
+        /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
+        /// </remarks>
+        [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
+        [ApiAuthorize]
+        [Obsolete]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.NoMetaToUpdate)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.NotaTopicInterestMeta)]
+        [Throws(eResponseStatus.ParentDuplicateAssociation)]
+        [Throws(eResponseStatus.MetaNotAUserinterest)]
+        [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
+        [Throws(eResponseStatus.ParentIdNotAUserInterest)]
+        [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
+        [Throws(eResponseStatus.MetaNotFound)]
+        [Throws(eResponseStatus.MetaNotBelongtoPartner)]
+        [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
+        [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]
+        static public KalturaMeta UpdateOldStandard(string id, KalturaMeta meta)
+        {
+            KalturaMeta response = null;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -108,7 +110,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
+        static public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
         {
             if (filter == null)
             {
@@ -144,10 +146,10 @@ namespace WebAPI.Controllers
         /// <param name="meta">Meta Object</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
-        [ApiAuthorize]        
+        [ApiAuthorize]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
-        public KalturaMeta Add(KalturaMeta meta)
+        static public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -173,7 +175,7 @@ namespace WebAPI.Controllers
             {
                 if (meta.MultipleValue.HasValue && meta.MultipleValue.Value && meta.DataType != Models.Catalog.KalturaMetaDataType.STRING)
                 {
-                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType,string.Format("{0} - MultipleValue can only be set to true for KalturaMeta.DataType with value STRING",
+                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType, string.Format("{0} - MultipleValue can only be set to true for KalturaMeta.DataType with value STRING",
                                                                                                                 eResponseStatus.InvalidMutlipleValueForMetaType.ToString()));
                 }
 
@@ -195,15 +197,15 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.MetaDoesNotExist)]        
-        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
-        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]        
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaMeta Update(long id, KalturaMeta meta)
+        static public KalturaMeta Update(long id, KalturaMeta meta)
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();            
+            long userId = Utils.Utils.GetUserIdFromKs();
             meta.ValidateFeatures();
 
             if (meta.Name != null)
@@ -240,7 +242,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedMeta)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

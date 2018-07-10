@@ -289,7 +289,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "Collections", Namespace = "")]
     [XmlRoot("Collections")]
-    public class KalturaMediaFileListResponse : KalturaListResponse
+    public partial class KalturaMediaFileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of media-file types

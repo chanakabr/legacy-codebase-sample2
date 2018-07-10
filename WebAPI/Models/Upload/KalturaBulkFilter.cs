@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
 {
-    public class KalturaBulkFilter : KalturaPersistedFilter<KalturaBulkOrderBy>
+    public partial class KalturaBulkFilter : KalturaPersistedFilter<KalturaBulkOrderBy>
     {
 
         public override KalturaBulkOrderBy GetDefaultOrderByValue()
