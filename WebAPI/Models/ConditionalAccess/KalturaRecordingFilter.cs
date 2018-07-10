@@ -42,18 +42,12 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// KSQL expression
         /// </summary>
-        [DataMember(Name = "ksql")]
-        [JsonProperty("ksql")]
-        [XmlElement(ElementName = "ksql", IsNullable = true)]
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(MaxLength = 2048)]
         public string Ksql { get; set; }
-
-        public string IdIn
-        {
-            get;
-            set;
-        }
 
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()
         {

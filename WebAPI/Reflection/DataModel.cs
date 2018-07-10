@@ -269,6 +269,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaRecordingFilter":
+                    switch (propertyName)
+                    {
+                        case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
+                    };
+                    break;
+                    
                 case "KalturaSession":
                     switch (propertyName)
                     {
@@ -6504,6 +6512,8 @@ namespace WebAPI.Reflection
                     {
                         case "FilterExpression":
                             return "filterExpression";
+                        case "Ksql":
+                            return "kSql";
                         case "StatusIn":
                             return "statusIn";
                     }

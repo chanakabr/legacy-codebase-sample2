@@ -73,6 +73,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(MinLength = 1, MaxLength = 255)]
         public string ExternalId { get; set; }
 
         /// <summary>

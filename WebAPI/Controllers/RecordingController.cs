@@ -289,15 +289,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Notify on an external recording
         /// </summary>
-        /// <param name="recording">Recording object</param>
-        /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
+        /// <param name="externalDomainRecordingId">External domain recording identifier</param>
         /// <param name="externalEpgId">Epg external identifier</param>
+        /// <param name="recordingType">Recording Type: single/season/series</param>
+        /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
         /// <param name="isProtected">is the recording protected by the user</param>
         /// <returns></returns>
         [Route("Notify"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Notify(KalturaRecording recording, KalturaRecordingStatus recordingStatus, string externalEpgId, bool? isProtected)
+        public bool Notify(string externalDomainRecordingId, string externalEpgId, KalturaRecordingStatus recordingStatus, KalturaRecordingType? recordingType, bool isProtected)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -305,7 +306,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, recording, recordingStatus, externalEpgId, isProtected, userId);
+                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType, isProtected, userId);
             }
             catch (ClientException ex)
             {
