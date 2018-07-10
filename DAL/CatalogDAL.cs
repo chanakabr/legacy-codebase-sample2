@@ -1488,7 +1488,7 @@ namespace Tvinci.Core.DAL
 
             return 0;
         }
-        
+
         public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
@@ -1498,7 +1498,7 @@ namespace Tvinci.Core.DAL
             {
                 startKey = new object[] { usersList, 0 },
                 endKey = new object[] { usersList, string.Empty },
-                staleState = CouchbaseManager.ViewStaleState.False,
+                staleState = ViewStaleState.False,
                 asJson = true
             };
 
@@ -2470,10 +2470,6 @@ namespace Tvinci.Core.DAL
 
         public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
         {
-            DomainMediaMark dmm = new DomainMediaMark();
-            dmm.domainID = domain_id;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             // create Keys 
             List<string> keys = new List<string>();
             string docKey = string.Empty;
@@ -2482,30 +2478,27 @@ namespace Tvinci.Core.DAL
                 docKey = UtilsDal.GetUserMediaMarkDocKey(userId.ToString(), media_id);
                 keys.Add(docKey);
             }
+
             // get all documents from CB
-            IDictionary<string, MediaMarkLog> data = cbManager.GetValues<MediaMarkLog>(keys, true, true);
-
-            List<UserMediaMark> oRes = new List<UserMediaMark>();
-
-            if (data == null)
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            IDictionary<string, MediaMarkLog> values = cbManager.GetValues<MediaMarkLog>(keys, true, true);
+            
+            if (values == null)
                 return null;
 
-            if (data != null && data.Count > 0)
+            List<UserMediaMark> userMediaMarks = new List<UserMediaMark>();
+            if (values != null && values.Count > 0)
             {
-                foreach (KeyValuePair<string, MediaMarkLog> item in data)
+                foreach (KeyValuePair<string, MediaMarkLog> currValue in values)
                 {
-                    if (item.Value != null)
+                    if (currValue.Value != null && currValue.Value.LastMark != null)
                     {
-                        MediaMarkLog mml = item.Value;
-                        if (mml != null && mml.LastMark != null)
-                        {
-                            oRes.Add(mml.LastMark);
-                        }
+                        userMediaMarks.Add(currValue.Value.LastMark);
                     }
                 }
             }
 
-            dmm.devices = oRes;
+            DomainMediaMark dmm = new DomainMediaMark() { domainID = domain_id, devices = userMediaMarks };
             return dmm;
         }
 
@@ -4125,9 +4118,9 @@ namespace Tvinci.Core.DAL
             sp.ExecuteNonQuery();
         }
 
-        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, 
-                                                          List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType, 
-                                                          string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
+        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
+                                                              List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
+                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
         {
             if (mediaPlayAction == MediaPlayActions.STOP || mediaPlayAction == MediaPlayActions.FINISH)
             {
