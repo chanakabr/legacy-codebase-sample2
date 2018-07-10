@@ -1488,7 +1488,7 @@ namespace Tvinci.Core.DAL
 
             return 0;
         }
-        
+
         public static Dictionary<string, int> GetMediaMarkUserCount(List<int> usersList)
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
@@ -1498,7 +1498,7 @@ namespace Tvinci.Core.DAL
             {
                 startKey = new object[] { usersList, 0 },
                 endKey = new object[] { usersList, string.Empty },
-                staleState = CouchbaseManager.ViewStaleState.False,
+                staleState = ViewStaleState.False,
                 asJson = true
             };
 
@@ -2470,10 +2470,6 @@ namespace Tvinci.Core.DAL
 
         public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
         {
-            DomainMediaMark dmm = new DomainMediaMark();
-            dmm.domainID = domain_id;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             // create Keys 
             List<string> keys = new List<string>();
             string docKey = string.Empty;
@@ -2482,30 +2478,27 @@ namespace Tvinci.Core.DAL
                 docKey = UtilsDal.GetUserMediaMarkDocKey(userId.ToString(), media_id);
                 keys.Add(docKey);
             }
+
             // get all documents from CB
-            IDictionary<string, MediaMarkLog> data = cbManager.GetValues<MediaMarkLog>(keys, true, true);
-
-            List<UserMediaMark> oRes = new List<UserMediaMark>();
-
-            if (data == null)
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            IDictionary<string, MediaMarkLog> values = cbManager.GetValues<MediaMarkLog>(keys, true, true);
+            
+            if (values == null)
                 return null;
 
-            if (data != null && data.Count > 0)
+            List<UserMediaMark> userMediaMarks = new List<UserMediaMark>();
+            if (values != null && values.Count > 0)
             {
-                foreach (KeyValuePair<string, MediaMarkLog> item in data)
+                foreach (KeyValuePair<string, MediaMarkLog> currValue in values)
                 {
-                    if (item.Value != null)
+                    if (currValue.Value != null && currValue.Value.LastMark != null)
                     {
-                        MediaMarkLog mml = item.Value;
-                        if (mml != null && mml.LastMark != null)
-                        {
-                            oRes.Add(mml.LastMark);
-                        }
+                        userMediaMarks.Add(currValue.Value.LastMark);
                     }
                 }
             }
 
-            dmm.devices = oRes;
+            DomainMediaMark dmm = new DomainMediaMark() { domainID = domain_id, devices = userMediaMarks };
             return dmm;
         }
 
@@ -4232,38 +4225,47 @@ namespace Tvinci.Core.DAL
             sp.ExecuteNonQuery();
         }
 
-        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds, 
-                                                          List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType, 
-                                                          string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
+        public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
+                                                              List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
+                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
         {
-            DevicePlayData devicePlayData = GetDevicePlayData(udid);
-            if (devicePlayData != null)
+            if (mediaPlayAction == MediaPlayActions.STOP || mediaPlayAction == MediaPlayActions.FINISH)
             {
-                devicePlayData.UserId = userId;
-                devicePlayData.DomainId = domainId;
-                devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-                devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
-                devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
-                devicePlayData.AssetId = assetId;
-                devicePlayData.ProgramId = programId;
-                devicePlayData.DeviceFamilyId = deviceFamilyId;
-                devicePlayData.playType = playType.ToString();
-                devicePlayData.NpvrId = npvrId;
+                DeleteDevicePlayData(udid);
+                return null;
             }
-            // save firstPlay in cache 
-            // TODO SHIR - CHECK THE IF
-            else if (deviceFamilyId > 0)
+            else
             {
-                devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
-            }
+                DevicePlayData devicePlayData = GetDevicePlayData(udid);
+                if (devicePlayData != null)
+                {
+                    devicePlayData.AssetId = assetId;
+                    devicePlayData.UserId = userId;
+                    devicePlayData.playType = playType.ToString();
+                    devicePlayData.AssetAction = mediaPlayAction.ToString();
+                    devicePlayData.DeviceFamilyId = deviceFamilyId;
+                    devicePlayData.ProgramId = programId;
+                    devicePlayData.NpvrId = npvrId;
+                    devicePlayData.DomainId = domainId;
+                    devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+                    devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
+                    devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
+                }
+                // save firstPlay in cache 
+                // TODO SHIR - CHECK THE IF
+                else if (deviceFamilyId > 0)
+                {
+                    devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
+                                                        domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
+                }
 
-            if (devicePlayData != null)
-            {
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
+                if (devicePlayData != null)
+                {
+                    CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ttl);
+                }
+
+                return devicePlayData;
             }
-                        
-            return devicePlayData;
         }
 
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
@@ -4590,50 +4592,36 @@ namespace Tvinci.Core.DAL
         }
 
         public static List<DevicePlayData> GetDevicePlayDataList(Dictionary<string, int> domainDevices, List<ePlayType> playTypes, int ttl, string udid)
-        {            
+        {
             if (domainDevices != null && domainDevices.Count > 0)
             {
-                List<string> keys = new List<string>();
-                foreach (var currDevice in domainDevices)
+                List<string> devicePlayDataKeys = new List<string>();
+                foreach (var domainDevice in domainDevices)
                 {
-                    keys.Add(GetDevicePlayDataKey(currDevice.Key));
+                    devicePlayDataKeys.Add(GetDevicePlayDataKey(domainDevice.Key));
                 }
 
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+                List<DevicePlayData> devicePlayDataList = UtilsDal.GetObjectListFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, devicePlayDataKeys);
 
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-                try
+                if (devicePlayDataList != null && devicePlayDataList.Count > 0)
                 {
-                    var cbValues = cbManager.GetValues<string>(keys, true);
+                    List<string> playTypesString = new List<string>();
 
-                    if (cbValues != null)
+                    // If all - leave it as an empty list. empty list means everything
+                    if (playTypes != null && !playTypes.Contains(ePlayType.ALL))
                     {
-                        List<DevicePlayData> domainPlayData = 
-                            new List<DevicePlayData>(cbValues.Select(x => JsonConvert.DeserializeObject<DevicePlayData>(x.Value, jsonSerializerSettings)));
-                        
-                        List<string> playTypesStrings = new List<string>();
-
-                        // If all - leave it as an empty list. empty list means everything
-                        if (playTypes != null && !playTypes.Contains(ePlayType.ALL))
-                        {
-                            playTypesStrings.AddRange(playTypes.Select(t => t.ToString()));
-                        }
-
-                        List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
-                        
-                        var filteredDevices = domainPlayData.Where(x => !x.UDID.Equals(udid) && 
-                            Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
-                            // either the list is empty (which means all play types) or x's type is in the list)
-                            (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
-                            !playActions.Contains(x.AssetAction.ToLower())).ToList();
-
-                        return filteredDevices;
+                        playTypesString.AddRange(playTypes.Select(t => t.ToString()));
                     }
+
+                    HashSet<string> playActions = new HashSet<string>() { MediaPlayActions.FINISH.ToString().ToUpper(), MediaPlayActions.STOP.ToString().ToUpper() };
+
+                    return devicePlayDataList.Where(x => !x.UDID.Equals(udid) &&
+                                                         Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                                                         (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
+                                                         !playActions.Contains(x.AssetAction.ToUpper())).ToList();
                 }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to GetDomainPlayData. keys: {0}, ex: {1}", string.Join(", ", keys), ex);
-                }
+
+                return devicePlayDataList;
             }
 
             return null;
