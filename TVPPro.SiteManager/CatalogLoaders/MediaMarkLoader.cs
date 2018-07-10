@@ -31,12 +31,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string NPVRID { get; set; }
         public eAssetTypes AssetType { get; set; }
         public long ProgramId { get; set; }
+        public bool IsReportingMode { get; set; }
 
         #region Constructors
 
         public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, 
-                               int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, long programId, 
-                               eAssetTypes assetType = eAssetTypes.UNKNOWN)
+                               int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, long programId,
+                               bool isReportingMode, eAssetTypes assetType = eAssetTypes.UNKNOWN)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -55,6 +56,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             NPVRID = npvrID;
             AssetType = assetType;
             ProgramId = programId;
+            IsReportingMode = isReportingMode;
         }
         
         #endregion
@@ -76,7 +78,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
                     m_eAssetType = AssetType,
-                    ProgramId = this.ProgramId
+                    ProgramId = this.ProgramId,
+                    IsReportingMode = this.IsReportingMode
                 },
                 m_sErrorCode = ErrorCode,
                 m_sErrorMessage = ErrorMessage,
@@ -136,6 +139,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             get { throw new NotImplementedException(); }
         }
+
         #endregion
     }
 }

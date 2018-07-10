@@ -39,7 +39,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sCoGuid" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nDomainID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nLimit" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nDeviceLimit" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nUserLimit" type="s:int" />
@@ -59,6 +58,7 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_DomainRestriction" type="tns:DomainRestriction" />
               <s:element minOccurs="0" maxOccurs="1" name="m_homeNetworks" type="tns:ArrayOfHomeNetwork" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nRegion" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nDomainID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nGroupID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="roleId" nillable="true" type="s:int" />
             </s:sequence>

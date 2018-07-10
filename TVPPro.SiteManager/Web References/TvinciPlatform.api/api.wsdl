@@ -303,7 +303,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="ActionEnum" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>

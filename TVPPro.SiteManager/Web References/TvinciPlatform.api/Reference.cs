@@ -17224,8 +17224,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string actionField;
         
-        private string actionEnumField;
-        
         /// <remarks/>
         public string Object {
             get {
@@ -17253,16 +17251,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.actionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActionEnum {
-            get {
-                return this.actionEnumField;
-            }
-            set {
-                this.actionEnumField = value;
             }
         }
     }
