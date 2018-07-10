@@ -132,13 +132,24 @@ public partial class MethodFinder
                         //}                        
                         ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
 
-                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+                        JavaScriptSerializer serializer = new JavaScriptSerializer()
+                        {
 
-                        var dict = serializer.Deserialize<Dictionary<string, object>>(DeserializationTarget);
-                        Product = CreateObjectInstance(TargetType);
+                        };
 
-                        Parse(dict, Product);
+                        // special edge case with user dnymaic data - the Parse method does not handle "arrays" properly
+                        if (TargetType.Name.ToLower() == "userdynamicdata")
+                        {
+                            string replacedDeserializationTarget = DeserializationTarget.Replace("Field\":", "\":");
+                            Product = serializer.Deserialize(replacedDeserializationTarget, TargetType);
+                        }
+                        else
+                        {
+                            var dict = serializer.Deserialize<Dictionary<string, object>>(DeserializationTarget);
+                            Product = CreateObjectInstance(TargetType);
 
+                            Parse(dict, Product);
+                        }
                         //DeserializationTarget = serializer.Serialize(parsedDictionary);
 
                         //using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
