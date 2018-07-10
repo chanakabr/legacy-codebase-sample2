@@ -262,6 +262,8 @@ namespace ApiObjects.Response
         DefaultImageInvalidImageType = 4069,
         RatioDoesNotExist = 4070,
         MissingBasicValueForAsset = 4071,
+        CanNotDeleteParentAssetStruct = 4072,
+        CanNotDeleteConnectingAssetStructMeta = 4073,
 
         #endregion
 

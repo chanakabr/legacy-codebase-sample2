@@ -10844,7 +10844,7 @@ namespace Core.ConditionalAccess
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, this.m_nGroupID, udid);
 
                 devicePlayData = CatalogDAL.InsertDevicePlayDataToCB(int.Parse(userId), udid, domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, mediaId, programId,
-                                                                 deviceFamilyId, ePlayType.MEDIA, string.Empty, ttl);
+                                                                     deviceFamilyId, ePlayType.MEDIA, string.Empty, ttl);
             }
 
             if (devicePlayData != null && !string.IsNullOrEmpty(devicePlayData.PlayCycleKey))

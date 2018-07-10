@@ -1071,12 +1071,11 @@ namespace Core.Catalog.CatalogManagement
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedAssetStruct, eResponseStatus.CanNotDeletePredefinedAssetStruct.ToString());
                     return result;
                 }
-                
-                var assetStructChildrenCount = catalogGroupCache.AssetStructsMapById.Count(x => x.Value.ParentId.HasValue && x.Value.ParentId.Value == id);
-                if (assetStructChildrenCount > 0)
+
+                bool haveChildren = catalogGroupCache.AssetStructsMapById.Any(x => x.Value.ParentId.HasValue && x.Value.ParentId.Value == id);
+                if (haveChildren)
                 {
-                    // TODO SHIR - ASK LIOR ABOUT THE ERROR
-                    result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    result = new Status((int)eResponseStatus.CanNotDeleteParentAssetStruct, "Can not delete AssetStruct with children");
                     return result;
                 }
 
@@ -1301,13 +1300,12 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var assetStructConnectedMetaIdCount = catalogGroupCache.AssetStructsMapById.Count
+                bool haveConnection = catalogGroupCache.AssetStructsMapById.Any
                     (x => (x.Value.ConnectedParentMetaId.HasValue && x.Value.ConnectedParentMetaId.Value == id) ||
                           (x.Value.ConnectingMetaId.HasValue && x.Value.ConnectingMetaId.Value == id));
-                if (assetStructConnectedMetaIdCount > 0)
+                if (haveConnection)
                 {
-                    // TODO SHIR - ASK LIOR ABOUT THE ERROR
-                    result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    result = new Status((int)eResponseStatus.CanNotDeleteConnectingAssetStructMeta, "Can not delete Connecting/connected AssetStruct Meta");
                     return result;
                 }
 
@@ -1799,24 +1797,14 @@ namespace Core.Catalog.CatalogManagement
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             List<ApiObjects.SearchObjects.TagValue> tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
-
-
-            List<GenericListResponse<ApiObjects.SearchObjects.TagValue>> tagListResponseList = new List<GenericListResponse<ApiObjects.SearchObjects.TagValue>>();
             HashSet<long> tagIds = new HashSet<long>();
 
             foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
             {
                 if (!tagIds.Contains(tagValue.tagId))
                 {
-                    //TODO SHIR - ASK LIOR IF THIS OK?
-                    GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagValue.tagId);
-                    tagListResponseList.Add(tagListResponse);
                     tagIds.Add(tagValue.tagId);
-                    result.Objects.AddRange(tagListResponse.Objects);
-
-                    //GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse1 = GetTagListResponseById(groupId, tagValue.tagId);
-                    //tagIds.Add(tagValue.tagId);
-                    //result.Objects.AddRange(tagListResponse1.TagValues);
+                    result.Objects.AddRange(GetTagListResponseById(groupId, tagValue.tagId).Objects);
                 }
             }
 
