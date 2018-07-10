@@ -4618,7 +4618,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ParentId", parentId);
 
             return sp.ExecuteDataSet();
-            // TODO SHIR - ASK LIOR IF NEED TO ALSO update ALL children BY PARENT_ID/CONNECTED_PARENT_META_ID..
         }
 
         public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality,
@@ -4646,7 +4645,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
-            // TODO SHIR - ASK LIOR IF NEED TO ALSO DELETE ALL children BY PARENT_ID/CONNECTED_PARENT_META_ID..
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
