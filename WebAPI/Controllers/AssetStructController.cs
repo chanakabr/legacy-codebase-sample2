@@ -158,6 +158,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
+        [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
         [SchemeArgument("id", MinLong = 1)]
         public bool Delete(long id)
         {

@@ -241,6 +241,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedMeta)]
+        [Throws(eResponseStatus.CanNotDeleteConnectingAssetStructMeta)]
         [SchemeArgument("id", MinLong = 1)]
         static public bool Delete(long id)
         {
