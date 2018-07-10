@@ -15,8 +15,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
     public class MediaMarkLoader : CatalogRequestManager, ILoaderAdapter
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-
+        
         public int AvgBitRate { get; set; }
         public int CurrentBitRate { get; set; }
         public int Location { get; set; }
@@ -31,9 +30,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string MediaCDN { get; set; }
         public string NPVRID { get; set; }
         public eAssetTypes AssetType { get; set; }
+        public long ProgramId { get; set; }
 
         #region Constructors
-        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, eAssetTypes assetType = eAssetTypes.UNKNOWN)
+
+        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, 
+                               int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, long programId, 
+                               eAssetTypes assetType = eAssetTypes.UNKNOWN)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -51,18 +54,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             MediaCDN = mediaCDN;
             NPVRID = npvrID;
             AssetType = assetType;
+            ProgramId = programId;
         }
-
-        public MediaMarkLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
-        {
-        }
-
-        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, Provider provider)
-            : this(groupID, userIP, siteGuid, udid, mediaID, mediaFileID, npvrID, avgBitRate, currentBitRate, location, totalBitRate, action, mediaDuration, errorCode, errorMessage, mediaCDN)
-        {
-            m_oProvider = provider;
-        }
+        
         #endregion
 
         protected override void BuildSpecificRequest()
@@ -81,7 +75,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
-                    m_eAssetType = AssetType
+                    m_eAssetType = AssetType,
+                    ProgramId = this.ProgramId
                 },
                 m_sErrorCode = ErrorCode,
                 m_sErrorMessage = ErrorMessage,

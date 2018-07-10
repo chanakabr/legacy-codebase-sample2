@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="noUX6tCaeGyDxPyv+tUSOza4BBo=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="+Xk4DDjHM8J4+5dcSiO47/NLCMQ=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="wsHttpBinding" name="WSHttpBinding_Iservice3">
       <properties>
@@ -127,10 +127,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="WSHttpBinding_Iservice3" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://34.249.122.223:8030/CATALOG_v4_8_2/service.svc" bindingConfiguration="WSHttpBinding_Iservice3">
+    <endpoint name="WSHttpBinding_Iservice3" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://34.249.122.223:8030/CATALOG_v4_9/service.svc" bindingConfiguration="WSHttpBinding_Iservice3">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://34.249.122.223:8030/CATALOG_v4_8_2/service.svc</serializedValue>
+          <serializedValue>http://34.249.122.223:8030/CATALOG_v4_9/service.svc</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

@@ -9,6 +9,7 @@ using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.Services;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -269,6 +270,19 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<string>(eParameterType.Retrieve, "NPVRID", value);
             }
         }
+
+        public long ProgramId
+        {
+            get
+            {
+                return Parameters.GetParameter<long>(eParameterType.Retrieve, "ProgramId", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<long>(eParameterType.Retrieve, "ProgramId", value);
+            }
+        }
+
         #endregion
 
         public override eCacheMode GetCacheMode()
@@ -307,7 +321,10 @@ namespace TVPPro.SiteManager.DataLoaders
             bool shouldUseNewCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
             {
-                CatalogLoaders.MediaMarkLoader mediaMarkLoader = new CatalogLoaders.MediaMarkLoader(TvmUser, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(), DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action.ToString(), MediaDuration, ErrorCode, ErrorMessage, CDNID);
+                CatalogLoaders.MediaMarkLoader mediaMarkLoader = 
+                    new CatalogLoaders.MediaMarkLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(),
+                                                       DeviceUDID, (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action.ToString(),
+                                                       MediaDuration, ErrorCode, ErrorMessage, CDNID, ProgramId);
                 return mediaMarkLoader.Execute() as string;
             }
             else
