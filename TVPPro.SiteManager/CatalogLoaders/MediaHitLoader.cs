@@ -28,11 +28,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string UDID { get; set; }
         public string NPVRID { get; set; }
         public long ProgramId { get; set; }
+        public bool IsReportingMode { get; set; }
 
         #region Constructors
 
         public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, 
-                              int location, int totalBitRate, string action, string mediaDuration, long programId)
+                              int location, int totalBitRate, string action, string mediaDuration, long programId, bool isReportingMode)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -47,6 +48,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             SiteGuid = siteGuid;
             UDID = udid;
             ProgramId = programId;
+            IsReportingMode = isReportingMode;
         }
 
         //public MediaHitLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, 
@@ -75,7 +77,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
                     m_eAssetType = string.IsNullOrEmpty(NPVRID) ? eAssetTypes.MEDIA : eAssetTypes.NPVR,
-                    ProgramId = this.ProgramId
+                    ProgramId = this.ProgramId,
+                    IsReportingMode = this.IsReportingMode
                 },
                 m_sSiteGuid = SiteGuid
             };
@@ -132,6 +135,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         {
             get { throw new NotImplementedException(); }
         }
+
         #endregion
     }
 }

@@ -4707,6 +4707,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsReportingModeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long ProgramIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -4752,6 +4755,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsReportingMode {
+            get {
+                return this.IsReportingModeField;
+            }
+            set {
+                if ((this.IsReportingModeField.Equals(value) != true)) {
+                    this.IsReportingModeField = value;
+                    this.RaisePropertyChanged("IsReportingMode");
+                }
             }
         }
         

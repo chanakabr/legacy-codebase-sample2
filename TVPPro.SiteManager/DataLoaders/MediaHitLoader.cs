@@ -188,6 +188,18 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
+        public bool IsReportingMode
+        {
+            get
+            {
+                return Parameters.GetParameter<bool>(eParameterType.Retrieve, "IsReportingMode", false);
+            }
+            set
+            {
+                Parameters.SetParameter<bool>(eParameterType.Retrieve, "IsReportingMode", value);
+            }
+        }
+
         #endregion
 
         protected override bool ShouldStoreInCache(LoaderAdapterItem result)
@@ -267,7 +279,8 @@ namespace TVPPro.SiteManager.DataLoaders
             {
                 CatalogLoaders.MediaHitLoader mediaMarkLoader =
                     new CatalogLoaders.MediaHitLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), SiteGUID, DeviceUDID, 
-                                                      (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action, Duration, ProgramId);
+                                                      (int)MediaID, (int)FileID, NPVRID, AvgBitRate, CurrentBitRate, Location, TotalBitRateNum, Action, Duration, ProgramId,
+                                                      IsReportingMode);
 
                 return mediaMarkLoader.Execute() as string;
             }
@@ -276,7 +289,8 @@ namespace TVPPro.SiteManager.DataLoaders
                 return base.Execute();
             }
         }
-        
+
+        // TODO SHIR - ASK LIOR WHAT THIS IS
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             MediaHit result = new MediaHit();

@@ -2193,8 +2193,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private string m_sCoGuidField;
         
-        private int m_nDomainIDField;
-        
         private int m_nLimitField;
         
         private int m_nDeviceLimitField;
@@ -2233,6 +2231,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private int m_nRegionField;
         
+        private int m_nDomainIDField;
+        
         private int m_nGroupIDField;
         
         private System.Nullable<int> roleIdField;
@@ -2264,16 +2264,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             }
             set {
                 this.m_sCoGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nDomainID {
-            get {
-                return this.m_nDomainIDField;
-            }
-            set {
-                this.m_nDomainIDField = value;
             }
         }
         
@@ -2464,6 +2454,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             }
             set {
                 this.m_nRegionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nDomainID {
+            get {
+                return this.m_nDomainIDField;
+            }
+            set {
+                this.m_nDomainIDField = value;
             }
         }
         
