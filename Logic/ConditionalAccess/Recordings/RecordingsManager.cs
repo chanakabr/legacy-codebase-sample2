@@ -754,12 +754,12 @@ namespace Core.Recordings
             }
         }
 
-        internal Status NotifyRecording(int groupId, Recording recording, string externalEpgId, bool? isProtected, long domainId, long userId)
+        internal Status NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType recordingType, bool? isProtected, long domainId, long userId)
         {
             Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                if (recording.EpgId <= 0)
+                if (!string.IsNullOrEmpty(externalEpgId))
                 {
                     // error code
                     return result;
@@ -768,7 +768,7 @@ namespace Core.Recordings
                 List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByExternalIds(groupId, new List<string>() { { externalEpgId } });
                 if (epgs == null || epgs.Count != 1)
                 {
-                    log.DebugFormat("Failed Getting EPGs from Catalog when calling NotifyRecording, DomainId: {0}, UserId: {1}, EpgId: {2}", domainId, userId, recording.EpgId);
+                    log.DebugFormat("Failed Getting EPGs from Catalog when calling NotifyRecording, DomainId: {0}, UserId: {1}, ExternalEpgId: {2}", domainId, userId, externalEpgId);
                 }
 
                 DateTime epgStartDate;
@@ -776,16 +776,14 @@ namespace Core.Recordings
                 if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
                     && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
                 {
-                    recording.EpgId = epgs[0].EPG_ID;
+                    Recording recording = new Recording() { EpgId = epgs[0].EPG_ID, ExternalDomainRecordingId = externalDomainRecordingId, Type = recordingType, RecordingStatus = recordingStatus,
+                                                            Crid = epgs[0].CRID, EpgStartDate = epgStartDate, EpgEndDate = epgEndDate, ExternalRecordingId = Guid.NewGuid().ToString() };                    
                     long channelId;
                     if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
                     {
                         recording.ChannelId = channelId;
                     }
-                    recording.Crid = epgs[0].CRID;
-                    recording.EpgStartDate = epgStartDate;
-                    recording.EpgEndDate = epgEndDate;
-                    recording.ExternalRecordingId = Guid.NewGuid().ToString();
+
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
                     recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
                     if (RecordingsDAL.NotifyRecording(groupId, recording, viewableUntilDate, domainId, userId))
@@ -796,19 +794,18 @@ namespace Core.Recordings
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed NotifyRecording for epg: {0}, externalDomainRecordingId: {1} and domainId: {2}",
-                                        recording.EpgId, recording.ExternalDomainRecordingId, domainId), ex);
+                log.Error(string.Format("Failed NotifyRecording for externalEpgId: {0}, externalDomainRecordingId: {1} and domainId: {2}", externalEpgId, externalDomainRecordingId, domainId), ex);
             }
 
             return result;
         }
 
-        internal Status NotifyDeleteRecording(string externalDomainRecordingId, long domainId)
+        internal Status NotifyDeleteRecording(int groupId, string externalDomainRecordingId, long domainId)
         {
             Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                if (RecordingsDAL.NotifyDeleteRecording(externalDomainRecordingId, domainId))
+                if (RecordingsDAL.NotifyDeleteRecording(groupId, externalDomainRecordingId, domainId))
                 {
                     result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
