@@ -754,7 +754,7 @@ namespace Core.Recordings
             }
         }
 
-        internal Status NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType recordingType, bool? isProtected, long domainId, long userId)
+        internal Status NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType recordingType, bool? isProtected, int domainId, int userId)
         {
             Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -816,7 +816,7 @@ namespace Core.Recordings
             return result;
         }
 
-        internal Status NotifyDeleteRecording(int groupId, string externalDomainRecordingId, long domainId)
+        internal Status NotifyDeleteRecording(int groupId, string externalDomainRecordingId, int domainId)
         {
             Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try

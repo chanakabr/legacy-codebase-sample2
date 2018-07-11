@@ -16685,18 +16685,17 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal ApiObjects.Response.Status NotifyRecording(string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType? recordingType, bool? isProtected, long userId)
+        internal ApiObjects.Response.Status NotifyRecording(string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType? recordingType, bool? isProtected, int domainId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                Domain domain = null;
-                long domainId = 0;
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out domain);
+                Domain domain = null;                
+                ApiObjects.Response.Status validationStatus = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    log.DebugFormat("Domain not valid, domainId: {0}", domainId);
                     response.Set(validationStatus.Code, validationStatus.Message);
                     return response;
                 }
@@ -16712,7 +16711,7 @@ namespace Core.ConditionalAccess
                             return response;
                         }
 
-                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType.Value, isProtected, domainId, userId);
+                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType.Value, isProtected, domainId, domain.m_masterGUIDs[0]);
                         break;
                     case TstvRecordingStatus.Canceled:
                     case TstvRecordingStatus.Deleted:
@@ -16726,7 +16725,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed NotifyRecording for externalDomainRecordingId: {0} and userId: {1}", externalDomainRecordingId, userId), ex);
+                log.Error(string.Format("Failed NotifyRecording for externalDomainRecordingId: {0} and domainId: {1}", externalDomainRecordingId, domainId), ex);
             }
 
             return response;
