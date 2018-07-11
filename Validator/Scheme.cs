@@ -781,7 +781,7 @@ namespace Validator.Managers.Scheme
             return classNode[0].InnerText.Trim();
         }
 
-        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null)
+        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null, SchemePropertyAttribute schemeProperty = null)
         {
             ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
@@ -799,6 +799,11 @@ namespace Validator.Managers.Scheme
             if (dataMemberAttr == null)
                 return;
 
+            if (schemeProperty == null)
+            {
+                schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
+            }
+
             if (name == null)
             {
                 name = dataMemberAttr.Name;
@@ -813,7 +818,12 @@ namespace Validator.Managers.Scheme
                 }
                 else if (property.PropertyType == typeof(KalturaMultilingualString))
                 {
-                    writeProperty(typeName, property, typeof(string));
+                    if(schemeProperty == null)
+                    {
+                        schemeProperty = new SchemePropertyAttribute();
+                    }
+                    schemeProperty.ReadOnly = true;
+                    writeProperty(typeName, property, typeof(string), null, schemeProperty);
                     writeProperty(typeName, property, typeof(List<KalturaTranslationToken>), KalturaMultilingualString.GetMultilingualName(name));
                     return;
                 }
@@ -829,7 +839,6 @@ namespace Validator.Managers.Scheme
 
             writer.WriteAttributeString("description", getDescription(property));
 
-            SchemePropertyAttribute schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
             if (schemeProperty == null)
             {
                 writer.WriteAttributeString("readOnly", "0");
