@@ -165,40 +165,26 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
                     }
+
+                    string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
+                    HashSet<string> features = null;
+                    if (!string.IsNullOrEmpty(commaSeparatedFeatures))
+                    {
+                        features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                    }
+                    long connectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID");
+                    long connectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID");
+                    string pluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME");
                     result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, associationTag, parentId, 
                                                 createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0, 
+                                                features, connectingMetaId, connectedParentMetaId, pluralName);
                 }
             }
 
             return result;
         }
-
-        private static Status ValidateBasicMetaIds(CatalogGroupCache catalogGroupCache, AssetStruct assetStructToValidate)
-        {
-            Status result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, eResponseStatus.AssetStructMissingBasicMetaIds.ToString());
-            List<long> basicMetaIds = new List<long>();
-            if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
-            {
-                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
-                if (assetStructToValidate.MetaIds != null)
-                {
-                    List<long> noneExistingBasicMetaIds = basicMetaIds.Except(assetStructToValidate.MetaIds).ToList();
-                    if (noneExistingBasicMetaIds == null || noneExistingBasicMetaIds.Count == 0)
-                    {
-                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-                    else
-                    {
-                        result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, string.Format("{0} for the following Meta Ids: {1}",
-                                            eResponseStatus.AssetStructMissingBasicMetaIds.ToString(), string.Join(",", noneExistingBasicMetaIds)));
-                    }
-                }
-            }
-
-            return result;
-        }        
-
+        
         private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds)
         {
             GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
@@ -855,8 +841,14 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (assetStructToadd.ParentId.HasValue && !catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToadd.ParentId.Value))
+                {
+                    result.SetStatus(eResponseStatus.AssetStructDoesNotExist, "Parent AssetStruct does not exist");
+                    return result;
+                }
+
                 // validate basic metas         
-                Status validateBasicMetasResult = ValidateBasicMetaIds(catalogGroupCache, assetStructToadd);
+                Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache);
                 if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateBasicMetasResult);
@@ -892,7 +884,9 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, 
+                                                          assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
+                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
@@ -922,8 +916,26 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (assetStructToUpdate.ParentId.HasValue)
+                {
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
+                    {
+                        result.SetStatus(eResponseStatus.AssetStructDoesNotExist, "Parent AssetStruct does not exist");
+                        return result;
+                    }
+
+                    if (assetStructToUpdate.ParentId.Value == id)
+                    {
+                        result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "Parent id should not point to itself");
+                        return result;
+                    }
+                }
+                
                 AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
-                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null && assetStruct.SystemName != assetStructToUpdate.SystemName)
+                if (assetStruct.IsPredefined.HasValue && 
+                    assetStruct.IsPredefined.Value && 
+                    assetStructToUpdate.SystemName != null && 
+                    assetStruct.SystemName != assetStructToUpdate.SystemName)
                 {
                     result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
@@ -931,9 +943,8 @@ namespace Core.Catalog.CatalogManagement
                 
                 if (shouldUpdateMetaIds)
                 {
-
                     // validate basic metas
-                    Status validateBasicMetasResult = ValidateBasicMetaIds(catalogGroupCache, assetStructToUpdate);
+                    Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache);
                     if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                     {
                         result.SetStatus(validateBasicMetasResult);
@@ -944,8 +955,8 @@ namespace Core.Catalog.CatalogManagement
                     List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
-                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
-                                                                                                eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, 
+                                         string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                         return result;
                     }
                 }
@@ -993,8 +1004,10 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, shouldUpdateMetaIds,
-                                                          metaIdsToPriority, userId);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, 
+                                                          shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
+                                                          assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
+                                                          assetStructToUpdate.ParentId);
                 result = CreateAssetStructResponseFromDataSet(ds);
 
                 if (result.Status != null && result.Status.Code == (int)eResponseStatus.OK && shouldUpdateAssetStructAssets && removedTopicIds != null && removedTopicIds.Count > 0)
@@ -1056,6 +1069,13 @@ namespace Core.Catalog.CatalogManagement
                 if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
                 {
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedAssetStruct, eResponseStatus.CanNotDeletePredefinedAssetStruct.ToString());
+                    return result;
+                }
+
+                bool haveChildren = catalogGroupCache.AssetStructsMapById.Any(x => x.Value.ParentId.HasValue && x.Value.ParentId.Value == id);
+                if (haveChildren)
+                {
+                    result = new Status((int)eResponseStatus.CanNotDeleteParentAssetStruct, "Can not delete AssetStruct with children");
                     return result;
                 }
 
@@ -1277,6 +1297,15 @@ namespace Core.Catalog.CatalogManagement
                 if (topic.IsPredefined.HasValue && topic.IsPredefined.Value)
                 {
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedMeta, eResponseStatus.CanNotDeletePredefinedMeta.ToString());
+                    return result;
+                }
+
+                bool haveConnection = catalogGroupCache.AssetStructsMapById.Any
+                    (x => (x.Value.ConnectedParentMetaId.HasValue && x.Value.ConnectedParentMetaId.Value == id) ||
+                          (x.Value.ConnectingMetaId.HasValue && x.Value.ConnectingMetaId.Value == id));
+                if (haveConnection)
+                {
+                    result = new Status((int)eResponseStatus.CanNotDeleteConnectingAssetStructMeta, "Can not delete Connecting/connected AssetStruct Meta");
                     return result;
                 }
 
@@ -1768,24 +1797,14 @@ namespace Core.Catalog.CatalogManagement
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             List<ApiObjects.SearchObjects.TagValue> tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
-
-
-            List<GenericListResponse<ApiObjects.SearchObjects.TagValue>> tagListResponseList = new List<GenericListResponse<ApiObjects.SearchObjects.TagValue>>();
             HashSet<long> tagIds = new HashSet<long>();
 
             foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
             {
                 if (!tagIds.Contains(tagValue.tagId))
                 {
-                    //TODO SHIR - ASK LIOR IF THIS OK?
-                    GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagValue.tagId);
-                    tagListResponseList.Add(tagListResponse);
                     tagIds.Add(tagValue.tagId);
-                    result.Objects.AddRange(tagListResponse.Objects);
-
-                    //GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse1 = GetTagListResponseById(groupId, tagValue.tagId);
-                    //tagIds.Add(tagValue.tagId);
-                    //result.Objects.AddRange(tagListResponse1.TagValues);
+                    result.Objects.AddRange(GetTagListResponseById(groupId, tagValue.tagId).Objects);
                 }
             }
 

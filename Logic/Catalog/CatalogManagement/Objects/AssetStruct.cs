@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +16,20 @@ namespace Core.Catalog.CatalogManagement
         public string SystemName { get; set; }
         public List<long> MetaIds { get; set; }
         public bool? IsPredefined { get; set; }
-        
-        // TODO - Need to support adding/editing AssociationTag per asset struct
-        public string AssociationTag { get; set; }
-        // TODO - Need to support adding/editing ParentId per asset struct
-        public long? ParentId { get; set; }
-
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
-
+        // TODO - Need to support adding/editing AssociationTag per asset struct
+        public string AssociationTag { get; set; }
         /// <summary>
         /// Asset Struct Meta list (the key is the metaID)
         /// </summary>
         public Dictionary<long, AssetStructMeta> AssetStructMetas { get; set; }
+
+        public HashSet<string> Features { get; set; }
+        public long? ParentId { get; set; }
+        public long? ConnectingMetaId { get; set; }
+        public long? ConnectedParentMetaId { get; set; }
+        public string PluralName { get; set; }
 
         public AssetStruct()
         {
@@ -42,9 +44,14 @@ namespace Core.Catalog.CatalogManagement
             this.CreateDate = 0;
             this.UpdateDate = 0;
             this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
+            this.Features = new HashSet<string>();
+            this.ConnectingMetaId = 0;
+            this.ConnectedParentMetaId = 0;
+            this.PluralName = string.Empty;
         }
 
-        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, string associationTag, long parentId, long createDate, long updateDate)
+        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, string associationTag, 
+                           long parentId, long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName)
         {
             this.Id = id;
             this.Name = name;
@@ -57,6 +64,10 @@ namespace Core.Catalog.CatalogManagement
             this.CreateDate = createDate;
             this.UpdateDate = updateDate;
             this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
+            this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            this.ConnectingMetaId = connectingMetaId;
+            this.ConnectedParentMetaId = connectedParentMetaId;
+            this.PluralName = pluralName;
         }
 
         public AssetStruct(AssetStruct assetStructToCopy)
@@ -72,6 +83,47 @@ namespace Core.Catalog.CatalogManagement
             this.CreateDate = assetStructToCopy.CreateDate;
             this.UpdateDate = assetStructToCopy.UpdateDate;
             this.AssetStructMetas = new Dictionary<long, AssetStructMeta>(assetStructToCopy.AssetStructMetas);
+            this.Features = new HashSet<string>(assetStructToCopy.Features, StringComparer.OrdinalIgnoreCase);
+            this.ConnectingMetaId = assetStructToCopy.ConnectingMetaId;
+            this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
+            this.PluralName = assetStructToCopy.PluralName;
+        }
+
+        public string GetCommaSeparatedFeatures()
+        {
+            if (this.Features != null && this.Features.Count > 0)
+            {
+                return string.Join(",", this.Features);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public Status ValidateBasicMetaIds(CatalogGroupCache catalogGroupCache)
+        {
+            Status result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, eResponseStatus.AssetStructMissingBasicMetaIds.ToString());
+            List<long> basicMetaIds = new List<long>();
+            if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
+            {
+                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                if (this.MetaIds != null)
+                {
+                    List<long> noneExistingBasicMetaIds = basicMetaIds.Except(this.MetaIds).ToList();
+                    if (noneExistingBasicMetaIds == null || noneExistingBasicMetaIds.Count == 0)
+                    {
+                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    else
+                    {
+                        result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, string.Format("{0} for the following Meta Ids: {1}",
+                                            eResponseStatus.AssetStructMissingBasicMetaIds.ToString(), string.Join(",", noneExistingBasicMetaIds)));
+                    }
+                }
+            }
+
+            return result;
         }
 
         public override string ToString()
@@ -89,6 +141,11 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("UpdateDate: {0}", UpdateDate);
             sb.AppendFormat("AssetStructMetas: {0}, ", AssetStructMetas != null && AssetStructMetas.Count > 0 ?
                                                       string.Join(",", AssetStructMetas.Select(x => x.Value.ToString()).ToList()) : string.Empty);
+            sb.AppendFormat("Features: {0}, ", (Features != null && Features.Count > 0) ? string.Join(",", Features) : string.Empty);
+            sb.AppendFormat("ConnectingMetaId: {0}, ", ConnectingMetaId.HasValue ? ConnectingMetaId.Value.ToString() : string.Empty);
+            sb.AppendFormat("ConnectedParentMetaId: {0}, ", ConnectedParentMetaId.HasValue ? ConnectedParentMetaId.Value.ToString() : string.Empty);
+            sb.AppendFormat("PluralName: {0},", PluralName);
+
             return sb.ToString();
         }
 

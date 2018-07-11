@@ -7,7 +7,10 @@ using Tvinci.Core.DAL;
 using System;
 using System.Text;
 using ApiObjects;
-
+using ApiObjects.MediaMarks;
+using System.Collections.Generic;
+using Core.Users;
+using ApiObjects.Catalog;
 
 namespace Core.Catalog.Request
 {
@@ -39,7 +42,80 @@ namespace Core.Catalog.Request
         public string m_sMediaTypeId;
         [DataMember]
         public long ProgramId;
-        
+        [DataMember]
+        public bool IsReportingMode;
+
+        public MediaPlayRequestData()
+        {
+            this.IsReportingMode = false;
+        }
+
+        public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,  
+                                                        string npvrId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
+        {
+            DevicePlayData currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
+            string playCycleKey = string.Empty;
+
+            int userId;
+            int.TryParse(this.m_sSiteGuid, out userId);
+
+            // TODO SHIR - CHECK WHAT TODO IF NO DevicePlayData
+            if (currDevicePlayData == null && userId > 0)
+            {
+                // create and save new DevicePlayData
+                List<int> mediaConcurrencyRuleIds = null;
+                List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
+                List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+
+                //get domain by user
+                if (domainId == 0)
+                {
+                    domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
+                }
+                
+                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+
+                currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 
+                                                    mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
+
+                // TODO SHIR - ASK IRA IF NEED THIS IF OR ALWAYS DO THIS INSERT..
+                //FPNPC -  on First Play create New Play Cycle
+                if (CatalogLogic.IsGroupUseFPNPC(groupId)) 
+                {
+                    // We still insert to DB incase needed by other process
+                    if (currDevicePlayData != null && !string.IsNullOrEmpty(currDevicePlayData.PlayCycleKey))
+                    {
+                        CatalogDAL.InsertPlayCycleKey(currDevicePlayData.UserId.ToString(), currDevicePlayData.AssetId, this.m_nMediaFileID,
+                                                      currDevicePlayData.UDID, platform, countryId, 0, groupId, currDevicePlayData.PlayCycleKey);
+                    }
+                    else
+                    {
+                        CatalogDAL.GetOrInsertPlayCycleKey(userId.ToString(), mediaId, this.m_nMediaFileID, this.m_sUDID, platform, countryId, 0, groupId, true);
+                    }
+                }
+            }
+
+            // isLinearChannel && compare old_devicePlayData.programId ?= m_oMediaPlayRequestData.ProgramId
+            if (currDevicePlayData != null && isLinearChannel && currDevicePlayData.ProgramId > 0 && this.ProgramId > 0 &&
+                currDevicePlayData.ProgramId != this.ProgramId)
+            {
+                // if not we need to update the devicePlayData with new assetrules according to the new programId
+                List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+
+                DevicePlayData newDevicePlayData = new DevicePlayData(currDevicePlayData)
+                {
+                    ProgramId = this.ProgramId,
+                    AssetEpgConcurrencyRuleIds = assetEpgRulesIds
+                };
+
+                // save new devicePlayData
+                CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
+                currDevicePlayData = newDevicePlayData;
+
+            }
+
+            return currDevicePlayData;
+        }
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("MediaPlayRequestData obj: ");
@@ -55,6 +131,7 @@ namespace Core.Catalog.Request
             sb.Append(String.Concat(" Current Bitrate: ", m_nCurrentBitRate));
             sb.Append(String.Concat(" Asset Type: ", m_eAssetType));
             sb.Append(String.Concat(" Program Id: ", ProgramId));
+            sb.Append(String.Concat(" Is Reporting Mode: ", IsReportingMode));
 
             return sb.ToString();
         }

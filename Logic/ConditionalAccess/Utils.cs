@@ -42,6 +42,7 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using APILogic.Api.Managers;
 using Core.Api.Managers;
+using ApiObjects.PlayCycle;
 
 namespace Core.ConditionalAccess
 {
@@ -1329,21 +1330,44 @@ namespace Core.ConditionalAccess
                         return price;
                     }
 
+                    bool blockDoublePurchase = false;
                     theReason = PriceReason.ForPurchase;
                     int domainID = 0;
                     List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainID);
                     DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subCode, domainID);
+                    int entitmlemntCount = 0;
+
                     if (dt != null)
                     {
-                        int nCount = dt.Rows.Count;
-                        if (nCount > 0)
+                        entitmlemntCount = dt.Rows.Count;
+                        if (entitmlemntCount > 0)
                         {
-                            price.m_dPrice = 0.0;
                             theReason = PriceReason.SubscriptionPurchased;
+
+                            if (subscription.m_bIsRecurring)
+                            {
+                                price.m_dPrice = 0.0;
+                            }
+                            else if (entitmlemntCount == 1)
+                            {
+                                object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
+
+                                if (dbBlockDoublePurchase != null &&
+                                    dbBlockDoublePurchase != DBNull.Value &&
+                                    ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)                                    
+                                {
+                                    blockDoublePurchase = true;
+                                    price.m_dPrice = -1;
+                                }
+                            }
+                            else
+                            {                                
+                                price.m_dPrice = -1;
+                            }
                         }
                     }
 
-                    if (theReason != PriceReason.SubscriptionPurchased)
+                    if (theReason != PriceReason.SubscriptionPurchased || !blockDoublePurchase)
                     {
                         if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
                         {
@@ -2647,7 +2671,7 @@ namespace Core.ConditionalAccess
             return lDomainsUsers;
         }
 
-        private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, bool bGetAlsoPendingUsers = true)
+        public static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID, bool bGetAlsoPendingUsers = true)
         {
 
             List<int> intUsersList = new List<int>();
@@ -3852,13 +3876,15 @@ namespace Core.ConditionalAccess
 
                 if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
                 {
-                    for (int i = 0; i < subs.Rows.Count; i++)
+                    DataRow[] subsRows = subs.Select().OrderBy(u => u["END_DATE"]).ToArray();
+
+                    foreach (var subsRow in subsRows)
                     {
                         int numOfUses = 0;
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         int gracePeriodMinutes = 0;
-                        GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
+                        GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
                                                             ref purchaseDate, ref endDate, ref gracePeriodMinutes);
 
                         // decide which is the correct end period
@@ -8418,7 +8444,6 @@ namespace Core.ConditionalAccess
         
         private static long GetCurrentProgram(int groupId, string epgChannelId)
         {
-            // TODO SHIR - ask ira: i want to do inner cache that save only the current program and other cache the have the adjacent programs..
             string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = null;
 
@@ -8479,19 +8504,26 @@ namespace Core.ConditionalAccess
 
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
         }
-
-        public static List<long> GetAssetRuleIds(int groupId, int mediaId, ref long programId)
+        
+        public static List<long> GetAssetMediaRuleIds(int groupId, int mediaId)
         {
-            List<long> assetRuleIds = new List<long>();
+            List<long> assetMediaRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
-                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId.ToString(), eAssetTypes.MEDIA));
-            
+                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
+
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
-                assetRuleIds.AddRange(assetRulesMediaResponse.Objects.Select(x => x.Id));
+                assetMediaRuleIds.AddRange(assetRulesMediaResponse.Objects.Select(x => x.Id));
             }
 
+            return assetMediaRuleIds;
+        }
+
+        public static List<long> GetAssetEpgRuleIds(int groupId, int mediaId, ref long programId)
+        {
+            List<long> assetEpgRuleIds = new List<long>();
+            
             if (programId == 0)
             {
                 string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
@@ -8504,14 +8536,14 @@ namespace Core.ConditionalAccess
             if (programId != 0)
             {
                 GenericListResponse<AssetRule> assetRulesEpgResponse =
-                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId.ToString(), eAssetTypes.EPG));
+                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
-                    assetRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));
+                    assetEpgRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));
                 }
             }
 
-            return assetRuleIds;
+            return assetEpgRuleIds;
         }
 
         /// <summary>

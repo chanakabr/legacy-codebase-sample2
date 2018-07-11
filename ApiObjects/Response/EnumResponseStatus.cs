@@ -263,8 +263,10 @@ namespace ApiObjects.Response
         DefaultImageInvalidImageType = 4069,
         RatioDoesNotExist = 4070,
         MissingBasicValueForAsset = 4071,
-        MissingExternalEpgId = 4072,
-        ExternalDomainRecordingDoesNotExist = 4073,
+        CanNotDeleteParentAssetStruct = 4072,
+        CanNotDeleteConnectingAssetStructMeta = 4073,
+        MissingExternalEpgId = 4074,
+        ExternalDomainRecordingDoesNotExist = 4075,
 
         #endregion
 

@@ -23,7 +23,7 @@ namespace Core.ConditionalAccess
     public class PurchaseManager
     {
         #region Consts
-        
+
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
 
         #endregion
@@ -1071,12 +1071,19 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                if (priceResponse != null && priceReason == PriceReason.SubscriptionPurchased && priceResponse.m_dPrice == -1)
+                {
+                    // item not for purchase
+                    response.Status = Utils.SetResponseStatus(priceReason);
+                    return response;
+                }
+
                 if (string.IsNullOrEmpty(couponCode))
                 {
                     coupon = null;
                 }
 
-                // check permission for subscription with premuim services - by roles 
+                // check permission for subscription with premium services - by roles 
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
                     if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.PURCHASE_SERVICE))
@@ -1161,10 +1168,26 @@ namespace Core.ConditionalAccess
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
                 bool couponFullDiscount = (priceReason == PriceReason.Free && coupon != null);
+                bool IsDoublePurchase = false;
+
+                // in case Subscription purchased, and subscription is non Recurring
+                // check "Block double purchase" account configuration 
+                if (priceReason == PriceReason.SubscriptionPurchased && !subscription.m_bIsRecurring)
+                {
+                    object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
+                    bool blockDoublePurchase = false;
+                    if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value)
+                    {
+                        blockDoublePurchase = ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1;                               
+                    }
+
+                    IsDoublePurchase = !blockDoublePurchase;
+                }
 
                 if ((priceReason == PriceReason.ForPurchase ||
                     entitleToPreview ||
-                    couponFullDiscount) ||
+                    couponFullDiscount ||
+                    IsDoublePurchase) ||
                     (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
                     // item is for purchase
@@ -1224,7 +1247,7 @@ namespace Core.ConditionalAccess
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                                 }
 
-                                //try get from db process_purchases_id - if not exsits - create one - only if pare of billing cycle
+                                //try get from db process_purchases_id - if not exists - create one - only if pare of billing cycle
                                 long processId = 0;
                                 bool isNew = false;
                                 if (paymentGateway != null)
@@ -1251,6 +1274,26 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
+                                // in case of - non-recurring  start date should be the entitlements end date
+                                //-------------------------------------------------------
+                                if (IsDoublePurchase)
+                                {
+                                    // Get all user entitlements
+                                    DomainEntitlements domainEntitlements = null;
+                                    if (!Utils.TryGetDomainEntitlementsFromCache(groupId, (int)householdId, null, ref domainEntitlements))
+                                    {
+                                        log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", groupId, householdId);
+                                    }
+
+                                    var userBundlePurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => x.Key == productId.ToString()).Select(y => y.Value).FirstOrDefault();
+                                    if (userBundlePurchase != null)
+                                    {
+                                        response.StartDateSeconds = DateUtils.DateTimeToUnixTimestamp(userBundlePurchase.dtEndDate);
+                                        endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, userBundlePurchase.dtEndDate);
+                                        response.EndDateSeconds = DateUtils.DateTimeToUnixTimestamp(endDate.Value);
+                                    }
+                                }
+
                                 // grant entitlement
                                 bool handleBillingPassed =
                                     cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode,
@@ -1263,7 +1306,7 @@ namespace Core.ConditionalAccess
                                         productId, purchaseID, response.TransactionID));
 
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-                                    if (subscription.m_nDomainLimitationModule != 0)
+                                    if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
@@ -1342,6 +1385,19 @@ namespace Core.ConditionalAccess
                                     else
                                     // If subscription is not recurring, enqueue subscription ends message
                                     {
+                                        object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
+                                        bool blockDoublePurchase = false;
+                                        if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value)
+                                        {
+                                            blockDoublePurchase = ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1;
+                                        }
+
+                                        if (!blockDoublePurchase) // reminder message
+                                        {
+                                            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
+                                            PurchaseManager.SendRenewalReminder(data, householdId);
+                                        }
+
                                         RenewManager.EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseID, endDateUnix);
                                     }
 
@@ -1479,8 +1535,10 @@ namespace Core.ConditionalAccess
 
                         if (eta > DateTime.UtcNow)
                         {
+
                             RenewTransactionData newData = new RenewTransactionData(data.GroupId, masterSiteGuid, data.purchaseId, data.billingGuid,
-                                data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                                data.endDate, eta, data.type == eSubscriptionRenewRequestType.Reminder ? eSubscriptionRenewRequestType.Reminder : eSubscriptionRenewRequestType.RenewalReminder);
+                            
                             bool enqueueSuccessful = queue.Enqueue(newData, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, data.GroupId));
 
                             if (!enqueueSuccessful)

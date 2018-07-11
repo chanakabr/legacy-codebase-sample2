@@ -20,25 +20,41 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static DomainResponseStatus Validate(List<int> mediaRuleIds, List<long> assetRuleIds, Domain domain, int mediaId, string udid, int groupId, int deviceBrandId, int deviceFamilyId, long programId)
+        public static DomainResponseStatus Validate(DevicePlayData devicePlayData, Domain domain, int groupId)
         {
             DomainResponseStatus status = DomainResponseStatus.UnKnown;
 
-            if (mediaRuleIds != null && mediaRuleIds.Count > 0)
+            if (devicePlayData.MediaConcurrencyRuleIds != null && devicePlayData.MediaConcurrencyRuleIds.Count > 0)
             {
-                status = ValidateMediaConcurrency(mediaRuleIds, domain, mediaId, udid, groupId, deviceFamilyId);
+                status = ValidateMediaConcurrency(devicePlayData, groupId);
             }
 
-            if (assetRuleIds != null && assetRuleIds.Count > 0 &&
+            if (devicePlayData.AssetMediaConcurrencyRuleIds != null && devicePlayData.AssetMediaConcurrencyRuleIds.Count > 0 &&
                 (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown))
             {
-                status = ValidateAssetRulesConcurrency(groupId, assetRuleIds, domain, udid, mediaId, deviceFamilyId, programId);
+                status = ValidateAssetRulesConcurrency(devicePlayData, groupId, eAssetTypes.MEDIA);
+            }
+
+            if (devicePlayData.AssetEpgConcurrencyRuleIds != null && devicePlayData.AssetEpgConcurrencyRuleIds.Count > 0 &&
+                (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown))
+            {
+                status = ValidateAssetRulesConcurrency(devicePlayData, groupId, eAssetTypes.EPG);
             }
 
             // if it's MediaConcurrencyLimitation no need to check this one 
             if (status == DomainResponseStatus.OK || status == DomainResponseStatus.UnKnown)
             {
-                status = ValidateDeviceFamilyConcurrency(udid, deviceBrandId, domain, groupId, deviceFamilyId);
+                status = ValidateDeviceFamilyConcurrency(devicePlayData, groupId, domain);
+            }
+            
+            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
+            {
+                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
+            }
+
+            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
+            {
+                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
             }
 
             return status;
@@ -53,24 +69,24 @@ namespace Core.Users
         /// <param name="mediaId"></param>
         /// <param name="udid"></param>
         /// <returns></returns>
-        private static DomainResponseStatus ValidateMediaConcurrency(List<int> mediaRuleIds, Domain domain, int mediaId, string udid, int groupId, int deviceFamilyId)
+        private static DomainResponseStatus ValidateMediaConcurrency(DevicePlayData devicePlayData, int groupId)
         {
-            if (mediaRuleIds == null || mediaRuleIds.Count == 0)
+            if (devicePlayData.MediaConcurrencyRuleIds == null || devicePlayData.MediaConcurrencyRuleIds.Count == 0)
             {
                 return DomainResponseStatus.OK;
             }
 
             log.DebugFormat("ValidateAssetConcurrency, domainId:{0}, mediaId:{1}, ruleIds:{2}",
-                            domain.m_nDomainID, mediaId, string.Join(",", mediaRuleIds));
+                            devicePlayData.DomainId, devicePlayData.AssetId, string.Join(",", devicePlayData.MediaConcurrencyRuleIds));
 
             try
             {
                 // Get all domain media marks
-                List<DevicePlayData> devicePlayData = CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, 
-                                                                                       new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA }, 
-                                                                                       Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                List<DevicePlayData> devicePlayDataList = CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId),
+                                                                                       new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
+                                                                                       Utils.CONCURRENCY_MILLISEC_THRESHOLD, devicePlayData.UDID);
 
-                if (devicePlayData == null || devicePlayData.Count == 0)
+                if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
                     return DomainResponseStatus.OK;
                 }
@@ -82,8 +98,8 @@ namespace Core.Users
                 {
                     return DomainResponseStatus.OK;
                 }
-                
-                foreach (int ruleId in mediaRuleIds)
+
+                foreach (int ruleId in devicePlayData.MediaConcurrencyRuleIds)
                 {
                     // Search for the relevant rules
                     var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
@@ -112,37 +128,30 @@ namespace Core.Users
                     if (mediaConcurrencyLimit == 0)
                         continue;
 
-                    List<DevicePlayData> assetDevicePlayData = null;
+                    List<DevicePlayData> otherDevicePlayData = null;
 
                     switch (policy)
                     {
                         case ConcurrencyRestrictionPolicy.Single:
                             {
-                                assetDevicePlayData = devicePlayData.FindAll(x =>
-                                    !x.UDID.Equals(udid) &&
-                                    x.AssetId == mediaId &&
-                                    x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                otherDevicePlayData = devicePlayDataList.FindAll(x => x.AssetId == devicePlayData.AssetId);
                                 break;
                             }
                         case ConcurrencyRestrictionPolicy.Group:
                             {
-                                assetDevicePlayData = devicePlayData.FindAll(x =>
-                                    !x.UDID.Equals(udid) &&
-                                    x.MediaConcurrencyRuleIds != null &&
-                                    x.MediaConcurrencyRuleIds.Contains(ruleId) &&
-                                    x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                                otherDevicePlayData = devicePlayDataList.FindAll(x => x.MediaConcurrencyRuleIds != null && x.MediaConcurrencyRuleIds.Contains(ruleId));
                                 break;
                             }
                         default:
                             break;
                     }
 
-                    if (assetDevicePlayData != null && assetDevicePlayData.Count >= mediaConcurrencyLimit)
+                    if (otherDevicePlayData != null && otherDevicePlayData.Count >= mediaConcurrencyLimit)
                     {
                         log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, mediaId:{1}, ruleId:{2}, limit:{3}, count:{4}",
-                            domain.m_nDomainID, mediaId, ruleId, mediaConcurrencyLimit, assetDevicePlayData.Count);
+                           devicePlayData.DomainId, devicePlayData.AssetId, ruleId, mediaConcurrencyLimit, otherDevicePlayData.Count);
 
-                        if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
+                        if (CheckDeviceConcurrencyPrioritization(groupId, devicePlayData, otherDevicePlayData) == DomainResponseStatus.ConcurrencyLimitation)
                             return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
@@ -156,8 +165,22 @@ namespace Core.Users
             return DomainResponseStatus.OK;
         }
 
-        private static DomainResponseStatus ValidateAssetRulesConcurrency(int groupId, List<long> assetRuleIds, Domain domain, string udid, int mediaId, int deviceFamilyId, long programId)
+        private static DomainResponseStatus ValidateAssetRulesConcurrency(DevicePlayData devicePlayData, int groupId, eAssetTypes assetType)
         {
+            List<long> assetRuleIds;
+            long assetId;
+
+            if (assetType == eAssetTypes.MEDIA)
+            {
+                assetRuleIds = devicePlayData.AssetMediaConcurrencyRuleIds;
+                assetId = devicePlayData.AssetId;
+            }
+            else
+            {
+                assetRuleIds = devicePlayData.AssetEpgConcurrencyRuleIds;
+                assetId = devicePlayData.ProgramId;
+            }
+
             if (assetRuleIds == null || assetRuleIds.Count == 0)
             {
                 return DomainResponseStatus.OK;
@@ -165,64 +188,57 @@ namespace Core.Users
 
             try
             {
-                List<DevicePlayData> devicePlayData = 
-                    CatalogDAL.GetDomainPlayDataList(domain.m_nDomainID, new List<ePlayType>() { ePlayType.MEDIA }, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                List<ePlayType> playTypes = new List<ePlayType>() { ePlayType.MEDIA };
+                if (assetType == eAssetTypes.EPG)
+                {
+                    playTypes.Add(ePlayType.EPG);
+                }
 
-                if (devicePlayData == null || devicePlayData.Count == 0)
+                List<DevicePlayData> devicePlayDataList =
+                    CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, Utils.CONCURRENCY_MILLISEC_THRESHOLD, devicePlayData.UDID);
+
+                if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
                     return DomainResponseStatus.OK;
                 }
 
                 var groupAssetRules = Api.Module.GetAssetRules(AssetRuleConditionType.Concurrency, groupId);
+
                 if (groupAssetRules == null || !groupAssetRules.HasObjects())
                     return DomainResponseStatus.OK;
-                
+
                 foreach (int currAssetRuleId in assetRuleIds)
                 {
                     var currAssetRule = groupAssetRules.Objects.FirstOrDefault(x => x.Id == currAssetRuleId);
-                    
+
                     if (currAssetRule == null)
                     {
                         continue;
                     }
-                    
+
                     ConcurrencyCondition concurrencyCondition = currAssetRule.Conditions.FirstOrDefault(x => x is ConcurrencyCondition) as ConcurrencyCondition;
-                    if (concurrencyCondition == null)
+                    if (concurrencyCondition == null || concurrencyCondition.Limit == 0)
                     {
                         continue;
                     }
 
                     List<DevicePlayData> assetDevicePlayData = null;
-
-                    switch (concurrencyCondition.RestrictionPolicy)
+                    if (assetType == eAssetTypes.MEDIA)
                     {
-                        case ConcurrencyRestrictionPolicy.Single:
-                            {
-                                assetDevicePlayData = devicePlayData.FindAll
-                                    (x => !x.UDID.Equals(udid) &&
-                                     x.AssetId == mediaId &&
-                                     x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
-                                break;
-                            }
-                        case ConcurrencyRestrictionPolicy.Group:
-                            {
-                                assetDevicePlayData = devicePlayData.FindAll
-                                    (x => !x.UDID.Equals(udid) &&
-                                     x.AssetMediaConcurrencyRuleIds != null &&
-                                     x.AssetMediaConcurrencyRuleIds.Contains(currAssetRuleId) &&
-                                     x.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
-                                break;
-                            }
-                        default:
-                            break;
+                        assetDevicePlayData = GetAssetMediaDevicePlayDataByRestrictionPolicy(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
                     }
+                    else if (assetType == eAssetTypes.EPG)
+                    {
+                        assetDevicePlayData = GetAssetEpgDevicePlayDataByRestrictionPolicy(concurrencyCondition.RestrictionPolicy, devicePlayDataList, assetId, currAssetRuleId);
+                    }
+
 
                     if (assetDevicePlayData != null && assetDevicePlayData.Count >= concurrencyCondition.Limit)
                     {
                         log.DebugFormat("ValidateAssetRulesConcurrency, domainId:{0}, mediaId:{1}, assetRuleId:{2}, limit:{3}, count:{4}",
-                                        domain, mediaId, currAssetRuleId, concurrencyCondition.Limit, assetDevicePlayData.Count);
+                                        devicePlayData.DomainId, assetId, currAssetRuleId, concurrencyCondition.Limit, assetDevicePlayData.Count);
 
-                        if (CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, assetDevicePlayData.Select(x => x.DeviceFamilyId)) == DomainResponseStatus.ConcurrencyLimitation)
+                        if (CheckDeviceConcurrencyPrioritization(groupId, devicePlayData, assetDevicePlayData) == DomainResponseStatus.ConcurrencyLimitation)
                             return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
@@ -236,47 +252,94 @@ namespace Core.Users
             return DomainResponseStatus.OK;
         }
 
-        private static DomainResponseStatus ValidateDeviceFamilyConcurrency(string udid, int nDeviceBrandId, Domain domain, int groupId, int deviceFamilyId)
+        private static List<DevicePlayData> GetAssetMediaDevicePlayDataByRestrictionPolicy(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData,
+                                                                                           long mediaId, int assetRuleId)
         {
-            if (string.IsNullOrEmpty(udid))
+            List<DevicePlayData> assetDevicePlayData = null;
+
+            switch (restrictionPolicy)
+            {
+                case ConcurrencyRestrictionPolicy.Single:
+                    {
+                        assetDevicePlayData = devicePlayData.FindAll(x => x.AssetId == mediaId);
+                        break;
+                    }
+                case ConcurrencyRestrictionPolicy.Group:
+                    {
+                        assetDevicePlayData = devicePlayData.FindAll(x => x.AssetMediaConcurrencyRuleIds != null && x.AssetMediaConcurrencyRuleIds.Contains(assetRuleId));
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            return assetDevicePlayData;
+        }
+
+        private static List<DevicePlayData> GetAssetEpgDevicePlayDataByRestrictionPolicy(ConcurrencyRestrictionPolicy restrictionPolicy, List<DevicePlayData> devicePlayData,
+                                                                                         long programId, int assetRuleId)
+        {
+            List<DevicePlayData> assetDevicePlayData = null;
+
+            switch (restrictionPolicy)
+            {
+                case ConcurrencyRestrictionPolicy.Single:
+                    {
+                        assetDevicePlayData = devicePlayData.FindAll(x => x.ProgramId == programId);
+                        break;
+                    }
+                case ConcurrencyRestrictionPolicy.Group:
+                    {
+                        assetDevicePlayData = devicePlayData.FindAll(x => x.AssetEpgConcurrencyRuleIds != null && x.AssetEpgConcurrencyRuleIds.Contains(assetRuleId));
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            return assetDevicePlayData;
+        }
+
+        private static DomainResponseStatus ValidateDeviceFamilyConcurrency(DevicePlayData devicePlayData, int groupId, Domain domain)
+        {
+            if (string.IsNullOrEmpty(devicePlayData.UDID))
             {
                 return DomainResponseStatus.OK;
             }
 
-            if (deviceFamilyId == 0)
+            if (devicePlayData.DeviceFamilyId == 0)
             {
                 return DomainResponseStatus.DeviceTypeNotAllowed;
             }
 
-            if (domain.m_oLimitationsManager.Concurrency <= 0 || domain.IsAgnosticToDeviceLimitation(ValidationType.Concurrency, deviceFamilyId))
+            if (domain.m_oLimitationsManager.Concurrency <= 0 || domain.IsAgnosticToDeviceLimitation(ValidationType.Concurrency, devicePlayData.DeviceFamilyId))
             {
                 // there are no concurrency limitations at all.
                 return DomainResponseStatus.OK;
             }
 
-            int totalStreams = 0;
-            // <familyId, streamingCount>
-            Dictionary<int, int> deviceFamiliesStreams = domain.GetConcurrentCount(udid, ref totalStreams);
-            if (deviceFamiliesStreams == null)
+            int concurrentDeviceFamilyIdCount = 0;
+            List<DevicePlayData> devicePlayDataStreams = domain.GetConcurrentCount(devicePlayData.UDID, ref concurrentDeviceFamilyIdCount, devicePlayData.DeviceFamilyId);
+            if (devicePlayDataStreams == null)
             {
                 // no active streams at all
                 return DomainResponseStatus.OK;
             }
-            
-            if (totalStreams >= domain.m_oLimitationsManager.Concurrency)
+
+            if (devicePlayDataStreams.Count >= domain.m_oLimitationsManager.Concurrency)
             {
-                return CheckDeviceConcurrencyPrioritization(groupId, udid, domain, deviceFamilyId, deviceFamiliesStreams.Keys);
+                return CheckDeviceConcurrencyPrioritization(groupId, devicePlayData, devicePlayDataStreams);
             }
 
-            if (!deviceFamiliesStreams.ContainsKey(deviceFamilyId))
+            if (concurrentDeviceFamilyIdCount == 0)
             {
                 // no active streams at the device's family.
                 return DomainResponseStatus.OK;
             }
 
-            DeviceContainer deviceContainer = domain.GetDeviceContainerByUdid(udid);
-            if (deviceContainer != null && 
-                deviceFamiliesStreams[deviceContainer.m_deviceFamilyID] >= deviceContainer.m_oLimitationsManager.Concurrency)
+            DeviceContainer deviceContainer = domain.GetDeviceContainerByUdid(devicePlayData.UDID);
+            if (deviceContainer != null &&
+                concurrentDeviceFamilyIdCount >= deviceContainer.m_oLimitationsManager.Concurrency)
             {
                 // device family reached its max limit. Cannot allow a new stream
                 return DomainResponseStatus.ConcurrencyLimitation;
@@ -286,21 +349,43 @@ namespace Core.Users
             return DomainResponseStatus.OK;
         }
 
-        private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, string udid, Domain domain, int deviceFamilyId, IEnumerable<int> otherDeviceFamilyIds)
+        private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, DevicePlayData currDevicePlayData, List<DevicePlayData> otherDeviceFamilyIds)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
-
+            
             if (deviceConcurrencyPriority != null)
             {
-                int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(deviceFamilyId);
+                int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(currDevicePlayData.DeviceFamilyId);
 
                 if (currDevicePriorityIndex != -1)
                 {
-                    foreach (var otherDeviceFamilyId in otherDeviceFamilyIds)
+                    List<DevicePlayData> devicesWithSameFamilyId = new List<DevicePlayData>();
+
+                    foreach (var otherDeviceFamilyId in otherDeviceFamilyIds.OrderBy(x => x.CreatedAt))
                     {
-                        // TODO SHIR - ASK IRA IF CHECK FIFO LIFO
-                        int otherDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(otherDeviceFamilyId);
+                        if (currDevicePlayData.DeviceFamilyId == otherDeviceFamilyId.DeviceFamilyId)
+                        {
+                            devicesWithSameFamilyId.Add(otherDeviceFamilyId);
+                        }
+
+                        int otherDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(otherDeviceFamilyId.DeviceFamilyId);
                         if (otherDevicePriorityIndex == -1 || currDevicePriorityIndex < otherDevicePriorityIndex)
+                        {
+                            return DomainResponseStatus.OK;
+                        }
+                    }
+
+                    if (devicesWithSameFamilyId.Count > 0)
+                    {
+                        if (deviceConcurrencyPriority.PriorityOrder == DowngradePolicy.FIFO &&
+                            (devicesWithSameFamilyId[0].CreatedAt < currDevicePlayData.CreatedAt))
+                        {
+                            return DomainResponseStatus.OK;
+                        }
+
+                        if (deviceConcurrencyPriority.PriorityOrder == DowngradePolicy.LIFO &&
+                           devicesWithSameFamilyId[devicesWithSameFamilyId.Count - 1].CreatedAt > currDevicePlayData.CreatedAt &&
+                           currDevicePlayData.CreatedAt != 0)
                         {
                             return DomainResponseStatus.OK;
                         }
@@ -335,6 +420,19 @@ namespace Core.Users
             }
 
             return domainDevices;
+        }
+
+        internal static int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid)
+        {
+            int deviceFamilyId = 0;
+            Dictionary<string, int> domainDevices = GetDomainDevices(domainId, groupId);
+
+            if (domainDevices != null && domainDevices.ContainsKey(udid))
+            {
+                deviceFamilyId = domainDevices[udid];
+            }
+
+            return deviceFamilyId;
         }
     }
 }

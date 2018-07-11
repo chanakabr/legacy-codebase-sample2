@@ -18,10 +18,22 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("uid")]
         public int UserID { get; set; }
-        
+
+        [JsonProperty("loc")]
+        public int Location { get; set; }
+
+        [JsonProperty("ts")]
+        public DateTime CreatedAt { get; set; }
+
+        [JsonProperty("NpvrID", Required = Required.Default)]
+        public string NpvrID { get; set; }
+
         [JsonProperty("playType", Required = Required.Default)]
         public string playType { get; set; }
-        
+
+        [JsonProperty("duration")]
+        public int FileDuration { get; set; }
+
         [JsonProperty("action")]
         public string AssetAction { get; set; }
 
@@ -33,26 +45,6 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("mediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
-
-        // TODO SHIR - SEPARATE IT FOR TWO LISTS - AssetMediaConcurrencyRuleIds & AssetEpgConcurrencyRuleIds
-        // TODO SHIR - add this fun to DR
-        [JsonProperty("assetMediaConcurrencyRuleIds")]
-        public List<long> AssetMediaConcurrencyRuleIds { get; set; }
-
-        [JsonProperty("deviceFamilyId")]
-        public int DeviceFamilyId { get; set; }
-
-        [JsonProperty("loc")]
-        public int Location { get; set; }
-
-        [JsonProperty("ts")]
-        public DateTime CreatedAt { get; set; }
-
-        [JsonProperty("NpvrID", Required = Required.Default)]
-        public string NpvrID { get; set; }
-
-        [JsonProperty("duration")]
-        public int FileDuration { get; set; }
 
         public UserMediaMark()
         {
@@ -78,4 +70,3 @@ namespace ApiObjects.MediaMarks
         }
     }
 }
-

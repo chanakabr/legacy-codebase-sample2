@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using Core.Users.Cache;
@@ -749,42 +750,51 @@ namespace Core.Users
             }
             return res;
         }
-
-        public virtual ValidationResponseObject ValidateLimitationModule(string udid, int deviceBrandID, long userId, long domainID, ValidationType validationType,
-                                                                         List<int> mediaRuleIds, List<long> assetRuleIds, int mediaID = 0, long programId = 0)
+        
+        public virtual ValidationResponseObject ValidateLimitationModule(int deviceBrandID, ValidationType validationType, DevicePlayData devicePlayData)
         {
             ValidationResponseObject response = new ValidationResponseObject();
 
-            Domain domain = GetDomainForValidation(userId, domainID);
+            Domain domain = GetDomainForValidation(devicePlayData.UserId, devicePlayData.DomainId);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
-                int deviceFamilyId = 0;
-                //to add here isDevicePlayValid
-                bool bisDevicePlayValid = IsDevicePlayValid(userId.ToString(), udid, domain, out deviceFamilyId);
-
                 response.m_lDomainID = domain.m_nDomainID;
-                if (!bisDevicePlayValid)
+
+                int deviceFamilyId = 0;
+                if (!IsDevicePlayValid(devicePlayData.UDID, domain, out deviceFamilyId))
                 {
                     response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
                     return response;
                 }
 
+                if (deviceFamilyId > 0)
+                {
+                    if (devicePlayData.DeviceFamilyId == 0)
+                    {
+                        devicePlayData.DeviceFamilyId = deviceFamilyId;
+                    }
+                    else if (devicePlayData.DeviceFamilyId != deviceFamilyId)
+                    {
+                        response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                        return response;
+                    }                }
+
                 switch (validationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            response.m_eStatus = ConcurrencyManager.Validate(mediaRuleIds, assetRuleIds, domain, mediaID, udid, m_nGroupID, deviceBrandID, deviceFamilyId, programId);
+                            response.m_eStatus = ConcurrencyManager.Validate(devicePlayData, domain, m_nGroupID);
                             break;
                         }
                     case ValidationType.Frequency:
                         {
-                            response.m_eStatus = domain.ValidateFrequency(udid, deviceBrandID);
+                            response.m_eStatus = domain.ValidateFrequency(devicePlayData.UDID);
                             break;
                         }
                     default:
                         {
                             // Quantity
-                            response.m_eStatus = domain.ValidateQuantity(udid, deviceBrandID);
+                            response.m_eStatus = domain.ValidateQuantity(devicePlayData.UDID, deviceBrandID);
                             break;
                         }
                 }
@@ -793,45 +803,50 @@ namespace Core.Users
             return response;
         }
 
-        /*This method return status via ValidationResponseObject object if there is a limitation to play this npvrID */
-        public virtual ValidationResponseObject ValidateLimitationNpvr(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
+        /// <summary>
+        /// This method return status via ValidationResponseObject object if there is a limitation to play this npvrID
+        /// </summary>
+        /// <param name="udid"></param>
+        /// <param name="deviceBrandId"></param>
+        /// <param name="userId"></param>
+        /// <param name="domainId"></param>
+        /// <param name="eValidationType"></param>
+        /// <param name="nNpvrConcurrencyLimit"></param>
+        /// <param name="sNpvrID"></param>
+        /// <returns></returns>
+        public virtual ValidationResponseObject ValidateLimitationNpvr(string udid, int deviceBrandId, long userId, long domainId, ValidationType eValidationType,
             int nNpvrConcurrencyLimit = 0, string sNpvrID = default(string))
         {
-            ValidationResponseObject res = new ValidationResponseObject();
+            ValidationResponseObject response = new ValidationResponseObject();
 
-            Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
+            Domain domain = GetDomainForValidation(userId, domainId);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
                 int deviceFamilyId = 0;
                 //to add here isDevicePlayValid
-                bool bisDevicePlayValid = IsDevicePlayValid(lSiteGuid.ToString(), sUDID, domain, out deviceFamilyId);
+                bool isDevicePlayValid = IsDevicePlayValid(udid, domain, out deviceFamilyId);
 
-                res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
-                if (!bisDevicePlayValid)
+                response.m_lDomainID = domainId > 0 ? domainId : domain.m_nDomainID;
+                if (!isDevicePlayValid)
                 {
-                    res.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
-                    return res;
+                    response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
+                    return response;
                 }
 
                 switch (eValidationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            res.m_eStatus = domain.ValidateNpvrConcurrency(nNpvrConcurrencyLimit, res.m_lDomainID, sNpvrID);
+                            response.m_eStatus = domain.ValidateNpvrConcurrency(nNpvrConcurrencyLimit, response.m_lDomainID, sNpvrID, udid);
                             break;
                         }
                     case ValidationType.Frequency:
-                        {
-                            break;
-                        }
                     default:
-                        {
-                            break;
-                        }
+                        break;
                 }
-            } // end if
+            }
 
-            return res;
+            return response;
         }
 
         public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID, int? roleId = null)
@@ -1132,25 +1147,37 @@ namespace Core.Users
         /// <summary>
         /// return True if device recognize in Domain false another case (assumption : user is valid !)
         /// </summary>
-        /// <param name="userId"></param>
         /// <param name="udid"></param>
-        /// <param name="userDomain"></param>
+        /// <param name="domain"></param>
         /// <param name="deviceFamilyId"></param>
         /// <returns></returns>
-        protected bool IsDevicePlayValid(string userId, string udid, Domain userDomain, out int deviceFamilyId)
+        // TODO SHIR  -TALK WITH IRA ABOUT THIS METHOD!!!! NOT COOL!
+        protected bool IsDevicePlayValid(string udid, Domain domain, out int deviceFamilyId)
         {
             bool isDeviceRecognized = false;
             deviceFamilyId = 0;
 
             try
             {
-                if (userDomain != null)
+                if (domain != null)
                 {
-                    List<DeviceContainer> deviceContainers = userDomain.m_deviceFamilies;
-                    if (deviceContainers != null && deviceContainers.Count() > 0)
+                    //if (domain.m_deviceFamilies != null)
+                    //{
+                    //    foreach (var item in domain.m_deviceFamilies)
+                    //    {
+
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    isDeviceRecognized = true;
+                    //}
+                    //---
+                    List<DeviceContainer> deviceContainers = domain.m_deviceFamilies;
+                    if (deviceContainers != null && deviceContainers.Count > 0)
                     {
                         List<int> familyIDs = new List<int>();
-                        for (int i = 0; i < deviceContainers.Count(); i++)
+                        for (int i = 0; i < deviceContainers.Count; i++)
                         {
                             DeviceContainer container = deviceContainers[i];
 
@@ -1161,9 +1188,9 @@ namespace Core.Users
                                     familyIDs.Add(container.m_deviceFamilyID);
                                 }
 
-                                if (container.DeviceInstances != null && container.DeviceInstances.Count() > 0)
+                                if (container.DeviceInstances != null && container.DeviceInstances.Count > 0)
                                 {
-                                    for (int j = 0; j < container.DeviceInstances.Count(); j++)
+                                    for (int j = 0; j < container.DeviceInstances.Count; j++)
                                     {
                                         Device device = container.DeviceInstances[j];
                                         if (string.Compare(device.m_deviceUDID.Trim(), udid.Trim()) == 0)
@@ -1207,6 +1234,7 @@ namespace Core.Users
                                 }
                             }
                         }
+
                         if (!familyIDs.Contains(5) && string.IsNullOrEmpty(udid) || (familyIDs.Contains(5) && familyIDs.Count == 0) || (!familyIDs.Contains(5) && udid.ToLower().Equals("web site")))
                         {
                             isDeviceRecognized = true;
@@ -1222,7 +1250,7 @@ namespace Core.Users
             }
             catch (Exception ex)
             {
-                log.Error("IsDevicePlayValid - " + string.Format("faild ex={0} siteGuid ={1} deviceName={2} domainID={3}", ex.Message, userId, udid, userDomain != null ? userDomain.m_nDomainID : 0),
+                log.Error("IsDevicePlayValid - " + string.Format("faild ex={0} deviceName={1} domainID={2}", ex.Message, udid, domain != null ? domain.m_nDomainID : 0),
                     ex);
                 isDeviceRecognized = false;
             }
@@ -1376,9 +1404,6 @@ namespace Core.Users
 
             if (res == null && userId > 0)
             {
-                bool tempIsMaster = false;
-                int tempOperatorID = 0;
-                DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int newDomainId = 0;
                 try
                 {
@@ -1396,9 +1421,12 @@ namespace Core.Users
                 {
                     log.Error("Failed getting user from cache", ex);
                 }
-
+                
                 if (newDomainId == 0)
                 {
+                    bool tempIsMaster = false;
+                    int tempOperatorID = 0;
+                    DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                     newDomainId = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)userId, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
                 }
 
