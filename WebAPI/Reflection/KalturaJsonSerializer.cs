@@ -2194,6 +2194,10 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             ret.Add("\"assetId\": " + AssetId);
             ret.Add("\"createDate\": " + CreateDate);
+            if(ExternalId != null)
+            {
+                ret.Add("\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
+            }
             if(Id.HasValue)
             {
                 ret.Add("\"id\": " + Id);
@@ -2216,6 +2220,10 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             ret += "<assetId>" + AssetId + "</assetId>";
             ret += "<createDate>" + CreateDate + "</createDate>";
+            if(ExternalId != null)
+            {
+                ret += "<externalId>" + EscapeXml(ExternalId) + "</externalId>";
+            }
             if(Id.HasValue)
             {
                 ret += "<id>" + Id + "</id>";
@@ -2332,9 +2340,13 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(FilterExpression != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
             {
                 ret.Add("\"filterExpression\": " + "\"" + EscapeJson(FilterExpression) + "\"");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
             }
             if(StatusIn != null)
             {
@@ -2348,9 +2360,13 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(FilterExpression != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
             {
                 ret += "<filterExpression>" + EscapeXml(FilterExpression) + "</filterExpression>";
+            }
+            if(Ksql != null)
+            {
+                ret += "<kSql>" + EscapeXml(Ksql) + "</kSql>";
             }
             if(StatusIn != null)
             {

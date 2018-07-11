@@ -4165,6 +4165,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
+                        case "ExternalId":
+                            return "externalId";
                         case "Id":
                             return "id";
                         case "IsProtected":
@@ -4225,6 +4227,8 @@ namespace WebAPI.Reflection
                     {
                         case "FilterExpression":
                             return "filterExpression";
+                        case "Ksql":
+                            return "kSql";
                         case "StatusIn":
                             return "statusIn";
                     }
@@ -7913,6 +7917,10 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("recording", "list", false);
                             return RecordingController.List((KalturaRecordingFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "notify":
+                            RolesManager.ValidateActionPermitted("recording", "notify", false);
+                            return RecordingController.Notify((string) methodParams[0], (KalturaRecordingStatus) methodParams[1], (string) methodParams[2], (Nullable<KalturaRecordingType>) methodParams[3], (bool) methodParams[4]);
                             
                         case "protect":
                             RolesManager.ValidateActionPermitted("recording", "protect", false);
@@ -13228,6 +13236,33 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "notify":
+                            ret.Add("externalDomainRecordingId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("recordingStatus", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaRecordingStatus),
+                            });
+                            ret.Add("externalEpgId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("recordingType", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaRecordingType),
+                                IsEnum = true,
+                            });
+                            ret.Add("isProtected", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = false,
+                                Type = typeof(bool),
                             });
                             return ret;
                             

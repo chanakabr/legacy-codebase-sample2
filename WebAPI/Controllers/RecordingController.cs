@@ -295,13 +295,13 @@ namespace WebAPI.Controllers
         /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
         /// <param name="isProtected">is the recording protected by the user</param>
         /// <returns></returns>
-        [Route("Notify"), HttpPost]
+        [Action("notify")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.MissingExternalEpgId)]
         [Throws(eResponseStatus.MissingRecordingType)]
         [Throws(eResponseStatus.ExternalDomainRecordingDoesNotExist)]
-        public bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
+        public static bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
