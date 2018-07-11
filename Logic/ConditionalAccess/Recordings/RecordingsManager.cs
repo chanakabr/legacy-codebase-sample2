@@ -761,7 +761,7 @@ namespace Core.Recordings
             {
                 if (!string.IsNullOrEmpty(externalEpgId))
                 {
-                    // error code
+                    result.Set((int)eResponseStatus.MissingExternalEpgId, eResponseStatus.MissingExternalEpgId.ToString());                    
                     return result;
                 }
 
@@ -769,6 +769,8 @@ namespace Core.Recordings
                 if (epgs == null || epgs.Count != 1)
                 {
                     log.DebugFormat("Failed Getting EPGs from Catalog when calling NotifyRecording, DomainId: {0}, UserId: {1}, ExternalEpgId: {2}", domainId, userId, externalEpgId);
+                    result.Message = string.Format("Could not find EPG with the specified externalId: {0}", externalEpgId);
+                    return result;
                 }
 
                 DateTime epgStartDate;
@@ -776,8 +778,18 @@ namespace Core.Recordings
                 if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
                     && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
                 {
-                    Recording recording = new Recording() { EpgId = epgs[0].EPG_ID, ExternalDomainRecordingId = externalDomainRecordingId, Type = recordingType, RecordingStatus = recordingStatus,
-                                                            Crid = epgs[0].CRID, EpgStartDate = epgStartDate, EpgEndDate = epgEndDate, ExternalRecordingId = Guid.NewGuid().ToString() };                    
+                    Recording recording = new Recording()
+                    {
+                        EpgId = epgs[0].EPG_ID,
+                        ExternalDomainRecordingId = externalDomainRecordingId,
+                        Type = recordingType,
+                        RecordingStatus = recordingStatus,
+                        Crid = epgs[0].CRID,
+                        EpgStartDate = epgStartDate,
+                        EpgEndDate = epgEndDate,
+                        ExternalRecordingId = Guid.NewGuid().ToString()
+                    };
+
                     long channelId;
                     if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
                     {
@@ -790,6 +802,10 @@ namespace Core.Recordings
                     {
                         result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for externalEpgId: {0}", externalEpgId);
                 }
             }
             catch (Exception ex)
@@ -808,6 +824,10 @@ namespace Core.Recordings
                 if (RecordingsDAL.NotifyDeleteRecording(groupId, externalDomainRecordingId, domainId))
                 {
                     result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    result.Set((int)eResponseStatus.ExternalDomainRecordingDoesNotExist, eResponseStatus.ExternalDomainRecordingDoesNotExist.ToString());
                 }
             }
             catch (Exception ex)

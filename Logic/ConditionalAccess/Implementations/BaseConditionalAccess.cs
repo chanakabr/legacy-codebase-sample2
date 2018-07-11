@@ -16654,13 +16654,8 @@ namespace Core.ConditionalAccess
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
-                    response = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    response.Set(validationStatus.Code, validationStatus.Message);
                     return response;
-                }
-
-                if (string.IsNullOrEmpty(externalDomainRecordingId))
-                {
-                    // error code
                 }
 
                 switch (recordingStatus)
@@ -16668,6 +16663,12 @@ namespace Core.ConditionalAccess
                     case TstvRecordingStatus.Scheduled:
                     case TstvRecordingStatus.Recording:
                     case TstvRecordingStatus.Recorded:
+                        if (!recordingType.HasValue)
+                        {
+                            response.Set((int)eResponseStatus.MissingRecordingType, eResponseStatus.MissingRecordingType.ToString());
+                            return response;
+                        }
+
                         response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType.Value, isProtected, domainId, userId);
                         break;
                     case TstvRecordingStatus.Canceled:

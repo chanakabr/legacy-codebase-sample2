@@ -185,6 +185,7 @@ namespace ApiObjects.Response
         UnknownPriceReason = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
+        MissingRecordingType = 3080,
 
         #endregion
 
@@ -262,6 +263,8 @@ namespace ApiObjects.Response
         DefaultImageInvalidImageType = 4069,
         RatioDoesNotExist = 4070,
         MissingBasicValueForAsset = 4071,
+        MissingExternalEpgId = 4072,
+        ExternalDomainRecordingDoesNotExist = 4073,
 
         #endregion
 
