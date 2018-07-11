@@ -2433,6 +2433,12 @@ namespace Core.Api
         public static Country GetCountryByIp(int groupId, string ip)
         {
             Country country = null;
+
+            if (string.IsNullOrEmpty(ip))
+            {
+                return country;
+            }
+
             try
             {
                 string key = LayeredCacheKeys.GetKeyForIp(ip);
@@ -2491,8 +2497,9 @@ namespace Core.Api
             ruleName = "GeoAvailability";
             Country country = GetCountryByIp(groupId, ip);
 
-            bool isGeoAvailability;
-            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, country.Id, mediaId, out isGeoAvailability);
+            bool isGeoAvailability = false;
+            int countryId = country != null ? country.Id : 0;
+            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability);
             
             if (!isGeoAvailability)
             {
@@ -2506,7 +2513,7 @@ namespace Core.Api
                 {
                     if (dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        Int32 nCountryID = country != null ? country.Id : 0;
+                        Int32 nCountryID = countryId;
                         ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
                         geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
                         int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");

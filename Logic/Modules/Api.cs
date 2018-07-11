@@ -1936,5 +1936,20 @@ namespace Core.Api
         {
             return Core.Api.api.GetDrmAdapters(groupId);
         }
+
+        public static GenericListResponse<MediaConcurrencyRule> GetMediaConcurrencyRules(int groupId)
+        {
+            GenericListResponse<MediaConcurrencyRule> response = new GenericListResponse<MediaConcurrencyRule>();
+
+            var mediaConcurrencyRules = Core.Api.api.GetGroupMediaConcurrencyRules(groupId);
+
+            if (mediaConcurrencyRules != null)
+            {
+                response.Objects.AddRange(mediaConcurrencyRules);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
     }
 }
