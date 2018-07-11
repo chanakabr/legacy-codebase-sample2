@@ -113,7 +113,7 @@ namespace Core.Catalog.Request
             eAssetTypes assetType = this.m_oMediaPlayRequestData.m_eAssetType;
             
             int fileDuration = 0;
-            long recordingId = 0;
+            long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
             long linearChannelMediaId = 0;
 
             if (assetType == eAssetTypes.EPG)
@@ -144,28 +144,14 @@ namespace Core.Catalog.Request
             }
             else if (assetType == eAssetTypes.NPVR)
             {
-                #region NPVR
-
                 NPVR.INPVRProvider npvrProvider;
 
-                // First check if group has old NPVR implementation
-                if (NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null))
+                if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null) &&
+                    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
-                    // old, external implementation
-                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+                    mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
+                    return mediaMarkResponse;
                 }
-                else
-                {
-                    // new, internal implentation
-                    if (!CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, 
-                        ref recordingId, this.m_nGroupID, this.domainId))
-                    {
-                        mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
-                        return mediaMarkResponse;
-                    }
-                }
-                
-                #endregion
             }
 
             // check action

@@ -5336,7 +5336,6 @@ namespace Core.ConditionalAccess
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
-                string userId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID");
 
                 if (!recordingStatus.HasValue)
                 {

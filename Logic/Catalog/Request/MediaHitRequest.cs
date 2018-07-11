@@ -24,6 +24,7 @@ using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using Core.Users;
 using ConfigurationManager;
+using ApiObjects.Response;
 
 namespace Core.Catalog.Request
 {
@@ -111,7 +112,7 @@ namespace Core.Catalog.Request
                 }
             }
 
-            long recordingId = 0;
+            long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
             int fileDuration = 0;
             int assetId = 0;
 
@@ -119,20 +120,12 @@ namespace Core.Catalog.Request
             {
                 assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 NPVR.INPVRProvider npvr;
-                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null);
-                if (result)
+  
+                if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
+                    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
-                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
-                }
-                else
-                {
-                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, 
-                                                                    this.m_nGroupID, this.domainId);
-                }
-
-                if (!result)
-                {
-                    response.m_sStatus = "Recording doesn't exist";
+                    response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
+                    response.m_sDescription =  "Recording doesn't exist";
                     return response;
                 }
             }
