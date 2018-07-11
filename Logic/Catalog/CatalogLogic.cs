@@ -4892,12 +4892,11 @@ namespace Core.Catalog
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
 
-        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, ref long recordingId, int groupId, int domainId)
+        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
         {
             bool result = false;
             bool shouldGoToCas = false;
             bool shouldCache = false;
-            recordingId = 0;
 
             CatalogCache catalogCache = CatalogCache.Instance();
             string key = string.Format("Recording_{0}", domainRecordingId);
@@ -4931,7 +4930,6 @@ namespace Core.Catalog
                 if (recording != null && recording.Status != null && recording.Status.Code == 0)
                 {
                     fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                    recordingId = recording.Id;
 
                     if (shouldCache)
                     {

@@ -1,5 +1,4 @@
-﻿using APILogic.Api.Managers;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Response;
@@ -17,6 +16,7 @@ using ScheduledTasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Xml;
@@ -1945,7 +1945,11 @@ namespace Core.Api
 
             if (mediaConcurrencyRules != null)
             {
-                response.Objects.AddRange(mediaConcurrencyRules);
+                if (mediaConcurrencyRules.Count > 0)
+                {
+                    response.Objects.AddRange(mediaConcurrencyRules.GroupBy(x => x.RuleID).Select(x => x.First()).ToList());
+                }
+
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
