@@ -1178,7 +1178,7 @@ namespace Core.ConditionalAccess
                     bool blockDoublePurchase = false;
                     if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value)
                     {
-                        bool.TryParse(dbBlockDoublePurchase.ToString(), out blockDoublePurchase);
+                        blockDoublePurchase = ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1;                               
                     }
 
                     IsDoublePurchase = !blockDoublePurchase;
@@ -1389,7 +1389,7 @@ namespace Core.ConditionalAccess
                                         bool blockDoublePurchase = false;
                                         if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value)
                                         {
-                                            bool.TryParse(dbBlockDoublePurchase.ToString(), out blockDoublePurchase);
+                                            blockDoublePurchase = ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1;
                                         }
 
                                         if (!blockDoublePurchase) // reminder message

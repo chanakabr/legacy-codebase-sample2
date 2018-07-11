@@ -1354,14 +1354,14 @@ namespace Core.ConditionalAccess
 
                                 if (dbBlockDoublePurchase != null &&
                                     dbBlockDoublePurchase != DBNull.Value &&
-                                    bool.TryParse(dbBlockDoublePurchase.ToString(), out blockDoublePurchase) &&
-                                    blockDoublePurchase)
+                                    ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)                                    
                                 {
+                                    blockDoublePurchase = true;
                                     price.m_dPrice = -1;
                                 }
                             }
                             else
-                            {
+                            {                                
                                 price.m_dPrice = -1;
                             }
                         }
