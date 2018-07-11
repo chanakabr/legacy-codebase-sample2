@@ -172,14 +172,14 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            if (Name != null && Name.Values != null && Name.Values.Count == 0)
+            if (Name == null || Name.Values == null || Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
             Name.Validate("multilingualName");
 
-            if (Description != null && Description.Values != null && Description.Values.Count == 0)
+            if (Description == null || Description.Values == null || Description.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }
