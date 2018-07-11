@@ -43,11 +43,11 @@ namespace Core.Catalog.Response
         {
         }
 
-        public AssetBookmarks(eAssetTypes assetType, string assetID, List<Bookmark> bookmarks)
+        public AssetBookmarks(eAssetTypes assetType, string assetID, IOrderedEnumerable<Bookmark> bookmarks)
         {
             AssetType = assetType;
             AssetID = assetID;
-            Bookmarks = bookmarks;
+            Bookmarks = new List<Bookmark>(bookmarks);
         }
     }
 
@@ -78,5 +78,4 @@ namespace Core.Catalog.Response
             this.IsFinishedWatching = isFinishedWatching;
         }
     }
-
 }
