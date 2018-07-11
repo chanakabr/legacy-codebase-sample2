@@ -603,11 +603,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
 
-        public static string GetDoesGroupUsesTemplatesCacheInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKeyDoesGroupUsesTemplates_groupId_{0}", groupId);
-        }
-
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
