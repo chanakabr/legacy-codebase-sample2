@@ -11,14 +11,14 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/mediaConcurrencyRule/action")]
+    [Service("mediaConcurrencyRule")]
     public class MediaConcurrencyRuleController : ApiController
     {
         /// <summary>
         /// Get the list of meta mappings for the partner
         /// </summary>        
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         public KalturaMediaConcurrencyRuleListResponse List()
         {
