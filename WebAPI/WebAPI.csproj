@@ -243,6 +243,7 @@
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\DiscountDetailsController.cs" />
+    <Compile Include="Controllers\MediaConcurrencyRuleController.cs" />
     <Compile Include="Controllers\PersonalListController.cs" />
     <Compile Include="Controllers\SsoAdapterProfileController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
@@ -291,6 +292,8 @@
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
+    <Compile Include="Models\API\KalturaMediaConcurrencyRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaMediaConcurrencyRule.cs" />
     <Compile Include="Models\Partner\KalturaConcurrencyPartnerConfig.cs" />
     <Compile Include="Models\Partner\KalturaPartnerConfigurationFilter.cs" />
     <Compile Include="Models\API\KalturaAssetUserRule.cs" />
