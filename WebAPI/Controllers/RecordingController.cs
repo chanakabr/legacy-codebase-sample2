@@ -301,7 +301,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MissingExternalEpgId)]
         [Throws(eResponseStatus.MissingRecordingType)]
         [Throws(eResponseStatus.ExternalDomainRecordingDoesNotExist)]
-        public bool Notify(string externalDomainRecordingId, string externalEpgId, KalturaRecordingStatus recordingStatus, KalturaRecordingType? recordingType, bool isProtected)
+        public bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

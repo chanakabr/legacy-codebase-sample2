@@ -83,6 +83,16 @@
       "service": "Recording",
       "action": "Protect",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Recording_Notify",
+      "service": "Recording",
+      "action": "Notify",
+      "type": "Action"
     }
   ],
   "type": "Action"
