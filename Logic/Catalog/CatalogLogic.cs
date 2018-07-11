@@ -1389,8 +1389,7 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to,
-                    out aggregationsResults);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
 
                 if (searchResults != null)
                 {
@@ -5278,12 +5277,22 @@ namespace Core.Catalog
 
             return CatalogDAL.GetLastPosition(NpvrID, userID);
         }
-
-        /*This method return all last position (desc order by create date) by domain and \ or user_id 
-         * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
-         else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser,
-            List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
+        
+        /// <summary>
+        /// This method return all last position (desc order by create date) by domain and \ or user_id 
+        /// if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
+        /// else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household)
+        /// </summary>
+        /// <param name="assetID"></param>
+        /// <param name="assetType"></param>
+        /// <param name="userID"></param>
+        /// <param name="isDefaultUser"></param>
+        /// <param name="users"></param>
+        /// <param name="defaultUsers"></param>
+        /// <param name="usersDictionary"></param>
+        /// <returns></returns>
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, 
+                                                            List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
 
@@ -5322,9 +5331,9 @@ namespace Core.Catalog
                         userType = eUserType.PERSONAL;
                     }
 
-                    if (!bookmarks.Where(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()).Any())
+                    if (!bookmarks.Any(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()))
                     {
-                        bool isFinished = userMediaMark.AssetAction.ToUpper() == "FINISH" ? true :
+                        bool isFinished = userMediaMark.AssetAction.ToUpper() == MediaPlayActions.FINISH.ToString().ToUpper() ? true :
                                           (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD) ? true : false;
                         bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));
                     }
@@ -5332,7 +5341,7 @@ namespace Core.Catalog
             }
 
             if (bookmarks.Count > 0)
-                response = new AssetBookmarks(assetType, assetID, bookmarks.OrderBy(x => x.User.m_sSiteGUID).ToList());
+                response = new AssetBookmarks(assetType, assetID, bookmarks.OrderBy(x => x.User.m_sSiteGUID));
 
             return response;
         }
@@ -5462,20 +5471,20 @@ namespace Core.Catalog
         {
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
+            {
                 return false;
-            bool res = false;
+            }
+            
             UserResponseObject resp = Core.Users.Module.GetUserData(groupID, siteGuid, string.Empty);
             if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
             {
                 domainID = resp.m_user.m_domianID;
-                res = true;
+                return true;
             }
             else
             {
-                res = false;
+                return false;
             }
-
-            return res;
         }
 
         internal static DomainResponse GetDomain(int domainID, int groupID)

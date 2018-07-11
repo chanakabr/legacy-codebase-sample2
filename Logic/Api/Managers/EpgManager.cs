@@ -18,8 +18,7 @@ namespace APILogic.Api.Managers
         internal static string GetEpgChannelId(int mediaId, int groupId)
         {
             string allLinearMediaIdsKey = LayeredCacheKeys.GetAllLinearMediaKey(groupId);
-            //TODO SHIR - FIND RELEVENT INVALIDATIONS KEYS - ask ira (LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId);)
-            string invalidationKey = null;
+            //TODO SHIR - ASK IRA FOR RELEVENT INVALIDATIONS KEYS (GetAllLinearMedia)
             Dictionary<long, string> allLinearMedia = null;
 
             if (!LayeredCache.Instance.Get<Dictionary<long, string>>(allLinearMediaIdsKey,
@@ -27,8 +26,7 @@ namespace APILogic.Api.Managers
                                                                     GetAllLinearMedia,
                                                                     new Dictionary<string, object>() { { "groupId", groupId } },
                                                                     groupId,
-                                                                    LayeredCacheConfigNames.GET_ALL_LINEAR_MEDIA,
-                                                                    new List<string>() { invalidationKey }))
+                                                                    LayeredCacheConfigNames.GET_ALL_LINEAR_MEDIA))
             {
                 log.ErrorFormat("GetEpgChannelId - GetAllLinearMedia - Failed get data from cache. groupId: {0}", groupId);
             }
