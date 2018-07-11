@@ -1690,8 +1690,8 @@ namespace TVinciShared
             if (ratioId == 0 && width == 90 && height == 65)
             {
                 //get default ratio from group
-                object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
-                if (ratio != null && ratio == DBNull.Value)
+                object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId, 600);
+                if (ratio != null && ratio != DBNull.Value)
                 {
                     ratioId = int.Parse(ratio.ToString());
                 }
