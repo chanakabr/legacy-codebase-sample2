@@ -33,7 +33,7 @@ namespace WebAPI.Clients
 {
     public class ApiClient : BaseClient
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());       
 
         public ApiClient()
         {
@@ -3858,5 +3858,20 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaMediaConcurrencyRuleListResponse GetMediaConcurrencyRules(int groupId)
+        {
+            KalturaMediaConcurrencyRuleListResponse result = new KalturaMediaConcurrencyRuleListResponse();
+
+            Func<GenericListResponse<MediaConcurrencyRule>> getMediaConcurrencyRuleListFunc = () =>
+               Core.Api.Module.GetMediaConcurrencyRules(groupId);
+
+            KalturaGenericListResponse<KalturaMediaConcurrencyRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaMediaConcurrencyRule, MediaConcurrencyRule>(getMediaConcurrencyRuleListFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
     }
 }

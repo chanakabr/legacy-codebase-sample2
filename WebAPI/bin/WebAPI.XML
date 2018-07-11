@@ -1097,6 +1097,12 @@
             <param name="filter">Filter</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.MediaConcurrencyRuleController.List">
+            <summary>
+            Get the list of meta mappings for the partner
+            </summary>        
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.PersonalListController.List(WebAPI.Models.Notification.KalturaPersonalListFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             List user's tv personal item to follow.
@@ -4669,6 +4675,36 @@
         <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Description">
             <summary>
             Description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRuleListResponse.Objects">
+            <summary>
+            Media CONCURRENCY RULES
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMediaConcurrencyRule">
+            <summary>
+            Media concurrency rule 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRule.Id">
+            <summary>
+             Media concurrency rule  identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRule.Name">
+            <summary>
+             Media concurrency rule  name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRule.ConcurrencyLimitationType">
+            <summary>
+            Concurrency limitation type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRule.Limitation">
+            <summary>
+            Limitation
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaAssetUserRule">

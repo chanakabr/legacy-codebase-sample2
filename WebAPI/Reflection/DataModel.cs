@@ -2828,6 +2828,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaMediaConcurrencyRule":
+                    switch(property.Name)
+                    {
+                        case "ConcurrencyLimitationType":
+                            return "concurrencyLimitationType";
+                        case "Id":
+                            return "id";
+                        case "Limitation":
+                            return "limitation";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaMediaConcurrencyRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaMediaFile":
                     switch(property.Name)
                     {

@@ -13179,6 +13179,72 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaMediaConcurrencyRule
+    {
+        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("\"concurrencyLimitationType\": " + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"");
+            if(Id != null)
+            {
+                ret.Add("\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            ret.Add("\"limitation\": " + Limitation);
+            if(Name != null)
+            {
+                ret.Add("\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            return ret;
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            string ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret += "<concurrencyLimitationType>" + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"" + "</concurrencyLimitationType>";
+            if(Id != null)
+            {
+                ret += "<id>" + EscapeXml(Id) + "</id>";
+            }
+            ret += "<limitation>" + Limitation + "</limitation>";
+            if(Name != null)
+            {
+                ret += "<name>" + EscapeXml(Name) + "</name>";
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaMediaConcurrencyRuleListResponse
+    {
+        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            string ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item>";
+                ret += "<objects>" + propertyValue + "</objects>";
+            }
+            return ret;
+        }
+    }
     public partial class KalturaMeta
     {
         protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)

@@ -781,6 +781,12 @@ namespace WebAPI.Reflection
                 case "KalturaMediaAsset":
                     return new KalturaMediaAsset(parameters);
                     
+                case "KalturaMediaConcurrencyRule":
+                    return new KalturaMediaConcurrencyRule(parameters);
+                    
+                case "KalturaMediaConcurrencyRuleListResponse":
+                    return new KalturaMediaConcurrencyRuleListResponse(parameters);
+                    
                 case "KalturaMediaFile":
                     return new KalturaMediaFile(parameters);
                     
@@ -12921,6 +12927,47 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaMediaConcurrencyRule
+    {
+        public KalturaMediaConcurrencyRule(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("concurrencyLimitationType") && parameters["concurrencyLimitationType"] != null)
+                {
+                    ConcurrencyLimitationType = (KalturaConcurrencyLimitationType) Enum.Parse(typeof(KalturaConcurrencyLimitationType), parameters["concurrencyLimitationType"].ToString(), true);
+                }
+                if (parameters.ContainsKey("limitation") && parameters["limitation"] != null)
+                {
+                    Limitation = (Int32) Convert.ChangeType(parameters["limitation"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaMediaConcurrencyRuleListResponse
+    {
+        public KalturaMediaConcurrencyRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaMediaConcurrencyRule>(typeof(KalturaMediaConcurrencyRule), (JArray) parameters["objects"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaMeta
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
@@ -14539,13 +14586,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaCollection(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -14830,53 +14877,53 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberOnRenewableSubSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MaxHouseholdUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DiscountCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaCouponsGroup(Dictionary<string, object> parameters = null) : base(parameters)
         {
