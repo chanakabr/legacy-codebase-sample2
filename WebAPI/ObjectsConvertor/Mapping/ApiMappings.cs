@@ -547,8 +547,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             #endregion
-            
-        }
+
+            #region Media Concurrency Rule
+            Mapper.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
+            .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
+            .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));           
+            #endregion
+
+        }       
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {
@@ -2075,6 +2083,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return AssetRuleConditionType.Country;
                 default:
                     throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
+            }
+        }
+
+        private static KalturaConcurrencyLimitationType ConvertConcurrencyLimitationType(ConcurrencyRestrictionPolicy restrictionPolicy)
+        {
+            switch (restrictionPolicy)
+            {
+                case ConcurrencyRestrictionPolicy.Group:
+                    return KalturaConcurrencyLimitationType.Group;
+                case ConcurrencyRestrictionPolicy.Single:
+                    return KalturaConcurrencyLimitationType.Single;
+                default:
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown restrictionPolicy value : {0}", restrictionPolicy.ToString()));
             }
         }
     }
