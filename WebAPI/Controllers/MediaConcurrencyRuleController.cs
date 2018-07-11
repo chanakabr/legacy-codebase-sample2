@@ -12,7 +12,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("mediaConcurrencyRule")]
-    public class MediaConcurrencyRuleController : ApiController
+    public class MediaConcurrencyRuleController : IKalturaController
     {
         /// <summary>
         /// Get the list of meta mappings for the partner
@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaMediaConcurrencyRuleListResponse List()
+        static public KalturaMediaConcurrencyRuleListResponse List()
         {
             KalturaMediaConcurrencyRuleListResponse response = null;
             

@@ -7011,6 +7011,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "mediaconcurrencyrule":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("mediaConcurrencyRule", "list", false);
+                            return MediaConcurrencyRuleController.List();
+                            
+                    }
+                    break;
+                    
                 case "mediafile":
                     switch(action)
                     {
@@ -11650,6 +11660,15 @@ namespace WebAPI.Reflection
                                 Type = typeof(KalturaStreamType),
                                 IsEnum = true,
                             });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "mediaconcurrencyrule":
+                    switch(action)
+                    {
+                        case "list":
                             return ret;
                             
                     }
