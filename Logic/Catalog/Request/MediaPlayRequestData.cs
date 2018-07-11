@@ -95,7 +95,7 @@ namespace Core.Catalog.Request
                 }
             }
 
-            // isLinearChannel && compare old_devicePlayData.programId ?= m_oMediaPlayRequestData.ProgramId
+            // update program assetEpgRules for linearChannel
             if (currDevicePlayData != null && isLinearChannel && currDevicePlayData.ProgramId > 0 && this.ProgramId > 0 &&
                 currDevicePlayData.ProgramId != this.ProgramId)
             {

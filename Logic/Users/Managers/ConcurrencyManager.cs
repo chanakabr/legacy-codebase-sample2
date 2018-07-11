@@ -22,6 +22,17 @@ namespace Core.Users
 
         public static DomainResponseStatus Validate(DevicePlayData devicePlayData, Domain domain, int groupId)
         {
+            // pre check for DevicePlayData
+            if (string.IsNullOrEmpty(devicePlayData.UDID))
+            {
+                return DomainResponseStatus.OK;
+            }
+
+            if (devicePlayData.DeviceFamilyId == 0)
+            {
+                return DomainResponseStatus.DeviceTypeNotAllowed;
+            }
+
             DomainResponseStatus status = DomainResponseStatus.UnKnown;
 
             if (devicePlayData.MediaConcurrencyRuleIds != null && devicePlayData.MediaConcurrencyRuleIds.Count > 0)
@@ -297,16 +308,6 @@ namespace Core.Users
 
         private static DomainResponseStatus ValidateDeviceFamilyConcurrency(DevicePlayData devicePlayData, int groupId, Domain domain)
         {
-            if (string.IsNullOrEmpty(devicePlayData.UDID))
-            {
-                return DomainResponseStatus.OK;
-            }
-
-            if (devicePlayData.DeviceFamilyId == 0)
-            {
-                return DomainResponseStatus.DeviceTypeNotAllowed;
-            }
-
             if (domain.m_oLimitationsManager.Concurrency <= 0 || domain.IsAgnosticToDeviceLimitation(ValidationType.Concurrency, devicePlayData.DeviceFamilyId))
             {
                 // there are no concurrency limitations at all.
