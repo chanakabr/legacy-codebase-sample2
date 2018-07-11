@@ -7942,7 +7942,7 @@ namespace WebAPI.Reflection
                             
                         case "notify":
                             RolesManager.ValidateActionPermitted("recording", "notify", false);
-                            return RecordingController.Notify((string) methodParams[0], (KalturaRecordingStatus) methodParams[1], (string) methodParams[2], (Nullable<KalturaRecordingType>) methodParams[3], (bool) methodParams[4]);
+                            return RecordingController.Notify((string) methodParams[0], (KalturaRecordingStatus) methodParams[1], (int) methodParams[2], (string) methodParams[3], (Nullable<KalturaRecordingType>) methodParams[4], (bool) methodParams[5]);
                             
                         case "protect":
                             RolesManager.ValidateActionPermitted("recording", "protect", false);
@@ -13264,10 +13264,24 @@ namespace WebAPI.Reflection
                         case "notify":
                             ret.Add("externalDomainRecordingId", new MethodParam(){
                                 Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("externalDomainRecordingId", "recording", "notify") {
+                                    RequiresPermission = false,
+                                    MaxLength = 255,
+                                    MinLength = 1,
+                                },
                             });
                             ret.Add("recordingStatus", new MethodParam(){
                                 IsEnum = true,
                                 Type = typeof(KalturaRecordingStatus),
+                            });
+                            ret.Add("domainId", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("domainId", "recording", "notify") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
                             });
                             ret.Add("externalEpgId", new MethodParam(){
                                 IsOptional = true,

@@ -301,11 +301,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MissingExternalEpgId)]
         [Throws(eResponseStatus.MissingRecordingType)]
         [Throws(eResponseStatus.ExternalDomainRecordingDoesNotExist)]
-        public static bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
+        [SchemeArgument("domainId", MinLong = 1)]
+        [SchemeArgument("externalDomainRecordingId", MinLength = 1, MaxLength = 255)]
+        public static bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, int domainId, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
 
             if (string.IsNullOrEmpty(externalDomainRecordingId))
             {
@@ -314,7 +315,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType, isProtected, userId);
+                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType, isProtected, domainId);
             }
             catch (ClientException ex)
             {
