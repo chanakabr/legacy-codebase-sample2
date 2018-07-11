@@ -298,11 +298,19 @@ namespace WebAPI.Controllers
         [Route("Notify"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.MissingExternalEpgId)]
+        [Throws(eResponseStatus.MissingRecordingType)]
+        [Throws(eResponseStatus.ExternalDomainRecordingDoesNotExist)]
         public bool Notify(string externalDomainRecordingId, string externalEpgId, KalturaRecordingStatus recordingStatus, KalturaRecordingType? recordingType, bool isProtected)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+
+            if (string.IsNullOrEmpty(externalDomainRecordingId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalDomainRecordingId");
+            }
 
             try
             {
