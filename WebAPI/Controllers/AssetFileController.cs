@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
@@ -19,8 +20,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetFile/action")]
-    public class AssetFileController : ApiController
+    [Service("assetFile")]
+    public class AssetFileController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -31,10 +32,10 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset file identifier</param>
         /// <param name="contextType">Kaltura Context Type (none = 0, recording = 1)</param>
         /// <remarks></remarks>
-        [Route("getContext"), HttpPost]
+        [Action("getContext")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetFileContext GetContext(string id, WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType contextType)
+        static public KalturaAssetFileContext GetContext(string id, KalturaContextType contextType)
         {
             KalturaAssetFileContext response = null;
 
@@ -78,11 +79,11 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <remarks></remarks>
         // assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
-        [Route("playManifest"), HttpPost, HttpGet]
+        [Action("playManifest")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("partnerId", MinInteger = 1)]
         [SchemeArgument("assetFileId", MinInteger = 1)]
-        [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
+        [FailureHttpCode(HttpStatusCode.NotFound)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
@@ -96,7 +97,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
-        public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
+        static public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
         {
             if ((assetType == KalturaAssetType.epg && (contextType != KalturaPlaybackContextType.CATCHUP && contextType != KalturaPlaybackContextType.START_OVER)) ||
                 (assetType == KalturaAssetType.media && (contextType != KalturaPlaybackContextType.TRAILER && contextType != KalturaPlaybackContextType.PLAYBACK)) ||

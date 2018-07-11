@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/householdPaymentMethod/action")]
-    public class HouseholdPaymentMethodController : ApiController
+    [Service("householdPaymentMethod")]
+    public class HouseholdPaymentMethodController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// User Suspended = 2001
         /// </remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaHouseholdPaymentMethodListResponse List()
+        static public KalturaHouseholdPaymentMethodListResponse List()
         {
             List<KalturaHouseholdPaymentMethod> list = null;
 
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param> 
-        [Route("setAsDefault"), HttpPost]
+        [Action("setAsDefault")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
         [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
-        public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
+        static public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
 
@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
         /// <returns></returns>
-        [Route("remove"), HttpPost]
+        [Action("remove")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodIsUsedByHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
-        public bool Remove(int paymentGatewayId, int paymentMethodId)
+        static public bool Remove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
             
@@ -146,14 +146,14 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
         /// <returns></returns>
-        [Route("forceRemove"), HttpPost]
+        [Action("forceRemove")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
-        public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
+        static public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
 
@@ -189,11 +189,11 @@ namespace WebAPI.Controllers
         /// <param name="paymentMethodName"></param>      
         /// <param name="paymentDetails"></param>      
         /// <param name="paymentMethodExternalId"></param>        
-        [Route("setExternalId"), HttpPost]
+        [Action("setExternalId")]
         [ApiAuthorize]
         [Obsolete]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public int SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
+        static public int SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
         {
             int response = 0;
 
@@ -240,14 +240,14 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="householdPaymentMethod">Household payment method</param> 
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
         [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
-        public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
+        static public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
         {
             KalturaHouseholdPaymentMethod response = null;
 

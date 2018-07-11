@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaContentResource : KalturaOTTObject
+    public partial class KalturaContentResource : KalturaOTTObject
     {
         
     }

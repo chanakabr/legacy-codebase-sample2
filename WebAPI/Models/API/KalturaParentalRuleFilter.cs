@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaParentalRuleFilter : KalturaFilter<KalturaParentalRuleOrderBy>
+    public partial class KalturaParentalRuleFilter : KalturaFilter<KalturaParentalRuleOrderBy>
     {
         /// <summary>
         ///Reference type to filter by

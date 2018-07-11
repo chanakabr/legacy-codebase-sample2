@@ -10,8 +10,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/messageTemplate/action")]
-    public class MessageTemplateController : ApiController
+    [Service("messageTemplate")]
+    public class MessageTemplateController : IKalturaController
     {
         /// <summary>
         /// Set the account’s push notifications and inbox messages templates
@@ -21,10 +21,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
         /// </remarks>
-        [Route("set"), HttpPost]
+        [Action("set")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaMessageTemplate Set(KalturaMessageTemplate message_template)
+        static public KalturaMessageTemplate Set(KalturaMessageTemplate message_template)
         {
             KalturaMessageTemplate response = null;
 
@@ -62,12 +62,12 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
         /// </remarks>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [OldStandardArgument("messageType", "asset_Type")]
         [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]        
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaMessageTemplate Update(KalturaMessageTemplateType messageType, KalturaMessageTemplate template)
+        static public KalturaMessageTemplate Update(KalturaMessageTemplateType messageType, KalturaMessageTemplate template)
         {
             KalturaMessageTemplate response = null;
 
@@ -106,12 +106,12 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: message template not found = 8016
         /// </remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [OldStandardArgument("messageType", "asset_Type")]
         [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaMessageTemplate Get(KalturaMessageTemplateType messageType)
+        static public KalturaMessageTemplate Get(KalturaMessageTemplateType messageType)
         {
             KalturaMessageTemplate response = null;
 

@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaImage : KalturaOTTObject
+    public partial class KalturaImage : KalturaOTTObject
     {
         /// <summary>
         /// Image ID
@@ -93,7 +93,7 @@ namespace WebAPI.Models.Catalog
         public bool? IsDefault { get; set; }
     }
 
-    public class KalturaImageListResponse : KalturaListResponse
+    public partial class KalturaImageListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of images

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaProductPriceFilter : KalturaFilter<KalturaProductPriceOrderBy>
+    public partial class KalturaProductPriceFilter : KalturaFilter<KalturaProductPriceOrderBy>
     {
         /// <summary>
         /// Comma separated subscriptions identifiers 

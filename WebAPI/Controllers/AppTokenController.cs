@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/appToken/action")]
-    public class AppTokenController : ApiController
+    [Service("appToken")]
+    public class AppTokenController : IKalturaController
     {
         /// <summary>
         /// Add new application authentication token
@@ -23,9 +23,9 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaAppToken Add(KalturaAppToken appToken)
+        static public KalturaAppToken Add(KalturaAppToken appToken)
         {
             KalturaAppToken response = null;
 
@@ -50,9 +50,9 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaAppToken Get(string id)
+        static public KalturaAppToken Get(string id)
         {
             KalturaAppToken response = null;
 
@@ -77,9 +77,9 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(string id)
+        static public bool Delete(string id)
         {
             bool response = false;
 
@@ -109,13 +109,13 @@ namespace WebAPI.Controllers
         /// Possible status codes: 50022 = Invalid application token hash, 50023 = Not active application token
         /// </remarks>
         /// <returns></returns>
-        [Route("startSession"), HttpPost]
+        [Action("startSession")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidAppTokenHash)]
         [Throws(WebAPI.Managers.Models.StatusCode.NotActiveAppToken)]
         [Throws(WebAPI.Managers.Models.StatusCode.ExpiredAppToken)]
-        public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
+        static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;
 

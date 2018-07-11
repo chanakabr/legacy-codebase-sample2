@@ -28,7 +28,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Holder object for channel enrichment enum
     /// </summary>    
-    public class KalturaChannelEnrichmentHolder : KalturaOTTObject
+    public partial class KalturaChannelEnrichmentHolder : KalturaOTTObject
     {
         /// <summary>
         /// Enrichment type

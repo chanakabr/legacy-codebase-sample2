@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset rule
     /// </summary>
-    public class KalturaAssetRule : KalturaAssetRuleBase
+    public partial class KalturaAssetRule : KalturaAssetRuleBase
     {
         /// <summary>
         /// List of conditions for the rule
@@ -178,7 +178,7 @@ namespace WebAPI.Models.API
         }
     }
 
-    public class KalturaAssetRuleListResponse : KalturaListResponse
+    public partial class KalturaAssetRuleListResponse : KalturaListResponse
     {
         /// <summary>
         /// Asset rules

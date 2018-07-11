@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
     /// </summary>
-    public class KalturaUserAssetRule : KalturaOTTObject
+    public partial class KalturaUserAssetRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique rule identifier

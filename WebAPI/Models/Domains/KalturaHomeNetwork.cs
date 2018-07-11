@@ -14,7 +14,7 @@ namespace WebAPI.Models.Domains
     /// Home networks
     /// </summary>
     [Serializable]
-    public class KalturaHomeNetworkListResponse : KalturaListResponse
+    public partial class KalturaHomeNetworkListResponse : KalturaListResponse
     {
         /// <summary>
         /// Home networks
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Home network details
     /// </summary>
-    public class KalturaHomeNetwork : KalturaOTTObject
+    public partial class KalturaHomeNetwork : KalturaOTTObject
     {
         /// <summary>
         /// Home network identifier

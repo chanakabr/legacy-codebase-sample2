@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/registrySettings/action")]
-    public class RegistrySettingsController : ApiController
+    [Service("registrySettings")]
+    public class RegistrySettingsController : IKalturaController
     {
         /// <summary>
         /// Retrieve the registry settings.        
@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The registry settings that apply for the partner</returns>
         /// 
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaRegistrySettingsListResponse List()
+        static public KalturaRegistrySettingsListResponse List()
         {
             List<KalturaRegistrySettings>  list = null;
 
@@ -48,11 +48,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The registry settings that apply for the partner</returns>
         /// 
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaRegistrySettings> ListOldStandard()
+        static public List<KalturaRegistrySettings> ListOldStandard()
         {
             List<KalturaRegistrySettings>  response = null;
 

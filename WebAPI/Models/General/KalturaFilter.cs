@@ -16,13 +16,18 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public abstract class KalturaFilter<T> : KalturaOTTObject, IKalturaFilter where T : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaFilter<KalturaT> : KalturaOTTObject, IKalturaFilter where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
-        public abstract T GetDefaultOrderByValue();
+        public abstract KalturaT GetDefaultOrderByValue();
 
-        public KalturaFilter()
+        public KalturaFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             OrderBy = GetDefaultOrderByValue();
+
+            if (parameters != null && parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
+            {
+                OrderBy = (KalturaT)Enum.Parse(typeof(KalturaT), parameters["orderBy"].ToString(), true);
+            }
         }
 
         /// <summary>
@@ -32,6 +37,6 @@ namespace WebAPI.Models.General
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public T OrderBy { get; set; }
+        public KalturaT OrderBy { get; set; }
     }
 }

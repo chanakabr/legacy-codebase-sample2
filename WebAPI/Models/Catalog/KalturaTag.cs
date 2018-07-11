@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaTag : KalturaOTTObject
+    public partial class KalturaTag : KalturaOTTObject
     {
         /// <summary>
         /// Tag id 

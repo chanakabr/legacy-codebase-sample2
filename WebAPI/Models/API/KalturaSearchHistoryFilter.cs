@@ -17,7 +17,7 @@ namespace WebAPI.Models.API
         NONE
     }
 
-    public class KalturaSearchHistoryFilter : KalturaFilter<KalturaSearchHistoryOrderBy>
+    public partial class KalturaSearchHistoryFilter : KalturaFilter<KalturaSearchHistoryOrderBy>
     {
         public override KalturaSearchHistoryOrderBy GetDefaultOrderByValue()
         {

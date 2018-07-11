@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetComment/action")]
-    public class AssetCommentController : ApiController
+    [Service("assetComment")]
+    class AssetCommentController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filtering the assets comments request</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetCommentListResponse List(KalturaAssetCommentFilter filter, KalturaFilterPager pager = null)
+        static public KalturaAssetCommentListResponse List(KalturaAssetCommentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaAssetCommentListResponse response = null;
            
@@ -66,9 +66,9 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="comment">comment</param>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaAssetComment Add(KalturaAssetComment comment)
+        static public KalturaAssetComment Add(KalturaAssetComment comment)
         {
             KalturaAssetComment response = null;
 

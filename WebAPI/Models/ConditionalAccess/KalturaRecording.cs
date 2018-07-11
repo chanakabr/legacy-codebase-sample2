@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaRecording : KalturaOTTObject
+    public partial class KalturaRecording : KalturaOTTObject
     {
 
         /// <summary>

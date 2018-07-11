@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Language details
     /// </summary>
-    public class KalturaLanguage : KalturaOTTObject
+    public partial class KalturaLanguage : KalturaOTTObject
     {
 
         /// <summary>

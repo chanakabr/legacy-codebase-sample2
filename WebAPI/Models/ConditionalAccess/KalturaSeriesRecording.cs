@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaSeriesRecording : KalturaOTTObject
+    public partial class KalturaSeriesRecording : KalturaOTTObject
     {
         /// <summary>
         /// Kaltura unique ID representing the series recording identifier

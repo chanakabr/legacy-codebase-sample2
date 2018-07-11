@@ -20,17 +20,17 @@ using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/mediaFileType/action")]
-    public class MediaFileTypeController : ApiController
+    [Service("mediaFileType")]
+    public class MediaFileTypeController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
         /// <summary>
         /// Returns a list of media-file types
         /// </summary>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaMediaFileTypeListResponse List()
+        static public KalturaMediaFileTypeListResponse List()
         {
             KalturaMediaFileTypeListResponse response = new KalturaMediaFileTypeListResponse();
 
@@ -56,10 +56,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
-        public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
+        static public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -84,11 +84,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
+        static public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -110,10 +110,10 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();

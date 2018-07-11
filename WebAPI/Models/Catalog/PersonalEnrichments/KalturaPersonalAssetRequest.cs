@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [Obsolete]
-    public class KalturaPersonalAssetRequest : KalturaOTTObject
+    public partial class KalturaPersonalAssetRequest : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaMediaFileFilter : KalturaFilter<KalturaMediaFileOrderBy>
+    public partial class KalturaMediaFileFilter : KalturaFilter<KalturaMediaFileOrderBy>
     {
         /// <summary>
         /// Asset identifier to filter by

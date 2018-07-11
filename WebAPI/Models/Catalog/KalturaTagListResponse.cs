@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaTagListResponse : KalturaListResponse
+    public partial class KalturaTagListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of partner tags

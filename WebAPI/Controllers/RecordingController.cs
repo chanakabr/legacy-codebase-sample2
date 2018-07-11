@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/recording/action")]
-    public class RecordingController : ApiController
+    [Service("recording")]
+    public class RecordingController : IKalturaController
     {
         /// <summary>
         /// Returns recording object by internal identifier
@@ -24,10 +24,10 @@ namespace WebAPI.Controllers
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3039</remarks>     
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RecordingNotFound)]
-        public KalturaRecording Get(long id)
+        static public KalturaRecording Get(long id)
         {
             KalturaRecording response = null;
 
@@ -57,10 +57,10 @@ namespace WebAPI.Controllers
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042,
         /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
-        [Route("getContext"), HttpPost]
+        [Action("getContext")]
         [ApiAuthorize]
         [WebAPI.Managers.Schema.ValidationException(WebAPI.Managers.Schema.SchemaValidationType.ACTION_NAME)]
-        public KalturaRecordingContextListResponse GetContext(KalturaRecordingContextFilter filter)
+        static public KalturaRecordingContextListResponse GetContext(KalturaRecordingContextFilter filter)
         {
             KalturaRecordingContextListResponse response = null;
 
@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
         /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
         /// ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExceededQuota)]        
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
-        public KalturaRecording Add(KalturaRecording recording)
+        static public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
 
@@ -142,13 +142,13 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -188,7 +188,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
-        [Route("cancel"), HttpPost]
+        [Action("cancel")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -197,7 +197,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
-        public KalturaRecording Cancel(long id)
+        static public KalturaRecording Cancel(long id)
         {
             KalturaRecording response = null;
 
@@ -223,7 +223,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -231,7 +231,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
-        public KalturaRecording Delete(long id)
+        static public KalturaRecording Delete(long id)
         {
             KalturaRecording response = null;
 
@@ -257,7 +257,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
-        [Route("protect"), HttpPost]
+        [Action("protect")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -268,7 +268,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
-        public KalturaRecording Protect(long id)
+        static public KalturaRecording Protect(long id)
         {
             KalturaRecording response = null;
 

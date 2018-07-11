@@ -163,8 +163,8 @@ namespace WebAPI.Utils
                         string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
                         string caSystemUrl = string.Format("{0}/api_v3/service/assetFile/action/getContext?ks={1}&contextType={2}", baseUrl, ks.ToString(),
-                            assetType == KalturaAssetType.recording ? WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.recording :
-                            WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.none);
+                            assetType == KalturaAssetType.recording ? KalturaContextType.recording :
+                            KalturaContextType.none);
 
                         Group group = GroupsManager.GetGroup(ks.GroupId);
 

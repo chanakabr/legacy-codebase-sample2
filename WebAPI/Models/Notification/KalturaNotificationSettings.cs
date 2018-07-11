@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public class KalturaNotificationsSettings : KalturaOTTObject
+    public partial class KalturaNotificationsSettings : KalturaOTTObject
     {
         /// <summary>
         /// Specify if the user want to receive push notifications or not
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Notification
     }
 
     [Obsolete]
-    public class KalturaNotificationSettings : KalturaNotificationsSettings
+    public partial class KalturaNotificationSettings : KalturaNotificationsSettings
     {
     }
 }

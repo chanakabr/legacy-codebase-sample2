@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaRelatedExternalFilter : KalturaAssetFilter
+    public partial class KalturaRelatedExternalFilter : KalturaAssetFilter
     {
          /// <summary>
         /// the External ID of the asset for which to return related assets

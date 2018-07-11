@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/reminder/action")]
-    public class ReminderController : ApiController
+    [Service("reminder")]
+    public class ReminderController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// <param name="reminder">The reminder to be added.</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
         [Throws(eResponseStatus.UserAlreadySetReminder)]
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PassedAsset)]
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.FeatureDisabled)]
-        public KalturaReminder Add(KalturaReminder reminder)
+        static public KalturaReminder Add(KalturaReminder reminder)
         {
             KalturaReminder response = null;
 
@@ -85,10 +85,10 @@ namespace WebAPI.Controllers
         /// <param name="type">Reminder type.</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool Delete(long id, KalturaReminderType type)
+        static public bool Delete(long id, KalturaReminderType type)
         {
             bool response = false;
 
@@ -116,11 +116,11 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("deleteWithToken"), HttpPost]
+        [Action("deleteWithToken")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        public void DeleteWithToken(long id, KalturaReminderType type, string token, int partnerId)
+        static public void DeleteWithToken(long id, KalturaReminderType type, string token, int partnerId)
         {
             try
             {
@@ -141,11 +141,11 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: SyntaxError = 4004, FeatureDisabled = 8009</remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.FeatureDisabled)]
-        public KalturaReminderListResponse List<T>(KalturaReminderFilter<T> filter, KalturaFilterPager pager = null) where T : struct, IComparable, IFormattable, IConvertible
+        static public KalturaReminderListResponse List<T>(KalturaReminderFilter<T> filter, KalturaFilterPager pager = null) where T : struct, IComparable, IFormattable, IConvertible
         {
             KalturaReminderListResponse response = null;
 

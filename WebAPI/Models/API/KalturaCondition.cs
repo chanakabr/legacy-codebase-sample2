@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Condition
     /// </summary>
-    public abstract class KalturaCondition : KalturaOTTObject
+    public abstract partial class KalturaCondition : KalturaOTTObject
     {
         /// <summary>
         /// The type of the condition
@@ -43,7 +43,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Country condition
     /// </summary>
-    public class KalturaCountryCondition : KalturaCondition
+    public partial class KalturaCountryCondition : KalturaCondition
     {
         /// <summary>
         /// Indicates whether to apply not on the other properties in the condition
@@ -97,7 +97,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset Condition
     /// </summary>
-    public class KalturaAssetCondition : KalturaCondition
+    public partial class KalturaAssetCondition : KalturaCondition
     {
         /// <summary>
         /// KSQL  
@@ -116,7 +116,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset Condition
     /// </summary>
-    public class KalturaConcurrencyCondition : KalturaAssetCondition
+    public partial class KalturaConcurrencyCondition : KalturaAssetCondition
     {
         /// <summary>
         /// Concurrency limitation  

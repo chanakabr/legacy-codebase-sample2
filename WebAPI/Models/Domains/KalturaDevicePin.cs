@@ -12,7 +12,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device pin
     /// </summary>
-    public class KalturaDevicePin : KalturaOTTObject
+    public partial class KalturaDevicePin : KalturaOTTObject
     {
         /// <summary>
         /// Device pin

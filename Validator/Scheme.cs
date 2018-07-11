@@ -145,7 +145,7 @@ namespace Validator.Managers.Scheme
 
         private void Load()
         {
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
+            controllers = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaController).IsAssignableFrom(myType));
             exceptions = assembly.GetTypes().Where(myType => myType.IsClass && (myType.IsSubclassOf(typeof(ApiException)) || myType == typeof(ApiException)));
 
             foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
@@ -237,7 +237,14 @@ namespace Validator.Managers.Scheme
                     if (type.GetType() == typeof(ApiException.ApiExceptionType))
                     {
                         ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
-                        errors.Add((int)exceptionType.statusCode, type);
+                        if (errors.ContainsKey((int)exceptionType.statusCode))
+                        {
+                            throw new Exception("Error code " + exceptionType.statusCode + " appears twice: ApiException.ApiExceptionType." + exceptionType.name);
+                        }
+                        else
+                        {
+                            errors.Add((int)exceptionType.statusCode, type);
+                        }
                     }
                     else if (type.GetType() == typeof(ApiException.ClientExceptionType))
                     {
@@ -774,7 +781,7 @@ namespace Validator.Managers.Scheme
             return classNode[0].InnerText.Trim();
         }
 
-        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null)
+        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null, SchemePropertyAttribute schemeProperty = null)
         {
             ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
@@ -792,6 +799,11 @@ namespace Validator.Managers.Scheme
             if (dataMemberAttr == null)
                 return;
 
+            if (schemeProperty == null)
+            {
+                schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
+            }
+
             if (name == null)
             {
                 name = dataMemberAttr.Name;
@@ -806,7 +818,12 @@ namespace Validator.Managers.Scheme
                 }
                 else if (property.PropertyType == typeof(KalturaMultilingualString))
                 {
-                    writeProperty(typeName, property, typeof(string));
+                    if(schemeProperty == null)
+                    {
+                        schemeProperty = new SchemePropertyAttribute();
+                    }
+                    schemeProperty.ReadOnly = true;
+                    writeProperty(typeName, property, typeof(string), null, schemeProperty);
                     writeProperty(typeName, property, typeof(List<KalturaTranslationToken>), KalturaMultilingualString.GetMultilingualName(name));
                     return;
                 }
@@ -822,7 +839,6 @@ namespace Validator.Managers.Scheme
 
             writer.WriteAttributeString("description", getDescription(property));
 
-            SchemePropertyAttribute schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
             if (schemeProperty == null)
             {
                 writer.WriteAttributeString("readOnly", "0");

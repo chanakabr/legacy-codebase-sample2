@@ -19,8 +19,8 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/subscription/action")]
-    public class SubscriptionController : ApiController
+    [Service("subscription")]
+    public class SubscriptionController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter)
+        static public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter)
         {
             filter.Validate();
 
@@ -83,11 +83,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaSubscription> ListOldStandard(KalturaSubscriptionsFilter filter)
+        static public List<KalturaSubscription> ListOldStandard(KalturaSubscriptionsFilter filter)
         {
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;
@@ -138,10 +138,10 @@ namespace WebAPI.Controllers
         /// <param name="code">coupon code </param>
         /// <remarks>Possible status codes: Coupon not valid = 3020,  Coupon promotion date expired = 3057, Coupon promotion date not started = 3058
         ///   </remarks>
-        [Route("validateCoupon"), HttpPost]
+        [Action("validateCoupon")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        public KalturaCoupon ValidateCoupon(int id, string code)
+        static public KalturaCoupon ValidateCoupon(int id, string code)
         {
             //filter.Validate();
             KalturaCoupon response = new KalturaCoupon();

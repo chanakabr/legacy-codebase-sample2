@@ -14,7 +14,7 @@ namespace WebAPI.Models.General
     /// Generic response list
     /// </summary>
     [Serializable]
-    public class KalturaGenericListResponse<KalturaT> : KalturaListResponse
+    public partial class KalturaGenericListResponse<KalturaT> : KalturaListResponse
         where KalturaT : KalturaOTTObject
     {
         /// <summary>

@@ -12,7 +12,7 @@ using WebAPI.Models.Pricing;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaEntitlementRenewal : KalturaOTTObject
+    public partial class KalturaEntitlementRenewal : KalturaOTTObject
     {
         /// <summary>
         /// Price that is going to be paid on the renewal
@@ -47,7 +47,7 @@ namespace WebAPI.Models.ConditionalAccess
         public long SubscriptionId { get; set; }
     }
 
-    public class KalturaUnifiedPaymentRenewal : KalturaOTTObject
+    public partial class KalturaUnifiedPaymentRenewal : KalturaOTTObject
     {
         /// <summary>
         /// Price that is going to be paid on the renewal
@@ -83,7 +83,7 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaEntitlementRenewalBase> Entitlements { get; set; }
     }
 
-    public class KalturaEntitlementRenewalBase : KalturaOTTObject
+    public partial class KalturaEntitlementRenewalBase : KalturaOTTObject
     {
         /// <summary>
         /// Price that is going to be paid on the renewal

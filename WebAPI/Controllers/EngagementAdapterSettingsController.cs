@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/engagementAdapterSettings/action")]
+    [Service("engagementAdapterSettings")]
     [Obsolete]
     public class EngagementAdapterSettingsController : ApiController
     {
@@ -21,10 +21,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>       
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaEngagementAdapter> List()
+        static public List<KalturaEngagementAdapter> List()
         {
             List<KalturaEngagementAdapter> response = null;
 
@@ -55,13 +55,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Delete(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Delete(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -92,13 +92,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Add(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Add(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -129,13 +129,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.EngagementAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Update(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Update(int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

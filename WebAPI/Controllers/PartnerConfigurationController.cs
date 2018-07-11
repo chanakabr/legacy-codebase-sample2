@@ -16,8 +16,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/partnerConfiguration/action")]
-    public class PartnerConfigurationController : ApiController
+    [Service("partnerConfiguration")]
+    public class PartnerConfigurationController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">filter by PartnerConfiguration type</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaPartnerConfigurationListResponse List(KalturaPartnerConfigurationFilter filter)
+        static public KalturaPartnerConfigurationListResponse List(KalturaPartnerConfigurationFilter filter)
         {
             KalturaPartnerConfigurationListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -78,12 +78,12 @@ namespace WebAPI.Controllers
         /// "configuration": { "value": 0, "partner_configuration_type": { "type": "OSSAdapter", "objectType": "KalturaPartnerConfigurationHolder" },
         /// "objectType": "KalturaBillingPartnerConfig"}
         /// </param>        
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.NonExistingDeviceFamilyIds)]
-        public bool Update(KalturaPartnerConfiguration configuration)
+        static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;
             int groupId = KS.GetFromRequest().GroupId;

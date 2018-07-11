@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "UserRoles", Namespace = "")]
     [XmlRoot("UserRoles")]
-    public class KalturaUserRoleListResponse : KalturaListResponse
+    public partial class KalturaUserRoleListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of generic rules
@@ -27,7 +27,7 @@ namespace WebAPI.Models.API
         public List<KalturaUserRole> UserRoles { get; set; }
     }
 
-    public class KalturaUserRole : KalturaOTTObject
+    public partial class KalturaUserRole : KalturaOTTObject
     {
         /// <summary>
         /// User role identifier

@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/email/action")]
-    public class EmailController : ApiController
+    [Service("email")]
+    public class EmailController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// </remarks>        
         /// <param name="emailMessage">email details</param>     
-        [Route("send"), HttpPost]
+        [Action("send")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Send(KalturaEmailMessage emailMessage)
+        static public bool Send(KalturaEmailMessage emailMessage)
         {
             bool response = false;
 

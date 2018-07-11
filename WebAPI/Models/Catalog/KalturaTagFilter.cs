@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaTagFilter : KalturaFilter<KalturaTagOrderBy>
+    public partial class KalturaTagFilter : KalturaFilter<KalturaTagOrderBy>
     {
         /// <summary>
         /// Tag to filter by

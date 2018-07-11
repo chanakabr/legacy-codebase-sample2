@@ -5,7 +5,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public class KalturaPushParams : KalturaOTTObject
+    public partial class KalturaPushParams : KalturaOTTObject
     {
         /// <summary>
         /// Device-Application push token

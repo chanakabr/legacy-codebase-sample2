@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Meta filter
     /// </summary>
-    public class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
+    public partial class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
     {
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";

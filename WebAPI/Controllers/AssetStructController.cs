@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetStruct/action")]
-    public class AssetStructController : ApiController
+    [Service("assetStruct")]
+    public class AssetStructController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
+        static public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
         {
             if (filter == null)
             {
@@ -62,13 +62,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
-        public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
+        static public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -79,12 +79,12 @@ namespace WebAPI.Controllers
             }
 
             assetStruct.Name.Validate("multilingualName");
-            if (string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
+            if (string.IsNullOrEmpty(assetStruct.SystemName) || string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            assetStruct.ValidateMetaIds();
+            assetStruct.Validate();
             try
             {                
                 response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStruct, userId);
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// <param name="id">AssetStruct Identifier</param>
         /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
@@ -111,8 +111,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
+        [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
+        static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -129,12 +130,13 @@ namespace WebAPI.Controllers
                 }
             }
 
-            if (assetStruct.SystemName != null && assetStruct.SystemName.Trim() == string.Empty)
+            if (assetStruct.SystemName != null &&  assetStruct.SystemName.Trim() == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
+            
+            assetStruct.Validate();
 
-            assetStruct.ValidateMetaIds();
             try
             {                
                 response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStruct, userId);
@@ -152,12 +154,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">AssetStruct Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
+        [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

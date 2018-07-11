@@ -8,7 +8,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
-    public class KalturaReminder : KalturaOTTObject
+    public partial class KalturaReminder : KalturaOTTObject
     {
         /// <summary>
         /// Reminder name

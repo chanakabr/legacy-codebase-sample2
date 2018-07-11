@@ -10,8 +10,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/topic/action")]
-    public class TopicController : ApiController
+    [Service("topic")]
+    public class TopicController : IKalturaController
     {
 
         /// <summary>
@@ -22,10 +22,10 @@ namespace WebAPI.Controllers
         /// AnnouncementNotFound = 8006
         /// </remarks>
         /// <param name="id">Topic identifier</param>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
-        public KalturaTopic Get(int id)
+        static public KalturaTopic Get(int id)
         {
             KalturaTopic response = null;
 
@@ -50,9 +50,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="filter">Topics filter</param>     
         /// <param name="pager">Page size and index</param>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaTopicListResponse List(KalturaTopicFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaTopicListResponse List(KalturaTopicFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTopicListResponse response = null;
 
@@ -81,11 +81,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// </remarks>
         /// <param name="pager">Page size and index</param>        
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public KalturaTopicResponse ListOldStandard(KalturaFilterPager pager = null)
+        static public KalturaTopicResponse ListOldStandard(KalturaFilterPager pager = null)
         {
             KalturaTopicResponse response = null;
 
@@ -115,9 +115,9 @@ namespace WebAPI.Controllers
         /// AnnouncementNotFound = 8006
         /// </remarks>
         /// <param name="id">Topic identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             bool response = false;
 
@@ -149,10 +149,10 @@ namespace WebAPI.Controllers
         ///  Yes = 1: Issue a notification massage when a new episode is available on the catalog
         ///  No = 2: Do send a notification message when a new episode is available on the catalog
         /// </param>        
-        [Route("updateStatus"), HttpPost]
+        [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
+        static public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;
 

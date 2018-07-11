@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaUploadedFileTokenResource : KalturaContentResource
+    public partial class KalturaUploadedFileTokenResource : KalturaContentResource
     {
         /// <summary>
         /// Token that returned from uploadToken.add action

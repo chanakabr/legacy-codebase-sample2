@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset Struct Metas list
     /// </summary>
-    public class KalturaAssetStructMetaListResponse : KalturaListResponse
+    public partial class KalturaAssetStructMetaListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of asset struct metas

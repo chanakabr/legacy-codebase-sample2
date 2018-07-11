@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// Generic rule filter
     /// </summary>
     [Obsolete]
-    public class KalturaGenericRuleFilter : KalturaOTTObject
+    public partial class KalturaGenericRuleFilter : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier to filter by

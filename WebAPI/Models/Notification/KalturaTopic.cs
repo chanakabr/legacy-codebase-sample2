@@ -11,7 +11,7 @@ namespace WebAPI.Models.Notification
         NONE
     }
 
-    public class KalturaTopicFilter : KalturaFilter<KalturaTopicOrderBy>
+    public partial class KalturaTopicFilter : KalturaFilter<KalturaTopicOrderBy>
     {
         public override KalturaTopicOrderBy GetDefaultOrderByValue()
         {
@@ -19,7 +19,7 @@ namespace WebAPI.Models.Notification
         }
     }
 
-    public class KalturaTopic : KalturaOTTObject
+    public partial class KalturaTopic : KalturaOTTObject
     {
 
         /// <summary>

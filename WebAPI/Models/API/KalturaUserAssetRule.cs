@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
     /// </summary>
     [Obsolete]
-    public class KalturaGenericRule : KalturaOTTObject
+    public partial class KalturaGenericRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique rule identifier

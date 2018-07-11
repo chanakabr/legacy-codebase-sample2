@@ -11,7 +11,7 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaCurrencyListResponse : KalturaListResponse
+    public partial class KalturaCurrencyListResponse : KalturaListResponse
     {
         /// <summary>
         /// Currencies

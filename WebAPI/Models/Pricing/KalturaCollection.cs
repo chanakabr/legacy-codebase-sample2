@@ -17,7 +17,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Collection
     /// </summary>
-    public class KalturaCollection : KalturaOTTObject
+    public partial class KalturaCollection : KalturaOTTObject
     {
         /// <summary>
         /// Collection identifier
@@ -127,7 +127,7 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "Collections", Namespace = "")]
     [XmlRoot("Collections")]
-    public class KalturaCollectionListResponse : KalturaListResponse
+    public partial class KalturaCollectionListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of collections
@@ -142,7 +142,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Collection Filter
     /// </summary>
-    public class KalturaCollectionFilter : KalturaFilter<KalturaCollectionOrderBy>
+    public partial class KalturaCollectionFilter : KalturaFilter<KalturaCollectionOrderBy>
     {
         /// <summary>
         /// Comma separated collection IDs

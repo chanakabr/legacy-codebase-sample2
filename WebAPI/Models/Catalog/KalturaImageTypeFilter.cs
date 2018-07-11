@@ -12,7 +12,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaImageTypeFilter : KalturaFilter<KalturaImageTypeOrderBy>
+    public partial class KalturaImageTypeFilter : KalturaFilter<KalturaImageTypeOrderBy>
     {
         /// <summary>
         /// IDs to filter by

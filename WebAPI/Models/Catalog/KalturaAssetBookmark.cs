@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaAssetBookmark : KalturaOTTObject
+    public partial class KalturaAssetBookmark : KalturaOTTObject
     {
         /// <summary>
         ///User object

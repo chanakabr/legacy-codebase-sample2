@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
-    public class KalturaLoginResponse : KalturaOTTObject
+    public partial class KalturaLoginResponse : KalturaOTTObject
     {
         /// <summary>
         /// User

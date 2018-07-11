@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     [Obsolete]
-    public class KalturaRecordingContext : KalturaOTTObject
+    public partial class KalturaRecordingContext : KalturaOTTObject
     {
 
         /// <summary>

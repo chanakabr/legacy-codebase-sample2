@@ -15,17 +15,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/productPrice/action")]
-    public class ProductPriceController : ApiController
+    [Service("productPrice")]
+    public class ProductPriceController : IKalturaController
     {
         /// <summary>
         /// Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
         /// </summary>
         /// <param name="filter">Request filter</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaProductPriceListResponse List(KalturaProductPriceFilter filter)
+        static public KalturaProductPriceListResponse List(KalturaProductPriceFilter filter)
         {
             List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();

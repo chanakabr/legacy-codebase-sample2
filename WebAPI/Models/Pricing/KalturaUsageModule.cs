@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Pricing usage module
     /// </summary>
-    public class KalturaUsageModule : KalturaOTTObject
+    public partial class KalturaUsageModule : KalturaOTTObject
     {
         /// <summary>
         /// Usage module identifier

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [Obsolete]
-    public class KalturaEPGChannelAssetsListResponse : KalturaListResponse
+    public partial class KalturaEPGChannelAssetsListResponse : KalturaListResponse
     {
         /// <summary>
         /// Channels

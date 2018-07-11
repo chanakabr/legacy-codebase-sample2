@@ -10,17 +10,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/engagementAdapter/action")]
-    public class EngagementAdapterController : ApiController
+    [Service("engagementAdapter")]
+    public class EngagementAdapterController : IKalturaController
     {
         /// <summary>
         /// Returns all Engagement adapters for partner : id + name
         /// </summary>
         /// <remarks>       
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaEngagementAdapterListResponse List()
+        static public KalturaEngagementAdapterListResponse List()
         {
             List<KalturaEngagementAdapter> list = null;
 
@@ -51,9 +51,9 @@ namespace WebAPI.Controllers
         /// <param name="id">Engagement adapter identifier</param>
         /// <remarks>       
         /// </remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaEngagementAdapter Get(int id)
+        static public KalturaEngagementAdapter Get(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -78,12 +78,12 @@ namespace WebAPI.Controllers
         /// engagement adapter identifier required = 8025, engagement adapter not exist = 8026,  action is not allowed = 5011
         /// </remarks>
         /// <param name="id">Engagement adapter identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             bool response = false;
             
@@ -110,12 +110,12 @@ namespace WebAPI.Controllers
         /// no engagement adapter to insert = 8028, name required = 5005, provider url required = 8033
         /// </remarks>
         /// <param name="engagementAdapter">Engagement adapter Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NoEngagementAdapterToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ProviderUrlRequired)]
-        public KalturaEngagementAdapter Add(KalturaEngagementAdapter engagementAdapter)
+        static public KalturaEngagementAdapter Add(KalturaEngagementAdapter engagementAdapter)
         {
             KalturaEngagementAdapter response = null;
 
@@ -152,13 +152,13 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="id">Engagement adapter identifier</param>       
         /// <param name="engagementAdapter">Engagement adapter Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.NoEngagementAdapterToUpdate)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ProviderUrlRequired)]
-        public KalturaEngagementAdapter Update(int id, KalturaEngagementAdapter engagementAdapter)
+        static public KalturaEngagementAdapter Update(int id, KalturaEngagementAdapter engagementAdapter)
         {
             KalturaEngagementAdapter response = null;
 
@@ -196,12 +196,12 @@ namespace WebAPI.Controllers
         /// engagement adapter identifier required = 8025, engagement adapter not exist = 8026
         /// </remarks>
         /// <param name="id">Engagement adapter identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
-        public KalturaEngagementAdapter GenerateSharedSecret(int id)
+        static public KalturaEngagementAdapter GenerateSharedSecret(int id)
         {
             KalturaEngagementAdapter response = null;
 

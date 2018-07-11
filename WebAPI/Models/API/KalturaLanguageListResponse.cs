@@ -11,7 +11,7 @@ using WebAPI.Models.Users;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaLanguageListResponse : KalturaListResponse
+    public partial class KalturaLanguageListResponse : KalturaListResponse
     {
         /// <summary>
         /// Languages

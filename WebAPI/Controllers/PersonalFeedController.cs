@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/personalFeed/action")]
-    public class PersonalFeedController : ApiController
+    [Service("personalFeed")]
+    public class PersonalFeedController : IKalturaController
     {
         /// <summary>
         /// List user's feeds.
@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>        
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaPersonalFeedListResponse List(KalturaPersonalFeedFilter filter, KalturaFilterPager pager = null)
+        static public KalturaPersonalFeedListResponse List(KalturaPersonalFeedFilter filter, KalturaFilterPager pager = null)
         {
             KalturaPersonalFeedListResponse response = null;
 
@@ -57,11 +57,11 @@ namespace WebAPI.Controllers
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>        
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaPersonalFollowFeedResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
+        static public KalturaPersonalFollowFeedResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
             KalturaPersonalFollowFeedResponse response = null;
 

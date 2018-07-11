@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Product Code
     /// </summary>
-    public class KalturaProductCode : KalturaOTTObject
+    public partial class KalturaProductCode : KalturaOTTObject
     {
         /// <summary>
         /// Provider Name

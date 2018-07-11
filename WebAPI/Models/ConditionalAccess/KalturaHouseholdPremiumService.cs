@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Houshold premium service
     /// </summary>
-    public class KalturaHouseholdPremiumService : KalturaPremiumService
+    public partial class KalturaHouseholdPremiumService : KalturaPremiumService
     {
     }
 }

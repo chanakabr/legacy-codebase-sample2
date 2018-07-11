@@ -18,7 +18,7 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public class KalturaAsset : KalturaOTTObject, KalturaIAssetable
+    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";

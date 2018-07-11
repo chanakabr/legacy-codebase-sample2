@@ -16,8 +16,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetRule/action")]
-    public class AssetRuleController : ApiController
+    [Service("assetRule")]
+    public class AssetRuleController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">filter by condition name</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetRuleListResponse List(KalturaAssetRuleFilter filter = null)
+        static public KalturaAssetRuleListResponse List(KalturaAssetRuleFilter filter = null)
         {
             KalturaAssetRuleListResponse response = null;
 
@@ -57,9 +57,9 @@ namespace WebAPI.Controllers
         /// Add asset rule
         /// </summary>
         /// <param name="assetRule">Asset rule</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaAssetRule Add(KalturaAssetRule assetRule)
+        static public KalturaAssetRule Add(KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
 
@@ -88,10 +88,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assetRule">Asset rule</param>
         /// <param name="id">Asset rule ID to update</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetRuleNotExists)]
-        public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
+        static public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
 
@@ -118,10 +118,10 @@ namespace WebAPI.Controllers
         /// Delete asset rule
         /// </summary>
         /// <param name="id">Asset rule ID</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetRuleNotExists)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool response = false;
 

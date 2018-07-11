@@ -16,8 +16,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/parentalRule/action")]
-    public class ParentalRuleController : ApiController 
+    [Service("parentalRule")]
+    public class ParentalRuleController : IKalturaController
     {
         /// <summary>
         /// Return the parental rules that applies for the user or household. Can include rules that have been associated in account, household, or user level.
@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>List of parental rules applied to the user</returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaParentalRuleListResponse ListOldStandard(KalturaRuleFilter filter)
+        static public KalturaParentalRuleListResponse ListOldStandard(KalturaRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
 
@@ -76,13 +76,13 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>List of parental rules applied to the user</returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
+        static public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
             KS ks = KS.GetFromRequest();
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="ruleId">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
-        [Route("enable"), HttpPost]
+        [Action("enable")]
         [ApiAuthorize]
         [OldStandardArgument("entityReference", "by")]
         [OldStandardArgument("ruleId", "rule_id")]
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.RuleNotExists)]
-        public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
+        static public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
 
@@ -172,7 +172,7 @@ namespace WebAPI.Controllers
         /// Cannot disable a default rule that was not specifically enabled previously = 5021 </remarks>
         /// <param name="ruleId">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
-        [Route("disable"), HttpPost]
+        [Action("disable")]
         [ApiAuthorize]
         [OldStandardArgument("entityReference", "by")]
         [OldStandardArgument("ruleId", "rule_id")]
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.RuleNotExists)]
         [Throws(eResponseStatus.UserParentalRuleNotExists)]
-        public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
+        static public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
 
@@ -222,7 +222,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="entityReference">Reference type to filter by</param>
         /// <returns>Success / fail</returns>
-        [Route("disableDefault"), HttpPost]
+        [Action("disableDefault")]
         [ApiAuthorize]
         [OldStandardArgument("entityReference", "by")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -230,7 +230,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public bool DisableDefault(KalturaEntityReferenceBy entityReference)
+        static public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -263,11 +263,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="parentalRule">parentalRule object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
         [Throws(eResponseStatus.TagDoesNotExist)]
-        public KalturaParentalRule Add(KalturaParentalRule parentalRule)
+        static public KalturaParentalRule Add(KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -329,13 +329,13 @@ namespace WebAPI.Controllers
         /// <param name="id">parentalRule identifier</param>
         /// <param name="parentalRule">parentalRule object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleNameAlreadyInUse)]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
+        static public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -379,11 +379,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">parentalRule identifier</param>        
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaParentalRule Get(long id)
+        static public KalturaParentalRule Get(long id)
         {
             KalturaParentalRule response = null;
             KS ks = KS.GetFromRequest();
@@ -407,12 +407,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">parentalRule identifier</param>        
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ParentalRuleDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeleteDefaultParentalRule)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

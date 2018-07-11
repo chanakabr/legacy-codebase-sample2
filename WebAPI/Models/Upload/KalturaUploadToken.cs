@@ -18,7 +18,7 @@ namespace WebAPI.Models.Upload
         CLOSED = 2
     }
 
-    public class KalturaUploadToken : KalturaOTTObject
+    public partial class KalturaUploadToken : KalturaOTTObject
     {
         public KalturaUploadToken()
         {

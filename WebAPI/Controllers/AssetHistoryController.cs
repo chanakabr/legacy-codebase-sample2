@@ -18,8 +18,8 @@ using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetHistory/action")]
-    public class AssetHistoryController : ApiController
+    [Service("assetHistory")]
+    public class AssetHistoryController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -30,9 +30,9 @@ namespace WebAPI.Controllers
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <remarks>Possible status codes: 
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetHistoryListResponse List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaAssetHistoryListResponse List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetHistoryListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -102,11 +102,11 @@ namespace WebAPI.Controllers
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
         /// <remarks>Possible status codes: 
         /// </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaWatchHistoryAssetWrapper ListOldStandard(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaWatchHistoryAssetWrapper ListOldStandard(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -166,11 +166,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">List of assets identifier</param>
         /// <returns></returns>
-        [Route("cleanOldStandard"), HttpPost]
+        [Action("cleanOldStandard")]
         [OldStandardAction("clean")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool CleanOldStandard(KalturaAssetsFilter filter = null)
+        static public bool CleanOldStandard(KalturaAssetsFilter filter = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -195,10 +195,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter for cleaning asset history</param>
         /// <returns></returns>
-        [Route("clean"), HttpPost]
+        [Action("clean")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public void Clean(KalturaAssetHistoryFilter filter = null)
+        static public void Clean(KalturaAssetHistoryFilter filter = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;

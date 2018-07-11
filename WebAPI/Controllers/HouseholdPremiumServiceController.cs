@@ -14,18 +14,18 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/householdPremiumService/action")]
-    public class HouseholdPremiumServiceController : ApiController
+    [Service("householdPremiumService")]
+    public class HouseholdPremiumServiceController : IKalturaController
     {
         /// <summary>
         /// Returns all the premium services allowed for the household
         /// </summary>
         /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaPremiumService> ListOldStandard()
+        static public List<KalturaPremiumService> ListOldStandard()
         {
             List<KalturaPremiumService> response = null;
 
@@ -48,9 +48,9 @@ namespace WebAPI.Controllers
         /// Returns all the premium services allowed for the household
         /// </summary>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaHouseholdPremiumServiceListResponse List()
+        static public KalturaHouseholdPremiumServiceListResponse List()
         {
             KalturaHouseholdPremiumServiceListResponse response = null;
 

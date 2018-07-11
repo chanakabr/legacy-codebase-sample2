@@ -14,17 +14,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetStructMeta/action")]
-    public class AssetStructMetaController : ApiController
+    [Service("assetStructMeta")]
+    public class AssetStructMetaController : IKalturaController
     {
         /// <summary>
         /// Return a list of asset struct metas for the account with optional filter
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]        
-        public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
+        static public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
         {
             KalturaAssetStructMetaListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -55,14 +55,14 @@ namespace WebAPI.Controllers
         /// <param name="metaId">Meta Identifier</param>
         /// <param name="assetStructMeta">AssetStructMeta Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [SchemeArgument("assetStructId", MinLong = 1)]
         [SchemeArgument("metaId", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
+        static public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
         {
             KalturaAssetStructMeta response = null;
             

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Discount module
     /// </summary>
-    public class KalturaDiscountModule : KalturaOTTObject
+    public partial class KalturaDiscountModule : KalturaOTTObject
     {
         /// <summary>
         /// The discount percentage

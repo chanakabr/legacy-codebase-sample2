@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    public class KalturaHouseholdDeviceListResponse : KalturaListResponse
+    public partial class KalturaHouseholdDeviceListResponse : KalturaListResponse
     {
 
         /// <summary>

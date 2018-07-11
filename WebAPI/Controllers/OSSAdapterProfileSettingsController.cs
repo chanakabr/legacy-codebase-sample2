@@ -15,19 +15,19 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ossAdapterProfileSettings/action")]
+    [Service("ossAdapterProfileSettings")]
     [Obsolete]
-    public class OssAdapterProfileSettingsController : ApiController
+    public class OssAdapterProfileSettingsController : IKalturaController
     {
         /// <summary>
         /// Returns all OSS adapter settings for partner
         /// </summary>
         /// <remarks>       
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaOSSAdapterProfile> List()
+        static public List<KalturaOSSAdapterProfile> List()
         {
             List<KalturaOSSAdapterProfile> response = null;
 
@@ -58,13 +58,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
         [Throws(eResponseStatus.OSSAdapterNotExist)]
         [Throws(eResponseStatus.OSSAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Delete(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Delete(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -95,13 +95,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
         [Throws(eResponseStatus.OSSAdapterNotExist)]
         [Throws(eResponseStatus.OSSAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Add(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Add(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -132,13 +132,13 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
         [Throws(eResponseStatus.OSSAdapterNotExist)]
         [Throws(eResponseStatus.OSSAdapterParamsRequired)]
         [Throws(eResponseStatus.ConflictedParams)]
-        public bool Update(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Update(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

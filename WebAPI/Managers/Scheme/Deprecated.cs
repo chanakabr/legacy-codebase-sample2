@@ -20,14 +20,18 @@ namespace WebAPI.Managers.Scheme
 
         public string SinceVersion { get; set; }
 
-        public static bool IsDeprecated(string version)
+        public static bool IsDeprecated(string version, Version current = null)
         {
-            if (HttpContext.Current == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
-                return false;
+            if (current == null)
+            {
+                if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                {
+                    return false;
+                }
+                current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            }
 
             Version deprecationVersion = new Version(version);
-            Version current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-
             return current.CompareTo(deprecationVersion) >= 0;
         }
     }

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.General
 {
-    public class KalturaStringValueArray : KalturaOTTObject
+    public partial class KalturaStringValueArray : KalturaOTTObject
     {
         /// <summary>
         /// List of string values

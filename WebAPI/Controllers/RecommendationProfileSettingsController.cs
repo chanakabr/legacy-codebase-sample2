@@ -4,25 +4,26 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/recommendationProfileSettings/action")]
+    [Service("recommendationProfileSettings")]
     [Obsolete]
-    public class RecommendationProfileSettingsController : ApiController
+    public class RecommendationProfileSettingsController : IKalturaController
     {
         /// <summary>
         /// Returns all recommendation engine settings for partner
         /// </summary>
         /// <remarks>
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaRecommendationProfile> List()
+        static public List<KalturaRecommendationProfile> List()
         {
             List<KalturaRecommendationProfile> response = null;
 
@@ -53,9 +54,9 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(int id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Delete(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -86,9 +87,9 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public bool Add(int id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Add(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -119,9 +120,9 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
-        public bool Update(int id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Update(int id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

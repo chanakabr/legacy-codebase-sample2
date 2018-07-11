@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Define client optional configurations
     /// </summary>
-    public class KalturaClientConfiguration : KalturaOTTObject
+    public partial class KalturaClientConfiguration : KalturaOTTObject
     {
         /// <summary>
         /// Client Tag

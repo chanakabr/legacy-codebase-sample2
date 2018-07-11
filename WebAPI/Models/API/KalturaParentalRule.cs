@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// Parental rule
     /// </summary>
     [Serializable]
-    public class KalturaParentalRule : KalturaOTTObject
+    public partial class KalturaParentalRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique parental rule identifier

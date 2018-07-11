@@ -16,8 +16,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetUserRule/action")]
-    public class AssetUserRuleController : ApiController
+    [Service("assetUserRule")]
+    public class AssetUserRuleController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">AssetUserRule Filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
-        public KalturaAssetUserRuleListResponse List(KalturaAssetUserRuleFilter filter = null)
+        static public KalturaAssetUserRuleListResponse List(KalturaAssetUserRuleFilter filter = null)
         {
             KalturaAssetUserRuleListResponse response = null;
 
@@ -59,9 +59,9 @@ namespace WebAPI.Controllers
         /// Add asset user rule
         /// </summary>
         /// <param name="assetUserRule">Asset user rule</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaAssetUserRule Add(KalturaAssetUserRule assetUserRule)
+        static public KalturaAssetUserRule Add(KalturaAssetUserRule assetUserRule)
         {
             KalturaAssetUserRule response = null;
 
@@ -92,11 +92,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assetUserRule">Asset user rule</param>
         /// <param name="id">Asset user rule ID to update</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaAssetUserRule Update(long id, KalturaAssetUserRule assetUserRule)
+        static public KalturaAssetUserRule Update(long id, KalturaAssetUserRule assetUserRule)
         {
             KalturaAssetUserRule response = null;
 
@@ -128,11 +128,11 @@ namespace WebAPI.Controllers
         /// Delete asset user rule
         /// </summary>
         /// <param name="id">Asset user rule ID</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [SchemeArgument("id", MinLong = 1)]
-        public void Delete(long id)
+        static public void Delete(long id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -150,14 +150,14 @@ namespace WebAPI.Controllers
         /// Attach AssetUserRule To User
         /// </summary>
         /// <param name="ruleId">AssetUserRule id to add</param>
-        [Route("attachUser"), HttpPost]
+        [Action("attachUser")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [Throws(eResponseStatus.UserAlreadyAttachedToAssetUserRule)]
         [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
         [SchemeArgument("ruleId", MinLong = 1)]
-        public void AttachUser(long ruleId)
+        static public void AttachUser(long ruleId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
@@ -176,13 +176,13 @@ namespace WebAPI.Controllers
         /// Detach AssetUserRule from user
         /// </summary>
         /// <param name="ruleId">AssetUserRule id to remove</param>
-        [Route("detachUser"), HttpPost]
+        [Action("detachUser")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.AssetUserRuleDoesNotExists)]
         [Throws(eResponseStatus.AssetUserRulesOperationsDisable)]
         [SchemeArgument("ruleId", MinLong = 1)]
-        public void DetachUser(long ruleId)
+        static public void DetachUser(long ruleId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;

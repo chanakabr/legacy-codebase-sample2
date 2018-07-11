@@ -17,7 +17,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset meta
     /// </summary>
-    public class KalturaMeta : KalturaOTTObject
+    public partial class KalturaMeta : KalturaOTTObject
     {
 
         private const string FEATURES_PATTERN = @"\W|[^ ]{64}[^ ]";

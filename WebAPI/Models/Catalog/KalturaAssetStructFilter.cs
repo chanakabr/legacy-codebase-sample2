@@ -27,7 +27,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering Asset Structs
     /// </summary>
     [Serializable]
-    public class KalturaAssetStructFilter: KalturaFilter<KalturaAssetStructOrderBy>
+    public partial class KalturaAssetStructFilter : KalturaFilter<KalturaAssetStructOrderBy>
     {
         /// <summary>
         /// Comma separated identifiers

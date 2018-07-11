@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetFilter : KalturaPersistedFilter<KalturaAssetOrderBy>
+    public partial class KalturaAssetFilter : KalturaPersistedFilter<KalturaAssetOrderBy>
     {
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {

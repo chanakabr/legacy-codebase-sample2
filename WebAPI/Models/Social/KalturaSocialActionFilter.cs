@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialActionFilter : KalturaFilter<KalturaSocialActionOrderBy>
+    public partial class KalturaSocialActionFilter : KalturaFilter<KalturaSocialActionOrderBy>
     {
 
         /// <summary>

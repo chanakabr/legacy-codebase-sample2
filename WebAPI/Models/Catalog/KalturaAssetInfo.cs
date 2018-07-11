@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaAssetInfoListResponse : KalturaListResponse
+    public partial class KalturaAssetInfoListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
+    public partial class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system

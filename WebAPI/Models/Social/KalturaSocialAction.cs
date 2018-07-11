@@ -12,7 +12,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Social
 {
     [XmlInclude(typeof(KalturaSocialActionRate))]
-    public class KalturaSocialAction : KalturaOTTObject
+    public partial class KalturaSocialAction : KalturaOTTObject
     {
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace WebAPI.Models.Social
         }
     }
 
-    public class KalturaSocialActionRate : KalturaSocialAction
+    public partial class KalturaSocialActionRate : KalturaSocialAction
     {
         /// <summary>
         /// The value of the rating

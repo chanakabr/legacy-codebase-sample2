@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    public class KalturaHouseholdUserFilter : KalturaFilter<KalturaHouseholdUserOrderBy>
+    public partial class KalturaHouseholdUserFilter : KalturaFilter<KalturaHouseholdUserOrderBy>
     {
         /// <summary>
         /// The identifier of the household

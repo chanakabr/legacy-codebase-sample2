@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaUserAssetsList : KalturaOTTObject
+    public partial class KalturaUserAssetsList : KalturaOTTObject
     {
         /// <summary>
         ///Assets list

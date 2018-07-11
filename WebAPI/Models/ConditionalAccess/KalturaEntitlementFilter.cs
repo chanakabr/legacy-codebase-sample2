@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    public class KalturaEntitlementFilter : KalturaFilter<KalturaEntitlementOrderBy> 
+    public partial class KalturaEntitlementFilter : KalturaFilter<KalturaEntitlementOrderBy> 
     {
         /// <summary>
         ///The type of the entitlements to return

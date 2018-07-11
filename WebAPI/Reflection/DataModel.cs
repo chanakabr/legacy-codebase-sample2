@@ -1,2334 +1,37 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
 using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using WebAPI.Controllers;
+using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.MultiRequest;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Social;
+using WebAPI.Models.General;
+using WebAPI.Models.Notifications;
+using WebAPI.Models.Notification;
+using WebAPI.App_Start;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.API;
+using WebAPI.Models.Pricing;
+using WebAPI.Models.Users;
+using WebAPI.Models.Partner;
+using WebAPI.Models.Upload;
+using WebAPI.Models.DMS;
+using WebAPI.Models.Domains;
+using WebAPI.Models.Billing;
+using WebAPI.EventNotifications;
 
 namespace WebAPI.Reflection
 {
     public class DataModel
     {
-        public static bool IsDeprecated(Type type, string propertyName)
-        {
-            switch (type.Name)
-            {
-                case "KalturaAppToken":
-                    switch (propertyName)
-                    {
-                        case "SessionType":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                        case "Status":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                    };
-                    break;
-                    
-                case "KalturaAsset":
-                    switch (propertyName)
-                    {
-                        case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaChannel":
-                    switch (propertyName)
-                    {
-                        case "AssetTypes":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "GroupBy":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Images":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Order":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaCollectionEntitlement":
-                    switch (propertyName)
-                    {
-                        case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                    };
-                    break;
-                    
-                case "KalturaCouponsGroup":
-                    switch (propertyName)
-                    {
-                        case "Descriptions":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                        case "DiscountCode":
-                            return DeprecatedAttribute.IsDeprecated("4.8.2.0");
-                    };
-                    break;
-                    
-                case "KalturaDynamicChannel":
-                    switch (propertyName)
-                    {
-                        case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Images":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Order":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaEntitlement":
-                    switch (propertyName)
-                    {
-                        case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                    };
-                    break;
-                    
-                case "KalturaEntitlementFilter":
-                    switch (propertyName)
-                    {
-                        case "EntitlementTypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                    };
-                    break;
-                    
-                case "KalturaLinearMediaAsset":
-                    switch (propertyName)
-                    {
-                        case "CatchUpBuffer":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "TrickPlayBuffer":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaManualChannel":
-                    switch (propertyName)
-                    {
-                        case "AssetTypes":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "GroupBy":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Images":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Order":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaMediaAsset":
-                    switch (propertyName)
-                    {
-                        case "CatchUpBuffer":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "TrickPlayBuffer":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaMediaFile":
-                    switch (propertyName)
-                    {
-                        case "BillingType":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Quality":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Type":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaMeta":
-                    switch (propertyName)
-                    {
-                        case "AssetType":
-                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
-                        case "FieldName":
-                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
-                        case "PartnerId":
-                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
-                        case "Type":
-                            return DeprecatedAttribute.IsDeprecated("5.6.0.0");
-                    };
-                    break;
-                    
-                case "KalturaMetaFilter":
-                    switch (propertyName)
-                    {
-                        case "AssetTypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "FeaturesIn":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "FieldNameEqual":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "FieldNameNotEqual":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "TypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaPlaybackSource":
-                    switch (propertyName)
-                    {
-                        case "AdsParams":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
-                        case "AdsPolicy":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
-                        case "BillingType":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Quality":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "Type":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaPpvEntitlement":
-                    switch (propertyName)
-                    {
-                        case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                    };
-                    break;
-                    
-                case "KalturaPricePlan":
-                    switch (propertyName)
-                    {
-                        case "PriceId":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                    };
-                    break;
-                    
-                case "KalturaProgramAsset":
-                    switch (propertyName)
-                    {
-                        case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaRecordingAsset":
-                    switch (propertyName)
-                    {
-                        case "EnableCatchUp":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableCdvr":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableStartOver":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                        case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaRecordingFilter":
-                    switch (propertyName)
-                    {
-                        case "FilterExpression":
-                            return DeprecatedAttribute.IsDeprecated("5.0.0.0");
-                    };
-                    break;
-                    
-                case "KalturaSession":
-                    switch (propertyName)
-                    {
-                        case "sessionType":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                    };
-                    break;
-                    
-                case "KalturaSessionInfo":
-                    switch (propertyName)
-                    {
-                        case "sessionType":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                    };
-                    break;
-                    
-                case "KalturaSubscription":
-                    switch (propertyName)
-                    {
-                        case "CouponsGroup":
-                            return DeprecatedAttribute.IsDeprecated("4.3.0.0");
-                        case "Descriptions":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
-                        case "Names":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
-                        case "PricePlans":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
-                        case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("4.3.0.0");
-                    };
-                    break;
-                    
-                case "KalturaSubscriptionEntitlement":
-                    switch (propertyName)
-                    {
-                        case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
-                    };
-                    break;
-                    
-                case "KalturaUserRole":
-                    switch (propertyName)
-                    {
-                        case "Permissions":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
-                    };
-                    break;
-                    
-            }
-            
-            return false;
-        }
-        
-        public static bool IsObsolete(Type type, string propertyName)
-        {
-            switch (type.Name)
-            {
-                case "KalturaAsset":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaAssetHistoryFilter":
-                    switch (propertyName)
-                    {
-                        case "filterTypes":
-                        case "with":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaAssetInfo":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaAssetReminderFilter":
-                    switch (propertyName)
-                    {
-                        case "KSql":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaBaseAssetInfo":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaBillingPartnerConfig":
-                    switch (propertyName)
-                    {
-                        case "PartnerConfigurationType":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaBookmark":
-                    switch (propertyName)
-                    {
-                        case "User":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaBookmarkFilter":
-                    switch (propertyName)
-                    {
-                        case "AssetIn":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaChannel":
-                    switch (propertyName)
-                    {
-                        case "AssetTypes":
-                        case "GroupBy":
-                        case "MediaTypes":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaCollectionEntitlement":
-                    switch (propertyName)
-                    {
-                        case "IsInGracePeriod":
-                        case "IsRenewable":
-                        case "IsRenewableForPurchase":
-                        case "MediaFileId":
-                        case "MediaId":
-                        case "NextRenewalDate":
-                        case "PurchaseId":
-                        case "Type":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaDevice":
-                    switch (propertyName)
-                    {
-                        case "Brand":
-                        case "State":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaDeviceFamily":
-                    switch (propertyName)
-                    {
-                        case "ConcurrentLimit":
-                        case "DeviceLimit":
-                        case "Devices":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaDeviceFamilyBase":
-                    switch (propertyName)
-                    {
-                        case "ConcurrentLimit":
-                        case "DeviceLimit":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaDynamicChannel":
-                    switch (propertyName)
-                    {
-                        case "MediaTypes":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaEntitlement":
-                    switch (propertyName)
-                    {
-                        case "IsInGracePeriod":
-                        case "IsRenewable":
-                        case "IsRenewableForPurchase":
-                        case "MediaFileId":
-                        case "MediaId":
-                        case "NextRenewalDate":
-                        case "PurchaseId":
-                        case "Type":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaEntitlementCancellation":
-                    switch (propertyName)
-                    {
-                        case "Type":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaFavorite":
-                    switch (propertyName)
-                    {
-                        case "Asset":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaFavoriteFilter":
-                    switch (propertyName)
-                    {
-                        case "MediaIds":
-                        case "MediaTypeIn":
-                        case "UDID":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaHousehold":
-                    switch (propertyName)
-                    {
-                        case "DefaultUsers":
-                        case "DeviceFamilies":
-                        case "MasterUsers":
-                        case "PendingUsers":
-                        case "Users":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaHouseholdDevice":
-                    switch (propertyName)
-                    {
-                        case "Brand":
-                        case "State":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaHouseholdPaymentMethod":
-                    switch (propertyName)
-                    {
-                        case "AllowMultiInstance":
-                        case "Name":
-                        case "Selected":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaLinearMediaAsset":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaLoginSession":
-                    switch (propertyName)
-                    {
-                        case "RefreshToken":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaManualChannel":
-                    switch (propertyName)
-                    {
-                        case "AssetTypes":
-                        case "GroupBy":
-                        case "MediaTypes":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaMediaAsset":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaOTTUser":
-                    switch (propertyName)
-                    {
-                        case "Country":
-                        case "FacebookId":
-                        case "FacebookImage":
-                        case "FacebookToken":
-                        case "SuspentionState":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaPaymentGatewayBaseProfile":
-                    switch (propertyName)
-                    {
-                        case "PaymentMethods":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaPaymentGatewayProfile":
-                    switch (propertyName)
-                    {
-                        case "PaymentMethods":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaPpvEntitlement":
-                    switch (propertyName)
-                    {
-                        case "IsInGracePeriod":
-                        case "IsRenewable":
-                        case "IsRenewableForPurchase":
-                        case "NextRenewalDate":
-                        case "PurchaseId":
-                        case "Type":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaProgramAsset":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaRecordingAsset":
-                    switch (propertyName)
-                    {
-                        case "Statistics":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaReminderFilter`1":
-                    switch (propertyName)
-                    {
-                        case "KSql":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaSeasonsReminderFilter":
-                    switch (propertyName)
-                    {
-                        case "KSql":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaSeriesReminderFilter":
-                    switch (propertyName)
-                    {
-                        case "KSql":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaSubscriptionEntitlement":
-                    switch (propertyName)
-                    {
-                        case "MediaFileId":
-                        case "MediaId":
-                        case "PurchaseId":
-                        case "Type":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaSubscriptionPrice":
-                    switch (propertyName)
-                    {
-                        case "Price":
-                        case "PurchaseStatus":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaUserRoleFilter":
-                    switch (propertyName)
-                    {
-                        case "Ids":
-                            return true;
-                    };
-                    break;
-                    
-            }
-            
-            return IsDeprecated(type, propertyName);
-        }
-        
-        public static Dictionary<string, string> getOldMembers(MethodInfo action, Version currentVersion)
-        {
-            Dictionary<string, string> ret = null;
-            switch (action.DeclaringType.Name)
-            {
-                case "CdnAdapterProfileController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"adapterId", "adapter_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "CDVRAdapterProfileController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"adapterId", "adapter_id"},
-                            };
-                            break;
-                        case "GenerateSharedSecret":
-                            ret = new Dictionary<string, string>() { 
-                                 {"adapterId", "adapter_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "ChannelController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"channelId", "channel_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "EntitlementController":
-                    switch(action.Name)
-                    {
-                        case "Buy":
-                            ret = new Dictionary<string, string>() { 
-                                 {"couponCode", "coupon_code"},
-                                 {"encryptedCvv", "encrypted_cvv"},
-                                 {"extraParams", "extra_params"},
-                                 {"fileId", "file_id"},
-                                 {"isSubscription", "is_subscription"},
-                                 {"itemId", "item_id"},
-                            };
-                            break;
-                        case "Cancel":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                                 {"productType", "transaction_type"},
-                            };
-                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
-                            {
-                                if (ret.ContainsKey("productType"))
-                                {
-                                    ret.Remove("productType");
-                                }
-                                ret.Add("productType", "transactionType");
-                            }
-                            break;
-                        case "CancelRenewal":
-                            ret = new Dictionary<string, string>() { 
-                                 {"subscriptionId", "subscription_id"},
-                            };
-                            break;
-                        case "ForceCancel":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                                 {"productType", "transaction_type"},
-                            };
-                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
-                            {
-                                if (ret.ContainsKey("productType"))
-                                {
-                                    ret.Remove("productType");
-                                }
-                                ret.Add("productType", "transactionType");
-                            }
-                            break;
-                        case "Grant":
-                            ret = new Dictionary<string, string>() { 
-                                 {"contentId", "content_id"},
-                                 {"productId", "product_id"},
-                                 {"productType", "product_type"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "ExternalChannelProfileController":
-                    switch(action.Name)
-                    {
-                        case "Add":
-                            ret = new Dictionary<string, string>() { 
-                                 {"externalChannel", "external_channel"},
-                            };
-                            break;
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"externalChannelId", "external_channel_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "FollowTvSeriesController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "HomeNetworkController":
-                    switch(action.Name)
-                    {
-                        case "Add":
-                            ret = new Dictionary<string, string>() { 
-                                 {"homeNetwork", "home_network"},
-                            };
-                            break;
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"externalId", "external_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "HouseholdController":
-                    switch(action.Name)
-                    {
-                        case "ResetFrequency":
-                            ret = new Dictionary<string, string>() { 
-                                 {"frequencyType", "household_frequency_type"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "HouseholdDeviceController":
-                    switch(action.Name)
-                    {
-                        case "AddByPin":
-                            ret = new Dictionary<string, string>() { 
-                                 {"deviceName", "device_name"},
-                            };
-                            break;
-                        case "GeneratePin":
-                            ret = new Dictionary<string, string>() { 
-                                 {"brandId", "brand_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "HouseholdPaymentGatewayController":
-                    switch(action.Name)
-                    {
-                        case "Invoke":
-                            ret = new Dictionary<string, string>() { 
-                                 {"extraParameters", "extra_parameters"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "HouseholdUserController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"id", "user_id_to_delete"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "LicensedUrlController":
-                    switch(action.Name)
-                    {
-                        case "GetOldStandard":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                                 {"assetType", "asset_type"},
-                                 {"baseUrl", "base_url"},
-                                 {"contentId", "content_id"},
-                                 {"startDate", "start_date"},
-                                 {"streamType", "stream_type"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "MessageTemplateController":
-                    switch(action.Name)
-                    {
-                        case "Get":
-                            ret = new Dictionary<string, string>() { 
-                                 {"messageType", "asset_Type"},
-                            };
-                            if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
-                            {
-                                if (ret.ContainsKey("messageType"))
-                                {
-                                    ret.Remove("messageType");
-                                }
-                                ret.Add("messageType", "assetType");
-                            }
-                            break;
-                        case "Update":
-                            ret = new Dictionary<string, string>() { 
-                                 {"messageType", "asset_Type"},
-                            };
-                            if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
-                            {
-                                if (ret.ContainsKey("messageType"))
-                                {
-                                    ret.Remove("messageType");
-                                }
-                                ret.Add("messageType", "assetType");
-                            }
-                            break;
-                    }
-                    break;
-                    
-                case "OssAdapterProfileController":
-                    switch(action.Name)
-                    {
-                        case "Add":
-                            ret = new Dictionary<string, string>() { 
-                                 {"ossAdapter", "oss_adapter"},
-                            };
-                            break;
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"ossAdapterId", "oss_adapter_id"},
-                            };
-                            break;
-                        case "GenerateSharedSecret":
-                            ret = new Dictionary<string, string>() { 
-                                 {"ossAdapterId", "oss_adapter_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "OttUserController":
-                    switch(action.Name)
-                    {
-                        case "Activate":
-                            ret = new Dictionary<string, string>() { 
-                                 {"activationToken", "activation_token"},
-                            };
-                            break;
-                        case "AddRole":
-                            ret = new Dictionary<string, string>() { 
-                                 {"roleId", "role_id"},
-                            };
-                            break;
-                        case "Login":
-                            ret = new Dictionary<string, string>() { 
-                                 {"extraParams", "extra_params"},
-                            };
-                            break;
-                        case "RefreshSession":
-                            ret = new Dictionary<string, string>() { 
-                                 {"refreshToken", "refresh_token"},
-                            };
-                            break;
-                        case "UpdateLoginData":
-                            ret = new Dictionary<string, string>() { 
-                                 {"newPassword", "new_password"},
-                                 {"oldPassword", "old_password"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "ParentalRuleController":
-                    switch(action.Name)
-                    {
-                        case "Disable":
-                            ret = new Dictionary<string, string>() { 
-                                 {"entityReference", "by"},
-                                 {"ruleId", "rule_id"},
-                            };
-                            break;
-                        case "DisableDefault":
-                            ret = new Dictionary<string, string>() { 
-                                 {"entityReference", "by"},
-                            };
-                            break;
-                        case "Enable":
-                            ret = new Dictionary<string, string>() { 
-                                 {"entityReference", "by"},
-                                 {"ruleId", "rule_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "PaymentGatewayController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGatewayId", "payment_gateway_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "PaymentGatewayProfileController":
-                    switch(action.Name)
-                    {
-                        case "AddOldStandard":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGateway", "payment_gateway"},
-                            };
-                            break;
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGatewayId", "payment_gateway_id"},
-                            };
-                            break;
-                        case "GenerateSharedSecret":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGatewayId", "payment_gateway_id"},
-                            };
-                            break;
-                        case "GetConfiguration":
-                            ret = new Dictionary<string, string>() { 
-                                 {"extraParameters", "extra_parameters"},
-                            };
-                            break;
-                        case "UpdateOldStandard":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGateway", "payment_gateway"},
-                                 {"paymentGatewayId", "payment_gateway_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "PaymentMethodProfileController":
-                    switch(action.Name)
-                    {
-                        case "UpdateOldStandard":
-                            ret = new Dictionary<string, string>() { 
-                                 {"paymentGatewayId", "payment_gateway_id"},
-                                 {"paymentMethod", "payment_method"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "RecommendationProfileController":
-                    switch(action.Name)
-                    {
-                        case "Add":
-                            ret = new Dictionary<string, string>() { 
-                                 {"recommendationEngine", "recommendation_engine"},
-                            };
-                            break;
-                        case "GenerateSharedSecret":
-                            ret = new Dictionary<string, string>() { 
-                                 {"recommendationEngineId", "recommendation_engine_id"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "SessionController":
-                    switch(action.Name)
-                    {
-                        case "GetOldStandard":
-                            ret = new Dictionary<string, string>() { 
-                                 {"session", "ks_to_parse"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "TransactionController":
-                    switch(action.Name)
-                    {
-                        case "SetWaiver":
-                            ret = new Dictionary<string, string>() { 
-                                 {"assetId", "asset_id"},
-                                 {"transactionType", "transaction_type"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-                case "UserLoginPinController":
-                    switch(action.Name)
-                    {
-                        case "Delete":
-                            ret = new Dictionary<string, string>() { 
-                                 {"pinCode", "pin_code"},
-                            };
-                            break;
-                        case "Update":
-                            ret = new Dictionary<string, string>() { 
-                                 {"pinCode", "pin_code"},
-                            };
-                            break;
-                    }
-                    break;
-                    
-            }
-            
-            return ret;
-        }
-        
-        public static Dictionary<string, string> getOldMembers(Type type, Version currentVersion)
-        {
-            Dictionary<string, string> ret = null;
-            switch (type.Name)
-            {
-                case "KalturaAnnouncement":
-                    ret = new Dictionary<string, string>() { 
-                        {"startTime", "start_time"},
-                    };
-                    break;
-                    
-                case "KalturaAssetBookmark":
-                    ret = new Dictionary<string, string>() { 
-                        {"finishedWatching", "finished_watching"},
-                        {"positionOwner", "position_owner"},
-                    };
-                    break;
-                    
-                case "KalturaAssetHistoryFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"daysLessThanOrEqual", "days"},
-                        {"filterTypes", "filter_types"},
-                        {"statusEqual", "filter_status"},
-                    };
-                    break;
-                    
-                case "KalturaAssetInfo":
-                    ret = new Dictionary<string, string>() { 
-                        {"endDate", "end_date"},
-                        {"extraParams", "extra_params"},
-                        {"mediaFiles", "media_files"},
-                        {"startDate", "start_date"},
-                    };
-                    break;
-                    
-                case "KalturaAssetInfoFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"referenceType", "reference_type"},
-                    };
-                    break;
-                    
-                case "KalturaAssetInfoListResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"requestId", "request_id"},
-                    };
-                    break;
-                    
-                case "KalturaAssetsFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"assets", "Assets"},
-                    };
-                    break;
-                    
-                case "KalturaAssetStatistics":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                        {"buzzScore", "buzz_score"},
-                        {"ratingCount", "rating_count"},
-                    };
-                    break;
-                    
-                case "KalturaBaseAssetInfo":
-                    ret = new Dictionary<string, string>() { 
-                        {"mediaFiles", "media_files"},
-                    };
-                    break;
-                    
-                case "KalturaBaseOTTUser":
-                    ret = new Dictionary<string, string>() { 
-                        {"firstName", "first_name"},
-                        {"lastName", "last_name"},
-                    };
-                    break;
-                    
-                case "KalturaBillingPartnerConfig":
-                    ret = new Dictionary<string, string>() { 
-                        {"partnerConfigurationType", "partner_configuration_type"},
-                    };
-                    break;
-                    
-                case "KalturaBillingResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"externalReceiptCode", "external_receipt_code"},
-                        {"receiptCode", "receipt_code"},
-                    };
-                    break;
-                    
-                case "KalturaBillingTransaction":
-                    ret = new Dictionary<string, string>() { 
-                        {"actionDate", "action_date"},
-                        {"billingAction", "billing_action"},
-                        {"billingProviderRef", "billing_provider_ref"},
-                        {"endDate", "end_date"},
-                        {"isRecurring", "is_recurring"},
-                        {"itemType", "item_type"},
-                        {"paymentMethod", "payment_method"},
-                        {"paymentMethodExtraDetails", "payment_method_extra_details"},
-                        {"purchasedItemCode", "purchased_item_code"},
-                        {"purchasedItemName", "purchased_item_name"},
-                        {"purchaseId", "purchase_id"},
-                        {"recieptCode", "reciept_code"},
-                        {"startDate", "start_date"},
-                    };
-                    break;
-                    
-                case "KalturaBuzzScore":
-                    ret = new Dictionary<string, string>() { 
-                        {"avgScore", "avg_score"},
-                        {"normalizedAvgScore", "normalized_avg_score"},
-                        {"updateDate", "update_date"},
-                    };
-                    break;
-                    
-                case "KalturaCDVRAdapterProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"adapterUrl", "adapter_url"},
-                        {"dynamicLinksSupport", "dynamic_links_support"},
-                        {"externalIdentifier", "external_identifier"},
-                        {"isActive", "is_active"},
-                        {"sharedSecret", "shared_secret"},
-                    };
-                    break;
-                    
-                case "KalturaChannel":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetTypes", "asset_types"},
-                        {"filterExpression", "filter_expression"},
-                    };
-                    break;
-                    
-                case "KalturaChannelProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetTypes", "asset_types"},
-                        {"filterExpression", "filter_expression"},
-                        {"isActive", "is_active"},
-                    };
-                    break;
-                    
-                case "KalturaCollection":
-                    ret = new Dictionary<string, string>() { 
-                        {"discountModule", "discount_module"},
-                    };
-                    break;
-                    
-                case "KalturaCollectionEntitlement":
-                    ret = new Dictionary<string, string>() { 
-                        {"currentDate", "current_date"},
-                        {"currentUses", "current_uses"},
-                        {"deviceName", "device_name"},
-                        {"deviceUdid", "device_udid"},
-                        {"endDate", "end_date"},
-                        {"entitlementId", "entitlement_id"},
-                        {"isCancelationWindowEnabled", "is_cancelation_window_enabled"},
-                        {"isInGracePeriod", "is_in_grace_period"},
-                        {"isRenewable", "is_renewable"},
-                        {"isRenewableForPurchase", "is_renewable_for_purchase"},
-                        {"lastViewDate", "last_view_date"},
-                        {"maxUses", "max_uses"},
-                        {"mediaFileId", "media_file_id"},
-                        {"mediaId", "media_id"},
-                        {"nextRenewalDate", "next_renewal_date"},
-                        {"paymentMethod", "payment_method"},
-                        {"purchaseDate", "purchase_date"},
-                        {"purchaseId", "purchase_id"},
-                    };
-                    break;
-                    
-                case "KalturaCollectionPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"productId", "product_id"},
-                        {"productType", "product_type"},
-                    };
-                    break;
-                    
-                case "KalturaCoupon":
-                    ret = new Dictionary<string, string>() { 
-                        {"couponsGroup", "coupons_group"},
-                    };
-                    break;
-                    
-                case "KalturaCouponsGroup":
-                    ret = new Dictionary<string, string>() { 
-                        {"endDate", "end_date"},
-                        {"maxUsesNumber", "max_uses_number"},
-                        {"maxUsesNumberOnRenewableSub", "max_uses_number_on_renewable_sub"},
-                        {"startDate", "start_date"},
-                    };
-                    break;
-                    
-                case "KalturaDevice":
-                    ret = new Dictionary<string, string>() { 
-                        {"activatedOn", "activated_on"},
-                        {"brandId", "brand_id"},
-                    };
-                    break;
-                    
-                case "KalturaDeviceFamily":
-                    ret = new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"deviceLimit", "device_limit"},
-                    };
-                    break;
-                    
-                case "KalturaDeviceFamilyBase":
-                    ret = new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"deviceLimit", "device_limit"},
-                    };
-                    break;
-                    
-                case "KalturaDiscount":
-                    ret = new Dictionary<string, string>() { 
-                        {"currencySign", "currency_sign"},
-                    };
-                    break;
-                    
-                case "KalturaDiscountModule":
-                    ret = new Dictionary<string, string>() { 
-                        {"endDate", "end_date"},
-                        {"startDate", "start_date"},
-                    };
-                    break;
-                    
-                case "KalturaDynamicChannel":
-                    ret = new Dictionary<string, string>() { 
-                        {"filterExpression", "filter_expression"},
-                    };
-                    break;
-                    
-                case "KalturaEntitlement":
-                    ret = new Dictionary<string, string>() { 
-                        {"currentDate", "current_date"},
-                        {"currentUses", "current_uses"},
-                        {"deviceName", "device_name"},
-                        {"deviceUdid", "device_udid"},
-                        {"endDate", "end_date"},
-                        {"entitlementId", "entitlement_id"},
-                        {"isCancelationWindowEnabled", "is_cancelation_window_enabled"},
-                        {"isInGracePeriod", "is_in_grace_period"},
-                        {"isRenewable", "is_renewable"},
-                        {"isRenewableForPurchase", "is_renewable_for_purchase"},
-                        {"lastViewDate", "last_view_date"},
-                        {"maxUses", "max_uses"},
-                        {"mediaFileId", "media_file_id"},
-                        {"mediaId", "media_id"},
-                        {"nextRenewalDate", "next_renewal_date"},
-                        {"paymentMethod", "payment_method"},
-                        {"purchaseDate", "purchase_date"},
-                        {"purchaseId", "purchase_id"},
-                    };
-                    break;
-                    
-                case "KalturaEntitlementFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"entitlementTypeEqual", "entitlement_type"},
-                    };
-                    break;
-                    
-                case "KalturaEntitlementsFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"entitlementType", "entitlement_type"},
-                    };
-                    break;
-                    
-                case "KalturaEPGChannelAssets":
-                    ret = new Dictionary<string, string>() { 
-                        {"channelId", "channel_id"},
-                    };
-                    break;
-                    
-                case "KalturaEPGChannelAssetsListResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"objects", "assets"},
-                    };
-                    break;
-                    
-                case "KalturaEpgChannelFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"endTime", "end_time"},
-                        {"startTime", "start_time"},
-                    };
-                    break;
-                    
-                case "KalturaExportTask":
-                    ret = new Dictionary<string, string>() { 
-                        {"dataType", "data_type"},
-                        {"exportType", "export_type"},
-                        {"isActive", "is_active"},
-                        {"notificationUrl", "notification_url"},
-                        {"vodTypes", "vod_types"},
-                    };
-                    break;
-                    
-                case "KalturaExternalChannelProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"externalIdentifier", "external_identifier"},
-                        {"filterExpression", "filter_expression"},
-                        {"isActive", "is_active"},
-                        {"recommendationEngineId", "recommendation_engine_id"},
-                    };
-                    break;
-                    
-                case "KalturaFavorite":
-                    ret = new Dictionary<string, string>() { 
-                        {"extraData", "extra_data"},
-                    };
-                    break;
-                    
-                case "KalturaFavoriteFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"mediaTypeIn", "media_type"},
-                    };
-                    break;
-                    
-                case "KalturaFeed":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                    };
-                    break;
-                    
-                case "KalturaFollowDataBase":
-                    ret = new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
-                        {"followPhrase", "follow_phrase"},
-                    };
-                    break;
-                    
-                case "KalturaFollowDataTvSeries":
-                    ret = new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
-                        {"assetId", "asset_id"},
-                        {"followPhrase", "follow_phrase"},
-                    };
-                    break;
-                    
-                case "KalturaFollowTvSeries":
-                    ret = new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
-                        {"followPhrase", "follow_phrase"},
-                    };
-                    break;
-                    
-                case "KalturaGenericRule":
-                    ret = new Dictionary<string, string>() { 
-                        {"ruleType", "rule_type"},
-                    };
-                    break;
-                    
-                case "KalturaGenericRuleFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                        {"assetType", "asset_type"},
-                    };
-                    break;
-                    
-                case "KalturaHomeNetwork":
-                    ret = new Dictionary<string, string>() { 
-                        {"externalId", "external_id"},
-                        {"isActive", "is_active"},
-                    };
-                    break;
-                    
-                case "KalturaHousehold":
-                    ret = new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"defaultUsers", "default_users"},
-                        {"deviceFamilies", "device_families"},
-                        {"devicesLimit", "devices_limit"},
-                        {"externalId", "external_id"},
-                        {"frequencyNextDeviceAction", "frequency_next_device_action"},
-                        {"frequencyNextUserAction", "frequency_next_user_action"},
-                        {"householdLimitationsId", "household_limitations_id"},
-                        {"isFrequencyEnabled", "is_frequency_enabled"},
-                        {"masterUsers", "master_users"},
-                        {"pendingUsers", "pending_users"},
-                        {"regionId", "region_id"},
-                        {"usersLimit", "users_limit"},
-                    };
-                    break;
-                    
-                case "KalturaHouseholdDevice":
-                    ret = new Dictionary<string, string>() { 
-                        {"activatedOn", "activated_on"},
-                        {"brandId", "brand_id"},
-                    };
-                    break;
-                    
-                case "KalturaHouseholdDeviceFamilyLimitations":
-                    ret = new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"deviceLimit", "device_limit"},
-                    };
-                    break;
-                    
-                case "KalturaHouseholdLimitations":
-                    ret = new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"deviceFamiliesLimitations", "device_families_limitations"},
-                        {"deviceFrequency", "device_frequency"},
-                        {"deviceFrequencyDescription", "device_frequency_description"},
-                        {"deviceLimit", "device_limit"},
-                        {"npvrQuotaInSeconds", "npvr_quota_in_seconds"},
-                        {"userFrequency", "user_frequency"},
-                        {"userFrequencyDescription", "user_frequency_description"},
-                        {"usersLimit", "users_limit"},
-                    };
-                    break;
-                    
-                case "KalturaImageType":
-                    ret = new Dictionary<string, string>() { 
-                        {"id", "id"},
-                    };
-                    break;
-                    
-                case "KalturaItemPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"fileId", "file_id"},
-                        {"ppvPriceDetails", "ppv_price_details"},
-                        {"productId", "product_id"},
-                        {"productType", "product_type"},
-                    };
-                    break;
-                    
-                case "KalturaLicensedUrl":
-                    ret = new Dictionary<string, string>() { 
-                        {"altUrl", "alt_url"},
-                        {"mainUrl", "main_url"},
-                    };
-                    break;
-                    
-                case "KalturaLoginResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"loginSession", "login_session"},
-                    };
-                    break;
-                    
-                case "KalturaLoginSession":
-                    ret = new Dictionary<string, string>() { 
-                        {"refreshToken", "refresh_token"},
-                    };
-                    break;
-                    
-                case "KalturaManualChannel":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetTypes", "asset_types"},
-                        {"filterExpression", "filter_expression"},
-                    };
-                    break;
-                    
-                case "KalturaMediaFile":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                        {"externalId", "external_id"},
-                    };
-                    break;
-                    
-                case "KalturaMediaImage":
-                    ret = new Dictionary<string, string>() { 
-                        {"isDefault", "is_default"},
-                    };
-                    break;
-                    
-                case "KalturaMessageTemplate":
-                    ret = new Dictionary<string, string>() { 
-                        {"dateFormat", "date_format"},
-                        {"messageType", "asset_type"},
-                    };
-                    if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
-                    {
-                        if (ret.ContainsKey("messageType"))
-                        {
-                            ret.Remove("messageType");
-                        }
-                        ret.Add("messageType", "assetType");
-                    }
-                    break;
-                    
-                case "KalturaNotificationSettings":
-                    ret = new Dictionary<string, string>() { 
-                        {"pushFollowEnabled", "push_follow_enabled"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
-                    };
-                    break;
-                    
-                case "KalturaNotificationsPartnerSettings":
-                    ret = new Dictionary<string, string>() { 
-                        {"pushEndHour", "push_end_hour"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
-                        {"pushStartHour", "push_start_hour"},
-                        {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
-                    };
-                    break;
-                    
-                case "KalturaNotificationsSettings":
-                    ret = new Dictionary<string, string>() { 
-                        {"pushFollowEnabled", "push_follow_enabled"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
-                    };
-                    break;
-                    
-                case "KalturaOSSAdapterProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"adapterUrl", "adapter_url"},
-                        {"externalIdentifier", "external_identifier"},
-                        {"isActive", "is_active"},
-                        {"ossAdapterSettings", "oss_adapter_settings"},
-                        {"sharedSecret", "shared_secret"},
-                    };
-                    break;
-                    
-                case "KalturaOTTCategory":
-                    ret = new Dictionary<string, string>() { 
-                        {"childCategories", "child_categories"},
-                        {"parentCategoryId", "parent_category_id"},
-                    };
-                    break;
-                    
-                case "KalturaOTTUser":
-                    ret = new Dictionary<string, string>() { 
-                        {"affiliateCode", "affiliate_code"},
-                        {"dynamicData", "dynamic_data"},
-                        {"externalId", "external_id"},
-                        {"facebookId", "facebook_id"},
-                        {"facebookImage", "facebook_image"},
-                        {"facebookToken", "facebook_token"},
-                        {"firstName", "first_name"},
-                        {"householdId", "household_id"},
-                        {"isHouseholdMaster", "is_household_master"},
-                        {"lastName", "last_name"},
-                        {"suspentionState", "suspention_state"},
-                        {"userState", "user_state"},
-                        {"userType", "user_type"},
-                    };
-                    break;
-                    
-                case "KalturaParentalRule":
-                    ret = new Dictionary<string, string>() { 
-                        {"blockAnonymousAccess", "block_anonymous_access"},
-                        {"epgTag", "epg_tag"},
-                        {"epgTagValues", "epg_tag_values"},
-                        {"isDefault", "is_default"},
-                        {"mediaTag", "media_tag"},
-                        {"mediaTagValues", "media_tag_values"},
-                        {"ruleType", "rule_type"},
-                    };
-                    break;
-                    
-                case "KalturaPartnerNotificationSettings":
-                    ret = new Dictionary<string, string>() { 
-                        {"pushEndHour", "push_end_hour"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
-                        {"pushStartHour", "push_start_hour"},
-                        {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
-                    };
-                    break;
-                    
-                case "KalturaPaymentGatewayBaseProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"isDefault", "is_default"},
-                        {"paymentMethods", "payment_methods"},
-                        {"selectedBy", "selected_by"},
-                    };
-                    break;
-                    
-                case "KalturaPaymentGatewayConfiguration":
-                    ret = new Dictionary<string, string>() { 
-                        {"paymentGatewayConfiguration", "payment_gatewaye_configuration"},
-                    };
-                    break;
-                    
-                case "KalturaPaymentGatewayProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"adapterUrl", "adapter_url"},
-                        {"externalIdentifier", "external_identifier"},
-                        {"isActive", "is_active"},
-                        {"isDefault", "is_default"},
-                        {"paymentMethods", "payment_methods"},
-                        {"pendingInterval", "pending_interval"},
-                        {"pendingRetries", "pending_retries"},
-                        {"renewIntervalMinutes", "renew_interval_minutes"},
-                        {"renewStartMinutes", "renew_start_minutes"},
-                        {"renewUrl", "renew_url"},
-                        {"selectedBy", "selected_by"},
-                        {"paymentGatewaySettings", "payment_gateway_settings"},
-                        {"sharedSecret", "shared_secret"},
-                        {"statusUrl", "status_url"},
-                        {"transactUrl", "transact_url"},
-                    };
-                    break;
-                    
-                case "KalturaPaymentMethod":
-                    ret = new Dictionary<string, string>() { 
-                        {"allowMultiInstance", "allow_multi_instance"},
-                        {"householdPaymentMethods", "household_payment_methods"},
-                    };
-                    break;
-                    
-                case "KalturaPaymentMethodProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"allowMultiInstance", "allow_multi_instance"},
-                    };
-                    break;
-                    
-                case "KalturaPersonalAssetRequest":
-                    ret = new Dictionary<string, string>() { 
-                        {"fileIds", "file_ids"},
-                    };
-                    break;
-                    
-                case "KalturaPersonalFeed":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                    };
-                    break;
-                    
-                case "KalturaPersonalFollowFeed":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                    };
-                    break;
-                    
-                case "KalturaPlaybackSource":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
-                        {"externalId", "external_id"},
-                    };
-                    break;
-                    
-                case "KalturaPlayerAssetData":
-                    ret = new Dictionary<string, string>() { 
-                        {"averageBitrate", "average_bitrate"},
-                        {"currentBitrate", "current_bitrate"},
-                        {"totalBitrate", "total_bitrate"},
-                    };
-                    break;
-                    
-                case "KalturaPpvEntitlement":
-                    ret = new Dictionary<string, string>() { 
-                        {"currentDate", "current_date"},
-                        {"currentUses", "current_uses"},
-                        {"deviceName", "device_name"},
-                        {"deviceUdid", "device_udid"},
-                        {"endDate", "end_date"},
-                        {"entitlementId", "entitlement_id"},
-                        {"isCancelationWindowEnabled", "is_cancelation_window_enabled"},
-                        {"isInGracePeriod", "is_in_grace_period"},
-                        {"isRenewable", "is_renewable"},
-                        {"isRenewableForPurchase", "is_renewable_for_purchase"},
-                        {"lastViewDate", "last_view_date"},
-                        {"maxUses", "max_uses"},
-                        {"mediaFileId", "media_file_id"},
-                        {"mediaId", "media_id"},
-                        {"nextRenewalDate", "next_renewal_date"},
-                        {"paymentMethod", "payment_method"},
-                        {"purchaseDate", "purchase_date"},
-                        {"purchaseId", "purchase_id"},
-                    };
-                    break;
-                    
-                case "KalturaPPVItemPriceDetails":
-                    ret = new Dictionary<string, string>() { 
-                        {"collectionId", "collection_id"},
-                        {"discountEndDate", "discount_end_date"},
-                        {"endDate", "end_date"},
-                        {"firstDeviceName", "first_device_name"},
-                        {"fullPrice", "full_price"},
-                        {"isInCancelationPeriod", "is_in_cancelation_period"},
-                        {"isSubscriptionOnly", "is_subscription_only"},
-                        {"ppvDescriptions", "ppv_descriptions"},
-                        {"ppvModuleId", "ppv_module_id"},
-                        {"prePaidId", "pre_paid_id"},
-                        {"ppvProductCode", "ppv_product_code"},
-                        {"purchasedMediaFileId", "purchased_media_file_id"},
-                        {"purchaseStatus", "purchase_status"},
-                        {"purchaseUserId", "purchase_user_id"},
-                        {"relatedMediaFileIds", "related_media_file_ids"},
-                        {"startDate", "start_date"},
-                        {"subscriptionId", "subscription_id"},
-                    };
-                    break;
-                    
-                case "KalturaPpvPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"productId", "product_id"},
-                        {"productType", "product_type"},
-                    };
-                    break;
-                    
-                case "KalturaPreviewModule":
-                    ret = new Dictionary<string, string>() { 
-                        {"lifeCycle", "life_cycle"},
-                        {"nonRenewablePeriod", "non_renewable_period"},
-                    };
-                    break;
-                    
-                case "KalturaPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"currencySign", "currency_sign"},
-                    };
-                    break;
-                    
-                case "KalturaPricePlan":
-                    ret = new Dictionary<string, string>() { 
-                        {"couponId", "coupon_id"},
-                        {"discountId", "discount_id"},
-                        {"fullLifeCycle", "full_life_cycle"},
-                        {"isOfflinePlayback", "is_offline_playback"},
-                        {"isRenewable", "is_renewable"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
-                        {"maxViewsNumber", "max_views_number"},
-                        {"priceId", "price_id"},
-                        {"renewalsNumber", "renewals_number"},
-                        {"viewLifeCycle", "view_life_cycle"},
-                        {"waiverPeriod", "waiver_period"},
-                    };
-                    break;
-                    
-                case "KalturaPricesFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"filesIds", "files_ids"},
-                        {"shouldGetOnlyLowest", "should_get_only_lowest"},
-                        {"subscriptionsIds", "subscriptions_ids"},
-                    };
-                    break;
-                    
-                case "KalturaProductPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"productId", "product_id"},
-                        {"productType", "product_type"},
-                    };
-                    break;
-                    
-                case "KalturaPurchaseSettingsResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"purchaseSettingsType", "purchase_settings_type"},
-                    };
-                    break;
-                    
-                case "KalturaRecommendationProfile":
-                    ret = new Dictionary<string, string>() { 
-                        {"adapterUrl", "adapter_url"},
-                        {"externalIdentifier", "external_identifier"},
-                        {"isActive", "is_active"},
-                        {"recommendationEngineSettings", "recommendation_engine_settings"},
-                        {"sharedSecret", "shared_secret"},
-                    };
-                    break;
-                    
-                case "KalturaSocialFacebookConfig":
-                    ret = new Dictionary<string, string>() { 
-                        {"appId", "app_id"},
-                    };
-                    break;
-                    
-                case "KalturaSocialResponse":
-                    ret = new Dictionary<string, string>() { 
-                        {"kalturaUsername", "kaltura_username"},
-                        {"minFriendsLimitation", "min_friends_limitation"},
-                        {"socialUsername", "social_username"},
-                        {"socialUser", "social_user"},
-                        {"userId", "user_id"},
-                    };
-                    break;
-                    
-                case "KalturaSocialUser":
-                    ret = new Dictionary<string, string>() { 
-                        {"firstName", "first_name"},
-                        {"lastName", "last_name"},
-                        {"userId", "user_id"},
-                    };
-                    break;
-                    
-                case "KalturaSubscription":
-                    ret = new Dictionary<string, string>() { 
-                        {"couponsGroup", "coupons_group"},
-                        {"discountModule", "discount_module"},
-                        {"endDate", "end_date"},
-                        {"fileTypes", "file_types"},
-                        {"gracePeriodMinutes", "grace_period_minutes"},
-                        {"householdLimitationsId", "household_limitations_id"},
-                        {"isInfiniteRenewal", "is_infinite_renewal"},
-                        {"isRenewable", "is_renewable"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
-                        {"maxViewsNumber", "max_views_number"},
-                        {"mediaId", "media_id"},
-                        {"premiumServices", "premium_services"},
-                        {"previewModule", "preview_module"},
-                        {"pricePlans", "price_plans"},
-                        {"productCode", "product_code"},
-                        {"prorityInOrder", "prority_in_order"},
-                        {"renewalsNumber", "renewals_number"},
-                        {"startDate", "start_date"},
-                        {"userTypes", "user_types"},
-                        {"viewLifeCycle", "view_life_cycle"},
-                        {"waiverPeriod", "waiver_period"},
-                    };
-                    break;
-                    
-                case "KalturaSubscriptionEntitlement":
-                    ret = new Dictionary<string, string>() { 
-                        {"currentDate", "current_date"},
-                        {"currentUses", "current_uses"},
-                        {"deviceName", "device_name"},
-                        {"deviceUdid", "device_udid"},
-                        {"endDate", "end_date"},
-                        {"entitlementId", "entitlement_id"},
-                        {"isCancelationWindowEnabled", "is_cancelation_window_enabled"},
-                        {"isInGracePeriod", "is_in_grace_period"},
-                        {"isRenewable", "is_renewable"},
-                        {"isRenewableForPurchase", "is_renewable_for_purchase"},
-                        {"lastViewDate", "last_view_date"},
-                        {"maxUses", "max_uses"},
-                        {"mediaFileId", "media_file_id"},
-                        {"mediaId", "media_id"},
-                        {"nextRenewalDate", "next_renewal_date"},
-                        {"paymentMethod", "payment_method"},
-                        {"purchaseDate", "purchase_date"},
-                        {"purchaseId", "purchase_id"},
-                    };
-                    break;
-                    
-                case "KalturaSubscriptionPrice":
-                    ret = new Dictionary<string, string>() { 
-                        {"productId", "product_id"},
-                        {"productType", "product_type"},
-                        {"purchaseStatus", "purchase_status"},
-                    };
-                    break;
-                    
-                case "KalturaTimeShiftedTvPartnerSettings":
-                    ret = new Dictionary<string, string>() { 
-                        {"catchUpBufferLength", "catch_up_buffer_length"},
-                        {"catchUpEnabled", "catch_up_enabled"},
-                        {"cdvrEnabled", "cdvr_enabled"},
-                        {"recordingScheduleWindow", "recording_schedule_window"},
-                        {"recordingScheduleWindowEnabled", "recording_schedule_window_enabled"},
-                        {"startOverEnabled", "start_over_enabled"},
-                        {"trickPlayBufferLength", "trick_play_buffer_length"},
-                        {"trickPlayEnabled", "trick_play_enabled"},
-                    };
-                    break;
-                    
-                case "KalturaTransaction":
-                    ret = new Dictionary<string, string>() { 
-                        {"createdAt", "created_at"},
-                        {"failReasonCode", "fail_reason_code"},
-                        {"paymentGatewayReferenceId", "payment_gateway_reference_id"},
-                        {"paymentGatewayResponseId", "payment_gateway_response_id"},
-                    };
-                    break;
-                    
-                case "KalturaTransactionsFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"endDate", "end_date"},
-                        {"startDate", "start_date"},
-                    };
-                    break;
-                    
-                case "KalturaUsageModule":
-                    ret = new Dictionary<string, string>() { 
-                        {"couponId", "coupon_id"},
-                        {"fullLifeCycle", "full_life_cycle"},
-                        {"isOfflinePlayback", "is_offline_playback"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
-                        {"maxViewsNumber", "max_views_number"},
-                        {"viewLifeCycle", "view_life_cycle"},
-                        {"waiverPeriod", "waiver_period"},
-                    };
-                    break;
-                    
-                case "KalturaUserAssetsList":
-                    ret = new Dictionary<string, string>() { 
-                        {"listType", "list_type"},
-                    };
-                    break;
-                    
-                case "KalturaUserAssetsListFilter":
-                    ret = new Dictionary<string, string>() { 
-                        {"assetTypeEqual", "asset_type"},
-                        {"listTypeEqual", "list_type"},
-                    };
-                    break;
-                    
-                case "KalturaUserAssetsListItem":
-                    ret = new Dictionary<string, string>() { 
-                        {"listType", "list_type"},
-                        {"orderIndex", "order_index"},
-                        {"userId", "user_id"},
-                    };
-                    break;
-                    
-                case "KalturaUserBillingTransaction":
-                    ret = new Dictionary<string, string>() { 
-                        {"actionDate", "action_date"},
-                        {"billingAction", "billing_action"},
-                        {"billingProviderRef", "billing_provider_ref"},
-                        {"endDate", "end_date"},
-                        {"isRecurring", "is_recurring"},
-                        {"itemType", "item_type"},
-                        {"paymentMethod", "payment_method"},
-                        {"paymentMethodExtraDetails", "payment_method_extra_details"},
-                        {"purchasedItemCode", "purchased_item_code"},
-                        {"purchasedItemName", "purchased_item_name"},
-                        {"purchaseId", "purchase_id"},
-                        {"recieptCode", "reciept_code"},
-                        {"startDate", "start_date"},
-                        {"userFullName", "user_full_name"},
-                        {"userId", "user_id"},
-                    };
-                    break;
-                    
-                case "KalturaUserLoginPin":
-                    ret = new Dictionary<string, string>() { 
-                        {"expirationTime", "expiration_time"},
-                        {"pinCode", "pin_code"},
-                        {"userId", "user_id"},
-                    };
-                    break;
-                    
-                case "KalturaWatchHistoryAsset":
-                    ret = new Dictionary<string, string>() { 
-                        {"finishedWatching", "finished_watching"},
-                        {"watchedDate", "watched_date"},
-                    };
-                    break;
-                    
-                case "AnnouncementController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"enableSystemAnnouncements", "createannouncement"},
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "AssetController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "AssetHistoryController":
-                    ret = new Dictionary<string, string>() { 
-                        {"cleanOldStandard", "clean"},
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "BookmarkController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "CDVRAdapterProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "ChannelController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "EntitlementController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "ExportTaskController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "ExternalChannelProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "FavoriteController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"deleteOldStandard", "delete"},
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "FollowTvSeriesController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "HomeNetworkController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "HouseholdController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "HouseholdDeviceController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "HouseholdPaymentGatewayController":
-                    ret = new Dictionary<string, string>() { 
-                        {"disable", "delete"},
-                        {"enable", "set"},
-                    };
-                    break;
-                    
-                case "HouseholdPremiumServiceController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "HouseholdUserController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                    };
-                    break;
-                    
-                case "LicensedUrlController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                    };
-                    break;
-                    
-                case "MetaController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "NotificationsPartnerSettingsController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "NotificationsSettingsController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "OssAdapterProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "OttUserController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"register", "add"},
-                        {"resetPassword", "sendpassword"},
-                        {"setPassword", "resetpassword"},
-                        {"updateLoginData", "changepassword"},
-                    };
-                    break;
-                    
-                case "ParentalRuleController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "PaymentGatewayProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "PaymentGatewayProfileSettingsController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                    };
-                    break;
-                    
-                case "PaymentMethodProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"deleteOldStandard", "delete"},
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "PersonalFeedController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "PinController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "PurchaseSettingsController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "RecommendationProfileController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                        {"updateOldStandard", "update"},
-                    };
-                    break;
-                    
-                case "RegistrySettingsController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "SessionController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
-                    };
-                    break;
-                    
-                case "SocialController":
-                    ret = new Dictionary<string, string>() { 
-                        {"getByTokenOldStandard", "getbytoken"},
-                        {"getConfiguration", "config"},
-                        {"mergeOldStandard", "merge"},
-                        {"registerOldStandard", "register"},
-                        {"unmergeOldStandard", "unmerge"},
-                    };
-                    break;
-                    
-                case "SubscriptionController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "TopicController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "TransactionController":
-                    ret = new Dictionary<string, string>() { 
-                        {"purchaseOldStandard", "purchase"},
-                        {"purchaseSessionIdOldStandard", "purchasesessionid"},
-                        {"setWaiver", "waiver"},
-                    };
-                    break;
-                    
-                case "TransactionHistoryController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "UserAssetRuleController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-                case "UserAssetsListItemController":
-                    ret = new Dictionary<string, string>() { 
-                        {"deleteOldStandard", "delete"},
-                        {"getOldStandard", "get"},
-                    };
-                    break;
-                    
-                case "UserRoleController":
-                    ret = new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
-                    };
-                    break;
-                    
-            }
-            
-            return ret;
-        }
-        
         public static string getApiName(PropertyInfo property)
         {
             switch (property.DeclaringType.Name)
@@ -2870,8 +573,14 @@ namespace WebAPI.Reflection
                 case "KalturaAssetStruct":
                     switch(property.Name)
                     {
+                        case "ConnectedParentMetaId":
+                            return "connectedParentMetaId";
+                        case "ConnectingMetaId":
+                            return "connectingMetaId";
                         case "CreateDate":
                             return "createDate";
+                        case "Features":
+                            return "features";
                         case "Id":
                             return "id";
                         case "IsProtected":
@@ -2880,6 +589,10 @@ namespace WebAPI.Reflection
                             return "metaIds";
                         case "Name":
                             return "name";
+                        case "ParentId":
+                            return "parentId";
+                        case "PluralName":
+                            return "pluralName";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":
@@ -3066,6 +779,8 @@ namespace WebAPI.Reflection
                     {
                         case "IsFinishedWatching":
                             return "finishedWatching";
+                        case "IsReportingMode":
+                            return "isReportingMode";
                         case "PlayerData":
                             return "playerData";
                         case "Position":
@@ -6450,8 +4165,6 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
-                        case "ExternalId":
-                            return "externalId";
                         case "Id":
                             return "id";
                         case "IsProtected":
@@ -6512,8 +4225,6 @@ namespace WebAPI.Reflection
                     {
                         case "FilterExpression":
                             return "filterExpression";
-                        case "Ksql":
-                            return "kSql";
                         case "StatusIn":
                             return "statusIn";
                     }
@@ -7758,185 +5469,9078 @@ namespace WebAPI.Reflection
             return property.Name;
         }
         
-        public static void validateAuthorization(MethodInfo action, string serviceName, string actionName)
+        public static object execAction(string service, string action, List<object> methodParams)
         {
-            bool silent = false;
-            switch (action.DeclaringType.Name)
+            service = service.ToLower();
+            action = action.ToLower();
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion();
+            switch (service)
             {
-                case "AssetFileController":
-                    switch(action.Name)
+                case "announcement":
+                    switch(action)
                     {
-                        case "PlayManifest":
-                            return;
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "addOldStandard", false);
+                                return AnnouncementController.AddOldStandard((KalturaAnnouncement) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("announcement", "add", false);
+                            return AnnouncementController.Add((KalturaAnnouncement) methodParams[0]);
                             
-                    }
-                    break;
-                    
-                case "BaseCategoryController":
-                    return;
-                    
-                case "BookmarkController":
-                    switch(action.Name)
-                    {
-                        case "Add":
-                            silent = true;
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("announcement", "addOldStandard", false);
+                            return AnnouncementController.AddOldStandard((KalturaAnnouncement) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("announcement", "delete", false);
+                            return AnnouncementController.Delete((long) methodParams[0]);
+                            
+                        case "enablesystemannouncements":
+                            RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", false);
+                            return AnnouncementController.EnableSystemAnnouncements();
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "listOldStandard", false);
+                                return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("announcement", "list", false);
+                            return AnnouncementController.List((KalturaAnnouncementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("announcement", "listOldStandard", false);
+                            return AnnouncementController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "updateOldStandard", false);
+                                return AnnouncementController.UpdateOldStandard((KalturaAnnouncement) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("announcement", "update", false);
+                            return AnnouncementController.Update((int) methodParams[0], (KalturaAnnouncement) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("announcement", "updateOldStandard", false);
+                            return AnnouncementController.UpdateOldStandard((KalturaAnnouncement) methodParams[0]);
+                            
+                        case "updatestatus":
+                            RolesManager.ValidateActionPermitted("announcement", "updateStatus", false);
+                            return AnnouncementController.UpdateStatus((long) methodParams[0], (bool) methodParams[1]);
+                            
+                        case "createAnnouncement":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", false);
+                                return AnnouncementController.EnableSystemAnnouncements();
+                            }
                             break;
                             
-                        case "AddOldStandard":
-                            silent = true;
+                    }
+                    break;
+                    
+                case "apptoken":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("appToken", "add", false);
+                            return AppTokenController.Add((KalturaAppToken) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("appToken", "delete", false);
+                            return AppTokenController.Delete((string) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("appToken", "get", false);
+                            return AppTokenController.Get((string) methodParams[0]);
+                            
+                        case "startsession":
+                            RolesManager.ValidateActionPermitted("appToken", "startSession", false);
+                            return AppTokenController.StartSession((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (Nullable<int>) methodParams[3], (string) methodParams[4]);
+                            
+                    }
+                    break;
+                    
+                case "assetcomment":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("assetComment", "add", false);
+                            return AssetCommentController.Add((KalturaAssetComment) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetComment", "list", false);
+                            return AssetCommentController.List((KalturaAssetCommentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "asset":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("asset", "add", false);
+                            return AssetController.Add((KalturaAsset) methodParams[0]);
+                            
+                        case "autocomplete":
+                            RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
+                            return AssetController.Autocomplete((string) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (Nullable<KalturaOrder>) methodParams[3], (Nullable<int>) methodParams[4]);
+                            
+                        case "channel":
+                            RolesManager.ValidateActionPermitted("asset", "channel", false);
+                            return AssetController.Channel((int) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3], (string) methodParams[4]);
+                            
+                        case "count":
+                            RolesManager.ValidateActionPermitted("asset", "count", false);
+                            return AssetController.Count((KalturaSearchAssetFilter) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("asset", "delete", false);
+                            return AssetController.Delete((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
+                            
+                        case "externalchannel":
+                            RolesManager.ValidateActionPermitted("asset", "externalChannel", false);
+                            return AssetController.ExternalChannel((int) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3], (Nullable<float>) methodParams[4], (string) methodParams[5]);
+                            
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("asset", "getOldStandard", false);
+                                return AssetController.GetOldStandard((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (List<KalturaCatalogWithHolder>) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("asset", "get", false);
+                            return AssetController.Get((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1]);
+                            
+                        case "getadscontext":
+                            RolesManager.ValidateActionPermitted("asset", "getAdsContext", false);
+                            return AssetController.GetAdsContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("asset", "getOldStandard", false);
+                            return AssetController.GetOldStandard((string) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (List<KalturaCatalogWithHolder>) methodParams[2]);
+                            
+                        case "getplaybackcontext":
+                            RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", false);
+                            return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("asset", "listOldStandard", false);
+                                return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
+                            }
+                            RolesManager.ValidateActionPermitted("asset", "list", false);
+                            return AssetController.List((KalturaAssetFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("asset", "listOldStandard", false);
+                            return AssetController.ListOldStandard((KalturaAssetInfoFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (Nullable<KalturaOrder>) methodParams[2], (KalturaFilterPager) methodParams[3]);
+                            
+                        case "related":
+                            RolesManager.ValidateActionPermitted("asset", "related", false);
+                            return AssetController.Related((int) methodParams[0], (string) methodParams[1], (KalturaFilterPager) methodParams[2], (List<KalturaIntegerValue>) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
+                            
+                        case "relatedexternal":
+                            RolesManager.ValidateActionPermitted("asset", "relatedExternal", false);
+                            return AssetController.RelatedExternal((int) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4], (string) methodParams[5]);
+                            
+                        case "removemetasandtags":
+                            RolesManager.ValidateActionPermitted("asset", "removeMetasAndTags", false);
+                            return AssetController.RemoveMetasAndTags((long) methodParams[0], (KalturaAssetReferenceType) methodParams[1], (string) methodParams[2]);
+                            
+                        case "search":
+                            RolesManager.ValidateActionPermitted("asset", "search", false);
+                            return AssetController.Search((Nullable<KalturaOrder>) methodParams[0], (List<KalturaIntegerValue>) methodParams[1], (string) methodParams[2], (List<KalturaCatalogWithHolder>) methodParams[3], (KalturaFilterPager) methodParams[4], (string) methodParams[5]);
+                            
+                        case "searchexternal":
+                            RolesManager.ValidateActionPermitted("asset", "searchExternal", false);
+                            return AssetController.searchExternal((string) methodParams[0], (KalturaFilterPager) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (int) methodParams[3], (List<KalturaCatalogWithHolder>) methodParams[4]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("asset", "update", false);
+                            return AssetController.Update((long) methodParams[0], (KalturaAsset) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "assetfile":
+                    switch(action)
+                    {
+                        case "getcontext":
+                            RolesManager.ValidateActionPermitted("assetFile", "getContext", false);
+                            return AssetFileController.GetContext((string) methodParams[0], (KalturaContextType) methodParams[1]);
+                            
+                        case "playmanifest":
+                            return AssetFileController.PlayManifest((int) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2], (long) methodParams[3], (KalturaPlaybackContextType) methodParams[4], (string) methodParams[5]);
+                            
+                    }
+                    break;
+                    
+                case "assethistory":
+                    switch(action)
+                    {
+                        case "clean":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
+                                return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("assetHistory", "clean", false);
+                            AssetHistoryController.Clean((KalturaAssetHistoryFilter) methodParams[0]);
+                            return null;
+                            
+                        case "cleanoldstandard":
+                            RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
+                            return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("assetHistory", "listOldStandard", false);
+                                return AssetHistoryController.ListOldStandard((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("assetHistory", "list", false);
+                            return AssetHistoryController.List((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("assetHistory", "listOldStandard", false);
+                            return AssetHistoryController.ListOldStandard((KalturaAssetHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "assetrule":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("assetRule", "add", false);
+                            return AssetRuleController.Add((KalturaAssetRule) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("assetRule", "delete", false);
+                            return AssetRuleController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetRule", "list", false);
+                            return AssetRuleController.List((KalturaAssetRuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("assetRule", "update", false);
+                            return AssetRuleController.Update((long) methodParams[0], (KalturaAssetRule) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "assetstatistics":
+                    switch(action)
+                    {
+                        case "query":
+                            RolesManager.ValidateActionPermitted("assetStatistics", "query", false);
+                            return AssetStatisticsController.Query((KalturaAssetStatisticsQuery) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "assetstruct":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("assetStruct", "add", false);
+                            return AssetStructController.Add((KalturaAssetStruct) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("assetStruct", "delete", false);
+                            return AssetStructController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetStruct", "list", false);
+                            return AssetStructController.List((KalturaAssetStructFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("assetStruct", "update", false);
+                            return AssetStructController.Update((long) methodParams[0], (KalturaAssetStruct) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "assetstructmeta":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetStructMeta", "list", false);
+                            return AssetStructMetaController.List((KalturaAssetStructMetaFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("assetStructMeta", "update", false);
+                            return AssetStructMetaController.Update((long) methodParams[0], (long) methodParams[1], (KalturaAssetStructMeta) methodParams[2]);
+                            
+                    }
+                    break;
+                    
+                case "assetuserrule":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "add", false);
+                            return AssetUserRuleController.Add((KalturaAssetUserRule) methodParams[0]);
+                            
+                        case "attachuser":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "attachUser", false);
+                            AssetUserRuleController.AttachUser((long) methodParams[0]);
+                            return null;
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "delete", false);
+                            AssetUserRuleController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "detachuser":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "detachUser", false);
+                            AssetUserRuleController.DetachUser((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "list", false);
+                            return AssetUserRuleController.List((KalturaAssetUserRuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("assetUserRule", "update", false);
+                            return AssetUserRuleController.Update((long) methodParams[0], (KalturaAssetUserRule) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "bookmark":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("bookmark", "addOldStandard", true);
+                                return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
+                            }
+                            RolesManager.ValidateActionPermitted("bookmark", "add", true);
+                            return BookmarkController.Add((KalturaBookmark) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("bookmark", "addOldStandard", true);
+                            return BookmarkController.AddOldStandard((string) methodParams[0], (KalturaAssetType) methodParams[1], (long) methodParams[2], (KalturaPlayerAssetData) methodParams[3]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("bookmark", "listOldStandard", false);
+                                return BookmarkController.ListOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("bookmark", "list", false);
+                            return BookmarkController.List((KalturaBookmarkFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("bookmark", "listOldStandard", false);
+                            return BookmarkController.ListOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "bulk":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("bulk", "list", false);
+                            return BulkController.List((KalturaBulkFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "servelog":
+                            RolesManager.ValidateActionPermitted("bulk", "serveLog", false);
+                            return BulkController.ServeLog((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "category":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("category", "get", false);
+                            return CategoryController.Get((int) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "cdnadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "add", false);
+                            return CdnAdapterProfileController.Add((KalturaCDNAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "delete", false);
+                            return CdnAdapterProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "generateSharedSecret", false);
+                            return CdnAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "list", false);
+                            return CdnAdapterProfileController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("cdnAdapterProfile", "update", false);
+                            return CdnAdapterProfileController.Update((int) methodParams[0], (KalturaCDNAdapterProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "cdnpartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "get", false);
+                            return CdnPartnerSettingsController.Get();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("cdnPartnerSettings", "update", false);
+                            return CdnPartnerSettingsController.Update((KalturaCDNPartnerSettings) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "cdvradapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "add", false);
+                            return CDVRAdapterProfileController.Add((KalturaCDVRAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "delete", false);
+                            return CDVRAdapterProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "generateSharedSecret", false);
+                            return CDVRAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "listOldStandard", false);
+                                return CDVRAdapterProfileController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "list", false);
+                            return CDVRAdapterProfileController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "listOldStandard", false);
+                            return CDVRAdapterProfileController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", false);
+                                return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "update", false);
+                            return CDVRAdapterProfileController.Update((int) methodParams[0], (KalturaCDVRAdapterProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("cDVRAdapterProfile", "updateOldStandard", false);
+                            return CDVRAdapterProfileController.UpdateOldStandard((KalturaCDVRAdapterProfile) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "channel":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("channel", "addOldStandard", false);
+                                return ChannelController.AddOldStandard((KalturaChannelProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("channel", "add", false);
+                            return ChannelController.Add((KalturaChannel) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("channel", "addOldStandard", false);
+                            return ChannelController.AddOldStandard((KalturaChannelProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("channel", "delete", false);
+                            return ChannelController.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("channel", "getOldStandard", false);
+                                return ChannelController.GetOldStandard((int) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("channel", "get", false);
+                            return ChannelController.Get((int) methodParams[0]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("channel", "getOldStandard", false);
+                            return ChannelController.GetOldStandard((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("channel", "list", false);
+                            return ChannelController.List((KalturaChannelsFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("channel", "updateOldStandard", false);
+                                return ChannelController.UpdateOldStandard((KalturaChannelProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("channel", "update", false);
+                            return ChannelController.Update((int) methodParams[0], (KalturaChannel) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("channel", "updateOldStandard", false);
+                            return ChannelController.UpdateOldStandard((KalturaChannelProfile) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "collection":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("collection", "list", false);
+                            return CollectionController.List((KalturaCollectionFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "compensation":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("compensation", "add", false);
+                            return CompensationController.Add((KalturaCompensation) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("compensation", "delete", false);
+                            CompensationController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("compensation", "get", false);
+                            return CompensationController.Get((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "configurationgroup":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("configurationGroup", "add", false);
+                            return ConfigurationGroupController.Add((KalturaConfigurationGroup) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("configurationGroup", "delete", false);
+                            return ConfigurationGroupController.Delete((string) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("configurationGroup", "get", false);
+                            return ConfigurationGroupController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("configurationGroup", "list", false);
+                            return ConfigurationGroupController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("configurationGroup", "update", false);
+                            return ConfigurationGroupController.Update((string) methodParams[0], (KalturaConfigurationGroup) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "configurationgroupdevice":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "add", false);
+                            return ConfigurationGroupDeviceController.Add((KalturaConfigurationGroupDevice) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "delete", false);
+                            return ConfigurationGroupDeviceController.Delete((string) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "get", false);
+                            return ConfigurationGroupDeviceController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("configurationGroupDevice", "list", false);
+                            return ConfigurationGroupDeviceController.List((KalturaConfigurationGroupDeviceFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "configurationgrouptag":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "add", false);
+                            return ConfigurationGroupTagController.Add((KalturaConfigurationGroupTag) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "delete", false);
+                            return ConfigurationGroupTagController.Delete((string) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "get", false);
+                            return ConfigurationGroupTagController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("configurationGroupTag", "list", false);
+                            return ConfigurationGroupTagController.List((KalturaConfigurationGroupTagFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "configurations":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("configurations", "add", false);
+                            return ConfigurationsController.Add((KalturaConfigurations) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("configurations", "delete", false);
+                            return ConfigurationsController.Delete((string) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("configurations", "get", false);
+                            return ConfigurationsController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("configurations", "list", false);
+                            return ConfigurationsController.List((KalturaConfigurationsFilter) methodParams[0]);
+                            
+                        case "servebydevice":
+                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
+                            return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("configurations", "update", false);
+                            return ConfigurationsController.Update((string) methodParams[0], (KalturaConfigurations) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "country":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("country", "list", false);
+                            return CountryController.List((KalturaCountryFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "coupon":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("coupon", "get", false);
+                            return CouponController.Get((string) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "couponsgroup":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "add", false);
+                            return CouponsGroupController.Add((KalturaCouponsGroup) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "delete", false);
+                            return CouponsGroupController.Delete((long) methodParams[0]);
+                            
+                        case "generate":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "generate", false);
+                            return CouponsGroupController.Generate((long) methodParams[0], (KalturaCouponGenerationOptions) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "get", false);
+                            return CouponsGroupController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "list", false);
+                            return CouponsGroupController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("couponsGroup", "update", false);
+                            return CouponsGroupController.Update((long) methodParams[0], (KalturaCouponsGroup) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "currency":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("currency", "list", false);
+                            return CurrencyController.List((KalturaCurrencyFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "devicebrand":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("deviceBrand", "list", false);
+                            return DeviceBrandController.List();
+                            
+                    }
+                    break;
+                    
+                case "devicefamily":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("deviceFamily", "list", false);
+                            return DeviceFamilyController.List();
+                            
+                    }
+                    break;
+                    
+                case "discountdetails":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("discountDetails", "list", false);
+                            return DiscountDetailsController.List((KalturaDiscountDetailsFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "drmprofile":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("drmProfile", "list", false);
+                            return DrmProfileController.List();
+                            
+                    }
+                    break;
+                    
+                case "email":
+                    switch(action)
+                    {
+                        case "send":
+                            RolesManager.ValidateActionPermitted("email", "send", false);
+                            return EmailController.Send((KalturaEmailMessage) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "engagementadapter":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "add", false);
+                            return EngagementAdapterController.Add((KalturaEngagementAdapter) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "delete", false);
+                            return EngagementAdapterController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "generateSharedSecret", false);
+                            return EngagementAdapterController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "get", false);
+                            return EngagementAdapterController.Get((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "list", false);
+                            return EngagementAdapterController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("engagementAdapter", "update", false);
+                            return EngagementAdapterController.Update((int) methodParams[0], (KalturaEngagementAdapter) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "engagement":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("engagement", "add", false);
+                            return EngagementController.Add((KalturaEngagement) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("engagement", "delete", false);
+                            return EngagementController.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("engagement", "get", false);
+                            return EngagementController.Get((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("engagement", "list", false);
+                            return EngagementController.List((KalturaEngagementFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "entitlement":
+                    switch(action)
+                    {
+                        case "buy":
+                            RolesManager.ValidateActionPermitted("entitlement", "buy", false);
+                            return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (float) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
+                            
+                        case "cancel":
+                            RolesManager.ValidateActionPermitted("entitlement", "cancel", false);
+                            return EntitlementController.Cancel((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
+                            
+                        case "cancelrenewal":
+                            RolesManager.ValidateActionPermitted("entitlement", "cancelRenewal", false);
+                            EntitlementController.CancelRenewal((string) methodParams[0]);
+                            return null;
+                            
+                        case "cancelscheduledsubscription":
+                            RolesManager.ValidateActionPermitted("entitlement", "cancelScheduledSubscription", false);
+                            return EntitlementController.CancelScheduledSubscription((long) methodParams[0]);
+                            
+                        case "externalreconcile":
+                            RolesManager.ValidateActionPermitted("entitlement", "externalReconcile", false);
+                            return EntitlementController.ExternalReconcile();
+                            
+                        case "forcecancel":
+                            RolesManager.ValidateActionPermitted("entitlement", "forceCancel", false);
+                            return EntitlementController.ForceCancel((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
+                            
+                        case "getnextrenewal":
+                            RolesManager.ValidateActionPermitted("entitlement", "getNextRenewal", false);
+                            return EntitlementController.GetNextRenewal((int) methodParams[0]);
+                            
+                        case "grant":
+                            RolesManager.ValidateActionPermitted("entitlement", "grant", false);
+                            return EntitlementController.Grant((int) methodParams[0], (KalturaTransactionType) methodParams[1], (bool) methodParams[2], (int) methodParams[3]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("entitlement", "listOldStandard", false);
+                                return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("entitlement", "list", false);
+                            return EntitlementController.List((KalturaEntitlementFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listexpired":
+                            RolesManager.ValidateActionPermitted("entitlement", "listExpired", false);
+                            return EntitlementController.ListExpired((KalturaEntitlementsFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("entitlement", "listOldStandard", false);
+                            return EntitlementController.ListOldStandard((KalturaEntitlementsFilter) methodParams[0]);
+                            
+                        case "swap":
+                            RolesManager.ValidateActionPermitted("entitlement", "swap", false);
+                            return EntitlementController.Swap((int) methodParams[0], (int) methodParams[1], (bool) methodParams[2]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("entitlement", "update", false);
+                            return EntitlementController.Update((int) methodParams[0], (KalturaEntitlement) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "epgchannel":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("epgChannel", "list", false);
+                            return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "exporttask":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("exportTask", "add", false);
+                            return ExportTaskController.Add((KalturaExportTask) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("exportTask", "delete", false);
+                            return ExportTaskController.Delete((long) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("exportTask", "get", false);
+                            return ExportTaskController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("exportTask", "listOldStandard", false);
+                                return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("exportTask", "list", false);
+                            return ExportTaskController.List((KalturaExportTaskFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("exportTask", "listOldStandard", false);
+                            return ExportTaskController.ListOldStandard((KalturaExportFilter) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("exportTask", "updateOldStandard", false);
+                                return ExportTaskController.UpdateOldStandard((KalturaExportTask) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("exportTask", "update", false);
+                            return ExportTaskController.Update((long) methodParams[0], (KalturaExportTask) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("exportTask", "updateOldStandard", false);
+                            return ExportTaskController.UpdateOldStandard((KalturaExportTask) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "externalchannelprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "add", false);
+                            return ExternalChannelProfileController.Add((KalturaExternalChannelProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "delete", false);
+                            return ExternalChannelProfileController.Delete((int) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
+                                return ExternalChannelProfileController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
+                            return ExternalChannelProfileController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
+                            return ExternalChannelProfileController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("externalChannelProfile", "updateOldStandard", false);
+                                return ExternalChannelProfileController.UpdateOldStandard((KalturaExternalChannelProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "update", false);
+                            return ExternalChannelProfileController.Update((int) methodParams[0], (KalturaExternalChannelProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("externalChannelProfile", "updateOldStandard", false);
+                            return ExternalChannelProfileController.UpdateOldStandard((KalturaExternalChannelProfile) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "favorite":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "addOldStandard", false);
+                                return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("favorite", "add", false);
+                            return FavoriteController.Add((KalturaFavorite) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("favorite", "addOldStandard", false);
+                            return FavoriteController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", false);
+                                return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("favorite", "delete", false);
+                            return FavoriteController.Delete((int) methodParams[0]);
+                            
+                        case "deleteoldstandard":
+                            RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", false);
+                            return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("favorite", "listOldStandard", false);
+                                return FavoriteController.ListOldStandard((KalturaFavoriteFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (string) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("favorite", "list", false);
+                            return FavoriteController.List((KalturaFavoriteFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("favorite", "listOldStandard", false);
+                            return FavoriteController.ListOldStandard((KalturaFavoriteFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (string) methodParams[2]);
+                            
+                    }
+                    break;
+                    
+                case "followtvseries":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("followTvSeries", "addOldStandard", false);
+                                return FollowTvSeriesController.AddOldStandard((int) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("followTvSeries", "add", false);
+                            return FollowTvSeriesController.Add((KalturaFollowTvSeries) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("followTvSeries", "addOldStandard", false);
+                            return FollowTvSeriesController.AddOldStandard((int) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("followTvSeries", "delete", false);
+                            return FollowTvSeriesController.Delete((int) methodParams[0]);
+                            
+                        case "deletewithtoken":
+                            FollowTvSeriesController.DeleteWithToken((int) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
+                            return null;
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("followTvSeries", "listOldStandard", false);
+                                return FollowTvSeriesController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("followTvSeries", "list", false);
+                            return FollowTvSeriesController.List((KalturaFollowTvSeriesFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("followTvSeries", "listOldStandard", false);
+                            return FollowTvSeriesController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "homenetwork":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("homeNetwork", "add", false);
+                            return HomeNetworkController.Add((KalturaHomeNetwork) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("homeNetwork", "delete", false);
+                            return HomeNetworkController.Delete((string) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("homeNetwork", "listOldStandard", false);
+                                return HomeNetworkController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("homeNetwork", "list", false);
+                            return HomeNetworkController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("homeNetwork", "listOldStandard", false);
+                            return HomeNetworkController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("homeNetwork", "updateOldStandard", false);
+                                return HomeNetworkController.UpdateOldStandard((KalturaHomeNetwork) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("homeNetwork", "update", false);
+                            return HomeNetworkController.Update((string) methodParams[0], (KalturaHomeNetwork) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("homeNetwork", "updateOldStandard", false);
+                            return HomeNetworkController.UpdateOldStandard((KalturaHomeNetwork) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "household":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "addOldStandard", false);
+                                return HouseholdController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("household", "add", false);
+                            return HouseholdController.Add((KalturaHousehold) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("household", "addOldStandard", false);
+                            return HouseholdController.AddOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("household", "delete", false);
+                            return HouseholdController.Delete((Nullable<int>) methodParams[0]);
+                            
+                        case "deletebyoperator":
+                            RolesManager.ValidateActionPermitted("household", "deleteByOperator", false);
+                            return HouseholdController.DeleteByOperator((KalturaIdentifierTypeFilter) methodParams[0]);
+                            
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "getOldStandard", false);
+                                return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("household", "get", false);
+                            return HouseholdController.Get((Nullable<int>) methodParams[0]);
+                            
+                        case "getbyoperator":
+                            RolesManager.ValidateActionPermitted("household", "getByOperator", false);
+                            return HouseholdController.GetByOperator((KalturaIdentifierTypeFilter) methodParams[0], (List<KalturaHouseholdWithHolder>) methodParams[1]);
+                            
+                        case "getchargeid":
+                            RolesManager.ValidateActionPermitted("household", "getChargeID", false);
+                            return HouseholdController.GetChargeID((string) methodParams[0]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("household", "getOldStandard", false);
+                            return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
+                            
+                        case "purge":
+                            RolesManager.ValidateActionPermitted("household", "purge", false);
+                            return HouseholdController.Purge((int) methodParams[0]);
+                            
+                        case "resetfrequency":
+                            RolesManager.ValidateActionPermitted("household", "resetFrequency", false);
+                            return HouseholdController.ResetFrequency((KalturaHouseholdFrequencyType) methodParams[0]);
+                            
+                        case "resume":
+                            RolesManager.ValidateActionPermitted("household", "resume", false);
+                            return HouseholdController.Resume();
+                            
+                        case "setchargeid":
+                            RolesManager.ValidateActionPermitted("household", "setChargeID", false);
+                            return HouseholdController.SetChargeID((string) methodParams[0], (string) methodParams[1]);
+                            
+                        case "setpaymentmethodexternalid":
+                            RolesManager.ValidateActionPermitted("household", "setPaymentMethodExternalId", false);
+                            return HouseholdController.SetPaymentMethodExternalId((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
+                            
+                        case "suspend":
+                            RolesManager.ValidateActionPermitted("household", "suspend", false);
+                            return HouseholdController.Suspend((Nullable<int>) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
+                                return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("household", "update", false);
+                            return HouseholdController.Update((KalturaHousehold) methodParams[0]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
+                            return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "householddevice":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdDevice", "addOldStandard", false);
+                                return HouseholdDeviceController.AddOldStandard((string) methodParams[0], (int) methodParams[1], (string) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("householdDevice", "add", false);
+                            return HouseholdDeviceController.Add((KalturaHouseholdDevice) methodParams[0]);
+                            
+                        case "addbypin":
+                            RolesManager.ValidateActionPermitted("householdDevice", "addByPin", false);
+                            return HouseholdDeviceController.AddByPin((string) methodParams[0], (string) methodParams[1]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("householdDevice", "addOldStandard", false);
+                            return HouseholdDeviceController.AddOldStandard((string) methodParams[0], (int) methodParams[1], (string) methodParams[2]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdDevice", "delete", false);
+                            return HouseholdDeviceController.Delete((string) methodParams[0]);
+                            
+                        case "generatepin":
+                            RolesManager.ValidateActionPermitted("householdDevice", "generatePin", false);
+                            return HouseholdDeviceController.GeneratePin((string) methodParams[0], (int) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("householdDevice", "get", false);
+                            return HouseholdDeviceController.Get();
+                            
+                        case "getstatus":
+                            RolesManager.ValidateActionPermitted("householdDevice", "getStatus", false);
+                            return HouseholdDeviceController.GetStatus((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdDevice", "list", false);
+                            return HouseholdDeviceController.List((KalturaHouseholdDeviceFilter) methodParams[0]);
+                            
+                        case "loginwithpin":
+                            return HouseholdDeviceController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdDevice", "updateOldStandard", false);
+                                return HouseholdDeviceController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("householdDevice", "update", false);
+                            return HouseholdDeviceController.Update((string) methodParams[0], (KalturaHouseholdDevice) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("householdDevice", "updateOldStandard", false);
+                            return HouseholdDeviceController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            
+                        case "updatestatus":
+                            RolesManager.ValidateActionPermitted("householdDevice", "updateStatus", false);
+                            return HouseholdDeviceController.UpdateStatus((string) methodParams[0], (KalturaDeviceStatus) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "householdlimitations":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "get", false);
+                            return HouseholdLimitationsController.Get((int) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "householdpaymentgateway":
+                    switch(action)
+                    {
+                        case "disable":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "disable", false);
+                            return HouseholdPaymentGatewayController.Disable((int) methodParams[0]);
+                            
+                        case "enable":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "enable", false);
+                            return HouseholdPaymentGatewayController.Enable((int) methodParams[0]);
+                            
+                        case "getchargeid":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "getChargeID", false);
+                            return HouseholdPaymentGatewayController.GetChargeID((string) methodParams[0]);
+                            
+                        case "invoke":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "invoke", false);
+                            return HouseholdPaymentGatewayController.Invoke((int) methodParams[0], (string) methodParams[1], (List<KalturaKeyValue>) methodParams[2]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "list", false);
+                            return HouseholdPaymentGatewayController.List();
+                            
+                        case "resume":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "resume", false);
+                            HouseholdPaymentGatewayController.Resume((int) methodParams[0]);
+                            return null;
+                            
+                        case "setchargeid":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "setChargeID", false);
+                            return HouseholdPaymentGatewayController.SetChargeID((string) methodParams[0], (string) methodParams[1]);
+                            
+                        case "suspend":
+                            RolesManager.ValidateActionPermitted("householdPaymentGateway", "suspend", false);
+                            HouseholdPaymentGatewayController.Suspend((int) methodParams[0]);
+                            return null;
+                            
+                        case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "disable", false);
+                                return HouseholdPaymentGatewayController.Disable((int) methodParams[0]);
+                            }
+                            break;
+                            
+                        case "set":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdPaymentGateway", "enable", false);
+                                return HouseholdPaymentGatewayController.Enable((int) methodParams[0]);
+                            }
                             break;
                             
                     }
                     break;
                     
-                case "ConfigurationsController":
-                    switch(action.Name)
+                case "householdpaymentmethod":
+                    switch(action)
                     {
-                        case "ServeByDevice":
-                            return;
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "add", false);
+                            return HouseholdPaymentMethodController.Add((KalturaHouseholdPaymentMethod) methodParams[0]);
+                            
+                        case "forceremove":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "forceRemove", false);
+                            return HouseholdPaymentMethodController.ForceRemove((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "list", false);
+                            return HouseholdPaymentMethodController.List();
+                            
+                        case "remove":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "remove", false);
+                            return HouseholdPaymentMethodController.Remove((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "setasdefault":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setAsDefault", false);
+                            return HouseholdPaymentMethodController.SetAsDefault((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "setexternalid":
+                            RolesManager.ValidateActionPermitted("householdPaymentMethod", "setExternalId", false);
+                            return HouseholdPaymentMethodController.SetExternalId((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
                             
                     }
                     break;
                     
-                case "FollowTvSeriesController":
-                    switch(action.Name)
+                case "householdpremiumservice":
+                    switch(action)
                     {
-                        case "DeleteWithToken":
-                            return;
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdPremiumService", "listOldStandard", false);
+                                return HouseholdPremiumServiceController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("householdPremiumService", "list", false);
+                            return HouseholdPremiumServiceController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("householdPremiumService", "listOldStandard", false);
+                            return HouseholdPremiumServiceController.ListOldStandard();
                             
                     }
                     break;
                     
-                case "HouseholdDeviceController":
-                    switch(action.Name)
+                case "householdquota":
+                    switch(action)
                     {
-                        case "LoginWithPin":
-                            return;
+                        case "get":
+                            RolesManager.ValidateActionPermitted("householdQuota", "get", false);
+                            return HouseholdQuotaController.Get();
                             
                     }
                     break;
                     
-                case "MultiRequestController":
-                    return;
-                    
-                case "NotificationsSettingsController":
-                    switch(action.Name)
+                case "householduser":
+                    switch(action)
                     {
-                        case "UpdateWithToken":
-                            return;
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("householdUser", "addOldStandard", false);
+                                return HouseholdUserController.AddOldStandard((string) methodParams[0], (bool) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("householdUser", "add", false);
+                            return HouseholdUserController.Add((KalturaHouseholdUser) methodParams[0]);
+                            
+                        case "addbyoperator":
+                            RolesManager.ValidateActionPermitted("householdUser", "addByOperator", false);
+                            return HouseholdUserController.AddByOperator((string) methodParams[0], (int) methodParams[1], (bool) methodParams[2]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("householdUser", "addOldStandard", false);
+                            return HouseholdUserController.AddOldStandard((string) methodParams[0], (bool) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdUser", "delete", false);
+                            return HouseholdUserController.Delete((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdUser", "list", false);
+                            return HouseholdUserController.List((KalturaHouseholdUserFilter) methodParams[0]);
                             
                     }
                     break;
                     
-                case "OttUserController":
-                    switch(action.Name)
+                case "image":
+                    switch(action)
                     {
-                        case "Activate":
-                            return;
+                        case "add":
+                            RolesManager.ValidateActionPermitted("image", "add", false);
+                            return ImageController.Add((KalturaImage) methodParams[0]);
                             
-                        case "AnonymousLogin":
-                            return;
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("image", "delete", false);
+                            return ImageController.Delete((long) methodParams[0]);
                             
-                        case "FacebookLogin":
-                            return;
+                        case "list":
+                            RolesManager.ValidateActionPermitted("image", "list", false);
+                            return ImageController.List((KalturaImageFilter) methodParams[0]);
                             
-                        case "Login":
-                            return;
+                        case "setcontent":
+                            RolesManager.ValidateActionPermitted("image", "setContent", false);
+                            ImageController.SetContent((long) methodParams[0], (KalturaContentResource) methodParams[1]);
+                            return null;
                             
-                        case "LoginWithPin":
-                            return;
+                    }
+                    break;
+                    
+                case "imagetype":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("imageType", "add", false);
+                            return ImageTypeController.Add((KalturaImageType) methodParams[0]);
                             
-                        case "RefreshSession":
-                            silent = true;
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("imageType", "delete", false);
+                            return ImageTypeController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("imageType", "list", false);
+                            return ImageTypeController.List((KalturaImageTypeFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("imageType", "update", false);
+                            return ImageTypeController.Update((long) methodParams[0], (KalturaImageType) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "inboxmessage":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("inboxMessage", "get", false);
+                            return InboxMessageController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("inboxMessage", "list", false);
+                            return InboxMessageController.List((KalturaInboxMessageFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "updatestatus":
+                            RolesManager.ValidateActionPermitted("inboxMessage", "updateStatus", false);
+                            return InboxMessageController.UpdateStatus((string) methodParams[0], (KalturaInboxMessageStatus) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "language":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("language", "list", false);
+                            return LanguageController.List((KalturaLanguageFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "lastposition":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("lastPosition", "list", false);
+                            return LastPositionController.List((KalturaLastPositionFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "licensedurl":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", false);
+                                return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
+                            }
+                            RolesManager.ValidateActionPermitted("licensedUrl", "get", false);
+                            return LicensedUrlController.Get((KalturaLicensedUrlBaseRequest) methodParams[0]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", false);
+                            return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
+                            
+                    }
+                    break;
+                    
+                case "mediafile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("mediaFile", "add", false);
+                            return MediaFileController.Add((KalturaMediaFile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("mediaFile", "delete", false);
+                            return MediaFileController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("mediaFile", "list", false);
+                            return MediaFileController.List((KalturaMediaFileFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("mediaFile", "update", false);
+                            return MediaFileController.Update((long) methodParams[0], (KalturaMediaFile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "mediafiletype":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("mediaFileType", "add", false);
+                            return MediaFileTypeController.Add((KalturaMediaFileType) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("mediaFileType", "delete", false);
+                            return MediaFileTypeController.Delete((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("mediaFileType", "list", false);
+                            return MediaFileTypeController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("mediaFileType", "update", false);
+                            return MediaFileTypeController.Update((int) methodParams[0], (KalturaMediaFileType) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "messagetemplate":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("messageTemplate", "get", false);
+                            return MessageTemplateController.Get((KalturaMessageTemplateType) methodParams[0]);
+                            
+                        case "set":
+                            RolesManager.ValidateActionPermitted("messageTemplate", "set", false);
+                            return MessageTemplateController.Set((KalturaMessageTemplate) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("messageTemplate", "update", false);
+                            return MessageTemplateController.Update((KalturaMessageTemplateType) methodParams[0], (KalturaMessageTemplate) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "meta":
+                    switch(action)
+                    {
+                    }
+                    break;
+                    
+                case "multirequest":
+                    switch(action)
+                    {
+                        case "do":
+                            return MultiRequestController.Do((KalturaMultiRequestAction[]) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "notification":
+                    switch(action)
+                    {
+                        case "register":
+                            RolesManager.ValidateActionPermitted("notification", "register", false);
+                            return NotificationController.Register((string) methodParams[0], (KalturaNotificationType) methodParams[1]);
+                            
+                        case "sendpush":
+                            RolesManager.ValidateActionPermitted("notification", "sendPush", false);
+                            return NotificationController.SendPush((int) methodParams[0], (KalturaPushMessage) methodParams[1]);
+                            
+                        case "sendsms":
+                            RolesManager.ValidateActionPermitted("notification", "sendSms", false);
+                            return NotificationController.SendSms((string) methodParams[0]);
+                            
+                        case "setdevicepushtoken":
+                            RolesManager.ValidateActionPermitted("notification", "setDevicePushToken", false);
+                            return NotificationController.SetDevicePushToken((string) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "notificationspartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "getOldStandard", false);
+                                return NotificationsPartnerSettingsController.GetOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "get", false);
+                            return NotificationsPartnerSettingsController.Get();
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "getOldStandard", false);
+                            return NotificationsPartnerSettingsController.GetOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "updateOldStandard", false);
+                                return NotificationsPartnerSettingsController.UpdateOldStandard((KalturaPartnerNotificationSettings) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "update", false);
+                            return NotificationsPartnerSettingsController.Update((KalturaNotificationsPartnerSettings) methodParams[0]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("notificationsPartnerSettings", "updateOldStandard", false);
+                            return NotificationsPartnerSettingsController.UpdateOldStandard((KalturaPartnerNotificationSettings) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "notificationssettings":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "getOldStandard", false);
+                                return NotificationsSettingsController.GetOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "get", false);
+                            return NotificationsSettingsController.Get();
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "getOldStandard", false);
+                            return NotificationsSettingsController.GetOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("notificationsSettings", "updateOldStandard", false);
+                                return NotificationsSettingsController.UpdateOldStandard((KalturaNotificationSettings) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "update", false);
+                            return NotificationsSettingsController.Update((KalturaNotificationsSettings) methodParams[0]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("notificationsSettings", "updateOldStandard", false);
+                            return NotificationsSettingsController.UpdateOldStandard((KalturaNotificationSettings) methodParams[0]);
+                            
+                        case "updatewithtoken":
+                            return NotificationsSettingsController.UpdateWithToken((KalturaNotificationsSettings) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
+                            
+                    }
+                    break;
+                    
+                case "ossadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "add", false);
+                            return OssAdapterProfileController.Add((KalturaOSSAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "delete", false);
+                            return OssAdapterProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "generateSharedSecret", false);
+                            return OssAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "get", false);
+                            return OssAdapterProfileController.Get((int) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "listOldStandard", false);
+                                return OssAdapterProfileController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "list", false);
+                            return OssAdapterProfileController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "listOldStandard", false);
+                            return OssAdapterProfileController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ossAdapterProfile", "updateOldStandard", false);
+                                return OssAdapterProfileController.UpdateOldStandard((KalturaOSSAdapterProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "update", false);
+                            return OssAdapterProfileController.Update((int) methodParams[0], (KalturaOSSAdapterProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfile", "updateOldStandard", false);
+                            return OssAdapterProfileController.UpdateOldStandard((KalturaOSSAdapterProfile) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "ossadapterprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "add", false);
+                            return OssAdapterProfileSettingsController.Add((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "delete", false);
+                            return OssAdapterProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "list", false);
+                            return OssAdapterProfileSettingsController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("ossAdapterProfileSettings", "update", false);
+                            return OssAdapterProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "ottcategory":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("ottCategory", "get", false);
+                            return OttCategoryController.Get((int) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "ottuser":
+                    switch(action)
+                    {
+                        case "activate":
+                            return OttUserController.Activate((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "addrole":
+                            RolesManager.ValidateActionPermitted("ottUser", "addRole", false);
+                            return OttUserController.AddRole((long) methodParams[0]);
+                            
+                        case "anonymouslogin":
+                            return OttUserController.AnonymousLogin((int) methodParams[0], (string) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("ottUser", "delete", false);
+                            return OttUserController.Delete();
+                            
+                        case "facebooklogin":
+                            return OttUserController.FacebookLogin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("ottUser", "getOldStandard", false);
+                                return OttUserController.GetOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("ottUser", "get", false);
+                            return OttUserController.Get();
+                            
+                        case "getencrypteduserid":
+                            RolesManager.ValidateActionPermitted("ottUser", "getEncryptedUserId", false);
+                            return OttUserController.GetEncryptedUserId();
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("ottUser", "getOldStandard", false);
+                            return OttUserController.GetOldStandard();
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("ottUser", "list", false);
+                            return OttUserController.List((KalturaOTTUserFilter) methodParams[0]);
+                            
+                        case "login":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            return OttUserController.Login((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (SerializableDictionary<string, KalturaStringValue>) methodParams[3], (string) methodParams[4]);
+                            
+                        case "loginwithpin":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            return OttUserController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
+                            
+                        case "logout":
+                            RolesManager.ValidateActionPermitted("ottUser", "logout", false);
+                            return OttUserController.Logout();
+                            
+                        case "refreshsession":
+                            RolesManager.ValidateActionPermitted("ottUser", "refreshSession", true);
+                            return OttUserController.RefreshSession((string) methodParams[0], (string) methodParams[1]);
+                            
+                        case "register":
+                            return OttUserController.Register((int) methodParams[0], (KalturaOTTUser) methodParams[1], (string) methodParams[2]);
+                            
+                        case "resendactivationtoken":
+                            return OttUserController.ResendActivationToken((int) methodParams[0], (string) methodParams[1]);
+                            
+                        case "resetpassword":
+                            if(isOldVersion)
+                            {
+                                return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            }
+                            return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                            
+                        case "setinitialpassword":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            return OttUserController.setInitialPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "setpassword":
+                            return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("ottUser", "update", false);
+                            return OttUserController.Update((KalturaOTTUser) methodParams[0], (string) methodParams[1]);
+                            
+                        case "updatedynamicdata":
+                            RolesManager.ValidateActionPermitted("ottUser", "updateDynamicData", false);
+                            return OttUserController.UpdateDynamicData((string) methodParams[0], (KalturaStringValue) methodParams[1]);
+                            
+                        case "updatelogindata":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("ottUser", "updateLoginData", false);
+                            return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "updatepassword":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("ottUser", "updatePassword", true);
+                            OttUserController.updatePassword((int) methodParams[0], (string) methodParams[1]);
+                            return null;
+                            
+                        case "validatetoken":
+                            return OttUserController.validateToken((int) methodParams[0], (string) methodParams[1]);
+                            
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                return OttUserController.Register((int) methodParams[0], (KalturaOTTUser) methodParams[1], (string) methodParams[2]);
+                            }
                             break;
                             
-                        case "Register":
-                            return;
-                            
-                        case "ResendActivationToken":
-                            return;
-                            
-                        case "resetPassword":
-                            return;
-                            
-                        case "setInitialPassword":
-                            return;
-                            
-                        case "setPassword":
-                            return;
-                            
-                        case "updatePassword":
-                            silent = true;
+                        case "sendPassword":
+                            if(isOldVersion)
+                            {
+                                return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                            }
                             break;
                             
-                        case "validateToken":
-                            return;
+                        case "changePassword":
+                            if(isOldVersion)
+                            {
+                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                {
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                }
+                                RolesManager.ValidateActionPermitted("ottUser", "updateLoginData", false);
+                                return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            }
+                            break;
                             
                     }
                     break;
                     
-                case "ReminderController":
-                    switch(action.Name)
+                case "parentalrule":
+                    switch(action)
                     {
-                        case "DeleteWithToken":
-                            return;
+                        case "add":
+                            RolesManager.ValidateActionPermitted("parentalRule", "add", false);
+                            return ParentalRuleController.Add((KalturaParentalRule) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("parentalRule", "delete", false);
+                            return ParentalRuleController.Delete((long) methodParams[0]);
+                            
+                        case "disable":
+                            RolesManager.ValidateActionPermitted("parentalRule", "disable", false);
+                            return ParentalRuleController.Disable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
+                            
+                        case "disabledefault":
+                            RolesManager.ValidateActionPermitted("parentalRule", "disableDefault", false);
+                            return ParentalRuleController.DisableDefault((KalturaEntityReferenceBy) methodParams[0]);
+                            
+                        case "enable":
+                            RolesManager.ValidateActionPermitted("parentalRule", "enable", false);
+                            return ParentalRuleController.Enable((long) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("parentalRule", "get", false);
+                            return ParentalRuleController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", false);
+                                return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("parentalRule", "list", false);
+                            return ParentalRuleController.List((KalturaParentalRuleFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("parentalRule", "listOldStandard", false);
+                            return ParentalRuleController.ListOldStandard((KalturaRuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("parentalRule", "update", false);
+                            return ParentalRuleController.Update((long) methodParams[0], (KalturaParentalRule) methodParams[1]);
                             
                     }
                     break;
                     
-                case "ServiceController":
-                    return;
-                    
-                case "SocialController":
-                    switch(action.Name)
+                case "parentalruleprofile":
+                    switch(action)
                     {
-                        case "Login":
-                            return;
+                        case "list":
+                            RolesManager.ValidateActionPermitted("parentalRuleProfile", "list", false);
+                            return ParentalRuleProfileController.List();
                             
                     }
                     break;
                     
-                case "SystemController":
-                    switch(action.Name)
+                case "partnerconfiguration":
+                    switch(action)
                     {
-                        case "GetTime":
-                            return;
+                        case "list":
+                            RolesManager.ValidateActionPermitted("partnerConfiguration", "list", false);
+                            return PartnerConfigurationController.List((KalturaPartnerConfigurationFilter) methodParams[0]);
                             
-                        case "GetVersion":
-                            return;
-                            
-                        case "Ping":
-                            return;
+                        case "update":
+                            RolesManager.ValidateActionPermitted("partnerConfiguration", "update", false);
+                            return PartnerConfigurationController.Update((KalturaPartnerConfiguration) methodParams[0]);
                             
                     }
                     break;
                     
-                case "UserInterestController":
-                    switch(action.Name)
+                case "paymentgateway":
+                    switch(action)
                     {
-                        case "DeleteWithToken":
-                            return;
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "delete", false);
+                            return PaymentGatewayController.Delete((int) methodParams[0]);
+                            
+                        case "forceremovepaymentmethod":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "forceRemovePaymentMethod", false);
+                            return PaymentGatewayController.ForceRemovePaymentMethod((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "list", false);
+                            return PaymentGatewayController.List();
+                            
+                        case "removepaymentmethod":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "removePaymentMethod", false);
+                            return PaymentGatewayController.RemovePaymentMethod((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "set":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "set", false);
+                            return PaymentGatewayController.Set((int) methodParams[0]);
+                            
+                        case "setpaymentmethod":
+                            RolesManager.ValidateActionPermitted("paymentGateway", "setPaymentMethod", false);
+                            return PaymentGatewayController.SetPaymentMethod((int) methodParams[0], (int) methodParams[1]);
                             
                     }
                     break;
                     
-                case "VersionController":
-                    return;
+                case "paymentgatewayprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "addOldStandard", false);
+                                return PaymentGatewayProfileController.AddOldStandard((KalturaPaymentGatewayProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "add", false);
+                            return PaymentGatewayProfileController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "addOldStandard", false);
+                            return PaymentGatewayProfileController.AddOldStandard((KalturaPaymentGatewayProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "delete", false);
+                            return PaymentGatewayProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "generateSharedSecret", false);
+                            return PaymentGatewayProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "getconfiguration":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "getConfiguration", false);
+                            return PaymentGatewayProfileController.GetConfiguration((string) methodParams[0], (string) methodParams[1], (List<KalturaKeyValue>) methodParams[2]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "listOldStandard", false);
+                                return PaymentGatewayProfileController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "list", false);
+                            return PaymentGatewayProfileController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "listOldStandard", false);
+                            return PaymentGatewayProfileController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfile", "updateOldStandard", false);
+                                return PaymentGatewayProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "update", false);
+                            return PaymentGatewayProfileController.Update((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfile", "updateOldStandard", false);
+                            return PaymentGatewayProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentGatewayProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "paymentgatewayprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "addOldStandard", false);
+                                return PaymentGatewayProfileSettingsController.AddOldStandard((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "add", false);
+                            return PaymentGatewayProfileSettingsController.Add((KalturaPaymentGatewayProfile) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "addOldStandard", false);
+                            return PaymentGatewayProfileSettingsController.AddOldStandard((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "delete", false);
+                            return PaymentGatewayProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "list", false);
+                            return PaymentGatewayProfileSettingsController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("paymentGatewayProfileSettings", "update", false);
+                            return PaymentGatewayProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "paymentmethodprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "addOldStandard", false);
+                                return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "add", false);
+                            return PaymentMethodProfileController.Add((KalturaPaymentMethodProfile) methodParams[0]);
+                            
+                        case "addoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "addOldStandard", false);
+                            return PaymentMethodProfileController.AddOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            
+                        case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "deleteOldStandard", false);
+                                return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "delete", false);
+                            return PaymentMethodProfileController.Delete((int) methodParams[0]);
+                            
+                        case "deleteoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "deleteOldStandard", false);
+                            return PaymentMethodProfileController.DeleteOldStandard((int) methodParams[0], (int) methodParams[1]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "listOldStandard", false);
+                                return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "list", false);
+                            return PaymentMethodProfileController.List((KalturaPaymentMethodProfileFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "listOldStandard", false);
+                            return PaymentMethodProfileController.ListOldStandard((int) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
+                                return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "update", false);
+                            return PaymentMethodProfileController.Update((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
+                            return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "personalasset":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("personalAsset", "list", false);
+                            return PersonalAssetController.List((List<KalturaPersonalAssetRequest>) methodParams[0], (List<KalturaPersonalAssetWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "personalfeed":
+                    switch(action)
+                    {
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("personalFeed", "listOldStandard", false);
+                                return PersonalFeedController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("personalFeed", "list", false);
+                            return PersonalFeedController.List((KalturaPersonalFeedFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("personalFeed", "listOldStandard", false);
+                            return PersonalFeedController.ListOldStandard((Nullable<KalturaOrder>) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "personallist":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("personalList", "add", false);
+                            return PersonalListController.Add((KalturaPersonalList) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("personalList", "delete", false);
+                            PersonalListController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("personalList", "list", false);
+                            return PersonalListController.List((KalturaPersonalListFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "pin":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("pin", "getOldStandard", false);
+                                return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                            }
+                            RolesManager.ValidateActionPermitted("pin", "get", false);
+                            return PinController.Get((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("pin", "getOldStandard", false);
+                            return PinController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                {
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                }
+                                RolesManager.ValidateActionPermitted("pin", "updateOldStandard", false);
+                                return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
+                            }
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("pin", "update", false);
+                            return PinController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (KalturaPin) methodParams[2], (Nullable<int>) methodParams[3]);
+                            
+                        case "updateoldstandard":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("pin", "updateOldStandard", false);
+                            return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
+                            
+                        case "validate":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("pin", "validate", false);
+                            return PinController.Validate((string) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
+                    }
+                    break;
+                    
+                case "ppv":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("ppv", "get", false);
+                            return PpvController.Get((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "price":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("price", "list", false);
+                            return PriceController.List((KalturaPricesFilter) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "pricedetails":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("priceDetails", "list", false);
+                            return PriceDetailsController.List((KalturaPriceDetailsFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "priceplan":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("pricePlan", "list", false);
+                            return PricePlanController.List((KalturaPricePlanFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("pricePlan", "update", false);
+                            return PricePlanController.Update((long) methodParams[0], (KalturaPricePlan) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "productprice":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("productPrice", "list", false);
+                            return ProductPriceController.List((KalturaProductPriceFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "purchasesettings":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "getOldStandard", false);
+                                return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "get", false);
+                            return PurchaseSettingsController.Get((KalturaEntityReferenceBy) methodParams[0]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "getOldStandard", false);
+                            return PurchaseSettingsController.GetOldStandard((KalturaEntityReferenceBy) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("purchaseSettings", "updateOldStandard", false);
+                                return PurchaseSettingsController.UpdateOldStandard((int) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "update", false);
+                            return PurchaseSettingsController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPurchaseSettings) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("purchaseSettings", "updateOldStandard", false);
+                            return PurchaseSettingsController.UpdateOldStandard((int) methodParams[0], (KalturaEntityReferenceBy) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "ratio":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("ratio", "add", false);
+                            return RatioController.Add((KalturaRatio) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("ratio", "list", false);
+                            return RatioController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("ratio", "update", false);
+                            return RatioController.Update((long) methodParams[0], (KalturaRatio) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "recommendationprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "add", false);
+                            return RecommendationProfileController.Add((KalturaRecommendationProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "delete", false);
+                            return RecommendationProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "generateSharedSecret", false);
+                            return RecommendationProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "listOldStandard", false);
+                                return RecommendationProfileController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "list", false);
+                            return RecommendationProfileController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "listOldStandard", false);
+                            return RecommendationProfileController.ListOldStandard();
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("recommendationProfile", "updateOldStandard", false);
+                                return RecommendationProfileController.UpdateOldStandard((KalturaRecommendationProfile) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "update", false);
+                            return RecommendationProfileController.Update((int) methodParams[0], (KalturaRecommendationProfile) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("recommendationProfile", "updateOldStandard", false);
+                            return RecommendationProfileController.UpdateOldStandard((KalturaRecommendationProfile) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "recommendationprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "add", false);
+                            return RecommendationProfileSettingsController.Add((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "delete", false);
+                            return RecommendationProfileSettingsController.Delete((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "list", false);
+                            return RecommendationProfileSettingsController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("recommendationProfileSettings", "update", false);
+                            return RecommendationProfileSettingsController.Update((int) methodParams[0], (SerializableDictionary<string, KalturaStringValue>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "recording":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("recording", "add", false);
+                            return RecordingController.Add((KalturaRecording) methodParams[0]);
+                            
+                        case "cancel":
+                            RolesManager.ValidateActionPermitted("recording", "cancel", false);
+                            return RecordingController.Cancel((long) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("recording", "delete", false);
+                            return RecordingController.Delete((long) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("recording", "get", false);
+                            return RecordingController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("recording", "list", false);
+                            return RecordingController.List((KalturaRecordingFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "protect":
+                            RolesManager.ValidateActionPermitted("recording", "protect", false);
+                            return RecordingController.Protect((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "region":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("region", "list", false);
+                            return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "registrysettings":
+                    switch(action)
+                    {
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("registrySettings", "listOldStandard", false);
+                                return RegistrySettingsController.ListOldStandard();
+                            }
+                            RolesManager.ValidateActionPermitted("registrySettings", "list", false);
+                            return RegistrySettingsController.List();
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("registrySettings", "listOldStandard", false);
+                            return RegistrySettingsController.ListOldStandard();
+                            
+                    }
+                    break;
+                    
+                case "reminder":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("reminder", "add", false);
+                            return ReminderController.Add((KalturaReminder) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("reminder", "delete", false);
+                            return ReminderController.Delete((long) methodParams[0], (KalturaReminderType) methodParams[1]);
+                            
+                        case "deletewithtoken":
+                            ReminderController.DeleteWithToken((long) methodParams[0], (KalturaReminderType) methodParams[1], (string) methodParams[2], (int) methodParams[3]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("reminder", "list", false);
+                            return ServiceController.ExecGeneric(typeof(ReminderController).GetMethod("List"), methodParams);
+                            
+                    }
+                    break;
+                    
+                case "report":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("report", "get", false);
+                            return ReportController.Get((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("report", "list", false);
+                            return ReportController.List((KalturaReportFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "searchhistory":
+                    switch(action)
+                    {
+                        case "clean":
+                            RolesManager.ValidateActionPermitted("searchHistory", "clean", false);
+                            return SearchHistoryController.Clean((KalturaSearchHistoryFilter) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("searchHistory", "delete", false);
+                            return SearchHistoryController.Delete((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("searchHistory", "list", false);
+                            return SearchHistoryController.List((KalturaSearchHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "seriesrecording":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "add", false);
+                            return SeriesRecordingController.Add((KalturaSeriesRecording) methodParams[0]);
+                            
+                        case "cancel":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancel", false);
+                            return SeriesRecordingController.Cancel((long) methodParams[0]);
+                            
+                        case "cancelbyepgid":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelByEpgId", false);
+                            return SeriesRecordingController.CancelByEpgId((long) methodParams[0], (long) methodParams[1]);
+                            
+                        case "cancelbyseasonnumber":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "cancelBySeasonNumber", false);
+                            return SeriesRecordingController.CancelBySeasonNumber((long) methodParams[0], (long) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "delete", false);
+                            return SeriesRecordingController.Delete((long) methodParams[0]);
+                            
+                        case "deletebyseasonnumber":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "deleteBySeasonNumber", false);
+                            return SeriesRecordingController.DeleteBySeasonNumber((long) methodParams[0], (int) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "list", false);
+                            return SeriesRecordingController.List((KalturaSeriesRecordingFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "session":
+                    switch(action)
+                    {
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("session", "getOldStandard", false);
+                                return SessionController.GetOldStandard((string) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("session", "get", false);
+                            return SessionController.Get((string) methodParams[0]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("session", "getOldStandard", false);
+                            return SessionController.GetOldStandard((string) methodParams[0]);
+                            
+                        case "revoke":
+                            RolesManager.ValidateActionPermitted("session", "revoke", false);
+                            return SessionController.Revoke();
+                            
+                        case "switchuser":
+                            RolesManager.ValidateActionPermitted("session", "switchUser", false);
+                            return SessionController.SwitchUser((string) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "socialaction":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("socialAction", "add", false);
+                            return SocialActionController.Add((KalturaSocialAction) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("socialAction", "delete", false);
+                            return SocialActionController.Delete((string) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("socialAction", "list", false);
+                            return SocialActionController.List((KalturaSocialActionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "socialcomment":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("socialComment", "list", false);
+                            return SocialCommentController.List((KalturaSocialCommentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "social":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("social", "get", false);
+                            return SocialController.Get((KalturaSocialNetwork) methodParams[0]);
+                            
+                        case "getbytoken":
+                            if(isOldVersion)
+                            {
+                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                {
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                }
+                                RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", false);
+                                return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
+                            }
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("social", "getByToken", false);
+                            return SocialController.GetByToken((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
+                            
+                        case "getbytokenoldstandard":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", false);
+                            return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
+                            
+                        case "getconfiguration":
+                            RolesManager.ValidateActionPermitted("social", "getConfiguration", false);
+                            return SocialController.GetConfiguration((Nullable<KalturaSocialNetwork>) methodParams[0], (Nullable<int>) methodParams[1]);
+                            
+                        case "login":
+                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            {
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                            }
+                            return SocialController.Login((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
+                            
+                        case "merge":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "mergeOldStandard", false);
+                                return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
+                            }
+                            RolesManager.ValidateActionPermitted("social", "merge", false);
+                            return SocialController.Merge((string) methodParams[0], (KalturaSocialNetwork) methodParams[1]);
+                            
+                        case "mergeoldstandard":
+                            RolesManager.ValidateActionPermitted("social", "mergeOldStandard", false);
+                            return SocialController.MergeOldStandard((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (KalturaSocialNetwork) methodParams[5]);
+                            
+                        case "register":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "registerOldStandard", false);
+                                return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
+                            }
+                            RolesManager.ValidateActionPermitted("social", "register", false);
+                            return SocialController.Register((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
+                            
+                        case "registeroldstandard":
+                            RolesManager.ValidateActionPermitted("social", "registerOldStandard", false);
+                            return SocialController.RegisterOldStandard((int) methodParams[0], (string) methodParams[1], (bool) methodParams[2], (bool) methodParams[3], (KalturaSocialNetwork) methodParams[4], (string) methodParams[5]);
+                            
+                        case "unmerge":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "unmergeOldStandard", false);
+                                return SocialController.UnmergeOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaSocialNetwork) methodParams[3]);
+                            }
+                            RolesManager.ValidateActionPermitted("social", "unmerge", false);
+                            return SocialController.Unmerge((KalturaSocialNetwork) methodParams[0]);
+                            
+                        case "unmergeoldstandard":
+                            RolesManager.ValidateActionPermitted("social", "unmergeOldStandard", false);
+                            return SocialController.UnmergeOldStandard((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaSocialNetwork) methodParams[3]);
+                            
+                        case "updateconfiguration":
+                            RolesManager.ValidateActionPermitted("social", "UpdateConfiguration", false);
+                            return SocialController.UpdateConfiguration((KalturaSocialConfig) methodParams[0]);
+                            
+                        case "config":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("social", "getConfiguration", false);
+                                return SocialController.GetConfiguration((Nullable<KalturaSocialNetwork>) methodParams[0], (Nullable<int>) methodParams[1]);
+                            }
+                            break;
+                            
+                    }
+                    break;
+                    
+                case "socialfriendactivity":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("socialFriendActivity", "list", false);
+                            return SocialFriendActivityController.List((KalturaSocialFriendActivityFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "ssoadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "add", false);
+                            return SsoAdapterProfileController.Add((KalturaSSOAdapterProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "delete", false);
+                            return SsoAdapterProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "generateSharedSecret", false);
+                            return SsoAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "list", false);
+                            return SsoAdapterProfileController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "update", false);
+                            return SsoAdapterProfileController.Update((int) methodParams[0], (KalturaSSOAdapterProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "subscription":
+                    switch(action)
+                    {
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
+                                return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("subscription", "list", false);
+                            return SubscriptionController.List((KalturaSubscriptionFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
+                            return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
+                            
+                        case "validatecoupon":
+                            RolesManager.ValidateActionPermitted("subscription", "validateCoupon", false);
+                            return SubscriptionController.ValidateCoupon((int) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "subscriptionset":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "add", false);
+                            return SubscriptionSetController.Add((KalturaSubscriptionSet) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "delete", false);
+                            return SubscriptionSetController.Delete((long) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "get", false);
+                            return SubscriptionSetController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "list", false);
+                            return SubscriptionSetController.List((KalturaSubscriptionSetFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("subscriptionSet", "update", false);
+                            return SubscriptionSetController.Update((long) methodParams[0], (KalturaSubscriptionSet) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "system":
+                    switch(action)
+                    {
+                        case "getcountry":
+                            RolesManager.ValidateActionPermitted("system", "getCountry", false);
+                            return SystemController.GetCountry((string) methodParams[0]);
+                            
+                        case "gettime":
+                            return SystemController.GetTime();
+                            
+                        case "getversion":
+                            return SystemController.GetVersion();
+                            
+                        case "ping":
+                            return SystemController.Ping();
+                            
+                    }
+                    break;
+                    
+                case "tag":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("tag", "add", false);
+                            return TagController.Add((KalturaTag) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("tag", "delete", false);
+                            return TagController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("tag", "list", false);
+                            return TagController.List((KalturaTagFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("tag", "update", false);
+                            return TagController.Update((long) methodParams[0], (KalturaTag) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "timeshiftedtvpartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "get", false);
+                            return TimeShiftedTvPartnerSettingsController.Get();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("timeShiftedTvPartnerSettings", "update", false);
+                            return TimeShiftedTvPartnerSettingsController.Update((KalturaTimeShiftedTvPartnerSettings) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "topic":
+                    switch(action)
+                    {
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("topic", "delete", false);
+                            return TopicController.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("topic", "get", false);
+                            return TopicController.Get((int) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("topic", "listOldStandard", false);
+                                return TopicController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("topic", "list", false);
+                            return TopicController.List((KalturaTopicFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("topic", "listOldStandard", false);
+                            return TopicController.ListOldStandard((KalturaFilterPager) methodParams[0]);
+                            
+                        case "updatestatus":
+                            RolesManager.ValidateActionPermitted("topic", "updateStatus", false);
+                            return TopicController.UpdateStatus((int) methodParams[0], (KalturaTopicAutomaticIssueNotification) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "transaction":
+                    switch(action)
+                    {
+                        case "downgrade":
+                            RolesManager.ValidateActionPermitted("transaction", "downgrade", false);
+                            TransactionController.Downgrade((KalturaPurchase) methodParams[0]);
+                            return null;
+                            
+                        case "getpurchasesessionid":
+                            RolesManager.ValidateActionPermitted("transaction", "getPurchaseSessionId", false);
+                            return TransactionController.getPurchaseSessionId((KalturaPurchaseSession) methodParams[0]);
+                            
+                        case "processreceipt":
+                            RolesManager.ValidateActionPermitted("transaction", "processReceipt", false);
+                            return TransactionController.ProcessReceipt((int) methodParams[0], (KalturaTransactionType) methodParams[1], (string) methodParams[2], (string) methodParams[3], (int) methodParams[4]);
+                            
+                        case "purchase":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", false);
+                                return TransactionController.PurchaseOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
+                            }
+                            RolesManager.ValidateActionPermitted("transaction", "purchase", false);
+                            return TransactionController.Purchase((KalturaPurchase) methodParams[0]);
+                            
+                        case "purchaseoldstandard":
+                            RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", false);
+                            return TransactionController.PurchaseOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
+                            
+                        case "purchasesessionidoldstandard":
+                            RolesManager.ValidateActionPermitted("transaction", "purchaseSessionIdOldStandard", false);
+                            return TransactionController.PurchaseSessionIdOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
+                            
+                        case "setwaiver":
+                            RolesManager.ValidateActionPermitted("transaction", "setWaiver", false);
+                            return TransactionController.SetWaiver((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
+                            
+                        case "updatestate":
+                            RolesManager.ValidateActionPermitted("transaction", "updateState", false);
+                            TransactionController.UpdateState((string) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5], (string) methodParams[6]);
+                            return null;
+                            
+                        case "updatestatus":
+                            RolesManager.ValidateActionPermitted("transaction", "updateStatus", false);
+                            TransactionController.UpdateStatus((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (KalturaTransactionStatus) methodParams[3]);
+                            return null;
+                            
+                        case "upgrade":
+                            RolesManager.ValidateActionPermitted("transaction", "upgrade", false);
+                            return TransactionController.Upgrade((KalturaPurchase) methodParams[0]);
+                            
+                        case "validatereceipt":
+                            RolesManager.ValidateActionPermitted("transaction", "validateReceipt", false);
+                            return TransactionController.ValidateReceipt((KalturaExternalReceipt) methodParams[0]);
+                            
+                        case "purchaseSessionId":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transaction", "purchaseSessionIdOldStandard", false);
+                                return TransactionController.PurchaseSessionIdOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
+                            }
+                            break;
+                            
+                        case "waiver":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transaction", "setWaiver", false);
+                                return TransactionController.SetWaiver((int) methodParams[0], (KalturaTransactionType) methodParams[1]);
+                            }
+                            break;
+                            
+                    }
+                    break;
+                    
+                case "transactionhistory":
+                    switch(action)
+                    {
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", false);
+                                return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("transactionHistory", "list", false);
+                            return TransactionHistoryController.List((KalturaTransactionHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", false);
+                            return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "unifiedpayment":
+                    switch(action)
+                    {
+                        case "getnextrenewal":
+                            RolesManager.ValidateActionPermitted("unifiedPayment", "getNextRenewal", false);
+                            return UnifiedPaymentController.GetNextRenewal((int) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "uploadtoken":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("uploadToken", "add", false);
+                            return UploadTokenController.Add((KalturaUploadToken) methodParams[0]);
+                            
+                        case "upload":
+                            RolesManager.ValidateActionPermitted("uploadToken", "upload", false);
+                            return UploadTokenController.Upload((string) methodParams[0], (KalturaOTTFile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "userassetrule":
+                    switch(action)
+                    {
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetRule", "listOldStandard", false);
+                                return UserAssetRuleController.ListOldStandard((KalturaGenericRuleFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("userAssetRule", "list", false);
+                            return UserAssetRuleController.List((KalturaUserAssetRuleFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("userAssetRule", "listOldStandard", false);
+                            return UserAssetRuleController.ListOldStandard((KalturaGenericRuleFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "userassetslist":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("userAssetsList", "list", false);
+                            return UserAssetsListController.List((KalturaUserAssetsListFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "userassetslistitem":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "add", false);
+                            return UserAssetsListItemController.Add((KalturaUserAssetsListItem) methodParams[0]);
+                            
+                        case "delete":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "deleteOldStandard", false);
+                                return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "delete", false);
+                            return UserAssetsListItemController.Delete((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1]);
+                            
+                        case "deleteoldstandard":
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "deleteOldStandard", false);
+                            return UserAssetsListItemController.DeleteOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                            
+                        case "get":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userAssetsListItem", "getOldStandard", false);
+                                return UserAssetsListItemController.GetOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "get", false);
+                            return UserAssetsListItemController.Get((string) methodParams[0], (KalturaUserAssetsListType) methodParams[1], (KalturaUserAssetsListItemType) methodParams[2]);
+                            
+                        case "getoldstandard":
+                            RolesManager.ValidateActionPermitted("userAssetsListItem", "getOldStandard", false);
+                            return UserAssetsListItemController.GetOldStandard((KalturaUserAssetsListItem) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "userinterest":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userInterest", "add", false);
+                            return UserInterestController.Add((KalturaUserInterest) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("userInterest", "delete", false);
+                            return UserInterestController.Delete((string) methodParams[0]);
+                            
+                        case "deletewithtoken":
+                            UserInterestController.DeleteWithToken((string) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("userInterest", "list", false);
+                            return UserInterestController.List();
+                            
+                    }
+                    break;
+                    
+                case "userloginpin":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
+                            return UserLoginPinController.Add((string) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
+                            return UserLoginPinController.Delete((string) methodParams[0]);
+                            
+                        case "deleteall":
+                            RolesManager.ValidateActionPermitted("userLoginPin", "deleteAll", false);
+                            return UserLoginPinController.DeleteAll();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "userrole":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userRole", "add", false);
+                            return UserRoleController.Add((KalturaUserRole) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("userRole", "delete", false);
+                            return UserRoleController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("userRole", "listOldStandard", false);
+                                return UserRoleController.ListOldStandard((KalturaUserRoleFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("userRole", "list", false);
+                            return UserRoleController.List((KalturaUserRoleFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("userRole", "listOldStandard", false);
+                            return UserRoleController.ListOldStandard((KalturaUserRoleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("userRole", "update", false);
+                            return UserRoleController.Update((long) methodParams[0], (KalturaUserRole) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "version":
+                    switch(action)
+                    {
+                    }
+                    break;
                     
             }
             
-            RolesManager.ValidateActionPermitted(serviceName, actionName, silent);
+            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);
         }
         
-        public static string getServeActionContentType(MethodInfo action)
+        public static Dictionary<string, MethodParam> getMethodParams(string service, string action)
         {
-            switch (action.DeclaringType.Name)
+            service = service.ToLower();
+            action = action.ToLower();
+            Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            string paramName;
+            switch (service)
             {
-                case "ConfigurationsController":
-                    switch(action.Name)
+                case "announcement":
+                    switch(action)
                     {
-                        case "ServeByDevice":
-                            return "application/json";
+                        case "add":
+                            ret.Add("announcement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAnnouncement),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("announcement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAnnouncement),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "enablesystemannouncements":
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAnnouncementFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("announcementId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("announcement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAnnouncement),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("announcement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAnnouncement),
+                            });
+                            return ret;
+                            
+                        case "updatestatus":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "apptoken":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("appToken", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAppToken),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "startsession":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("tokenHash", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("userId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("expiry", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetcomment":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("comment", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetComment),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetCommentFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "asset":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("asset", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAsset),
+                            });
+                            return ret;
+                            
+                        case "autocomplete":
+                            ret.Add("query", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("filter_types", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("size", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "channel":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "channel") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("filter_query", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "count":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchAssetFilter),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetReferenceType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
+                            });
+                            return ret;
+                            
+                        case "externalchannel":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "externalChannel") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("utc_offset", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Single),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("utc_offset", "asset", "externalChannel") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MaxFloat = 12,
+                                    MinFloat = -12,
+                                },
+                            });
+                            ret.Add("free_param", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetReferenceType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
+                            });
+                            return ret;
+                            
+                        case "getadscontext":
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("contextDataParams", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackContextOptions),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "getplaybackcontext":
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("contextDataParams", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackContextOptions),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetInfoFilter),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "related":
+                            ret.Add("media_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("filter_types", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "relatedexternal":
+                            ret.Add("asset_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("asset_id", "asset", "relatedExternal") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("filter_type_ids", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            ret.Add("utc_offset", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("free_param", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "removemetasandtags":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "removeMetasAndTags") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetReferenceType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetReferenceType),
+                            });
+                            ret.Add("idIn", new MethodParam(){
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("idIn", "asset", "removeMetasAndTags") {
+                                    RequiresPermission = false,
+                                    DynamicMinInt = 1,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "search":
+                            ret.Add("order_by", new MethodParam(){
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("filter_types", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("filter", "asset", "search") {
+                                    RequiresPermission = false,
+                                    MaxLength = 2048,
+                                    MinLength = -1,
+                                },
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("request_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "searchexternal":
+                            ret.Add("query", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            ret.Add("filter_type_ids", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            ret.Add("utc_offset", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("asset", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAsset),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetfile":
+                    switch(action)
+                    {
+                        case "getcontext":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("contextType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaContextType),
+                            });
+                            return ret;
+                            
+                        case "playmanifest":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("partnerId", "assetFile", "playManifest") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("assetFileId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetFileId", "assetFile", "playManifest") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("contextType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPlaybackContextType),
+                            });
+                            ret.Add("ks", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assethistory":
+                    switch(action)
+                    {
+                        case "clean":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetHistoryFilter),
+                            });
+                            return ret;
+                            
+                        case "cleanoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetsFilter),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetHistoryFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetHistoryFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetrule":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("assetRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetRule),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("assetRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetRule),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetstatistics":
+                    switch(action)
+                    {
+                        case "query":
+                            ret.Add("query", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStatisticsQuery),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetstruct":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("assetStruct", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStruct),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStructFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetStruct", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStruct),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetstructmeta":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStructMetaFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("assetStructId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetStructId", "assetStructMeta", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("metaId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("metaId", "assetStructMeta", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetStructMeta", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetStructMeta),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetuserrule":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("assetUserRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetUserRule),
+                            });
+                            return ret;
+                            
+                        case "attachuser":
+                            ret.Add("ruleId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("ruleId", "assetUserRule", "attachUser") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetUserRule", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "detachuser":
+                            ret.Add("ruleId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("ruleId", "assetUserRule", "detachUser") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetUserRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetUserRule", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("assetUserRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetUserRule),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "bookmark":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("bookmark", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBookmark),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("asset_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("asset_type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("file_id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("player_asset_data", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlayerAssetData),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBookmarkFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetsFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "bulk":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "servelog":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "category":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "cdnadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDNAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "adapterId";
+                            if(isOldVersion)
+                            {
+                                paramName = "adapter_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("adapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("adapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDNAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "cdnpartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDNPartnerSettings),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "cdvradapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDVRAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "adapterId";
+                            if(isOldVersion)
+                            {
+                                paramName = "adapter_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            paramName = "adapterId";
+                            if(isOldVersion)
+                            {
+                                paramName = "adapter_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("adapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDVRAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCDVRAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "channel":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("channel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaChannel),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("channel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaChannelProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "channelId";
+                            if(isOldVersion)
+                            {
+                                paramName = "channel_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "channel", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "channel", "getOldStandard") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaChannelsFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("channel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaChannel),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("channel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaChannelProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "collection":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCollectionFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "compensation":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("compensation", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCompensation),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "configurationgroup":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("configurationGroup", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroup),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("configurationGroup", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroup),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "configurationgroupdevice":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("configurationGroupDevice", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroupDevice),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroupDeviceFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "configurationgrouptag":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("configurationGroupTag", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroupTag),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("tag", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("tag", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationGroupTagFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "configurations":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("configurations", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurations),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurationsFilter),
+                            });
+                            return ret;
+                            
+                        case "servebydevice":
+                            ret.Add("applicationName", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("clientVersion", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("platform", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("tag", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("configurations", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaConfigurations),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "country":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCountryFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "coupon":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("code", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "couponsgroup":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("couponsGroup", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCouponsGroup),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "generate":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("couponGenerationOptions", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCouponGenerationOptions),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "couponsGroup", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("couponsGroup", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCouponsGroup),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "currency":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCurrencyFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "devicebrand":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "devicefamily":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "discountdetails":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDiscountDetailsFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "drmprofile":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "email":
+                    switch(action)
+                    {
+                        case "send":
+                            ret.Add("emailMessage", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEmailMessage),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "engagementadapter":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("engagementAdapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEngagementAdapter),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("engagementAdapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEngagementAdapter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "engagement":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("engagement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEngagement),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEngagementFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "entitlement":
+                    switch(action)
+                    {
+                        case "buy":
+                            paramName = "itemId";
+                            if(isOldVersion)
+                            {
+                                paramName = "item_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "isSubscription";
+                            if(isOldVersion)
+                            {
+                                paramName = "is_subscription";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            ret.Add("price", new MethodParam(){
+                                Type = typeof(float),
+                            });
+                            ret.Add("currency", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "couponCode";
+                            if(isOldVersion)
+                            {
+                                paramName = "coupon_code";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "extraParams";
+                            if(isOldVersion)
+                            {
+                                paramName = "extra_params";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "encryptedCvv";
+                            if(isOldVersion)
+                            {
+                                paramName = "encrypted_cvv";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "fileId";
+                            if(isOldVersion)
+                            {
+                                paramName = "file_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "cancel":
+                            paramName = "assetId";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "entitlement", "cancel") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            paramName = "productType";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) > 0)
+                            {
+                                paramName = "transactionType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "transaction_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            return ret;
+                            
+                        case "cancelrenewal":
+                            paramName = "subscriptionId";
+                            if(isOldVersion)
+                            {
+                                paramName = "subscription_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "cancelscheduledsubscription":
+                            ret.Add("scheduledSubscriptionId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("scheduledSubscriptionId", "entitlement", "cancelScheduledSubscription") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "externalreconcile":
+                            return ret;
+                            
+                        case "forcecancel":
+                            paramName = "assetId";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "entitlement", "forceCancel") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            paramName = "productType";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) > 0)
+                            {
+                                paramName = "transactionType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "transaction_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            return ret;
+                            
+                        case "getnextrenewal":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "grant":
+                            paramName = "productId";
+                            if(isOldVersion)
+                            {
+                                paramName = "product_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("productId", "entitlement", "grant") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            paramName = "productType";
+                            if(isOldVersion)
+                            {
+                                paramName = "product_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            ret.Add("history", new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            paramName = "contentId";
+                            if(isOldVersion)
+                            {
+                                paramName = "content_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEntitlementFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listexpired":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEntitlementsFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEntitlementsFilter),
+                            });
+                            return ret;
+                            
+                        case "swap":
+                            ret.Add("currentProductId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("newProductId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("history", new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("entitlement", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEntitlement),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "epgchannel":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEpgChannelFilter),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "exporttask":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("task", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExportTask),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExportTaskFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExportFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "exportTask", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("task", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExportTask),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("task", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExportTask),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "externalchannelprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            paramName = "externalChannel";
+                            if(isOldVersion)
+                            {
+                                paramName = "external_channel";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalChannelProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "externalChannelId";
+                            if(isOldVersion)
+                            {
+                                paramName = "external_channel_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("externalChannelId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("externalChannel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalChannelProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("external_channel", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalChannelProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "favorite":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("favorite", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFavorite),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("media_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("media_type", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("extra_data", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "deleteoldstandard":
+                            ret.Add("media_ids", new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaIntegerValue),
+                                Type = typeof(List<KalturaIntegerValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFavoriteFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFavoriteFilter),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaCatalogWithHolder),
+                                Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "followtvseries":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("followTvSeries", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFollowTvSeries),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("asset_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "assetId";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "followTvSeries", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "deletewithtoken":
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFollowTvSeriesFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "homenetwork":
+                    switch(action)
+                    {
+                        case "add":
+                            paramName = "homeNetwork";
+                            if(isOldVersion)
+                            {
+                                paramName = "home_network";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHomeNetwork),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "externalId";
+                            if(isOldVersion)
+                            {
+                                paramName = "external_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("externalId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("homeNetwork", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHomeNetwork),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("home_network", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHomeNetwork),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "household":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("household", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHousehold),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("description", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("external_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "household", "delete") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "deletebyoperator":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIdentifierTypeFilter),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "household", "get") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "getbyoperator":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIdentifierTypeFilter),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaHouseholdWithHolder),
+                                Type = typeof(List<KalturaHouseholdWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "getchargeid":
+                            ret.Add("pg_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("with", new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaHouseholdWithHolder),
+                                Type = typeof(List<KalturaHouseholdWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "purge":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "resetfrequency":
+                            paramName = "frequencyType";
+                            if(isOldVersion)
+                            {
+                                paramName = "household_frequency_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaHouseholdFrequencyType),
+                            });
+                            return ret;
+                            
+                        case "resume":
+                            return ret;
+                            
+                        case "setchargeid":
+                            ret.Add("pg_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("charge_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "setpaymentmethodexternalid":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("payment_method_name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("payment_details", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("payment_method_external_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "suspend":
+                            ret.Add("roleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("household", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHousehold),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("description", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householddevice":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("device", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdDevice),
+                            });
+                            return ret;
+                            
+                        case "addbypin":
+                            paramName = "deviceName";
+                            if(isOldVersion)
+                            {
+                                paramName = "device_name";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("pin", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("device_name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("device_brand_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "generatepin":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "brandId";
+                            if(isOldVersion)
+                            {
+                                paramName = "brand_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            return ret;
+                            
+                        case "getstatus":
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdDeviceFilter),
+                            });
+                            return ret;
+                            
+                        case "loginwithpin":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("pin", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("device", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdDevice),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("device_name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "updatestatus":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaDeviceStatus),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdlimitations":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdpaymentgateway":
+                    switch(action)
+                    {
+                        case "disable":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "enable":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "getchargeid":
+                            ret.Add("paymentGatewayExternalId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "invoke":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("intent", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "extraParameters";
+                            if(isOldVersion)
+                            {
+                                paramName = "extra_parameters";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaKeyValue),
+                                Type = typeof(List<KalturaKeyValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "resume":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setchargeid":
+                            ret.Add("paymentGatewayExternalId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("chargeId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "suspend":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdpaymentmethod":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("householdPaymentMethod", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdPaymentMethod),
+                            });
+                            return ret;
+                            
+                        case "forceremove":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("paymentMethodId", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "forceRemove") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "remove":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("paymentMethodId", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "remove") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "setasdefault":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("paymentMethodId", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "setAsDefault") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "setexternalid":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("paymentMethodName", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("paymentDetails", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("paymentMethodExternalId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdpremiumservice":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdquota":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householduser":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("householdUser", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdUser),
+                            });
+                            return ret;
+                            
+                        case "addbyoperator":
+                            ret.Add("user_id_to_add", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("household_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("is_master", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = false,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("user_id_to_add", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("is_master", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = false,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "id";
+                            if(isOldVersion)
+                            {
+                                paramName = "user_id_to_delete";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdUserFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "image":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("image", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaImage),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "image", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaImageFilter),
+                            });
+                            return ret;
+                            
+                        case "setcontent":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "image", "setContent") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("content", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaContentResource),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "imagetype":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("imageType", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaImageType),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "imageType", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaImageTypeFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "imageType", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("imageType", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaImageType),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "inboxmessage":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaInboxMessageFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "updatestatus":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaInboxMessageStatus),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "language":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLanguageFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "lastposition":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLastPositionFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "licensedurl":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("request", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLicensedUrlBaseRequest),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            paramName = "assetType";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            paramName = "contentId";
+                            if(isOldVersion)
+                            {
+                                paramName = "content_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            paramName = "baseUrl";
+                            if(isOldVersion)
+                            {
+                                paramName = "base_url";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "assetId";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            paramName = "startDate";
+                            if(isOldVersion)
+                            {
+                                paramName = "start_date";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
+                            });
+                            paramName = "streamType";
+                            if(isOldVersion)
+                            {
+                                paramName = "stream_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaStreamType),
+                                IsEnum = true,
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "mediafile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("mediaFile", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "mediaFile", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFileFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "mediaFile", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("mediaFile", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "mediafiletype":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("mediaFileType", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFileType),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("mediaFileType", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMediaFileType),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "messagetemplate":
+                    switch(action)
+                    {
+                        case "get":
+                            paramName = "messageType";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
+                            {
+                                paramName = "assetType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_Type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaMessageTemplateType),
+                            });
+                            return ret;
+                            
+                        case "set":
+                            ret.Add("message_template", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMessageTemplate),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            paramName = "messageType";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
+                            {
+                                paramName = "assetType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_Type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaMessageTemplateType),
+                            });
+                            ret.Add("template", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMessageTemplate),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "meta":
+                    switch(action)
+                    {
+                    }
+                    break;
+                    
+                case "multirequest":
+                    switch(action)
+                    {
+                        case "do":
+                            ret.Add("request", new MethodParam(){
+                                Type = typeof(KalturaMultiRequestAction[]),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "notification":
+                    switch(action)
+                    {
+                        case "register":
+                            ret.Add("identifier", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaNotificationType),
+                            });
+                            return ret;
+                            
+                        case "sendpush":
+                            ret.Add("userId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("pushMessage", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPushMessage),
+                            });
+                            return ret;
+                            
+                        case "sendsms":
+                            ret.Add("message", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "setdevicepushtoken":
+                            ret.Add("pushToken", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "notificationspartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "getoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaNotificationsPartnerSettings),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerNotificationSettings),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "notificationssettings":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "getoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaNotificationsSettings),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaNotificationSettings),
+                            });
+                            return ret;
+                            
+                        case "updatewithtoken":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaNotificationsSettings),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ossadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            paramName = "ossAdapter";
+                            if(isOldVersion)
+                            {
+                                paramName = "oss_adapter";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOSSAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "ossAdapterId";
+                            if(isOldVersion)
+                            {
+                                paramName = "oss_adapter_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            paramName = "ossAdapterId";
+                            if(isOldVersion)
+                            {
+                                paramName = "oss_adapter_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("ossAdapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("ossAdapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOSSAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("oss_adapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOSSAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ossadapterprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("oss_adapter_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("oss_adapter_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("oss_adapter_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ottcategory":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ottuser":
+                    switch(action)
+                    {
+                        case "activate":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "activationToken";
+                            if(isOldVersion)
+                            {
+                                paramName = "activation_token";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "addrole":
+                            paramName = "roleId";
+                            if(isOldVersion)
+                            {
+                                paramName = "role_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "anonymouslogin":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            return ret;
+                            
+                        case "facebooklogin":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            return ret;
+                            
+                        case "getencrypteduserid":
+                            return ret;
+                            
+                        case "getoldstandard":
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOTTUserFilter),
+                            });
+                            return ret;
+                            
+                        case "login":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            paramName = "extraParams";
+                            if(isOldVersion)
+                            {
+                                paramName = "extra_params";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "loginwithpin":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("pin", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("secret", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "logout":
+                            return ret;
+                            
+                        case "refreshsession":
+                            paramName = "refreshToken";
+                            if(isOldVersion)
+                            {
+                                paramName = "refresh_token";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "register":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("user", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOTTUser),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("password", "ottUser", "register") {
+                                    RequiresPermission = false,
+                                    MaxLength = 128,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "resendactivationtoken":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "resetpassword":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "setinitialpassword":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "setpassword":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("user", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaOTTUser),
+                            });
+                            ret.Add("id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "ottUser", "update") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "updatedynamicdata":
+                            ret.Add("key", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("value", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaStringValue),
+                            });
+                            return ret;
+                            
+                        case "updatelogindata":
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "oldPassword";
+                            if(isOldVersion)
+                            {
+                                paramName = "old_password";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "newPassword";
+                            if(isOldVersion)
+                            {
+                                paramName = "new_password";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "updatepassword":
+                            ret.Add("userId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "validatetoken":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "parentalrule":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("parentalRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaParentalRule),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "disable":
+                            paramName = "ruleId";
+                            if(isOldVersion)
+                            {
+                                paramName = "rule_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            paramName = "entityReference";
+                            if(isOldVersion)
+                            {
+                                paramName = "by";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                        case "disabledefault":
+                            paramName = "entityReference";
+                            if(isOldVersion)
+                            {
+                                paramName = "by";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                        case "enable":
+                            paramName = "ruleId";
+                            if(isOldVersion)
+                            {
+                                paramName = "rule_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            paramName = "entityReference";
+                            if(isOldVersion)
+                            {
+                                paramName = "by";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaParentalRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("parentalRule", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaParentalRule),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "parentalruleprofile":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "partnerconfiguration":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerConfigurationFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("configuration", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerConfiguration),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "paymentgateway":
+                    switch(action)
+                    {
+                        case "delete":
+                            paramName = "paymentGatewayId";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "forceremovepaymentmethod":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "forceRemovePaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("payment_method_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "forceRemovePaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "removepaymentmethod":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "removePaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("payment_method_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "removePaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "set":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setpaymentmethod":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "setPaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("payment_method_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "setPaymentMethod") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "paymentgatewayprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("paymentGateway", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentGatewayProfile),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            paramName = "paymentGateway";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentGatewayProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "paymentGatewayId";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            paramName = "paymentGatewayId";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "getconfiguration":
+                            ret.Add("alias", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("intent", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            paramName = "extraParameters";
+                            if(isOldVersion)
+                            {
+                                paramName = "extra_parameters";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaKeyValue),
+                                Type = typeof(List<KalturaKeyValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("paymentGateway", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentGatewayProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            paramName = "paymentGatewayId";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            paramName = "paymentGateway";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentGatewayProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "paymentgatewayprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("profile", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentGatewayProfile),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "paymentmethodprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("paymentMethod", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                        case "addoldstandard":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("payment_method", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("paymentMethodId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "deleteoldstandard":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("payment_method_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentMethodProfileFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("paymentMethodId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("paymentMethod", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            paramName = "paymentGatewayId";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_gateway_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            paramName = "paymentMethod";
+                            if(isOldVersion)
+                            {
+                                paramName = "payment_method";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "personalasset":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("assets", new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaPersonalAssetRequest),
+                                Type = typeof(List<KalturaPersonalAssetRequest>),
+                            });
+                            ret.Add("with", new MethodParam(){
+                                IsList = true,
+                                GenericType = typeof(KalturaPersonalAssetWithHolder),
+                                Type = typeof(List<KalturaPersonalAssetWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "personalfeed":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalFeedFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("order_by", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(KalturaOrder),
+                                IsEnum = true,
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "personallist":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("personalList", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalList),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("personalListId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("personalListId", "personalList", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalListFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "pin":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPinType),
+                            });
+                            ret.Add("ruleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPinType),
+                            });
+                            ret.Add("ruleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPinType),
+                            });
+                            ret.Add("pin", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPin),
+                            });
+                            ret.Add("ruleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("pin", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPinType),
+                            });
+                            ret.Add("ruleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "validate":
+                            ret.Add("pin", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaPinType),
+                            });
+                            ret.Add("ruleId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ppv":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "price":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPricesFilter),
+                            });
+                            ret.Add("coupon_code", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "pricedetails":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPriceDetailsFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "priceplan":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPricePlanFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("pricePlan", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPricePlan),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "productprice":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaProductPriceFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "purchasesettings":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("entityReference", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPurchaseSettings),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("setting", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("by", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaEntityReferenceBy),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ratio":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("ratio", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRatio),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("ratio", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRatio),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "recommendationprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            paramName = "recommendationEngine";
+                            if(isOldVersion)
+                            {
+                                paramName = "recommendation_engine";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRecommendationProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            paramName = "recommendationEngineId";
+                            if(isOldVersion)
+                            {
+                                paramName = "recommendation_engine_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("recommendationEngineId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("recommendationEngine", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRecommendationProfile),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("recommendation_engine", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRecommendationProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "recommendationprofilesettings":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("settings", new MethodParam(){
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "recording":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("recording", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRecording),
+                            });
+                            return ret;
+                            
+                        case "cancel":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRecordingFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "protect":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "region":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegionFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "registrysettings":
+                    switch(action)
+                    {
+                        case "list":
+                            return ret;
+                            
+                        case "listoldstandard":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "reminder":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("reminder", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaReminder),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaReminderType),
+                            });
+                            return ret;
+                            
+                        case "deletewithtoken":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaReminderType),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "report":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("udid", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaReportFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "searchhistory":
+                    switch(action)
+                    {
+                        case "clean":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchHistoryFilter),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchHistoryFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "seriesrecording":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("recording", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSeriesRecording),
+                            });
+                            return ret;
+                            
+                        case "cancel":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "cancelbyepgid":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("epgId", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("epgId", "seriesRecording", "cancelByEpgId") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "cancelbyseasonnumber":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("seasonNumber", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("seasonNumber", "seriesRecording", "cancelBySeasonNumber") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "deletebyseasonnumber":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("seasonNumber", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("seasonNumber", "seriesRecording", "deleteBySeasonNumber") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSeriesRecordingFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "session":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("session", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("session", "session", "get") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            paramName = "session";
+                            if(isOldVersion)
+                            {
+                                paramName = "ks_to_parse";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "revoke":
+                            return ret;
+                            
+                        case "switchuser":
+                            ret.Add("userIdToSwitch", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "socialaction":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("socialAction", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSocialAction),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSocialActionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "socialcomment":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSocialCommentFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "social":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "getbytoken":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "getbytokenoldstandard":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "getconfiguration":
+                            ret.Add("type", new MethodParam(){
+                                IsNullable = true,
+                                Type = typeof(KalturaSocialNetwork),
+                                IsEnum = true,
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "login":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "merge":
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "mergeoldstandard":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("social_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "register":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            ret.Add("email", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "registeroldstandard":
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("should_create_domain", new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            ret.Add("subscribe_newsletter", new MethodParam(){
+                                Type = typeof(bool),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            ret.Add("email", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "unmerge":
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "unmergeoldstandard":
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("username", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("password", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaSocialNetwork),
+                            });
+                            return ret;
+                            
+                        case "updateconfiguration":
+                            ret.Add("configuration", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSocialConfig),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "socialfriendactivity":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSocialFriendActivityFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ssoadapterprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("ssoAdapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSSOAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("ssoAdapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("ssoAdapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("ssoAdapterId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("ssoAdapter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSSOAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "subscription":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscriptionFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscriptionsFilter),
+                            });
+                            return ret;
+                            
+                        case "validatecoupon":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("code", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "subscriptionset":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("subscriptionSet", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscriptionSet),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscriptionSetFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("subscriptionSet", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscriptionSet),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "system":
+                    switch(action)
+                    {
+                        case "getcountry":
+                            ret.Add("ip", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "gettime":
+                            return ret;
+                            
+                        case "getversion":
+                            return ret;
+                            
+                        case "ping":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "tag":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("tag", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTag),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "tag", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTagFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            ret.Add("tag", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTag),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "timeshiftedtvpartnersettings":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("settings", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTimeShiftedTvPartnerSettings),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "topic":
+                    switch(action)
+                    {
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "topic", "get") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "updatestatus":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("automaticIssueNotification", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTopicAutomaticIssueNotification),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "transaction":
+                    switch(action)
+                    {
+                        case "downgrade":
+                            ret.Add("purchase", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPurchase),
+                            });
+                            return ret;
+                            
+                        case "getpurchasesessionid":
+                            ret.Add("purchaseSession", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPurchaseSession),
+                            });
+                            return ret;
+                            
+                        case "processreceipt":
+                            ret.Add("product_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("product_type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            ret.Add("purchase_receipt", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("payment_gateway_name", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("content_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "purchase":
+                            ret.Add("purchase", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPurchase),
+                            });
+                            return ret;
+                            
+                        case "purchaseoldstandard":
+                            ret.Add("price", new MethodParam(){
+                                Type = typeof(float),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("price", "transaction", "purchaseOldStandard") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinFloat = 0,
+                                },
+                            });
+                            ret.Add("currency", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("product_id", new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("product_id", "transaction", "purchaseOldStandard") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("product_type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            ret.Add("content_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("coupon", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("payment_method_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "transaction", "purchaseOldStandard") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            ret.Add("adapterData", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "purchasesessionidoldstandard":
+                            ret.Add("price", new MethodParam(){
+                                Type = typeof(float),
+                            });
+                            ret.Add("currency", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("product_id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("product_type", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            ret.Add("content_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            ret.Add("coupon", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("preview_module_id", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setwaiver":
+                            paramName = "assetId";
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_id";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(int),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "transaction", "setWaiver") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinInteger = 1,
+                                },
+                            });
+                            paramName = "transactionType";
+                            if(isOldVersion)
+                            {
+                                paramName = "transaction_type";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaTransactionType),
+                            });
+                            return ret;
+                            
+                        case "updatestate":
+                            ret.Add("payment_gateway_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("adapter_transaction_state", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("external_transaction_id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("external_status", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("external_message", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("fail_reason", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            ret.Add("signature", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "updatestatus":
+                            ret.Add("paymentGatewayId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("externalTransactionId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("signature", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTransactionStatus),
+                            });
+                            return ret;
+                            
+                        case "upgrade":
+                            ret.Add("purchase", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPurchase),
+                            });
+                            return ret;
+                            
+                        case "validatereceipt":
+                            ret.Add("externalReceipt", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalReceipt),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "transactionhistory":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTransactionHistoryFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTransactionsFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "unifiedpayment":
+                    switch(action)
+                    {
+                        case "getnextrenewal":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "uploadtoken":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("uploadToken", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUploadToken),
+                            });
+                            return ret;
+                            
+                        case "upload":
+                            ret.Add("uploadTokenId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("fileData", new MethodParam(){
+                                Type = typeof(KalturaOTTFile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userassetrule":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserAssetRuleFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaGenericRuleFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userassetslist":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserAssetsListFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userassetslistitem":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("userAssetsListItem", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserAssetsListItem),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("listType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaUserAssetsListType),
+                            });
+                            return ret;
+                            
+                        case "deleteoldstandard":
+                            ret.Add("userAssetsListItem", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserAssetsListItem),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("assetId", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("listType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaUserAssetsListType),
+                            });
+                            ret.Add("itemType", new MethodParam(){
+                                IsEnum = true,
+                                Type = typeof(KalturaUserAssetsListItemType),
+                            });
+                            return ret;
+                            
+                        case "getoldstandard":
+                            ret.Add("userAssetsListItem", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserAssetsListItem),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userinterest":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("userInterest", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserInterest),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "deletewithtoken":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("token", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("partnerId", new MethodParam(){
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userloginpin":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("secret", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            paramName = "pinCode";
+                            if(isOldVersion)
+                            {
+                                paramName = "pin_code";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "deleteall":
+                            return ret;
+                            
+                        case "update":
+                            paramName = "pinCode";
+                            if(isOldVersion)
+                            {
+                                paramName = "pin_code";
+                            }
+                            ret.Add(paramName, new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("secret", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "userrole":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("role", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserRole),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserRoleFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserRoleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "userRole", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("role", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserRole),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "version":
+                    switch(action)
+                    {
+                    }
+                    break;
+                    
+            }
+            
+            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);
+        }
+        
+        public static HttpStatusCode? getFailureHttpCode(string service, string action)
+        {
+            service = service.ToLower();
+            action = action.ToLower();
+            switch (service)
+            {
+                case "assetfile":
+                    switch(action)
+                    {
+                        case "playmanifest":
+                            return HttpStatusCode.NotFound;
                             
                     }
                     break;
@@ -7944,169 +14548,6 @@ namespace WebAPI.Reflection
             }
             
             return null;
-        }
-        
-        public static bool isNewStandardOnly(PropertyInfo property)
-        {
-            switch (property.DeclaringType.Name)
-            {
-                case "KalturaDynamicChannel":
-                    switch(property.Name)
-                    {
-                        case "AssetTypes":
-                            return true;
-                        case "GroupBy":
-                            return true;
-                    }
-                    break;
-                    
-                case "KalturaProductPrice":
-                    switch(property.Name)
-                    {
-                        case "Price":
-                            return true;
-                        case "PurchaseStatus":
-                            return true;
-                    }
-                    break;
-                    
-            }
-            
-            return false;
-        }
-        
-        public static Type getNewObjectType(string objectType)
-        {
-            switch (objectType)
-            {
-                case "KalturaReminderFilter":
-                    return typeof(WebAPI.Models.Notification.KalturaAssetReminderFilter);
-                    
-            }
-            
-            return null;
-        }
-        
-        public static bool IsHttpMethodBlocked(MethodInfo methodInfo, string httpMethod)
-        {
-            bool ret = false;
-            switch (methodInfo.DeclaringType.Name)
-            {
-                case "OttUserController":
-                    { 
-                        switch (methodInfo.Name)
-                        {
-                            case "Login":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "LoginWithPin":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "setInitialPassword":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "UpdateLoginData":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "updatePassword":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                    }
-                 }
-                 break;
-                    
-                case "PinController":
-                    { 
-                        switch (methodInfo.Name)
-                        {
-                            case "Update":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "UpdateOldStandard":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "Validate":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                    }
-                 }
-                 break;
-                    
-                case "SocialController":
-                    { 
-                        switch (methodInfo.Name)
-                        {
-                            case "GetByToken":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "GetByTokenOldStandard":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                            case "Login":
-                            { 
-                                 List<string> methods = new List<string>();
-                                 methods.Add("get");
-                                 return methods.Contains(httpMethod.ToLower());
-                            }
-                            break;
-                            
-                    }
-                 }
-                 break;
-                    
-            }
-            
-            return ret;
         }
         
     }

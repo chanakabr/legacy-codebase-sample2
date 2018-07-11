@@ -13,7 +13,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household limitations details 
     /// </summary>
-    public class KalturaHouseholdLimitations : KalturaOTTObject
+    public partial class KalturaHouseholdLimitations : KalturaOTTObject
     {
         /// <summary>
         /// Household limitation module identifier

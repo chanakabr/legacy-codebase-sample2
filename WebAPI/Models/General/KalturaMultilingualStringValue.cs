@@ -7,7 +7,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Array of translated strings
     /// </summary>
-    public class KalturaMultilingualStringValue : KalturaValue
+    public partial class KalturaMultilingualStringValue : KalturaValue
     {
         /// <summary>
         /// Value

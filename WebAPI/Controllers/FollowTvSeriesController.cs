@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/followTvSeries/action")]
-    public class FollowTvSeriesController : ApiController
+    [Service("followTvSeries")]
+    public class FollowTvSeriesController : IKalturaController
     {
         /// <summary>
         /// (Deprecated - use personalList.list)
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Follow TV series filter</param>
         /// <param name="pager">pager</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaFollowTvSeriesListResponse List(KalturaFollowTvSeriesFilter filter, KalturaFilterPager pager = null)
+        static public KalturaFollowTvSeriesListResponse List(KalturaFollowTvSeriesFilter filter, KalturaFilterPager pager = null)
         {
             KalturaFollowTvSeriesListResponse response = null;
 
@@ -57,11 +57,11 @@ namespace WebAPI.Controllers
         /// <param name="order_by"></param>
         /// <param name="pager"></param>
         /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public KalturaListFollowDataTvSeriesResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
+        static public KalturaListFollowDataTvSeriesResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
             KalturaListFollowDataTvSeriesResponse response = null;
 
@@ -90,14 +90,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assetId">Asset identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.AnnouncementNotFound)]
-        public bool Delete(int assetId)
+        static public bool Delete(int assetId)
         {
             bool response = false;
 
@@ -123,11 +123,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="followTvSeries">Follow series request parameters</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
-        public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
+        static public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
@@ -150,14 +150,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="asset_id"></param>
         /// <returns></returns>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("add")]
         [Obsolete]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
-        public bool AddOldStandard(int asset_id)
+        static public bool AddOldStandard(int asset_id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
@@ -182,11 +182,11 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("deleteWithToken"), HttpPost]
+        [Action("deleteWithToken")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        public void DeleteWithToken(int assetId, string token, int partnerId)
+        static public void DeleteWithToken(int assetId, string token, int partnerId)
         {
             HttpContext.Current.Items.Add(Filters.RequestParser.REQUEST_GROUP_ID, partnerId);
 

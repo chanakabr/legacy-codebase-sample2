@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cdnPartnerSettings/action")]
-    public class CdnPartnerSettingsController : ApiController
+    [Service("cdnPartnerSettings")]
+    public class CdnPartnerSettingsController : IKalturaController
     {
 
         /// <summary>
@@ -22,11 +22,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CDNPartnerSettingsNotFound)]
-        public KalturaCDNPartnerSettings Get()
+        static public KalturaCDNPartnerSettings Get()
         {
             KalturaCDNPartnerSettings response = null;
 
@@ -49,11 +49,11 @@ namespace WebAPI.Controllers
         /// <param name="settings">CDN partner settings</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CDNPartnerSettingsNotFound)]
-        public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
+        static public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
         {
             KalturaCDNPartnerSettings response = null;
             

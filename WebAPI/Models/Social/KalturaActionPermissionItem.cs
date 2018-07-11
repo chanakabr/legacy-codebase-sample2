@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaActionPermissionItem : KalturaOTTObject
+    public partial class KalturaActionPermissionItem : KalturaOTTObject
     {
         /// <summary>
         /// Social network 

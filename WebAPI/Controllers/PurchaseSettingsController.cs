@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/purchaseSettings/action")]
-    public class PurchaseSettingsController : ApiController
+    [Service("purchaseSettings")]
+    public class PurchaseSettingsController : IKalturaController
     {
         /// <summary>
         /// Retrieve the purchase settings.
@@ -28,14 +28,14 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>The purchase settings that apply for the user</returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaPurchaseSettings Get(KalturaEntityReferenceBy by)
+        static public KalturaPurchaseSettings Get(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettings purchaseResponse = null;
 
@@ -76,11 +76,11 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>The purchase settings that apply for the user</returns>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaPurchaseSettingsResponse GetOldStandard(KalturaEntityReferenceBy by)
+        static public KalturaPurchaseSettingsResponse GetOldStandard(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
 
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
         /// <param name="entityReference">Reference type to filter by</param>
         /// <param name="settings">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.PurchaseSettingsTypeInvalid)]
-        public KalturaPurchaseSettings Update(KalturaEntityReferenceBy entityReference, KalturaPurchaseSettings settings)
+        static public KalturaPurchaseSettings Update(KalturaEntityReferenceBy entityReference, KalturaPurchaseSettings settings)
         {
             KalturaPurchaseSettings response = null;
 
@@ -167,11 +167,11 @@ namespace WebAPI.Controllers
         /// <param name="setting">New settings to apply</param>
         /// <param name="by">Reference type to filter by</param>
         /// <returns>Success / Fail</returns>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
-        public bool UpdateOldStandard(int setting, KalturaEntityReferenceBy by)
+        static public bool UpdateOldStandard(int setting, KalturaEntityReferenceBy by)
         {
             int groupId = KS.GetFromRequest().GroupId;
 

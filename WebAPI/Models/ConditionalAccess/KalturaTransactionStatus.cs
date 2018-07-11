@@ -18,7 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         FAILED = 2
     }
 
-    public class KalturaTransactionStatus : KalturaOTTObject
+    public partial class KalturaTransactionStatus : KalturaOTTObject
     {
         /// <summary>
         /// Payment gateway adapter application state for the transaction to update

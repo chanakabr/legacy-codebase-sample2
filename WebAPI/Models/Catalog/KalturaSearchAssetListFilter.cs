@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaSearchAssetListFilter: KalturaSearchAssetFilter
+    public partial class KalturaSearchAssetListFilter : KalturaSearchAssetFilter
     {
         /// <summary>
         /// Exclude watched asset. 

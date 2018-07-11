@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaHouseholdQuota : KalturaOTTObject
+    public partial class KalturaHouseholdQuota : KalturaOTTObject
     {
         /// <summary>
         /// Household identifier

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    public class KalturaDiscountDetailsFilter : KalturaFilter<KalturaDiscountFilterOrderBy>
+    public partial class KalturaDiscountDetailsFilter : KalturaFilter<KalturaDiscountFilterOrderBy>
     {
         /// <summary>
         /// Comma separated discount codes

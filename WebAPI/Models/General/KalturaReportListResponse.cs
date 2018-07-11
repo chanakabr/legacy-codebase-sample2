@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Reports info wrapper
     /// </summary>
-    public class KalturaReportListResponse : KalturaListResponse
+    public partial class KalturaReportListResponse : KalturaListResponse
     {
         /// <summary>
         /// Reports

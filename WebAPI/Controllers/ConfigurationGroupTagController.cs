@@ -9,8 +9,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationGroupTag/action")]
-    public class ConfigurationGroupTagController : ApiController
+    [Service("configurationGroupTag")]
+    public class ConfigurationGroupTagController : IKalturaController
     {
         /// <summary>
         /// Return the configuration group the tag is associated to
@@ -18,14 +18,14 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroupTag Get(string tag)
+        static public KalturaConfigurationGroupTag Get(string tag)
         {
             KalturaConfigurationGroupTag response = null;
             int partnerId = KS.GetFromRequest().GroupId;
@@ -52,11 +52,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter option for configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationGroupTagListResponse List(KalturaConfigurationGroupTagFilter filter)
+        static public KalturaConfigurationGroupTagListResponse List(KalturaConfigurationGroupTagFilter filter)
         {
             KalturaConfigurationGroupTagListResponse response = null;
 
@@ -83,13 +83,13 @@ namespace WebAPI.Controllers
         /// <param name="configurationGroupTag">Configuration group tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003, AlreadyExist = 12008</remarks>        
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.AlreadyExist)]
         [Throws(eResponseStatus.NotExist)]
-        public KalturaConfigurationGroupTag Add(KalturaConfigurationGroupTag configurationGroupTag)
+        static public KalturaConfigurationGroupTag Add(KalturaConfigurationGroupTag configurationGroupTag)
         {
             KalturaConfigurationGroupTag response = null;
 
@@ -119,13 +119,13 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool Delete(string tag)
+        static public bool Delete(string tag)
         {
             bool response = false;
 

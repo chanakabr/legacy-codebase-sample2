@@ -17,15 +17,15 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/mediaFile/action")]
-    public class MediaFileController : ApiController
+    [Service("mediaFile")]
+    public class MediaFileController : IKalturaController
     {
         /// <summary>
         /// Add a new media file
         /// </summary>
         /// <param name="mediaFile">Media file object</param>        
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CdnAdapterProfileDoesNotExist)]
         [Throws(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd)]
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
-        public KalturaMediaFile Add(KalturaMediaFile mediaFile)
+        static public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -75,13 +75,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Media file identifier</param>        
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Media file identifier</param>        
         /// <param name="mediaFile">Media file object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [Throws(eResponseStatus.MediaFileNotBelongToAsset)]
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique)]
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
+        static public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -136,9 +136,9 @@ namespace WebAPI.Controllers
         /// Returns a list of media-file
         /// </summary>
         /// <param name="filter">Filter</param>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaMediaFileListResponse List(KalturaMediaFileFilter filter = null)
+        static public KalturaMediaFileListResponse List(KalturaMediaFileFilter filter = null)
         {
             KalturaMediaFileListResponse response = null;
 

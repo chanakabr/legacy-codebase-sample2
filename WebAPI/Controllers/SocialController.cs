@@ -17,8 +17,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/social/action")]
-    public class SocialController : ApiController
+    [Service("social")]
+    public class SocialController : IKalturaController
     {
         /// <summary>
         /// Return the user object with social information according to a provided external social token
@@ -27,14 +27,14 @@ namespace WebAPI.Controllers
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
-        [Route("getByToken"), HttpPost]
+        [Action("getByToken")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
-        public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
+        static public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
-        [Route("getByTokenOldStandard"), HttpPost]
+        [Action("getByTokenOldStandard")]
         [OldStandardAction("getByToken")]
         [ApiAuthorize]
         [BlockHttpMethods("GET")]
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
 
-        public KalturaSocialResponse GetByTokenOldStandard(int partnerId, string token, KalturaSocialNetwork type)
+        static public KalturaSocialResponse GetByTokenOldStandard(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -102,10 +102,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">social type to get</param>
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaSocial Get(KalturaSocialNetwork type)
+        static public KalturaSocial Get(KalturaSocialNetwork type)
         {
             KalturaSocial response = null;
 
@@ -140,11 +140,11 @@ namespace WebAPI.Controllers
         /// <remarks>        
         /// User does not exist = 2000
         /// </remarks>
-        [Route("login"), HttpPost]
+        [Action("login")]
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
+        static public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
         {
             KalturaOTTUser response = null;
 
@@ -183,13 +183,13 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="email">User email</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
-        [Route("register"), HttpPost]
+        [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
-        public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type, string email = null)
+        static public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type, string email = null)
         {
             string ip = Utils.Utils.GetClientIP();
 
@@ -243,14 +243,14 @@ namespace WebAPI.Controllers
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <param name="email">User email</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
-        [Route("registerOldStandard"), HttpPost]
+        [Action("registerOldStandard")]
         [OldStandardAction("register")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
-        public KalturaSocialResponse RegisterOldStandard(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type, string email = null)
+        static public KalturaSocialResponse RegisterOldStandard(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type, string email = null)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -303,13 +303,13 @@ namespace WebAPI.Controllers
         /// <param name="token">social token</param>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
-        [Route("merge"), HttpPost]
+        [Action("merge")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocial Merge(string token, KalturaSocialNetwork type)
+        static public KalturaSocial Merge(string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
@@ -344,14 +344,14 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
-        [Route("mergeOldStandard"), HttpPost]
+        [Action("mergeOldStandard")]
         [OldStandardAction("merge")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocialResponse MergeOldStandard(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
+        static public KalturaSocialResponse MergeOldStandard(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -381,13 +381,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
-        [Route("unmerge"), HttpPost]
+        [Action("unmerge")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocial Unmerge(KalturaSocialNetwork type)
+        static public KalturaSocial Unmerge(KalturaSocialNetwork type)
         {
             string userId = KS.GetFromRequest().UserId;
             int groupId = KS.GetFromRequest().GroupId;
@@ -417,14 +417,14 @@ namespace WebAPI.Controllers
         /// <param name="password">Password</param>
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
-        [Route("unmergeOldStandard"), HttpPost]
+        [Action("unmergeOldStandard")]
         [OldStandardAction("unmerge")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocialResponse UnmergeOldStandard(string token, string username, string password, KalturaSocialNetwork type)
+        static public KalturaSocialResponse UnmergeOldStandard(string token, string username, string password, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -454,11 +454,11 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
-        [Route("getConfiguration"), HttpPost]
+        [Action("getConfiguration")]
         [OldStandardAction("config")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSocialConfig GetConfiguration( KalturaSocialNetwork? type, int? partnerId = null)
+        static public KalturaSocialConfig GetConfiguration( KalturaSocialNetwork? type, int? partnerId = null)
         {
             KalturaSocialConfig response = null;
 
@@ -496,10 +496,10 @@ namespace WebAPI.Controllers
         /// </summary>      
         /// <param name="configuration">The social action settings</param>
         /// <returns></returns>
-        [Route("UpdateConfiguration"), HttpPost]
+        [Action("UpdateConfiguration")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSocialConfig UpdateConfiguration(KalturaSocialConfig configuration)
+        static public KalturaSocialConfig UpdateConfiguration(KalturaSocialConfig configuration)
         {
             KalturaSocialConfig response = null;
 

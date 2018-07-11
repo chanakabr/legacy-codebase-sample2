@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelFilter : KalturaAssetFilter
+    public partial class KalturaChannelFilter : KalturaAssetFilter
     {
 
         private bool shouldUseChannelDefault = true;

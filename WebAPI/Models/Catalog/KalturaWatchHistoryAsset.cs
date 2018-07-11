@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset wrapper
     /// </summary>
     [Serializable]
-    public class KalturaAssetHistoryListResponse : KalturaListResponse
+    public partial class KalturaAssetHistoryListResponse : KalturaListResponse
     {
         /// <summary>
         /// WatchHistoryAssets Models
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset info
     /// </summary>
     [Serializable]
-    public class KalturaAssetHistory : KalturaOTTObject
+    public partial class KalturaAssetHistory : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier
@@ -96,7 +96,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaWatchHistoryAssetWrapper : KalturaListResponse, KalturaIAssetable
+    public partial class KalturaWatchHistoryAssetWrapper : KalturaListResponse, KalturaIAssetable
     {
         /// <summary>
         /// WatchHistoryAssets Models
@@ -118,7 +118,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [Obsolete]
-    public class KalturaWatchHistoryAsset : KalturaOTTObject
+    public partial class KalturaWatchHistoryAsset : KalturaOTTObject
     {
         /// <summary>
         /// AssetInfo Model

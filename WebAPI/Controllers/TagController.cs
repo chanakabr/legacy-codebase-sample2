@@ -17,8 +17,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/tag/action")]
-    public class TagController : ApiController
+    [Service("tag")]
+    public class TagController : IKalturaController
     {
         /// <summary>
         /// Get the list of tags for the partner
@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTagListResponse response = null;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -78,11 +78,11 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag Object</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]        
         [Throws(eResponseStatus.TagAlreadyInUse)]        
-        public KalturaTag Add(KalturaTag tag)
+        static public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;
 
@@ -123,12 +123,12 @@ namespace WebAPI.Controllers
         /// <param name="id">Tag Identifier</param>
         /// <param name="tag">Tag Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [Throws(eResponseStatus.TagAlreadyInUse)]
-        public KalturaTag Update(long id, KalturaTag tag)
+        static public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -167,11 +167,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Tag Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

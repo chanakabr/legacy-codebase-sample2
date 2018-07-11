@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
-    public class KalturaAnnouncement : KalturaOTTObject
+    public partial class KalturaAnnouncement : KalturaOTTObject
     {
         /// <summary>
         /// Announcement name

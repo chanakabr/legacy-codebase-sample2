@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/transactionHistory/action")]
-    public class TransactionHistoryController : ApiController
+    [Service("transactionHistory")]
+    public class TransactionHistoryController : IKalturaController
     {
         /// <summary>
         /// Gets user or household transaction history.        
@@ -23,10 +23,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter by household or user</param>   
         /// <param name="pager">Page size and index</param>   
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public KalturaBillingTransactionListResponse List(KalturaTransactionHistoryFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaBillingTransactionListResponse List(KalturaTransactionHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 
@@ -90,11 +90,11 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Page size and index, filter by household or user</param>   
         /// <remarks></remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaBillingTransactionListResponse ListOldStandard(KalturaTransactionsFilter filter = null)
+        static public KalturaBillingTransactionListResponse ListOldStandard(KalturaTransactionsFilter filter = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 

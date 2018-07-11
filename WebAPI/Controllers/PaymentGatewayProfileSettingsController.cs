@@ -14,9 +14,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/paymentGatewayProfileSettings/action")]
+    [Service("paymentGatewayProfileSettings")]
     [Obsolete]
-    public class PaymentGatewayProfileSettingsController : ApiController
+    public class PaymentGatewayProfileSettingsController : IKalturaController
     {
         /// <summary>
         /// Returns all payment gateway settings for partner
@@ -25,10 +25,10 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<Models.Billing.KalturaPaymentGatewayProfile> List()
+        static public List<Models.Billing.KalturaPaymentGatewayProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> response = null;
 
@@ -59,9 +59,9 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Delete(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 
@@ -88,10 +88,10 @@ namespace WebAPI.Controllers
         /// Payment gateway params required = 6006
         /// </remarks>
         /// <param name="profile">Payment Gateway profile</param> 
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PaymentGatewayParamsRequired)]
-        public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile profile)
+        static public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile profile)
         {
             KalturaPaymentGatewayProfile response = null;
 
@@ -122,12 +122,12 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayParamsRequired)]
-        public bool AddOldStandard(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool AddOldStandard(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -156,9 +156,9 @@ namespace WebAPI.Controllers
         /// "settings": { "key3": {"value": "value3"},
         ///"key1": {"value": "value2"}}
         ///</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
-        public bool Update(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        static public bool Update(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
 

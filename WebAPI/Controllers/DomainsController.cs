@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>List of parental rules applied to the domain</returns>
         [Route("{domain_id}/parental/rules"), HttpGet]
-        public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] int domain_id)
+        static public List<ParentalRule> GetParentalRules([FromUri] string group_id, [FromUri] int domain_id)
         {
             List<ParentalRule> response = null;
 
@@ -67,8 +67,8 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
-        [Route("{domain_id}/parental/rules/{rule_id}"), HttpPost]
-        public bool EnableParentalRule([FromUri] string group_id, [FromUri] int domain_id, [FromUri] long rule_id)
+        [Action("{domain_id}/parental/rules/{rule_id}")]
+        static public bool EnableParentalRule([FromUri] string group_id, [FromUri] int domain_id, [FromUri] long rule_id)
         {
             bool success = false;
 
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         /// <response code="500">Internal Server Error</response>
         /// <returns>Success or failure and reason</returns>
         [Route("{domain_id}/parental/rules/{rule_id}"), HttpDelete]
-        public bool DisableParentalRule([FromUri] string group_id, [FromUri] int domain_id, [FromUri] long rule_id)
+        static public bool DisableParentalRule([FromUri] string group_id, [FromUri] int domain_id, [FromUri] long rule_id)
         {
             bool success = false;
 
@@ -148,7 +148,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <returns>The PIN that applies for the domain</returns>
         [Route("{domain_id}/parental/pin/"), HttpGet]
-        public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] int domain_id)
+        static public PinResponse GetParentalPIN([FromUri] string group_id, [FromUri] int domain_id)
         {
             PinResponse pinResponse = null;
 
@@ -186,8 +186,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/parental/pin"), HttpPost]
-        public bool SetParentalPIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
+        [Action("{domain_id}/parental/pin")]
+        static public bool SetParentalPIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;
 
@@ -226,7 +226,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("{domain_id}/purchase/settings"), HttpGet]
-        public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id)
+        static public PurchaseSettingsResponse GetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id)
         {
             PurchaseSettingsResponse purchaseResponse = null;
 
@@ -264,8 +264,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="setting">New settings to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase/settings/"), HttpPost]
-        public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int setting)
+        [Action("{domain_id}/purchase/settings/")]
+        static public bool SetPurchaseSettings([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int setting)
         {
             bool success = false;
 
@@ -304,7 +304,7 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <returns>The PIN that applies for the domain</returns>
         [Route("{domain_id}/purchase/pin/"), HttpGet]
-        public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id)
+        static public PinResponse GetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id)
         {
             PinResponse pinResponse = null;
 
@@ -342,8 +342,8 @@ namespace WebAPI.Controllers
         /// <param name="domain_id">Domain identifier</param>
         /// <param name="pin">New PIN to apply</param>
         /// <returns>Success / Fail</returns>
-        [Route("{domain_id}/purchase/pin"), HttpPost]
-        public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
+        [Action("{domain_id}/purchase/pin")]
+        static public bool SetPurchasePIN([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string pin)
         {
             bool success = false;
 
@@ -390,7 +390,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{domain_id}/subscriptions/{sub_id}"), HttpDelete]
-        public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool is_force = false)
+        static public bool CancelServiceNow([FromUri] string group_id, [FromUri] int domain_id, [FromUri] int asset_id, [FromUri] TransactionType transaction_type, [FromUri] bool is_force = false)
         {
             bool response = false;
 
@@ -433,7 +433,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{domain_id}/subscriptions/{sub_id}/renewal"), HttpDelete]
-        public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string subscription_code)
+        static public bool CancelSubscriptionRenewal([FromUri] string group_id, [FromUri] int domain_id, [FromUri] string subscription_code)
         {
             bool response = false;
 
@@ -477,7 +477,7 @@ namespace WebAPI.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="500">Internal Server Error</response>
         [Route("{domain_id}"), HttpGet]
-        public Domain GetDomain([FromUri] string group_id, [FromUri] int domain_id, [FromUri] List<With> with)
+        static public Domain GetDomain([FromUri] string group_id, [FromUri] int domain_id, [FromUri] List<With> with)
         {
             Domain response = null;
 

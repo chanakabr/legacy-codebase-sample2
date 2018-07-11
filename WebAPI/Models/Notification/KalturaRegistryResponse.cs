@@ -11,7 +11,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaRegistryResponse", Namespace = "")]
     [XmlRoot("KalturaRegistryResponse")]
-    public class KalturaRegistryResponse : KalturaOTTObject
+    public partial class KalturaRegistryResponse : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id

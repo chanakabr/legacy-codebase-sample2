@@ -17,7 +17,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
-    public class KalturaSubscriptionSwitchSet : KalturaSubscriptionSet
+    public partial class KalturaSubscriptionSwitchSet : KalturaSubscriptionSet
     {
        
     }

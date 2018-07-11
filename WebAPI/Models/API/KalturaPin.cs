@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// PIN and its origin of definition
     /// </summary>
     [Serializable]
-    public class KalturaPin : KalturaOTTObject
+    public partial class KalturaPin : KalturaOTTObject
     {
         /// <summary>
         /// PIN code

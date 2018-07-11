@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// An item of user asset list
     /// </summary>
     [Serializable]
-    public class KalturaUserAssetsListItem : KalturaOTTObject
+    public partial class KalturaUserAssetsListItem : KalturaOTTObject
     {
         /// <summary>
         ///Asset identifier

@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "ParentalRules", Namespace = "")]
     [XmlRoot("ParentalRules")]
-    public class KalturaParentalRuleListResponse : KalturaListResponse
+    public partial class KalturaParentalRuleListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of parental rules

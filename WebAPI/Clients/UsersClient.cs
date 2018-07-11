@@ -406,9 +406,8 @@ namespace WebAPI.Clients
         public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
         {
             KalturaUserLoginPin pinCode = null;
-
-
             PinCodeResponse response = null;
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

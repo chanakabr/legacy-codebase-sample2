@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public class KalturaChannel : KalturaOTTObject
+    public partial class KalturaChannel : KalturaBaseChannel
     {
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
@@ -172,14 +172,14 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            if (Name != null && Name.Values != null && Name.Values.Count == 0)
+            if (Name == null || Name.Values == null || Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
             Name.Validate("multilingualName");
 
-            if (Description != null && Description.Values != null && Description.Values.Count == 0)
+            if (Description == null || Description.Values == null || Description.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }

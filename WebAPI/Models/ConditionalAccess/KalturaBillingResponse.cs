@@ -13,7 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Billing response
     /// </summary>
-    public class KalturaBillingResponse : KalturaOTTObject
+    public partial class KalturaBillingResponse : KalturaOTTObject
     {
         /// <summary>
         /// Receipt Code 

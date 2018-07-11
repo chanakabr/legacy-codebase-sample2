@@ -11,7 +11,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// A string representation to return an array of strings
     /// </summary>
-    public class KalturaStringValue : KalturaValue
+    public partial class KalturaStringValue : KalturaValue
     {
         /// <summary>
         /// Value

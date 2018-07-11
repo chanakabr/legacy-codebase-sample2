@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaPersonalFile : KalturaOTTObject
+    public partial class KalturaPersonalFile : KalturaOTTObject
     {
         /// <summary>
         /// File unique identifier

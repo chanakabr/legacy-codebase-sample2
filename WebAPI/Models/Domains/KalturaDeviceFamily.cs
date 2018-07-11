@@ -13,7 +13,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    public class KalturaDeviceFamilyBase : KalturaOTTObject
+    public partial class KalturaDeviceFamilyBase : KalturaOTTObject
     {
         /// <summary>
         /// Device family identifier
@@ -57,7 +57,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    public class KalturaDeviceFamily : KalturaDeviceFamilyBase
+    public partial class KalturaDeviceFamily : KalturaDeviceFamilyBase
     {
         /// <summary>
         /// List of all the devices in this family
@@ -73,7 +73,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family limitations details
     /// </summary>
-    public class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamilyBase
+    public partial class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamilyBase
     {
         /// <summary>
         /// Allowed device change frequency code

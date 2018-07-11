@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaUrlResource : KalturaContentResource
+    public partial class KalturaUrlResource : KalturaContentResource
     {
         /// <summary>
         /// URL of the content

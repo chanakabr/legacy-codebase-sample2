@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// Recording-asset info
     /// </summary>
     [Serializable]
-    public class KalturaRecordingAsset : KalturaProgramAsset
+    public partial class KalturaRecordingAsset : KalturaProgramAsset
     {
         /// <summary>
         /// Recording identifier

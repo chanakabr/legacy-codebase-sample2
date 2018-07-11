@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV price details
     /// </summary>
-    public class KalturaPpvPrice : KalturaProductPrice
+    public partial class KalturaPpvPrice : KalturaProductPrice
     {
         /// <summary>
         /// Media file identifier  

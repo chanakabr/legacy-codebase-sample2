@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/licensedUrl/action")]
-    public class LicensedUrlController : ApiController
+    [Service("licensedUrl")]
+    public class LicensedUrlController : IKalturaController
     {
         /// <summary>
         /// Get the URL for playing an asset - EPG or media (not available for recording for now).
@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// <param name="streamType">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
         /// <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
         /// Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("get")]
         [OldStandardArgument("assetType", "asset_type")]
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
         [Throws(eResponseStatus.NotEntitled)]
-        public KalturaLicensedUrl GetOldStandard(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
+        static public KalturaLicensedUrl GetOldStandard(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
         {
             KalturaLicensedUrl response = null;
             
@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
         /// Get the URL for playing an asset - program, media or recording
         /// </summary>
         /// <param name="request">Licensed URL request parameters</param>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
-        public KalturaLicensedUrl Get(KalturaLicensedUrlBaseRequest request)
+        static public KalturaLicensedUrl Get(KalturaLicensedUrlBaseRequest request)
         {
             KalturaLicensedUrl response = null;
 

@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "GenericRules", Namespace = "")]
     [XmlRoot("GenericRules")]
-    public class KalturaOSSAdapterProfileListResponse : KalturaListResponse
+    public partial class KalturaOSSAdapterProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of OSS adapter-profiles

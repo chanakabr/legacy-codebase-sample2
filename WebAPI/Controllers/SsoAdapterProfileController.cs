@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ssoAdapterProfile/action")]
-    public class SsoAdapterProfileController : ApiController
+    [Service("ssoAdapterProfile")]
+    public class SsoAdapterProfileController : IKalturaController
     {
         /// <summary>
         /// Returns all sso adapters for partner : id + name
@@ -24,9 +24,9 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaSSOAdapterProfileListResponse List()
+        static public KalturaSSOAdapterProfileListResponse List()
         {
             var response = new KalturaSSOAdapterProfileListResponse();
             var groupId = KS.GetFromRequest().GroupId;
@@ -54,10 +54,10 @@ namespace WebAPI.Controllers
         /// sso adapter not exist = 2056
         /// </remarks>
         /// <param name="ssoAdapterId">SSO Adapter Identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
-        public bool Delete(int ssoAdapterId)
+        static public bool Delete(int ssoAdapterId)
         {
             var ks = KS.GetFromRequest();
             var groupId = ks.GroupId;
@@ -88,14 +88,14 @@ namespace WebAPI.Controllers
         ///   External identifier is required = 6016, Name is required = 5005, Shared secret is required = 5006, External identifier must be unique = 6040, No sso adapter to insert = 2057
         /// </remarks>
         /// <param name="ssoAdapter">SSO Adapter Object to be added</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.NoSSOAdapaterToInsert)]
-        public KalturaSSOAdapterProfile Add(KalturaSSOAdapterProfile ssoAdapter)
+        static public KalturaSSOAdapterProfile Add(KalturaSSOAdapterProfile ssoAdapter)
         {
             KalturaSSOAdapterProfile response = null;
             var ks = KS.GetFromRequest();
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="ssoAdapterId">SSO Adapter Identifier</param> 
         /// <param name="ssoAdapter">SSO Adapter Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaSSOAdapterProfile Update(int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapter)
+        static public KalturaSSOAdapterProfile Update(int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapter)
         {
 
             var ks = KS.GetFromRequest();
@@ -162,12 +162,12 @@ namespace WebAPI.Controllers
         /// SSO Adapter id required = 2058, sso adapater not exist = 2056
         /// </remarks>
         /// <param name="ssoAdapterId">SSO Adapter identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
-        public KalturaSSOAdapterProfile GenerateSharedSecret(int ssoAdapterId)
+        static public KalturaSSOAdapterProfile GenerateSharedSecret(int ssoAdapterId)
         {
             KalturaSSOAdapterProfile response = null;
             var ks = KS.GetFromRequest();

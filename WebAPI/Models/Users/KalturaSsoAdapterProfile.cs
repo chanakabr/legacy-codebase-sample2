@@ -12,7 +12,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// SSO adapter configuration
     /// </summary>
-    public class KalturaSSOAdapterProfile : KalturaOTTObject
+    public partial class KalturaSSOAdapterProfile : KalturaOTTObject
     {
         /// <summary>
         /// SSO Adapter id

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     [Obsolete]
-    public class KalturaPricesFilter : KalturaOTTObject
+    public partial class KalturaPricesFilter : KalturaOTTObject
     {
         /// <summary>
         /// Subscriptions Identifiers 

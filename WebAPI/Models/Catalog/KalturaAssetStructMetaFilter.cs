@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering Asset Struct Metas
     /// </summary>
     [Serializable]
-    public class KalturaAssetStructMetaFilter : KalturaFilter<KalturaAssetStructMetaOrderBy>
+    public partial class KalturaAssetStructMetaFilter : KalturaFilter<KalturaAssetStructMetaOrderBy>
     {
         /// <summary>
         /// Filter Asset Struct metas that contain a specific asset struct id

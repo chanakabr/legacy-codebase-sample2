@@ -10,7 +10,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner billing configuration
     /// </summary>
-    public class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
+    public partial class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
     {
         /// <summary>
         /// configuration value

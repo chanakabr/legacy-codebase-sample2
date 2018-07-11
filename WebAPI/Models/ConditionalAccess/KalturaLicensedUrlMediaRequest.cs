@@ -11,7 +11,7 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaLicensedUrlMediaRequest : KalturaLicensedUrlBaseRequest
+    public partial class KalturaLicensedUrlMediaRequest : KalturaLicensedUrlBaseRequest
     {
         /// <summary>
         /// Identifier of the content to get the link for (file identifier)

@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// User dynamic data
     /// </summary>
     [DataContract(Name = "userDynamicData")]
-    public class KalturaOTTUserDynamicData : KalturaOTTObject
+    public partial class KalturaOTTUserDynamicData : KalturaOTTObject
     {
         /// <summary>
         /// User identifier
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Users
     }
 
     [DataContract(Name = "userDynamicData")]
-    public class KalturaOTTUserDynamicDataList : KalturaOTTObject
+    public partial class KalturaOTTUserDynamicDataList : KalturaOTTObject
     {
         /// <summary>
         /// User identifier

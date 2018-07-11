@@ -14,7 +14,7 @@ namespace WebAPI.Models.Users
     /// Login response
     /// </summary>
     /// 
-    public class KalturaLoginSession : KalturaOTTObject
+    public partial class KalturaLoginSession : KalturaOTTObject
     {
         /// <summary>
         /// Access token in a KS format

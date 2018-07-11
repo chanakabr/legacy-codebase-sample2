@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/household/action")]
-    public class HouseholdController : ApiController
+    [Service("household")]
+    public class HouseholdController : IKalturaController
     {
         /// <summary>
         /// Returns the household model       
@@ -23,13 +23,13 @@ namespace WebAPI.Controllers
         /// <param name="id">Household identifier</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [SchemeArgument("id", RequiresPermission = true)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHousehold Get(int? id = null)
+        static public KalturaHousehold Get(int? id = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -62,13 +62,13 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("get")]
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with = null)
+        static public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -110,12 +110,12 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>                
-        [Route("getByOperator"), HttpPost]
+        [Action("getByOperator")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
+        static public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -174,11 +174,11 @@ namespace WebAPI.Controllers
         /// <param name="household">Household object</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHousehold Add(KalturaHousehold household)
+        static public KalturaHousehold Add(KalturaHousehold household)
         {
             KalturaHousehold response = null;
 
@@ -227,13 +227,13 @@ namespace WebAPI.Controllers
         /// <param name="external_id">Unique external ID to identify the household</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserExistsInOtherDomains)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHousehold AddOldStandard(string name, string description, string external_id = null)
+        static public KalturaHousehold AddOldStandard(string name, string description, string external_id = null)
         {
             KalturaHousehold response = null;
 
@@ -270,10 +270,10 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
-        [Route("setChargeID"), HttpPost]
+        [Action("setChargeID")]
         [ApiAuthorize]
         [Obsolete]
-        public bool SetChargeID(string pg_id, string charge_id)
+        static public bool SetChargeID(string pg_id, string charge_id)
         {
             bool response = false;
 
@@ -303,10 +303,10 @@ namespace WebAPI.Controllers
         /// Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>        
-        [Route("getChargeID"), HttpPost]
+        [Action("getChargeID")]
         [ApiAuthorize]
         [Obsolete]
-        public string GetChargeID(string pg_id)
+        static public string GetChargeID(string pg_id)
         {
             string chargeId = string.Empty;
 
@@ -340,10 +340,10 @@ namespace WebAPI.Controllers
         /// <param name="payment_method_name"></param>      
         /// <param name="payment_details"></param>      
         /// <param name="payment_method_external_id"></param>        
-        [Route("setPaymentMethodExternalId"), HttpPost]
+        [Action("setPaymentMethodExternalId")]
         [ApiAuthorize]
         [Obsolete]
-        public int SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
+        static public int SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
         {
             int response = 0;
 
@@ -391,11 +391,11 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="frequencyType">Possible values: devices – reset the device change frequency. 
         /// users – reset the user add/remove frequency</param>        
-        [Route("resetFrequency"), HttpPost]
+        [Action("resetFrequency")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("frequencyType", "household_frequency_type")]
-        public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
+        static public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
         {
             KalturaHousehold household = null;
 
@@ -418,10 +418,10 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="household">Household object</param>
         /// <remarks></remarks>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaHousehold Update(KalturaHousehold household)
+        static public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -457,11 +457,11 @@ namespace WebAPI.Controllers
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
         /// <remarks></remarks>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("update")]
         [Obsolete]
-        public KalturaHousehold UpdateOldStandard(string name, string description)
+        static public KalturaHousehold UpdateOldStandard(string name, string description)
         {
             KalturaHousehold household = null;
 
@@ -499,12 +499,12 @@ namespace WebAPI.Controllers
         /// <param name="id">Household identifier</param>                
         /// <remarks>Possible status codes: 
         ///</remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public bool Delete(int? id = null)
+        static public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
 
@@ -560,10 +560,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>        
         /// <remarks>Possible status codes: 
         ///</remarks>
-        [Route("deleteByOperator"), HttpPost]
+        [Action("deleteByOperator")]
         [ApiAuthorize]
         [Obsolete]
-        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
+        static public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
             var ks = KS.GetFromRequest();
 
@@ -606,11 +606,11 @@ namespace WebAPI.Controllers
         /// <param name="roleId">roleId</param>
         /// <remarks>Possible status codes: Household already suspended = 1012
         ///</remarks>
-        [Route("suspend"), HttpPost]
+        [Action("suspend")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadySuspended)]
-        public bool Suspend(int? roleId = null)
+        static public bool Suspend(int? roleId = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -635,11 +635,11 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household already active = 1013
         ///</remarks>
-        [Route("resume"), HttpPost]
+        [Action("resume")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadyActive)]
-        public bool Resume()
+        static public bool Resume()
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -665,11 +665,11 @@ namespace WebAPI.Controllers
         /// <param name="id">Household identifier</param>                
         /// <remarks>Possible status codes: 
         ///</remarks>
-        [Route("purge"), HttpPost]
+        [Action("purge")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public bool Purge(int id)
+        static public bool Purge(int id)
         {
             var ks = KS.GetFromRequest();
 
@@ -721,7 +721,5 @@ namespace WebAPI.Controllers
 
             return true;
         }
-
-
     }
 }

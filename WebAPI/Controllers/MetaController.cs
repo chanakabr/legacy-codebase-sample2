@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/meta/action")]
-    public class MetaController : ApiController
+    [Service("meta")]
+    public class MetaController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaMetaListResponse ListOldStandard(KalturaMetaFilter filter = null)
+        static public KalturaMetaListResponse ListOldStandard(KalturaMetaFilter filter = null)
         {
             KalturaMetaListResponse response = null;
 
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
         /// </remarks>
         [Route("updateOldStandard"), HttpPost]
-        [OldStandardAction("update")]        
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -78,10 +78,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaNotFound)]
         [Throws(eResponseStatus.MetaNotBelongtoPartner)]
         [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
-        [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]        
-        public KalturaMeta UpdateOldStandard(string id, KalturaMeta meta)
+        [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]
+        static public KalturaMeta UpdateOldStandard(string id, KalturaMeta meta)
         {
-            KalturaMeta response = null;                                    
+            KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
+        static public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
         {
             if (filter == null)
             {
@@ -146,10 +146,10 @@ namespace WebAPI.Controllers
         /// <param name="meta">Meta Object</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
-        [ApiAuthorize]        
+        [ApiAuthorize]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
-        public KalturaMeta Add(KalturaMeta meta)
+        static public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -175,7 +175,7 @@ namespace WebAPI.Controllers
             {
                 if (meta.MultipleValue.HasValue && meta.MultipleValue.Value && meta.DataType != Models.Catalog.KalturaMetaDataType.STRING)
                 {
-                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType,string.Format("{0} - MultipleValue can only be set to true for KalturaMeta.DataType with value STRING",
+                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType, string.Format("{0} - MultipleValue can only be set to true for KalturaMeta.DataType with value STRING",
                                                                                                                 eResponseStatus.InvalidMutlipleValueForMetaType.ToString()));
                 }
 
@@ -197,15 +197,15 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.MetaDoesNotExist)]        
-        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
-        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]        
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaMeta Update(long id, KalturaMeta meta)
+        static public KalturaMeta Update(long id, KalturaMeta meta)
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();            
+            long userId = Utils.Utils.GetUserIdFromKs();
             meta.ValidateFeatures();
 
             if (meta.Name != null)
@@ -241,8 +241,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedMeta)]
+        [Throws(eResponseStatus.CanNotDeleteConnectingAssetStructMeta)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

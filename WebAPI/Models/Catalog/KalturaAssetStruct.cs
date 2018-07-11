@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -12,7 +14,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetStruct : KalturaOTTObject
+    public partial class KalturaAssetStruct : KalturaOTTObject
     {
         /// <summary>
         /// Asset Struct id 
@@ -74,8 +76,49 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        public bool ValidateMetaIds()
+        /// <summary>
+        /// List of supported features
+        /// </summary>
+        [DataMember(Name = "features")]
+        [JsonProperty("features")]
+        [XmlElement(ElementName = "features", IsNullable = true)]
+        public string Features { get; set; }
+
+        /// <summary>
+        /// Plural Name
+        /// </summary>
+        [DataMember(Name = "pluralName")]
+        [JsonProperty("pluralName")]
+        [XmlElement(ElementName = "pluralName", IsNullable = true)]
+        public string PluralName { get; set; }
+
+        /// <summary>
+        /// AssetStruct parent Id
+        /// </summary>
+        [DataMember(Name = "parentId")]
+        [JsonProperty("parentId")]
+        [XmlElement(ElementName = "parentId", IsNullable = true)]
+        public long? ParentId { get; set; }
+
+        /// <summary>
+        /// connectingMetaId
+        /// </summary>
+        [DataMember(Name = "connectingMetaId")]
+        [JsonProperty("connectingMetaId")]
+        [XmlElement(ElementName = "connectingMetaId", IsNullable = true)]
+        public long? ConnectingMetaId { get; set; }
+
+        /// <summary>
+        /// connectedParentMetaId
+        /// </summary>
+        [DataMember(Name = "connectedParentMetaId")]
+        [JsonProperty("connectedParentMetaId")]
+        [XmlElement(ElementName = "connectedParentMetaId", IsNullable = true)]
+        public long? ConnectedParentMetaId { get; set; }
+
+        public bool Validate()
         {
+            // validate metaIds
             if (!string.IsNullOrEmpty(MetaIds))
             {
                 string[] stringValues = MetaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -89,7 +132,49 @@ namespace WebAPI.Models.Catalog
                 }
             }
 
+            // validate features
+            if (!string.IsNullOrEmpty(this.Features))
+            {
+                HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
+                if (featuresHashSet != null && featuresHashSet.Count > 0)
+                {
+                    string allowedPattern = ApplicationConfiguration.MetaFeaturesPattern.Value;
+                    Regex regex = new Regex(allowedPattern);
+                    foreach (string feature in featuresHashSet)
+                    {
+                        if (regex.IsMatch(feature))
+                        {
+                            throw new BadRequestException(ApiException.INVALID_VALUE_FOR_FEATURE, feature);
+                        }
+                    }
+                }
+            }
+
             return true;
+        }
+
+        internal HashSet<string> GetFeaturesAsHashSet()
+        {
+            if (this.Features == null)
+            {
+                return null;
+            }
+
+            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string feature in splitedFeatures)
+            {
+                if (result.Contains(feature))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaAssetStruct.features");
+                }
+                else
+                {
+                    result.Add(feature);
+                }
+            }
+
+            return result;
         }
     }
 }

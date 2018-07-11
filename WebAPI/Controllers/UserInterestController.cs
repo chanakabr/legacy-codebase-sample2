@@ -10,8 +10,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/userInterest/action")]
-    public class UserInterestController : ApiController
+    [Service("userInterest")]
+    public class UserInterestController : IKalturaController
     {
         /// <summary>
         /// Insert new user interest for partner user
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// ParentTopicIsRequired, ParentTopicShouldNotHaveValue, ParentTopicMetaIdNotEqualToMetaParentMetaID, ParentTopicValueIsMissing, ParentIdNotAUserInterest
         /// </remarks>
         /// <param name="userInterest">User interest Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PartnerTopicInterestIsMissing)]
         [Throws(eResponseStatus.NoUserInterestToInsert)]
@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ParentTopicMetaIdNotEqualToMetaParentMetaID)]
         [Throws(eResponseStatus.ParentTopicValueIsMissing)]
         [Throws(eResponseStatus.ParentIdNotAUserInterest)]
-        public KalturaUserInterest Add(KalturaUserInterest userInterest)
+        static public KalturaUserInterest Add(KalturaUserInterest userInterest)
         {
             KalturaUserInterest response = null;
 
@@ -63,9 +63,9 @@ namespace WebAPI.Controllers
         /// Possible status codes:             
         /// </remarks>
         /// <param name="id">User interest identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(string id)
+        static public bool Delete(string id)
         {
             bool response = false;
 
@@ -91,9 +91,9 @@ namespace WebAPI.Controllers
         /// <remarks>       
         /// </remarks>
         /// <param name="pager">Page size and index</param>                
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaUserInterestListResponse List()
+        static public KalturaUserInterestListResponse List()
         {
             List<KalturaUserInterest> list = null;
 
@@ -126,11 +126,11 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("deleteWithToken"), HttpPost]
+        [Action("deleteWithToken")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        public void DeleteWithToken(string id, string token, int partnerId)
+        static public void DeleteWithToken(string id, string token, int partnerId)
         {
             try
             {

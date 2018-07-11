@@ -16,18 +16,18 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/householdQuota/action")]
-    public class HouseholdQuotaController : ApiController
+    [Service("householdQuota")]
+    public class HouseholdQuotaController : IKalturaController
     {
         /// <summary>
         /// Returns the household's quota data
         /// </summary>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003</remarks>     
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaHouseholdQuota Get()
+        static public KalturaHouseholdQuota Get()
         {
             KalturaHouseholdQuota response = null;
 

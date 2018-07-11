@@ -6,22 +6,23 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/deviceFamily/action")]
-    public class DeviceFamilyController : ApiController
+    [Service("deviceFamily")]
+    public class DeviceFamilyController : IKalturaController
     {
 
         /// <summary>
         /// Return a list of the available device families.
         /// </summary>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaDeviceFamilyListResponse List()
+        static public KalturaDeviceFamilyListResponse List()
         {
             KalturaDeviceFamilyListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;

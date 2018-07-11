@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "KalturaBookmarkListResponse", Namespace = "")]
     [XmlRoot("KalturaBookmarkListResponse")]
-    public class KalturaBookmarkListResponse : KalturaListResponse
+    public partial class KalturaBookmarkListResponse : KalturaListResponse
     {
         /// <summary>
         /// Assets

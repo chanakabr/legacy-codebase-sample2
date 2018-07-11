@@ -15,7 +15,7 @@ namespace WebAPI.Models.Users
     /// User
     /// </summary>
     [DataContract(Name = "user")]
-    public class KalturaOTTUser : KalturaBaseOTTUser
+    public partial class KalturaOTTUser : KalturaBaseOTTUser
     {
         /// <summary>
         /// Household identifier

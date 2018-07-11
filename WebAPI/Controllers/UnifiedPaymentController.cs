@@ -12,17 +12,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/unifiedPayment/action")]
-    public class UnifiedPaymentController : ApiController
+    [Service("unifiedPayment")]
+    public class UnifiedPaymentController : IKalturaController
     {
         /// <summary>
         /// Returns the data about the next renewal 
         /// </summary>                
         /// <param name="id">Unified payment ID</param>
-        [Route("getNextRenewal"), HttpPost]
+        [Action("getNextRenewal")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        public KalturaUnifiedPaymentRenewal GetNextRenewal(int id)
+        static public KalturaUnifiedPaymentRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);

@@ -20,8 +20,8 @@ using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/pricePlan/action")]
-    public class PricePlanController : ApiController
+    [Service("pricePlan")]
+    public class PricePlanController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
@@ -29,9 +29,9 @@ namespace WebAPI.Controllers
         /// Returns a list of price plans by IDs
         /// </summary>
         /// <param name="filter">Filter request</param>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter = null)
+        static public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
             
@@ -60,11 +60,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="pricePlan">Price plan to update</param>
         /// <param name="id">Price plan ID</param>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PricePlanDoesNotExist)]
         [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
-        public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
+        static public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
             int groupId = KS.GetFromRequest().GroupId;
 

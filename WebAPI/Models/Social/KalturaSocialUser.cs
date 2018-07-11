@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {
-    public class KalturaSocialUser : KalturaOTTObject
+    public partial class KalturaSocialUser : KalturaOTTObject
     {
         /// <summary>
         /// Facebook identifier

@@ -17,17 +17,17 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [RoutePrefix("_service/userRole/action")]
-    public class UserRoleController : ApiController
+    [Service("userRole")]
+    public class UserRoleController : IKalturaController
     {
         /// <summary>
         /// Retrieving user roles by identifiers, if filter is empty, returns all partner roles
         /// </summary>
         /// <param name="filter">User roles filter</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaUserRoleListResponse List(KalturaUserRoleFilter filter = null)
+        static public KalturaUserRoleListResponse List(KalturaUserRoleFilter filter = null)
         {
             List<KalturaUserRole> list = null;
 
@@ -69,11 +69,11 @@ namespace WebAPI.Controllers
         /// Retrieving user roles by identifiers, if filter is empty, returns all partner roles
         /// </summary>
         /// <remarks></remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaUserRole> ListOldStandard(KalturaUserRoleFilter filter = null)
+        static public List<KalturaUserRole> ListOldStandard(KalturaUserRoleFilter filter = null)
         {
             List<KalturaUserRole> response = null;
 
@@ -105,9 +105,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="role">Role to add</param>
         /// <remarks></remarks>        
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaUserRole Add(KalturaUserRole role)
+        static public KalturaUserRole Add(KalturaUserRole role)
         {
             KalturaUserRole response = null;
 
@@ -138,10 +138,10 @@ namespace WebAPI.Controllers
         /// <param name="id">Role Id</param>
         /// <param name="role">Role to Update</param>
         /// <remarks></remarks>        
-        [Route("update"), HttpPost]       
+        [Action("update")]       
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaUserRole Update(long id, KalturaUserRole role)
+        static public KalturaUserRole Update(long id, KalturaUserRole role)
         {
             if (id < 1)
             {
@@ -175,9 +175,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Role id to delete</param>
         /// <remarks></remarks>        
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool response = false;
             int groupId = KS.GetFromRequest().GroupId;

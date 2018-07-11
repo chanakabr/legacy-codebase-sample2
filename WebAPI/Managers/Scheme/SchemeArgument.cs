@@ -23,37 +23,35 @@ namespace WebAPI.Managers.Scheme
             Name = name;
             RequiresPermission = false;
         }
+    }
 
-        private static string FirstCharacterToLower(string str)
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class RuntimeSchemeArgumentAttribute : SchemeArgumentAttribute
+    {
+        private string Service;
+        private string Action;
+
+        public RuntimeSchemeArgumentAttribute(string name, string service, string action) : base(name)
         {
-            if (String.IsNullOrEmpty(str) || Char.IsLower(str, 0))
-                return str;
-
-            return Char.ToLowerInvariant(str[0]) + str.Substring(1);
+            Service = service;
+            Action = action;
         }
 
-        private static string getServiceId(Type controller)
-        {
-            return FirstCharacterToLower(controller.Name.Replace("Controller", ""));
-        }
-
-        internal void Validate(MethodInfo methodInfo, string argument, object value)
+        internal void Validate(object value)
         {
             if (value == null)
             {
                 return;
             }
 
-            string service = getServiceId(methodInfo.DeclaringType);
-            string action = FirstCharacterToLower(methodInfo.Name);
-            string name = string.Format("{0}.{1}.{2}", service, action, argument);
+            string name = string.Format("{0}.{1}.{2}", Service, Action, Name);
 
             base.Validate(name, value);
 
             if (RequiresPermission)
             {
-                RolesManager.ValidateArgumentPermitted(service, action, argument);
+                RolesManager.ValidateArgumentPermitted(Service, Action, Name);
             }
-        }
+        }   
     }
 }

@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Media-file type
     /// </summary>
-    public class KalturaMediaFileType : KalturaOTTObject
+    public partial class KalturaMediaFileType : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier
@@ -171,7 +171,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "Collections", Namespace = "")]
     [XmlRoot("Collections")]
-    public class KalturaMediaFileTypeListResponse : KalturaListResponse
+    public partial class KalturaMediaFileTypeListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of media-file types

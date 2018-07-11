@@ -12,7 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// KalturaPpvEntitlement
     /// </summary>
-    public class KalturaPpvEntitlement : KalturaEntitlement
+    public partial class KalturaPpvEntitlement : KalturaEntitlement
     {
         /// <summary>
         ///Media file identifier

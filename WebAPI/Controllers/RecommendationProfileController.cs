@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/recommendationProfile/action")]
-    public class RecommendationProfileController : ApiController
+    [Service("recommendationProfile")]
+    public class RecommendationProfileController : IKalturaController
     {
         /// <summary>
         /// Returns all recommendation engines for partner 
@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaRecommendationProfileListResponse List()
+        static public KalturaRecommendationProfileListResponse List()
         {
             List<KalturaRecommendationProfile> list = null;
 
@@ -49,11 +49,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public List<KalturaRecommendationProfile> ListOldStandard()
+        static public List<KalturaRecommendationProfile> ListOldStandard()
         {
             List<KalturaRecommendationProfile> response = null;
 
@@ -80,11 +80,11 @@ namespace WebAPI.Controllers
         /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008
         /// </remarks>
         /// <param name="id">recommendation engine Identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             bool response = false;
             
@@ -111,14 +111,14 @@ namespace WebAPI.Controllers
         /// name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
         /// <param name="recommendationEngine">recommendation engine Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [OldStandardArgument("recommendationEngine", "recommendation_engine")]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaRecommendationProfile Add(KalturaRecommendationProfile recommendationEngine)
+        static public KalturaRecommendationProfile Add(KalturaRecommendationProfile recommendationEngine)
         {
             KalturaRecommendationProfile response = null;
 
@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="recommendationEngineId">recommendation engine identifier</param>    
         /// <param name="recommendationEngine">recommendation engine Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]
@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaRecommendationProfile Update(int recommendationEngineId, KalturaRecommendationProfile recommendationEngine)
+        static public KalturaRecommendationProfile Update(int recommendationEngineId, KalturaRecommendationProfile recommendationEngine)
         {
             KalturaRecommendationProfile response = null;
 
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
         /// adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>        
         /// <param name="recommendation_engine">recommendation engine Object</param>       
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
@@ -193,7 +193,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaRecommendationProfile UpdateOldStandard(KalturaRecommendationProfile recommendation_engine)
+        static public KalturaRecommendationProfile UpdateOldStandard(KalturaRecommendationProfile recommendation_engine)
         {
             KalturaRecommendationProfile response = null;
 
@@ -220,13 +220,13 @@ namespace WebAPI.Controllers
         /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008
         /// </remarks>
         /// <param name="recommendationEngineId">recommendation engine Identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [OldStandardArgument("recommendationEngineId", "recommendation_engine_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]
-        public KalturaRecommendationProfile GenerateSharedSecret(int recommendationEngineId)
+        static public KalturaRecommendationProfile GenerateSharedSecret(int recommendationEngineId)
         {
             KalturaRecommendationProfile response = null;
 

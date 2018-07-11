@@ -18,17 +18,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/image/action")]
-    public class ImageController : ApiController
+    [Service("image")]
+    public class ImageController : IKalturaController
     {
         /// <summary>
         /// Get the list of images by different filtering 
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaImageListResponse List(KalturaImageFilter filter = null)
+        static public KalturaImageListResponse List(KalturaImageFilter filter = null)
         {
             KalturaImageListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -67,13 +67,13 @@ namespace WebAPI.Controllers
         /// <param name="image">Image</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
-        public KalturaImage Add(KalturaImage image)
+        static public KalturaImage Add(KalturaImage image)
         {
             KalturaImage response = null;
 
@@ -111,11 +111,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Image ID</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -139,14 +139,14 @@ namespace WebAPI.Controllers
         /// <param name="id">Image ID</param>
         /// <param name="content">Content of the image to set</param>
         /// <returns></returns>
-        [Route("setContent"), HttpPost]
+        [Action("setContent")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.InvalidRatioForImage)]
         [Throws(eResponseStatus.InvalidUrlForImage)]
-        public void SetContent(long id, KalturaContentResource content)
+        static public void SetContent(long id, KalturaContentResource content)
         {            
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();

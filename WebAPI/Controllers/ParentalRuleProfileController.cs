@@ -9,14 +9,15 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/parentalRuleProfile/action")]
+    [Service("parentalRuleProfile")]
     [Obsolete]
-    public class ParentalRuleProfileController : ApiController
+    public class ParentalRuleProfileController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -25,9 +26,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <returns>The parental rules defined for the account</returns>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaParentalRuleListResponse List()
+        static public KalturaParentalRuleListResponse List()
         {
             List<KalturaParentalRule> response = null;
 

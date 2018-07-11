@@ -20,7 +20,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite request filter 
     /// </summary>
-    public class KalturaFavoriteFilter : KalturaFilter<KalturaFavoriteOrderBy>
+    public partial class KalturaFavoriteFilter : KalturaFilter<KalturaFavoriteOrderBy>
     {
         /// <summary>
         /// Media type to filter by the favorite assets

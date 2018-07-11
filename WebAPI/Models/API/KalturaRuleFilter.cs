@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     [Obsolete]
-    public class KalturaRuleFilter : KalturaOTTObject
+    public partial class KalturaRuleFilter : KalturaOTTObject
     {
         /// <summary>
         ///Reference type to filter by

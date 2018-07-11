@@ -11,17 +11,17 @@
 
 //namespace WebAPI.Controllers
 //{
-//    [RoutePrefix("_service/asset/action")]
-//    public class PermissionController : ApiController
+//    [Service("asset")]
+//    public class PermissionController : IKalturaController
 //    {
 //        /// <summary>
 //        /// Retrieving permissions by identifiers, if filter is empty, returns all partner permissions
 //        /// </summary>
 //        /// <param name="filter">Filter for permissions</param>
 //        /// <remarks></remarks>
-//        [Route("list"), HttpPost]
+//        [Action("list")]
 //        [ApiAuthorize]
-//        public List<KalturaPermission> List(KalturaPermissionsFilter filter = null)
+//        static public List<KalturaPermission> List(KalturaPermissionsFilter filter = null)
 //        {
 //            List<KalturaPermission> response = null;
 
@@ -53,9 +53,9 @@
 //        /// </summary>
 //        /// <param name="permission">Permission to insert</param>
 //        /// <remarks></remarks>
-//        [Route("add"), HttpPost]
+//        [Action("add")]
 //        [ApiAuthorize]
-//        public KalturaPermission Add(KalturaPermission permission)
+//        static public KalturaPermission Add(KalturaPermission permission)
 //        {
 //            KalturaPermission response = null;
 
@@ -85,9 +85,9 @@
 //        /// <param name="permission_id">Permission identifier to add to</param>
 //        /// <param name="permission_item_id">Permission item identifier to add</param>
 //        /// <remarks></remarks>
-//        [Route("addPermissionItem"), HttpPost]
+//        [Action("addPermissionItem")]
 //        [ApiAuthorize]
-//        public bool AddPermissionItem(long permission_id, long permission_item_id)
+//        static public bool AddPermissionItem(long permission_id, long permission_item_id)
 //        {
 //            bool response = false;
 

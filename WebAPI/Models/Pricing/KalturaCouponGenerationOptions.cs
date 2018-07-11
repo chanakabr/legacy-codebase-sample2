@@ -12,10 +12,10 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupon generation options
     /// </summary>
-    public class KalturaCouponGenerationOptions : KalturaOTTObject
+    public partial class KalturaCouponGenerationOptions : KalturaOTTObject
     {
     }
-    public class KalturaPublicCouponGenerationOptions: KalturaCouponGenerationOptions
+    public partial class KalturaPublicCouponGenerationOptions : KalturaCouponGenerationOptions
     {
         /// <summary>
         /// Coupon code (name)
@@ -26,7 +26,7 @@ namespace WebAPI.Models.Pricing
         public string Code { get; set; }
     }
 
-    public class KalturaRandomCouponGenerationOptions : KalturaCouponGenerationOptions
+    public partial class KalturaRandomCouponGenerationOptions : KalturaCouponGenerationOptions
     {
         /// <summary>
         /// Number of coupons to generate

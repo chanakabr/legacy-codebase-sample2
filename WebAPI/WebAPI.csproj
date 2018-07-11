@@ -24,6 +24,7 @@
     <NuGetPackageImportStamp>29ae49f1</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -223,6 +224,7 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetStructMetaController.cs" />
     <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\MediaFileTypeController.cs" />
@@ -286,6 +288,7 @@
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\DiscountDetailsController.cs" />
     <Compile Include="Controllers\PersonalListController.cs" />
+    <Compile Include="Controllers\IKalturaController.cs" />
     <Compile Include="Controllers\SsoAdapterProfileController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
@@ -332,6 +335,7 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Managers\Scheme\Service.cs" />
     <Compile Include="Models\API\KalturaAssetRuleBase.cs" />
     <Compile Include="Models\Partner\KalturaConcurrencyPartnerConfig.cs" />
     <Compile Include="Models\Partner\KalturaPartnerConfigurationFilter.cs" />
@@ -942,6 +946,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Reflection\DataModel.cs" />
+    <Compile Include="Reflection\KalturaJsonDeserializer.cs" />
+    <Compile Include="Reflection\KalturaJsonSerializer.cs" />
+    <Compile Include="Reflection\MethodParam.cs" />
     <Compile Include="Swagger.ashx.cs">
       <DependentUpon>Swagger.ashx</DependentUpon>
     </Compile>

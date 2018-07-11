@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [DataContract(Name = "Regions", Namespace = "")]
     [XmlRoot("Regions")]
-    public class KalturaRegionListResponse : KalturaListResponse
+    public partial class KalturaRegionListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of regions

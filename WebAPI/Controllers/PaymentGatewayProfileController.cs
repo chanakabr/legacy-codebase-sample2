@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/paymentGatewayProfile/action")]
-    public class PaymentGatewayProfileController : ApiController
+    [Service("paymentGatewayProfile")]
+    public class PaymentGatewayProfileController : IKalturaController
     {
         /// <summary>
         /// Returns all payment gateways for partner : id + name
@@ -24,9 +24,9 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaPaymentGatewayProfileListResponse List()
+        static public KalturaPaymentGatewayProfileListResponse List()
         {
             KalturaPaymentGatewayProfileListResponse response = new KalturaPaymentGatewayProfileListResponse();
 
@@ -53,11 +53,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///  
         /// </remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<Models.Billing.KalturaPaymentGatewayProfile> ListOldStandard()
+        static public List<Models.Billing.KalturaPaymentGatewayProfile> ListOldStandard()
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> response = null;
 
@@ -84,11 +84,11 @@ namespace WebAPI.Controllers
         /// Payment gateway not exist = 6008
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public bool Delete(int paymentGatewayId)
+        static public bool Delete(int paymentGatewayId)
         {
             bool response = false;
             
@@ -115,14 +115,14 @@ namespace WebAPI.Controllers
         ///   External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
         /// <param name="paymentGateway">Payment Gateway Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.NoPaymentGatewayToInsert)]
-        public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile paymentGateway)
+        static public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile paymentGateway)
         {
             KalturaPaymentGatewayProfile response = null;
 
@@ -149,7 +149,7 @@ namespace WebAPI.Controllers
         ///   External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
         /// <param name="paymentGateway">Payment Gateway Object</param>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
@@ -159,7 +159,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.NoPaymentGatewayToInsert)]
-        public bool AddOldStandard(KalturaPaymentGatewayProfile paymentGateway)
+        static public bool AddOldStandard(KalturaPaymentGatewayProfile paymentGateway)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -186,7 +186,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentGateway">Payment Gateway Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public KalturaPaymentGatewayProfile Update(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
+        static public KalturaPaymentGatewayProfile Update(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
         {
             KalturaPaymentGatewayProfile response = null;
 
@@ -223,7 +223,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentGateway">Payment Gateway Object</param>       
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
@@ -235,7 +235,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
+        static public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -260,13 +260,13 @@ namespace WebAPI.Controllers
         /// payment gateway id required = 6005, payment gateway not exist = 6008
         /// </remarks>
         /// <param name="paymentGatewayId">Payment gateway identifier</param>
-        [Route("generateSharedSecret"), HttpPost]
+        [Action("generateSharedSecret")]
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public KalturaPaymentGatewayProfile GenerateSharedSecret(int paymentGatewayId)
+        static public KalturaPaymentGatewayProfile GenerateSharedSecret(int paymentGatewayId)
         {
             KalturaPaymentGatewayProfile response = null;
 
@@ -295,13 +295,13 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
         /// </remarks>
-        [Route("getConfiguration"), HttpPost]
+        [Action("getConfiguration")]
         [ApiAuthorize]
         [OldStandardArgument("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SignatureMismatch)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent, List<KalturaKeyValue> extraParameters)
+        static public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent, List<KalturaKeyValue> extraParameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 

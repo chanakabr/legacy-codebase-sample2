@@ -14,7 +14,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household details
     /// </summary>
-    public class KalturaHousehold : KalturaOTTObject
+    public partial class KalturaHousehold : KalturaOTTObject
     {
         /// <summary>
         /// Household identifier

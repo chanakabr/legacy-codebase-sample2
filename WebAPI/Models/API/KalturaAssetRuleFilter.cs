@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset rule filter
     /// </summary>
-    public class KalturaAssetRuleFilter : KalturaFilter<KalturaAssetRuleOrderBy>
+    public partial class KalturaAssetRuleFilter : KalturaFilter<KalturaAssetRuleOrderBy>
     {
         /// <summary>
         /// Indicates which asset rule list to return by it KalturaRuleConditionType.

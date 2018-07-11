@@ -20,19 +20,19 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/channel/action")]
-    public class ChannelController : ApiController
+    [Service("channel")]
+    public class ChannelController : IKalturaController
     {
         /// <summary>
         /// Returns channel        
         /// </summary>
         /// <param name="id">Channel Identifier</param>
         /// <remarks></remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
-        public KalturaChannel Get(int id)
+        static public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
             KS ks = KS.GetFromRequest();
@@ -56,12 +56,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Channel Identifier</param>
         /// <remarks></remarks>        
-        [Route("getOldStandard"), HttpPost]
+        [Action("getOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("get")]
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
-        public KalturaChannel GetOldStandard(int id)
+        static public KalturaChannel GetOldStandard(int id)
         {
             KalturaChannel response = null;
 
@@ -98,12 +98,12 @@ namespace WebAPI.Controllers
         /// ObjectNotExist = 4018
         /// </remarks>
         /// <param name="channelId">channel identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("channelId", "channel_id")]
         [Throws(eResponseStatus.IdentifierRequired)]
         [Throws(eResponseStatus.ObjectNotExist)]
-        public bool Delete(int channelId)
+        static public bool Delete(int channelId)
         {
             bool response = false;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -131,14 +131,14 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005,
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
         [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
-        public KalturaChannel Add(KalturaChannel channel)
+        static public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -190,12 +190,12 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="id">Channel identifier</param>      
         /// <param name="channel">KSQL channel Object</param>       
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        public KalturaChannel Update(int id, KalturaChannel channel)
+        static public KalturaChannel Update(int id, KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -241,13 +241,13 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005,
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
-        [Route("addOldStandard"), HttpPost]
+        [Action("addOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("add")]
         [Obsolete]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
+        static public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -276,14 +276,14 @@ namespace WebAPI.Controllers
         /// NameRequired = 5005
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>       
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
+        static public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -308,10 +308,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaChannelListResponse response = null;
 

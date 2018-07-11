@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/userLoginPin/action")]
-    public class UserLoginPinController : ApiController
+    [Service("userLoginPin")]
+    public class UserLoginPinController : IKalturaController
     {
         /// <summary>
         /// Generate a time and usage expiry login-PIN that can allow a single login per PIN. If an active login-PIN already exists. Calling this API again for same user will add another login-PIN 
@@ -22,12 +22,12 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks>Possible status codes: User doesn't exist = 2000, User suspended = 2001
         /// </remarks>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        public KalturaUserLoginPin Add(string secret = null)
+        static public KalturaUserLoginPin Add(string secret = null)
         {
             KalturaUserLoginPin response = null;
             
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
         /// </remarks>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [OldStandardArgument("pinCode", "pin_code")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.LoginViaPinNotAllowed)]
         [Throws(eResponseStatus.PinNotInTheRightLength)]
         [Throws(eResponseStatus.PinAlreadyExists)]
-        public KalturaUserLoginPin Update(string pinCode, string secret = null)
+        static public KalturaUserLoginPin Update(string pinCode, string secret = null)
         {
             KalturaUserLoginPin res = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -88,10 +88,10 @@ namespace WebAPI.Controllers
         /// Immediately expire all active login-PINs for a user
         /// </summary>
         /// <remarks></remarks>
-        [Route("deleteAll"), HttpPost]
+        [Action("deleteAll")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool DeleteAll()
+        static public bool DeleteAll()
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -114,10 +114,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="pinCode">Login pin code to expire</param>
         /// <remarks></remarks>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("pinCode", "pin_code")]
-        public bool Delete(string pinCode)
+        static public bool Delete(string pinCode)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;

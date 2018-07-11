@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// Asset file details
     /// </summary>
     [Serializable]
-    public class KalturaAssetFile : KalturaOTTObject
+    public partial class KalturaAssetFile : KalturaOTTObject
     {
         /// <summary>
         /// URL of the media file to be played
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
     /// Media file details
     /// </summary>
     [Serializable]
-    public class KalturaMediaFile : KalturaAssetFile
+    public partial class KalturaMediaFile : KalturaAssetFile
     {
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
@@ -289,7 +289,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "Collections", Namespace = "")]
     [XmlRoot("Collections")]
-    public class KalturaMediaFileListResponse : KalturaListResponse
+    public partial class KalturaMediaFileListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of media-file types

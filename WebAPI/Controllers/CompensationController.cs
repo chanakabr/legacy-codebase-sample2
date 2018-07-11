@@ -13,8 +13,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/compensation/action")]
-    public class CompensationController : ApiController
+    [Service("compensation")]
+    public class CompensationController : IKalturaController
     {
         /// <summary>
         /// Adds a new compensation for a household for a given number of iterations of a subscription renewal for a fixed amount / percentage of the renewal price.
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Purchase ID</param>
         /// <param name="compensation">Compensation parameters</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.DomainSuspended)]
@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NotEntitled)]
         [Throws(eResponseStatus.CompensationAlreadyExists)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
-        public KalturaCompensation Add(KalturaCompensation compensation)
+        static public KalturaCompensation Add(KalturaCompensation compensation)
         {
             KalturaCompensation response = null;
 
@@ -57,10 +57,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Compensation identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [Throws(eResponseStatus.CompensationNotFound)]
         [ApiAuthorize]
-        public void Delete(long id)
+        static public void Delete(long id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -79,10 +79,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Compensation identifier</param>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.CompensationNotFound)]
-        public KalturaCompensation Get(long id)
+        static public KalturaCompensation Get(long id)
         {
             KalturaCompensation response = null;
 

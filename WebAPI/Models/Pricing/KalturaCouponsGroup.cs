@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupons group details
     /// </summary>
-    public class KalturaCouponsGroup : KalturaOTTObject
+    public partial class KalturaCouponsGroup : KalturaOTTObject
     {
         /// <summary>
         /// Coupon group identifier
@@ -123,7 +123,7 @@ namespace WebAPI.Models.Pricing
     /// </summary>
     [DataContract(Name = "KalturaCouponsGroupListResponse", Namespace = "")]
     [XmlRoot("KalturaCouponsGroupListResponse")]
-    public class KalturaCouponsGroupListResponse : KalturaListResponse
+    public partial class KalturaCouponsGroupListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of coupons groups

@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Kaltura Asset Order
     /// </summary>
     [Serializable]
-    public class KalturaDynamicOrderBy : KalturaOTTObject
+    public partial class KalturaDynamicOrderBy : KalturaOTTObject
     {
         /// <summary>
         /// order by name

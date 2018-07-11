@@ -7,22 +7,23 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/householdLimitations/action")]
-    public class HouseholdLimitationsController : ApiController
+    [Service("householdLimitations")]
+    public class HouseholdLimitationsController : IKalturaController
     {
         /// <summary>
         /// Get the limitation module by id
         /// </summary>
         /// <param name="id">Household limitations module identifier</param>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaHouseholdLimitations Get(int id)
+        static public KalturaHouseholdLimitations Get(int id)
         {
             KalturaHouseholdLimitations response = null;
 

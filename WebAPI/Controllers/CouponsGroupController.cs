@@ -16,21 +16,21 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/couponsGroup/action")]
-    public class CouponsGroupController : ApiController
+    [Service("couponsGroup")]
+    class CouponsGroupController : IKalturaController
     {
         /// <summary>
         /// Generate a coupon 
         /// </summary>
         /// <param name="id">Coupon group identifier</param>
         /// <param name="couponGenerationOptions">Coupon generation options</param>
-        [Route("generate"), HttpPost]
+        [Action("generate")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidCouponGroup)]
         [Throws(eResponseStatus.CouponCodeAlreadyExists)]
         [Throws(eResponseStatus.CouponCodeNotInTheRightLength)]
-        public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
+        static public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
         {
             KalturaStringValueArray result = null;
 
@@ -88,10 +88,10 @@ namespace WebAPI.Controllers
         /// Returns information about coupons group
         /// </summary>
         /// <param name="id">Coupons group ID</param>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaCouponsGroup Get(long id)
+        static public KalturaCouponsGroup Get(long id)
         {
             KalturaCouponsGroup couponsGroup = null;
 
@@ -115,11 +115,11 @@ namespace WebAPI.Controllers
         /// </summary>    
         /// <param name="id">Coupons group identifier</param>        
         /// <param name="couponsGroup">Coupons group</param>        
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.CouponGroupNotExist)]
         [Throws(eResponseStatus.DiscountCodeNotExist)]
-        public KalturaCouponsGroup Update(long id, KalturaCouponsGroup couponsGroup)
+        static public KalturaCouponsGroup Update(long id, KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
 
@@ -158,9 +158,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns information about partner coupons groups
         /// </summary>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaCouponsGroupListResponse List()
+        static public KalturaCouponsGroupListResponse List()
         {
             KalturaCouponsGroupListResponse couponsGroups = null;
 
@@ -184,10 +184,10 @@ namespace WebAPI.Controllers
         /// Delete a coupons group
         /// </summary>
         /// <param name="id">Coupons group identifier</param>        
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.CouponGroupNotExist)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool response = false;
 
@@ -216,11 +216,11 @@ namespace WebAPI.Controllers
         /// Add coupons group 
         /// </summary>    
         /// <param name="couponsGroup">Coupons group</param>        
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.DiscountCodeNotExist)]
-        public KalturaCouponsGroup Add(KalturaCouponsGroup couponsGroup)
+        static public KalturaCouponsGroup Add(KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
 

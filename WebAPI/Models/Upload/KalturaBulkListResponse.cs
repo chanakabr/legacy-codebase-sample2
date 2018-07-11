@@ -13,7 +13,7 @@ namespace WebAPI.Models.Upload
     /// Asset wrapper
     /// </summary>
     [Serializable]
-    public class KalturaBulkListResponse : KalturaListResponse
+    public partial class KalturaBulkListResponse : KalturaListResponse
     {
         /// <summary>
         /// bulk items

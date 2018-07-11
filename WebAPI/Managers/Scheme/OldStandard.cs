@@ -11,6 +11,7 @@ namespace WebAPI.Managers.Scheme
     abstract public class OldStandardAttribute : Attribute
     {
         public const string Version = "3.6.287.21521";
+        public static Version OldVersion = new Version(OldStandardAttribute.Version);
 
         public OldStandardAttribute(string oldName)
         {
@@ -19,38 +20,17 @@ namespace WebAPI.Managers.Scheme
 
         public string oldName { get; set; }
 
-        public static bool isCurrentRequestOldVersion()
+        public static bool isCurrentRequestOldVersion(Version current = null)
         {
-            if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
-                return true;
+            if(current == null)
+            {
+                if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                    return true;
 
-
-            Version old = new Version(Version);
-            Version current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-
-            return current.CompareTo(old) < 0;
-        }
-
-        public static Dictionary<string, string> getOldMembers(MethodInfo action)
-        {
-            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-            return DataModel.getOldMembers(action, currentVersion);
-        }
-
-        public static Dictionary<string, string> getOldMembers(Type type)
-        {
-            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-            return DataModel.getOldMembers(type, currentVersion);
-
-            return null;
-        }
-
-        public static Dictionary<string, string> getOldActions(Type type)
-        {
-            if (isCurrentRequestOldVersion())
-                return DataModel.getOldMembers(type, null);
-
-            return null;
+                current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            }
+            
+            return current.CompareTo(OldVersion) < 0;
         }
     }
 

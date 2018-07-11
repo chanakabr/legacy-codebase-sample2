@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/homeNetwork/action")]
-    public class HomeNetworkController : ApiController
+    [Service("homeNetwork")]
+    public class HomeNetworkController : IKalturaController
     {
         /// <summary>
         /// Add a new home network to a household
@@ -27,13 +27,13 @@ namespace WebAPI.Controllers
         /// Home network already exists = 1031, Home network limitation = 1032, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [OldStandardArgument("homeNetwork", "home_network")]
         [Throws(eResponseStatus.HomeNetworkAlreadyExists)]
         [Throws(eResponseStatus.HomeNetworkLimitation)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
-        public KalturaHomeNetwork Add(KalturaHomeNetwork homeNetwork)
+        static public KalturaHomeNetwork Add(KalturaHomeNetwork homeNetwork)
         {
             KalturaHomeNetwork response = null;
 
@@ -58,9 +58,9 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaHomeNetworkListResponse List()
+        static public KalturaHomeNetworkListResponse List()
         {
             List<KalturaHomeNetwork> list = null;
 
@@ -85,11 +85,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
         [Obsolete]
-        public List<KalturaHomeNetwork> ListOldStandard()
+        static public List<KalturaHomeNetwork> ListOldStandard()
         {
             List<KalturaHomeNetwork> response = null;
 
@@ -118,11 +118,11 @@ namespace WebAPI.Controllers
         /// Home network does not exist = 1033, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
-        public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
+        static public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -148,13 +148,13 @@ namespace WebAPI.Controllers
         /// Home network does not exist = 1033, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
-        public bool UpdateOldStandard(KalturaHomeNetwork home_network)
+        static public bool UpdateOldStandard(KalturaHomeNetwork home_network)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -180,13 +180,13 @@ namespace WebAPI.Controllers
         /// Home network does not exist = 1033, Home network frequency limitation = 1034, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("externalId", "external_id")]
         [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
         [Throws(eResponseStatus.HomeNetworkFrequency)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
-        public bool Delete(string externalId)
+        static public bool Delete(string externalId)
         {
             bool response = false;
 

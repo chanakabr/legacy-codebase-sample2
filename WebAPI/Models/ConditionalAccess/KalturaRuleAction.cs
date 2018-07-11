@@ -18,7 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         USER_BLOCK
     }
     
-    public abstract class KalturaRuleAction : KalturaOTTObject
+    public abstract partial class KalturaRuleAction : KalturaOTTObject
     {
         /// <summary>
         /// The type of the action
@@ -38,15 +38,15 @@ namespace WebAPI.Models.ConditionalAccess
         public string Description { get; set; }
     }
 
-    public abstract class KalturaAssetRuleAction : KalturaRuleAction
+    public abstract partial class KalturaAssetRuleAction : KalturaRuleAction
     {
     }
 
-    public abstract class KalturaAssetUserRuleAction : KalturaRuleAction
+    public abstract partial class KalturaAssetUserRuleAction : KalturaRuleAction
     {
     }
     
-    public class KalturaAssetUserRuleBlockAction : KalturaAssetUserRuleAction
+    public partial class KalturaAssetUserRuleBlockAction : KalturaAssetUserRuleAction
     {
         public KalturaAssetUserRuleBlockAction()
         {
@@ -54,7 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
-    public class KalturaAccessControlBlockAction : KalturaAssetRuleAction
+    public partial class KalturaAccessControlBlockAction : KalturaAssetRuleAction
     {
         public KalturaAccessControlBlockAction()
         {
@@ -65,7 +65,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Time offset action
     /// </summary>
-    public abstract class KalturaTimeOffsetRuleAction : KalturaAssetRuleAction
+    public abstract partial class KalturaTimeOffsetRuleAction : KalturaAssetRuleAction
     {
         /// <summary>
         /// Offset in seconds 
@@ -87,7 +87,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// End date offset action
     /// </summary>
-    public class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
+    public partial class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
         public KalturaEndDateOffsetRuleAction()
         {
@@ -98,9 +98,9 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Start date offset action
     /// </summary>
-    public class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
+    public partial class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
-        public KalturaStartDateOffsetRuleAction()
+        public KalturaStartDateOffsetRuleAction() : base()
         {
             this.Type = KalturaRuleActionType.START_DATE_OFFSET;
         }

@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     /// Image type 
     /// </summary>
     [Serializable]
-    public class KalturaImageType : KalturaOTTObject
+    public partial class KalturaImageType : KalturaOTTObject
     {
         /// <summary>
         /// Image type ID
@@ -70,7 +70,7 @@ namespace WebAPI.Models.Catalog
         public long? DefaultImageId { get; set; }
     }
 
-    public class KalturaImageTypeListResponse : KalturaListResponse
+    public partial class KalturaImageTypeListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of partner image types

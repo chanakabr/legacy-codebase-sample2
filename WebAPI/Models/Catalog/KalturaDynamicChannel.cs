@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaDynamicChannel : KalturaChannel
+    public partial class KalturaDynamicChannel : KalturaChannel
     {
         /// <summary>
         /// <![CDATA[

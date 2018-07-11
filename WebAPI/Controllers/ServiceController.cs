@@ -21,6 +21,7 @@ using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Reflection;
 
 namespace WebAPI.Controllers
 {
@@ -29,31 +30,7 @@ namespace WebAPI.Controllers
     public class ServiceController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static void CreateMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
-        {
-            Assembly asm = Assembly.GetExecutingAssembly();
-            Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
-
-            if (controller == null)
-                throw new BadRequestException(BadRequestException.INVALID_SERVICE, serviceName);
-
-            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldActions(controller);
-            string lowerActionName = actionName.ToLower();
-            if (oldStandardActions != null && oldStandardActions.ContainsValue(lowerActionName))
-                actionName = oldStandardActions.FirstOrDefault(value => value.Value == lowerActionName).Key;
-            
-            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            if (methodInfo == null)
-                throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
-
-            if (Reflection.DataModel.IsHttpMethodBlocked(methodInfo, HttpContext.Current.Request.HttpMethod))
-                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
-
-            classInstance = (ApiController)Activator.CreateInstance(controller, null);
-        }
-
+        
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route(""), HttpGet, HttpOptions]
         public async Task<object> __Action([FromUri]string service, [FromUri]string action)
@@ -92,32 +69,32 @@ namespace WebAPI.Controllers
             return await Action(service_name, action_name);
         }
 
+        public static object ExecGeneric(MethodInfo methodInfo, List<object> methodParams)
+        {
+            Type genericType = GetGenericParam(methodParams);
+            if (genericType != null)
+            {
+                methodInfo = methodInfo.MakeGenericMethod(genericType.GetGenericArguments());
+            }
+            return methodInfo.Invoke(null, methodParams.ToArray());
+        }
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
-            MethodInfo methodInfo = null;
-            ApiController classInstance = null;
             object response = null;
 
-            CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
-
             try
-            {                
+            {
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
-                
-                // generic methods handling
-                if (methodInfo.IsGenericMethod)
-                {
-                    List<object> genericParams = new List<object>();
-                    Type genericType = GetGenericParam(methodParams);
-                    if (genericType != null)
-                    {
-                        methodInfo = methodInfo.MakeGenericMethod(genericType.GetGenericArguments());
-                    }
-                }
 
-                response = methodInfo.Invoke(classInstance, methodParams.ToArray());
+                // add action to log
+                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                    string.IsNullOrEmpty(service_name) ? "null" : service_name,
+                    string.IsNullOrEmpty(action_name) ? "null" : action_name);
+
+                response = DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
             {
@@ -142,7 +119,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        private Type GetGenericParam(List<object> methodParams)
+        static private Type GetGenericParam(List<object> methodParams)
         {
             foreach (var param in methodParams)
             {
@@ -170,8 +147,8 @@ namespace WebAPI.Controllers
         [Route(""), HttpPost]
         public async Task<object> _NoRoute()
         {
-            string service = (string) HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
-            string action = (string) HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
+            string service = (string)HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
+            string action = (string)HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
             return await Action(service, action);
         }
 
@@ -180,16 +157,12 @@ namespace WebAPI.Controllers
         [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
         public async Task<object> ActionWithParams(string service_name, string action_name, string pathData)
         {
-            MethodInfo methodInfo = null;
-            ApiController classInstance = null;
             object response = null;
-
-            ServiceController.CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
             {
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.Filters.RequestParser.REQUEST_METHOD_PARAMETERS];
-                response = methodInfo.Invoke(classInstance, methodParams.ToArray());
+                response = DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
             {
@@ -204,29 +177,20 @@ namespace WebAPI.Controllers
             catch (Exception ex)
             {
                 log.Error("Failed to perform action", ex);
-
-                var failureHttpCode = methodInfo.GetCustomAttribute(typeof(FailureHttpCodeAttribute));
-            
+                HttpStatusCode? failureHttpCode = DataModel.getFailureHttpCode(service_name, action_name);
 
                 if (ex.InnerException is ApiException)
                 {
-                    ApiException apiEx;
-                    if (failureHttpCode != null)
+                    if (failureHttpCode.HasValue)
                     {
-                        apiEx = new ApiException((ApiException)ex.InnerException, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
+                        throw new ApiException((ApiException)ex.InnerException, failureHttpCode.Value);
                     }
-                    else
-                    {
-                        apiEx = (ApiException)ex.InnerException;
-
-                    }
-                    throw apiEx;
+                    throw (ApiException)ex.InnerException;
                 }
-                ApiException generalErrorEx;
-                if (failureHttpCode != null)
+
+                if (failureHttpCode.HasValue)
                 {
-                    generalErrorEx = new ApiException(ex, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
-                    throw generalErrorEx;
+                    throw new ApiException(ex, failureHttpCode.Value);
                 }
                 throw ex;
             }

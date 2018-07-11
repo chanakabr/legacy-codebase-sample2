@@ -12,7 +12,7 @@ namespace WebAPI.Models.Social
     /// <summary>
     /// Returns social configuration for the partner 
     /// </summary>
-    public class KalturaSocialFacebookConfig : KalturaSocialConfig
+    public partial class KalturaSocialFacebookConfig : KalturaSocialConfig
     {
         /// <summary>
         ///The application identifier

@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/engagement/action")]
-    public class EngagementController : ApiController
+    [Service("engagement")]
+    public class EngagementController : IKalturaController
     {
         /// <summary>
         /// Returns all Engagement for partner
@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="filter">filter</param>   
         /// <param name="pager">Page size and index</param>                
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaEngagementListResponse List(KalturaEngagementFilter filter)
+        static public KalturaEngagementListResponse List(KalturaEngagementFilter filter)
         {
             List<KalturaEngagement> list = null;
 
@@ -57,9 +57,9 @@ namespace WebAPI.Controllers
         /// <param name="id">Engagement identifier</param>
         /// <remarks>       
         /// </remarks>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaEngagement Get(int id)
+        static public KalturaEngagement Get(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -84,12 +84,12 @@ namespace WebAPI.Controllers
         /// engagement identifier required = 8031, engagement not exist = 8032,  action is not allowed = 5011
         /// </remarks>
         /// <param name="id">Engagement identifier</param>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementRequired)]
         [Throws(eResponseStatus.EngagementNotExist)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             bool response = false;
             
@@ -116,10 +116,10 @@ namespace WebAPI.Controllers
         /// no engagement to insert = 8030
         /// </remarks>
         /// <param name="engagement">Engagement adapter Object</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NoEngagementToInsert)]
-        public KalturaEngagement Add(KalturaEngagement engagement)
+        static public KalturaEngagement Add(KalturaEngagement engagement)
         {
             KalturaEngagement response = null;
 

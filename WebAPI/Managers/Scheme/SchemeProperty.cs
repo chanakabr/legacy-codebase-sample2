@@ -25,20 +25,26 @@ namespace WebAPI.Managers.Scheme
             WriteOnly = false;
             RequiresPermission = 0;
         }
+    }
 
-        internal void Validate(string typeName, string parameterName, object value)
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class RuntimeSchemePropertyAttribute : SchemePropertyAttribute
+    {
+        private string TypeName;
+
+        public RuntimeSchemePropertyAttribute(string typeName) : base()
         {
-            if (value == null)
-            {
-                return;
-            }
+            TypeName = typeName;
+        }
 
-            string name = string.Format("{0}.{1}", typeName, parameterName);
+        internal void Validate(string parameterName, object value)
+        {
+            string name = string.Format("{0}.{1}", TypeName, parameterName);
 
             base.Validate(name, value);
 
             RequestType requiresPermission = RequestType.READ;
-            if(HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
+            if (HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
                 requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
 
             if (!OldStandardAttribute.isCurrentRequestOldVersion())
@@ -59,7 +65,7 @@ namespace WebAPI.Managers.Scheme
                 RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
                 if (requestType.HasValue && isA(requestType.Value, RequiresPermission))
                 {
-                    RolesManager.ValidatePropertyPermitted(typeName, parameterName, requestType.Value);
+                    RolesManager.ValidatePropertyPermitted(TypeName, parameterName, requestType.Value);
                 }
             }
         }

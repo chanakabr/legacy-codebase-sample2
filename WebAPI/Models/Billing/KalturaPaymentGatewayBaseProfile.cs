@@ -13,7 +13,7 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway base profile
     /// </summary>
-    public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
+    public partial class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {
         /// <summary>
         /// payment gateway id
@@ -62,7 +62,7 @@ namespace WebAPI.Models.Billing
         public List<KalturaPaymentMethod> PaymentMethods { get; set; }
     }
 
-    public class KalturaHouseholdPaymentGateway : KalturaOTTObject
+    public partial class KalturaHouseholdPaymentGateway : KalturaOTTObject
     {
         /// <summary>
         /// payment gateway id
@@ -103,7 +103,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     [DataContract(Name = "KalturaHouseholdPaymentGatewayListResponse", Namespace = "")]
     [XmlRoot("KalturaHouseholdPaymentGatewayListResponse")]
-    public class KalturaHouseholdPaymentGatewayListResponse : KalturaListResponse
+    public partial class KalturaHouseholdPaymentGatewayListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list

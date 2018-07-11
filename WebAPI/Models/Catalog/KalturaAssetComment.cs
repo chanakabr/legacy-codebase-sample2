@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Asset Comment
     /// </summary>
     [Serializable]
-    public class KalturaAssetComment : KalturaSocialComment
+    public partial class KalturaAssetComment : KalturaSocialComment
     {
         /// <summary>
         /// Comment ID

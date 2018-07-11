@@ -6,24 +6,25 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/lastPosition/action")]
+    [Service("lastPosition")]
     [Obsolete]
-    public class LastPositionController : ApiController
+    public class LastPositionController : IKalturaController
     {
         /// <summary>
         /// Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
         /// </summary>
         /// <param name="filter">Filter option for the last position</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaLastPositionListResponse List(KalturaLastPositionFilter filter)
+        static public KalturaLastPositionListResponse List(KalturaLastPositionFilter filter)
         {
             KalturaLastPositionListResponse response = null;
 

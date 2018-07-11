@@ -16,7 +16,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Holder object for channel enrichment enum
     /// </summary>    
-    public class KalturaPartnerConfigurationHolder : KalturaOTTObject
+    public partial class KalturaPartnerConfigurationHolder : KalturaOTTObject
     {
         /// <summary>
         /// Partner configuration type

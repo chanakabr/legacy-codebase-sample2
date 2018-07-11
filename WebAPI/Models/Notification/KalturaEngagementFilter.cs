@@ -14,7 +14,7 @@ namespace WebAPI.Models.Notification
         NONE
     }
 
-    public class KalturaEngagementFilter : KalturaFilter<KalturaEngagementOrderBy>
+    public partial class KalturaEngagementFilter : KalturaFilter<KalturaEngagementOrderBy>
     {
         public override KalturaEngagementOrderBy GetDefaultOrderByValue()
         {

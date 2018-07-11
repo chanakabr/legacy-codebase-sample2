@@ -13,17 +13,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/region/action")]
-    public class RegionController : ApiController
+    [Service("region")]
+    public class RegionController : IKalturaController
     {
         /// <summary>
         /// Returns all regions for the partner
         /// </summary>
         /// <param name="filter">Regions filter</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaRegionListResponse List(KalturaRegionFilter filter)
+        static public KalturaRegionListResponse List(KalturaRegionFilter filter)
         {
             KalturaRegionListResponse response = null;
 

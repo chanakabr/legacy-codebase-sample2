@@ -6,7 +6,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public class KalturaInboxMessage : KalturaOTTObject
+    public partial class KalturaInboxMessage : KalturaOTTObject
     {
 
         /// <summary>

@@ -13,15 +13,15 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/transaction/action")]
-    public class TransactionController : ApiController
+    [Service("transaction")]
+    public class TransactionController : IKalturaController
     {
         /// <summary>
         /// upgrade specific subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
         /// </summary>
         /// <param name="purchase">Purchase properties</param>
         /// <returns></returns>
-        [Route("upgrade"), HttpPost]
+        [Action("upgrade")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
-        public KalturaTransaction Upgrade(KalturaPurchase purchase)
+        static public KalturaTransaction Upgrade(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
 
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="purchase">Purchase properties</param>
         /// <returns></returns>
-        [Route("downgrade"), HttpPost]
+        [Action("downgrade")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
-        public void Downgrade(KalturaPurchase purchase)
+        static public void Downgrade(KalturaPurchase purchase)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
@@ -143,7 +143,7 @@ namespace WebAPI.Controllers
         ///  Signature mismatch = 6013, Unknown transaction state = 6042, Payment method not set for household = 6048,
         ///  Payment method not exist = 6049       
         /// </remarks>
-        [Route("purchase"), HttpPost]
+        [Action("purchase")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         [Throws(eResponseStatus.MissingBasePackage)]
-        public KalturaTransaction Purchase(KalturaPurchase purchase)
+        static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
 
@@ -214,14 +214,14 @@ namespace WebAPI.Controllers
         ///  Signature mismatch = 6013, Unknown transaction state = 6042, Payment method not set for household = 6048,
         ///  Payment method not exist = 6049       
         /// </remarks>
-        [Route("purchaseOldStandard"), HttpPost]
+        [Action("purchaseOldStandard")]
         [OldStandardAction("purchase")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("price", MinFloat = 0)]
         [SchemeArgument("product_id", MinInteger = 1)]
         [SchemeArgument("payment_method_id", MinInteger = 1)]
-        public KalturaTransaction PurchaseOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0,
+        static public KalturaTransaction PurchaseOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0,
             int? payment_method_id = null, string adapterData = null)
         {
             KalturaTransaction response = new KalturaTransaction();
@@ -267,10 +267,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
         /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
         ///,         </remarks>
-        [Route("updateStatus"), HttpPost]
+        [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public void UpdateStatus(string paymentGatewayId, string externalTransactionId, string signature, KalturaTransactionStatus status)
+        static public void UpdateStatus(string paymentGatewayId, string externalTransactionId, string signature, KalturaTransactionStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -301,10 +301,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
         /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
         ///,         </remarks>
-        [Route("updateState"), HttpPost]
+        [Action("updateState")]
         [ApiAuthorize]
         [Obsolete]
-        public void UpdateState(string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status, string external_message, int fail_reason, string signature)
+        static public void UpdateState(string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status, string external_message, int fail_reason, string signature)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -329,10 +329,10 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
-        [Route("validateReceipt"), HttpPost]
+        [Action("validateReceipt")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaTransaction ValidateReceipt(KalturaExternalReceipt externalReceipt)
+        static public KalturaTransaction ValidateReceipt(KalturaExternalReceipt externalReceipt)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
@@ -366,10 +366,10 @@ namespace WebAPI.Controllers
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
-        [Route("processReceipt"), HttpPost]
+        [Action("processReceipt")]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)
+        static public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
@@ -404,14 +404,14 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         ///  User suspended = 2001
         /// </remarks>
-        [Route("setWaiver"), HttpPost]
+        [Action("setWaiver")]
         [OldStandardAction("waiver")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
         [OldStandardArgument("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
-        public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
+        static public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
 
@@ -449,10 +449,10 @@ namespace WebAPI.Controllers
         /// <param name="purchaseSession">Purchase properties</param>
         /// <remarks>
         /// </remarks>
-        [Route("getPurchaseSessionId"), HttpPost]
+        [Action("getPurchaseSessionId")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public long getPurchaseSessionId(KalturaPurchaseSession purchaseSession)
+        static public long getPurchaseSessionId(KalturaPurchaseSession purchaseSession)
         {
             long response = 0;
 
@@ -486,11 +486,11 @@ namespace WebAPI.Controllers
         /// <param name="preview_module_id">Preview module identifier (relevant only for subscription)</param> 
         /// <remarks>
         /// </remarks>
-        [Route("purchaseSessionIdOldStandard"), HttpPost]
+        [Action("purchaseSessionIdOldStandard")]
         [OldStandardAction("purchaseSessionId")]
         [ApiAuthorize]
         [Obsolete]
-        public long PurchaseSessionIdOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int preview_module_id = 0)
+        static public long PurchaseSessionIdOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int preview_module_id = 0)
         {
             long response = 0;
 

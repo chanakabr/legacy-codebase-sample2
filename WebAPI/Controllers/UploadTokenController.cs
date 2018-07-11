@@ -16,16 +16,16 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/uploadToken/action")]
-    public class UploadTokenController : ApiController
+    [Service("uploadToken")]
+    public class UploadTokenController : IKalturaController
     {
         /// <summary>
         /// Adds new upload token to upload a file
         /// </summary>
         /// <param name="uploadToken">Upload token details</param>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaUploadToken Add(KalturaUploadToken uploadToken = null)
+        static public KalturaUploadToken Add(KalturaUploadToken uploadToken = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -44,10 +44,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="uploadTokenId">Identifier of existing upload-token</param>
         /// <param name="fileData">File to upload</param>
-        [Route("upload"), HttpPost]
+        [Action("upload")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
+        static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
             int groupId = KS.GetFromRequest().GroupId;
 

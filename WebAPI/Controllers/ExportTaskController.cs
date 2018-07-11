@@ -15,8 +15,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/exportTask/action")]
-    public class ExportTaskController : ApiController
+    [Service("exportTask")]
+    public class ExportTaskController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -29,9 +29,9 @@ namespace WebAPI.Controllers
         /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019, Alias is required = 5020 
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
-        public KalturaExportTask Add(KalturaExportTask task)
+        static public KalturaExportTask Add(KalturaExportTask task)
         {
             KalturaExportTask response = null;
 
@@ -61,10 +61,10 @@ namespace WebAPI.Controllers
         /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
         /// </remarks>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaExportTask Update(long id, KalturaExportTask task)
+        static public KalturaExportTask Update(long id, KalturaExportTask task)
         {
             KalturaExportTask response = null;
 
@@ -92,11 +92,11 @@ namespace WebAPI.Controllers
         /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
         /// </remarks>
         /// <returns></returns>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
-        public bool UpdateOldStandard(KalturaExportTask task)
+        static public bool UpdateOldStandard(KalturaExportTask task)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -118,9 +118,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The identifier of the task to delete</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool response = false;
 
@@ -143,9 +143,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The identifier of the task to get</param>
         /// <returns></returns>
-        [Route("get"), HttpPost]
+        [Action("get")]
         [ApiAuthorize]
-        public KalturaExportTask Get(long id)
+        static public KalturaExportTask Get(long id)
         {
             KalturaExportTask response = null;
 
@@ -173,9 +173,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Bulk export tasks filter</param>
         /// 
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
-        public KalturaExportTaskListResponse List(KalturaExportTaskFilter filter = null)
+        static public KalturaExportTaskListResponse List(KalturaExportTaskFilter filter = null)
         {
             KalturaExportTaskListResponse response = new KalturaExportTaskListResponse();
 
@@ -206,11 +206,11 @@ namespace WebAPI.Controllers
         /// <param name="filter">Bulk export tasks filter</param>
         /// 
         /// <returns></returns>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
-        public List<KalturaExportTask> ListOldStandard(KalturaExportFilter filter = null)
+        static public List<KalturaExportTask> ListOldStandard(KalturaExportFilter filter = null)
         {
             List<KalturaExportTask> response = null;
 
