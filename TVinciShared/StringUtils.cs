@@ -13,5 +13,10 @@ namespace TVinciShared
                 return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
+
+        public static bool IsNullOrEmptyOrWhiteSpace(this string value)
+        {
+            return (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value));
+        }
     }
 }
