@@ -721,7 +721,7 @@ namespace DAL
             return dt;
         }
 
-        public static bool NotifyRecording(int groupId, Recording recording, DateTime viewableUntilDate, long domainId, long userId)
+        public static bool NotifyRecording(int groupId, Recording recording, DateTime viewableUntilDate, int domainId, int userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("NotifyRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
