@@ -19,7 +19,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("ratio")]
-    public class RatioController : ApiController
+    public class RatioController : IKalturaController
     {
         /// <summary>
         /// Get the list of available ratios
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaRatioListResponse List()
+        static public KalturaRatioListResponse List()
         {
             KalturaRatioListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RatioAlreadyExist)]
-        public KalturaRatio Add(KalturaRatio ratio)
+        static public KalturaRatio Add(KalturaRatio ratio)
         {
             KalturaRatio response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RatioDoesNotExist)]
-        public KalturaRatio Update(long id, KalturaRatio ratio)
+        static public KalturaRatio Update(long id, KalturaRatio ratio)
         {
             KalturaRatio response = null;
             int groupId = KS.GetFromRequest().GroupId;

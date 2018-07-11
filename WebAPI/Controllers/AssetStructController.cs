@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("assetStruct")]
-    public class AssetStructController : ApiController
+    public class AssetStructController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
+        static public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
         {
             if (filter == null)
             {
@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
-        public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
+        static public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
+        static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
         [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

@@ -221,7 +221,7 @@ namespace WebAPI.Models.General
 
         public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
         {
-            string ret = "\"" + propertyName + "\": \"" + ToString() + "\"";
+            string ret = "\"" + propertyName + "\": \"" + EscapeJson(ToString()) + "\"";
 
             string language = Utils.Utils.GetLanguageFromRequest();
             if (Values != null && language != null && language.Equals("*"))
@@ -234,7 +234,7 @@ namespace WebAPI.Models.General
 
         public string ToCustomXml(Version currentVersion, bool omitObsolete, string propertyName)
         {
-            string ret = "<" + propertyName + ">" + ToString() + "</" + propertyName + ">";
+            string ret = "<" + propertyName + ">" + EscapeXml(ToString()) + "</" + propertyName + ">";
 
             string language = Utils.Utils.GetLanguageFromRequest();
             if (Values != null && language != null && language.Equals("*"))

@@ -19,7 +19,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("image")]
-    public class ImageController : ApiController
+    public class ImageController : IKalturaController
     {
         /// <summary>
         /// Get the list of images by different filtering 
@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaImageListResponse List(KalturaImageFilter filter = null)
+        static public KalturaImageListResponse List(KalturaImageFilter filter = null)
         {
             KalturaImageListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
-        public KalturaImage Add(KalturaImage image)
+        static public KalturaImage Add(KalturaImage image)
         {
             KalturaImage response = null;
 
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.InvalidRatioForImage)]
         [Throws(eResponseStatus.InvalidUrlForImage)]
-        public void SetContent(long id, KalturaContentResource content)
+        static public void SetContent(long id, KalturaContentResource content)
         {            
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();

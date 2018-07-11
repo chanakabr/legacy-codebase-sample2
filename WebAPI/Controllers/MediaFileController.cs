@@ -18,7 +18,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("mediaFile")]
-    public class MediaFileController : ApiController
+    public class MediaFileController : IKalturaController
     {
         /// <summary>
         /// Add a new media file
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CdnAdapterProfileDoesNotExist)]
         [Throws(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd)]
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
-        public KalturaMediaFile Add(KalturaMediaFile mediaFile)
+        static public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique)]
         [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
+        static public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -138,7 +138,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaMediaFileListResponse List(KalturaMediaFileFilter filter = null)
+        static public KalturaMediaFileListResponse List(KalturaMediaFileFilter filter = null)
         {
             KalturaMediaFileListResponse response = null;
 

@@ -15,7 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("assetStructMeta")]
-    public class AssetStructMetaController : ApiController
+    public class AssetStructMetaController : IKalturaController
     {
         /// <summary>
         /// Return a list of asset struct metas for the account with optional filter
@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]        
-        public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
+        static public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
         {
             KalturaAssetStructMetaListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("assetStructId", MinLong = 1)]
         [SchemeArgument("metaId", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
+        static public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
         {
             KalturaAssetStructMeta response = null;
             

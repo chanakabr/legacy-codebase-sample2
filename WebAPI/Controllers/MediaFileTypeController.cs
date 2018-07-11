@@ -21,7 +21,7 @@ using ApiObjects.Response;
 namespace WebAPI.Controllers
 {
     [Service("mediaFileType")]
-    public class MediaFileTypeController : ApiController
+    public class MediaFileTypeController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaMediaFileTypeListResponse List()
+        static public KalturaMediaFileTypeListResponse List()
         {
             KalturaMediaFileTypeListResponse response = new KalturaMediaFileTypeListResponse();
 
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
-        public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
+        static public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
+        static public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
-        public bool Delete(int id)
+        static public bool Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();

@@ -17,7 +17,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Controllers
 {
     [Service("uploadToken")]
-    public class UploadTokenController : ApiController
+    public class UploadTokenController : IKalturaController
     {
         /// <summary>
         /// Adds new upload token to upload a file
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <param name="uploadToken">Upload token details</param>
         [Action("add")]
         [ApiAuthorize]
-        public KalturaUploadToken Add(KalturaUploadToken uploadToken = null)
+        static public KalturaUploadToken Add(KalturaUploadToken uploadToken = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         [Action("upload")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
+        static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
             int groupId = KS.GetFromRequest().GroupId;
 

@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
 
 namespace WebAPI.Models.General
@@ -23,9 +25,43 @@ namespace WebAPI.Models.General
 
     public class KalturaSerializable : IKalturaSerializable
     {
+        private static Dictionary<string, string> escapeMapping = new Dictionary<string, string>()
+        {
+            {"\"", @"\"""},
+            {"\\\\", @"\\"},
+            {"\a", @"\a"},
+            {"\b", @"\b"},
+            {"\f", @"\f"},
+            {"\n", @"\n"},
+            {"\r", @"\r"},
+            {"\t", @"\t"},
+            {"\v", @"\v"},
+            {"\0", @"\0"},
+        };
+        private static Regex escapeRegex = new Regex(string.Join("|", escapeMapping.Keys.ToArray()));
+
+        protected string EscapeJson(string str)
+        {
+            return escapeRegex.Replace(str, EscapeMatchEval);
+        }
+
+        private static string EscapeMatchEval(Match m)
+        {
+            if (escapeMapping.ContainsKey(m.Value))
+            {
+                return escapeMapping[m.Value];
+            }
+            return escapeMapping[Regex.Escape(m.Value)];
+        }
+
+        protected string EscapeXml(string str)
+        {
+            return HttpContext.Current.Server.HtmlEncode(str);
+        }
+
         public virtual string ToJson(Version currentVersion, bool omitObsolete)
         {
-            return "{" + PropertiesToJson(currentVersion, omitObsolete) + "}";
+            return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete)) + "}";
         }
 
         public virtual string PropertiesToXml(Version currentVersion, bool omitObsolete)
@@ -33,9 +69,9 @@ namespace WebAPI.Models.General
             return "";
         }
 
-        protected virtual string PropertiesToJson(Version currentVersion, bool omitObsolete)
+        protected virtual List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
-            return "";
+            return new List<string>();
         }
     }
 
@@ -50,6 +86,23 @@ namespace WebAPI.Models.General
     {
         public KalturaOTTObject(Dictionary<string, object> parameters = null)
         {
+        }
+
+        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            string propertyValue;
+            if (objectType != null)
+            {
+                ret.Add("\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
+            }
+            if (relatedObjects != null)
+            {
+                propertyValue = "{" + String.Join(", ", relatedObjects.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("\"relatedObjects\": " + propertyValue);
+            }
+            return ret;
         }
 
         protected DateTime longToDateTime(long unixTimeStamp)

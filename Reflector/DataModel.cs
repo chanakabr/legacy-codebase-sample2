@@ -132,12 +132,12 @@ namespace Reflector
 
         private string varToString(object value)
         {
-            if (value == null)
+            if(value == null)
             {
                 return "null";
             }
 
-            if (value is bool)
+            if(value is bool)
             {
                 return value.ToString().ToLower();
             }

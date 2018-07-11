@@ -19,7 +19,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("imageType")]
-    public class ImageTypeController : ApiController
+    public class ImageTypeController : IKalturaController
     {
         /// <summary>
         /// Get the list of image types for the partner
@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null)
+        static public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null)
         {
             KalturaImageTypeListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
-        public KalturaImageType Add(KalturaImageType imageType)
+        static public KalturaImageType Add(KalturaImageType imageType)
         {
             KalturaImageType response = null;
 
@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.DefaultImageInvalidImageType)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaImageType Update(long id, KalturaImageType imageType)
+        static public KalturaImageType Update(long id, KalturaImageType imageType)
         {
             KalturaImageType response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;

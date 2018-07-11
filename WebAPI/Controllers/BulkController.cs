@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
     /// Bulk service is used to manage bulk actions
     /// </summary>
     [Service("bulk")]
-    public class BulkController: ApiController
+    public class BulkController: IKalturaController
     {
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]        
-        public KalturaBulkListResponse List(KalturaBulkFilter filter = null,  KalturaFilterPager pager = null)
+        static public KalturaBulkListResponse List(KalturaBulkFilter filter = null,  KalturaFilterPager pager = null)
         {
             KalturaBulkListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
         [Action("serveLog")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaBulk ServeLog(long id)
+        static public KalturaBulk ServeLog(long id)
         {
             KalturaBulk response = null;
             int groupId = KS.GetFromRequest().GroupId;

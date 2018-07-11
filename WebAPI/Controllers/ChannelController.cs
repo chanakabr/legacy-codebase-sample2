@@ -21,7 +21,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("channel")]
-    public class ChannelController : ApiController
+    public class ChannelController : IKalturaController
     {
         /// <summary>
         /// Returns channel        

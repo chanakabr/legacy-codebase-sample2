@@ -40,6 +40,7 @@ namespace Reflector
     {
         public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
         {
+            types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaSerializable));
             types.Remove(typeof(KalturaMultilingualString));
         }
@@ -80,11 +81,6 @@ namespace Reflector
 
         private void wrtieSerializeTypeProperties(Type type, SerializeType serializeType)
         {
-            if (type.BaseType != null && type != typeof(KalturaOTTObject))
-            {
-                wrtieSerializeTypeProperties(type.BaseType, serializeType);
-            }
-
             List<PropertyInfo> properties = type.GetProperties().ToList();
             properties.Sort(new PropertyInfoComparer());
             foreach (PropertyInfo property in properties)
@@ -215,11 +211,11 @@ namespace Reflector
                     case PropertyType.STRING:
                         if (serializeType == SerializeType.JSON)
                         {
-                            value = "\"\\\"\" + " + propertyName + " + \"\\\"\"";
+                            value = "\"\\\"\" + EscapeJson(" + propertyName + ") + \"\\\"\"";
                         }
                         else
                         {
-                            value = propertyName;
+                            value = "EscapeXml(" + propertyName + ")";
                         }
                         break;
 
@@ -353,19 +349,19 @@ namespace Reflector
         {
             file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
-            file.WriteLine("        protected override string PropertiesToJson(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            List<string> ret = new List<string>();");
+            file.WriteLine("            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.JSON);
-            file.WriteLine("            return String.Join(\", \", ret);");
+            file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
             file.WriteLine("        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            string ret = \"\";");
+            file.WriteLine("            string ret = base.PropertiesToXml(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");

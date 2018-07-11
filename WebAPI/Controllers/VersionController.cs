@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Route(""), HttpGet, HttpPost]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public string Get()
+        static public string Get()
         {
             return Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }

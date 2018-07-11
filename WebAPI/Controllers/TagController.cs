@@ -18,7 +18,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("tag")]
-    public class TagController : ApiController
+    public class TagController : IKalturaController
     {
         /// <summary>
         /// Get the list of tags for the partner
@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTagListResponse response = null;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]        
         [Throws(eResponseStatus.TagAlreadyInUse)]        
-        public KalturaTag Add(KalturaTag tag)
+        static public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;
 
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [Throws(eResponseStatus.TagAlreadyInUse)]
-        public KalturaTag Update(long id, KalturaTag tag)
+        static public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
-        public bool Delete(long id)
+        static public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
