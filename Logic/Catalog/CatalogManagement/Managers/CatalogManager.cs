@@ -1404,7 +1404,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
                 if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                    LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheInvalidationKey(groupId) }))
+                                                        LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME))
                 {
                     log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
                 }
