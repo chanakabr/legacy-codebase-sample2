@@ -290,6 +290,7 @@ namespace WebAPI.Controllers
         /// Notify on an external recording
         /// </summary>
         /// <param name="externalDomainRecordingId">External domain recording identifier</param>
+        /// <param name="domainId">Houshehold identifier</param>
         /// <param name="externalEpgId">Epg external identifier</param>
         /// <param name="recordingType">Recording Type: single/season/series</param>
         /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
