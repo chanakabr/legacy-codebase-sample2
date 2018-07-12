@@ -3733,10 +3733,10 @@ namespace WebAPI.Models.ConditionalAccess
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
-            ReadOnly = true,
-            InsertOnly = false,
+            ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
+            RequiresPermission = 6,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3751,19 +3751,19 @@ namespace WebAPI.Models.ConditionalAccess
         };
         private static RuntimeSchemePropertyAttribute IsProtectedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
-            ReadOnly = true,
-            InsertOnly = false,
+            ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
+            RequiresPermission = 6,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
             ReadOnly = false,
-            InsertOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
+            RequiresPermission = 6,
             MaxLength = 255,
             MinLength = 1,
         };
@@ -3974,6 +3974,10 @@ namespace WebAPI.Models.ConditionalAccess
                         FilterExpressionSchemaProperty.Validate("filterExpression", parameters["filterExpression"]);
                     }
                     FilterExpression = (String) Convert.ChangeType(parameters["filterExpression"], typeof(String));
+                }
+                if (parameters.ContainsKey("externalRecordingIdIn") && parameters["externalRecordingIdIn"] != null)
+                {
+                    ExternalRecordingIdIn = (String) Convert.ChangeType(parameters["externalRecordingIdIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
@@ -12339,11 +12343,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13155,11 +13159,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };

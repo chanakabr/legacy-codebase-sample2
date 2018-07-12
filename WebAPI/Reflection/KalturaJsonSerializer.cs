@@ -2339,6 +2339,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExternalRecordingIdIn != null)
+            {
+                ret.Add("externalRecordingIdIn", "\"externalRecordingIdIn\": " + "\"" + EscapeJson(ExternalRecordingIdIn) + "\"");
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
             {
                 ret.Add("filterExpression", "\"filterExpression\": " + "\"" + EscapeJson(FilterExpression) + "\"");
@@ -2359,6 +2363,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExternalRecordingIdIn != null)
+            {
+                ret.Add("externalRecordingIdIn", "<externalRecordingIdIn>" + EscapeXml(ExternalRecordingIdIn) + "</externalRecordingIdIn>");
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
             {
                 ret.Add("filterExpression", "<filterExpression>" + EscapeXml(FilterExpression) + "</filterExpression>");

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -46,7 +47,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public KalturaRecordingType Type { get; set; }
 
         /// <summary>
@@ -63,8 +64,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
-        [XmlElement(ElementName = "isProtected")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public bool IsProtected { get; set; }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]
-        [SchemeProperty(MinLength = 1, MaxLength = 255)]
+        [XmlElement(ElementName = "externalId")]        
+        [SchemeProperty(MinLength = 1, MaxLength = 255, RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public string ExternalId { get; set; }
 
         /// <summary>

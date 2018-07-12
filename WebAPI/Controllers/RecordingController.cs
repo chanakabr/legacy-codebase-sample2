@@ -123,10 +123,18 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
-                
-                // call client
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.AssetId);
+                long userId = Utils.Utils.GetUserIdFromKs();
+
+                // external recording implementation
+                if (!string.IsNullOrEmpty(recording.ExternalId))
+                {
+                    response = ClientsManager.ConditionalAccessClient().AddExternalRecording(groupId, recording, userId);
+                }
+                else
+                // regular recording implementation
+                {
+                    response = ClientsManager.ConditionalAccessClient().Record(groupId, userId.ToString(), recording.AssetId);
+                }
             }
             catch (ClientException ex)
             {
@@ -165,12 +173,13 @@ namespace WebAPI.Controllers
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingFilter() { StatusIn = string.Empty };
-                    
+                    filter = new KalturaRecordingFilter() { StatusIn = string.Empty };                    
                 }
 
+                filter.Validate();
+
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.Ksql,
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
                                                                                      pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
@@ -205,9 +214,8 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, domainId, id);
+                response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, id);
             }
             catch (ClientException ex)
             {
@@ -239,9 +247,8 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, domainId, id);
+                response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, id);
             }
             catch (ClientException ex)
             {
@@ -284,47 +291,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
             return response;
-        }
-
-        /// <summary>
-        /// Notify on an external recording
-        /// </summary>
-        /// <param name="externalDomainRecordingId">External domain recording identifier</param>
-        /// <param name="domainId">Houshehold identifier</param>
-        /// <param name="externalEpgId">Epg external identifier</param>
-        /// <param name="recordingType">Recording Type: single/season/series</param>
-        /// <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
-        /// <param name="isProtected">is the recording protected by the user</param>
-        /// <returns></returns>
-        [Action("notify")]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.MissingExternalEpgId)]
-        [Throws(eResponseStatus.MissingRecordingType)]
-        [Throws(eResponseStatus.ExternalDomainRecordingDoesNotExist)]
-        [SchemeArgument("domainId", MinLong = 1)]
-        [SchemeArgument("externalDomainRecordingId", MinLength = 1, MaxLength = 255)]
-        public static bool Notify(string externalDomainRecordingId, KalturaRecordingStatus recordingStatus, int domainId, string externalEpgId = null, KalturaRecordingType? recordingType = null, bool isProtected = false)
-        {
-            bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
-
-            if (string.IsNullOrEmpty(externalDomainRecordingId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalDomainRecordingId");
-            }
-
-            try
-            {
-                result = ClientsManager.ConditionalAccessClient().NotifyRecording(groupId, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType, isProtected, domainId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return result;
-        }
+        }        
 
     }
 }

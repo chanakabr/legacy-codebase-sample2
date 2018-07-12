@@ -1385,7 +1385,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
+        internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter, HashSet<string> externalRecordingIds,
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
@@ -1419,7 +1419,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false, externalRecordingIds);
                 }
             }
             catch (Exception ex)
@@ -1525,7 +1525,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaRecording CancelRecord(int groupId, string userID, long domainID, long id)
+        internal KalturaRecording CancelRecord(int groupId, string userID, long id)
         {
             KalturaRecording recording = null;
             Recording response = null;
@@ -1538,7 +1538,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.ConditionalAccess.Module.CancelRecord(groupId, userID, domainID, id);
+                    response = Core.ConditionalAccess.Module.CancelRecord(groupId, userID, 0, id);
                 }
             }
             catch (Exception ex)
@@ -1565,7 +1565,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecording DeleteRecord(int groupId, string userID, long domainID, long id)
+        internal KalturaRecording DeleteRecord(int groupId, string userID, long id)
         {
             KalturaRecording recording = null;
             Recording response = null;
@@ -1578,7 +1578,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.ConditionalAccess.Module.DeleteRecord(groupId, userID, domainID, id);
+                    response = Core.ConditionalAccess.Module.DeleteRecord(groupId, userID, 0, id);
                 }
             }
             catch (Exception ex)
@@ -2457,40 +2457,11 @@ namespace WebAPI.Clients
             return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
         }
 
-        internal bool NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, KalturaRecordingStatus recordingStatus, KalturaRecordingType? recordingType, bool isProtected, int domainId)
+        internal KalturaRecording AddExternalRecording(int groupId, KalturaRecording recording, long userId)
         {
-            Status status = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    RecordingType? type = null;
-                    if (recordingType.HasValue)
-                    {
-                        type = ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType.Value);
-                    }
-
-                    status = Core.ConditionalAccess.Module.NotifyRecording(groupId, externalDomainRecordingId, externalEpgId, ConditionalAccessMappings.ConvertKalturaRecordingStatus(recordingStatus), type, isProtected, domainId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception received while calling cas service.", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (status == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(status.Code, status.Message);
-            }
-
-            return true;
+            Func<Recording, GenericResponse<Recording>> addExternalRecordigFunc = (Recording recordingToAdd) => Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, userId);
+            return ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(recording, addExternalRecordigFunc);
         }
+
     }
 }

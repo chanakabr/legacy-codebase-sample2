@@ -40,6 +40,14 @@ namespace WebAPI.Models.ConditionalAccess
         public string FilterExpression { get; set; }
 
         /// <summary>
+        /// Comma separated external identifiers
+        /// </summary>
+        [DataMember(Name = "externalRecordingIdIn")]
+        [JsonProperty("externalRecordingIdIn")]
+        [XmlElement(ElementName = "externalRecordingIdIn", IsNullable = true)]        
+        public string ExternalRecordingIdIn { get; set; }
+
+        /// <summary>
         /// KSQL expression
         /// </summary>
         [DataMember(Name = "kSql")]
@@ -52,6 +60,14 @@ namespace WebAPI.Models.ConditionalAccess
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()
         {
             return KalturaRecordingOrderBy.START_DATE_DESC;
+        }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(ExternalRecordingIdIn) && !string.IsNullOrEmpty(StatusIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaRecordingFilter.externalRecordingIdIn", "KalturaRecordingFilter.statusIn");
+            }
         }
 
         public List<KalturaRecordingStatus> ConvertStatusIn()
@@ -75,5 +91,22 @@ namespace WebAPI.Models.ConditionalAccess
 
         }
 
+        public HashSet<string> GetExternalRecordingIds()
+        {
+            HashSet<string> list = new HashSet<string>();
+            if (!string.IsNullOrEmpty(ExternalRecordingIdIn))
+            {
+                string[] stringValues = ExternalRecordingIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    if (!list.Contains(stringValue))
+                    {
+                        list.Add(stringValue);
+                    }
+                }
+            }
+
+            return list;
+        }
     }
 }

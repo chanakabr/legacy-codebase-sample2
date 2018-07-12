@@ -2052,18 +2052,6 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
             RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
         </member>
-        <member name="M:WebAPI.Controllers.RecordingController.Notify(System.String,WebAPI.Models.ConditionalAccess.KalturaRecordingStatus,System.Int32,System.String,System.Nullable{WebAPI.Models.ConditionalAccess.KalturaRecordingType},System.Boolean)">
-            <summary>
-            Notify on an external recording
-            </summary>
-            <param name="externalDomainRecordingId">External domain recording identifier</param>
-            <param name="domainId">Houshehold identifier</param>
-            <param name="externalEpgId">Epg external identifier</param>
-            <param name="recordingType">Recording Type: single/season/series</param>
-            <param name="recordingStatus">Recording status: scheduled/recording/recorded/canceled/failed/deleted</param>
-            <param name="isProtected">is the recording protected by the user</param>
-            <returns></returns>
-        </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.GetOldStandard(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
             <summary>
             Get the URL for playing an asset - EPG or media (not available for recording for now).
@@ -9649,6 +9637,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.FilterExpression">
             <summary>
             KSQL expression, deprecated, please use ksql
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.ExternalRecordingIdIn">
+            <summary>
+            Comma separated external identifiers
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.Ksql">
