@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns information about the current version
         /// </summary>
-        [Route(""), HttpGet, HttpPost]
+        [Action("")]
         [ApiExplorerSettings(IgnoreApi = true)]
         static public string Get()
         {

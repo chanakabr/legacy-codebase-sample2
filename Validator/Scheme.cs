@@ -650,10 +650,10 @@ namespace Validator.Managers.Scheme
 
         private void writeAction(MethodInfo action)
         {
-            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(false);
             Type controller = action.ReflectedType;
             string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = route.Template;
+            string actionId = actionAttribute.Name;
 
             // string routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
 
@@ -711,7 +711,7 @@ namespace Validator.Managers.Scheme
                 if (error.ApiCode.HasValue && errors.ContainsKey((int)error.ApiCode.Value))
                 {
                     ApiException.ApiExceptionType exceptionType = errors[(int)error.ApiCode.Value] as ApiException.ApiExceptionType;
-                    writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                    writer.WriteAttributeString("name", exceptionType.name);
                 }
                 else if (error.ClientCode.HasValue && errors.ContainsKey((int)error.ClientCode.Value))
                 {

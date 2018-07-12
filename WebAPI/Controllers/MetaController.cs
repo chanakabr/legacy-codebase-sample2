@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Meta filter</param>
         /// <remarks></remarks>
-        [Route("listOldStandard"), HttpPost]
+        [Action("listOldStandard")]
         [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
         /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
         /// </remarks>
-        [Route("updateOldStandard"), HttpPost]
+        [Action("updateOldStandard")]
         [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Action("list")]
         [ApiAuthorize]
         static public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
         {
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="meta">Meta Object</param>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Meta Identifier</param>
         /// <param name="meta">Meta Object</param>
         /// <returns></returns>
-        [Route("update"), HttpPost]
+        [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
@@ -237,7 +237,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Meta Identifier</param>
         /// <returns></returns>
-        [Route("delete"), HttpPost]
+        [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedMeta)]

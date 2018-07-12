@@ -376,16 +376,9 @@ namespace Validator.Managers.Scheme
             bool valid = true;
             string serviceId = getServiceId(controller);
 
-            RoutePrefixAttribute routePrefix = controller.GetCustomAttribute<RoutePrefixAttribute>();
-            if (routePrefix == null)
+            ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>();
+            if (serviceAttribute == null)
                 return !strict;
-
-            string expectedRoutePrefix = String.Format("_service/{0}/action", serviceId);
-            if (routePrefix.Prefix != expectedRoutePrefix)
-            {
-                logError("Error", controller, string.Format("Wrong route prefix [{0}] for controller {1}, expected [{2}]", routePrefix.Prefix, controller.Name, expectedRoutePrefix));
-                valid = false;
-            }
 
             var methods = controller.GetMethods().OrderBy(method => method.Name);
             var hasValidActions = false;
@@ -461,10 +454,10 @@ namespace Validator.Managers.Scheme
         {
             bool valid = true;
 
-            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(false);
             Type controller = action.ReflectedType;
             string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = route.Template;
+            string actionId = actionAttribute.Name;
 
             if (param.Name.Contains('_'))
             {
@@ -500,17 +493,17 @@ namespace Validator.Managers.Scheme
             if (obsolete != null)
                 return !strict;
 
-            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(false);
             Type controller = action.ReflectedType;
             string serviceId = SchemeManager.getServiceId(controller);
 
-            if (route == null)
+            if (actionAttribute == null)
             {
-                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no routing attribute", serviceId, action.Name, controller.Name));
+                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no action attribute", serviceId, action.Name, controller.Name));
                 return false;
             }
 
-            string actionId = route.Template;
+            string actionId = actionAttribute.Name;
             if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && actionId != "updateStatus" && actionId != "serve" && !hasValidationException(action, SchemeValidationType.ACTION_NAME))
             {
                 logError("Error", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
@@ -696,7 +689,8 @@ namespace Validator.Managers.Scheme
 
         public static string getServiceId(Type controller)
         {
-            return FirstCharacterToLower(controller.Name.Replace("Controller", ""));
+            ServiceAttribute service = controller.GetCustomAttribute<ServiceAttribute>(false);
+            return service.Name;
         }
 
         public static string FirstCharacterToLower(string str)
