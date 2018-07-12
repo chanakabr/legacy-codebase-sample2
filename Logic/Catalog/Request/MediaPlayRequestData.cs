@@ -51,7 +51,7 @@ namespace Core.Catalog.Request
         }
 
         public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,  
-                                                        string npvrId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
+                                                        long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
         {
             DevicePlayData currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
             string playCycleKey = string.Empty;
@@ -66,6 +66,7 @@ namespace Core.Catalog.Request
                 List<int> mediaConcurrencyRuleIds = null;
                 List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
 
                 //get domain by user
                 if (domainId == 0)
@@ -73,10 +74,9 @@ namespace Core.Catalog.Request
                     domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
                 }
                 
-                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
-
+                string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
                 currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 
-                                                    mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
+                                                                         mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
 
                 // TODO SHIR - ASK IRA IF NEED THIS IF OR ALWAYS DO THIS INSERT..
                 //FPNPC -  on First Play create New Play Cycle

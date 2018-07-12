@@ -2479,7 +2479,7 @@ namespace Core.Catalog
         }
         
         public static void UpdateFollowMe(DevicePlayData devicePlayData, int groupId, int locationSec, int duration, MediaPlayActions action, eExpirationTTL ttl,
-                                          bool isReportingMode, int mediaTypeId, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+                                          bool isReportingMode, int mediaTypeId, bool isFirstPlay = false, bool isLinearChannel = false)
         {
             if (devicePlayData.UserId == 0)
             {
@@ -2504,17 +2504,39 @@ namespace Core.Catalog
                     devicePlayData.DeviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
                 }
 
-                switch (devicePlayData.GetPlayType())
+                ePlayType playType = devicePlayData.GetPlayType();
+
+                // UpdateOrInsertOrDeleteDevicePlayData
+                if (playType == ePlayType.MEDIA || playType == ePlayType.NPVR || playType == ePlayType.EPG)
+                {
+                    devicePlayData.AssetAction = action.ToString();
+                    devicePlayData.TimeStamp = DateTime.UtcNow.ToUnixTimestamp();
+                    devicePlayData.CreatedAt = isFirstPlay ? devicePlayData.TimeStamp : devicePlayData.CreatedAt;
+
+                    if (action == MediaPlayActions.STOP || action == MediaPlayActions.FINISH)
+                    {
+                        CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
+                    }
+                    else
+                    {
+                        CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, ttl);
+                    }
+                }
+
+                UserMediaMark userMediaMark;
+                switch (playType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsertUsersMediaMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, mediaTypeId,
-                                                                isLinearChannel, finishedPercentThreshold, ttl);
+                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsertUsersNpvrMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, recordingId, ttl);
+                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
+                        CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsertUsersEpgMark(devicePlayData, action, isFirstPlay, isReportingMode, locationSec, duration, ttl);
+                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.EPG);
+                        CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
                         break;
                     default:
                         break;
@@ -4805,7 +4827,9 @@ namespace Core.Catalog
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
 
-        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
+        // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
+        //internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
+        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref long recordingId, ref int fileDuration, int groupId, int domainId)
         {
             bool result = false;
             bool shouldGoToCas = false;
@@ -4843,6 +4867,8 @@ namespace Core.Catalog
                 if (recording != null && recording.Status != null && recording.Status.Code == 0)
                 {
                     fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+                    //
+                    recordingId = recording.Id;
 
                     if (shouldCache)
                     {

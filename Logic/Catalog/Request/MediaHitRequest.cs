@@ -112,7 +112,9 @@ namespace Core.Catalog.Request
                 }
             }
 
-            long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
+            //long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            long recordingId = 0;
             int fileDuration = 0;
             int assetId = 0;
 
@@ -120,12 +122,21 @@ namespace Core.Catalog.Request
             {
                 assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 NPVR.INPVRProvider npvr;
-  
+
+                // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
+                //if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
+                //    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
+                //{
+                //    response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
+                //    response.m_sDescription = "Recording doesn't exist";
+                //    return response;
+                //}
+
                 if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
-                    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
+                    !CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
                     response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
-                    response.m_sDescription =  "Recording doesn't exist";
+                    response.m_sDescription = "Recording doesn't exist";
                     return response;
                 }
             }
@@ -152,8 +163,9 @@ namespace Core.Catalog.Request
 
                     bool isLinearChannel = IsLinearChannel((int)this.m_oMediaPlayRequestData.m_eAssetType);
 
-                    var devicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, isLinearChannel, ePlayType.NPVR, 0, 
-                                                                                           recordingId.ToString(), platform, countryId);
+                    DevicePlayData devicePlayData = 
+                        m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, isLinearChannel, ePlayType.NPVR, 0, 
+                                                                          recordingId, platform, countryId);
 
                     if (devicePlayData == null)
                     {
@@ -163,7 +175,7 @@ namespace Core.Catalog.Request
                     }
                     
                     CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, locationSec, fileDuration, MediaPlayActions.HIT, eExpirationTTL.Short,
-                                                this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false, recordingId);
+                                                this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false);
                 }
 
                 response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.HIT);
@@ -221,7 +233,7 @@ namespace Core.Catalog.Request
                     int.TryParse(m_oFilter.m_sPlatform, out platform);
 
                 var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, action, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA, 
-                                                                                           this.domainId, string.Empty, platform, countryId);
+                                                                                           this.domainId, 0, platform, countryId);
                 if (currDevicePlayData == null)
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
