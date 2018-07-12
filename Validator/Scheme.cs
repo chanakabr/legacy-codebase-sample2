@@ -692,7 +692,9 @@ namespace Validator.Managers.Scheme
                 appendType(param.ParameterType);
 
                 if (param.IsOptional)
-                    writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : param.DefaultValue.ToString());
+                {
+                    writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : (param.DefaultValue is bool ? param.DefaultValue.ToString().ToLower() : param.DefaultValue.ToString()));
+                }
 
                 writer.WriteAttributeString("description", getDescription(action, param));
                 writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
