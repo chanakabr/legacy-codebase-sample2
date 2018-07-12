@@ -431,11 +431,26 @@
           <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="AssetTypes" type="tns:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NamesInOtherLanguages" type="tns:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="SystemName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DescriptionInOtherLanguages" type="tns:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="Order" type="tns:OrderObj" />
           <s:element minOccurs="0" maxOccurs="1" name="FilterQuery" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="filterTree" type="tns:BooleanPhraseNode" />
           <s:element minOccurs="0" maxOccurs="1" name="GroupBy" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfLanguageContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="tns:LanguageContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LanguageContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="LanguageCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="OrderObj">
@@ -445,6 +460,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="isSlidingWindowFromRestApi" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="OrderBy">
@@ -1235,6 +1251,7 @@
           <s:enumeration value="Bool" />
           <s:enumeration value="Tag" />
           <s:enumeration value="DateTime" />
+          <s:enumeration value="MultilingualString" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="MetaFieldName">
@@ -1286,7 +1303,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="ParentId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="PartnerId" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Id" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsTag" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="MultipleValue" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="DoActionRules">
@@ -1481,6 +1498,8 @@
             <s:element minOccurs="1" maxOccurs="1" name="disableLayeredCache" nillable="true" type="s:boolean" />
             <s:element minOccurs="0" maxOccurs="1" name="layeredCacheSettingsToExclude" type="tns:ArrayOfString" />
             <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingExludeSettings" nillable="true" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="layeredCacheInvalidationKeySettingsToExclude" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingInvalidationKeyExcludeSettings" nillable="true" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1500,6 +1519,8 @@
             <s:element minOccurs="1" maxOccurs="1" name="disableLayeredCache" type="s:boolean" />
             <s:element minOccurs="0" maxOccurs="1" name="layeredCacheSettingsToExcludeCommaSeperated" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingExludeSettings" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="layeredCacheInvalidationKeySettingsToExcludeCommaSeperated" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingInvalidationKeyExcludeSettings" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1543,16 +1564,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Settings" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="DoActionAssetRules">
-        <s:complexType />
-      </s:element>
-      <s:element name="DoActionAssetRulesResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="DoActionAssetRulesResult" type="s:boolean" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -3900,17 +3911,20 @@
           <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="order" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="mediaTagTypeId" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="epgTagTypeId" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="blockAnonymousAccess" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="ruleType" type="tns:eParentalRuleType" />
+          <s:element minOccurs="1" maxOccurs="1" name="order" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="mediaTagTypeId" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="epgTagTypeId" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="blockAnonymousAccess" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="ruleType" nillable="true" type="tns:eParentalRuleType" />
           <s:element minOccurs="0" maxOccurs="1" name="mediaTagValues" type="tns:ArrayOfString" />
           <s:element minOccurs="0" maxOccurs="1" name="epgTagValues" type="tns:ArrayOfString" />
           <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
           <s:element minOccurs="0" maxOccurs="1" name="mediaTagType" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="epgTagType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eParentalRuleType">
@@ -5171,8 +5185,9 @@
       </s:complexType>
       <s:complexType name="LanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sLanguageCode3" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="LanguageCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEPGDictionary">
@@ -5546,12 +5561,6 @@
   </wsdl:message>
   <wsdl:message name="SendDrmAdapterConfigurationSoapOut">
     <wsdl:part name="parameters" element="tns:SendDrmAdapterConfigurationResponse" />
-  </wsdl:message>
-  <wsdl:message name="DoActionAssetRulesSoapIn">
-    <wsdl:part name="parameters" element="tns:DoActionAssetRules" />
-  </wsdl:message>
-  <wsdl:message name="DoActionAssetRulesSoapOut">
-    <wsdl:part name="parameters" element="tns:DoActionAssetRulesResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -6583,6 +6592,8 @@
     <wsdl:part name="disableLayeredCache" type="s:string" />
     <wsdl:part name="layeredCacheSettingsToExcludeCommaSeperated" type="s:string" />
     <wsdl:part name="shouldOverrideExistingExludeSettings" type="s:string" />
+    <wsdl:part name="layeredCacheInvalidationKeySettingsToExcludeCommaSeperated" type="s:string" />
+    <wsdl:part name="shouldOverrideExistingInvalidationKeyExcludeSettings" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdateLayeredCacheGroupConfigSTHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
@@ -6594,10 +6605,6 @@
   </wsdl:message>
   <wsdl:message name="SendDrmAdapterConfigurationHttpPostOut">
     <wsdl:part name="Body" element="tns:DrmAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="DoActionAssetRulesHttpPostIn" />
-  <wsdl:message name="DoActionAssetRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -7624,10 +7631,6 @@
       <wsdl:input message="tns:SendDrmAdapterConfigurationSoapIn" />
       <wsdl:output message="tns:SendDrmAdapterConfigurationSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="DoActionAssetRules">
-      <wsdl:input message="tns:DoActionAssetRulesSoapIn" />
-      <wsdl:output message="tns:DoActionAssetRulesSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -8281,10 +8284,6 @@
     <wsdl:operation name="SendDrmAdapterConfiguration">
       <wsdl:input message="tns:SendDrmAdapterConfigurationHttpPostIn" />
       <wsdl:output message="tns:SendDrmAdapterConfigurationHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DoActionAssetRules">
-      <wsdl:input message="tns:DoActionAssetRulesHttpPostIn" />
-      <wsdl:output message="tns:DoActionAssetRulesHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -9129,15 +9128,6 @@
     </wsdl:operation>
     <wsdl:operation name="SendDrmAdapterConfiguration">
       <soap:operation soapAction="http://api.tvinci.com/SendDrmAdapterConfiguration" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DoActionAssetRules">
-      <soap:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -10804,15 +10794,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DoActionAssetRules">
-      <soap12:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -12283,15 +12264,6 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DoActionAssetRules">
-      <http:operation location="/DoActionAssetRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <http:operation location="/InsertEPGSchedule" />
       <wsdl:input>
@@ -13087,13 +13059,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
+      <soap:address location="http://34.249.122.223:8030/api_v5_0_1/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/api_v5_0_1/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://34.249.122.223:8030/api_v4_8_2/api.asmx" />
+      <http:address location="http://34.249.122.223:8030/api_v5_0_1/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

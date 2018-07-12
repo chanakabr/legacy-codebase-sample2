@@ -162,7 +162,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/PRICING_v4_8_2/ws_pricing_module.asmx";
+            this.Url = "http://34.249.122.223:8030/PRICING_v5_0_1/ws_pricing_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -3249,27 +3249,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class LanguageContainer {
         
-        private string m_sLanguageCode3Field;
+        private string languageCodeField;
         
-        private string m_sValueField;
+        private string valueField;
+        
+        private bool isDefaultField;
         
         /// <remarks/>
-        public string m_sLanguageCode3 {
+        public string LanguageCode {
             get {
-                return this.m_sLanguageCode3Field;
+                return this.languageCodeField;
             }
             set {
-                this.m_sLanguageCode3Field = value;
+                this.languageCodeField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sValue {
+        public string Value {
             get {
-                return this.m_sValueField;
+                return this.valueField;
             }
             set {
-                this.m_sValueField = value;
+                this.valueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
             }
         }
     }

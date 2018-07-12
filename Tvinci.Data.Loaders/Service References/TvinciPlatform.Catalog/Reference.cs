@@ -2759,10 +2759,26 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     public partial class InternalChannelRequest : Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseChannelRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isAllowedToViewInactiveAssetsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool m_bIgnoreDeviceRuleIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isAllowedToViewInactiveAssets {
+            get {
+                return this.isAllowedToViewInactiveAssetsField;
+            }
+            set {
+                if ((this.isAllowedToViewInactiveAssetsField.Equals(value) != true)) {
+                    this.isAllowedToViewInactiveAssetsField = value;
+                    this.RaisePropertyChanged("isAllowedToViewInactiveAssets");
+                }
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool m_bIgnoreDeviceRuleID {
@@ -3541,6 +3557,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private bool hasPredefinedRecordingsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isAllowedToViewInactiveAssetsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool isInternalSearchField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -3644,6 +3663,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((this.hasPredefinedRecordingsField.Equals(value) != true)) {
                     this.hasPredefinedRecordingsField = value;
                     this.RaisePropertyChanged("hasPredefinedRecordings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isAllowedToViewInactiveAssets {
+            get {
+                return this.isAllowedToViewInactiveAssetsField;
+            }
+            set {
+                if ((this.isAllowedToViewInactiveAssetsField.Equals(value) != true)) {
+                    this.isAllowedToViewInactiveAssetsField = value;
+                    this.RaisePropertyChanged("isAllowedToViewInactiveAssets");
                 }
             }
         }
@@ -4341,6 +4373,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isSlidingWindowFromRestApiField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int lu_min_period_idField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -4362,6 +4397,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isSlidingWindowFromRestApi {
+            get {
+                return this.isSlidingWindowFromRestApiField;
+            }
+            set {
+                if ((this.isSlidingWindowFromRestApiField.Equals(value) != true)) {
+                    this.isSlidingWindowFromRestApiField = value;
+                    this.RaisePropertyChanged("isSlidingWindowFromRestApi");
+                }
             }
         }
         
@@ -8123,9 +8171,11 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
-        private string m_sLanguageCode3Field;
+        private bool IsDefaultk__BackingFieldField;
         
-        private string m_sValueField;
+        private string LanguageCodek__BackingFieldField;
+        
+        private string Valuek__BackingFieldField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -8137,28 +8187,41 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public string m_sLanguageCode3 {
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<IsDefault>k__BackingField", IsRequired=true)]
+        public bool IsDefaultk__BackingField {
             get {
-                return this.m_sLanguageCode3Field;
+                return this.IsDefaultk__BackingFieldField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_sLanguageCode3Field, value) != true)) {
-                    this.m_sLanguageCode3Field = value;
-                    this.RaisePropertyChanged("m_sLanguageCode3");
+                if ((this.IsDefaultk__BackingFieldField.Equals(value) != true)) {
+                    this.IsDefaultk__BackingFieldField = value;
+                    this.RaisePropertyChanged("IsDefaultk__BackingField");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public string m_sValue {
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<LanguageCode>k__BackingField", IsRequired=true)]
+        public string LanguageCodek__BackingField {
             get {
-                return this.m_sValueField;
+                return this.LanguageCodek__BackingFieldField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_sValueField, value) != true)) {
-                    this.m_sValueField = value;
-                    this.RaisePropertyChanged("m_sValue");
+                if ((object.ReferenceEquals(this.LanguageCodek__BackingFieldField, value) != true)) {
+                    this.LanguageCodek__BackingFieldField = value;
+                    this.RaisePropertyChanged("LanguageCodek__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<Value>k__BackingField", IsRequired=true)]
+        public string Valuek__BackingField {
+            get {
+                return this.Valuek__BackingFieldField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.Valuek__BackingFieldField, value) != true)) {
+                    this.Valuek__BackingFieldField = value;
+                    this.RaisePropertyChanged("Valuek__BackingField");
                 }
             }
         }
@@ -8780,6 +8843,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private string idField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long imageTypeIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string imageTypeNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool isDefaultField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -8813,6 +8882,32 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.idField, value) != true)) {
                     this.idField = value;
                     this.RaisePropertyChanged("id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long imageTypeId {
+            get {
+                return this.imageTypeIdField;
+            }
+            set {
+                if ((this.imageTypeIdField.Equals(value) != true)) {
+                    this.imageTypeIdField = value;
+                    this.RaisePropertyChanged("imageTypeId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string imageTypeName {
+            get {
+                return this.imageTypeNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.imageTypeNameField, value) != true)) {
+                    this.imageTypeNameField = value;
+                    this.RaisePropertyChanged("imageTypeName");
                 }
             }
         }
@@ -11991,6 +12086,21 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<System.DateTime> CreateDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.LanguageContainer> DescriptionInOtherLanguagesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.LanguageContainer> NamesInOtherLanguagesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SystemNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<System.DateTime> UpdateDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string filterQueryField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -12057,6 +12167,71 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<System.DateTime> CreateDate {
+            get {
+                return this.CreateDateField;
+            }
+            set {
+                if ((this.CreateDateField.Equals(value) != true)) {
+                    this.CreateDateField = value;
+                    this.RaisePropertyChanged("CreateDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.LanguageContainer> DescriptionInOtherLanguages {
+            get {
+                return this.DescriptionInOtherLanguagesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DescriptionInOtherLanguagesField, value) != true)) {
+                    this.DescriptionInOtherLanguagesField = value;
+                    this.RaisePropertyChanged("DescriptionInOtherLanguages");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.LanguageContainer> NamesInOtherLanguages {
+            get {
+                return this.NamesInOtherLanguagesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NamesInOtherLanguagesField, value) != true)) {
+                    this.NamesInOtherLanguagesField = value;
+                    this.RaisePropertyChanged("NamesInOtherLanguages");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SystemName {
+            get {
+                return this.SystemNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SystemNameField, value) != true)) {
+                    this.SystemNameField = value;
+                    this.RaisePropertyChanged("SystemName");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<System.DateTime> UpdateDate {
+            get {
+                return this.UpdateDateField;
+            }
+            set {
+                if ((this.UpdateDateField.Equals(value) != true)) {
+                    this.UpdateDateField = value;
+                    this.RaisePropertyChanged("UpdateDate");
+                }
             }
         }
         
@@ -13316,6 +13491,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Recording = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Tag = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChannelMetadata = 6,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]

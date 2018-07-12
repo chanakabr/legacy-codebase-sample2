@@ -157,7 +157,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Billing {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/BILLING_v4_8_2/ws_billing_module.asmx";
+            this.Url = "http://34.249.122.223:8030/BILLING_v5_0_1/ws_billing_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

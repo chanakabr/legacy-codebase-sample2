@@ -21,32 +21,32 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://34.249.122.223:8030/catalog_v4_9/service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://34.249.122.223:8030/catalog_v5_0_1/service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service20.xsd" MetadataType="Schema" ID="42d4b4e4-45fb-403a-a3d1-79e4ef883242" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd6" />
-    <MetadataFile FileName="service201.xsd" MetadataType="Schema" ID="650691be-cf33-411f-851e-072f9a7b9b7b" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd15" />
-    <MetadataFile FileName="service2.disco" MetadataType="Disco" ID="7b117f76-fc8b-4d7a-a152-3825f0a891bf" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?disco" />
-    <MetadataFile FileName="service202.xsd" MetadataType="Schema" ID="3de086f0-c2a8-49c9-94cb-3389937fadb1" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd4" />
-    <MetadataFile FileName="service203.xsd" MetadataType="Schema" ID="f32d56b9-6a2a-4813-a0f6-0ba64401a524" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd1" />
-    <MetadataFile FileName="service204.xsd" MetadataType="Schema" ID="1d8712b9-2a22-424c-af2d-ac6f5bba3435" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd14" />
-    <MetadataFile FileName="service205.xsd" MetadataType="Schema" ID="334ad1d0-283a-489e-b2b2-d952a3fe3e9b" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd17" />
-    <MetadataFile FileName="service206.xsd" MetadataType="Schema" ID="7f955a22-6c8b-4466-ab10-26f4f0bb07b0" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd16" />
-    <MetadataFile FileName="service207.xsd" MetadataType="Schema" ID="2225d096-a93b-48ba-9f59-e6f12aa6128f" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd11" />
-    <MetadataFile FileName="service208.xsd" MetadataType="Schema" ID="2a8bc9fb-d293-452b-aae7-7af159fa8f4e" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd10" />
-    <MetadataFile FileName="service209.xsd" MetadataType="Schema" ID="970fb383-9f33-43de-869b-965a3cc48327" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd13" />
-    <MetadataFile FileName="service2010.xsd" MetadataType="Schema" ID="fd303d63-34ce-4ba5-b7f6-345a8c513016" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd12" />
-    <MetadataFile FileName="service2011.xsd" MetadataType="Schema" ID="879d4db0-3e8b-4484-bdb2-040848c7714b" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd9" />
-    <MetadataFile FileName="service2012.xsd" MetadataType="Schema" ID="c0d9794c-d94e-4db8-820d-b3d06fd25c54" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd7" />
-    <MetadataFile FileName="service2013.xsd" MetadataType="Schema" ID="331af402-b6b3-45d0-a03b-05f61302ec72" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd3" />
-    <MetadataFile FileName="service2014.xsd" MetadataType="Schema" ID="e9aa3e5a-db74-4781-a4b5-d10df1d2d9b6" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd2" />
-    <MetadataFile FileName="service2015.xsd" MetadataType="Schema" ID="8e0b6150-f3f1-449a-b5f4-3bd12a90a16d" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd18" />
-    <MetadataFile FileName="service3.wsdl" MetadataType="Wsdl" ID="11e6b22f-046e-462f-ba72-755d915da869" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?wsdl=wsdl0" />
-    <MetadataFile FileName="service2016.xsd" MetadataType="Schema" ID="6850ae0f-e53a-410e-8dcc-aa27f2311a2a" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="c10e1ac3-2fc8-4d8e-a6b9-356d5038e4fc" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?wsdl" />
-    <MetadataFile FileName="service2017.xsd" MetadataType="Schema" ID="727f63a3-4e3a-4ac2-a31b-4328772b39ef" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd19" />
-    <MetadataFile FileName="service2038.xsd" MetadataType="Schema" ID="af5780fa-d9a1-4fac-895d-02f45ddf4121" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd5" />
-    <MetadataFile FileName="service2039.xsd" MetadataType="Schema" ID="3058bee6-84b6-46e0-b277-b11e3a41ef0a" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?xsd=xsd8" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="d280bcc1-c1bf-4e29-b215-6a012c60b701" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd8" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="bd4ed279-30e6-47b1-ae56-b97dae54b18b" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd4" />
+    <MetadataFile FileName="service2.xsd" MetadataType="Schema" ID="17a19178-eb86-43ea-8b40-f73eba4ac23a" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd0" />
+    <MetadataFile FileName="service3.xsd" MetadataType="Schema" ID="82d210f2-cf86-4b43-831d-054010f50478" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd14" />
+    <MetadataFile FileName="service4.xsd" MetadataType="Schema" ID="fde1fab6-be9e-4511-8e73-a79f4f86317a" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd13" />
+    <MetadataFile FileName="service2.disco" MetadataType="Disco" ID="6bb28272-371d-4116-9787-6f0b0a96ac23" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?disco" />
+    <MetadataFile FileName="service5.xsd" MetadataType="Schema" ID="1a6b52b9-05f1-4481-b674-81c0663c2be1" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd9" />
+    <MetadataFile FileName="service6.xsd" MetadataType="Schema" ID="2a2c9082-39d7-41b2-acf4-31d069e309a9" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd5" />
+    <MetadataFile FileName="service7.xsd" MetadataType="Schema" ID="ce94f923-7f63-4010-8437-77eecd319188" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd1" />
+    <MetadataFile FileName="service3.wsdl" MetadataType="Wsdl" ID="a91fa602-ab03-4312-a2cf-7404df6de40e" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="service8.xsd" MetadataType="Schema" ID="15d21a24-b174-4b64-b8f1-7a70861b6485" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd18" />
+    <MetadataFile FileName="service9.xsd" MetadataType="Schema" ID="897489a0-a3d4-4cbc-84a5-3d3d355d6e72" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd11" />
+    <MetadataFile FileName="service10.xsd" MetadataType="Schema" ID="91ea77b5-9995-41bf-a0ff-d0b44dceb930" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd16" />
+    <MetadataFile FileName="service11.xsd" MetadataType="Schema" ID="97aa3e2a-94a3-43da-a65c-bc6dbbe2ebce" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd6" />
+    <MetadataFile FileName="service12.xsd" MetadataType="Schema" ID="7ac36665-b6a7-4ecb-add0-ce59029abb7e" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service4.wsdl" MetadataType="Wsdl" ID="8b063831-73e9-4539-8837-3252abcacd7a" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?wsdl" />
+    <MetadataFile FileName="service13.xsd" MetadataType="Schema" ID="405566c5-c309-4622-acc5-72aa2ebf0883" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd12" />
+    <MetadataFile FileName="service14.xsd" MetadataType="Schema" ID="c9535e49-e5df-49dc-8dd9-9b296e54efd2" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd15" />
+    <MetadataFile FileName="service15.xsd" MetadataType="Schema" ID="a7b31580-3308-425c-b1c7-45b8f00f347c" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd17" />
+    <MetadataFile FileName="service16.xsd" MetadataType="Schema" ID="771fe307-1caf-4eac-8298-d70f1f93b4c1" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd19" />
+    <MetadataFile FileName="service17.xsd" MetadataType="Schema" ID="54d12ea8-8c00-4b92-9059-edaf732876e0" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd7" />
+    <MetadataFile FileName="service18.xsd" MetadataType="Schema" ID="81dab187-62cc-45f0-a6e4-688c1d572c4c" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd3" />
+    <MetadataFile FileName="service19.xsd" MetadataType="Schema" ID="d53d49f0-058e-4a07-a4f0-3fb9d8a9ce53" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?xsd=xsd10" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

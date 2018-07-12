@@ -625,7 +625,6 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\CampaignActionInfo.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\cas.wsdl" />
     <None Include="Web References\TvinciPlatform.ConditionalAccess\DomainBillingTransactionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -663,6 +662,7 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\UserPrePaidContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Domains\DeviceResponseObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -767,10 +767,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/tvpapi_rest/WS_Modules/cas.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/cas_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/tvpapi_rest/WS_Modules/cas.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/cas_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -778,10 +778,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/api_v4_8_2/api.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/api_v5_0_1/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/api_v4_8_2/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/api_v5_0_1/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -789,10 +789,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/social_v4_8_2/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/social_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/social_v4_8_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/social_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -800,10 +800,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/billing_v4_8_2/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/billing_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Billing\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/billing_v4_8_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/billing_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -811,10 +811,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/domains_v4_9/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/domains_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Domains\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/domains_v4_9/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/domains_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -822,10 +822,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/pricing_v4_8_2/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/pricing_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/pricing_v4_8_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/pricing_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -833,10 +833,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://34.249.122.223:8030/users_v4_8_2/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/users_v5_0_1/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Users\</RelPath>
-      <UpdateFromURL>http://34.249.122.223:8030/users_v4_8_2/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/users_v5_0_1/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1283,10 +1283,10 @@
     <None Include="Web References\TvinciPlatform.Users\ws_users_module.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\cas.disco" />
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService11.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService11.disco" />
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

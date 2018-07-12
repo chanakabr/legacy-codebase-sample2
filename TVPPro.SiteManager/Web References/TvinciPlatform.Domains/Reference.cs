@@ -132,7 +132,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/DOMAINS_v4_9/ws_domains_module.asmx";
+            this.Url = "http://34.249.122.223:8030/DOMAINS_v5_0_1/ws_domains_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

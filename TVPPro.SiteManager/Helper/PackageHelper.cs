@@ -50,8 +50,8 @@ namespace TVPPro.SiteManager.Helper
                     try
                     {
                         m_Title = (from s in SubscriptionObj.m_sName
-                                   where s.m_sLanguageCode3.ToLower() == lang.ToLower()
-                                   select s.m_sValue).First();
+                                   where s.LanguageCode.ToLower() == lang.ToLower()
+                                   select s.Value).First();
                     }
                     catch (Exception)
                     {
@@ -185,13 +185,13 @@ namespace TVPPro.SiteManager.Helper
                     dsPackages.PackagesRow pack = dsPackagesRet.Packages.NewPackagesRow();
                     //Get package name from subscription
                     PackageName = (from p in sub.m_sName
-                                   where p.m_sLanguageCode3.Contains(lang)
-                                   select p.m_sValue).FirstOrDefault();
+                                   where p.LanguageCode.Contains(lang)
+                                   select p.Value).FirstOrDefault();
 
                     //Get description name from subscription
                     PackageDescription = (from p in sub.m_sDescription
-                                          where p.m_sLanguageCode3.Contains(lang)
-                                          select p.m_sValue).FirstOrDefault();
+                                          where p.LanguageCode.Contains(lang)
+                                          select p.Value).FirstOrDefault();
 
 
                     if (sub.m_sCodes != null && sub.m_sCodes.Count() > 0)

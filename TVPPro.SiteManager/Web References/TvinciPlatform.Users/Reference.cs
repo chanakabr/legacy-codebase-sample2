@@ -212,7 +212,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         public UsersService() {
-            this.Url = "http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx";
+            this.Url = "http://34.249.122.223:8030/USERS_v5_0_1/ws_users_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

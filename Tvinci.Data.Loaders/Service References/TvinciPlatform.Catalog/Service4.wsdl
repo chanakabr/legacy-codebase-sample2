@@ -7,7 +7,7 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
-  <wsdl:import namespace="" location="http://34.249.122.223:8030/CATALOG_v4_9/service.svc?wsdl=wsdl0" />
+  <wsdl:import namespace="" location="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc?wsdl=wsdl0" />
   <wsdl:types />
   <wsdl:binding name="WSHttpBinding_Iservice" type="Iservice">
     <wsp:PolicyReference URI="#WSHttpBinding_Iservice_policy" />
@@ -195,9 +195,9 @@
   </wsdl:binding>
   <wsdl:service name="Service">
     <wsdl:port name="WSHttpBinding_Iservice" binding="tns:WSHttpBinding_Iservice">
-      <soap12:address location="http://34.249.122.223:8030/CATALOG_v4_9/service.svc" />
+      <soap12:address location="http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc" />
       <wsa10:EndpointReference>
-        <wsa10:Address>http://34.249.122.223:8030/CATALOG_v4_9/service.svc</wsa10:Address>
+        <wsa10:Address>http://34.249.122.223:8030/CATALOG_v5_0_1/service.svc</wsa10:Address>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

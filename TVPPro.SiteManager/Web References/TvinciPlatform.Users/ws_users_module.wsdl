@@ -5995,13 +5995,13 @@
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/USERS_v5_0_1/ws_users_module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/USERS_v5_0_1/ws_users_module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://34.249.122.223:8030/USERS_v4_8_2/ws_users_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/USERS_v5_0_1/ws_users_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -143,8 +143,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Threading.SendOrPostCallback SendDrmAdapterConfigurationOperationCompleted;
         
-        private System.Threading.SendOrPostCallback DoActionAssetRulesOperationCompleted;
-        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -407,7 +405,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         public API() {
-            this.Url = "http://34.249.122.223:8030/api_v4_8_2/api.asmx";
+            this.Url = "http://34.249.122.223:8030/api_v5_0_1/api.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -605,9 +603,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         public event SendDrmAdapterConfigurationCompletedEventHandler SendDrmAdapterConfigurationCompleted;
-        
-        /// <remarks/>
-        public event DoActionAssetRulesCompletedEventHandler DoActionAssetRulesCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -2760,24 +2755,26 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateLayeredCacheGroupConfig", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> version, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> shouldOverrideExistingExludeSettings) {
+        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> version, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> shouldOverrideExistingExludeSettings, string[] layeredCacheInvalidationKeySettingsToExclude, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> shouldOverrideExistingInvalidationKeyExcludeSettings) {
             object[] results = this.Invoke("UpdateLayeredCacheGroupConfig", new object[] {
                         sWSUserName,
                         sWSPassword,
                         version,
                         disableLayeredCache,
                         layeredCacheSettingsToExclude,
-                        shouldOverrideExistingExludeSettings});
+                        shouldOverrideExistingExludeSettings,
+                        layeredCacheInvalidationKeySettingsToExclude,
+                        shouldOverrideExistingInvalidationKeyExcludeSettings});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings) {
-            this.UpdateLayeredCacheGroupConfigAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings, null);
+        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings, string[] layeredCacheInvalidationKeySettingsToExclude, System.Nullable<bool> shouldOverrideExistingInvalidationKeyExcludeSettings) {
+            this.UpdateLayeredCacheGroupConfigAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings, layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings, null);
         }
         
         /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings, object userState) {
+        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings, string[] layeredCacheInvalidationKeySettingsToExclude, System.Nullable<bool> shouldOverrideExistingInvalidationKeyExcludeSettings, object userState) {
             if ((this.UpdateLayeredCacheGroupConfigOperationCompleted == null)) {
                 this.UpdateLayeredCacheGroupConfigOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateLayeredCacheGroupConfigOperationCompleted);
             }
@@ -2787,7 +2784,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         version,
                         disableLayeredCache,
                         layeredCacheSettingsToExclude,
-                        shouldOverrideExistingExludeSettings}, this.UpdateLayeredCacheGroupConfigOperationCompleted, userState);
+                        shouldOverrideExistingExludeSettings,
+                        layeredCacheInvalidationKeySettingsToExclude,
+                        shouldOverrideExistingInvalidationKeyExcludeSettings}, this.UpdateLayeredCacheGroupConfigOperationCompleted, userState);
         }
         
         private void OnUpdateLayeredCacheGroupConfigOperationCompleted(object arg) {
@@ -2799,24 +2798,26 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateLayeredCacheGroupConfigST", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings) {
+        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings, string layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, bool shouldOverrideExistingInvalidationKeyExcludeSettings) {
             object[] results = this.Invoke("UpdateLayeredCacheGroupConfigST", new object[] {
                         sWSUserName,
                         sWSPassword,
                         version,
                         disableLayeredCache,
                         layeredCacheSettingsToExcludeCommaSeperated,
-                        shouldOverrideExistingExludeSettings});
+                        shouldOverrideExistingExludeSettings,
+                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated,
+                        shouldOverrideExistingInvalidationKeyExcludeSettings});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings) {
-            this.UpdateLayeredCacheGroupConfigSTAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings, null);
+        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings, string layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, bool shouldOverrideExistingInvalidationKeyExcludeSettings) {
+            this.UpdateLayeredCacheGroupConfigSTAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings, layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, shouldOverrideExistingInvalidationKeyExcludeSettings, null);
         }
         
         /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings, object userState) {
+        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings, string layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, bool shouldOverrideExistingInvalidationKeyExcludeSettings, object userState) {
             if ((this.UpdateLayeredCacheGroupConfigSTOperationCompleted == null)) {
                 this.UpdateLayeredCacheGroupConfigSTOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateLayeredCacheGroupConfigSTOperationCompleted);
             }
@@ -2826,7 +2827,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                         version,
                         disableLayeredCache,
                         layeredCacheSettingsToExcludeCommaSeperated,
-                        shouldOverrideExistingExludeSettings}, this.UpdateLayeredCacheGroupConfigSTOperationCompleted, userState);
+                        shouldOverrideExistingExludeSettings,
+                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated,
+                        shouldOverrideExistingInvalidationKeyExcludeSettings}, this.UpdateLayeredCacheGroupConfigSTOperationCompleted, userState);
         }
         
         private void OnUpdateLayeredCacheGroupConfigSTOperationCompleted(object arg) {
@@ -2866,33 +2869,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             if ((this.SendDrmAdapterConfigurationCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SendDrmAdapterConfigurationCompleted(this, new SendDrmAdapterConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DoActionAssetRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool DoActionAssetRules() {
-            object[] results = this.Invoke("DoActionAssetRules", new object[0]);
-            return ((bool)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void DoActionAssetRulesAsync() {
-            this.DoActionAssetRulesAsync(null);
-        }
-        
-        /// <remarks/>
-        public void DoActionAssetRulesAsync(object userState) {
-            if ((this.DoActionAssetRulesOperationCompleted == null)) {
-                this.DoActionAssetRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDoActionAssetRulesOperationCompleted);
-            }
-            this.InvokeAsync("DoActionAssetRules", new object[0], this.DoActionAssetRulesOperationCompleted, userState);
-        }
-        
-        private void OnDoActionAssetRulesOperationCompleted(object arg) {
-            if ((this.DoActionAssetRulesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.DoActionAssetRulesCompleted(this, new DoActionAssetRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -8929,15 +8905,15 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string descriptionField;
         
-        private int orderField;
+        private System.Nullable<int> orderField;
         
-        private int mediaTagTypeIdField;
+        private System.Nullable<int> mediaTagTypeIdField;
         
-        private int epgTagTypeIdField;
+        private System.Nullable<int> epgTagTypeIdField;
         
-        private bool blockAnonymousAccessField;
+        private System.Nullable<bool> blockAnonymousAccessField;
         
-        private eParentalRuleType ruleTypeField;
+        private System.Nullable<eParentalRuleType> ruleTypeField;
         
         private string[] mediaTagValuesField;
         
@@ -8950,6 +8926,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private string mediaTagTypeField;
         
         private string epgTagTypeField;
+        
+        private System.Nullable<bool> isActiveField;
+        
+        private long createDateField;
+        
+        private long updateDateField;
         
         /// <remarks/>
         public long id {
@@ -8982,7 +8964,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public int order {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> order {
             get {
                 return this.orderField;
             }
@@ -8992,7 +8975,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public int mediaTagTypeId {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> mediaTagTypeId {
             get {
                 return this.mediaTagTypeIdField;
             }
@@ -9002,7 +8986,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public int epgTagTypeId {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> epgTagTypeId {
             get {
                 return this.epgTagTypeIdField;
             }
@@ -9012,7 +8997,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public bool blockAnonymousAccess {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> blockAnonymousAccess {
             get {
                 return this.blockAnonymousAccessField;
             }
@@ -9022,7 +9008,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public eParentalRuleType ruleType {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<eParentalRuleType> ruleType {
             get {
                 return this.ruleTypeField;
             }
@@ -9088,6 +9075,37 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.epgTagTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> isActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long UpdateDate {
+            get {
+                return this.updateDateField;
+            }
+            set {
+                this.updateDateField = value;
             }
         }
     }
@@ -9608,7 +9626,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string valueField;
         
-        private LanguageContainer[] valuesField;
+        private LanguageContainer1[] valuesField;
         
         /// <remarks/>
         public string Key {
@@ -9631,7 +9649,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public LanguageContainer[] Values {
+        public LanguageContainer1[] Values {
             get {
                 return this.valuesField;
             }
@@ -9646,30 +9664,42 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
-    public partial class LanguageContainer {
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="LanguageContainer", Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
+    public partial class LanguageContainer1 {
         
-        private string m_sLanguageCode3Field;
+        private string languageCodeField;
         
-        private string m_sValueField;
+        private string valueField;
+        
+        private bool isDefaultField;
         
         /// <remarks/>
-        public string m_sLanguageCode3 {
+        public string LanguageCode {
             get {
-                return this.m_sLanguageCode3Field;
+                return this.languageCodeField;
             }
             set {
-                this.m_sLanguageCode3Field = value;
+                this.languageCodeField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sValue {
+        public string Value {
             get {
-                return this.m_sValueField;
+                return this.valueField;
             }
             set {
-                this.m_sValueField = value;
+                this.valueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
             }
         }
     }
@@ -9691,11 +9721,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string nAMEField;
         
-        private LanguageContainer[] programmeNameField;
+        private LanguageContainer1[] programmeNameField;
         
         private string dESCRIPTIONField;
         
-        private LanguageContainer[] programmeDescriptionField;
+        private LanguageContainer1[] programmeDescriptionField;
         
         private string sTART_DATEField;
         
@@ -9784,7 +9814,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public LanguageContainer[] ProgrammeName {
+        public LanguageContainer1[] ProgrammeName {
             get {
                 return this.programmeNameField;
             }
@@ -9804,7 +9834,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public LanguageContainer[] ProgrammeDescription {
+        public LanguageContainer1[] ProgrammeDescription {
             get {
                 return this.programmeDescriptionField;
             }
@@ -15281,7 +15311,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string idField;
         
-        private bool isTagField;
+        private bool multipleValueField;
         
         /// <remarks/>
         public string Name {
@@ -15374,12 +15404,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public bool IsTag {
+        public bool MultipleValue {
             get {
-                return this.isTagField;
+                return this.multipleValueField;
             }
             set {
-                this.isTagField = value;
+                this.multipleValueField = value;
             }
         }
     }
@@ -15429,6 +15459,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         DateTime,
+        
+        /// <remarks/>
+        MultilingualString,
     }
     
     /// <remarks/>
@@ -16732,7 +16765,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string nameField;
         
+        private LanguageContainer[] namesInOtherLanguagesField;
+        
+        private string systemNameField;
+        
         private string descriptionField;
+        
+        private LanguageContainer[] descriptionInOtherLanguagesField;
         
         private OrderObj orderField;
         
@@ -16803,12 +16842,42 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
+        public LanguageContainer[] NamesInOtherLanguages {
+            get {
+                return this.namesInOtherLanguagesField;
+            }
+            set {
+                this.namesInOtherLanguagesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SystemName {
+            get {
+                return this.systemNameField;
+            }
+            set {
+                this.systemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string Description {
             get {
                 return this.descriptionField;
             }
             set {
                 this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] DescriptionInOtherLanguages {
+            get {
+                return this.descriptionInOtherLanguagesField;
+            }
+            set {
+                this.descriptionInOtherLanguagesField = value;
             }
         }
         
@@ -16859,6 +16928,51 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class LanguageContainer {
+        
+        private string languageCodeField;
+        
+        private string valueField;
+        
+        private bool isDefaultField;
+        
+        /// <remarks/>
+        public string LanguageCode {
+            get {
+                return this.languageCodeField;
+            }
+            set {
+                this.languageCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class OrderObj {
         
         private OrderBy m_eOrderByField;
@@ -16870,6 +16984,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private string m_sOrderValueField;
         
         private bool m_bIsSlidingWindowFieldField;
+        
+        private bool isSlidingWindowFromRestApiField;
         
         /// <remarks/>
         public OrderBy m_eOrderBy {
@@ -16918,6 +17034,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.m_bIsSlidingWindowFieldField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool isSlidingWindowFromRestApi {
+            get {
+                return this.isSlidingWindowFromRestApiField;
+            }
+            set {
+                this.isSlidingWindowFromRestApiField = value;
             }
         }
     }
@@ -19063,32 +19189,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((DrmAdapterResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
-    public delegate void DoActionAssetRulesCompletedEventHandler(object sender, DoActionAssetRulesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class DoActionAssetRulesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal DoActionAssetRulesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public bool Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
             }
         }
     }

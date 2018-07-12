@@ -126,8 +126,9 @@
       </s:complexType>
       <s:complexType name="LanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sLanguageCode3" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="LanguageCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="DiscountModule">
@@ -4908,13 +4909,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/PRICING_v4_8_2/ws_pricing_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/PRICING_v5_0_1/ws_pricing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/PRICING_v4_8_2/ws_pricing_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/PRICING_v5_0_1/ws_pricing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://34.249.122.223:8030/PRICING_v4_8_2/ws_pricing_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/PRICING_v5_0_1/ws_pricing_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
