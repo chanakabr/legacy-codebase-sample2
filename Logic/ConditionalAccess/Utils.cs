@@ -8430,7 +8430,7 @@ namespace Core.ConditionalAccess
 
             if (adjacentPrograms != null && adjacentPrograms.Count > 0)
             {
-                var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.Now);
+                var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow);
                 if (currentProgram != null)
                 {
                     return long.Parse(currentProgram.AssetId);
