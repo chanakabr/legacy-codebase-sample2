@@ -810,7 +810,8 @@ namespace ApiObjects
     public enum GroupFeature
     {
         CROWDSOURCE = 0,
-        BUZZFEED = 1
+        BUZZFEED = 1,
+        EXTERNAL_RECORDINGS = 2
     }
 
     public enum ResponseStatus

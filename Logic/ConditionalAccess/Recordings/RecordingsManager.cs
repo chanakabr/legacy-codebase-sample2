@@ -754,85 +754,29 @@ namespace Core.Recordings
             }
         }
 
-        internal Status NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType recordingType, bool? isProtected, int domainId, int userId)
+        internal GenericResponse<Recording> AddExternalRecording(int groupId, Recording recording, DateTime viewableUntilDate, long domainId, long userId)
         {
-            Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            GenericResponse<Recording> result = new GenericResponse<Recording>();
             try
             {
-                if (!string.IsNullOrEmpty(externalEpgId))
+                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, domainId, userId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    result.Set((int)eResponseStatus.MissingExternalEpgId, eResponseStatus.MissingExternalEpgId.ToString());                    
-                    return result;
-                }
-
-                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByExternalIds(groupId, new List<string>() { { externalEpgId } });
-                if (epgs == null || epgs.Count != 1)
-                {
-                    log.DebugFormat("Failed Getting EPGs from Catalog when calling NotifyRecording, DomainId: {0}, UserId: {1}, ExternalEpgId: {2}", domainId, userId, externalEpgId);
-                    result.Message = string.Format("Could not find EPG with the specified externalId: {0}", externalEpgId);
-                    return result;
-                }
-
-                DateTime epgStartDate;
-                DateTime epgEndDate;
-                if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
-                    && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
-                {
-                    Recording recording = new Recording()
+                    Recording externalRecording = ConditionalAccess.Utils.BuildDomainRecordingFromDataRow(dt.Rows[0]);
+                    if (externalRecording != null && externalRecording.Status != null && externalRecording.Status.Code == (int)eResponseStatus.OK)
                     {
-                        EpgId = epgs[0].EPG_ID,
-                        ExternalDomainRecordingId = externalDomainRecordingId,
-                        Type = recordingType,
-                        RecordingStatus = recordingStatus,
-                        Crid = epgs[0].CRID,
-                        EpgStartDate = epgStartDate,
-                        EpgEndDate = epgEndDate,
-                        ExternalRecordingId = Guid.NewGuid().ToString()
-                    };
-
-                    long channelId;
-                    if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
-                    {
-                        recording.ChannelId = channelId;
+                        result.Object = externalRecording;
+                        result.SetStatus((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
-
-                    DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
-                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
-                    if (RecordingsDAL.NotifyRecording(groupId, recording, viewableUntilDate, domainId, userId))
+                    else
                     {
-                        result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        result.SetStatus(externalRecording.Status.Code, externalRecording.Status.Message);
                     }
-                }
-                else
-                {
-                    log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for externalEpgId: {0}", externalEpgId);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed NotifyRecording for externalEpgId: {0}, externalDomainRecordingId: {1} and domainId: {2}", externalEpgId, externalDomainRecordingId, domainId), ex);
-            }
-
-            return result;
-        }
-
-        internal Status NotifyDeleteRecording(int groupId, string externalDomainRecordingId, int domainId)
-        {
-            Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
-            {
-                if (RecordingsDAL.NotifyDeleteRecording(groupId, externalDomainRecordingId, domainId))
-                {
-                    result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-                else
-                {
-                    result.Set((int)eResponseStatus.ExternalDomainRecordingDoesNotExist, eResponseStatus.ExternalDomainRecordingDoesNotExist.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed NotifyDeleteRecording for externalDomainRecordingId: {0} and domainId: {1}", externalDomainRecordingId, domainId), ex);
+                log.Error(string.Format("Failed AddExternalRecording for EpgId: {0}, ExternalRecordingId: {1} and domainId: {2}", recording.EpgId, recording.ExternalDomainRecordingId, domainId), ex);
             }
 
             return result;

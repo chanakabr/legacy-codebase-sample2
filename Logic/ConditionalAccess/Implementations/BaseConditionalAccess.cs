@@ -13591,7 +13591,8 @@ namespace Core.ConditionalAccess
 
                 if (res)
                 {
-                    if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS)
+                        && QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
                         ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Run(() =>
@@ -13895,12 +13896,22 @@ namespace Core.ConditionalAccess
         }
 
         public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
-            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging)
+            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
             try
             {
-                if (recordingStatuses == null || recordingStatuses.Count == 0)
+                bool shouldFilterByExternalRecordingIds = externalRecordingIds != null && externalRecordingIds.Count > 0;
+                if (shouldFilterByExternalRecordingIds)
+                {
+                    recordingStatuses = new List<TstvRecordingStatus>()
+                        {
+                            TstvRecordingStatus.Recorded,
+                            TstvRecordingStatus.Recording,
+                            TstvRecordingStatus.Scheduled
+                        };
+                }
+                else if (recordingStatuses == null || recordingStatuses.Count == 0)
                 {
                     //Create recording statuses list (without deleted)
                     log.DebugFormat("RecordingStatuses is null or empty, creating status list, DomainID: {0}, UserID: {1}", domainID, userID);
@@ -13929,6 +13940,11 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
+                // filter domain externalRecordingIds if exist
+                if (shouldFilterByExternalRecordingIds)
+                {
+                    DomainRecordingIdToRecordingMap.Where(x => externalRecordingIds.Contains(x.Value.ExternalDomainRecordingId)).ToDictionary(x => x.Key, x => x.Value);
+                }
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                 {
@@ -16685,47 +16701,56 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal ApiObjects.Response.Status NotifyRecording(string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType? recordingType, bool? isProtected, int domainId)
+        internal GenericResponse<Recording> AddExternalRecording(int groupId, Recording recording, long userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            GenericResponse<Recording> response = new GenericResponse<Recording>();
             try
             {
-                Domain domain = null;                
-                ApiObjects.Response.Status validationStatus = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
+                Domain domain = null;
+                long domainId = 0;            
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("Domain not valid, domainId: {0}", domainId);
-                    response.Set(validationStatus.Code, validationStatus.Message);
+                    log.DebugFormat("userId not valid, userId: {0}", userId);
+                    response.SetStatus(validationStatus.Code, validationStatus.Message);
                     return response;
                 }
 
-                switch (recordingStatus)
+                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
+                if (epgs == null || epgs.Count != 1)
                 {
-                    case TstvRecordingStatus.Scheduled:
-                    case TstvRecordingStatus.Recording:
-                    case TstvRecordingStatus.Recorded:
-                        if (!recordingType.HasValue)
-                        {
-                            response.Set((int)eResponseStatus.MissingRecordingType, eResponseStatus.MissingRecordingType.ToString());
-                            return response;
-                        }
+                    log.DebugFormat("Failed Getting EPGs from Catalog when calling AddExternalRecording, DomainId: {0}, UserId: {1}, epgId: {2}", domainId, userId, recording.EpgId);
+                    response.SetStatus((int)eResponseStatus.Error, string.Format("Could not find EPG with the specified epgId: {0}", recording.EpgId));
+                    return response;
+                }
 
-                        response = RecordingsManager.Instance.NotifyRecording(m_nGroupID, externalDomainRecordingId, externalEpgId, recordingStatus, recordingType.Value, isProtected, domainId, domain.m_masterGUIDs[0]);
-                        break;
-                    case TstvRecordingStatus.Canceled:
-                    case TstvRecordingStatus.Deleted:
-                    case TstvRecordingStatus.Failed:
-                        response = RecordingsManager.Instance.NotifyDeleteRecording(m_nGroupID, externalDomainRecordingId, domainId);
-                        break;
-                    default:
-                        // error code
-                        break;
+                DateTime epgStartDate, epgEndDate;
+                if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
+                    && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                {
+                    recording.Crid = epgs[0].CRID;
+                    recording.EpgStartDate = epgStartDate;
+                    recording.EpgEndDate = epgEndDate;
+                    recording.ExternalRecordingId = Guid.NewGuid().ToString();
+                    long channelId;
+                    if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
+                    {
+                        recording.ChannelId = channelId;
+                    }
+
+                    DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
+                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, recording, viewableUntilDate, domainId, userId);
+                }
+                else
+                {                    
+                    log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for EpgId: {0}", recording.EpgId);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed NotifyRecording for externalDomainRecordingId: {0} and domainId: {1}", externalDomainRecordingId, domainId), ex);
+                log.Error(string.Format("Failed AddExternalRecording for EpgId: {0}, ExternalRecordingId: {1} and userId: {2}", recording.EpgId, recording.ExternalRecordingId, userId), ex);
             }
 
             return response;

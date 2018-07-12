@@ -5374,6 +5374,7 @@ namespace Core.ConditionalAccess
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+                string domainExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_DOMAIN_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
@@ -5412,6 +5413,7 @@ namespace Core.ConditionalAccess
                     UpdateDate = updateDate,
                     RecordingStatus = recordingStatus.Value,
                     ExternalRecordingId = externalRecordingId,
+                    ExternalDomainRecordingId = domainExternalRecordingId,
                     Crid = crid,
                     Type = recordingType,
 

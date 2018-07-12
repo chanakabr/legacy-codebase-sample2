@@ -185,7 +185,6 @@ namespace ApiObjects.Response
         UnknownPriceReason = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
-        MissingRecordingType = 3080,
 
         #endregion
 
@@ -265,8 +264,6 @@ namespace ApiObjects.Response
         MissingBasicValueForAsset = 4071,
         CanNotDeleteParentAssetStruct = 4072,
         CanNotDeleteConnectingAssetStructMeta = 4073,
-        MissingExternalEpgId = 4074,
-        ExternalDomainRecordingDoesNotExist = 4075,
 
         #endregion
 

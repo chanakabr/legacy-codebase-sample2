@@ -2522,14 +2522,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.TimeShiftedTv.RecordingResponse SearchDomainRecordings(int groupID, string userID, long domainID, ApiObjects.TstvRecordingStatus[] recordingStatuses,
-                                                                                      string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging)
+        public static ApiObjects.TimeShiftedTv.RecordingResponse SearchDomainRecordings(int groupID, string userID, long domainID, ApiObjects.TstvRecordingStatus[] recordingStatuses, string filter,
+                                                        int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging);
+                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, externalRecordingIds);
             }
             else
             {
@@ -3324,13 +3324,13 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static Status NotifyRecording(int groupId, string externalDomainRecordingId, string externalEpgId, TstvRecordingStatus recordingStatus, RecordingType? recordingType, bool? isProtected, int domainId)
+        public static GenericResponse<ApiObjects.TimeShiftedTv.Recording> AddExternalRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, long userId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            ApiObjects.Response.Status status = t.NotifyRecording(externalDomainRecordingId, externalEpgId, recordingStatus, recordingType, isProtected, domainId);
+            GenericResponse<ApiObjects.TimeShiftedTv.Recording> externalRecordingResponse = t.AddExternalRecording(groupId, recording, userId);
 
-            return status;
+            return externalRecordingResponse;
         }
 
     }
