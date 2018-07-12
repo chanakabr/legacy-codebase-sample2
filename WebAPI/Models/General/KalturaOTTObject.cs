@@ -20,7 +20,7 @@ namespace WebAPI.Models.General
     {
         string ToJson(Version currentVersion, bool omitObsolete);
 
-        string PropertiesToXml(Version currentVersion, bool omitObsolete);
+        string ToXml(Version currentVersion, bool omitObsolete);
     }
 
     public class KalturaSerializable : IKalturaSerializable
@@ -61,17 +61,22 @@ namespace WebAPI.Models.General
 
         public virtual string ToJson(Version currentVersion, bool omitObsolete)
         {
-            return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete)) + "}";
+            return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete).Values) + "}";
         }
 
-        public virtual string PropertiesToXml(Version currentVersion, bool omitObsolete)
+        public virtual string ToXml(Version currentVersion, bool omitObsolete)
         {
-            return "";
+            return String.Join("", PropertiesToXml(currentVersion, omitObsolete).Values);
         }
 
-        protected virtual List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        protected virtual Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
         {
-            return new List<string>();
+            return new Dictionary<string, string>();
+        }
+
+        protected virtual Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            return new Dictionary<string, string>();
         }
     }
 
@@ -87,24 +92,7 @@ namespace WebAPI.Models.General
         public KalturaOTTObject(Dictionary<string, object> parameters = null)
         {
         }
-
-        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            string propertyValue;
-            if (objectType != null)
-            {
-                ret.Add("\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
-            }
-            if (relatedObjects != null)
-            {
-                propertyValue = "{" + String.Join(", ", relatedObjects.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
-                ret.Add("\"relatedObjects\": " + propertyValue);
-            }
-            return ret;
-        }
-
+        
         protected DateTime longToDateTime(long unixTimeStamp)
         {
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);

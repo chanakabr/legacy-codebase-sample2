@@ -48,7 +48,7 @@ namespace WebAPI.App_Start
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
                 Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-                string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.PropertiesToXml(currentVersion, true) + "</xml>";
+                string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.ToXml(currentVersion, true) + "</xml>";
                 streamWriter.Write(xml);
                 return Task.FromResult(writeStream);
             }

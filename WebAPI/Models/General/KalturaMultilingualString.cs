@@ -240,7 +240,7 @@ namespace WebAPI.Models.General
             if (Values != null && language != null && language.Equals("*"))
             {
                 string multilingualName = KalturaMultilingualString.GetMultilingualName(propertyName);
-                ret += "<" + multilingualName + "><item>" + String.Join("</item><item>", Values.Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + "</item></" + multilingualName + ">";
+                ret += "<" + multilingualName + "><item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item></" + multilingualName + ">";
             }
             return ret;
         }

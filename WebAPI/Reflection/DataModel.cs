@@ -7086,6 +7086,40 @@ namespace WebAPI.Reflection
                 case "meta":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("meta", "add", false);
+                            return MetaController.Add((KalturaMeta) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("meta", "delete", false);
+                            return MetaController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("meta", "listOldStandard", false);
+                                return MetaController.ListOldStandard((KalturaMetaFilter) methodParams[0]);
+                            }
+                            RolesManager.ValidateActionPermitted("meta", "list", false);
+                            return MetaController.List((KalturaMetaFilter) methodParams[0]);
+                            
+                        case "listoldstandard":
+                            RolesManager.ValidateActionPermitted("meta", "listOldStandard", false);
+                            return MetaController.ListOldStandard((KalturaMetaFilter) methodParams[0]);
+                            
+                        case "update":
+                            if(isOldVersion)
+                            {
+                                RolesManager.ValidateActionPermitted("meta", "updateOldStandard", false);
+                                return MetaController.UpdateOldStandard((string) methodParams[0], (KalturaMeta) methodParams[1]);
+                            }
+                            RolesManager.ValidateActionPermitted("meta", "update", false);
+                            return MetaController.Update((long) methodParams[0], (KalturaMeta) methodParams[1]);
+                            
+                        case "updateoldstandard":
+                            RolesManager.ValidateActionPermitted("meta", "updateOldStandard", false);
+                            return MetaController.UpdateOldStandard((string) methodParams[0], (KalturaMeta) methodParams[1]);
+                            
                     }
                     break;
                     
@@ -8661,6 +8695,9 @@ namespace WebAPI.Reflection
                 case "version":
                     switch(action)
                     {
+                        case "":
+                            return VersionController.Get();
+                            
                     }
                     break;
                     
@@ -11808,6 +11845,69 @@ namespace WebAPI.Reflection
                 case "meta":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("meta", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMeta),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "meta", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMetaFilter),
+                            });
+                            return ret;
+                            
+                        case "listoldstandard":
+                            ret.Add("filter", new MethodParam(){
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMetaFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "meta", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("meta", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMeta),
+                            });
+                            return ret;
+                            
+                        case "updateoldstandard":
+                            ret.Add("id", new MethodParam(){
+                                Type = typeof(string),
+                            });
+                            ret.Add("meta", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaMeta),
+                            });
+                            return ret;
+                            
                     }
                     break;
                     
@@ -14612,6 +14712,9 @@ namespace WebAPI.Reflection
                 case "version":
                     switch(action)
                     {
+                        case "":
+                            return ret;
+                            
                     }
                     break;
                     

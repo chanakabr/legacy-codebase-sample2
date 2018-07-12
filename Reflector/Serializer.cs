@@ -40,7 +40,6 @@ namespace Reflector
     {
         public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
         {
-            types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaSerializable));
             types.Remove(typeof(KalturaMultilingualString));
         }
@@ -91,6 +90,11 @@ namespace Reflector
                 DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
                 string propertyName = property.Name;
                 List<string> conditions = new List<string>();
+
+                if(type.BaseType != null && type.BaseType.GetProperty(propertyName) != null)
+                {
+                    conditions.Add("!ret.ContainsKey(\"" + dataMember.Name + "\")");
+                }
 
                 OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>(false);
                 if (onlyNewStandard != null)
@@ -226,7 +230,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".PropertiesToXml(currentVersion, omitObsolete);");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToXml(currentVersion, omitObsolete);");
                         }
                         break;
 
@@ -237,7 +241,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).PropertiesToXml(currentVersion, omitObsolete) : " + propertyName + ".ToString());");
+                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : " + propertyName + ".ToString());");
                         }
                         break;
 
@@ -248,7 +252,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.PropertiesToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
                         }
                         break;
 
@@ -259,7 +263,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(pair => \"<itemKey>\" + pair.Key + \"</itemKey>\" + pair.Value.PropertiesToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(pair => \"<itemKey>\" + pair.Key + \"</itemKey>\" + pair.Value.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
                         }
                         break;
 
@@ -279,22 +283,22 @@ namespace Reflector
                 {
                     if (propertyType == PropertyType.CUSTOM)
                     {
-                        file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
+                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
                     }
                     else
                     {
-                        file.WriteLine(tab + "            ret.Add(\"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", \"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
                     }
                 }
                 else
                 {
                     if (propertyType == PropertyType.CUSTOM)
                     {
-                        file.WriteLine(tab + "            ret += " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + dataMember.Name + "\");");
+                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
                     }
                     else
                     {
-                        file.WriteLine(tab + "            ret += \"<" + dataMember.Name + ">\" + " + value + " + \"</" + dataMember.Name + ">\";");
+                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", \"<" + dataMember.Name + ">\" + " + value + " + \"</" + dataMember.Name + ">\");");
                     }
                 }
 
@@ -316,22 +320,22 @@ namespace Reflector
                         {
                             if (propertyType == PropertyType.CUSTOM)
                             {
-                                file.WriteLine(tab + "            ret.Add(" + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
+                                file.WriteLine(tab + "            ret.Add(\"" + oldStandardProperty.oldName + "\", " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
                             }
                             else
                             {
-                                file.WriteLine(tab + "                ret.Add(\"\\\"" + oldStandardProperty.oldName + "\\\": \" + " + value + ");");
+                                file.WriteLine(tab + "                ret.Add(\"" + oldStandardProperty.oldName + "\", \"\\\"" + oldStandardProperty.oldName + "\\\": \" + " + value + ");");
                             }
                         }
                         else
                         {
                             if (propertyType == PropertyType.CUSTOM)
                             {
-                                file.WriteLine(tab + "            ret+ = " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\");");
+                                file.WriteLine(tab + "            ret.Add(\"" + oldStandardProperty.oldName + "\", " + propertyName + ".ToCustomXml(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
                             }
                             else
                             {
-                                file.WriteLine(tab + "            ret += \"<" + oldStandardProperty.oldName + ">\" + " + value + " + \"</" + oldStandardProperty.oldName + ">\";");
+                                file.WriteLine(tab + "            ret.Add(\"" + oldStandardProperty.oldName + "\", \"<" + oldStandardProperty.oldName + ">\" + " + value + " + \"</" + oldStandardProperty.oldName + ">\");");
                             }
                         }
                         file.WriteLine(tab + "            }");
@@ -349,19 +353,19 @@ namespace Reflector
         {
             file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
-            file.WriteLine("        protected override List<string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            List<string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
-            file.WriteLine("        public override string PropertiesToXml(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            string ret = base.PropertiesToXml(currentVersion, omitObsolete);");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
             wrtieSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");

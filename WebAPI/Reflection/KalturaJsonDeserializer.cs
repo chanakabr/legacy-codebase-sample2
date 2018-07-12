@@ -12339,11 +12339,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13155,11 +13155,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
