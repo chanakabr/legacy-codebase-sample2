@@ -13,6 +13,7 @@ using WebAPI.Controllers;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using WebAPI.Models.Renderers;
+using WebAPI.Managers.Models;
 
 namespace Reflector
 {
@@ -27,7 +28,6 @@ namespace Reflector
         NATIVE,
         STRING,
         OBJECT,
-        GENERIC_OBJECT,
         ARRAY,
         NUMERIC_ARRAY,
         MAP,
@@ -40,6 +40,7 @@ namespace Reflector
     {
         public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
         {
+            types.Remove(typeof(StatusWrapper));
             types.Remove(typeof(KalturaSerializable));
             types.Remove(typeof(KalturaMultilingualString));
         }
@@ -125,10 +126,6 @@ namespace Reflector
                         propertyType = PropertyType.CUSTOM;
                     }
                 }
-                else if (property.PropertyType == typeof(object))
-                {
-                    propertyType = PropertyType.GENERIC_OBJECT;
-                }
                 else if (property.PropertyType == typeof(string))
                 {
                     propertyType = PropertyType.STRING;
@@ -185,7 +182,7 @@ namespace Reflector
                     propertyType = PropertyType.ENUM;
                 }
 
-                if (propertyType == PropertyType.STRING || propertyType == PropertyType.OBJECT || propertyType == PropertyType.GENERIC_OBJECT)
+                if (propertyType == PropertyType.STRING || propertyType == PropertyType.OBJECT)
                 {
                     conditions.Add(propertyName + " != null");
                 }
@@ -231,17 +228,6 @@ namespace Reflector
                         else
                         {
                             file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToXml(currentVersion, omitObsolete);");
-                        }
-                        break;
-
-                    case PropertyType.GENERIC_OBJECT:
-                        if (serializeType == SerializeType.JSON)
-                        {
-                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(" + propertyName + "));");
-                        }
-                        else
-                        {
-                            file.WriteLine(tab + "            propertyValue = (" + propertyName + " is IKalturaSerializable ? (" + propertyName + " as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : " + propertyName + ".ToString());");
                         }
                         break;
 

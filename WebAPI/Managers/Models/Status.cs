@@ -5,13 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Web;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Models
 {
     [DataContract]
-    public partial class StatusWrapper : KalturaSerializable
+    public class StatusWrapper : KalturaSerializable
     {
         public StatusWrapper()
         {
@@ -22,6 +23,63 @@ namespace WebAPI.Managers.Models
         {
             ExecutionTime = executionTime;
             Result = result;
+        }
+
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("executionTime", "\"executionTime\": " + ExecutionTime);
+            if (Result != null)
+            {
+                if (Result is IKalturaSerializable)
+                {
+                    propertyValue = (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete);
+                }
+                else
+                {
+                    JsonManager jsonManager = JsonManager.GetInstance();
+                    if (Result.GetType().IsArray)
+                    {
+                        propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.Serialize(item))) + "]";
+                    }
+                    else
+                    {
+                        propertyValue = jsonManager.Serialize(Result);
+                    }
+                };
+                ret.Add("result", "\"result\": " + propertyValue);
+            }
+            return ret;
+        }
+
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("executionTime", "<executionTime>" + ExecutionTime + "</executionTime>");
+            if (Result != null)
+            {
+                if(Result is IKalturaSerializable)
+                {
+                    propertyValue = (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete);
+                }
+                else
+                {
+                    JsonManager jsonManager = JsonManager.GetInstance();
+                    if (Result.GetType().IsArray)
+                    {
+                        propertyValue = "<item>" + String.Join("</item><item>", (Result as IEnumerable<object>).Select(item => (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : item.ToString())) + "</item>";
+                    }
+                    else
+                    {
+                        propertyValue = Result.ToString();
+                    }
+                }
+                
+                ret.Add("result", "<result>" + propertyValue + "</result>");
+            }
+            return ret;
         }
 
         [DataMember(Name = "result", Order = 0)]

@@ -19,7 +19,6 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
-using WebAPI.Managers.Models;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -22122,40 +22121,6 @@ namespace WebAPI.EventNotifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            return ret;
-        }
-    }
-}
-
-namespace WebAPI.Managers.Models
-{
-    public partial class StatusWrapper
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("executionTime", "\"executionTime\": " + ExecutionTime);
-            if(Result != null)
-            {
-                propertyValue = (Result is IKalturaSerializable ? (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete) : JsonManager.GetInstance().Serialize(Result));
-                ret.Add("result", "\"result\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("executionTime", "<executionTime>" + ExecutionTime + "</executionTime>");
-            if(Result != null)
-            {
-                propertyValue = (Result is IKalturaSerializable ? (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : Result.ToString());
-                ret.Add("result", "<result>" + propertyValue + "</result>");
-            }
             return ret;
         }
     }
