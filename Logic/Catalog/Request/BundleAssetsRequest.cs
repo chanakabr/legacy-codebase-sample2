@@ -242,6 +242,9 @@ namespace Core.Catalog.Request
                 }
             }
 
+            // BEO-4996: Remove all empty search objects, because of asset type filtering...
+            searchObjectsList.RemoveAll(o => o == null);
+
             return searchObjectsList;
         }
     }
