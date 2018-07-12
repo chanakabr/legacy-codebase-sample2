@@ -236,7 +236,7 @@ namespace TVPApi
                             PPVModule ppvModule = module.m_oPPVModules[0];
                             if (filesDict.ContainsKey(module.m_nMediaFileID.ToString()))
                             {
-                                filesDict[module.m_nMediaFileID.ToString()].ppvModuleName = module.m_oPPVModules[0].m_sDescription[0].m_sValue;
+                                filesDict[module.m_nMediaFileID.ToString()].ppvModuleName = module.m_oPPVModules[0].m_sDescription[0].Value;
                                 if (retVal.content == null)
                                 {
                                     retVal.content = new List<ActivaMedia>();
