@@ -10916,7 +10916,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Get Media Concurrency Rules
-                    List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, mediaId, ip, bmID, eBM);
+                    List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, mediaId, bmID, eBM);
                     
                     // get domain limit Id (whether we have domain Id or not)
                     DomainResponse domainResponse = null;
