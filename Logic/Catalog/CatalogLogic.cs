@@ -4359,12 +4359,12 @@ namespace Core.Catalog
             return searchKey;
         }
 
-        public static int GetLastPosition(int mediaID, int userID)
+        public static int GetLastMediaPosition(int mediaID, int userID)
         {
             if (mediaID == 0 || userID == 0)
                 return 0;
 
-            return CatalogDAL.GetLastPosition(mediaID, userID);
+            return CatalogDAL.GetLastMediaPosition(mediaID, userID);
         }
 
         internal static bool IsConcurrent(int groupId, ref DevicePlayData devicePlayData)
@@ -5294,12 +5294,12 @@ namespace Core.Catalog
             return result;
         }
 
-        internal static int GetLastPosition(string NpvrID, int userID)
+        internal static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             if (string.IsNullOrEmpty(NpvrID) || userID == 0)
                 return 0;
 
-            return CatalogDAL.GetLastPosition(NpvrID, userID);
+            return CatalogDAL.GetLastNpvrPosition(NpvrID, userID);
         }
         
         /// <summary>

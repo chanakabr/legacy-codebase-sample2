@@ -98,7 +98,7 @@ namespace Core.Catalog.Request
             //non-anonymous user
             else if (!CatalogLogic.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))
             {
-                pos = CatalogLogic.GetLastPosition(request.data.m_sNpvrID, nSiteGuid);
+                pos = CatalogLogic.GetLastNpvrPosition(request.data.m_sNpvrID, nSiteGuid);
             }
 
             response.Location = pos;
@@ -119,7 +119,7 @@ namespace Core.Catalog.Request
             //non-anonymous user
             else if (!string.IsNullOrEmpty(request.data.m_sSiteGuid) && Int32.TryParse(request.data.m_sSiteGuid, out userId) || userId != 0)
             {
-                pos = CatalogLogic.GetLastPosition(request.data.m_nMediaID, userId);
+                pos = CatalogLogic.GetLastMediaPosition(request.data.m_nMediaID, userId);
             }
 
             response.Location = pos;
