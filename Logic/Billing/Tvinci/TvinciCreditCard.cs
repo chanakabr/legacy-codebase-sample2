@@ -78,6 +78,7 @@ namespace Core.Billing
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery += "select top(1) hmac_key, group_secret from adyen_group_parameters where ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("skin_code", "=", skinCode);
+                    selectQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
                     if (selectQuery.Execute("query", true) != null)
                     {
                         int count = selectQuery.Table("query").DefaultView.Count;
