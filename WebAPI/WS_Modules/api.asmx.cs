@@ -1825,7 +1825,7 @@ namespace WS_API
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Api.Module.GetMediaConcurrencyRules(nGroupID, nMediaID, sIP, bmID, eType);
+                return Core.Api.Module.GetMediaConcurrencyRules(nGroupID, nMediaID, bmID, eType);
             }
             else
             {
