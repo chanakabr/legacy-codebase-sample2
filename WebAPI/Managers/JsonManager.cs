@@ -33,12 +33,29 @@ namespace WebAPI.Managers
                         
         public string Serialize(object value, bool omitObsolete = false)
         {
-            if(value is IKalturaSerializable)
+            string result = string.Empty;
+
+            if (value is IKalturaSerializable && HttpContext.Current != null && HttpContext.Current.Items != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-                return ((IKalturaSerializable) value).ToJson(currentVersion, omitObsolete);
+                object requestVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+
+                if (requestVersion != null)
+                {
+                    Version currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
+
+                    if (currentVersion != null)
+                    {
+                        result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
+                    }
+                }
             }
-            return JsonConvert.SerializeObject(value);
+
+            if (string.IsNullOrEmpty(result))
+            {
+                result = JsonConvert.SerializeObject(value);
+            }
+
+            return result;
         }
     }
 }
