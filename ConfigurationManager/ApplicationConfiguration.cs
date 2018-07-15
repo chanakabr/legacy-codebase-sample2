@@ -332,7 +332,10 @@ namespace ConfigurationManager
             {
                 DefaultValue = 7
             };
-            EutelsatSettings = new EutelsatSettings("eutelsat_settings");
+            EutelsatSettings = new EutelsatSettings("eutelsat_settings")
+            {
+                ShouldAllowEmpty = true
+            };
             ElasticSearchConfiguration = new ElasticSearchConfiguration("elasticsearch_settings");
             SearchIndexType = new StringConfigurationValue("search_index_type")
             {

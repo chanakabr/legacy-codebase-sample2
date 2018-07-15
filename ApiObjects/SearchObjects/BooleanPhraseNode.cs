@@ -419,7 +419,7 @@ namespace ApiObjects.SearchObjects
             }
             else
             {
-                status = new Status((int)eResponseStatus.SyntaxError, string.Empty);
+                status = new Status((int)eResponseStatus.SyntaxError, "Invalid KSQL syntax");
             }
 
             return status;
