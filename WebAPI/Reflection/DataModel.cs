@@ -10434,7 +10434,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "productType";
-                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) > 0)
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
                             }
@@ -10490,7 +10490,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "productType";
-                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) > 0)
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
                             }
@@ -11796,7 +11796,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             paramName = "messageType";
-                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
                             }
@@ -11819,7 +11819,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             paramName = "messageType";
-                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
                             }

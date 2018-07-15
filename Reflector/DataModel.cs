@@ -214,7 +214,7 @@ namespace Reflector
                                 {
                                     if (oldStandardArgumentAttribute.sinceVersion != null)
                                     {
-                                        file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) > 0)");
+                                        file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) < 0)");
                                         file.WriteLine("                            {");
                                         file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
                                         file.WriteLine("                            }");
