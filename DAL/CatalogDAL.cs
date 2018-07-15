@@ -1382,9 +1382,22 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static int GetLastPosition(int mediaID, int userID)
+        public static int GetLastMediaPosition(int mediaID, int userID)
         {
             string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key);
+
+            if (umm != null)
+            {
+                return umm.LastMark.Location;
+            }
+
+            return 0;
+        }
+
+        public static int GetLastNpvrPosition(string NpvrID, int userID)
+        {
+            string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
             var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key);
 
             if (umm != null)
@@ -2238,17 +2251,6 @@ namespace Tvinci.Core.DAL
             }
 
             return success;
-        }
-
-        public static int GetLastPosition(string NpvrID, int userID)
-        {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
-            var data = cbManager.Get<string>(key);
-            if (data == null)
-                return 0;
-            var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
-            return umm.LastMark.Location;
         }
         
         public static void Get_IPCountryCode(long ipVal, ref int countryID)
