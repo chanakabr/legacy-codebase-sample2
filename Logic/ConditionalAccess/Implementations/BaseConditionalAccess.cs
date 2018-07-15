@@ -10699,7 +10699,7 @@ namespace Core.ConditionalAccess
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetMediaRuleIds = null;
                     List<long> assetEpgRuleIds = null;
-                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, nMediaID, ip, ref mediaConcurrencyRuleIds, 
+                    mediaConcurrencyResponse = CheckMediaConcurrency(userId, udid, prices, nMediaID, ref mediaConcurrencyRuleIds, 
                                                                      ref domainID, ref assetMediaRuleIds, ref assetEpgRuleIds, ref programId);
 
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
@@ -10872,8 +10872,8 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal DomainResponseStatus CheckMediaConcurrency(string userId, Int32 mediaFileId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
-                                                            string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetMediaRuleIds, 
+        internal DomainResponseStatus CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
+                                                            ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetMediaRuleIds, 
                                                             ref List<long> assetEpgRuleIds, ref long programId)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
@@ -10983,7 +10983,6 @@ namespace Core.ConditionalAccess
                 StringBuilder sb = new StringBuilder("Exception at CheckMediaConcurrency. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" SiteGuid: ", userId));
-                sb.Append(String.Concat(" MF ID: ", mediaFileId));
                 sb.Append(String.Concat(" Device: ", udid));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
@@ -16091,7 +16090,7 @@ namespace Core.ConditionalAccess
                     List<long> assetEpgRuleIds = null;
                     int householdId = (int)domainId;
                     long programId = recording.EpgId;
-                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref mediaConcurrencyRuleIds, 
+                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, ref mediaConcurrencyRuleIds, 
                                                                                           ref householdId, ref assetMediaRuleIds, ref assetEpgRuleIds, ref programId);
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
