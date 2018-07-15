@@ -22,7 +22,7 @@ namespace RemoteTasksService
 
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
 
-            ApplicationConfiguration.Initialize(true);
+            ApplicationConfiguration.Initialize(true, true);
             
             WebAPI.Filters.AutoMapperConfig.RegisterMappings();
             WebAPI.Filters.EventNotificationsConfig.SubscribeConsumers();
