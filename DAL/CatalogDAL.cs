@@ -570,39 +570,6 @@ namespace Tvinci.Core.DAL
             spInsertNewPlayerError.ExecuteNonQuery();
         }
         
-        private static bool UpdateDomainConcurrency(string udid, CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
-        {
-            ulong version;
-            var domainMediaMarkData = couchbase.GetWithVersion<string>(documentKey, out version);
-
-            DomainMediaMark domainMediaMark = new DomainMediaMark();
-
-            //Create new if doesn't exist
-            if (domainMediaMarkData == null)
-            {
-                domainMediaMark.devices = new List<UserMediaMark>();
-                domainMediaMark.devices.Add(userMediaMark);
-            }
-            else
-            {
-                domainMediaMark = JsonConvert.DeserializeObject<DomainMediaMark>(domainMediaMarkData);
-
-                // Get the current device's media mark, if it exists
-                UserMediaMark existdev = domainMediaMark.devices.FirstOrDefault(x => x.UDID == udid);
-
-                // If it exists, replace it
-                if (existdev != null)
-                {
-                    domainMediaMark.devices.Remove(existdev);
-                }
-
-                domainMediaMark.devices.Add(userMediaMark);
-            }
-            
-            bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
-            return res;
-        }
-        
         public static DataTable Get_GroupByChannel(int channelID)
         {
             ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_GroupByChannel");
@@ -655,8 +622,7 @@ namespace Tvinci.Core.DAL
 
             return returnedDataTable;
         }
-
-
+        
         public static DataSet GetChannelDetails(List<int> nChannelId, bool alsoInactive = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
@@ -2115,7 +2081,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
         {
-            string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID);
+            string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.AssetID.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -2174,7 +2140,7 @@ namespace Tvinci.Core.DAL
                 }
             }
         }
-
+        
         private static bool UpdateOrInsertUsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid, ref int limitRetries, Random r,
                                                               string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
