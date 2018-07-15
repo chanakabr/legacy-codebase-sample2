@@ -10700,7 +10700,7 @@ namespace Core.ConditionalAccess
                     List<long> assetMediaRuleIds = null;
                     List<long> assetEpgRuleIds = null;
                     mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, nMediaID, ip, ref mediaConcurrencyRuleIds, 
-                                                                     ref domainID, ref assetMediaRuleIds, ref assetEpgRuleIds, programId);
+                                                                     ref domainID, ref assetMediaRuleIds, ref assetEpgRuleIds, ref programId);
 
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
@@ -10874,7 +10874,7 @@ namespace Core.ConditionalAccess
 
         internal DomainResponseStatus CheckMediaConcurrency(string userId, Int32 mediaFileId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
                                                             string ip, ref List<int> mediaConcurrencyRuleIds, ref int domainId, ref List<long> assetMediaRuleIds, 
-                                                            ref List<long> assetEpgRuleIds, long programId)
+                                                            ref List<long> assetEpgRuleIds, ref long programId)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
             mediaConcurrencyRuleIds = new List<int>();
@@ -16090,8 +16090,9 @@ namespace Core.ConditionalAccess
                     List<long> assetMediaRuleIds = null;
                     List<long> assetEpgRuleIds = null;
                     int householdId = (int)domainId;
+                    long programId = recording.EpgId;
                     DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref mediaConcurrencyRuleIds, 
-                                                                                          ref householdId, ref assetMediaRuleIds, ref assetEpgRuleIds, recording.EpgId);
+                                                                                          ref householdId, ref assetMediaRuleIds, ref assetEpgRuleIds, ref programId);
                     if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));
