@@ -940,7 +940,6 @@ namespace WebAPI.Filters
 
                     else if (methodArg.IsList) // list
                     {
-                        object res = null;
                         if (typeof(JArray).IsAssignableFrom(reqParams[name].GetType()))
                         {
                             value = KalturaOTTObject.buildList(methodArg.GenericType, (JArray)reqParams[name]);
@@ -962,7 +961,6 @@ namespace WebAPI.Filters
                         {
                             param = (Dictionary<string, object>)reqParams[name];
                         }
-
                         value = KalturaOTTObject.buildDictionary(methodArg.Type, param);
                     }
 
