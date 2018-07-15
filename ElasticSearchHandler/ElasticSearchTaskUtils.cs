@@ -234,7 +234,15 @@ namespace ElasticSearchHandler
                         string nullValue;
                         eESFieldType metaType;
                         serializer.GetMetaType(topic.Type, out metaType, out nullValue);
-                        metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+
+                        if (!metas.ContainsKey(topic.SystemName))
+                        {
+                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -245,51 +253,75 @@ namespace ElasticSearchHandler
             }
             else if (group != null)
             {
-                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                try
                 {
-                    foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
                     {
-                        if (!tags.Contains(item))
+                        foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
                         {
-                            tags.Add(item);
+                            if (!tags.Contains(item))
+                            {
+                                tags.Add(item);
+                            }
                         }
                     }
-                }
 
-                if (group.m_oGroupTags != null)
-                {
-                    foreach (var item in group.m_oGroupTags.Values)
+                    if (group.m_oGroupTags != null)
                     {
-                        if (!tags.Contains(item))
+                        foreach (var item in group.m_oGroupTags.Values)
                         {
-                            tags.Add(item);
+                            if (!tags.Contains(item))
+                            {
+                                tags.Add(item);
+                            }
                         }
                     }
-                }
 
-                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
-                {
-                    foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
                     {
-                        string nullValue;
-                        eESFieldType metaType;
-                        serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-                        metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                    }
-                }
-
-                if (group.m_oMetasValuesByGroupId != null)
-                {
-                    foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
-                    {
-                        foreach (KeyValuePair<string, string> meta in metaMap)
+                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
                         {
                             string nullValue;
                             eESFieldType metaType;
-                            serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                            metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                            metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+
+                            if (!metas.ContainsKey(epgMeta))
+                            {
+                                metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
+                            }
                         }
                     }
+
+                    if (group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue;
+                                eESFieldType metaType;
+                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+
+                                if (!metas.ContainsKey(meta.Value))
+                                {
+                                    metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed get metas and tags for mapping for group {0} ex = {1}", groupId, ex);
                 }
             }
 
