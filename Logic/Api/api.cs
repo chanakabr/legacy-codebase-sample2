@@ -4430,12 +4430,11 @@ namespace Core.Api
         /// This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
         /// </summary>
         /// <param name="mediaId"></param>
-        /// <param name="ip"></param>
         /// <param name="groupId"></param>
         /// <param name="bmID"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string ip, int groupId, int bmID = -1, eBusinessModule? type = null)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, int groupId, int bmID, eBusinessModule type)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
             
@@ -4469,9 +4468,8 @@ namespace Core.Api
 
                 if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res.AddRange(groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
-                                                                       (bmID == -1 || x.bmId == bmID) &&
-                                                                       (type == null || x.Type == type.Value)));
+                    res.AddRange(groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) && x.Type == type &&
+                                                                       (bmID == -1 || x.bmId == bmID)));
                 }
 
                 return res;

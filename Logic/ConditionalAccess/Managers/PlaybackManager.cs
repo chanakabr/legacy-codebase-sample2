@@ -200,9 +200,9 @@ namespace Core.ConditionalAccess
                         if (context != PlayContextType.Download)
                         {
                             int domainID = 0;
-                            DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId),
-                                                                                                      ip, ref mediaConcurrencyRuleIds, ref domainID, ref assetMediaRuleIds, 
-                                                                                                      ref assetEpgRuleIds, programId);
+                            DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId),
+                                                                                                      ref mediaConcurrencyRuleIds, ref domainID, ref assetMediaRuleIds, 
+                                                                                                      ref assetEpgRuleIds, ref programId);
                             if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                             {
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);

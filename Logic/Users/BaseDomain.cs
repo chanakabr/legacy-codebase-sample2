@@ -777,7 +777,8 @@ namespace Core.Users
                     {
                         response.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
                         return response;
-                    }                }
+                    }
+                }
 
                 switch (validationType)
                 {
@@ -1151,7 +1152,6 @@ namespace Core.Users
         /// <param name="domain"></param>
         /// <param name="deviceFamilyId"></param>
         /// <returns></returns>
-        // TODO SHIR  -TALK WITH IRA ABOUT THIS METHOD!!!! NOT COOL!
         protected bool IsDevicePlayValid(string udid, Domain domain, out int deviceFamilyId)
         {
             bool isDeviceRecognized = false;
@@ -1161,81 +1161,37 @@ namespace Core.Users
             {
                 if (domain != null)
                 {
-                    //if (domain.m_deviceFamilies != null)
-                    //{
-                    //    foreach (var item in domain.m_deviceFamilies)
-                    //    {
-
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    isDeviceRecognized = true;
-                    //}
-                    //---
-                    List<DeviceContainer> deviceContainers = domain.m_deviceFamilies;
-                    if (deviceContainers != null && deviceContainers.Count > 0)
+                    if (domain.m_deviceFamilies != null && domain.m_deviceFamilies.Count > 0)
                     {
-                        List<int> familyIDs = new List<int>();
-                        for (int i = 0; i < deviceContainers.Count; i++)
+                        HashSet<int> familyIDs = new HashSet<int>();
+                        foreach (DeviceContainer currContainer in domain.m_deviceFamilies)
                         {
-                            DeviceContainer container = deviceContainers[i];
-
-                            if (container != null)
+                            if (!familyIDs.Contains(currContainer.m_deviceFamilyID))
                             {
-                                if (!familyIDs.Contains(container.m_deviceFamilyID))
-                                {
-                                    familyIDs.Add(container.m_deviceFamilyID);
-                                }
+                                familyIDs.Add(currContainer.m_deviceFamilyID);
+                            }
 
-                                if (container.DeviceInstances != null && container.DeviceInstances.Count > 0)
+                            if (currContainer.DeviceInstances != null && currContainer.DeviceInstances.Count > 0)
+                            {
+                                Device currDevice = currContainer.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID.Trim().Equals(udid.Trim()));
+                                if (currDevice != null)
                                 {
-                                    for (int j = 0; j < container.DeviceInstances.Count; j++)
-                                    {
-                                        Device device = container.DeviceInstances[j];
-                                        if (string.Compare(device.m_deviceUDID.Trim(), udid.Trim()) == 0)
-                                        {
-                                            isDeviceRecognized = true;
-                                            deviceFamilyId = device.m_deviceFamilyID;
-                                            break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    familyIDs.Add(container.m_deviceFamilyID);
-                                }
-
-                                if (container.DeviceInstances != null && container.DeviceInstances.Count() > 0)
-                                {
-                                    for (int j = 0; j < container.DeviceInstances.Count(); j++)
-                                    {
-                                        Device device = container.DeviceInstances[j];
-                                        if (string.Compare(device.m_deviceUDID.Trim(), udid.Trim()) == 0)
-                                        {
-                                            isDeviceRecognized = true;
-                                            deviceFamilyId = device.m_deviceFamilyID;
-                                            break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    //Patch!!
-                                    if (container.m_deviceFamilyID == 5 && (string.IsNullOrEmpty(udid) || udid.ToLower().Equals("web site")))
-                                    {
-                                        isDeviceRecognized = true;
-                                        deviceFamilyId = container.m_deviceFamilyID;
-                                    }
-                                }
-                                if (isDeviceRecognized)
-                                {
+                                    isDeviceRecognized = true;
+                                    deviceFamilyId = currDevice.m_deviceFamilyID;
                                     break;
                                 }
                             }
+                            //Patch!!
+                            else if (currContainer.m_deviceFamilyID == 5 && (string.IsNullOrEmpty(udid) || udid.ToLower().Equals("web site")))
+                            {
+                                isDeviceRecognized = true;
+                                deviceFamilyId = currContainer.m_deviceFamilyID;
+                                break;
+                            }
                         }
 
-                        if (!familyIDs.Contains(5) && string.IsNullOrEmpty(udid) || (familyIDs.Contains(5) && familyIDs.Count == 0) || (!familyIDs.Contains(5) && udid.ToLower().Equals("web site")))
+                        if ((!familyIDs.Contains(5) && string.IsNullOrEmpty(udid)) || 
+                            (!familyIDs.Contains(5) && udid.ToLower().Equals("web site")))
                         {
                             isDeviceRecognized = true;
                             deviceFamilyId = 5;

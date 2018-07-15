@@ -801,9 +801,9 @@ namespace Core.Api
             return Core.Api.api.GetProgramDetails(nProgramId, groupId);
         }
 
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int groupId, int nMediaID, string sIP, int bmID, eBusinessModule eType)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int groupId, int nMediaID, int bmID, eBusinessModule eType)
         {
-            return Core.Api.api.GetMediaConcurrencyRules(nMediaID, sIP, groupId, bmID, eType);
+            return Core.Api.api.GetMediaConcurrencyRules(nMediaID, groupId, bmID, eType);
         }
 
         public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy)

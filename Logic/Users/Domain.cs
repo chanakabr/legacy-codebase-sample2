@@ -1988,60 +1988,6 @@ namespace Core.Users
             return res;
         }
 
-        // TODO SHIR - TALK WITH IRA
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="udid"></param>
-        ///// <param name="totalConcurrentStreamsWithoutGivenDevice"></param>
-        ///// <returns>Dictionary with key: deviceFamilyId, value: amount of devices</returns>
-        //public Dictionary<int, int> GetConcurrentCount(string udid, ref int totalConcurrentStreamsWithoutGivenDevice, int deviceFamilyId)
-        //{
-        //    MapUdidToDeviceFamilyId(udid, deviceFamilyId);
-        //    Dictionary<int, int> concurrentCount = null;
-        //    List<DevicePlayData> devicePlayDataList =
-        //            CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
-        //                                             new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG }, 
-        //                                             Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
-
-        //    if (devicePlayDataList != null)
-        //    {
-        //        concurrentCount = new Dictionary<int, int>();
-
-        //        totalConcurrentStreamsWithoutGivenDevice = devicePlayDataList.Count;
-
-        //        foreach (DevicePlayData devicePlayData in devicePlayDataList)
-        //        {
-        //            MapUdidToDeviceFamilyId(devicePlayData.UDID, devicePlayData.DeviceFamilyId);
-
-        //            if (devicePlayData.DeviceFamilyId > 0)
-        //            {
-        //                if (!IsAgnosticToDeviceLimitation(ValidationType.Concurrency, devicePlayData.DeviceFamilyId))
-        //                {
-        //                    // we have device family id and its not agnostic to limitation. increment its value in the result dictionary.
-        //                    if (concurrentCount.ContainsKey(devicePlayData.DeviceFamilyId))
-        //                    {
-        //                        // increment by one
-        //                        concurrentCount[devicePlayData.DeviceFamilyId]++;
-        //                    }
-        //                    else
-        //                    {
-        //                        // add the device family id to dictionary
-        //                        concurrentCount.Add(devicePlayData.DeviceFamilyId, 1);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    // agnostic to device limitation, decrement total streams count by one.
-        //                    totalConcurrentStreamsWithoutGivenDevice--;
-        //                }
-        //            }
-        //        } // end foreach
-        //    }
-
-        //    return concurrentCount;
-        //}
-
         public List<DevicePlayData> GetConcurrentCount(string udid, ref int concurrentDeviceFamilyIdCount, int deviceFamilyId)
         {
             MapUdidToDeviceFamilyId(udid, deviceFamilyId);
