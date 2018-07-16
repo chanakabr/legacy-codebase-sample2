@@ -721,7 +721,7 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable AddExternalRecording(int groupId, Recording recording, DateTime viewableUntilDate, long domainId, long userId)
+        public static DataTable AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, long domainId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddExternalRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
