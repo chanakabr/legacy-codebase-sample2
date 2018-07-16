@@ -13894,7 +13894,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+        public RecordingResponse SearchDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
             string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
@@ -13942,7 +13942,7 @@ namespace Core.ConditionalAccess
                 // filter domain externalRecordingIds if exist
                 if (shouldFilterByExternalRecordingIds)
                 {
-                    DomainRecordingIdToRecordingMap.Where(x => externalRecordingIds.Contains(x.Value.ExternalDomainRecordingId)).ToDictionary(x => x.Key, x => x.Value);
+                    DomainRecordingIdToRecordingMap = DomainRecordingIdToRecordingMap.Where(x => x.Value.isExternalRecording && externalRecordingIds.Contains((x.Value as ExternalRecording).ExternalDomainRecordingId)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
@@ -16701,9 +16701,9 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal GenericResponse<Recording> AddExternalRecording(int groupId, Recording recording, long userId)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording externalRecording, long userId)
         {
-            GenericResponse<Recording> response = new GenericResponse<Recording>();
+            GenericResponse<ExternalRecording> response = new GenericResponse<ExternalRecording>();
             try
             {
                 Domain domain = null;
@@ -16717,11 +16717,11 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
+                List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { externalRecording.EpgId } });
                 if (epgs == null || epgs.Count != 1)
                 {
-                    log.DebugFormat("Failed Getting EPGs from Catalog when calling AddExternalRecording, DomainId: {0}, UserId: {1}, epgId: {2}", domainId, userId, recording.EpgId);
-                    response.SetStatus((int)eResponseStatus.Error, string.Format("Could not find EPG with the specified epgId: {0}", recording.EpgId));
+                    log.DebugFormat("Failed Getting EPGs from Catalog when calling AddExternalRecording, DomainId: {0}, UserId: {1}, epgId: {2}", domainId, userId, externalRecording.EpgId);
+                    response.SetStatus((int)eResponseStatus.Error, string.Format("Could not find EPG with the specified epgId: {0}", externalRecording.EpgId));
                     return response;
                 }
 
@@ -16729,28 +16729,28 @@ namespace Core.ConditionalAccess
                 if (DateTime.TryParseExact(epgs[0].START_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
                     && DateTime.TryParseExact(epgs[0].END_DATE, Core.ConditionalAccess.Utils.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
                 {
-                    recording.Crid = epgs[0].CRID;
-                    recording.EpgStartDate = epgStartDate;
-                    recording.EpgEndDate = epgEndDate;
-                    recording.ExternalRecordingId = Guid.NewGuid().ToString();
+                    externalRecording.Crid = epgs[0].CRID;
+                    externalRecording.EpgStartDate = epgStartDate;
+                    externalRecording.EpgEndDate = epgEndDate;
+                    externalRecording.ExternalRecordingId = Guid.NewGuid().ToString();
                     long channelId;
                     if (long.TryParse(epgs[0].EPG_CHANNEL_ID, out channelId))
                     {
-                        recording.ChannelId = channelId;
+                        externalRecording.ChannelId = channelId;
                     }
 
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
-                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
-                    response = RecordingsManager.Instance.AddExternalRecording(groupId, recording, viewableUntilDate, domainId, userId);
+                    externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, domainId, userId);
                 }
                 else
                 {                    
-                    log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for EpgId: {0}", recording.EpgId);
+                    log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for EpgId: {0}", externalRecording.EpgId);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddExternalRecording for EpgId: {0}, ExternalRecordingId: {1} and userId: {2}", recording.EpgId, recording.ExternalRecordingId, userId), ex);
+                log.Error(string.Format("Failed AddExternalRecording for EpgId: {0}, ExternalRecordingId: {1} and userId: {2}", externalRecording.EpgId, externalRecording.ExternalRecordingId, userId), ex);
             }
 
             return response;

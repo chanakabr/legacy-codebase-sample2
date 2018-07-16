@@ -2529,7 +2529,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, externalRecordingIds);
+                return t.SearchDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, externalRecordingIds);
             }
             else
             {
@@ -3324,11 +3324,11 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static GenericResponse<ApiObjects.TimeShiftedTv.Recording> AddExternalRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, long userId)
+        public static GenericResponse<ApiObjects.TimeShiftedTv.ExternalRecording> AddExternalRecording(int groupId, ApiObjects.TimeShiftedTv.ExternalRecording recording, long userId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            GenericResponse<ApiObjects.TimeShiftedTv.Recording> externalRecordingResponse = t.AddExternalRecording(groupId, recording, userId);
+            GenericResponse<ApiObjects.TimeShiftedTv.ExternalRecording> externalRecordingResponse = t.AddExternalRecording(groupId, recording, userId);
 
             return externalRecordingResponse;
         }

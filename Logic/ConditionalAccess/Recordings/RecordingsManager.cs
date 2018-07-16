@@ -754,23 +754,36 @@ namespace Core.Recordings
             }
         }
 
-        internal GenericResponse<Recording> AddExternalRecording(int groupId, Recording recording, DateTime viewableUntilDate, long domainId, long userId)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, long domainId, long userId)
         {
-            GenericResponse<Recording> result = new GenericResponse<Recording>();
+            GenericResponse<ExternalRecording> result = new GenericResponse<ExternalRecording>();
             try
             {
                 System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, domainId, userId);
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    Recording externalRecording = ConditionalAccess.Utils.BuildDomainRecordingFromDataRow(dt.Rows[0]);
-                    if (externalRecording != null && externalRecording.Status != null && externalRecording.Status.Code == (int)eResponseStatus.OK)
-                    {
-                        result.Object = externalRecording;
+                    long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "DOMAIN_RECORDING_ID");
+                    string externalDomainRecordingId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "EXTERNAL_DOMAIN_RECORDING_ID");
+                    if (domainRecordingId > 0 && !string.IsNullOrEmpty(externalDomainRecordingId))
+                    {                        
+                        bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
+                        Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId);
+                        if (domainRecording.Status.Code != (int)eResponseStatus.OK)
+                        {
+                            log.DebugFormat("Recording is not valid for AddExternalRecording, recordID: {0}, DomainID: {1}, UserID: {2}", domainRecordingId, domainId, userId);
+                            result.SetStatus(domainRecording.Status.Code, domainRecording.Status.Message);
+                            return result;
+                        }
+
+                        if (isNew)
+                        {
+                            UpdateCouchbase(groupId, domainRecording.EpgId, domainRecording.Id);
+                            UpdateIndex(groupId, domainRecording.Id, eAction.Update);
+                        }
+
+                        domainRecording.Id = domainRecordingId;
+                        result.Object = new ExternalRecording(domainRecording, externalDomainRecordingId);
                         result.SetStatus((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-                    else
-                    {
-                        result.SetStatus(externalRecording.Status.Code, externalRecording.Status.Message);
                     }
                 }
             }

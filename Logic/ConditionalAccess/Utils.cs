@@ -4671,7 +4671,8 @@ namespace Core.ConditionalAccess
                         {
                             if (recordingIdToDomainRecording.ContainsKey(searchRecordingID))
                             {
-                                Recording recording = recordingIdToDomainRecording[searchRecordingID];
+                                Recording recording = recordingIdToDomainRecording[searchRecordingID].isExternalRecording ? 
+                                                      recordingIdToDomainRecording[searchRecordingID] as ExternalRecording : recordingIdToDomainRecording[searchRecordingID];
                                 recordings.Add(recording);
                             }
                         }
@@ -5401,26 +5402,48 @@ namespace Core.ConditionalAccess
                         recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
                     }
                 }
-                // create recording object
-                recording = new Recording()
-                {
-                    Id = recordingID,
-                    EpgId = epgId,
-                    ChannelId = epgChannelId,
-                    EpgStartDate = epgStartDate,
-                    EpgEndDate = epgEndDate,
-                    CreateDate = createDate,
-                    UpdateDate = updateDate,
-                    RecordingStatus = recordingStatus.Value,
-                    ExternalRecordingId = externalRecordingId,
-                    ExternalDomainRecordingId = domainExternalRecordingId,
-                    Crid = crid,
-                    Type = recordingType,
 
-                };
+                if (string.IsNullOrEmpty(domainExternalRecordingId))
+                {
+                    // create recording object
+                    recording = new Recording()
+                    {
+                        Id = recordingID,
+                        EpgId = epgId,
+                        ChannelId = epgChannelId,
+                        EpgStartDate = epgStartDate,
+                        EpgEndDate = epgEndDate,
+                        CreateDate = createDate,
+                        UpdateDate = updateDate,
+                        RecordingStatus = recordingStatus.Value,
+                        ExternalRecordingId = externalRecordingId,
+                        Crid = crid,
+                        Type = recordingType,
+
+                    };
+                }
+                else
+                {
+                    // create external recording object
+                    recording = new ExternalRecording()
+                    {
+                        Id = recordingID,
+                        EpgId = epgId,
+                        ChannelId = epgChannelId,
+                        EpgStartDate = epgStartDate,
+                        EpgEndDate = epgEndDate,
+                        CreateDate = createDate,
+                        UpdateDate = updateDate,
+                        RecordingStatus = recordingStatus.Value,
+                        ExternalRecordingId = externalRecordingId,
+                        Crid = crid,
+                        Type = recordingType,
+                        ExternalDomainRecordingId = domainExternalRecordingId
+                    };
+                }
 
                 // if recording status is Recorded then set ViewableUntilDate
-                if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
+                    if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
                 {
                     recording.ViewableUntilDate = viewableUntilEpoch;
 
