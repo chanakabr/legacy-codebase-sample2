@@ -721,7 +721,7 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, long domainId, long userId)
+        public static DataTable AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddExternalRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
@@ -739,6 +739,8 @@ namespace DAL
             sp.AddParameter("@ViewableUntilDate", viewableUntilDate);
             sp.AddParameter("@ViewableUntilEpoch", recording.ViewableUntilDate);
             sp.AddParameter("@Crid", recording.Crid);
+            sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
+            sp.AddParameter("@ProtectedUntilEpoch", recording.ProtectedUntilDate.HasValue ? recording.ProtectedUntilDate.Value : 0);
 
             return sp.Execute();
         }
