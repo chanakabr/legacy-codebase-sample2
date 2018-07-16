@@ -311,10 +311,6 @@ namespace ElasticSearchHandler
                                 {
                                     metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                                 }
-                                else
-                                {
-                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
-                                }
                             }
                         }
                     }
