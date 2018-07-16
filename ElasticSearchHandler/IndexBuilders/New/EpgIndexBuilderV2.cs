@@ -466,7 +466,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         string serializedEpg = SerializeEPGObject(epg, suffix);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
-                        string ttl = string.Format("{0}h", Math.Ceiling((epg.SearchEndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalHours));
+                        string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
 
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
