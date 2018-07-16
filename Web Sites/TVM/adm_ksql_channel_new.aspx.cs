@@ -12,9 +12,12 @@ using TVinciShared;
 using TvinciImporter;
 using System.Collections.Generic;
 using DAL;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_ksql_channel_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -33,11 +36,16 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
             Response.Expires = -1;
             return;
         }
+
         if (!IsPostBack)
         {
+            bool validExpression = true;
+
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 var form = HttpContext.Current.Request.Form;
+
+                Session["filter_expression"] = "";
 
                 // the filter expression is the 9th input field
                 string filterExpression = form["8_val"];
@@ -67,8 +75,6 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
                     }
                 }
 
-                bool validExpression = true;
-
                 if (!string.IsNullOrEmpty(filterExpression))
                 {
                     ApiObjects.SearchObjects.BooleanPhraseNode filterTree = null;
@@ -76,11 +82,14 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
                     if (status == null || status.Code != 0)
                     {
-                        Session["error_msg"] = string.Format("Invalid KSQL filter: {0}", status.Message);
+                        string errorMsg = status != null && !string.IsNullOrEmpty(status.Message) ? ": " + status.Message : "";
+                        log.DebugFormat("Invalid ksql: {0}, error: {1}", filterExpression, errorMsg);
+                        Session["error_msg"] = string.Format("Invalid KSQL filter {0}", errorMsg);
                         validExpression = false;
+                        Session["filter_expression"] = filterExpression;
                     }
                 }
-                
+
                 // Save only if expression is valid (or empty)
                 if (validExpression)
                 {
@@ -127,7 +136,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
             {
                 Session["channel_id"] = int.Parse(Request.QueryString["channel_id"].ToString());
             }
-            else
+            else if (validExpression)
             {
                 Session["channel_id"] = 0;
             }
@@ -463,10 +472,13 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
+        bool errorMode = false;
+        if (Session["filter_expression"] != null && !string.IsNullOrEmpty(Session["filter_expression"].ToString()))
         {
-            Session["error_msg"] = "";
-            return Session["last_page_html"].ToString();
+            log.DebugFormat("invalid KSQL : ", Session["filter_expression"].ToString());
+            errorMode = true;
+            //Session["error_msg"] = "";
+            //return Session["last_page_html"].ToString();
         }
 
         object channelId = null;
@@ -476,7 +488,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
             channelId = Session["channel_id"];
         }
 
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels", "adm_table_pager", 
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels", "adm_table_pager",
             "adm_channels.aspx?search_save=1", "", "ID", channelId, "adm_channels.aspx?search_save=1", "channel_id");
 
         DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
@@ -496,7 +508,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_bio);
 
-         if (channelId != null && !string.IsNullOrEmpty(channelId.ToString()))
+        if (channelId != null && !string.IsNullOrEmpty(channelId.ToString()))
         {
             bool isDownloadPicWithImageServer = false;
             string imageUrl = string.Empty;
@@ -508,7 +520,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
                 int groupId = LoginManager.GetLoginGroupID();
                 imageUrl = GetPicImageUrlByRatio(channelId, groupId, out picId);
             }
-            
+
             DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField("channel", isDownloadPicWithImageServer, imageUrl, picId);
             dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
             dr_logo_Pic.SetDefault(0);
@@ -531,9 +543,13 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_edit_data.Initialize("Editor remarks", "adm_table_header_nbg", "FormInput", "EDITOR_REMARKS", false);
         theRecord.AddRecord(dr_edit_data);
 
-
         DataRecordLongTextField dr_filter = new DataRecordLongTextField("ltr", true, 60, 20, true);
         dr_filter.Initialize("KSQL Expression", "adm_table_header_nbg", "FormInput", "KSQL_FILTER", false);
+        if (errorMode)
+        {
+            dr_filter.SetValue(Session["filter_expression"].ToString());
+            Session["filter_expression"] = "";
+        }
         theRecord.AddRecord(dr_filter);
 
         DataRecordShortTextField dr_groupBy = new DataRecordShortTextField("ltr", true, 60, 20, true);
@@ -543,7 +559,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
         dr_channel_type.Initialize("Channel type", "adm_table_header_nbg", "FormInput", "CHANNEL_TYPE", false);
         dr_channel_type.SetValue("4");
-        
+
         theRecord.AddRecord(dr_channel_type);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
@@ -704,7 +720,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
     {
         Int32 result = 0;
         DataTable dt = TvmDAL.GetChannelMediaType(groupID, channelID, mediaTypeID);
-        
+
         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
         {
             DataRow dr = dt.Rows[0];
