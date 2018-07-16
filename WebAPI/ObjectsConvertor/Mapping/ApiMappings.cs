@@ -616,6 +616,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             Countries = kAssetCondition.getCountries()
                         };
                     }
+                    else if (condition is KalturaIpRangeCondition)
+                    {
+                        KalturaIpRangeCondition kAssetCondition = condition as KalturaIpRangeCondition;
+                        item = new IpRangeCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            FromIp = kAssetCondition.FromIP,
+                            ToIp = kAssetCondition.ToIP                            
+                        };
+                    }
                     else
                     {
                         continue;
@@ -682,6 +692,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                     Ksql = concurrencyCondition.Ksql,
                                     Limit = concurrencyCondition.Limit,
                                     ConcurrencyLimitationType = ConvertConcurrencyType(concurrencyCondition.RestrictionPolicy)
+                                };
+                            }
+                            break;
+                        case AssetRuleConditionType.IP_RANGE:
+                            {
+                                IpRangeCondition kCondition = condition as IpRangeCondition;
+                                item = new KalturaIpRangeCondition()
+                                {
+                                    Description = kCondition.Description,                                    
+                                    FromIP = kCondition.FromIp,
+                                    ToIP = kCondition.ToIp
                                 };
                             }
                             break;
@@ -2081,6 +2102,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return AssetRuleConditionType.Concurrency;
                 case KalturaRuleConditionType.COUNTRY:
                     return AssetRuleConditionType.Country;
+                case KalturaRuleConditionType.IP_RANGE:
+                    return AssetRuleConditionType.IP_RANGE;
                 default:
                     throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
             }
