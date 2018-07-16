@@ -58,4 +58,25 @@ namespace ApiObjects.Rules
             this.Type = AssetRuleConditionType.Concurrency;
         }
     }
+
+    [Serializable]
+    public class IpRangeCondition : AssetCondition
+    {
+        [JsonProperty("fromIp")]
+        public string FromIp { get; set; }
+
+        [JsonProperty("toIp")]
+        public string ToIp { get; set; }
+
+        [JsonProperty("ipFrom")]
+        public long IpFrom { get; set; }
+
+        [JsonProperty("ipTo")]
+        public long IpTo { get; set; }
+
+        public IpRangeCondition()
+        {
+            this.Type = AssetRuleConditionType.IP_RANGE;
+        }
+    }
 }

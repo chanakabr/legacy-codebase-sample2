@@ -72,4 +72,22 @@ namespace ApiObjects.Rules
             this.Type = RuleActionType.UserBlock;
         }
     }
+
+    [Serializable]
+    public class AllowPlaybackAction : AssetRuleAction
+    {
+        public AllowPlaybackAction()
+        {
+            this.Type = RuleActionType.AllowPlayback;
+        }
+    }
+
+    [Serializable]
+    public class BlockPlaybackAction : AssetRuleAction
+    {
+        public BlockPlaybackAction()
+        {
+            this.Type = RuleActionType.BlockPlayback;
+        }
+    }
 }

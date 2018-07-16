@@ -2540,6 +2540,47 @@ namespace Core.Api
                     }
                 }
             }
+
+            // check for geo
+            isBlocked = CheckIpRangeAssetRule(isBlocked, groupId, ip);
+
+            return isBlocked;
+        }
+
+        private static bool CheckIpRangeAssetRule(bool isBlocked, int groupId, string ip)
+        {
+            // check if assetRule exist
+            bool isAssetRuleExist = false;
+            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(AssetRuleConditionType.IP_RANGE, groupId);
+            isAssetRuleExist = assetRulesResponse != null &&
+                assetRulesResponse.Status != null && assetRulesResponse.Status.Code == (int)eResponseStatus.OK &&
+                assetRulesResponse.Objects != null && assetRulesResponse.Objects.Count > 0;
+
+            // if is block check whiteList
+            if (isBlocked && isAssetRuleExist)
+            {
+                var assetRules = assetRulesResponse.Objects.Where(x => x.Actions[0] is AllowPlaybackAction).ToList();
+
+                // convert ip address to long
+                long convertedIp = 0;
+                APILogic.Utils.ConvertIpToInt(ip, ref convertedIp);
+                if (convertedIp > 0)
+                {
+                    foreach (var assetRule in assetRules)
+                    {
+                        //if(assetRule.Conditions)
+                    }
+                }
+
+            }
+
+            //if no clock check black list 
+            if (!isBlocked && isAssetRuleExist)
+            {
+                var assetRules = assetRulesResponse.Objects[0].Actions.Where(x => x is BlockPlaybackAction).Select(x => x as BlockPlaybackAction);
+
+            }
+
             return isBlocked;
         }
 

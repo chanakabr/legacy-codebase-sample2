@@ -1070,14 +1070,17 @@ namespace ApiObjects
         Block,
         StartDateOffset,
         EndDateOffset,
-        UserBlock
+        UserBlock,
+        AllowPlayback,
+        BlockPlayback
     }
 
     public enum AssetRuleConditionType
     {
         Asset,
         Country,
-        Concurrency
+        Concurrency,
+        IP_RANGE
     }
 
     public enum RuleActionTaskType
