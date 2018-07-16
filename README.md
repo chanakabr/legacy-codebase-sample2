@@ -4,7 +4,7 @@
 
 1) Build docker
 	```
-	docker build -t kaltura/phoenix .
+	docker build --build-arg API_VERSION=v5_0_1 -t kaltura/phoenix .
 	```
 2) Run docker
 	```

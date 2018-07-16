@@ -6,6 +6,10 @@ RUN Install-WindowsFeature Web-Asp-Net45
 
 RUN Remove-WebSite -Name 'Default Web Site'
 RUN MkDir WebAPI
+RUN MkDir log\iis
+RUN MkDir log\iisInternal
+RUN MkDir log\api
+RUN MkDir log\RestfulApi
 
 RUN Import-Module WebAdministration; \
 	cd IIS:\AppPools\; \
@@ -16,14 +20,18 @@ RUN New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI' -ApplicationPool
 
 RUN Import-Module WebAdministration; \
 	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.enabled -Value True; \
-	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.directory -Value 'C:\log\iis\^%COMPUTERNAME^%'; \
+	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.directory -Value 'C:\log\iisInternal'; \
 	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.logFormat W3C; \
 	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.period -Value MaxSize
 
 RUN iisReset
 	
-RUN mklink /D C:\log\api\^%COMPUTERNAME^% C:\log\RestfulApi
-
 COPY WebAPI WebAPI
+COPY run.bat .
+
+ARG API_VERSION
+ENV API_VERSION ${API_VERSION}
+
+ENTRYPOINT C:\run.bat
 
 EXPOSE 80
