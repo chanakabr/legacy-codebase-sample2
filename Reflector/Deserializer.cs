@@ -114,6 +114,17 @@ namespace Reflector
                     file.WriteLine("                    }");
                 }
             }
+            else if (typeof(KalturaMultilingualString).IsAssignableFrom(propertyType))
+            {
+                file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JArray)");
+                file.WriteLine("                    {");
+                file.WriteLine("                        " + property.Name + " = new KalturaMultilingualString(((JArray) parameters[\"" + apiName + "\"]));");
+                file.WriteLine("                    }");
+                file.WriteLine("                    else if (parameters[\"" + apiName + "\"] is IList)");
+                file.WriteLine("                    {");
+                file.WriteLine("                        " + property.Name + " = new KalturaMultilingualString((List<object>) parameters[\"" + apiName + "\"]);");
+                file.WriteLine("                    }");
+            }
             else // object
             {
                 file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JObject)");

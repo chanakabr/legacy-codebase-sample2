@@ -5769,13 +5769,13 @@ namespace WebAPI.Models.General
             {
                 if (parameters.ContainsKey("multilingualValue") && parameters["multilingualValue"] != null)
                 {
-                    if (parameters["multilingualValue"] is JObject)
+                    if (parameters["multilingualValue"] is JArray)
                     {
-                        value = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualValue"]).ToObject<Dictionary<string, object>>());
+                        value = new KalturaMultilingualString(((JArray) parameters["multilingualValue"]));
                     }
-                    else if (parameters["multilingualValue"] is IDictionary)
+                    else if (parameters["multilingualValue"] is IList)
                     {
-                        value = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualValue"]);
+                        value = new KalturaMultilingualString((List<object>) parameters["multilingualValue"]);
                     }
                 }
             }
@@ -7578,24 +7578,24 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if (parameters["multilingualDescription"] is JObject)
+                    if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualDescription"]).ToObject<Dictionary<string, object>>());
+                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
                     }
-                    else if (parameters["multilingualDescription"] is IDictionary)
+                    else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualDescription"]);
+                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
@@ -8485,13 +8485,13 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -9233,13 +9233,13 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -9248,13 +9248,13 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if (parameters["multilingualDescription"] is JObject)
+                    if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualDescription"]).ToObject<Dictionary<string, object>>());
+                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
                     }
-                    else if (parameters["multilingualDescription"] is IDictionary)
+                    else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualDescription"]);
+                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
@@ -9459,13 +9459,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute SlidingWindowPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelOrder")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaChannelOrder(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9934,13 +9934,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute RatioIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -9953,13 +9953,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute DefaultImageIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaImageType(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10181,23 +10181,23 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute BufferCatchUpSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLinearMediaAsset")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute BufferTrickPlaySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLinearMediaAsset")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLinearMediaAsset")
         {
@@ -10598,13 +10598,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute CdnAdapaterProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFile")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         public KalturaMediaFile(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11601,11 +11601,11 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute KSqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchAssetFilter")
         {
-            MaxLength = 2048,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = 2048,
             MinLength = -1,
         };
         public KalturaSearchAssetFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -11671,20 +11671,20 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSlimAsset")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSlimAsset")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaSlimAsset(Dictionary<string, object> parameters = null) : base(parameters)
@@ -11732,22 +11732,22 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTag")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTag")
         {
-            MaxLength = -1,
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11773,13 +11773,13 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("multilingualTag") && parameters["multilingualTag"] != null)
                 {
-                    if (parameters["multilingualTag"] is JObject)
+                    if (parameters["multilingualTag"] is JArray)
                     {
-                        Tag = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualTag"]).ToObject<Dictionary<string, object>>());
+                        Tag = new KalturaMultilingualString(((JArray) parameters["multilingualTag"]));
                     }
-                    else if (parameters["multilingualTag"] is IDictionary)
+                    else if (parameters["multilingualTag"] is IList)
                     {
-                        Tag = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualTag"]);
+                        Tag = new KalturaMultilingualString((List<object>) parameters["multilingualTag"]);
                     }
                 }
             }
@@ -11789,13 +11789,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute TypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTagFilter")
         {
-            MaxLength = -1,
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11974,11 +11974,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRuleBase")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaAssetRuleBase(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12102,20 +12102,20 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNAdapterProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNAdapterProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaCDNAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12190,23 +12190,23 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute DefaultAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
-            MaxLength = -1,
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
-            MaxLength = -1,
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12324,11 +12324,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCondition")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12356,12 +12356,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             DynamicMinInt = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaCountryCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12512,20 +12512,20 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaDrmProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12609,11 +12609,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExportTask")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
         };
@@ -12729,11 +12729,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalChannelProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaExternalChannelProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -12989,75 +12989,75 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SystemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DataTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsProtectedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 6,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = 800,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = 800,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaMeta(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13076,13 +13076,13 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
@@ -13172,21 +13172,21 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             DynamicMinInt = 1,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetStructIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            MaxLength = -1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
         };
@@ -13263,11 +13263,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOSSAdapterBaseProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaOSSAdapterBaseProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13295,11 +13295,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOSSAdapterProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaOSSAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13385,65 +13385,65 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute idSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute nameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = 100,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = 100,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute descriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = 1024,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = 1024,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute isDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute OriginSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaParentalRule(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13620,11 +13620,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13659,11 +13659,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionItem")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
@@ -13785,20 +13785,20 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecommendationProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecommendationProfile")
         {
-            MaxLength = -1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            MaxLength = -1,
             MinLength = -1,
         };
         public KalturaRecommendationProfile(Dictionary<string, object> parameters = null) : base(parameters)
@@ -14660,24 +14660,24 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if (parameters["multilingualDescription"] is JObject)
+                    if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualDescription"]).ToObject<Dictionary<string, object>>());
+                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
                     }
-                    else if (parameters["multilingualDescription"] is IDictionary)
+                    else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualDescription"]);
+                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("usageModule") && parameters["usageModule"] != null)
@@ -16289,13 +16289,13 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    if (parameters["multilingualName"] is JObject)
+                    if (parameters["multilingualName"] is JArray)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualName"]).ToObject<Dictionary<string, object>>());
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
                     }
-                    else if (parameters["multilingualName"] is IDictionary)
+                    else if (parameters["multilingualName"] is IList)
                     {
-                        Name = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualName"]);
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
                 if (parameters.ContainsKey("names") && parameters["names"] != null)
@@ -16307,13 +16307,13 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
-                    if (parameters["multilingualDescription"] is JObject)
+                    if (parameters["multilingualDescription"] is JArray)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), ((JObject) parameters["multilingualDescription"]).ToObject<Dictionary<string, object>>());
+                        Description = new KalturaMultilingualString(((JArray) parameters["multilingualDescription"]));
                     }
-                    else if (parameters["multilingualDescription"] is IDictionary)
+                    else if (parameters["multilingualDescription"] is IList)
                     {
-                        Description = (KalturaMultilingualString) Deserializer.deserialize(typeof(KalturaMultilingualString), (Dictionary<string, object>) parameters["multilingualDescription"]);
+                        Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
                     }
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
