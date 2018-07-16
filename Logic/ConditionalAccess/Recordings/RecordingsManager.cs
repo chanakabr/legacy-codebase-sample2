@@ -754,12 +754,12 @@ namespace Core.Recordings
             }
         }
 
-        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, long domainId, long userId)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId)
         {
             GenericResponse<ExternalRecording> result = new GenericResponse<ExternalRecording>();
             try
             {
-                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, domainId, userId);
+                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, protectedUntilDate, domainId, userId);
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
                     long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "DOMAIN_RECORDING_ID");
@@ -793,6 +793,38 @@ namespace Core.Recordings
             }
 
             return result;
+        }
+
+        internal Status DeleteExternalRecording(int groupId, long recordingId, long programId, string externalRecordingId, bool shouldDelete)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, externalRecordingId);
+                bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
+                bool isActionSuccessful = false;
+                if (isLastRecording)
+                {
+                    UpdateIndex(groupId, recordingId, eAction.Delete);
+                    UpdateCouchbase(groupId, programId, recordingId, true);
+                    if (shouldDelete && RecordingsDAL.DeleteRecording(recordingId) || !shouldDelete && RecordingsDAL.CancelRecording(recordingId))
+                    {
+                        isActionSuccessful = true;
+                    }
+                }
+
+                if (!isLastRecording || isActionSuccessful)
+                {
+                    status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteExternalRecording for recordingId: {0}, programId: {1}", recordingId, programId), ex);
+            }
+
+            return status;
         }
 
         #endregion

@@ -13590,8 +13590,11 @@ namespace Core.ConditionalAccess
 
                 if (res)
                 {
-                    if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS)
-                        && QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                    {
+                        recording.Status = RecordingsManager.Instance.DeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, recording.ExternalRecordingId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
+                    }
+                    else if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
                         ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Run(() =>
@@ -13602,9 +13605,11 @@ namespace Core.ConditionalAccess
                                 log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
                             }
                         });
+
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
+
                     recording.RecordingStatus = tstvRecordingStatus;
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
@@ -13894,7 +13899,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SearchDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
             string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
@@ -16701,7 +16706,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording externalRecording, long userId)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording externalRecording, bool isProtected, long userId)
         {
             GenericResponse<ExternalRecording> response = new GenericResponse<ExternalRecording>();
             try
@@ -16741,7 +16746,14 @@ namespace Core.ConditionalAccess
 
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
                     externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
-                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, domainId, userId);
+                    DateTime? protectedUntilDate = null;
+                    if (isProtected)
+                    {
+                        externalRecording.ProtectedUntilDate = externalRecording.ViewableUntilDate;
+                        protectedUntilDate = viewableUntilDate;
+                    }
+
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
                 }
                 else
                 {                    
