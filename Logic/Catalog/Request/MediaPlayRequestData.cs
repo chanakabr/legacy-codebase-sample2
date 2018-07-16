@@ -59,6 +59,8 @@ namespace Core.Catalog.Request
             int userId;
             int.TryParse(this.m_sSiteGuid, out userId);
 
+            string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
+
             // TODO SHIR - CHECK WHAT TODO IF NO DevicePlayData
             // create and save new DevicePlayData if not exist
             if (currDevicePlayData == null && userId > 0)
@@ -74,8 +76,7 @@ namespace Core.Catalog.Request
                 List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
-                string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
-
+               
                 currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 
                                                                          mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
 
@@ -95,7 +96,13 @@ namespace Core.Catalog.Request
                     }
                 }
             }
-            
+
+            // update NpvrId
+            if (string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
+            {
+                currDevicePlayData.NpvrId = npvrId;
+            }
+
             // update program assetEpgRules for linearChannel
             if (currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
             {
@@ -111,7 +118,6 @@ namespace Core.Catalog.Request
                 // save new devicePlayData
                 CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
                 currDevicePlayData = newDevicePlayData;
-
             }
 
             return currDevicePlayData;

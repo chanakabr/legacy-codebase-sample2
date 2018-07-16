@@ -11,7 +11,7 @@ namespace Core.Users
     public class ConcurrencyResponse
     {
         public DomainResponseStatus Status { get; set; }
-        public DevicePlayData ConcurrencyData { get; set; }
+        public DevicePlayData Data { get; set; }
 
         public ConcurrencyResponse()
         {
