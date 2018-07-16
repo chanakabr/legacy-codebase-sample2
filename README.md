@@ -8,5 +8,5 @@
 	```
 2) Run docker
 	```
-	docker run kaltura/phoenix
+	docker run --rm --name phoenix -p 80:80 kaltura/phoenix
 	```
