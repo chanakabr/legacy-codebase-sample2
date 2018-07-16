@@ -52,12 +52,12 @@ namespace WebAPI.Models.Catalog
         public int? Id { get; set; }
 
         /// <summary>
-        /// Device types as defined in the system
+        /// Deprecated - Device types as defined in the system        
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        [Deprecated(OPC_MERGE_VERSION)]
+        [SchemeProperty(ReadOnly = true)]
         public string Type { get; set; }
 
 

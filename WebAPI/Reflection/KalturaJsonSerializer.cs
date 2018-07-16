@@ -10230,7 +10230,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("status", "\"status\": " + Status.ToString().ToLower());
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Type != null)
+            if(Type != null)
             {
                 ret.Add("type", "\"type\": " + "\"" + EscapeJson(Type) + "\"");
             }
@@ -10363,7 +10363,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("status", "<status>" + Status.ToString().ToLower() + "</status>");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Type != null)
+            if(Type != null)
             {
                 ret.Add("type", "<type>" + EscapeXml(Type) + "</type>");
             }
