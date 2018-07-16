@@ -11,6 +11,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -359,8 +360,8 @@ namespace WebAPI.Controllers
         public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             if (string.IsNullOrEmpty(id))
             {
@@ -369,7 +370,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
@@ -383,8 +384,24 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            var mediaRes = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 1,
-                                string.Format("media_id = '{0}'", mediaId), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                            KalturaAssetListResponse mediaRes = null;
+                            bool isOperatorSearch = false;
+                            List<long> userRoles = RolesManager.GetRoleIds(ks);
+                            if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                            {
+                                isOperatorSearch = true;
+                            }
+
+                            if (isOperatorSearch)
+                            {
+                                mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 1,
+                                                                                        new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
+                            }
+                            else
+                            {
+                                mediaRes = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 1,
+                                    string.Format("media_id = '{0}'", mediaId), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                            }
                            
                             // if no response - return not found status 
                             if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
