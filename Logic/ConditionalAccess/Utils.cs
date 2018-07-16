@@ -8412,7 +8412,7 @@ namespace Core.ConditionalAccess
             }
         }
         
-        private static long GetCurrentProgram(int groupId, string epgChannelId)
+        private static long GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
         {
             string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = null;
@@ -8433,12 +8433,18 @@ namespace Core.ConditionalAccess
                 var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow);
                 if (currentProgram != null)
                 {
+                    log.DebugFormat("GetCurrentProgram - found program: {0}", currentProgram.AssetId);
                     return long.Parse(currentProgram.AssetId);
                 }
-
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId));
             }
 
+            if (!isRetry)
+            {
+                log.DebugFormat("GetCurrentProgram - no program found.");
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId));
+                return GetCurrentProgram(groupId, epgChannelId, true);
+            }
+            
             return 0;
         }
 
