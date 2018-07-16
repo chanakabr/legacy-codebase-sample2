@@ -312,10 +312,13 @@ namespace DAL
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
             spGetDomainRecordings.AddIDListParameter<int>("@DomainRecordingStatuses", domainRecordingStatuses, "ID");
-            if (recordingStatuses != null && recordingStatuses.Count > 0)
+            bool hasRecordingStatuses = recordingStatuses != null && recordingStatuses.Count > 0;
+            if (hasRecordingStatuses)
             {
                 spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
             }
+
+            spGetDomainRecordings.AddParameter("@HasRecordingStatuses", hasRecordingStatuses ? 1 : 0);
             dt = spGetDomainRecordings.Execute();
 
             return dt;
