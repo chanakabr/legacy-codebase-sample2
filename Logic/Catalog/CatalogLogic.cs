@@ -4867,7 +4867,7 @@ namespace Core.Catalog
                 if (recording != null && recording.Status != null && recording.Status.Code == 0)
                 {
                     fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                    //
+                    // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
                     recordingId = recording.Id;
 
                     if (shouldCache)

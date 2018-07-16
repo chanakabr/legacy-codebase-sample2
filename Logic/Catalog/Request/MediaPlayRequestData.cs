@@ -97,7 +97,7 @@ namespace Core.Catalog.Request
             }
             
             // update program assetEpgRules for linearChannel
-            if (currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId)
+            if (currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
             {
                 // if not we need to update the devicePlayData with new assetrules according to the new programId
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);

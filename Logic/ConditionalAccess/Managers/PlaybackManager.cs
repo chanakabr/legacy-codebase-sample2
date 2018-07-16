@@ -26,17 +26,13 @@ namespace Core.ConditionalAccess
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
                                                                  List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, 
-                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, out List<int> mediaConcurrencyRuleIds, 
-                                                                 out List<long> assetMediaRuleIds, out List<long> assetEpgRuleIds, UrlType urlType)
+                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
-
-            mediaConcurrencyRuleIds = null;
-            assetMediaRuleIds = null;
-            assetEpgRuleIds = null;
+            
             filePrice = null;
 
             BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
@@ -106,11 +102,12 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                long programId = 0;
-                if (assetType == eAssetTypes.EPG)
-                {
-                    bool parse = long.TryParse(assetId, out programId);
-                }
+                // TODO SHIR - DELETE
+                //long programId = 0;
+                //if (assetType == eAssetTypes.EPG)
+                //{
+                //    bool parse = long.TryParse(assetId, out programId);
+                //}
 
                 MediaObj epgChannelLinearMedia = null;
                 // Recording
@@ -196,18 +193,25 @@ namespace Core.ConditionalAccess
 
                     if (assetFileIdsAds.Count > 0)
                     {
+                        ConcurrencyResponse concurrencyResponse = null;
+
                         // in case of direct Url no need for Concurrency check
                         if (context != PlayContextType.Download)
                         {
-                            int domainID = 0;
-                            DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId),
-                                                                                                      ref mediaConcurrencyRuleIds, ref domainID, ref assetMediaRuleIds, 
-                                                                                                      ref assetEpgRuleIds, ref programId);
-                            if (mediaConcurrencyResponse != DomainResponseStatus.OK)
+                            concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, 0);
+
+                            if (concurrencyResponse.Status != DomainResponseStatus.OK || concurrencyResponse.ConcurrencyData == null)
                             {
-                                response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                                response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
                                 return response;
                             }
+
+                            domainId = concurrencyResponse.ConcurrencyData.DomainId;
+                            response.ConcurrencyData = concurrencyResponse.ConcurrencyData;
+                        }
+                        else
+                        {
+                            concurrencyResponse = new ConcurrencyResponse() { ConcurrencyData = new ApiObjects.MediaMarks.DevicePlayData() };
                         }
 
                         response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
@@ -254,8 +258,10 @@ namespace Core.ConditionalAccess
                                         {
                                             PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
                                                                            string.Empty, domainId, groupId);
-                                            cas.CreateDevicePlayData(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, 
-                                                                                 assetMediaRuleIds, assetEpgRuleIds, programId, ApiObjects.Catalog.eExpirationTTL.Long);
+                                            cas.CreateDevicePlayData(userId, (int)file.Id, ip, udid, (int)mediaId, concurrencyResponse.ConcurrencyData.MediaConcurrencyRuleIds, 
+                                                                     (int)domainId, concurrencyResponse.ConcurrencyData.AssetMediaConcurrencyRuleIds, 
+                                                                     concurrencyResponse.ConcurrencyData.AssetEpgConcurrencyRuleIds, concurrencyResponse.ConcurrencyData.ProgramId, 
+                                                                     ApiObjects.Catalog.eExpirationTTL.Long);
                                         }
                                     }
                                 }
@@ -369,14 +375,10 @@ namespace Core.ConditionalAccess
 
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
-                List<int> mediaConcurrencyRuleIds = null;
-                List<long> assetMediaRuleIds = null;
-                List<long> assetEpgRuleIds = null;
 
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, 
                                                                                      file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, 
-                                                                                     ip, udid, out price, out mediaConcurrencyRuleIds, out assetMediaRuleIds, out assetEpgRuleIds, 
-                                                                                     UrlType.playmanifest);
+                                                                                     ip, udid, out price, UrlType.playmanifest);
 
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -408,11 +410,13 @@ namespace Core.ConditionalAccess
                 if (response.Status.Code == (int)eResponseStatus.OK)
                 {
                     // HandlePlayUses
-                    if (domainId > 0 && Utils.IsItemPurchased(price))
+                    if (domainId > 0 && Utils.IsItemPurchased(price) && playbackContextResponse.ConcurrencyData != null)
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                        cas.CreateDevicePlayData(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId, assetMediaRuleIds, 
-                                                             assetEpgRuleIds, program != null ? program.EPG_ID : 0, ApiObjects.Catalog.eExpirationTTL.Long);
+                        cas.CreateDevicePlayData(userId, (int)file.Id, ip, udid, (int)mediaId, playbackContextResponse.ConcurrencyData.MediaConcurrencyRuleIds,
+                                                playbackContextResponse.ConcurrencyData.DomainId, playbackContextResponse.ConcurrencyData.AssetMediaConcurrencyRuleIds,
+                                                playbackContextResponse.ConcurrencyData.AssetEpgConcurrencyRuleIds, playbackContextResponse.ConcurrencyData.ProgramId, 
+                                                ApiObjects.Catalog.eExpirationTTL.Long);
                     }
                 }
             }
