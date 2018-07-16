@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Models.General
 {
@@ -39,6 +40,20 @@ namespace WebAPI.Models.General
             List<LanguageContainer> tempValuesList = new List<LanguageContainer>(values);
             tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
+        }
+
+        public KalturaMultilingualString(JArray values)
+        {
+            RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+            Values = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), values);
+        }
+
+        public KalturaMultilingualString(List<object> values)
+        {
+            RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+            Values = KalturaOTTObject.buildList(typeof(KalturaTranslationToken), values.ToArray());
         }
 
         public KalturaMultilingualString(string defaultLanguageValue)
