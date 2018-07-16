@@ -1443,8 +1443,23 @@ namespace WebAPI.Clients
             if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
-                // convert recordings            
-                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
+                // convert recordings
+                result.Objects = new List<KalturaRecording>();
+                foreach (Recording recording in response.Recordings)
+                {
+                    KalturaRecording kalturaRecording = null;
+                    if (recording.isExternalRecording)
+                    {
+                        ExternalRecording externalRecording = recording as ExternalRecording;
+                        kalturaRecording = Mapper.Map<KalturaExternalRecording>(externalRecording);
+                    }
+                    else
+                    {
+                        kalturaRecording = Mapper.Map<KalturaRecording>(recording);
+                    }
+
+                    result.Objects.Add(kalturaRecording);
+                }                
             }
 
             return result;
@@ -2457,10 +2472,10 @@ namespace WebAPI.Clients
             return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
         }
 
-        internal KalturaRecording AddExternalRecording(int groupId, KalturaRecording recording, long userId)
+        internal KalturaExternalRecording AddExternalRecording(int groupId, KalturaExternalRecording recording, long userId)
         {
-            Func<Recording, GenericResponse<Recording>> addExternalRecordigFunc = (Recording recordingToAdd) => Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, userId);
-            return ClientUtils.GetResponseFromWS<KalturaRecording, Recording>(recording, addExternalRecordigFunc);
+            Func<ExternalRecording, GenericResponse<ExternalRecording>> addExternalRecordigFunc = (ExternalRecording recordingToAdd) => Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, userId);
+            return ClientUtils.GetResponseFromWS<KalturaExternalRecording, ExternalRecording>(recording, addExternalRecordigFunc);
         }
 
     }

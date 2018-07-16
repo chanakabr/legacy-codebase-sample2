@@ -330,7 +330,16 @@ namespace WebAPI.Clients
                     }
                     else
                     {
-                        KalturaAssetListResponse assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                        KalturaAssetListResponse assetListResponse = null;
+                        if (isAllowedToViewInactiveAssets)
+                        {
+                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                        }
+                        else
+                        {
+                            assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                        }
+                                                
                         if (assetListResponse != null && assetListResponse.TotalCount == 1)
                         {
                             return assetListResponse.Objects[0];

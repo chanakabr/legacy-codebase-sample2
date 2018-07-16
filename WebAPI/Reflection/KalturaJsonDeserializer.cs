@@ -562,6 +562,9 @@ namespace WebAPI.Reflection
                 case "KalturaExternalReceipt":
                     return new KalturaExternalReceipt(parameters);
                     
+                case "KalturaExternalRecording":
+                    return new KalturaExternalRecording(parameters);
+                    
                 case "KalturaFacebookPost":
                     return new KalturaFacebookPost(parameters);
                     
@@ -3091,6 +3094,34 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
+    public partial class KalturaExternalRecording
+    {
+        private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = true,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            MaxLength = 255,
+            MinLength = 1,
+        };
+        public KalturaExternalRecording(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
+                    }
+                    ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaFairPlayPlaybackPluginData
     {
         public KalturaFairPlayPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -3758,15 +3789,6 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
-        {
-            ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
-            RequiresPermission = 6,
-            MaxLength = 255,
-            MinLength = 1,
-        };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
             ReadOnly = true,
@@ -3834,14 +3856,6 @@ namespace WebAPI.Models.ConditionalAccess
                         IsProtectedSchemaProperty.Validate("isProtected", parameters["isProtected"]);
                     }
                     IsProtected = (Boolean) Convert.ChangeType(parameters["isProtected"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
-                    }
-                    ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {

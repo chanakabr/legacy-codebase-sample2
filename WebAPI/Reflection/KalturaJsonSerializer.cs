@@ -1404,6 +1404,32 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaExternalRecording
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaFairPlayPlaybackPluginData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -2193,10 +2219,6 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             ret.Add("assetId", "\"assetId\": " + AssetId);
             ret.Add("createDate", "\"createDate\": " + CreateDate);
-            if(ExternalId != null)
-            {
-                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
-            }
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -2219,10 +2241,6 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
-            if(ExternalId != null)
-            {
-                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
-            }
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
