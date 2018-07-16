@@ -124,9 +124,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
-                Type kalturaRecording = typeof(KalturaRecording);
-                Type kalturaExternalRecording = typeof(KalturaExternalRecording);
-                if (kalturaExternalRecording.IsAssignableFrom(recording.GetType()))
+                if (recording is KalturaExternalRecording)
                 // external recording implementation
                 {
                     KalturaExternalRecording externalRecording = recording as KalturaExternalRecording;
