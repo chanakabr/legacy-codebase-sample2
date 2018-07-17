@@ -28,13 +28,15 @@ namespace WebAPI.Managers.Scheme
                 {
                     current = OldStandardAttribute.GetCurrentVersion();
                 }
+                else
+                {
+                    current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                }
 
                 if (current == null)
                 {
                     return true;
                 }
-
-                current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
             }
 
             Version deprecationVersion = new Version(version);
