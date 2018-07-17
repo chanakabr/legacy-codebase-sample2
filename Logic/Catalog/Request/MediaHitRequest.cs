@@ -111,9 +111,7 @@ namespace Core.Catalog.Request
                     return response;
                 }
             }
-
-            // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-            //long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            
             long recordingId = 0;
             int fileDuration = 0;
             int assetId = 0;
@@ -122,15 +120,6 @@ namespace Core.Catalog.Request
             {
                 assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 NPVR.INPVRProvider npvr;
-
-                // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-                //if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
-                //    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
-                //{
-                //    response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
-                //    response.m_sDescription = "Recording doesn't exist";
-                //    return response;
-                //}
 
                 if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
                     !CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref recordingId, ref fileDuration, this.m_nGroupID, this.domainId))

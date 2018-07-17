@@ -112,9 +112,7 @@ namespace Core.Catalog.Request
             MediaMarkResponse mediaMarkResponse = new MediaMarkResponse();
             eAssetTypes assetType = this.m_oMediaPlayRequestData.m_eAssetType;
             int fileDuration = 0;
-
-            // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-            //long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            
             long recordingId = 0;
             long linearChannelMediaId = 0;
 
@@ -147,15 +145,7 @@ namespace Core.Catalog.Request
             else if (assetType == eAssetTypes.NPVR)
             {
                 NPVR.INPVRProvider npvrProvider;
-
-                // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-                //if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null) &&
-                //    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
-                //{
-                //    mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
-                //    return mediaMarkResponse;
-                //}
-
+                
                 if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null) &&
                     !CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
@@ -261,8 +251,15 @@ namespace Core.Catalog.Request
                     }
                 case MediaPlayActions.HIT:
                     {
-                        CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
-                                                    ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, false, false);
+                        if (!isReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
+                        {
+                            isConcurrent = true;
+                        }
+                        else
+                        {
+                            CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
+                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, false, false);
+                        }                        
                         break;
                     }
                 case MediaPlayActions.PLAY:

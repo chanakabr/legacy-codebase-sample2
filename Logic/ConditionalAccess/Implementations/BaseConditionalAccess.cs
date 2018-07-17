@@ -10923,7 +10923,6 @@ namespace Core.ConditionalAccess
                         eBM = eBusinessModule.Subscription;
                     }
 
-                    // TODO SHIR - ASK IRA WHAT TODO BECAUSE ITS NOT CHECK CONCURRENCY..
                     if (!success)
                     {
                         return response;

@@ -61,7 +61,6 @@ namespace Core.Catalog.Request
 
             string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
 
-            // TODO SHIR - CHECK WHAT TODO IF NO DevicePlayData
             // create and save new DevicePlayData if not exist
             if (currDevicePlayData == null && userId > 0)
             {
