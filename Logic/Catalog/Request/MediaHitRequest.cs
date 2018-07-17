@@ -165,17 +165,16 @@ namespace Core.Catalog.Request
 
                     this.domainId = devicePlayData.DomainId;
 
-                    // TODO SHIR -  ASK IRA ABOUT IsConcurrent IN ProcessNpvrHitRequest
-                    //if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
-                    //{
-                    //    response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-                    //    if (devicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                    //    {
-                    //        devicePlayData.TimeStamp -= 70;
-                    //        CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
-                    //    }
-                    //    return response;
-                    //}
+                    if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
+                    {
+                        response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+                        if (devicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
+                        {
+                            devicePlayData.TimeStamp -= 70;
+                            CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
+                        }
+                        return response;
+                    }
 
                     CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, locationSec, fileDuration, MediaPlayActions.HIT, eExpirationTTL.Short,
                                                 this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false);
