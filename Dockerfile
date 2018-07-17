@@ -14,11 +14,21 @@ RUN Import-Module WebAdministration; \
 
 RUN New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI' -ApplicationPool RestfulApi
 
-RUN Import-Module WebAdministration; \
-	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.enabled -Value True; \
-	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.directory -Value 'C:\log\iis'; \
-	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.logFormat W3C; \
-	Set-ItemProperty 'IIS:\Sites\WebAPI' -Name logFile.period -Value MaxSize
+RUN $filePath = "%WinDir%\System32\Inetsrv\Config"; \
+	$doc = New-Object System.Xml.XmlDocument; \
+	$doc.Load($filePath); \
+	$child = $doc.CreateElement("logFile"); \
+	$child.SetAttribute("logExtFileFlags", "Date, Time, ClientIP, UserName, ComputerName, ServerIP, Method, UriStem, UriQuery, HttpStatus, Win32Status, TimeTaken, ServerPort, UserAgent, Referer, HttpSubStatus"); \
+	$child.SetAttribute("directory", "%IIS_LOG_DIR%"); \
+	$site = $doc.SelectSingleNode("//site[@name='WebAPI']"); \
+	$site.AppendChild($child); \
+	$doc.Save($filePath)
+	
+ARG API_LOG_DIR=C:\log\api\%COMPUTERNAME%
+ENV API_LOG_DIR ${API_LOG_DIR}
+
+ARG IIS_LOG_DIR=C:\log\iis\%COMPUTERNAME%
+ENV IIS_LOG_DIR ${IIS_LOG_DIR}
 
 RUN iisReset
 	
