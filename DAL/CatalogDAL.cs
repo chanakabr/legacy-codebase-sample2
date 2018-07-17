@@ -4164,7 +4164,6 @@ namespace Tvinci.Core.DAL
                 devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
             }
             // save firstPlay in cache 
-            // TODO SHIR - CHECK THE IF
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
