@@ -14,7 +14,7 @@ RUN Import-Module WebAdministration; \
 
 RUN New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI' -ApplicationPool RestfulApi
 
-RUN $filePath = "%WinDir%\System32\Inetsrv\Config"; \
+RUN $filePath = "$Env:WinDir\System32\Inetsrv\Config"; \
 	$doc = New-Object System.Xml.XmlDocument; \
 	$doc.Load($filePath); \
 	$child = $doc.CreateElement("logFile"); \
