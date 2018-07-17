@@ -4296,5 +4296,28 @@ namespace WS_API
                 return response;
             }
         }
+
+        [WebMethod]
+        public bool DoActionAssetRules()
+        {
+            return Core.Api.Module.DoActionAssetRules();
+        }
+
+        [WebMethod]
+        public bool SetLayeredCacheInvalidationKey(string sWSUserName, string sWSPassword, string key)
+        {
+            bool result = false;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.SetLayeredCacheInvalidationKey(key);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
     }
 }

@@ -1998,8 +1998,9 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
-                        ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, urlType);
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), 
+                                                                                contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, 
+                                                                                urlType);
                 }
             }
             catch (Exception ex)
