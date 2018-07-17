@@ -168,11 +168,7 @@ namespace Core.Catalog.Request
                     if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
                     {
                         response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-                        if (devicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                        {
-                            devicePlayData.TimeStamp -= 70;
-                            CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
-                        }
+                        m_oMediaPlayRequestData.ResetDevicePlayData(devicePlayData);
                         return response;
                     }
 
@@ -254,11 +250,7 @@ namespace Core.Catalog.Request
                 if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref currDevicePlayData))
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-                    if (currDevicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                    {
-                        currDevicePlayData.TimeStamp -= 70;
-                        CatalogDAL.UpdateOrInsertDevicePlayData(currDevicePlayData, false, eExpirationTTL.Long);
-                    }
+                    m_oMediaPlayRequestData.ResetDevicePlayData(currDevicePlayData);
                     return mediaHitResponse;
                 }
 

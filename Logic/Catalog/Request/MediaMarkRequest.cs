@@ -383,11 +383,7 @@ namespace Core.Catalog.Request
                         if (!isReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref currDevicePlayData))
                         {
                             isConcurrent = true;
-                            if (currDevicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                            {
-                                currDevicePlayData.TimeStamp -= 70;
-                                CatalogDAL.UpdateOrInsertDevicePlayData(currDevicePlayData, false, eExpirationTTL.Long);
-                            }
+                            m_oMediaPlayRequestData.ResetDevicePlayData(currDevicePlayData);
                         }
                         else
                         {
@@ -412,11 +408,7 @@ namespace Core.Catalog.Request
                         if (!isReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref currDevicePlayData))
                         {
                             isConcurrent = true;
-                            if (currDevicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                            {
-                                currDevicePlayData.TimeStamp -= 70;
-                                CatalogDAL.UpdateOrInsertDevicePlayData(currDevicePlayData, false, eExpirationTTL.Long);
-                            }
+                            m_oMediaPlayRequestData.ResetDevicePlayData(currDevicePlayData);
                         }
                         else
                         {
@@ -583,11 +575,7 @@ namespace Core.Catalog.Request
                         if (!isReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
                         {
                             isConcurrent = true;
-                            if (devicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
-                            {
-                                devicePlayData.TimeStamp -= 70;
-                                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
-                            }
+                            m_oMediaPlayRequestData.ResetDevicePlayData(devicePlayData);
                         }
                         else
                         {

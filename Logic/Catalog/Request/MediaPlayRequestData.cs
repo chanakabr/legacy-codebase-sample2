@@ -119,6 +119,16 @@ namespace Core.Catalog.Request
 
             return currDevicePlayData;
         }
+
+        public void ResetDevicePlayData(DevicePlayData devicePlayData)
+        {
+            if (devicePlayData.TimeStamp != 0)
+            {
+                devicePlayData.TimeStamp = 0;
+                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("MediaPlayRequestData obj: ");
