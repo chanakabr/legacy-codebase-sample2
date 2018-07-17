@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Results>
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://34.249.122.223:8030/api_v4_8_2/api.asmx?wsdl" filename="api.wsdl" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="http://34.249.122.223:8030/api_v4_8_2/api.asmx?disco" filename="api.disco" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://34.249.122.223:8030/api_v4_9/api.asmx?wsdl" filename="api.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="http://34.249.122.223:8030/api_v4_9/api.asmx?disco" filename="api.disco" />
   </Results>
 </DiscoveryClientResultsFile>
