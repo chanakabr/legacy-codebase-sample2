@@ -26,7 +26,12 @@ namespace WebAPI.Managers.Scheme
             {
                 if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
                 {
-                    return false;
+                    current = OldStandardAttribute.GetCurrentVersion();
+                }
+
+                if (current == null)
+                {
+                    return true;
                 }
 
                 current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];

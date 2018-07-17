@@ -23,6 +23,7 @@ namespace WebAPI.Managers.Scheme
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
                 CurrentVersion = new Version(fvi.FileVersion);
             }
+
             return CurrentVersion;
         }
 
@@ -38,6 +39,11 @@ namespace WebAPI.Managers.Scheme
             if (current == null)
             {
                 if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                {
+                    current = OldStandardAttribute.GetCurrentVersion();
+                }
+
+                if (current == null)
                 {
                     return true;
                 }
