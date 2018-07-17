@@ -58,16 +58,6 @@ namespace Core.Users
                 status = ValidateDeviceFamilyConcurrency(devicePlayData, groupId, domain);
             }
             
-            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
-            {
-                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
-            }
-
-            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
-            {
-                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
-            }
-
             return status;
         }
 
@@ -405,18 +395,24 @@ namespace Core.Users
             if (domainDevices == null)
             {
                 DomainResponse domainResponse = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+
                 if (domainResponse.Status.Code == (int)eResponseStatus.OK && domainResponse.Domain != null)
                 {
-                    domainDevices = new Dictionary<string, int>();
-                    foreach (var currDeviceFamily in domainResponse.Domain.m_deviceFamilies)
-                    {
-                        foreach (var currDevice in currDeviceFamily.DeviceInstances)
-                        {
-                            domainDevices.Add(currDevice.m_deviceUDID, currDeviceFamily.m_deviceFamilyID);
-                        }
-                    }
+                    domainDevices = CatalogDAL.GetDomainDevices(domainId);
 
-                    CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                    if (domainDevices == null)
+                    {
+                        domainDevices = new Dictionary<string, int>();
+                        foreach (var currDeviceFamily in domainResponse.Domain.m_deviceFamilies)
+                        {
+                            foreach (var currDevice in currDeviceFamily.DeviceInstances)
+                            {
+                                domainDevices.Add(currDevice.m_deviceUDID, currDeviceFamily.m_deviceFamilyID);
+                            }
+                        }
+
+                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                    }
                 }
             }
 

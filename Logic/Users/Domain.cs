@@ -1910,6 +1910,8 @@ namespace Core.Users
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
 
+                Dictionary<string, int> domainDevices = new Dictionary<string, int>();
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     sUDID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["UDID"]);
@@ -1933,7 +1935,13 @@ namespace Core.Users
                     }
 
                     device.SetReadingInvalidationKeys();
+                    if (bIsActiveInDevices && bIsActiveInDomainsDevices && !domainDevices.ContainsKey(device.m_deviceUDID))
+                    {
+                        domainDevices.Add(device.m_deviceUDID, device.m_deviceFamilyID);
+                    }
                 }
+                
+                CatalogDAL.SaveDomainDevices(domainDevices, this.m_nDomainID);
             }
             else
             {

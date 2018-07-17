@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace ApiObjects.Rules
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class AssetRuleCondition
     {
         [JsonProperty("Type")]
@@ -18,6 +19,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetCondition : AssetRuleCondition
     {
         [JsonProperty("Ksql")]
@@ -30,6 +32,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class CountryCondition : AssetRuleCondition
     {
         [JsonProperty("Not")]
@@ -45,6 +48,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class ConcurrencyCondition : AssetCondition
     {
         [JsonProperty("Limit")]
