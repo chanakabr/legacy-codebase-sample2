@@ -5,87 +5,10 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
+      "name": "KalturaAssetStruct_isProtected_Write",
       "object": "KalturaAssetStruct",
       "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
+      "action": "WRITE",
       "type": "Parameter"
     }
   ],

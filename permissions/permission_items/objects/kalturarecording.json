@@ -1,0 +1,27 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_type_Write",
+      "object": "KalturaRecording",
+      "parameter": "type",
+      "action": "WRITE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_isProtected_Write",
+      "object": "KalturaRecording",
+      "parameter": "isProtected",
+      "action": "WRITE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

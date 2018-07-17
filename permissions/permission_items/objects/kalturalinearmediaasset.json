@@ -8,7 +8,7 @@
       "name": "KalturaLinearMediaAsset_enableCdvr_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableCdvrState",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -19,7 +19,7 @@
       "name": "KalturaLinearMediaAsset_enableCatchUpState_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableCatchUpState",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -30,7 +30,7 @@
       "name": "KalturaLinearMediaAsset_enableStartOverState_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableStartOverState",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -41,7 +41,7 @@
       "name": "KalturaLinearMediaAsset_bufferCatchUp_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "bufferCatchUp",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -52,7 +52,7 @@
       "name": "KalturaLinearMediaAsset_bufferTrickPlay_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "bufferTrickPlay",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -63,7 +63,7 @@
       "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableRecordingPlaybackNonEntitledChannelState",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     },
     {
@@ -74,7 +74,7 @@
       "name": "KalturaLinearMediaAsset_enableTrickPlayState_ALL",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableTrickPlayState",
-      "action": "USAGE",
+      "action": "ALL",
       "type": "Parameter"
     }
   ],
