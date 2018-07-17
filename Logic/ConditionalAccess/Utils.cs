@@ -8412,75 +8412,6 @@ namespace Core.ConditionalAccess
             }
         }
         
-        private static long GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
-        {
-            string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
-            List<ExtendedSearchResult> adjacentPrograms = null;
-
-            if (!LayeredCache.Instance.Get<List<ExtendedSearchResult>>(adjacentProgramsKey,
-                                                                    ref adjacentPrograms,
-                                                                    GetAdjacentPrograms,
-                                                                    new Dictionary<string, object>() { { "groupId", groupId }, { "epgChannelId", epgChannelId } },
-                                                                    groupId,
-                                                                    LayeredCacheConfigNames.GET_ADJACENT_PROGRAMS,
-                                                                    new List<string>() { LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId) }))
-            {
-                log.ErrorFormat("GetCurrentProgram - GetAdjacentPrograms - Failed get data from cache. groupId: {0}", groupId);
-            }
-
-            if (adjacentPrograms != null && adjacentPrograms.Count > 0)
-            {
-                var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow);
-                if (currentProgram != null)
-                {
-                    log.DebugFormat("GetCurrentProgram - found program: {0}", currentProgram.AssetId);
-                    return long.Parse(currentProgram.AssetId);
-                }
-            }
-
-            if (!isRetry)
-            {
-                log.DebugFormat("GetCurrentProgram - no program found.");
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId));
-                return GetCurrentProgram(groupId, epgChannelId, true);
-            }
-            
-            return 0;
-        }
-
-        private static Tuple<List<ExtendedSearchResult>, bool> GetAdjacentPrograms(Dictionary<string, object> funcParams)
-        {
-            List<ExtendedSearchResult> adjacentPrograms = null;
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 2)
-                {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgChannelId"))
-                    {
-                        int? groupId = funcParams["groupId"] as int?;
-                        string epgChannelId = funcParams["epgChannelId"] as string;
-
-                        if (groupId.HasValue && !string.IsNullOrEmpty(epgChannelId))
-                        {
-                            var programs = SearchPrograms(groupId.Value, epgChannelId, 50, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.ASC);
-
-                            if (programs != null)
-                            {
-                                adjacentPrograms = new List<ExtendedSearchResult>(programs);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAdjacentPrograms faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
-        }
-        
         public static List<long> GetAssetMediaRuleIds(int groupId, int mediaId)
         {
             List<long> assetMediaRuleIds = new List<long>();
@@ -8505,7 +8436,7 @@ namespace Core.ConditionalAccess
                 string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
                 if (!string.IsNullOrEmpty(epgChannelId))
                 {
-                    programId = GetCurrentProgram(groupId, epgChannelId);
+                    programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
                 }
             }
             
@@ -8520,71 +8451,6 @@ namespace Core.ConditionalAccess
             }
 
             return assetEpgRuleIds;
-        }
-
-        /// <summary>
-        /// Search all Programs from now to the next 24 hours
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="epgChannelId"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="orderDir"></param>
-        /// <returns></returns>
-        internal static List<ExtendedSearchResult> SearchPrograms(int groupId, string epgChannelId, int pageSize, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir)
-        {
-            List<ExtendedSearchResult> programs = null;
-            
-            try
-            {
-                StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(and epg_channel_id = '{0}' end_date > '0' end_date < '86400')", epgChannelId);
-
-                ExtendedSearchRequest request = new ExtendedSearchRequest()
-                {
-                    m_nGroupID = groupId,
-                    m_dServerTime = DateTime.UtcNow,
-                    m_nPageIndex = 0,
-                    m_nPageSize = pageSize,
-                    assetTypes = new List<int> { 0 },
-                    filterQuery = ksql.ToString(),
-                    order = new ApiObjects.SearchObjects.OrderObj()
-                    {
-                        m_eOrderBy = orderBy,
-                        m_eOrderDir = orderDir
-                    },
-                    m_oFilter = new Filter()
-                    {
-                        m_bOnlyActiveMedia = true
-                    },
-                    ExtraReturnFields = new List<string> { },
-                };
-
-                FillCatalogSignature(request);
-
-                UnifiedSearchResponse response = request.GetResponse(request) as UnifiedSearchResponse;
-
-                if (response == null || response.status == null)
-                {
-                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
-                    return programs;
-                }
-
-                if (response.status.Code != (int)eResponseStatus.OK)
-                {
-                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", 
-                                    response.status.Code, response.status.Message);
-                    return programs;
-                }
-
-                programs = response.searchResults.ConvertAll(x => x as ExtendedSearchResult);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed SearchPrograms, channelId: {0}, Exception: {1}.", epgChannelId, ex.ToString());
-            }
-
-            return programs;
         }
     }
 }
