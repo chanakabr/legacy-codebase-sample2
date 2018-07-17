@@ -40,7 +40,7 @@ namespace Tvinci.Core.DAL
         /// </summary>
         private const int RETRY_LIMIT = 5;
         public const int SHORT_TTL = 65;
-        public const int LONG_TTL = 86400; // 24 HOURS
+        public const int LONG_TTL = 21600; // 6 HOURS
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -4058,7 +4058,6 @@ namespace Tvinci.Core.DAL
                 devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
             }
             // save firstPlay in cache 
-            // TODO SHIR - CHECK THE IF
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
