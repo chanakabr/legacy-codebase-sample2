@@ -1564,6 +1564,32 @@
           <s:element minOccurs="0" maxOccurs="1" name="Settings" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="DoActionAssetRules">
+        <s:complexType />
+      </s:element>
+      <s:element name="DoActionAssetRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionAssetRulesResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetLayeredCacheInvalidationKey">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetLayeredCacheInvalidationKeyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetLayeredCacheInvalidationKeyResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -5562,6 +5588,18 @@
   <wsdl:message name="SendDrmAdapterConfigurationSoapOut">
     <wsdl:part name="parameters" element="tns:SendDrmAdapterConfigurationResponse" />
   </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:DoActionAssetRules" />
+  </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:DoActionAssetRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetLayeredCacheInvalidationKeySoapIn">
+    <wsdl:part name="parameters" element="tns:SetLayeredCacheInvalidationKey" />
+  </wsdl:message>
+  <wsdl:message name="SetLayeredCacheInvalidationKeySoapOut">
+    <wsdl:part name="parameters" element="tns:SetLayeredCacheInvalidationKeyResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -6606,6 +6644,18 @@
   <wsdl:message name="SendDrmAdapterConfigurationHttpPostOut">
     <wsdl:part name="Body" element="tns:DrmAdapterResponse" />
   </wsdl:message>
+  <wsdl:message name="DoActionAssetRulesHttpPostIn" />
+  <wsdl:message name="DoActionAssetRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="SetLayeredCacheInvalidationKeyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="key" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetLayeredCacheInvalidationKeyHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -7631,6 +7681,14 @@
       <wsdl:input message="tns:SendDrmAdapterConfigurationSoapIn" />
       <wsdl:output message="tns:SendDrmAdapterConfigurationSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <wsdl:input message="tns:DoActionAssetRulesSoapIn" />
+      <wsdl:output message="tns:DoActionAssetRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetLayeredCacheInvalidationKey">
+      <wsdl:input message="tns:SetLayeredCacheInvalidationKeySoapIn" />
+      <wsdl:output message="tns:SetLayeredCacheInvalidationKeySoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -8284,6 +8342,14 @@
     <wsdl:operation name="SendDrmAdapterConfiguration">
       <wsdl:input message="tns:SendDrmAdapterConfigurationHttpPostIn" />
       <wsdl:output message="tns:SendDrmAdapterConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <wsdl:input message="tns:DoActionAssetRulesHttpPostIn" />
+      <wsdl:output message="tns:DoActionAssetRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetLayeredCacheInvalidationKey">
+      <wsdl:input message="tns:SetLayeredCacheInvalidationKeyHttpPostIn" />
+      <wsdl:output message="tns:SetLayeredCacheInvalidationKeyHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -9128,6 +9194,24 @@
     </wsdl:operation>
     <wsdl:operation name="SendDrmAdapterConfiguration">
       <soap:operation soapAction="http://api.tvinci.com/SendDrmAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <soap:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLayeredCacheInvalidationKey">
+      <soap:operation soapAction="http://api.tvinci.com/SetLayeredCacheInvalidationKey" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -10794,6 +10878,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <soap12:operation soapAction="http://api.tvinci.com/DoActionAssetRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLayeredCacheInvalidationKey">
+      <soap12:operation soapAction="http://api.tvinci.com/SetLayeredCacheInvalidationKey" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -12257,6 +12359,24 @@
     </wsdl:operation>
     <wsdl:operation name="SendDrmAdapterConfiguration">
       <http:operation location="/SendDrmAdapterConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionAssetRules">
+      <http:operation location="/DoActionAssetRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetLayeredCacheInvalidationKey">
+      <http:operation location="/SetLayeredCacheInvalidationKey" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
