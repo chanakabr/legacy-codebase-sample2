@@ -35,18 +35,28 @@ namespace WebAPI.Managers
         {
             string result = string.Empty;
 
-            if (value is IKalturaSerializable && HttpContext.Current != null && HttpContext.Current.Items != null)
+            if (value is IKalturaSerializable)
             {
-                object requestVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                object requestVersion = null;
+                Version currentVersion = null;
+
+                if (HttpContext.Current != null && HttpContext.Current.Items != null)
+                {
+                    requestVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                }
 
                 if (requestVersion != null)
                 {
-                    Version currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
+                    currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
+                }
 
-                    if (currentVersion != null)
-                    {
-                        result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
-                    }
+                try
+                {
+                    result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
+                }
+                catch
+                {
+                    result = null;
                 }
             }
 
