@@ -57,12 +57,7 @@ namespace Core.Users
             {
                 status = ValidateDeviceFamilyConcurrency(devicePlayData, groupId, domain);
             }
-
-            if (status == DomainResponseStatus.ConcurrencyLimitation || status == DomainResponseStatus.MediaConcurrencyLimitation)
-            {
-                CatalogDAL.DeleteDevicePlayData(devicePlayData.UDID);
-            }
-
+            
             return status;
         }
 

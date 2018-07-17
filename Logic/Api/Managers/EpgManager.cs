@@ -24,7 +24,6 @@ namespace APILogic.Api.Managers
         internal static string GetEpgChannelId(int mediaId, int groupId)
         {
             string allLinearMediaIdsKey = LayeredCacheKeys.GetAllLinearMediaKey(groupId);
-            //TODO SHIR - ASK IRA FOR RELEVENT INVALIDATIONS KEYS (GetAllLinearMedia)
             Dictionary<long, string> allLinearMedia = null;
 
             if (!LayeredCache.Instance.Get<Dictionary<long, string>>(allLinearMediaIdsKey,

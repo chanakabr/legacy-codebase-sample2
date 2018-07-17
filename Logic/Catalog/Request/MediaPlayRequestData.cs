@@ -70,7 +70,6 @@ namespace Core.Catalog.Request
                     domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
                 }
 
-                // TOD SHIR - ASK IRA WHY WE DONT INIT mediaConcurrencyRuleIds
                 List<int> mediaConcurrencyRuleIds = null;
                 List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
@@ -79,7 +78,6 @@ namespace Core.Catalog.Request
                 currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 
                                                                          mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
 
-                // TODO SHIR - ASK IRA IF NEED THIS IF OR ALWAYS DO THIS INSERT..
                 //FPNPC -  on First Play create New Play Cycle
                 if (CatalogLogic.IsGroupUseFPNPC(groupId)) 
                 {

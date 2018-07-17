@@ -162,7 +162,21 @@ namespace Core.Catalog.Request
                         response.m_sDescription = "No devicePlayData";
                         return response;
                     }
-                    
+
+                    this.domainId = devicePlayData.DomainId;
+
+                    // TODO SHIR -  ASK IRA ABOUT IsConcurrent IN ProcessNpvrHitRequest
+                    //if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
+                    //{
+                    //    response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+                    //    if (devicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
+                    //    {
+                    //        devicePlayData.TimeStamp -= 70;
+                    //        CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
+                    //    }
+                    //    return response;
+                    //}
+
                     CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, locationSec, fileDuration, MediaPlayActions.HIT, eExpirationTTL.Short,
                                                 this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false);
                 }
@@ -206,34 +220,46 @@ namespace Core.Catalog.Request
             
             int locationSec = 0;
             if (m_oMediaPlayRequestData.m_nLoc > 0)
+            {
                 locationSec = m_oMediaPlayRequestData.m_nLoc;
+            }
             
             //non-anonymous user
             if (!CatalogLogic.IsAnonymousUser(this.m_oMediaPlayRequestData.m_sSiteGuid))
             {
                 bool isFirstPlay = false;
                 if (!resultParse || action == MediaPlayActions.HIT)
+                {
                     isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
+                }
 
                 string playCycleKey = string.Empty;
 
                 int platform = 0;
                 if (this.m_oFilter != null)
+                {
                     int.TryParse(m_oFilter.m_sPlatform, out platform);
+                }
 
                 var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, action, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA, 
                                                                                            this.domainId, 0, platform, countryId);
                 if (currDevicePlayData == null)
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    mediaHitResponse.m_sDescription = "No devicePlayData";
                     return mediaHitResponse;
                 }
+
                 this.domainId = currDevicePlayData.DomainId;
 
-                // 4. TODO SHIR ask ira if need to check only if linear?
                 if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref currDevicePlayData))
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+                    if (currDevicePlayData.TimeStamp > DateTime.UtcNow.ToUnixTimestamp() - 65)
+                    {
+                        currDevicePlayData.TimeStamp -= 70;
+                        CatalogDAL.UpdateOrInsertDevicePlayData(currDevicePlayData, false, eExpirationTTL.Long);
+                    }
                     return mediaHitResponse;
                 }
 
