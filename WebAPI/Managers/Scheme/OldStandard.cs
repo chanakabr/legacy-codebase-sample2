@@ -35,14 +35,16 @@ namespace WebAPI.Managers.Scheme
 
         public static bool isCurrentRequestOldVersion(Version current = null)
         {
-            if(current == null)
+            if (current == null)
             {
-                if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                {
                     return true;
+                }
 
                 current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
             }
-            
+
             return current.CompareTo(OldVersion) < 0;
         }
     }
