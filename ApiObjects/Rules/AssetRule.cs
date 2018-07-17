@@ -18,10 +18,16 @@ namespace ApiObjects.Rules
         [JsonProperty("Description")]
         public string Description { get; set; }
 
-        [JsonProperty("Conditions")]
+        [JsonProperty(PropertyName = "Conditions", 
+                      TypeNameHandling = TypeNameHandling.Auto, 
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<AssetRuleCondition> Conditions { get; set; }
 
-        [JsonProperty("Actions")]
+        [JsonProperty(PropertyName = "Actions",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<AssetRuleAction> Actions { get; set; }
 
         [JsonProperty("GroupId")]
