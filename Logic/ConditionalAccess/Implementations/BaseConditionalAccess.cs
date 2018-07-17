@@ -10706,7 +10706,7 @@ namespace Core.ConditionalAccess
                     
                     ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, nMediaID, 0, programId, playType);
 
-                    if (concurrencyResponse.Status != DomainResponseStatus.OK || concurrencyResponse.Data == null)
+                    if (concurrencyResponse.Status != DomainResponseStatus.OK)
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", concurrencyResponse.Status.ToString(), userId, mediaFileId));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, concurrencyResponse.Status.ToString());
@@ -10878,7 +10878,17 @@ namespace Core.ConditionalAccess
 
         internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, int domainId, long programId, ePlayType playType)
         {
-            ConcurrencyResponse response = new ConcurrencyResponse();
+            ConcurrencyResponse response = new ConcurrencyResponse()
+            {
+                Data = new DevicePlayData()
+                {
+                    UDID = udid,
+                    AssetId = mediaId,
+                    DomainId = domainId,
+                    ProgramId = programId,
+                    playType = playType.ToString()
+                }
+            };
 
             List<int> mediaConcurrencyRuleIds = new List<int>();
             List<long> assetMediaRuleIds = new List<long>();
@@ -10913,6 +10923,7 @@ namespace Core.ConditionalAccess
                         eBM = eBusinessModule.Subscription;
                     }
 
+                    // TODO SHIR - ASK IRA WHAT TODO BECAUSE ITS NOT CHECK CONCURRENCY..
                     if (!success)
                     {
                         return response;
@@ -16092,7 +16103,7 @@ namespace Core.ConditionalAccess
                     }
                     
                     ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, (int)domainId, recording.EpgId, ePlayType.NPVR);
-                    if (concurrencyResponse.Status != DomainResponseStatus.OK || concurrencyResponse.Data == null)
+                    if (concurrencyResponse.Status != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", concurrencyResponse.ToString(), userId, mediaFileId));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, concurrencyResponse.ToString());

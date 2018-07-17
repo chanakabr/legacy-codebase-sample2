@@ -204,7 +204,7 @@ namespace Core.ConditionalAccess
                                 concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, 0, ePlayType.MEDIA);
                             }
                             
-                            if (concurrencyResponse.Status != DomainResponseStatus.OK || concurrencyResponse.Data == null)
+                            if (concurrencyResponse.Status != DomainResponseStatus.OK)
                             {
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
                                 return response;
@@ -214,7 +214,14 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            concurrencyResponse = new ConcurrencyResponse() { Data = new ApiObjects.MediaMarks.DevicePlayData() };
+                            concurrencyResponse = new ConcurrencyResponse()
+                            {
+                                Data = new ApiObjects.MediaMarks.DevicePlayData()
+                                {
+                                    UDID = udid,
+                                    DomainId = (int)domainId
+                                }
+                            };
                         }
 
                         response.ConcurrencyData = concurrencyResponse.Data;

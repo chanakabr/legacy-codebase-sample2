@@ -8463,7 +8463,7 @@ namespace Core.ConditionalAccess
 
                         if (groupId.HasValue && !string.IsNullOrEmpty(epgChannelId))
                         {
-                            var programs = SearchPrograms(groupId.Value, epgChannelId, 500, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.DESC);
+                            var programs = SearchPrograms(groupId.Value, epgChannelId, 50, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.ASC);
 
                             if (programs != null)
                             {
