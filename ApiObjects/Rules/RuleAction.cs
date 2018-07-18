@@ -82,6 +82,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AllowPlaybackAction : AssetRuleAction
     {
         public AllowPlaybackAction()
@@ -91,6 +92,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BlockPlaybackAction : AssetRuleAction
     {
         public BlockPlaybackAction()

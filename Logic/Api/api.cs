@@ -2501,8 +2501,9 @@ namespace Core.Api
             if (rules != null && rules.Count > 0)
             {
                 if (rules.Where(x => x.Actions != null &&
-                                    x.Actions.Any(z => z is AllowPlaybackAction)).ToList().Count > 0)
+                                    x.Actions.Any(z => z is BlockPlaybackAction)).ToList().Count > 0)
                 {
+                    ruleName = "Blacklist";
                     return true;
                 }
                 else

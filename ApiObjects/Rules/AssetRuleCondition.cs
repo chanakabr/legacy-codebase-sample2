@@ -64,6 +64,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class IpRangeCondition : AssetCondition
     {
         [JsonProperty("fromIp")]
