@@ -152,6 +152,24 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaAllowPlaybackAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+    }
     public partial class KalturaAssetFileContext
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -545,6 +563,24 @@ namespace WebAPI.Models.ConditionalAccess
                 propertyValue = "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaBlockPlaybackAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
             return ret;
         }
     }
@@ -13136,6 +13172,40 @@ namespace WebAPI.Models.API
             {
                 propertyValue = "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIpRangeCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(FromIP != null)
+            {
+                ret.Add("fromIP", "\"fromIP\": " + "\"" + EscapeJson(FromIP) + "\"");
+            }
+            if(ToIP != null)
+            {
+                ret.Add("toIP", "\"toIP\": " + "\"" + EscapeJson(ToIP) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(FromIP != null)
+            {
+                ret.Add("fromIP", "<fromIP>" + EscapeXml(FromIP) + "</fromIP>");
+            }
+            if(ToIP != null)
+            {
+                ret.Add("toIP", "<toIP>" + EscapeXml(ToIP) + "</toIP>");
             }
             return ret;
         }

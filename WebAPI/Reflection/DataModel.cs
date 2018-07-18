@@ -2594,6 +2594,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIpRangeCondition":
+                    switch(property.Name)
+                    {
+                        case "FromIP":
+                            return "fromIP";
+                        case "ToIP":
+                            return "toIP";
+                    }
+                    break;
+                    
                 case "KalturaItemPrice":
                     switch(property.Name)
                     {
