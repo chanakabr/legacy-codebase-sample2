@@ -145,7 +145,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal static void GetResponseStatusFromWS(Func<Status> funcInWS)
+        internal static bool GetResponseStatusFromWS(Func<Status> funcInWS)
         {
             Status status = null;
 
@@ -171,25 +171,10 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status.Code, status.Message);
             }
-        }
-
-        internal static bool GetBoolResponseStatusFromWS(Func<Status> funcInWS)
-        {
-            Status status = null;
-
-            try
-            {
-                GetResponseStatusFromWS(funcInWS);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception received while calling catalog service", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
 
             return true;
         }
-
+        
         internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
             where U : KalturaOTTObject
         {
@@ -220,6 +205,5 @@ namespace WebAPI.Clients
                 throw new ClientException(status.Code, status.Message);
             }
         }
-
     }
 }

@@ -133,7 +133,7 @@ namespace WebAPI.Clients
         public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
             Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetStructFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
         }
 
         public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
@@ -228,7 +228,7 @@ namespace WebAPI.Clients
         public bool DeleteMeta(int groupId, long id, long userId)
         {
             Func<Status> deleteTopicFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTopic(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteTopicFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteTopicFunc);
         }
 
         public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
@@ -310,7 +310,7 @@ namespace WebAPI.Clients
                 return Core.Catalog.CatalogManagement.AssetManager.DeleteAsset(groupId, id, assetType, userId);
             };
 
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteAssetFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
         }
 
         public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
@@ -3263,7 +3263,7 @@ namespace WebAPI.Clients
         internal bool DeleteTag(int groupId, long id, long userId)
         {
             Func<Status> deleteTagFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteTagFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteTagFunc);
         }
 
         internal KalturaImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
@@ -3307,7 +3307,7 @@ namespace WebAPI.Clients
         internal bool DeleteImageType(int groupId, long userId, long id)
         {
             Func<Status> deleteImageTypeFunc = () => Core.Catalog.CatalogManagement.ImageManager.DeleteImageType(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteImageTypeFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteImageTypeFunc);
         }
 
         internal KalturaRatioListResponse GetRatios(int groupId)
@@ -3361,7 +3361,7 @@ namespace WebAPI.Clients
         internal bool DeleteImage(int groupId, long userId, long id)
         {
             Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteImageFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteImageFunc);
         }
         
         internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)
@@ -3518,7 +3518,7 @@ namespace WebAPI.Clients
         public bool DeleteMediaFileType(int groupId, long id, long userId)
         {
             Func<Status> deleteMediaFileTypeFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFileType(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteMediaFileTypeFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteMediaFileTypeFunc);
         }
 
         internal KalturaMediaFile AddMediaFile(int groupId, KalturaMediaFile assetFile, long userId)
@@ -3535,7 +3535,7 @@ namespace WebAPI.Clients
         internal bool DeleteMediaFile(int groupId, long userId, long id)
         {
             Func<Status> deleteMediaFileFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFile(groupId, userId, id);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteMediaFileFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteMediaFileFunc);
         }
 
         internal KalturaMediaFile UpdateMediaFile(int groupId, long id, KalturaMediaFile assetFile, long userId)
@@ -3936,7 +3936,7 @@ namespace WebAPI.Clients
         internal bool DeleteChannel(int groupId, int channelId, long userId)
         {
             Func<Status> deleteChannelFunc = () => Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteChannelFunc);;
+            return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc);;
         }
 
         internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
