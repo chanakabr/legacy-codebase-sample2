@@ -844,7 +844,7 @@ namespace APILogic
                     if (!string.IsNullOrEmpty(ip))
                     {
                         long convertedIp = 0;
-                        if (ConvertIpToInt(ip, ref convertedIp) && convertedIp > 0)
+                        if (ConvertIpToNumber(ip, out convertedIp) && convertedIp > 0)
                         {
                             isProxyBlocked = DAL.ApiDAL.IsProxyBlockedForIp(convertedIp);
                             res = true;
@@ -861,8 +861,9 @@ namespace APILogic
             return new Tuple<bool, bool>(isProxyBlocked, res);
         }
 
-        public static bool ConvertIpToInt(string ip, ref long convertedIp)
+        public static bool ConvertIpToNumber(string ip, out long convertedIp)
         {
+            convertedIp = 0;
             if (string.IsNullOrEmpty(ip))
             {
                 return false;
