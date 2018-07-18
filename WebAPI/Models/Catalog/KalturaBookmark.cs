@@ -82,8 +82,9 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "isReportingMode")]
         public bool IsReportingMode { get; set; }
 
-        public KalturaBookmark()
+        protected override void Init()
         {
+            base.Init();
             this.IsReportingMode = false;
         }
 

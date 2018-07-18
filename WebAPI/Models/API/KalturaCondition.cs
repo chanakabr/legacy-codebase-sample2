@@ -67,8 +67,9 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string Countries { get; set; }
 
-        public KalturaCountryCondition()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleConditionType.COUNTRY;
         }
 
@@ -107,8 +108,9 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "ksql")]
         public string Ksql { get; set; }
 
-        public KalturaAssetCondition()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleConditionType.ASSET;
         }
     }
@@ -134,8 +136,9 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "concurrencyLimitationType")]
         public KalturaConcurrencyLimitationType ConcurrencyLimitationType { get; set; }
 
-        public KalturaConcurrencyCondition()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleConditionType.CONCURRENCY;
         }
     }

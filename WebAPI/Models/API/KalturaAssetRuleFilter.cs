@@ -41,8 +41,9 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaSlimAsset AssetApplied { get; set; }
 
-        public KalturaAssetRuleFilter()
+        protected override void Init()
         {
+            base.Init();
             this.ConditionsContainType = KalturaRuleConditionType.COUNTRY;
         }
 

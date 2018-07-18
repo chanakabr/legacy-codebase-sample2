@@ -20,11 +20,7 @@ namespace WebAPI.Models.Upload
 
     public partial class KalturaUploadToken : KalturaOTTObject
     {
-        public KalturaUploadToken()
-        {
-        }
-
-        public KalturaUploadToken(UploadToken uploadToken)
+        public KalturaUploadToken(UploadToken uploadToken) : base(null)
         {
             Id = uploadToken.UploadTokenId;
             Status = uploadToken.Status;

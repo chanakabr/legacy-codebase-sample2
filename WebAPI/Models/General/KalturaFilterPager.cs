@@ -86,8 +86,9 @@ namespace WebAPI.Models.General
             }
         }
 
-        public KalturaFilterPager()
-        {            
+        protected override void Init()
+        {
+            base.Init();
             pageSize = DEFAULT_PAGE_SIZE;
             pageIndex = DEFAULT_PAGE_INDEX;
         }

@@ -69,10 +69,11 @@ namespace WebAPI.Models.DMS
         [JsonProperty("configurationIdentifiers")]
         [XmlElement(ElementName = "configurationIdentifiers")]
         [SchemeProperty(ReadOnly = true)]
-        public List<KalturaConfigurationIdentifier> ConfigurationIdentifiers  { get; set; }       
+        public List<KalturaConfigurationIdentifier> ConfigurationIdentifiers  { get; set; }
 
-        public KalturaConfigurationGroup()
+        protected override void Init()
         {
+            base.Init();
             this.Tags = new  List<KalturaStringValue>();
             this.ConfigurationIdentifiers = new List<KalturaConfigurationIdentifier>();
         }

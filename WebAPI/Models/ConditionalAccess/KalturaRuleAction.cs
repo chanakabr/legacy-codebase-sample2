@@ -48,16 +48,18 @@ namespace WebAPI.Models.ConditionalAccess
     
     public partial class KalturaAssetUserRuleBlockAction : KalturaAssetUserRuleAction
     {
-        public KalturaAssetUserRuleBlockAction()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleActionType.USER_BLOCK;
         }
     }
 
     public partial class KalturaAccessControlBlockAction : KalturaAssetRuleAction
     {
-        public KalturaAccessControlBlockAction()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleActionType.BLOCK;
         }
     }
@@ -89,8 +91,9 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     public partial class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
-        public KalturaEndDateOffsetRuleAction()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleActionType.END_DATE_OFFSET;
         }
     }
@@ -100,8 +103,9 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     public partial class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
-        public KalturaStartDateOffsetRuleAction() : base()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleActionType.START_DATE_OFFSET;
         }
     }

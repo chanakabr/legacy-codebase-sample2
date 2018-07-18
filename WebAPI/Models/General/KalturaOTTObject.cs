@@ -91,8 +91,13 @@ namespace WebAPI.Models.General
     {
         public KalturaOTTObject(Dictionary<string, object> parameters = null)
         {
+            Init();
         }
-        
+
+        protected virtual void Init()
+        {
+        }
+
         protected DateTime longToDateTime(long unixTimeStamp)
         {
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);

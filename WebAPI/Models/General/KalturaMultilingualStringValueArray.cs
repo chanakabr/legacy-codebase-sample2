@@ -19,8 +19,9 @@ namespace WebAPI.Models.General
         [XmlArrayItem("item")]
         public List<KalturaMultilingualStringValue> Objects { get; set; }
 
-        public KalturaMultilingualStringValueArray()
+        protected override void Init()
         {
+            base.Init();
             Objects = new List<KalturaMultilingualStringValue>();
         }
     }

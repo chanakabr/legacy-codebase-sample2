@@ -107,8 +107,9 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaWatchHistoryAsset> Objects { get; set; }
 
-        public KalturaWatchHistoryAssetWrapper()
+        protected override void Init()
         {
+            base.Init();
             Objects = new List<KalturaWatchHistoryAsset>();
         }
     }

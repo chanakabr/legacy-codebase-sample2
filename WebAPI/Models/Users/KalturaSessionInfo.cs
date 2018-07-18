@@ -82,11 +82,7 @@ namespace WebAPI.Models.Users
         [XmlElement("createDate")]
         public int createDate { get; set; }
 
-        public KalturaSession()
-        {
-        }
-
-        public KalturaSession(KS ks)
+        public KalturaSession(KS ks) : base(null)
         {
             var payload = KSUtils.ExtractKSPayload(ks);
             this.ks = ks.ToString();
@@ -105,10 +101,6 @@ namespace WebAPI.Models.Users
     /// </summary>
     public partial class KalturaSessionInfo : KalturaSession
     {
-        public KalturaSessionInfo()
-        {
-        }
-
         public KalturaSessionInfo(KS ks) : base(ks)
         {
         }

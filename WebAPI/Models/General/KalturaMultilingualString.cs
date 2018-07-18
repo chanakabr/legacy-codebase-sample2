@@ -22,18 +22,14 @@ namespace WebAPI.Models.General
         private string RequestLanguageCode;
         private string GroupDefaultLanguageCode;
 
-        public KalturaMultilingualString()
-        {
-        }
-
-        public KalturaMultilingualString(LanguageContainer[] values)
+        public KalturaMultilingualString(LanguageContainer[] values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();            
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
-        public KalturaMultilingualString(List<LanguageContainer> values, string defaultLanguageValue)
+        public KalturaMultilingualString(List<LanguageContainer> values, string defaultLanguageValue) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
@@ -42,21 +38,21 @@ namespace WebAPI.Models.General
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
         }
 
-        public KalturaMultilingualString(JArray values)
+        public KalturaMultilingualString(JArray values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
             Values = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), values);
         }
 
-        public KalturaMultilingualString(List<object> values)
+        public KalturaMultilingualString(List<object> values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
             Values = KalturaOTTObject.buildList(typeof(KalturaTranslationToken), values.ToArray());
         }
 
-        public KalturaMultilingualString(string defaultLanguageValue)
+        public KalturaMultilingualString(string defaultLanguageValue) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();

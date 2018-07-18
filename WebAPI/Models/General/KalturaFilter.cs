@@ -22,12 +22,16 @@ namespace WebAPI.Models.General
 
         public KalturaFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            OrderBy = GetDefaultOrderByValue();
-
             if (parameters != null && parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
             {
                 OrderBy = (KalturaT)Enum.Parse(typeof(KalturaT), parameters["orderBy"].ToString(), true);
             }
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            OrderBy = GetDefaultOrderByValue();
         }
 
         /// <summary>

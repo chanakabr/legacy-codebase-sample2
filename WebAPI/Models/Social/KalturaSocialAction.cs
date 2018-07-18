@@ -82,13 +82,14 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "rate")]
         public int Rate { get; set; }
 
-        public KalturaSocialActionRate(int value)
+        public KalturaSocialActionRate(int value) : base(null)
         {
-            ActionType = KalturaSocialActionType.RATE;
             Rate = value;
         }
-        public KalturaSocialActionRate()
+
+        protected override void Init()
         {
+            base.Init();
             ActionType = KalturaSocialActionType.RATE;            
         }
 

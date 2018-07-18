@@ -26,8 +26,9 @@ namespace WebAPI.Models.General
         [XmlArrayItem("item")]
         public List<KalturaT> Objects { get; set; }
 
-        public KalturaGenericListResponse()
+        protected override void Init()
         {
+            base.Init();
             TotalCount = 0;
         }
 
