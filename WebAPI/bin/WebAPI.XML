@@ -4787,6 +4787,21 @@
             Concurrency limitation type
             </summary>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaIpRangeCondition">
+            <summary>
+            IP range condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIpRangeCondition.FromIP">
+            <summary>
+            From IP address range
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIpRangeCondition.ToIP">
+            <summary>
+            TO IP address range
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaAssetUserRuleFilter">
             <summary>
             Asset user rule filter
