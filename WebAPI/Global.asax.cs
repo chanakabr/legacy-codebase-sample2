@@ -36,7 +36,11 @@ namespace WebAPI
         private static void InitializeLogging()
         {
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
-            if(logDir == null)
+            if(logDir != null)
+            {
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir);
+            }
+            else
             {
                 logDir = "C:\\log\\RestfulApi";
             }

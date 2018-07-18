@@ -21,73 +21,7 @@
       "parameter": "isProtected",
       "action": "UPDATE",
       "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Insert",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Update",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Insert",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Update",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Insert",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaMeta_isProtected_Update",
-      "object": "KalturaMeta",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    }
+    }	
   ],
   "type": "Parameter"
 }

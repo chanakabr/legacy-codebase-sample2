@@ -21,73 +21,7 @@
       "parameter": "isProtected",
       "action": "UPDATE",
       "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Insert",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "INSERT",
-      "type": "Parameter"
-    },
-    {
-      "permissions": [
-        "Operator"
-      ],
-      "excluded_permissions": [],
-      "name": "KalturaAssetStruct_isProtected_Update",
-      "object": "KalturaAssetStruct",
-      "parameter": "isProtected",
-      "action": "UPDATE",
-      "type": "Parameter"
-    }
+    }	
   ],
   "type": "Parameter"
 }

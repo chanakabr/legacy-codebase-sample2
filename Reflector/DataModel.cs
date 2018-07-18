@@ -356,7 +356,7 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
-        private void wrtieExecAction(MethodInfo action, bool indent)
+        private void wrtieExecAction(MethodInfo action, bool indent, string permissionActionName = null)
         {
             string tab = indent ? "    " : "";
             Type controller = action.DeclaringType;
@@ -380,13 +380,18 @@ namespace Reflector
             ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
             if (authorization != null)
             {
+                if (permissionActionName == null)
+                {
+                    permissionActionName = actionAttribute.Name;
+                }
+
                 if (authorization.Silent)
                 {
-                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", true);");
+                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + permissionActionName + "\", true);");
                 }
                 else
                 {
-                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\", false);");
+                    file.WriteLine(tab + "                            RolesManager.ValidateActionPermitted(\"" + serviceAttribute.Name + "\", \"" + permissionActionName + "\", false);");
                 }
             }
 
@@ -475,7 +480,7 @@ namespace Reflector
                         {
                             file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
-                            wrtieExecAction(oldAction, true);
+                            wrtieExecAction(oldAction, true, oldStandardActionAttribute.oldName);
                             file.WriteLine("                            }");
                             break;
                         }
@@ -495,7 +500,7 @@ namespace Reflector
                         {
                             file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
-                            wrtieExecAction(oldAction, true);
+                            wrtieExecAction(oldAction, true, oldStandardActionAttribute.oldName);
                             file.WriteLine("                            }");
                             break;
                         }

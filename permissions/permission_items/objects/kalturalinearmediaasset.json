@@ -5,7 +5,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableCdvr_ALL",
+      "name": "KalturaLinearMediaAsset_enableCdvr_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableCdvrState",
       "action": "USAGE",
@@ -16,7 +16,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableCatchUpState_ALL",
+      "name": "KalturaLinearMediaAsset_enableCatchUpState_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableCatchUpState",
       "action": "USAGE",
@@ -27,7 +27,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableStartOverState_ALL",
+      "name": "KalturaLinearMediaAsset_enableStartOverState_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableStartOverState",
       "action": "USAGE",
@@ -38,7 +38,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_bufferCatchUp_ALL",
+      "name": "KalturaLinearMediaAsset_bufferCatchUp_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "bufferCatchUp",
       "action": "USAGE",
@@ -49,7 +49,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_bufferTrickPlay_ALL",
+      "name": "KalturaLinearMediaAsset_bufferTrickPlay_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "bufferTrickPlay",
       "action": "USAGE",
@@ -60,7 +60,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_ALL",
+      "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableRecordingPlaybackNonEntitledChannelState",
       "action": "USAGE",
@@ -71,7 +71,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableTrickPlayState_ALL",
+      "name": "KalturaLinearMediaAsset_enableTrickPlayState_USAGE",
       "object": "KalturaLinearMediaAsset",
       "parameter": "enableTrickPlayState",
       "action": "USAGE",
