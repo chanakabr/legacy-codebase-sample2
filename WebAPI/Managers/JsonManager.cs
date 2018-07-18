@@ -36,16 +36,7 @@ namespace WebAPI.Managers
         {
             string result = string.Empty;
 
-            Version currentVersion;
-            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[RequestParser.REQUEST_VERSION] != null)
-            {
-                currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
-            }
-            else
-            {
-                currentVersion = OldStandardAttribute.GetCurrentVersion();
-            }
-
+            Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
             if (value is IKalturaSerializable)
             {
                 result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);

@@ -1519,7 +1519,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -1583,7 +1583,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("viewLifeCycle") && parameters["viewLifeCycle"] != null)
                 {
@@ -1636,7 +1636,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("receiptCode") && parameters["receiptCode"] != null)
                 {
@@ -1807,7 +1807,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("recieptCode") && parameters["recieptCode"] != null)
                 {
@@ -2097,7 +2097,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -2244,7 +2244,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -2546,7 +2546,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -2930,7 +2930,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -2981,7 +2981,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("entitlementTypeEqual") && parameters["entitlementTypeEqual"] != null)
                 {
@@ -3081,7 +3081,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("entitlementType") && parameters["entitlementType"] != null)
                 {
@@ -3130,7 +3130,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -3211,7 +3211,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
@@ -3246,7 +3246,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mainUrl") && parameters["mainUrl"] != null)
                 {
@@ -3342,7 +3342,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("quotaInMinutes") && parameters["quotaInMinutes"] != null)
                 {
@@ -3401,7 +3401,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaProtocol") && parameters["mediaProtocol"] != null)
                 {
@@ -3492,7 +3492,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
                 {
@@ -3544,7 +3544,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -3567,7 +3567,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("subscriptionsIds") && parameters["subscriptionsIds"] != null)
                 {
@@ -3672,7 +3672,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("currency") && parameters["currency"] != null)
                 {
@@ -3729,7 +3729,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
@@ -3832,7 +3832,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -3992,7 +3992,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("statusIn") && parameters["statusIn"] != null)
                 {
@@ -4056,7 +4056,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
@@ -4115,7 +4115,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -4292,7 +4292,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
                 {
@@ -4424,7 +4424,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -4496,7 +4496,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
@@ -4609,7 +4609,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -4693,7 +4693,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("network") && parameters["network"] != null)
                 {
@@ -4806,7 +4806,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -4887,7 +4887,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -5052,7 +5052,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("appId") && parameters["appId"] != null)
                 {
@@ -5157,7 +5157,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
@@ -5238,7 +5238,7 @@ namespace WebAPI.Models.Social
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -5492,7 +5492,7 @@ namespace WebAPI.Models.General
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -6036,7 +6036,7 @@ namespace WebAPI.Models.Notifications
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -6142,7 +6142,7 @@ namespace WebAPI.Models.Notifications
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -6192,7 +6192,7 @@ namespace WebAPI.Models.Notifications
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("seriesId") && parameters["seriesId"] != null)
                 {
@@ -6321,7 +6321,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -6385,7 +6385,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -6432,7 +6432,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -6513,7 +6513,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -6585,7 +6585,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("announcementId") && parameters["announcementId"] != null)
                 {
@@ -6652,7 +6652,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -6681,7 +6681,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -6749,7 +6749,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -6894,7 +6894,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
                 {
@@ -7003,7 +7003,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("pushNotificationEnabled") && parameters["pushNotificationEnabled"] != null)
                 {
@@ -7122,7 +7122,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("pushNotificationEnabled") && parameters["pushNotificationEnabled"] != null)
                 {
@@ -7249,7 +7249,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -7334,7 +7334,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
                 {
@@ -7462,7 +7462,7 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -7593,7 +7593,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -7733,7 +7733,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("user") && parameters["user"] != null)
                 {
@@ -7801,7 +7801,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -7842,7 +7842,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetIdEqual") && parameters["assetIdEqual"] != null)
                 {
@@ -8031,7 +8031,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -8090,7 +8090,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("filterTypes") && parameters["filterTypes"] != null)
                 {
@@ -8162,7 +8162,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("metas") && parameters["metas"] != null)
                 {
@@ -8217,7 +8217,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ids") && parameters["ids"] != null)
                 {
@@ -8254,7 +8254,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
@@ -8345,7 +8345,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assets") && parameters["assets"] != null)
                 {
@@ -8370,7 +8370,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -8508,7 +8508,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -8610,7 +8610,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -8711,7 +8711,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetStructId") && parameters["assetStructId"] != null)
                 {
@@ -8794,7 +8794,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetStructIdEqual") && parameters["assetStructIdEqual"] != null)
                 {
@@ -8846,7 +8846,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -8918,7 +8918,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -8993,7 +8993,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("user") && parameters["user"] != null)
                 {
@@ -9145,7 +9145,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
@@ -9172,7 +9172,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("normalizedAvgScore") && parameters["normalizedAvgScore"] != null)
                 {
@@ -9256,7 +9256,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -9408,7 +9408,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
@@ -9449,7 +9449,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
@@ -9506,7 +9506,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("dynamicOrderBy") && parameters["dynamicOrderBy"] != null)
                 {
@@ -9560,7 +9560,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
@@ -9649,7 +9649,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
@@ -9675,7 +9675,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
@@ -9700,7 +9700,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ids") && parameters["ids"] != null)
                 {
@@ -9808,7 +9808,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -9897,7 +9897,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -10000,7 +10000,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -10087,7 +10087,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -10337,7 +10337,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("enableCdvrState") && parameters["enableCdvrState"] != null)
                 {
@@ -10538,7 +10538,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("externalIds") && parameters["externalIds"] != null)
                 {
@@ -10645,7 +10645,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -10923,7 +10923,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11047,7 +11047,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ratio") && parameters["ratio"] != null)
                 {
@@ -11103,7 +11103,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11213,7 +11213,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11297,7 +11297,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
@@ -11418,7 +11418,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11512,7 +11512,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
@@ -11562,7 +11562,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
@@ -11607,7 +11607,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("recordingTypeEqual") && parameters["recordingTypeEqual"] != null)
                 {
@@ -11647,7 +11647,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
@@ -11726,7 +11726,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11788,7 +11788,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -11836,7 +11836,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("tagEqual") && parameters["tagEqual"] != null)
                 {
@@ -11909,7 +11909,7 @@ namespace WebAPI.Models.Catalog
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("asset") && parameters["asset"] != null)
                 {
@@ -12020,7 +12020,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12157,7 +12157,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12247,7 +12247,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("defaultAdapterId") && parameters["defaultAdapterId"] != null)
                 {
@@ -12287,7 +12287,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12370,7 +12370,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
@@ -12403,7 +12403,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("not") && parameters["not"] != null)
                 {
@@ -12567,7 +12567,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12656,7 +12656,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12775,7 +12775,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12853,7 +12853,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -12884,7 +12884,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -13116,7 +13116,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -13246,7 +13246,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -13326,7 +13326,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -13358,7 +13358,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -13502,7 +13502,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -13683,7 +13683,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -13722,7 +13722,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -13820,7 +13820,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("purchaseSettingsType") && parameters["purchaseSettingsType"] != null)
                 {
@@ -13857,7 +13857,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -14146,7 +14146,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -14314,7 +14314,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("catchUpEnabled") && parameters["catchUpEnabled"] != null)
                 {
@@ -14478,7 +14478,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -14551,7 +14551,7 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -14667,7 +14667,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -14787,7 +14787,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("collectionIdIn") && parameters["collectionIdIn"] != null)
                 {
@@ -14868,7 +14868,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("couponsGroup") && parameters["couponsGroup"] != null)
                 {
@@ -14998,7 +14998,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -15129,7 +15129,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("percentage") && parameters["percentage"] != null)
                 {
@@ -15166,7 +15166,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -15218,7 +15218,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -15253,7 +15253,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("percent") && parameters["percent"] != null)
                 {
@@ -15284,7 +15284,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("fileId") && parameters["fileId"] != null)
                 {
@@ -15420,7 +15420,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ppvModuleId") && parameters["ppvModuleId"] != null)
                 {
@@ -15703,7 +15703,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -15751,7 +15751,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
@@ -15813,7 +15813,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -15879,7 +15879,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -15960,7 +15960,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
                 {
@@ -16053,7 +16053,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -16105,7 +16105,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
@@ -16217,7 +16217,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -16573,7 +16573,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("baseSubscriptionIdIn") && parameters["baseSubscriptionIdIn"] != null)
                 {
@@ -16602,7 +16602,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("subscriptionIdIn") && parameters["subscriptionIdIn"] != null)
                 {
@@ -16645,7 +16645,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
@@ -16697,7 +16697,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -16876,7 +16876,7 @@ namespace WebAPI.Models.Pricing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -17028,7 +17028,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -17076,7 +17076,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -17136,7 +17136,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("asset") && parameters["asset"] != null)
                 {
@@ -17178,7 +17178,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaTypeIn") && parameters["mediaTypeIn"] != null)
                 {
@@ -17236,7 +17236,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("user") && parameters["user"] != null)
                 {
@@ -17280,7 +17280,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ks") && parameters["ks"] != null)
                 {
@@ -17366,7 +17366,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
@@ -17585,7 +17585,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -17628,7 +17628,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -17681,7 +17681,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("usernameEqual") && parameters["usernameEqual"] != null)
                 {
@@ -17741,7 +17741,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -17820,7 +17820,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -17882,7 +17882,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("list") && parameters["list"] != null)
                 {
@@ -17908,7 +17908,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
@@ -17948,7 +17948,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18008,7 +18008,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18091,7 +18091,7 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("pinCode") && parameters["pinCode"] != null)
                 {
@@ -18138,7 +18138,7 @@ namespace WebAPI.Models.Partner
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
@@ -18284,7 +18284,7 @@ namespace WebAPI.Models.Upload
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18401,7 +18401,7 @@ namespace WebAPI.Models.Upload
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18510,7 +18510,7 @@ namespace WebAPI.Models.DMS
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18588,7 +18588,7 @@ namespace WebAPI.Models.DMS
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("configurationGroupId") && parameters["configurationGroupId"] != null)
                 {
@@ -18669,7 +18669,7 @@ namespace WebAPI.Models.DMS
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("configurationGroupId") && parameters["configurationGroupId"] != null)
                 {
@@ -18760,7 +18760,7 @@ namespace WebAPI.Models.DMS
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -18962,7 +18962,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -19018,7 +19018,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -19092,7 +19092,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -19268,7 +19268,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -19580,7 +19580,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
@@ -19670,7 +19670,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("frequency") && parameters["frequency"] != null)
                 {
@@ -19710,7 +19710,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdIdEqual") && parameters["householdIdEqual"] != null)
                 {
@@ -19848,7 +19848,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -20070,7 +20070,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
@@ -20134,7 +20134,7 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("householdIdEqual") && parameters["householdIdEqual"] != null)
                 {
@@ -20195,7 +20195,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -20269,7 +20269,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -20377,7 +20377,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -20430,7 +20430,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("paymentGatewayConfiguration") && parameters["paymentGatewayConfiguration"] != null)
                 {
@@ -20455,7 +20455,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -20588,7 +20588,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -20638,7 +20638,7 @@ namespace WebAPI.Models.Billing
         {
             if (parameters != null)
             {
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {

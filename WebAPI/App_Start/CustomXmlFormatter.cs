@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Web;
 using WebAPI.Filters;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.App_Start
 {
@@ -47,7 +48,7 @@ namespace WebAPI.App_Start
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 StatusWrapper wrapper = (StatusWrapper)value;
-                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.ToXml(currentVersion, true) + "</xml>";
                 streamWriter.Write(xml);
                 return Task.FromResult(writeStream);

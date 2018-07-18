@@ -34,19 +34,26 @@ namespace WebAPI.Managers.Scheme
 
         public string oldName { get; set; }
 
+        public static Version getCurrentRequestVersion()
+        {
+            if (HttpContext.Current == null)
+            {
+                return OldStandardAttribute.GetCurrentVersion();
+            }
+
+            if (HttpContext.Current.Items != null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] != null)
+            {
+                return (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            }
+
+            return null;
+        }
+
         public static bool isCurrentRequestOldVersion(Version current = null)
         {
             if (current == null)
             {
-                if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
-                {
-                    current = OldStandardAttribute.GetCurrentVersion();
-                }
-                else
-                {
-                    current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-                }
-
+                current = getCurrentRequestVersion();
                 if (current == null)
                 {
                     return true;
