@@ -5,10 +5,10 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaRecording_type_Write",
+      "name": "KalturaRecording_type_Insert",
       "object": "KalturaRecording",
       "parameter": "type",
-      "action": "WRITE",
+      "action": "INSERT",
       "type": "Parameter"
     },
     {
@@ -16,10 +16,32 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaRecording_isProtected_Write",
+      "name": "KalturaRecording_type_Update",
+      "object": "KalturaRecording",
+      "parameter": "type",
+      "action": "UPDATE",
+      "type": "Parameter"
+    },	
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_isProtected_Insert",
       "object": "KalturaRecording",
       "parameter": "isProtected",
-      "action": "WRITE",
+      "action": "INSERT",
+      "type": "Parameter"
+    },	
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_isProtected_Update",
+      "object": "KalturaRecording",
+      "parameter": "isProtected",
+      "action": "UPDATE",
       "type": "Parameter"
     }
   ],
