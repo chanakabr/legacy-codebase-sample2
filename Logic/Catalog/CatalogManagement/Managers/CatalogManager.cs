@@ -185,21 +185,55 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds)
+        private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds, List<KeyValuePair<long, int>> insertedMetaIdsToPriority = null)
         {
             GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                DataTable dtMediaTypes = ds.Tables[0];
+                if (dtMediaTypes != null && dtMediaTypes.Rows != null && dtMediaTypes.Rows.Count == 1)
                 {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dtMediaTypes.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
-                        List<DataRow> assetStructTranslations = (from row in translations
-                                                                 select row).ToList();
-                        response.Object = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
+                        List<DataRow> assetStructTranslations = (ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable()).ToList();
+                        response.Object = CreateAssetStruct(id, dtMediaTypes.Rows[0], assetStructTranslations);
+
+                        if (response.Object != null)
+                        {
+                            if (insertedMetaIdsToPriority != null && insertedMetaIdsToPriority.Count > 0)
+                            {
+                                foreach (KeyValuePair<long, int> metaIdToPriority in insertedMetaIdsToPriority)
+                                {
+                                    if (!response.Object.MetaIds.Contains(metaIdToPriority.Key))
+                                    {
+                                        response.Object.MetaIds.Add(metaIdToPriority.Key);
+                                    }
+                                }
+                            }
+                            else if (ds.Tables.Count == 3)
+                            {
+                                DataTable dtTemplateTopics = ds.Tables[2];
+                                if (dtTemplateTopics != null && dtTemplateTopics.Rows != null && dtTemplateTopics.Rows.Count > 0)
+                                {
+                                    if (response.Object.MetaIds == null)
+                                    {
+                                        response.Object.MetaIds = new List<long>(dtTemplateTopics.Rows.Count);
+                                    }
+
+                                    foreach (DataRow dr in dtTemplateTopics.Rows)
+                                    {
+                                        long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
+                                        if (!response.Object.MetaIds.Contains(metaId))
+                                        {
+                                            response.Object.MetaIds.Add(metaId);
+                                        }
+                                    }
+                                }
+                            }
+
+                            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
                     }
                     else
                     {
@@ -210,28 +244,6 @@ namespace Core.Catalog.CatalogManagement
                 else
                 {
                     response.SetStatus(CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString())));
-                }
-
-                if (response.Object != null && ds.Tables.Count == 3)
-                {
-                    DataTable metasDt = ds.Tables[2];
-                    if (response.Object != null && metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in metasDt.Rows)
-                        {
-                            long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
-                            long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
-                            if (!response.Object.MetaIds.Contains(metaId))
-                            {
-                                response.Object.MetaIds.Add(metaId);
-                            }
-                        }
-                    }
-                }
-
-                if (response.Object != null)
-                {
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
@@ -887,7 +899,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, 
                                                           assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
                                                           assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId);
-                result = CreateAssetStructResponseFromDataSet(ds);
+                result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
