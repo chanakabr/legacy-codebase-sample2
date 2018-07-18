@@ -44,6 +44,7 @@ namespace WebAPI.Models.API
             bool countryConditionExist = false;
             bool concurrencyConditionExist = false;
             bool assetConditionExist = false;
+            bool ipRangeConditionExist = false;
             bool validateActionsNeeded = true;
 
             foreach (var condition in Conditions)
@@ -104,12 +105,13 @@ namespace WebAPI.Models.API
                 else if (condition is KalturaIpRangeCondition)
                 {
                     validateActionsNeeded = false;
+                    ipRangeConditionExist = true;
                     KalturaIpRangeCondition kCondition = condition as KalturaIpRangeCondition;
                     ValidateIpRange(kCondition.FromIP, kCondition.ToIP);
                 }
             }
 
-            if (!countryConditionExist && !concurrencyConditionExist)
+            if (!countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
@@ -128,13 +130,14 @@ namespace WebAPI.Models.API
 
         private void ValidateIpRangeActions()
         {
-            var ruleAction = Actions.Count(x => x.Type == KalturaRuleActionType.ALLOW_PLAYBACK || x.Type == KalturaRuleActionType.BLOCK_PLAYBACK);
+            var ruleAction = Actions.Count(x => x is KalturaAllowPlaybackAction || x is KalturaBlockPlaybackAction);
 
             if (ruleAction == 0)
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
             }
         }
+
 
         private void ValidateIpRange(string fromIP, string toIP)
         {
