@@ -4913,9 +4913,7 @@ namespace Core.Catalog
             lMedia.Add(new KeyValuePair<string, int>("billingTypeID", billingTypeID));
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
-
-        // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-        //internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
+        
         internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref long recordingId, ref int fileDuration, int groupId, int domainId)
         {
             bool result = false;
@@ -4954,7 +4952,6 @@ namespace Core.Catalog
                 if (recording != null && recording.Status != null && recording.Status.Code == 0)
                 {
                     fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                    //
                     recordingId = recording.Id;
 
                     if (shouldCache)

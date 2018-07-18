@@ -3324,11 +3324,11 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static GenericResponse<ApiObjects.TimeShiftedTv.Recording> AddExternalRecording(int groupId, ApiObjects.TimeShiftedTv.Recording recording, long userId)
+        public static GenericResponse<ApiObjects.TimeShiftedTv.ExternalRecording> AddExternalRecording(int groupId, ApiObjects.TimeShiftedTv.ExternalRecording recording, bool isProtected, long userId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            GenericResponse<ApiObjects.TimeShiftedTv.Recording> externalRecordingResponse = t.AddExternalRecording(groupId, recording, userId);
+            GenericResponse<ApiObjects.TimeShiftedTv.ExternalRecording> externalRecordingResponse = t.AddExternalRecording(groupId, recording, isProtected, userId);
 
             return externalRecordingResponse;
         }

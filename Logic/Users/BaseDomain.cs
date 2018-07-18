@@ -1386,7 +1386,6 @@ namespace Core.Users
                     newDomainId = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)userId, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
                 }
 
-                // TODO SHIR - CHECK ==
                 if (newDomainId < 1 || newDomainId == (int)domainId)
                     return null;
                 res = oDomainCache.GetDomain(newDomainId, m_nGroupID);

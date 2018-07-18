@@ -1955,5 +1955,11 @@ namespace Core.Api
 
             return response;
         }
+
+        public static bool SetLayeredCacheInvalidationKey(string key)
+        {
+            return CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(key);
+        }
+
     }
 }

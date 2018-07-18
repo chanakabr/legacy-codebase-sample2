@@ -570,14 +570,15 @@ namespace Core.ConditionalAccess
                 int drmId = 0;
                 string fileCoGuid = string.Empty;
 
-                int nProgramId = 0;
+                int programId = -1;
                 if (eformat != eEPGFormatType.NPVR)
                 {
-                    bool res = int.TryParse(sProgramId, out nProgramId);
+                    bool res = int.TryParse(sProgramId, out programId);
                 }
 
-                LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
-                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, nProgramId);
+                LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
+                                                                             sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, 
+                                                                             ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId);
 
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
@@ -617,7 +618,7 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
-                Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, nProgramId);
+                Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, programId);
                 if (scheduling != null)
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
@@ -639,7 +640,7 @@ namespace Core.ConditionalAccess
                             {
                                 #region Logging
                                 StringBuilder sb = new StringBuilder(String.Concat("Error. Flow not implemented for format: ", eformat.ToString()));
-                                sb.Append(String.Concat(" P ID: ", nProgramId));
+                                sb.Append(String.Concat(" P ID: ", programId));
                                 sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
                                 sb.Append(String.Concat(" SG :", sSiteGUID));
                                 sb.Append(String.Concat(" MF ID: ", nMediaFileID));
@@ -681,7 +682,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, fileType, nProgramId, mediaId, nMediaFileID,
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, fileType, programId, mediaId, nMediaFileID,
                         TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
 
                     if (link != null)

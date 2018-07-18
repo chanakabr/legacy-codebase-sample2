@@ -40,7 +40,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public string Crid { get; set; }
 
-        public string ExternalDomainRecordingId { get; set; }
+        public bool isExternalRecording { get; set; } 
 
 
         public Recording()
@@ -48,6 +48,7 @@ namespace ApiObjects.TimeShiftedTv
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.Id = 0;            
             this.Type = RecordingType.Single;
+            this.isExternalRecording = false;
         }
 
         public Recording(Recording record)
@@ -67,6 +68,7 @@ namespace ApiObjects.TimeShiftedTv
             this.CreateDate = record.CreateDate;
             this.UpdateDate = record.UpdateDate;
             this.Crid = record.Crid;
+            this.isExternalRecording = false;
         }
 
         public override string ToString()

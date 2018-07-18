@@ -111,9 +111,7 @@ namespace Core.Catalog.Request
                     return response;
                 }
             }
-
-            // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-            //long recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            
             long recordingId = 0;
             int fileDuration = 0;
             int assetId = 0;
@@ -122,15 +120,6 @@ namespace Core.Catalog.Request
             {
                 assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 NPVR.INPVRProvider npvr;
-
-                // TODO SHIR - REMOVE THE NOTES WHEN DONE TO CHECK
-                //if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
-                //    !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
-                //{
-                //    response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
-                //    response.m_sDescription = "Recording doesn't exist";
-                //    return response;
-                //}
 
                 if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null) &&
                     !CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
@@ -173,7 +162,16 @@ namespace Core.Catalog.Request
                         response.m_sDescription = "No devicePlayData";
                         return response;
                     }
-                    
+
+                    this.domainId = devicePlayData.DomainId;
+
+                    if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
+                    {
+                        response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+                        m_oMediaPlayRequestData.ResetDevicePlayData(devicePlayData);
+                        return response;
+                    }
+
                     CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, locationSec, fileDuration, MediaPlayActions.HIT, eExpirationTTL.Short,
                                                 this.m_oMediaPlayRequestData.IsReportingMode, (int)eAssetTypes.NPVR, false, false);
                 }
@@ -217,34 +215,42 @@ namespace Core.Catalog.Request
             
             int locationSec = 0;
             if (m_oMediaPlayRequestData.m_nLoc > 0)
+            {
                 locationSec = m_oMediaPlayRequestData.m_nLoc;
+            }
             
             //non-anonymous user
             if (!CatalogLogic.IsAnonymousUser(this.m_oMediaPlayRequestData.m_sSiteGuid))
             {
                 bool isFirstPlay = false;
                 if (!resultParse || action == MediaPlayActions.HIT)
+                {
                     isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
+                }
 
                 string playCycleKey = string.Empty;
 
                 int platform = 0;
                 if (this.m_oFilter != null)
+                {
                     int.TryParse(m_oFilter.m_sPlatform, out platform);
+                }
 
                 var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, action, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA, 
                                                                                            this.domainId, 0, platform, countryId);
                 if (currDevicePlayData == null)
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    mediaHitResponse.m_sDescription = "No devicePlayData";
                     return mediaHitResponse;
                 }
+
                 this.domainId = currDevicePlayData.DomainId;
 
-                // 4. TODO SHIR ask ira if need to check only if linear?
                 if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref currDevicePlayData))
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
+                    m_oMediaPlayRequestData.ResetDevicePlayData(currDevicePlayData);
                     return mediaHitResponse;
                 }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.MediaMarks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,10 @@ namespace ApiObjects
         public int AssetId { get; set; }
 
         public List<MediaFile> Files { get; set; }
+        
+        public Response.Status Status { get; set; }
 
-        public ApiObjects.Response.Status Status { get; set; }
+        public DevicePlayData ConcurrencyData { get; set; }
     }
 
     public class MediaFile

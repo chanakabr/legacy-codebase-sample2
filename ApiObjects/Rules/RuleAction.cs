@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace ApiObjects.Rules
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class RuleAction
     {
         [JsonProperty("Type")]
@@ -18,16 +19,19 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class AssetRuleAction : RuleAction
     {
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class AssetUserRuleAction : RuleAction
     {
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetBlockAction : AssetRuleAction
     {
         public AssetBlockAction()
@@ -37,6 +41,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class TimeOffsetRuleAction : AssetRuleAction
     {
         [JsonProperty("Offset")]
@@ -47,6 +52,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class EndDateOffsetRuleAction : TimeOffsetRuleAction
     {
         public EndDateOffsetRuleAction()
@@ -56,6 +62,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class StartDateOffsetRuleAction : TimeOffsetRuleAction
     {
         public StartDateOffsetRuleAction()
@@ -65,6 +72,7 @@ namespace ApiObjects.Rules
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetUserRuleBlockAction : AssetUserRuleAction
     {
         public AssetUserRuleBlockAction()
