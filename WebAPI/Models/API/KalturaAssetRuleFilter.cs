@@ -49,7 +49,8 @@ namespace WebAPI.Models.API
         internal void Validate()
         {
             if (!KalturaRuleConditionType.CONCURRENCY.Equals(ConditionsContainType) &&
-                !KalturaRuleConditionType.COUNTRY.Equals(ConditionsContainType))
+                !KalturaRuleConditionType.COUNTRY.Equals(ConditionsContainType) &&
+                !KalturaRuleConditionType.IP_RANGE.Equals(ConditionsContainType))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
             }
