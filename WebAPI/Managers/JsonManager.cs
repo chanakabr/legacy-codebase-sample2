@@ -50,7 +50,7 @@ namespace WebAPI.Managers
             {
                 result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
             }
-            else if (string.IsNullOrEmpty(result))
+            else
             {
                 result = JsonConvert.SerializeObject(value);
             }
