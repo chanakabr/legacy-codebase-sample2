@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using WebAPI.Filters;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 
@@ -35,22 +36,21 @@ namespace WebAPI.Managers
         {
             string result = string.Empty;
 
-            if (value is IKalturaSerializable && HttpContext.Current != null && HttpContext.Current.Items != null)
+            Version currentVersion;
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[RequestParser.REQUEST_VERSION] != null)
             {
-                object requestVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
-
-                if (requestVersion != null)
-                {
-                    Version currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
-
-                    if (currentVersion != null)
-                    {
-                        result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
-                    }
-                }
+                currentVersion = HttpContext.Current.Items[RequestParser.REQUEST_VERSION] as Version;
+            }
+            else
+            {
+                currentVersion = OldStandardAttribute.GetCurrentVersion();
             }
 
-            if (string.IsNullOrEmpty(result))
+            if (value is IKalturaSerializable)
+            {
+                result = ((IKalturaSerializable)value).ToJson(currentVersion, omitObsolete);
+            }
+            else if (!string.IsNullOrEmpty(result))
             {
                 result = JsonConvert.SerializeObject(value);
             }

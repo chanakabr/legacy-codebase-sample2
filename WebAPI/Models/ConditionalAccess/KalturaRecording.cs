@@ -69,15 +69,6 @@ namespace WebAPI.Models.ConditionalAccess
         public bool IsProtected { get; set; }
 
         /// <summary>
-        /// External identifier for the recording
-        /// </summary>
-        [DataMember(Name = "externalId")]
-        [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]        
-        [SchemeProperty(MinLength = 1, MaxLength = 255, RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
-        public string ExternalId { get; set; }
-
-        /// <summary>
         /// Specifies when was the recording created. Date and time represented as epoch.
         /// </summary>
         [DataMember(Name = "createDate")]

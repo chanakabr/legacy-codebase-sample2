@@ -58,9 +58,6 @@
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseManager">
-      <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Enyim.Caching">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
     </Reference>
@@ -252,6 +249,7 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
     <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />
@@ -1145,6 +1143,10 @@
     <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>

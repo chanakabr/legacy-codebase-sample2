@@ -258,12 +258,14 @@ namespace WebAPI
             {
                 // save context data - for multi threading operations
                 ContextData contextData = new ContextData();
+                var currentHttpContext = HttpContext.Current;
 
                 HostingEnvironment.QueueBackgroundWorkItem((obj) =>
                 {
                     try
                     {
                         contextData.Load();
+                        HttpContext.Current = currentHttpContext;
 
                         log.DebugFormat("Start async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());

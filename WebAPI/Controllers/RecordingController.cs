@@ -124,11 +124,16 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
-
+                if (recording is KalturaExternalRecording)
                 // external recording implementation
-                if (!string.IsNullOrEmpty(recording.ExternalId))
                 {
-                    response = ClientsManager.ConditionalAccessClient().AddExternalRecording(groupId, recording, userId);
+                    KalturaExternalRecording externalRecording = recording as KalturaExternalRecording;
+                    if (string.IsNullOrEmpty(externalRecording.ExternalId))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+                    }
+
+                    response = ClientsManager.ConditionalAccessClient().AddExternalRecording(groupId, externalRecording, userId);
                 }
                 else
                 // regular recording implementation

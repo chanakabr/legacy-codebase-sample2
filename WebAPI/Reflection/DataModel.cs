@@ -2010,6 +2010,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaExternalRecording":
+                    switch(property.Name)
+                    {
+                        case "ExternalId":
+                            return "externalId";
+                    }
+                    break;
+                    
                 case "KalturaFacebookPost":
                     switch(property.Name)
                     {
@@ -4187,8 +4195,6 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "CreateDate":
                             return "createDate";
-                        case "ExternalId":
-                            return "externalId";
                         case "Id":
                             return "id";
                         case "IsProtected":

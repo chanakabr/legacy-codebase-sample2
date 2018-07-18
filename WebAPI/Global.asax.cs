@@ -35,6 +35,13 @@ namespace WebAPI
 
         private static void InitializeLogging()
         {
+            string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
+            if(logDir == null)
+            {
+                logDir = "C:\\log\\RestfulApi";
+            }
+            log4net.GlobalContext.Properties["LogDir"] = logDir;
+
             // build log4net partial file name
             string partialLogName = string.Empty;
 

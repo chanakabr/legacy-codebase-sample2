@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Web;
@@ -12,6 +13,19 @@ namespace WebAPI.Managers.Scheme
     {
         public const string Version = "3.6.287.21521";
         public static Version OldVersion = new Version(OldStandardAttribute.Version);
+        private static Version CurrentVersion = null;
+
+        internal static Version GetCurrentVersion()
+        {
+            if (CurrentVersion == null)
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                CurrentVersion = new Version(fvi.FileVersion);
+            }
+
+            return CurrentVersion;
+        }
 
         public OldStandardAttribute(string oldName)
         {
@@ -22,14 +36,23 @@ namespace WebAPI.Managers.Scheme
 
         public static bool isCurrentRequestOldVersion(Version current = null)
         {
-            if(current == null)
+            if (current == null)
             {
-                if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
-                    return true;
+                if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                {
+                    current = OldStandardAttribute.GetCurrentVersion();
+                }
+                else
+                {
+                    current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                }
 
-                current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                if (current == null)
+                {
+                    return true;
+                }
             }
-            
+
             return current.CompareTo(OldVersion) < 0;
         }
     }

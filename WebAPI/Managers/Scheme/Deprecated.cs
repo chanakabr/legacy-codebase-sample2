@@ -24,11 +24,19 @@ namespace WebAPI.Managers.Scheme
         {
             if (current == null)
             {
-                if (HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
+                if (HttpContext.Current == null || HttpContext.Current.Items == null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] == null)
                 {
-                    return false;
+                    current = OldStandardAttribute.GetCurrentVersion();
                 }
-                current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                else
+                {
+                    current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                }
+
+                if (current == null)
+                {
+                    return true;
+                }
             }
 
             Version deprecationVersion = new Version(version);
