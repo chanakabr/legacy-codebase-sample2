@@ -734,8 +734,7 @@ namespace DAL
             sp.AddParameter("@EpgId", recording.EpgId);
             sp.AddParameter("@EpgChannelId", recording.ChannelId);
             sp.AddParameter("@ExternalRecordingId", recording.ExternalRecordingId);
-            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);
-            sp.AddParameter("@RecordingStatus", recording.RecordingStatus);
+            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);            
             sp.AddParameter("@RecordingType", recording.Type);
             sp.AddParameter("@StartDate", recording.EpgStartDate);
             sp.AddParameter("@EndDate", recording.EpgEndDate);            
