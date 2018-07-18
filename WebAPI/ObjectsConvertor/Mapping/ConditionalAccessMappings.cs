@@ -407,7 +407,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)))
-               .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId));
+               .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId))
+               .ForMember(dest => dest.Status, opt => opt.Ignore());
 
             // ExternalRecording to KalturaExternalRecording
             Mapper.CreateMap<ExternalRecording, KalturaExternalRecording>()
