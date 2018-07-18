@@ -599,6 +599,8 @@ namespace ElasticsearchTasksCommon
 
                 if (dataSet != null && dataSet.Tables.Count > 0)
                 {
+                    bool hasEpgIdentifier = dataSet.Tables[0].Columns.Contains("epg_identifier");
+
                     if (dataSet.Tables[0].Rows.Count > 0)
                     {
                         foreach (DataRow row in dataSet.Tables[0].Rows)
@@ -662,11 +664,14 @@ namespace ElasticsearchTasksCommon
 
                                 media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
 
-                                string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
-
-                                if (!string.IsNullOrEmpty(epgIdentifier))
+                                if (hasEpgIdentifier)
                                 {
-                                    media.epgIdentifier = epgIdentifier;
+                                    string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
+
+                                    if (!string.IsNullOrEmpty(epgIdentifier))
+                                    {
+                                        media.epgIdentifier = epgIdentifier;
+                                    }
                                 }
 
                                 #endregion

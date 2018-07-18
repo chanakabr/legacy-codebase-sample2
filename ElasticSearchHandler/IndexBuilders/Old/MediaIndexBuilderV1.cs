@@ -106,7 +106,11 @@ namespace ElasticSearchHandler.IndexBuilders
                             string nullValue;
                             eESFieldType metaType;
                             serializer.GetMetaType(topic.Type, out metaType, out nullValue);
-                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+
+                            if (!metas.ContainsKey(topic.SystemName))
+                            {
+                                metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -126,7 +130,11 @@ namespace ElasticSearchHandler.IndexBuilders
                                 string nullValue;
                                 eESFieldType metaType;
                                 serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                                metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+
+                                if (!metas.ContainsKey(meta.Value))
+                                {
+                                    metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                }
                             }
                         }
                     }
