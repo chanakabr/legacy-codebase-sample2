@@ -831,7 +831,7 @@ namespace Core.Api
             }
             return bRet;
         }
-    
+
         static public List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
         {
             List<int> nMedias = new List<int>();
@@ -1612,7 +1612,7 @@ namespace Core.Api
             }
 
             return res;
-        }       
+        }
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -1704,7 +1704,7 @@ namespace Core.Api
             }
             return EPG_ResponseMeta;
         }
-        
+
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
             List<EPGDictionary> EPG_ResponseMeta = new List<EPGDictionary>();
@@ -2493,14 +2493,31 @@ namespace Core.Api
         static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
         {
             bool isBlocked = false;
-            Int32 geoBlockID = 0;
             ruleName = "GeoAvailability";
+
+            // check for Geo Restriction - White-list/Blacklist IPs    
+            var rules = GetAssetRulesByIp(groupId, ip);
+
+            if (rules != null && rules.Count > 0)
+            {
+                if (rules.Where(x => x.Actions != null &&
+                                    x.Actions.Any(z => z is AllowPlaybackAction)).ToList().Count > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return isBlocked;
+                }
+            }
+
+            Int32 geoBlockID = 0;
             Country country = GetCountryByIp(groupId, ip);
 
             bool isGeoAvailability = false;
             int countryId = country != null ? country.Id : 0;
             isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability);
-            
+
             if (!isGeoAvailability)
             {
                 string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
@@ -2540,48 +2557,31 @@ namespace Core.Api
                     }
                 }
             }
-
-            // check for geo
-            isBlocked = CheckIpRangeAssetRule(isBlocked, groupId, ip);
-
+            
             return isBlocked;
         }
 
-        private static bool CheckIpRangeAssetRule(bool isBlocked, int groupId, string ip)
+        private static List<AssetRule> GetAssetRulesByIp(int groupId, string ip)
         {
+            List<AssetRule> assetRules = null;
+            long convertedIp = 0;
+
+            // convert ip address to number
+            if (!APILogic.Utils.ConvertIpToNumber(ip, out convertedIp) || convertedIp == 0)
+            {
+                //invalid ip
+                return assetRules;
+            }
+            
             // check if assetRule exist
-            bool isAssetRuleExist = false;
             GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(AssetRuleConditionType.IP_RANGE, groupId);
-            isAssetRuleExist = assetRulesResponse != null &&
-                assetRulesResponse.Status != null && assetRulesResponse.Status.Code == (int)eResponseStatus.OK &&
-                assetRulesResponse.Objects != null && assetRulesResponse.Objects.Count > 0;
+            if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
+                return assetRules;
 
-            // if is block check whiteList
-            if (isBlocked && isAssetRuleExist)
-            {
-                var assetRules = assetRulesResponse.Objects.Where(x => x.Actions[0] is AllowPlaybackAction).ToList();
-
-                // convert ip address to long
-                long convertedIp = 0;
-                APILogic.Utils.ConvertIpToInt(ip, ref convertedIp);
-                if (convertedIp > 0)
-                {
-                    foreach (var assetRule in assetRules)
-                    {
-                        //if(assetRule.Conditions)
-                    }
-                }
-
-            }
-
-            //if no clock check black list 
-            if (!isBlocked && isAssetRuleExist)
-            {
-                var assetRules = assetRulesResponse.Objects[0].Actions.Where(x => x is BlockPlaybackAction).Select(x => x as BlockPlaybackAction);
-
-            }
-
-            return isBlocked;
+            assetRules = assetRulesResponse.Objects.Where(x => x.Conditions != null &&
+                                                   x.Conditions.Any(z => z is IpRangeCondition) &&
+                                                   x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
+            return assetRules;
         }
 
         static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
