@@ -15,7 +15,9 @@ namespace WebAPI.Models.ConditionalAccess
         BLOCK,
         START_DATE_OFFSET,
         END_DATE_OFFSET,
-        USER_BLOCK
+        USER_BLOCK,
+        ALLOW_PLAYBACK,
+        BLOCK_PLAYBACK
     }
     
     public abstract partial class KalturaRuleAction : KalturaOTTObject
@@ -107,6 +109,22 @@ namespace WebAPI.Models.ConditionalAccess
         {
             base.Init();
             this.Type = KalturaRuleActionType.START_DATE_OFFSET;
+        }
+    }
+
+    public partial class KalturaAllowPlaybackAction : KalturaAssetRuleAction
+    {
+        public KalturaAllowPlaybackAction()
+        {
+            this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
+        }
+    }
+
+    public partial class KalturaBlockPlaybackAction : KalturaAssetRuleAction
+    {
+        public KalturaBlockPlaybackAction()
+        {
+            this.Type = KalturaRuleActionType.BLOCK_PLAYBACK;
         }
     }
 }

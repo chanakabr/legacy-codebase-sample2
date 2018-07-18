@@ -14,7 +14,8 @@ namespace WebAPI.Models.API
     {
         ASSET,
         COUNTRY,
-        CONCURRENCY
+        CONCURRENCY,
+        IP_RANGE
     }
     
     /// <summary>
@@ -147,5 +148,32 @@ namespace WebAPI.Models.API
     {
         Single = 0,
         Group = 1
+    }
+
+    /// <summary>
+    /// IP range condition
+    /// </summary>
+    public partial class KalturaIpRangeCondition : KalturaCondition
+    {
+        /// <summary>
+        /// From IP address range
+        /// </summary>
+        [DataMember(Name = "fromIP")]
+        [JsonProperty("fromIP")]
+        [XmlElement(ElementName = "fromIP")]
+        public string FromIP{ get; set; }
+
+        /// <summary>
+        /// TO IP address range
+        /// </summary>
+        [DataMember(Name = "toIP")]
+        [JsonProperty("toIP")]
+        [XmlElement(ElementName = "toIP")]
+        public string ToIP { get; set; }
+
+        public KalturaIpRangeCondition()
+        {
+            this.Type = KalturaRuleConditionType.IP_RANGE;
+        }       
     }
 }

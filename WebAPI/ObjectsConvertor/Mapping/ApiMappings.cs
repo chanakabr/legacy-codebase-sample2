@@ -616,6 +616,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             Countries = kAssetCondition.getCountries()
                         };
                     }
+                    else if (condition is KalturaIpRangeCondition)
+                    {
+                        KalturaIpRangeCondition kAssetCondition = condition as KalturaIpRangeCondition;
+                        long convertIpFrom = 0;
+                        APILogic.Utils.ConvertIpToNumber(kAssetCondition.FromIP, out convertIpFrom);
+                        long convertIpTo = 0;
+                        APILogic.Utils.ConvertIpToNumber(kAssetCondition.ToIP, out convertIpTo);
+
+                        item = new IpRangeCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            FromIp = kAssetCondition.FromIP,
+                            ToIp = kAssetCondition.ToIP,
+                            IpFrom = convertIpFrom,
+                            IpTo = convertIpTo
+                        };
+                    }
                     else
                     {
                         continue;
@@ -685,6 +702,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 };
                             }
                             break;
+                        case AssetRuleConditionType.IP_RANGE:
+                            {
+                                IpRangeCondition kCondition = condition as IpRangeCondition;
+                                item = new KalturaIpRangeCondition()
+                                {
+                                    Description = kCondition.Description,                                    
+                                    FromIP = kCondition.FromIp,
+                                    ToIP = kCondition.ToIp
+                                };
+                            }
+                            break;
 
                         default:
                             break;
@@ -751,6 +779,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             TimeZone = kAssetAction.TimeZone
                         };
                     }
+                    else if (action is KalturaAllowPlaybackAction)
+                    {
+                        KalturaAllowPlaybackAction kAssetAction = action as KalturaAllowPlaybackAction;
+                        item = new AllowPlaybackAction()
+                        {
+                            Description = kAssetAction.Description
+                        };
+                    }
+                    else if (action is KalturaBlockPlaybackAction)
+                    {
+                        KalturaBlockPlaybackAction kAssetAction = action as KalturaBlockPlaybackAction;
+                        item = new BlockPlaybackAction()
+                        {
+                            Description = kAssetAction.Description
+                        };
+                    }
                     else
                     {
                         continue;
@@ -806,6 +850,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 Description = endDateOffsetRuleAction.Description,
                                 Offset = endDateOffsetRuleAction.Offset,
                                 TimeZone = endDateOffsetRuleAction.TimeZone
+                            };
+                            break;
+                        case RuleActionType.AllowPlayback:
+                            AllowPlaybackAction allowPlaybackAction = ruleAction as AllowPlaybackAction;
+                            kalturaAssetRuleAction = new KalturaAllowPlaybackAction()
+                            {
+                                Description = allowPlaybackAction.Description,
+                            };
+                            break;
+                        case RuleActionType.BlockPlayback:
+                            BlockPlaybackAction blockPlaybackAction = ruleAction as BlockPlaybackAction;
+                            kalturaAssetRuleAction = new KalturaBlockPlaybackAction()
+                            {
+                                Description = blockPlaybackAction.Description,
                             };
                             break;
 
@@ -2081,6 +2139,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return AssetRuleConditionType.Concurrency;
                 case KalturaRuleConditionType.COUNTRY:
                     return AssetRuleConditionType.Country;
+                case KalturaRuleConditionType.IP_RANGE:
+                    return AssetRuleConditionType.IP_RANGE;
                 default:
                     throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
             }

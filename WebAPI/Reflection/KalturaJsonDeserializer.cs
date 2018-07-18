@@ -55,6 +55,9 @@ namespace WebAPI.Reflection
                 case "KalturaAggregationCountFilter":
                     return new KalturaAggregationCountFilter(parameters);
                     
+                case "KalturaAllowPlaybackAction":
+                    return new KalturaAllowPlaybackAction(parameters);
+                    
                 case "KalturaAnnouncement":
                     return new KalturaAnnouncement(parameters);
                     
@@ -243,6 +246,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBillingTransactionListResponse":
                     return new KalturaBillingTransactionListResponse(parameters);
+                    
+                case "KalturaBlockPlaybackAction":
+                    return new KalturaBlockPlaybackAction(parameters);
                     
                 case "KalturaBookmark":
                     return new KalturaBookmark(parameters);
@@ -717,6 +723,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaIntegerValueListResponse":
                     return new KalturaIntegerValueListResponse(parameters);
+                    
+                case "KalturaIpRangeCondition":
+                    return new KalturaIpRangeCondition(parameters);
                     
                 case "KalturaItemPrice":
                     return new KalturaItemPrice(parameters);
@@ -1535,6 +1544,12 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
+    public partial class KalturaAllowPlaybackAction
+    {
+        public KalturaAllowPlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaAssetFileContext
     {
         private static RuntimeSchemePropertyAttribute ViewLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFileContext")
@@ -2050,6 +2065,12 @@ namespace WebAPI.Models.ConditionalAccess
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaBlockPlaybackAction
+    {
+        public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaCDVRAdapterProfile
@@ -12896,6 +12917,23 @@ namespace WebAPI.Models.API
                     {
                         GenericRules = buildList<KalturaGenericRule>(typeof(KalturaGenericRule), (JArray) parameters["objects"]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaIpRangeCondition
+    {
+        public KalturaIpRangeCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("fromIP") && parameters["fromIP"] != null)
+                {
+                    FromIP = (String) Convert.ChangeType(parameters["fromIP"], typeof(String));
+                }
+                if (parameters.ContainsKey("toIP") && parameters["toIP"] != null)
+                {
+                    ToIP = (String) Convert.ChangeType(parameters["toIP"], typeof(String));
                 }
             }
         }

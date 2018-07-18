@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -43,6 +44,8 @@ namespace WebAPI.Models.API
             bool countryConditionExist = false;
             bool concurrencyConditionExist = false;
             bool assetConditionExist = false;
+            bool ipRangeConditionExist = false;
+            bool validateActionsNeeded = true;
 
             foreach (var condition in Conditions)
             {
@@ -99,17 +102,71 @@ namespace WebAPI.Models.API
                     KalturaAssetCondition ksqlCondition = condition as KalturaAssetCondition;
                     ValidateKsql(ksqlCondition.Ksql);
                 }
+                else if (condition is KalturaIpRangeCondition)
+                {
+                    validateActionsNeeded = false;
+                    ipRangeConditionExist = true;
+                    KalturaIpRangeCondition kCondition = condition as KalturaIpRangeCondition;
+                    ValidateIpRange(kCondition.FromIP, kCondition.ToIP);
+                }
             }
 
-            if (!countryConditionExist && !concurrencyConditionExist)
+            if (!countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
 
-            ValidateActions(concurrencyConditionExist);
+            ValidateActions();
+
+            if (validateActionsNeeded)
+            {
+                ValidateActions(concurrencyConditionExist);
+            }
+            else
+            {
+                ValidateIpRangeActions();
+            }
         }
 
-        private void ValidateActions(bool concurrencyConditionExist)
+        private void ValidateIpRangeActions()
+        {
+            var ruleAction = Actions.Count(x => x is KalturaAllowPlaybackAction || x is KalturaBlockPlaybackAction);
+
+            if (ruleAction == 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
+            }
+        }
+
+
+        private void ValidateIpRange(string fromIP, string toIP)
+        {
+            string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+
+            if (string.IsNullOrEmpty(fromIP) || !Regex.IsMatch(fromIP, ipRegex))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fromIP");
+            }
+
+            if (string.IsNullOrEmpty(toIP) || !Regex.IsMatch(toIP, ipRegex))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "toIP");
+            }
+
+            // check for range IP
+            string[] fromIPSplited = fromIP.Split('.');
+            Int64 ipFrom = Int64.Parse(fromIPSplited[3]) + Int64.Parse(fromIPSplited[2]) * 256 + Int64.Parse(fromIPSplited[1]) * 256 * 256 + Int64.Parse(fromIPSplited[0]) * 256 * 256 * 256;
+
+            string[] toIPSplited = fromIP.Split('.');
+            Int64 ipTo = Int64.Parse(toIPSplited[3]) + Int64.Parse(toIPSplited[2]) * 256 + Int64.Parse(toIPSplited[1]) * 256 * 256 + Int64.Parse(toIPSplited[0]) * 256 * 256 * 256;
+
+            if (ipTo < ipFrom)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "fromIP", "toIP");
+            }
+        }
+
+        private void ValidateActions()
         {
             if (this.Actions == null || this.Actions.Count == 0)
             {
@@ -122,7 +179,10 @@ namespace WebAPI.Models.API
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
             }
+        }
 
+        private void ValidateActions(bool concurrencyConditionExist)
+        {
             var ruleActionBlock = Actions.Count(x => x.Type == KalturaRuleActionType.BLOCK);
 
             if (concurrencyConditionExist && ruleActionBlock == 0)
