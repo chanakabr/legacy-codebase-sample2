@@ -5,24 +5,23 @@ RUN Install-WindowsFeature NET-Framework-45-ASPNET
 RUN Install-WindowsFeature Web-Asp-Net45
 RUN Add-WindowsFeature NET-WCF-HTTP-Activation45
 
-RUN Remove-WebSite -Name 'Default Web Site'
 RUN MkDir Ingest
 
-RUN Import-Module WebAdministration; \
-	cd IIS:\AppPools\; \
-	$appPool = New-Item Ingest; \
-	$appPool | Set-ItemProperty -Name managedRuntimeVersion -Value v4.0
-
-RUN New-Website -Name Ingest -Port 80 -PhysicalPath 'C:\Ingest' -ApplicationPool Ingest
-
-RUN Import-Module WebAdministration; \
-	Set-ItemProperty 'IIS:\Sites\Ingest' -Name logFile.enabled -Value True; \
-	Set-ItemProperty 'IIS:\Sites\Ingest' -Name logFile.directory -Value 'C:\log\iis'; \
-	Set-ItemProperty 'IIS:\Sites\Ingest' -Name logFile.logFormat W3C; \
-	Set-ItemProperty 'IIS:\Sites\Ingest' -Name logFile.period -Value MaxSize
-
-RUN iisReset
+RUN Remove-WebSite -Name 'Default Web Site'; \
+	New-Website -Name Ingest -Port 80 -PhysicalPath 'C:\Ingest'
 	
+RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
+	$doc = New-Object System.Xml.XmlDocument; \
+	$doc.Load($filePath); \
+	$child = $doc.CreateElement(\"logFile\"); \
+	$child.SetAttribute(\"directory\", \"C:\log\iis\%COMPUTERNAME%\"); \
+	$site = $doc.SelectSingleNode(\"//site[@name='WebAPI']\"); \
+	$site.AppendChild($child); \
+	$doc.Save($filePath)
+	
+ARG INGEST_LOG_DIR=C:\\log\\ingest\\%COMPUTERNAME%
+ENV INGEST_LOG_DIR ${INGEST_LOG_DIR}
+
 COPY Ingest Ingest
 
 EXPOSE 80

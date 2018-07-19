@@ -1,4 +1,4 @@
-# Phoenix
+# Ingest
 
 ## Deployment instructions:
 
@@ -11,6 +11,6 @@
 	docker run -d ^
 		-p 80:80 ^
 		-v iis_log:C:\log\iis ^
-		-v ingest_log:C:\log\ws_ingest ^
+		-v ingest_log:C:\log\ingest ^
 		kaltura/ingest
 	```
