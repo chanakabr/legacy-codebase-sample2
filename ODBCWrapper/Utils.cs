@@ -696,18 +696,18 @@ namespace ODBCWrapper
         /// <summary>
         /// Extracts a dynamic type value from a data row in the most efficient way
         /// </summary>
-        /// <param name="p_drSource"></param>
-        /// <param name="p_sFieldName"></param>
+        /// <param name="source"></param>
+        /// <param name="fieldName"></param>
         /// <returns></returns>
-        static public string ExtractString(DataRow p_drSource, string p_sFieldName)
+        static public string ExtractString(DataRow source, string fieldName)
         {
             string sResult = string.Empty;
 
             try
             {
-                if (p_drSource != null)
+                if (source != null)
                 {
-                    object objValue = p_drSource[p_sFieldName];
+                    object objValue = source[fieldName];
 
                     if (objValue != null && objValue != DBNull.Value)
                     {
