@@ -17,6 +17,18 @@ namespace Ingest
 
         protected void Application_Start(object sender, EventArgs e)
         {
+            string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
+            string logDir = System.Environment.GetEnvironmentVariable("INGEST_LOG_DIR");
+            if (logDir != null)
+            {
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + "\\" + apiVersion;
+            }
+            else
+            {
+                logDir = "c:\\log\\" + apiVersion + "\\ws_ingest";
+            }
+            log4net.GlobalContext.Properties["LogDir"] = logDir;
+            
             // init TCM
             ApplicationConfiguration.Initialize(true);
 
