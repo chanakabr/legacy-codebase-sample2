@@ -19,7 +19,7 @@ RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
 	$site.AppendChild($child); \
 	$doc.Save($filePath)
 	
-ARG REMOTE_TASK_LOG_DIR=C:\\log\\ingest\\%COMPUTERNAME%
+ARG REMOTE_TASK_LOG_DIR=C:\\log\\remotetask\\%COMPUTERNAME%
 ENV REMOTE_TASK_LOG_DIR ${REMOTE_TASK_LOG_DIR}
 
 COPY RemoteTasksService RemoteTasksService
