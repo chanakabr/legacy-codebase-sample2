@@ -63,6 +63,7 @@ namespace APILogic.Api.Managers
         
         private static List<long> GetRoleIds(int groupId, string userId)
         {
+            // ??????? we set list to be only anonymous at first but it is never used. something here smells fishy!
             List<long> roleIds = new List<long>() { ANONYMOUS_ROLE_ID };
 
             ApiObjects.Response.LongIdsResponse response = Core.Users.Module.GetUserRoleIds(groupId, userId);
@@ -85,10 +86,11 @@ namespace APILogic.Api.Managers
         {
             try
             {
-                if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
-                {
-                    return true;
-                }
+                // Looks like this code was wrong. it should be reviewed by someone else
+                //if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
+                //{
+                //    return true;
+                //}
               
                 Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))

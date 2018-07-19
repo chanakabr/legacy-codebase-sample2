@@ -312,55 +312,56 @@ namespace Core.Catalog
 
             // If there are any media that we couldn't find via stored procedure - delete them off from ES index
             if (nonExistingMediaIDs != null && nonExistingMediaIDs.Count > 0)
-                // If there are any media that we couldn't find via stored procedure - delete them off from ES index
-                if (nonExistingMediaIDs != null && nonExistingMediaIDs.Count > 0)
+            {
+                // filter - only Ids larger than 0
+                nonExistingMediaIDs = nonExistingMediaIDs.Where(id => id > 0).ToList();
+
+                List<int> idsToUpdate = new List<int>();
+                List<int> idsToDelete = new List<int>();
+                List<int> idsToTurnOff = new List<int>();
+
+                foreach (var id in nonExistingMediaIDs)
                 {
-                    List<int> idsToUpdate = new List<int>();
-                    List<int> idsToDelete = new List<int>();
-                    List<int> idsToTurnOff = new List<int>();
+                    // Look for the origin row of the media in the database
+                    DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id, "MAIN_CONNECTION_STRING");
 
-                    foreach (var id in nonExistingMediaIDs)
+                    // If no row returned - delete the record in index
+                    if (currentMediaRow == null)
                     {
-                        // Look for the origin row of the media in the database
-                        DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id, "MAIN_CONNECTION_STRING");
+                        idsToDelete.Add(id);
+                    }
+                    else
+                    {
+                        int status = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status");
 
-                        // If no row returned - delete the record in index
-                        if (currentMediaRow == null)
+                        // if the status is invalid - delete the record in index
+                        if (status != 1)
                         {
                             idsToDelete.Add(id);
                         }
                         else
                         {
-                            int status = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status");
+                            int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
 
-                            // if the status is invalid - delete the record in index
-                            if (status != 1)
+                            // if media is not active, turn it off
+                            if (isActive != 1)
                             {
-                                idsToDelete.Add(id);
+                                idsToTurnOff.Add(id);
                             }
+                            // if media is active and has valid status, update it in index
                             else
                             {
-                                int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
-
-                                // if media is not active, turn it off
-                                if (isActive != 1)
-                                {
-                                    idsToTurnOff.Add(id);
-                                }
-                                // if media is active and has valid status, update it in index
-                                else
-                                {
-                                    idsToUpdate.Add(id);
-                                }
+                                idsToUpdate.Add(id);
                             }
                         }
                     }
-
-                    // Add messages to queue for each type of action
-                    CatalogLogic.Update(idsToDelete, groupId, eObjectType.Media, eAction.Delete);
-                    CatalogLogic.Update(idsToUpdate, groupId, eObjectType.Media, eAction.Update);
-                    CatalogLogic.Update(idsToTurnOff, groupId, eObjectType.Media, eAction.Off);
                 }
+
+                // Add messages to queue for each type of action
+                CatalogLogic.Update(idsToDelete, groupId, eObjectType.Media, eAction.Delete);
+                CatalogLogic.Update(idsToUpdate, groupId, eObjectType.Media, eAction.Update);
+                CatalogLogic.Update(idsToTurnOff, groupId, eObjectType.Media, eAction.Off);
+            }
 
             return mediaObjects;
         }
