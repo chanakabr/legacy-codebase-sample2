@@ -1,6 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.TimeShiftedTv;
+using CouchbaseManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 
@@ -18,6 +21,192 @@ namespace DAL
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const int NUM_OF_INSERT_TRIES = 10;
+        private const int NUM_OF_TRIES = 3;
+
+        #region Generic Methods
+
+        public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                eResultStatus getResult = eResultStatus.ERROR;
+                Random r = new Random();
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var response = cbManager.Get<string>(key, out getResult);
+
+                    if (getResult == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        log.ErrorFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
+                        break;
+                    }
+                    else if (getResult == eResultStatus.SUCCESS)
+                    {
+                        log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
+                                        numOfTries, NUM_OF_TRIES, key);
+                        return JsonConvert.DeserializeObject<T>(response, jsonSerializerSettings);
+                    }
+                    else
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
+                                        numOfTries, NUM_OF_TRIES, key);
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetObjectFromCB. key: {0}, ex: {1}", key, ex);
+            }
+
+            return default(T);
+        }
+
+        public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            int numOfTries = 0;
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+
+            try
+            {
+                Random r = new Random();
+                while (numOfTries < NUM_OF_TRIES)
+                {
+                    var cbValues = cbManager.GetValues<string>(keys, true);
+
+                    if (cbValues != null)
+                    {
+                        log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                        return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(cbValues[x.Key], jsonSerializerSettings)));
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while GetObjectListFromCB. number of tries: {0}/{1}. keys: {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetObjectListFromCB. keys: {0}, ex: {1}", string.Join(", ", keys), ex);
+            }
+
+            return null;
+        }
+
+        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, uint expirationTTL = 0)
+        {
+            if (objectToSave != null)
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                int numOfTries = 0;
+
+                try
+                {
+                    Random r = new Random();
+                    var serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
+                    while (numOfTries < NUM_OF_INSERT_TRIES)
+                    {
+                        if (cbManager.Set<string>(key, serializeObject, expirationTTL))
+                        {
+                            log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
+                                                numOfTries, NUM_OF_INSERT_TRIES, key);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, key);
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to SaveObjectInCB. key: {0}, ex: {1}", key, ex);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool DeleteObjectFromCB(eCouchbaseBucket couchbaseBucket, string key)
+        {
+            bool result = false;
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+
+            try
+            {
+                result = cbManager.Remove(key);
+                if (result)
+                    log.DebugFormat("Successfully removed {0}", key);
+                else
+                    log.ErrorFormat("Error while removing {0}", key);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
+            }
+
+            return result;
+        }
+
+        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters = null)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }
+            }
+
+            return sp.Execute();
+        }
+
+        public static DataSet ExecuteDataSet(string storedProcedure, Dictionary<string, object> parameters)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }
+            }
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool ExecuteReturnValue(string storedProcedure, Dictionary<string, object> parameters)
+        {
+            StoredProcedure sp = new StoredProcedure(storedProcedure);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            if (parameters != null)
+            {
+                foreach (var param in parameters)
+                {
+                    sp.AddParameter(param.Key, param.Value);
+                }
+            }
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        #endregion
 
         private static void HandleException(Exception ex)
         {

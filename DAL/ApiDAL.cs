@@ -4547,91 +4547,7 @@ namespace DAL
 
             return rules;
         }
-
-        public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
-        {
-            DataTable ds = null;
-
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("Insert_AssetRule");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@description", description);
-                sp.AddParameter("@assetRuleType", assetRuleType);
-
-                ds = sp.Execute();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ruleType: {3}, ex:{4} ", groupId, name, description, assetRuleType, ex);
-            }
-
-            return ds;
-        }
-
-        public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
-        {
-            return UpdateAssetRule(groupId, id, null, null);
-        }
         
-        public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
-        {
-            bool result = false;
-
-            if (assetRule != null && assetRule.Id > 0)
-            {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                result = SetAssetRuleCB(groupId, assetRule, cbManager);
-            }
-
-            return result;
-        }
-
-        private static bool SetAssetRuleCB(int groupId, AssetRule assetRule, CouchbaseManager.CouchbaseManager cbManager)
-        {
-            bool result = false;
-            int numOfTries = 0;
-            try
-            {
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set<string>(GetAssetRuleKey(assetRule.Id), JsonConvert.SerializeObject(assetRule, jsonSerializerSettings));
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while set AssetRule. number of tries: {0}/{1}. groupId: {2}, assetRuleId: {3}.",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRule.Id);
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set AssetRule. number of tries: {0}/{1}. GID: {2}, assetRuleId: {3}.",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            assetRule.Id);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to set AssetRule. Id: {0}, ex: {1}", assetRule.Id, ex);
-            }
-
-            return result;
-        }
-
         public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
         {
             try
@@ -4678,28 +4594,26 @@ namespace DAL
 
             return dt;
         }
-
-        public static DataTable GetAssetRules()
+        
+        public static DataTable GetMediaCountries(long mediaId)
         {
-            DataTable dt = null;
+            DataTable result = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRules");
+                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
+                sp.AddParameter("@mediaId", mediaId);
 
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables.Count > 0)
-                {
-                    dt = ds.Tables[0];
-                }
+                result = sp.Execute();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetAssetRules in DB, ex:{0} ", ex);
+                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
             }
 
-            return dt;
+            return result;
         }
+
+        #region AssetRule
 
         private static string GetAssetRuleKey(long assetRuleId)
         {
@@ -4752,6 +4666,95 @@ namespace DAL
             return assetRule;
         }
 
+        public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
+        {
+            if (assetRule != null && assetRule.Id > 0 && assetRule.Conditions != null && assetRule.Conditions.Count > 0)
+            {
+                AssetRuleTypeMapping assetRuleTypeMapping = new AssetRuleTypeMapping()
+                {
+                    Id = assetRule.Id,
+                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type))
+                };
+
+                string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
+                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping))
+                {
+                    string assetRuleKey = GetAssetRuleKey(assetRule.Id);
+                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
+        {
+            string assetRuleKey = GetAssetRuleKey(assetRuleId);
+            string assetRuleTypeKey = GetAssetRuleTypeKey(assetRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey) &&
+                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey);
+        }
+
+        private static string GetAssetRuleTypeKey(long assetRuleId)
+        {
+            return string.Format("asset_rule_type:{0}", assetRuleId);
+        }
+
+        public static List<AssetRuleTypeMapping> GetAssetRuleTypeCB(IEnumerable<long> assetRuleIds)
+        {
+            List<string> assetRuleKeys = new List<string>();
+            foreach (var assetRuleId in assetRuleIds)
+            {
+                assetRuleKeys.Add(GetAssetRuleTypeKey(assetRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
+        }
+
+        public static DataTable GetAssetRules()
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRules");
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetAssetRules in DB, ex:{0} ", ex);
+            }
+
+            return dt;
+        }
+
+        public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
+        {
+            DataTable ds = null;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+                sp.AddParameter("@assetRuleType", assetRuleType);
+
+                ds = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ruleType: {3}, ex:{4} ", groupId, name, description, assetRuleType, ex);
+            }
+
+            return ds;
+        }
+
         public static bool DeleteAssetRule(int groupId, long id)
         {
             try
@@ -4768,31 +4771,7 @@ namespace DAL
 
             return false;
         }
-
-        public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
-        {
-            bool result = false;
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            string key = GetAssetRuleKey(assetRuleId);
-
-            try
-            {
-                result = cbManager.Remove(key);
-                if (result)
-                    log.DebugFormat("Successfully removed {0}", key);
-                else
-                    log.ErrorFormat("Error while removing {0}", key);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
-            }
-
-            return result;
-        }
-
+        
         public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)
         {
             bool result = false;
@@ -4813,25 +4792,7 @@ namespace DAL
 
             return result;
         }
-
-        public static DataTable GetMediaCountries(long mediaId)
-        {
-            DataTable result = null;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
-                sp.AddParameter("@mediaId", mediaId);
-
-                result = sp.Execute();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
-            }
-
-            return result;
-        }
-
+        
         public static bool UpdateAssetRulesLastRunDate(int groupId, List<long> assetRuleIds)
         {
             bool result = false;
@@ -4850,6 +4811,13 @@ namespace DAL
 
             return result;
         }
+
+        public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
+        {
+            return UpdateAssetRule(groupId, id, null, null);
+        }
+
+        #endregion
 
         #region Permissions Management
 
