@@ -655,13 +655,20 @@ namespace Core.Api.Managers
                                     filteredAssetRules = allAssetRulesDB.Where(x => x.GroupId == groupId);
                                 }
 
-                                if (filteredAssetRules != null)
+                                List<long> ruleIds = null;
+                                var rulesTypes = ApiDAL.GetAssetRuleTypeCB(filteredAssetRules.Select(x => x.Id));
+                                if (rulesTypes != null && rulesTypes.Count > 0)
                                 {
-                                    var assetRulesCB = ApiDAL.GetAssetRulesCB(filteredAssetRules.Select(x => x.Id));
+                                    ruleIds = new List<long>(rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType)).Select(x => x.Id));
+                                }
+
+                                if (ruleIds != null)
+                                {
+                                    var assetRulesCB = ApiDAL.GetAssetRulesCB(ruleIds);
 
                                     if (assetRulesCB != null && assetRulesCB.Count > 0)
                                     {
-                                        allAssetRules.AddRange(assetRulesCB.Where(x => x.Conditions.Any(y => y.Type == assetRuleConditionType)));
+                                        allAssetRules = assetRulesCB;
                                     }
                                 }
                             }
