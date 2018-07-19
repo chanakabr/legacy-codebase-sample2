@@ -249,7 +249,7 @@ namespace Reflector
 
             if (addIsOldVersion)
             {
-                file.WriteLine("                Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];");
+                file.WriteLine("                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();");
                 file.WriteLine("                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             }
 

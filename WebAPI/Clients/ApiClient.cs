@@ -1446,7 +1446,7 @@ namespace WebAPI.Clients
         internal bool DeleteParentalRule(int groupId, long id, long userId)
         {
             Func<Status> deleteParentalRuletFunc = () => Core.Api.api.DeleteParentalRule(groupId, id, userId);
-            return ClientUtils.GetBoolResponseStatusFromWS(deleteParentalRuletFunc);
+            return ClientUtils.GetResponseStatusFromWS(deleteParentalRuletFunc);
         }
 
         #endregion
