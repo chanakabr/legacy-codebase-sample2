@@ -111,6 +111,7 @@ namespace Core.ConditionalAccess
 
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
+            DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE");
 
             long endDateUnix =TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate);
 
@@ -392,7 +393,7 @@ namespace Core.ConditionalAccess
                 case eTransactionState.OK:
                     {
                         res = HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
-                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, unifiedProcessId);
+                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, unifiedProcessId, startDate.Day);
                         if (res)
                         {
                             string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
@@ -624,7 +625,7 @@ namespace Core.ConditionalAccess
         protected static bool HandleRenewSubscriptionSuccess(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
             double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
-            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, long unifiedProcessId)
+            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, long unifiedProcessId, int purchaseDay)
         {
             // renew subscription success!
             log.DebugFormat("Transaction renew success. data: {0}", logString);
@@ -687,6 +688,13 @@ namespace Core.ConditionalAccess
                 {
                     // end wasn't retuned - get next end date from MPP
                     endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+
+                    if (Utils.isMonthlyLifeCycle(maxVLCOfSelectedUsageModule) && endDate.Day >= 28 && purchaseDay > endDate.Day)
+                    {
+                        int newDay = Math.Min(DateTime.DaysInMonth(endDate.Year, endDate.Month), purchaseDay);
+                        endDate = endDate.AddDays(newDay - endDate.Day);
+                    }
+
                     log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
                 }
             }
@@ -1168,7 +1176,9 @@ namespace Core.ConditionalAccess
             int paymentgatewayId = 0;
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
-            if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate))
+            int processCrreateDay = 0; 
+
+            if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate, out processCrreateDay))
             {
                 // validate that this is the right message                              
                 if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
@@ -1411,7 +1421,7 @@ namespace Core.ConditionalAccess
                     {
                         case eTransactionState.OK:
                             {
-                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway);
+                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway, processCrreateDay);
                                 successTransactions.Add(kvpRenewUnified.Key);
                             }
                             break;
@@ -1635,7 +1645,7 @@ namespace Core.ConditionalAccess
 
         private static bool HandleRenewUnifiedSubscriptionSuccess(BaseConditionalAccess cas, int groupId, long householdId, string customData, ref UnifiedBillingCycle unifiedBillingCycle,
             string currency, List<Subscription> subscriptions, List<RenewSubscriptionDetails> renewUnified,
-            PaymentGateway paymentGateway)
+            PaymentGateway paymentGateway, int purchaseDay)
         {
             DateTime? endDate = null;
 
@@ -1652,7 +1662,13 @@ namespace Core.ConditionalAccess
                     else
                     {
                         endDate = Utils.GetEndDateTime(renewUnifiedData.EndDate.Value, renewUnifiedData.MaxVLCOfSelectedUsageModule);
+                        if (Utils.isMonthlyLifeCycle(renewUnifiedData.MaxVLCOfSelectedUsageModule) && endDate.Value.Day >= 28 && purchaseDay > endDate.Value.Day)
+                        {
+                            int newDay = Math.Min(DateTime.DaysInMonth(endDate.Value.Year, endDate.Value.Month), purchaseDay);
+                            endDate = endDate.Value.AddDays(newDay - endDate.Value.Day);
+                        }
                     }
+
 
                     DateTime ubcDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
 
@@ -2260,8 +2276,9 @@ namespace Core.ConditionalAccess
             return success;
         }
 
-        private static bool UpdateProcessDetailsForRenewal(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate)
+        private static bool UpdateProcessDetailsForRenewal(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate, out int purchaseDay)
         {
+            purchaseDay = 0;
             DataRow dr = ConditionalAccessDAL.UpdateProcessDetailsForRenewal(processId);
             if (dr != null)
             {
@@ -2269,6 +2286,11 @@ namespace Core.ConditionalAccess
                 int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                 processPurchasesState = (ProcessUnifiedState)state;
                 processEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                DateTime? processCreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                if (processCreateDate.HasValue)
+                {
+                    purchaseDay = processCreateDate.Value.Day;
+                }
             }
 
             return paymentgatewayId > 0 && processEndDate.HasValue;

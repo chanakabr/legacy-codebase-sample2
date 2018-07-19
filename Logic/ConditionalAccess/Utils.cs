@@ -1354,14 +1354,14 @@ namespace Core.ConditionalAccess
 
                                 if (dbBlockDoublePurchase != null &&
                                     dbBlockDoublePurchase != DBNull.Value &&
-                                    ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)                                    
+                                    ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)
                                 {
                                     blockDoublePurchase = true;
                                     price.m_dPrice = -1;
                                 }
                             }
                             else
-                            {                                
+                            {
                                 price.m_dPrice = -1;
                             }
                         }
@@ -1439,7 +1439,8 @@ namespace Core.ConditionalAccess
         internal static List<RenewSubscriptionDetails> BuildSubscriptionPurchaseDetails(DataTable subscriptionPurchaseDt, int groupId, BaseConditionalAccess cas)
         {
             try
-            {
+            {    
+                DateTime minStartDate = DateTime.UtcNow;
                 List<RenewSubscriptionDetails> renewSubscriptionDetails = new List<RenewSubscriptionDetails>();
                 RenewSubscriptionDetails rsd;
                 int numOfPayments, paymentNumber;
@@ -1948,6 +1949,11 @@ namespace Core.ConditionalAccess
             else
                 dRet = dRet.AddMinutes(mulFactor * nVal);
             return dRet;
+        }
+
+        static public bool isMonthlyLifeCycle(long lifeCycle)
+        {
+            return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);       
         }
 
         public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
