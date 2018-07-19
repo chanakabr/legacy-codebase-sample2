@@ -4571,15 +4571,23 @@ namespace DAL
 
         public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
         {
-            bool result = false;
-
-            if (assetRule != null && assetRule.Id > 0)
+            if (assetRule != null && assetRule.Id > 0 && assetRule.Conditions != null && assetRule.Conditions.Count > 0)
             {
-                string key = GetAssetRuleKey(assetRule.Id);
-                return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key, assetRule);
+                AssetRuleTypeMapping assetRuleTypeMapping = new AssetRuleTypeMapping()
+                {
+                    Id = assetRule.Id,
+                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type))
+                };
+
+                string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
+                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping))
+                {
+                    string assetRuleKey = GetAssetRuleKey(assetRule.Id);
+                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule);
+                }
             }
 
-            return result;
+            return false;
         }
 
         public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
@@ -4643,10 +4651,26 @@ namespace DAL
             return string.Format("asset_rule:{0}", assetRuleId);
         }
 
+        private static string GetAssetRuleTypeKey(long assetRuleId)
+        {
+            return string.Format("asset_rule_type:{0}", assetRuleId);
+        }
+
         public static AssetRule GetAssetRuleCB(long assetRuleId)
         {
             string key = GetAssetRuleKey(assetRuleId);
             return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static List<AssetRuleTypeMapping> GetAssetRuleTypeCB(IEnumerable<long> assetRuleIds)
+        {
+            List<string> assetRuleKeys = new List<string>();
+            foreach (var assetRuleId in assetRuleIds)
+            {
+                assetRuleKeys.Add(GetAssetRuleTypeKey(assetRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
         }
 
         public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
@@ -4679,8 +4703,10 @@ namespace DAL
 
         public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
         {
-            string key = GetAssetRuleKey(assetRuleId);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+            string assetRuleKey = GetAssetRuleKey(assetRuleId);
+            string assetRuleTypeKey = GetAssetRuleTypeKey(assetRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey) &&
+                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey);
         }
 
         public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)

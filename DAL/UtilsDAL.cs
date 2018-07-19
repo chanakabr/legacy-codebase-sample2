@@ -25,7 +25,7 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
 
         #region Generic Methods
-        
+
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
@@ -163,12 +163,12 @@ namespace DAL
             StoredProcedure sp = new StoredProcedure(storedProcedure);
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            if (parameters != null )
+            if (parameters != null)
             {
                 foreach (var param in parameters)
                 {
                     sp.AddParameter(param.Key, param.Value);
-                }                
+                }
             }
 
             return sp.Execute();
@@ -209,7 +209,7 @@ namespace DAL
         #endregion
 
         #region Keys
-        
+
         public static string GetUserMediaMarkDocKey(string siteUserGuid, int mediaId)
         {
             return string.Format("u{0}_m{1}", siteUserGuid, mediaId);
