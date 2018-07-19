@@ -16,6 +16,17 @@ namespace RemoteTasksService
 
         protected void Application_Start(object sender, EventArgs e)
         {
+            string logDir = System.Environment.GetEnvironmentVariable("REMOTE_TASK_LOG_DIR");
+            if (logDir != null)
+            {
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir);
+            }
+            else
+            {
+                logDir = "c:\\log\\remote_tasks";
+            }
+            log4net.GlobalContext.Properties["LogDir"] = logDir;
+
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
