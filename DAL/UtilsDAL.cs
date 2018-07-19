@@ -966,7 +966,7 @@ namespace DAL
                 {
                     string feature = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURE");
                     GroupFeature groupFeature;
-                    if (Enum.TryParse(feature, out groupFeature) && !groupFeatures.ContainsKey(groupFeature))
+                    if (Enum.TryParse(feature, true, out groupFeature) && !groupFeatures.ContainsKey(groupFeature))
                     {
                         int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
                         groupFeatures.Add(groupFeature, status == 1);
