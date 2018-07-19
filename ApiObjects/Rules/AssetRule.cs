@@ -66,4 +66,14 @@ namespace ApiObjects.Rules
         public List<ConcurrencyCondition> Conditions { get; set; }
         public List<AssetBlockAction> Actions { get; set; }
     }
+
+    [Serializable]
+    public class AssetRuleTypeMapping
+    {
+        [JsonProperty("Id")]
+        public long Id { get; set; }
+
+        [JsonProperty("TypeIdIn")]
+        public List<int> TypeIdIn { get; set; }
+    }
 }
