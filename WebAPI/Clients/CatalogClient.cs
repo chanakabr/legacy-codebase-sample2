@@ -339,22 +339,21 @@ namespace WebAPI.Clients
                         {
                             assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
                         }
-                                                
-                        if (assetListResponse != null && assetListResponse.TotalCount == 1)
+
+                        if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
                         {
                             return assetListResponse.Objects[0];
                         }
                         else
                         {
-                            throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");                            
+                            throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch (ClientException ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
+                ErrorUtils.HandleClientException(ex);
             }
 
             if (response == null)
