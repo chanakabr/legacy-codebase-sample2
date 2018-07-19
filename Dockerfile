@@ -15,7 +15,7 @@ RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
 	$doc.Load($filePath); \
 	$child = $doc.CreateElement(\"logFile\"); \
 	$child.SetAttribute(\"directory\", \"C:\log\iis\%COMPUTERNAME%\"); \
-	$site = $doc.SelectSingleNode(\"//site[@name='WebAPI']\"); \
+	$site = $doc.SelectSingleNode(\"//site[@name='Ingest']\"); \
 	$site.AppendChild($child); \
 	$doc.Save($filePath)
 	
