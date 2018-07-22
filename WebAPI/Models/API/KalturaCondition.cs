@@ -171,9 +171,10 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "toIP")]
         public string ToIP { get; set; }
 
-        public KalturaIpRangeCondition()
+        protected override void Init()
         {
+            base.Init();
             this.Type = KalturaRuleConditionType.IP_RANGE;
-        }       
+        }
     }
 }
