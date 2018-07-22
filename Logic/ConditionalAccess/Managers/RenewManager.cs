@@ -1176,16 +1176,17 @@ namespace Core.ConditionalAccess
             int paymentgatewayId = 0;
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
-            int processCrreateDay = 0; 
+            int processCreateDay = 0; 
 
-            if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate, out processCrreateDay))
+            if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate, out processCreateDay))
             {
+                long processEndDateUnix = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value);
                 // validate that this is the right message                              
-                if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
+                if (Math.Abs(processEndDateUnix - nextEndDate) > 60000)
                 {
                     // subscription purchase wasn't found
                     log.ErrorFormat("GetProcessDetails if end date not equal - canceling unified renew task. processId: {0}, nextEndDate: {1}, data: {2}",
-                        processId, nextEndDate, logString);
+                        processId, processEndDateUnix, logString);
                     bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
                     return true;
                 }
@@ -1421,7 +1422,7 @@ namespace Core.ConditionalAccess
                     {
                         case eTransactionState.OK:
                             {
-                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway, processCrreateDay);
+                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway, processCreateDay);
                                 successTransactions.Add(kvpRenewUnified.Key);
                             }
                             break;
