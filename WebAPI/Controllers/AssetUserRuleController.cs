@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
                 if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
                     long userId = long.Parse(KS.GetFromRequest().UserId);
-                    response = response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId);
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId);
                 }
                 else
                 {
