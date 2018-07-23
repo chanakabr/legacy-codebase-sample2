@@ -3390,8 +3390,7 @@ namespace DAL
             return response;
 
         }
-
-
+        
         public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         {
             Permission permission = new Permission();
@@ -4554,6 +4553,73 @@ namespace DAL
 
             return rules;
         }
+        
+        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaCountry");
+                sp.AddIDListParameter("@mediaIds", assetIds, "ID");
+                sp.AddParameter("@countryId", countryId);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@isAllowed", isAllowed);
+                sp.AddParameter("@ruleId", ruleId);
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while adding country to medias", ex);
+            }
+
+            return false;
+        }
+
+        public static DataTable UpdateMediaCountry(int groupId, long ruleId)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountry");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@status", 2);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while update media country", ex);
+            }
+
+            return dt;
+        }
+
+        public static DataTable GetMediaCountries(long mediaId)
+        {
+            DataTable result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
+                sp.AddParameter("@mediaId", mediaId);
+
+                result = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
+            }
+
+            return result;
+        }
+
+        #region AssetRule
 
         public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
         {
@@ -4603,53 +4669,6 @@ namespace DAL
             return false;
         }
 
-        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaCountry");
-                sp.AddIDListParameter("@mediaIds", assetIds, "ID");
-                sp.AddParameter("@countryId", countryId);
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@isAllowed", isAllowed);
-                sp.AddParameter("@ruleId", ruleId);
-
-                int rowCount = sp.ExecuteReturnValue<int>();
-                return rowCount > 0;
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while adding country to medias", ex);
-            }
-
-            return false;
-        }
-
-        public static DataTable UpdateMediaCountry(int groupId, long ruleId)
-        {
-            DataTable dt = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountry");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@ruleId", ruleId);
-                sp.AddParameter("@status", 2);
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables.Count > 0)
-                {
-                    dt = ds.Tables[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while update media country", ex);
-            }
-
-            return dt;
-        }
-
         public static DataTable GetAssetRulesDB()
         {
             StoredProcedure sp = new StoredProcedure("Get_AssetRules");
@@ -4696,7 +4715,7 @@ namespace DAL
 
             return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
         }
-        
+
         public static bool DeleteAssetRule(int groupId, long id)
         {
             try
@@ -4743,24 +4762,6 @@ namespace DAL
             return result;
         }
 
-        public static DataTable GetMediaCountries(long mediaId)
-        {
-            DataTable result = null;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("GetMediaCountries");
-                sp.AddParameter("@mediaId", mediaId);
-
-                result = sp.Execute();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetMediaCountries in DB, mediaId: {0}, ex:{1} ", mediaId, ex);
-            }
-
-            return result;
-        }
-
         public static bool UpdateAssetRulesLastRunDate(int groupId, List<long> assetRuleIds)
         {
             bool result = false;
@@ -4780,6 +4781,8 @@ namespace DAL
             return result;
         }
 
+        #endregion
+        
         #region Permissions Management
 
         public static DataSet Get_PermissionsForExport()
@@ -5103,7 +5106,9 @@ namespace DAL
         }
 
         #endregion
-        
+
+        #region DeviceConcurrencyPriority
+
         public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
         {
             string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
@@ -5120,6 +5125,8 @@ namespace DAL
         {
             return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
         }
+
+        #endregion
 
         #region New Catalog Management
 
@@ -5186,6 +5193,5 @@ namespace DAL
         }
 
         #endregion
-
     }
 }
