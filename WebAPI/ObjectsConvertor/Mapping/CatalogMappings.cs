@@ -158,18 +158,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //channelObj to Channel
             Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sTitle)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)));
 
             //Channel (Catalog) to Channel
             Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)));
@@ -209,10 +209,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //KSQLChannel to KalturaChannel
             Mapper.CreateMap<KSQLChannel, KalturaChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
