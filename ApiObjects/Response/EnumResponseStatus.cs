@@ -252,9 +252,9 @@ namespace ApiObjects.Response
         RoleAlreadyExists = 5029,
         AssetRuleNotExists = 5030,
         AssetUserRuleDoesNotExists = 5031,
-        UserAlreadyAttachedToAssetUserRule = 5031,
-        AssetUserRulesOperationsDisable = 5032,
-        NonExistingDeviceFamilyIds = 5033,
+        UserAlreadyAttachedToAssetUserRule = 5032,
+        AssetUserRulesOperationsDisable = 5033,
+        NonExistingDeviceFamilyIds = 5034,
 
         #endregion
 
