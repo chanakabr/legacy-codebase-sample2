@@ -157,7 +157,7 @@ namespace WebAPI.Models.API
             string[] fromIPSplited = fromIP.Split('.');
             Int64 ipFrom = Int64.Parse(fromIPSplited[3]) + Int64.Parse(fromIPSplited[2]) * 256 + Int64.Parse(fromIPSplited[1]) * 256 * 256 + Int64.Parse(fromIPSplited[0]) * 256 * 256 * 256;
 
-            string[] toIPSplited = fromIP.Split('.');
+            string[] toIPSplited = toIP.Split('.');
             Int64 ipTo = Int64.Parse(toIPSplited[3]) + Int64.Parse(toIPSplited[2]) * 256 + Int64.Parse(toIPSplited[1]) * 256 * 256 + Int64.Parse(toIPSplited[0]) * 256 * 256 * 256;
 
             if (ipTo < ipFrom)
