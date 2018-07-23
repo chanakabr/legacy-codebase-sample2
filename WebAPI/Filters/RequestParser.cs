@@ -828,7 +828,7 @@ namespace WebAPI.Filters
                 string name = methodArgItem.Key;
                 MethodParam methodArg = methodArgItem.Value;
 
-                if (!reqParams.ContainsKey(name))
+                if (!reqParams.ContainsKey(name) || reqParams[name] == null)
                 {
                     if (methodArg.IsOptional)
                     {
