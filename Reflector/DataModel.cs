@@ -269,6 +269,11 @@ namespace Reflector
                                 file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
                                 file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
                             }
+                            else if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
+                            {
+                                file.WriteLine("                                IsKalturaObject = true,");
+                                file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "<>),");
+                            }
                         }
                         else if (parameter.ParameterType.IsEnum)
                         {

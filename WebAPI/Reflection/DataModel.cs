@@ -13466,6 +13466,8 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaReminderFilter<>),
                             });
                             ret.Add("pager", new MethodParam(){
                                 IsOptional = true,
