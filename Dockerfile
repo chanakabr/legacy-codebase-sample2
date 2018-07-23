@@ -8,7 +8,7 @@ RUN Add-WindowsFeature NET-WCF-HTTP-Activation45
 RUN MkDir RemoteTasksService
 
 RUN Remove-WebSite -Name 'Default Web Site'; \
-	New-Website -Name RemoteTasks -Port 80 -PhysicalPath 'C:\RemoteTasksService' -ApplicationPool RemoteTasks
+	New-Website -Name RemoteTasks -Port 80 -PhysicalPath 'C:\RemoteTasksService'
 	
 RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
 	$doc = New-Object System.Xml.XmlDocument; \
