@@ -109,12 +109,14 @@ namespace WebAPI.Models.General
 
             if (Values != null)
             {
-                return Values.Where(x => x.Language == GroupDefaultLanguageCode).Select(x => x.Value).FirstOrDefault();
+                KalturaTranslationToken token = Values.FirstOrDefault(x => x.Language == GroupDefaultLanguageCode);
+                if (token != null)
+                {
+                    return token.Value;
+                }
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public static string GetCurrent(LanguageContainer[] values, string value)

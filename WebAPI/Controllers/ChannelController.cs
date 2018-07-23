@@ -146,6 +146,9 @@ namespace WebAPI.Controllers
             Type manualChannelType = typeof(KalturaManualChannel);
             Type dynamicChannelType = typeof(KalturaDynamicChannel);
             Type channelType = typeof(KalturaChannel);
+            bool isManualChannelOrDynamicChannel = false;
+
+            // KalturaManualChannel or KalturaDynamicChannel                             
             if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
             {
                 if (channel.OrderBy == null)
@@ -155,17 +158,17 @@ namespace WebAPI.Controllers
 
                 // Validate channel
                 channel.ValidateForInsert();
+                isManualChannelOrDynamicChannel = true;
             }
 
             try
             {
-                // KalturaManualChannel or KalturaDynamicChannel                             
-                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                if (isManualChannelOrDynamicChannel)
                 {
                     response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
                 }
                 // KalturaChannel (backward comparability)
-                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                else if (channelType.IsAssignableFrom(channel.GetType()))
                 {
                     response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
                 }
