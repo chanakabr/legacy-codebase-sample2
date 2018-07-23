@@ -9097,7 +9097,7 @@ namespace Core.Api
                 {
                     //check adapter exists 
                     responseAdpater = DAL.ApiDAL.GetCDNAdapter(adapterId, false);
-                    if (responseAdpater == null)
+                    if (responseAdpater == null || responseAdpater.ID == 0)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                         return response;
