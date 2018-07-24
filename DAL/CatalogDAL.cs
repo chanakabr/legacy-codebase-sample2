@@ -1386,7 +1386,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastMediaPosition(int mediaID, int userID)
         {
             string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key, true);
 
             if (umm != null)
             {
@@ -1399,7 +1399,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key, true);
 
             if (umm != null)
             {
@@ -4075,7 +4075,7 @@ namespace Tvinci.Core.DAL
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             string key = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
-            return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key);
+            return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key, true);
         }
 
         public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
@@ -4360,13 +4360,13 @@ namespace Tvinci.Core.DAL
         {
             var key = GetDomainDevicesKey(domainId);
             List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value } ));
-            return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList);
+            return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
         }
 
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
             string key = GetDomainDevicesKey(domainId);
-            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
+            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
             if (domainDevices != null)
             {
                 return domainDevices.ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
@@ -4385,7 +4385,7 @@ namespace Tvinci.Core.DAL
             string key = GetDevicePlayDataKey(devicePlayData.UDID);
             uint ttl = (uint)(expirationTTL == eExpirationTTL.Short ? SHORT_TTL : LONG_TTL);
 
-            return UtilsDal.SaveObjectInCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, devicePlayData, ttl);
+            return UtilsDal.SaveObjectInCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, devicePlayData, true, ttl);
         }
 
         public static bool DeleteDevicePlayData(string udid)
@@ -4404,7 +4404,7 @@ namespace Tvinci.Core.DAL
                     devicePlayDataKeys.Add(GetDevicePlayDataKey(domainDevice.Key));
                 }
 
-                List<DevicePlayData> devicePlayDataList = UtilsDal.GetObjectListFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, devicePlayDataKeys);
+                List<DevicePlayData> devicePlayDataList = UtilsDal.GetObjectListFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, devicePlayDataKeys, true);
 
                 if (devicePlayDataList != null && devicePlayDataList.Count > 0)
                 {
@@ -4433,7 +4433,7 @@ namespace Tvinci.Core.DAL
         public static DevicePlayData GetDevicePlayData(string udid)
         {
             string key = GetDevicePlayDataKey(udid);
-            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
+            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
         }
 
         #region New Catalog Management

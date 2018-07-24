@@ -4659,10 +4659,10 @@ namespace DAL
                 };
 
                 string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
-                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping))
+                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping, true))
                 {
                     string assetRuleKey = GetAssetRuleKey(assetRule.Id);
-                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule);
+                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule, true);
                 }
             }
 
@@ -4691,7 +4691,7 @@ namespace DAL
         public static AssetRule GetAssetRuleCB(long assetRuleId)
         {
             string key = GetAssetRuleKey(assetRuleId);
-            return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key, true);
         }
 
         public static List<AssetRuleTypeMapping> GetAssetRuleTypeCB(IEnumerable<long> assetRuleIds)
@@ -4702,7 +4702,7 @@ namespace DAL
                 assetRuleKeys.Add(GetAssetRuleTypeKey(assetRuleId));
             }
 
-            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
+            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
         }
 
         public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
@@ -4713,7 +4713,7 @@ namespace DAL
                 assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
             }
 
-            return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys);
+            return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
         }
 
         public static bool DeleteAssetRule(int groupId, long id)
@@ -5037,13 +5037,13 @@ namespace DAL
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
-            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, true);
         }
         
         public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
         {
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleToSave.Id);
-            return UtilsDal.SaveObjectInCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, assetUserRuleToSave);
+            return UtilsDal.SaveObjectInCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, assetUserRuleToSave, true);
         }
 
         public static bool DeleteAssetUserRuleCB(long assetUserRuleId)
@@ -5112,13 +5112,13 @@ namespace DAL
         public static DeviceConcurrencyPriority GetDeviceConcurrencyPriorityCB(int groupId)
         {
             string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
-            return UtilsDal.GetObjectFromCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey);
+            return UtilsDal.GetObjectFromCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey, true);
         }
 
         public static bool SaveDeviceConcurrencyPriorityCB(int groupId, DeviceConcurrencyPriority deviceConcurrencyPriority)
         {
             string deviceConcurrencyPriorityKey = GetDeviceConcurrencyPriorityKey(groupId);
-            return UtilsDal.SaveObjectInCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey, deviceConcurrencyPriority);
+            return UtilsDal.SaveObjectInCB<DeviceConcurrencyPriority>(eCouchbaseBucket.OTT_APPS, deviceConcurrencyPriorityKey, deviceConcurrencyPriority, true);
         }
 
         public static string GetDeviceConcurrencyPriorityKey(int groupId)

@@ -26,12 +26,14 @@ namespace DAL
 
         #region Generic Methods
 
-        public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key)
+        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
 
             int numOfTries = 0;
             JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            T responseT = default(T);
 
             try
             {
@@ -39,7 +41,16 @@ namespace DAL
                 Random r = new Random();
                 while (numOfTries < NUM_OF_TRIES)
                 {
-                    var response = cbManager.Get<string>(key, out getResult);
+                    string stringResponse = string.Empty;
+
+                    if (serializeToString)
+                    {
+                        stringResponse = cbManager.Get<string>(key, out getResult);
+                    }
+                    else
+                    {
+                        responseT = cbManager.Get<T>(key, out getResult);
+                    }
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
@@ -50,7 +61,15 @@ namespace DAL
                     {
                         log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
                                         numOfTries, NUM_OF_TRIES, key);
-                        return JsonConvert.DeserializeObject<T>(response, jsonSerializerSettings);
+
+                        if (serializeToString)
+                        {
+                            return JsonConvert.DeserializeObject<T>(stringResponse, jsonSerializerSettings);
+                        }
+                        else
+                        {
+                            return responseT;
+                        }
                     }
                     else
                     {
@@ -66,10 +85,11 @@ namespace DAL
                 log.ErrorFormat("Error while trying to GetObjectFromCB. key: {0}, ex: {1}", key, ex);
             }
 
-            return default(T);
+            return responseT;
         }
 
-        public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys)
+        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             int numOfTries = 0;
@@ -80,12 +100,25 @@ namespace DAL
                 Random r = new Random();
                 while (numOfTries < NUM_OF_TRIES)
                 {
-                    var cbValues = cbManager.GetValues<string>(keys, true);
-
-                    if (cbValues != null)
+                    if (serializeToString)
                     {
-                        log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
-                        return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(cbValues[x.Key], jsonSerializerSettings)));
+                        var cbValues = cbManager.GetValues<string>(keys, true);
+
+                        if (cbValues != null)
+                        {
+                            log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                            return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(cbValues[x.Key], jsonSerializerSettings)));
+                        }
+                    }
+                    else
+                    {
+                        var cbValues = cbManager.GetValues<T>(keys, true);
+
+                        if (cbValues != null)
+                        {
+                            log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
+                            return new List<T>(cbValues.Select(x => x.Value));
+                        }
                     }
 
                     numOfTries++;
@@ -101,27 +134,45 @@ namespace DAL
             return null;
         }
 
-        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, uint expirationTTL = 0)
+        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
         {
             if (objectToSave != null)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
-                JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
                 int numOfTries = 0;
 
                 try
                 {
                     Random r = new Random();
-                    var serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
+                    string serializeObject = string.Empty;
+                    if (serializeToString)
+                    {
+                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                        serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
+                    }
+
                     while (numOfTries < NUM_OF_INSERT_TRIES)
                     {
-                        if (cbManager.Set<string>(key, serializeObject, expirationTTL))
+                        if (serializeToString)
                         {
-                            log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
-                                                numOfTries, NUM_OF_INSERT_TRIES, key);
-                            return true;
+                            if (cbManager.Set<string>(key, serializeObject, expirationTTL))
+                            {
+                                log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
+                                                    numOfTries, NUM_OF_INSERT_TRIES, key);
+                                return true;
+                            }
                         }
-
+                        else
+                        {
+                            if (cbManager.Set<T>(key, objectToSave, expirationTTL))
+                            {
+                                log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
+                                                    numOfTries, NUM_OF_INSERT_TRIES, key);
+                                return true;
+                            }
+                        }
+                        
                         numOfTries++;
                         log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
                                         numOfTries, NUM_OF_INSERT_TRIES, key);
