@@ -234,20 +234,34 @@ namespace WebAPI.Models.General
 
         public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
         {
-            string ret = "\"" + propertyName + "\": \"" + EscapeJson(ToString()) + "\"";
+            string ret = null;
+            string value = ToString();
+            if (value != null)
+            {
+                ret = "\"" + propertyName + "\": \"" + EscapeJson(ToString()) + "\"";
+            }
 
             string language = Utils.Utils.GetLanguageFromRequest();
             if (Values != null && language != null && language.Equals("*"))
             {
                 string multilingualName = KalturaMultilingualString.GetMultilingualName(propertyName);
-                ret += ", \"" + multilingualName + "\": [" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                if(ret != null)
+                {
+                    ret += ", ";
+                }
+                ret += "\"" + multilingualName + "\": [" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
             }
             return ret;
         }
 
         public string ToCustomXml(Version currentVersion, bool omitObsolete, string propertyName)
         {
-            string ret = "<" + propertyName + ">" + EscapeXml(ToString()) + "</" + propertyName + ">";
+            string ret = "";
+            string value = ToString();
+            if (value != null)
+            {
+                ret = "<" + propertyName + ">" + EscapeXml(ToString()) + "</" + propertyName + ">";
+            }
 
             string language = Utils.Utils.GetLanguageFromRequest();
             if (Values != null && language != null && language.Equals("*"))

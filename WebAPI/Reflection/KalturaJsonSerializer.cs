@@ -4701,7 +4701,11 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("value", value.ToCustomJson(currentVersion, omitObsolete, "value"));
+            propertyValue = value.ToCustomJson(currentVersion, omitObsolete, "value");
+            if(propertyValue != null)
+            {
+                ret.Add("value", propertyValue);
+            }
             return ret;
         }
         
@@ -7164,7 +7168,11 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("createDate", "\"createDate\": " + CreateDate);
-            ret.Add("description", Description.ToCustomJson(currentVersion, omitObsolete, "description"));
+            propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+            if(propertyValue != null)
+            {
+                ret.Add("description", propertyValue);
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && EnableCatchUp.HasValue)
             {
                 ret.Add("enableCatchUp", "\"enableCatchUp\": " + EnableCatchUp.ToString().ToLower());
@@ -7208,7 +7216,11 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", Metas.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("metas", "\"metas\": " + propertyValue);
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(StartDate.HasValue)
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
@@ -8299,7 +8311,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("metaIds", "\"metaIds\": " + "\"" + EscapeJson(MetaIds) + "\"");
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(ParentId.HasValue)
             {
                 ret.Add("parentId", "\"parentId\": " + ParentId);
@@ -9017,7 +9033,11 @@ namespace WebAPI.Models.Catalog
                 }
             }
             ret.Add("createDate", "\"createDate\": " + CreateDate);
-            ret.Add("description", Description.ToCustomJson(currentVersion, omitObsolete, "description"));
+            propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+            if(propertyValue != null)
+            {
+                ret.Add("description", propertyValue);
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
             {
                 ret.Add("filterExpression", "\"filterExpression\": " + "\"" + EscapeJson(FilterExpression) + "\"");
@@ -9049,7 +9069,11 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", MediaTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("media_types", "\"media_types\": " + propertyValue);
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Order.HasValue)
             {
                 ret.Add("order", "\"order\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), Order) + "\"");
@@ -11532,7 +11556,11 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("id", "\"id\": " + Id);
-            ret.Add("tag", Tag.ToCustomJson(currentVersion, omitObsolete, "tag"));
+            propertyValue = Tag.ToCustomJson(currentVersion, omitObsolete, "tag");
+            if(propertyValue != null)
+            {
+                ret.Add("tag", propertyValue);
+            }
             ret.Add("type", "\"type\": " + TagTypeId);
             return ret;
         }
@@ -13422,7 +13450,11 @@ namespace WebAPI.Models.API
             {
                 ret.Add("multipleValue", "\"multipleValue\": " + MultipleValue.ToString().ToLower());
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(ParentId != null)
             {
                 ret.Add("parentId", "\"parentId\": " + "\"" + EscapeJson(ParentId) + "\"");
@@ -15251,7 +15283,11 @@ namespace WebAPI.Models.Pricing
                 propertyValue = "[" + String.Join(", ", CouponGroups.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("couponsGroups", "\"couponsGroups\": " + propertyValue);
             }
-            ret.Add("description", Description.ToCustomJson(currentVersion, omitObsolete, "description"));
+            propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+            if(propertyValue != null)
+            {
+                ret.Add("description", propertyValue);
+            }
             if(DiscountModule != null)
             {
                 propertyValue = DiscountModule.ToJson(currentVersion, omitObsolete);
@@ -15273,7 +15309,11 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(PriceDetailsId.HasValue)
             {
                 ret.Add("priceDetailsId", "\"priceDetailsId\": " + PriceDetailsId);
@@ -17147,7 +17187,11 @@ namespace WebAPI.Models.Pricing
                 }
             }
             ret.Add("dependencyType", "\"dependencyType\": " + "\"" + Enum.GetName(typeof(KalturaSubscriptionDependencyType), DependencyType) + "\"");
-            ret.Add("description", Description.ToCustomJson(currentVersion, omitObsolete, "description"));
+            propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
+            if(propertyValue != null)
+            {
+                ret.Add("description", propertyValue);
+            }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null)
             {
                 propertyValue = "[" + String.Join(", ", Descriptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17244,7 +17288,11 @@ namespace WebAPI.Models.Pricing
                     ret.Add("media_id", "\"media_id\": " + MediaId);
                 }
             }
-            ret.Add("name", Name.ToCustomJson(currentVersion, omitObsolete, "name"));
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
+            {
+                ret.Add("name", propertyValue);
+            }
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null)
             {
                 propertyValue = "[" + String.Join(", ", Names.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";

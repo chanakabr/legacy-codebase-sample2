@@ -269,7 +269,11 @@ namespace Reflector
                 {
                     if (propertyType == PropertyType.CUSTOM)
                     {
-                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\"));");
+                        file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + dataMember.Name + "\");");
+                        file.WriteLine(tab + "            if(propertyValue != null)");
+                        file.WriteLine(tab + "            {");
+                        file.WriteLine(tab + "                ret.Add(\"" + dataMember.Name + "\", propertyValue);");
+                        file.WriteLine(tab + "            }");
                     }
                     else
                     {
@@ -306,7 +310,11 @@ namespace Reflector
                         {
                             if (propertyType == PropertyType.CUSTOM)
                             {
-                                file.WriteLine(tab + "            ret.Add(\"" + oldStandardProperty.oldName + "\", " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\"));");
+                                file.WriteLine(tab + "            propertyValue = " + propertyName + ".ToCustomJson(currentVersion, omitObsolete, \"" + oldStandardProperty.oldName + "\");");
+                                file.WriteLine(tab + "            if(propertyValue != null)");
+                                file.WriteLine(tab + "            {");
+                                file.WriteLine(tab + "                ret.Add(\"" + oldStandardProperty.oldName + "\", propertyValue);");
+                                file.WriteLine(tab + "            }");
                             }
                             else
                             {
