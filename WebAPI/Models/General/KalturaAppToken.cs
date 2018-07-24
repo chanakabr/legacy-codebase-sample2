@@ -123,6 +123,10 @@ namespace WebAPI.Models.General
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        public KalturaAppToken()
+        {
+        }
+
         public KalturaAppToken(AppToken appToken)
         {
             Id = appToken.AppTokenId;
