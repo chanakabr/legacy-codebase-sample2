@@ -439,6 +439,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("asset_user_rule_ids_userId_{0}", userId);
         }
 
+        public static string GroupFeaturesKey(int groupId)
+        {
+            return string.Format("GroupFeatures_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -776,6 +781,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupParentalRulesInvalidationKey(int groupId)
         {
             return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupFeatureInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupFeatures_{0}", groupId);
         }
 
         #endregion

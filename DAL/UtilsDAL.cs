@@ -968,7 +968,7 @@ namespace DAL
                     GroupFeature groupFeature;
                     if (Enum.TryParse(feature, true, out groupFeature) && !groupFeatures.ContainsKey(groupFeature))
                     {
-                        int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
+                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS", 0);
                         groupFeatures.Add(groupFeature, status == 1);
                     }
                 }

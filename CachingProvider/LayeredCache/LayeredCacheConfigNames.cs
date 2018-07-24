@@ -80,6 +80,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB = "GetDeviceConcurrencyPriorityCB";
         public const string GET_ALL_LINEAR_MEDIA = "GetAllLinearMedia";
         public const string GET_ADJACENT_PROGRAMS = "GetAdjacentPrograms";
+        public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
 
         #endregion
 
