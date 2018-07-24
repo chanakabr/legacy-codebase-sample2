@@ -246,6 +246,8 @@ namespace WebAPI.Managers
             }
         }
 
+        #region AppToken
+
         internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, string udid, KalturaSessionType? type, int? expiry)
         {
             KalturaSessionInfo response = null;
@@ -385,7 +387,7 @@ namespace WebAPI.Managers
 
             return response;
         }
-        
+
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
         {
             // validate partner id
@@ -480,11 +482,10 @@ namespace WebAPI.Managers
         internal static bool DeleteAppToken(string id, int groupId)
         {
             bool response = false;
-
             Group group = GroupsManager.GetGroup(groupId);
-
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            var appToken = cbManager.Get<KalturaAppToken>(appTokenCbKey, true);
+
+            var appToken = GetAppToken(id, groupId);
             if (appToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
@@ -516,6 +517,8 @@ namespace WebAPI.Managers
 
             return response;
         }
+
+        #endregion
 
         internal static bool LogOut(KS ks)
         {
