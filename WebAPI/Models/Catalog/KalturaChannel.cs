@@ -37,6 +37,15 @@ namespace WebAPI.Models.Catalog
         public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
+        /// Channel name
+        /// </summary>
+        [DataMember(Name = "oldName")]
+        [JsonProperty(PropertyName = "oldName")]
+        [XmlElement(ElementName = "oldName")]
+        [OldStandardProperty("name", OPC_MERGE_VERSION)]
+        public string OldName { get; set; }
+
+        /// <summary>
         /// Channel system name
         /// </summary>
         [DataMember(Name = "systemName")]
@@ -51,6 +60,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
         public KalturaMultilingualString Description { get; set; }
+
+        /// <summary>
+        /// Cannel description
+        /// </summary>
+        [DataMember(Name = "oldDescription")]
+        [JsonProperty(PropertyName = "oldDescription")]
+        [XmlElement(ElementName = "oldDescription")]
+        [OldStandardProperty("description", OPC_MERGE_VERSION)]
+        public string OldDescription { get; set; }
 
         /// <summary>
         /// Channel images 

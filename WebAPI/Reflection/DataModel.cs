@@ -977,6 +977,10 @@ namespace WebAPI.Reflection
                             return "media_types";
                         case "Name":
                             return "name";
+                        case "OldDescription":
+                            return "oldDescription";
+                        case "OldName":
+                            return "oldName";
                         case "Order":
                             return "order";
                         case "OrderBy":

@@ -6916,7 +6916,7 @@ namespace WebAPI.Models.Notification
                 {
                     MessageType = (KalturaMessageTemplateType) Enum.Parse(typeof(KalturaMessageTemplateType), parameters["asset_type"].ToString(), true);
                 }
-                if (parameters.ContainsKey("assetType") && parameters["assetType"] != null && (isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0))
+                if (parameters.ContainsKey("assetType") && parameters["assetType"] != null && (isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0))
                 {
                     MessageType = (KalturaMessageTemplateType) Enum.Parse(typeof(KalturaMessageTemplateType), parameters["assetType"].ToString(), true);
                 }
@@ -9277,6 +9277,14 @@ namespace WebAPI.Models.Catalog
                         Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
                     }
                 }
+                if (parameters.ContainsKey("oldName") && parameters["oldName"] != null)
+                {
+                    OldName = (String) Convert.ChangeType(parameters["oldName"], typeof(String));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null && (isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) < 0))
+                {
+                    OldName = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
                 if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
                 {
                     SystemName = (String) Convert.ChangeType(parameters["systemName"], typeof(String));
@@ -9291,6 +9299,14 @@ namespace WebAPI.Models.Catalog
                     {
                         Description = new KalturaMultilingualString((List<object>) parameters["multilingualDescription"]);
                     }
+                }
+                if (parameters.ContainsKey("oldDescription") && parameters["oldDescription"] != null)
+                {
+                    OldDescription = (String) Convert.ChangeType(parameters["oldDescription"], typeof(String));
+                }
+                if (parameters.ContainsKey("description") && parameters["description"] != null && (isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) < 0))
+                {
+                    OldDescription = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {

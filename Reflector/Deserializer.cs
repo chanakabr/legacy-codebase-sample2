@@ -288,7 +288,7 @@ namespace Reflector
                     }
                     else
                     {
-                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" + apiName + "\"] != null && (isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandard.sinceVersion + "\")) > 0))");
+                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" + apiName + "\"] != null && (isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandard.sinceVersion + "\")) < 0))");
                     }
                     writeDeserializeTypeProperty(apiName, property);
                 }

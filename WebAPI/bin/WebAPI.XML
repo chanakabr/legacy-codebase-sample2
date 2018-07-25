@@ -8992,12 +8992,22 @@
             Channel name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.OldName">
+            <summary>
+            Channel name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.SystemName">
             <summary>
             Channel system name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Description">
+            <summary>
+            Cannel description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.OldDescription">
             <summary>
             Cannel description
             </summary>

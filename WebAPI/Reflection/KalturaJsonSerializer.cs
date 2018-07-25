@@ -9074,6 +9074,22 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", propertyValue);
             }
+            if(OldDescription != null)
+            {
+                ret.Add("oldDescription", "\"oldDescription\": " + "\"" + EscapeJson(OldDescription) + "\"");
+                if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) > 0)
+                {
+                    ret.Add("description", "\"description\": " + "\"" + EscapeJson(OldDescription) + "\"");
+                }
+            }
+            if(OldName != null)
+            {
+                ret.Add("oldName", "\"oldName\": " + "\"" + EscapeJson(OldName) + "\"");
+                if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) > 0)
+                {
+                    ret.Add("name", "\"name\": " + "\"" + EscapeJson(OldName) + "\"");
+                }
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Order.HasValue)
             {
                 ret.Add("order", "\"order\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), Order) + "\"");
@@ -9139,6 +9155,22 @@ namespace WebAPI.Models.Catalog
                 ret.Add("media_types", "<media_types>" + propertyValue + "</media_types>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(OldDescription != null)
+            {
+                ret.Add("oldDescription", "<oldDescription>" + EscapeXml(OldDescription) + "</oldDescription>");
+                if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) > 0)
+                {
+                ret.Add("description", "<description>" + EscapeXml(OldDescription) + "</description>");
+                }
+            }
+            if(OldName != null)
+            {
+                ret.Add("oldName", "<oldName>" + EscapeXml(OldName) + "</oldName>");
+                if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) > 0)
+                {
+                ret.Add("name", "<name>" + EscapeXml(OldName) + "</name>");
+                }
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Order.HasValue)
             {
                 ret.Add("order", "<order>" + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), Order) + "\"" + "</order>");
