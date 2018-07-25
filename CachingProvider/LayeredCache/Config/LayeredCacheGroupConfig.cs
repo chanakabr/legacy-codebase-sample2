@@ -22,20 +22,25 @@ namespace CachingProvider.LayeredCache
         [JsonProperty("LayeredCacheSettingsToExclude")]
         public HashSet<string> LayeredCacheSettingsToExclude { get; set; }
 
+        [JsonProperty("LayeredCacheInvalidationKeySettingsToExclude")]
+        public HashSet<string> LayeredCacheInvalidationKeySettingsToExclude { get; set; }
+
         public LayeredCacheGroupConfig()
         {
             GroupId = 0;
             Version = 0;
-            LayeredCacheSettingsToExclude = new HashSet<string>();
+            LayeredCacheSettingsToExclude = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            LayeredCacheInvalidationKeySettingsToExclude = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             DisableLayeredCache = false;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("LayeredCacheGroupConfig for groupId: {0}, ", GroupId));
-            sb.AppendFormat("Version: {0}, ", Version);            
+            sb.AppendFormat("Version: {0}, ", Version);
             sb.AppendFormat("DisableLayeredCache: {0}, ", DisableLayeredCache.ToString());
             sb.AppendFormat("LayeredCacheSettingsToExclude: {0} ", string.Join(",", LayeredCacheSettingsToExclude));
+            sb.AppendFormat("LayeredCacheInvalidationKeySettingsToExclude: {0} ", string.Join(",", LayeredCacheInvalidationKeySettingsToExclude));
 
             return sb.ToString();
         }

@@ -159,7 +159,7 @@ namespace CachingHelpers
 
         #region Public Methods
 
-        public T Get(string cacheKey, string mutexName, params object[] parameters)
+        public T Get(string cacheKey, params object[] parameters)
         {
             T value = default(T);
 
@@ -176,60 +176,37 @@ namespace CachingHelpers
                     log.DebugFormat("Couldn't get cache key {0}. Trying with version.", cacheKey);
 
                     bool inserted = false;
-                    bool createdNew = false;
-                    var mutexSecurity = Utils.CreateMutex();
-                    using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
+
+                    VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cacheKey);
+
+                    if (versionModule != null && versionModule.result != null)
                     {
-                        try
+                        value = (T)versionModule.result;
+                    }
+                    else
+                    {
+                        log.DebugFormat("Couldn't get cache key {0} with version. Building value.", cacheKey);
+
+                        T tempValue = BuildValue(parameters);
+
+                        for (int i = 0; i < 3 && !inserted; i++)
                         {
-                            mutex.WaitOne(-1);
-
-                            VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cacheKey);
-
-                            if (versionModule != null && versionModule.result != null)
+                            if (versionModule == null)
                             {
-                                value = (T)versionModule.result;
+                                versionModule = new VersionModuleCache();
                             }
-                            else
+
+                            //try insert to Cache
+                            versionModule.result = tempValue;
+
+                            inserted = this.cacheService.SetWithVersion<T>(cacheKey, versionModule, cacheTime);
+
+                            if (inserted)
                             {
-                                log.DebugFormat("Couldn't get cache key {0} with version. Building value.", cacheKey);
+                                log.DebugFormat("Inserted value to key {0}.", cacheKey);
 
-                                T tempValue = BuildValue(parameters);
-
-                                for (int i = 0; i < 3 && !inserted; i++)
-                                {
-                                    if (versionModule == null)
-                                    {
-                                        versionModule = new VersionModuleCache();
-                                    }
-
-                                    //try insert to Cache
-                                    versionModule.result = tempValue;
-
-                                    inserted = this.cacheService.SetWithVersion<T>(cacheKey, versionModule, cacheTime);
-
-                                    if (inserted)
-                                    {
-                                        log.DebugFormat("Inserted value to key {0}.", cacheKey);
-
-                                        value = tempValue;
-                                    }
-                                }
+                                value = tempValue;
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
-                                cacheKey, ex.Message), ex);
-
-                            if (this.OnErrorOccurred != null)
-                            {
-                                this.OnErrorOccurred(ex);
-                            }
-                        }
-                        finally
-                        {
-                            mutex.ReleaseMutex();
                         }
                     }
                 }
@@ -248,7 +225,7 @@ namespace CachingHelpers
             return value;
         }
 
-        public List<T> MultiGet(List<long> ids, List<string> cacheKeys, string mutexName, params object[] parameters)
+        public List<T> MultiGet(List<long> ids, List<string> cacheKeys, params object[] parameters)
         {
             T[] values = new T[cacheKeys.Count];
 
@@ -272,42 +249,19 @@ namespace CachingHelpers
                     }
                     else
                     {
-                        bool createdNew = false;
-                        var mutexSecurity = Utils.CreateMutex();
-                        using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
+
+                        VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cacheKey);
+
+                        // If we found - put in values array
+                        if (versionModule != null && versionModule.result != null)
                         {
-                            try
-                            {
-                                mutex.WaitOne(-1);
-
-                                VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cacheKey);
-
-                                // If we found - put in values array
-                                if (versionModule != null && versionModule.result != null)
-                                {
-                                    value = (T)baseModule.result;
-                                    values[i] = value;
-                                }
-                                else
-                                {
-                                    // If we DIDN't find - remember the INDEX of the key
-                                    uncachedIndexes.Add(i);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
-                                    cacheKey, ex.Message), ex);
-
-                                if (this.OnErrorOccurred != null)
-                                {
-                                    this.OnErrorOccurred(ex);
-                                }
-                            }
-                            finally
-                            {
-                                mutex.ReleaseMutex();
-                            }
+                            value = (T)baseModule.result;
+                            values[i] = value;
+                        }
+                        else
+                        {
+                            // If we DIDN't find - remember the INDEX of the key
+                            uncachedIndexes.Add(i);
                         }
                     }
                 }
@@ -358,7 +312,7 @@ namespace CachingHelpers
             return values.ToList();
         }
 
-        public virtual bool Remove(string cacheKey, string mutexName)
+        public virtual bool Remove(string cacheKey)
         {
             bool isRemoveSucceeded = false;
 
@@ -372,22 +326,12 @@ namespace CachingHelpers
                     {
                         T cacheValue = (T)versionModule.result;
 
-                        bool createdNew = false;
-                        var mutexSecurity = Utils.CreateMutex();
+                        //try update to CB
+                        BaseModuleCache bModule = cacheService.Remove(cacheKey);
 
-                        using (Mutex mutex = new Mutex(false, mutexName, out createdNew, mutexSecurity))
+                        if (bModule != null && bModule.result != null)
                         {
-                            mutex.WaitOne(-1);
-
-                            //try update to CB
-                            BaseModuleCache bModule = cacheService.Remove(cacheKey);
-
-                            if (bModule != null && bModule.result != null)
-                            {
-                                isRemoveSucceeded = true;
-                            }
-
-                            mutex.ReleaseMutex();
+                            isRemoveSucceeded = true;
                         }
                     }
                 }

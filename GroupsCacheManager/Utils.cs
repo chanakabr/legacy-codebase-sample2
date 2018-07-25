@@ -15,17 +15,6 @@ namespace GroupsCacheManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static MutexSecurity CreateMutex()
-        {
-            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            MutexSecurity mutexSecurity = new MutexSecurity();
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-            return mutexSecurity;
-        }
-
         public static Group BuildGroup(int nGroupID, bool bUseRAM)
         {
             Group group = null;

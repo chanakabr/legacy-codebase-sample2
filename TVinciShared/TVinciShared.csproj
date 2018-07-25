@@ -77,6 +77,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
+    <Reference Include="DeepCloner, Version=0.10.0.0, Culture=neutral, PublicKeyToken=dc0b95cf99bf4e99, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\DeepCloner.0.10.2\lib\net40\DeepCloner.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\External\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
@@ -207,6 +211,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CUWMAuthTickets.dll" />
+    <None Include="packages.config" />
     <None Include="Web References\Lucene_WCF\SearchResultsObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

@@ -59,9 +59,7 @@ namespace CachingHelpers
         public ExternalChannel GetChannel(int groupId, string channelId)
         {
             string cacheKey = string.Format("{0}_external_channel_{1}_{2}", version, groupId, channelId);
-            string mutexName = string.Concat("Group ExternalChannels GID_", groupId);
-
-            return base.Get(cacheKey, mutexName, channelId);
+            return base.Get(cacheKey, channelId);
         }
 
         #endregion

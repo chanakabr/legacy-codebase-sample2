@@ -321,7 +321,7 @@ namespace DAL
             return string.Format("groupId_{0}_Id_{1}_type_{2}", groupId, id, type.ToString());
         }
 
-        internal static string GetDomainUnifiedBillingCycleKey(long domainId, long renewBillingCycle)
+        public static string GetDomainUnifiedBillingCycleKey(long domainId, long renewBillingCycle)
         {
             return string.Format("unifiedBillingCycle_householdId_{0}_cycle_{1}", domainId, renewBillingCycle);
         }

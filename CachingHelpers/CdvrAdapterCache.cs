@@ -57,11 +57,6 @@ namespace CachingHelpers
 
         public CDVRAdapter GetCdvrAdapter(int groupId, int adapterId)
         {
-            //string cacheKey = string.Format("cdvr_adapter_{0}", adapterId);
-            //string mutexName = string.Concat("Group Cdvr Adapter GID_", groupId);
-
-            //return base.Get(cacheKey, mutexName, adapterId, groupId);
-
             return DAL.ConditionalAccessDAL.GetCDVRAdapter(groupId, adapterId);
         }
 

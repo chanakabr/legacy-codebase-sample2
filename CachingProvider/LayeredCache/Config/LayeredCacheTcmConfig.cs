@@ -20,7 +20,7 @@ namespace CachingProvider.LayeredCache
         public List<LayeredCacheConfig> GroupCacheSettings { get; set; }
 
         [JsonProperty("InvalidationKeySettings")]
-        public LayeredCacheConfig InvalidationKeySettings { get; set; }
+        public List<LayeredCacheConfig> InvalidationKeySettings { get; set; }
 
         [JsonProperty("BucketSettings")]
         public List<LayeredCacheBucketSettings> BucketSettings { get; set; }
@@ -31,14 +31,18 @@ namespace CachingProvider.LayeredCache
         [JsonProperty("LayeredCacheSettings")]
         public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheSettings { get; set; }
 
+        [JsonProperty("LayeredCacheInvalidationKeySettings")]
+        public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheInvalidationKeySettings { get; set; }
+
         public LayeredCacheTcmConfig()
         {
             Version = string.Empty;
             GroupCacheSettings = new List<LayeredCacheConfig>();
-            InvalidationKeySettings = null;
+            InvalidationKeySettings = new List<LayeredCacheConfig>();
             BucketSettings = new List<LayeredCacheBucketSettings>();
             DefaultSettings = new List<LayeredCacheConfig>();
-            LayeredCacheSettings = new Dictionary<string, List<LayeredCacheConfig>>(StringComparer.OrdinalIgnoreCase);
+            LayeredCacheSettings = new Dictionary<string, List<LayeredCacheConfig>>(StringComparer.InvariantCultureIgnoreCase);
+            LayeredCacheInvalidationKeySettings = new Dictionary<string, List<LayeredCacheConfig>>(StringComparer.InvariantCultureIgnoreCase);
         }
 
     }

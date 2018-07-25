@@ -165,40 +165,19 @@ namespace CachingProvider
             try
             {
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
-
-                //lock 
-                bool createdNew = false;
-                var mutexSecurity = CreateMutex();
-                using (Mutex mutex = new Mutex(false, string.Concat("Lock", sKey), out createdNew, mutexSecurity))
+                BaseModuleCache vModule = GetWithVersion<T>(sKey);
+                // memory is empty for this key OR the object must have the same version 
+                if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null))
                 {
-                    try
-                    {
-                        mutex.WaitOne(-1);
-                        BaseModuleCache vModule = GetWithVersion<T>(sKey);
-                        // memory is empty for this key OR the object must have the same version 
-                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null))
-                        {                            
-                            Guid versionGuid = Guid.NewGuid();
-                            cache.Set(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
-                            return true;
-                        }                        
-                    }
-                    catch
-                    {
-
-                    }
-                    finally
-                    {
-                        //unlock
-                        mutex.ReleaseMutex();
-                    }
+                    Guid versionGuid = Guid.NewGuid();
+                    cache.Set(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                    return true;
                 }
+
                 return bRes;
             }
             catch (Exception ex)
             {
-                //Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
-                //log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
                 log.Error("AddWithVersion", ex);
                 return false;
             }
@@ -207,17 +186,6 @@ namespace CachingProvider
         public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue)
         {
             return SetWithVersion<T>(sKey, oValue, DefaultMinOffset);
-        }
-
-        private MutexSecurity CreateMutex()
-        {
-            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            MutexSecurity mutexSecurity = new MutexSecurity();
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-            return mutexSecurity;
         }
 
         public void Dispose()
@@ -333,35 +301,14 @@ namespace CachingProvider
             bool bRes = false;
             try
             {
-                
-
-                //lock 
-                bool createdNew = false;
-                var mutexSecurity = CreateMutex();
-                using (Mutex mutex = new Mutex(false, string.Concat("Lock", key), out createdNew, mutexSecurity))
+                T getResult = default(T);
+                if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
                 {
-                    try
-                    {
-                        mutex.WaitOne(-1);
-                        T getResult = default(T);
-                        if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
-                        {
-                            DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
-                            cache.Set(key, value, dtExpiresAt);
-                        }
+                    DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
+                    cache.Set(key, value, dtExpiresAt);
+                }
 
-                        bRes = true;
-                    }
-                    catch
-                    {
-
-                    }
-                    finally
-                    {
-                        //unlock
-                        mutex.ReleaseMutex();
-                    }
-                }                
+                bRes = true;
             }
 
             catch (Exception ex)

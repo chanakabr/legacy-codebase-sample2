@@ -439,6 +439,21 @@ namespace CachingProvider.LayeredCache
             return string.Format("asset_user_rule_ids_userId_{0}", userId);
         }
 
+        public static string GetUserKey(int userId, int groupId)
+        {
+            return string.Format("group_{0}_user_{1}", groupId, userId);
+        }
+
+        public static string GetDomainKey(int domainId)
+        {
+            return string.Format("domain_{0}", domainId);
+        }
+
+        public static string GetDlmKey(int dlmId)
+        {
+            return string.Format("DLM_{0}", dlmId);
+        }
+
         public static string GroupFeaturesKey(int groupId)
         {
             return string.Format("GroupFeatures_{0}", groupId);
@@ -781,6 +796,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupParentalRulesInvalidationKey(int groupId)
         {
             return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
+        }
+
+        public static string GetDlmInvalidationKey(int dlmId)
+        {
+            return string.Format("invalidationKey_dlm_{0}", dlmId);
         }
 
         public static string GetGroupFeatureInvalidationKey(int groupId)
