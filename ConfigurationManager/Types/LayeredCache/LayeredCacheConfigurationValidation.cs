@@ -50,7 +50,7 @@ namespace ConfigurationManager
         public List<LayeredCacheConfig> GroupCacheSettings { get; set; }
 
         [JsonProperty("InvalidationKeySettings")]
-        public LayeredCacheConfig InvalidationKeySettings { get; set; }
+        public List<LayeredCacheConfig> InvalidationKeySettings { get; set; }
 
         [JsonProperty("BucketSettings")]
         public List<LayeredCacheBucketSettings> BucketSettings { get; set; }
@@ -61,6 +61,8 @@ namespace ConfigurationManager
         [JsonProperty("LayeredCacheSettings")]
         public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheSettings { get; set; }
 
+        [JsonProperty("LayeredCacheInvalidationKeySettings")]
+        public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheInvalidationKeySettings { get; set; }
     }
 
     internal class LayeredCacheBucketSettings

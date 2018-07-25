@@ -60,22 +60,19 @@ namespace Core.Catalog
             eEntitlementSearchType type)
         {
             string cacheKey = string.Format("{0}_entitlement_search_definitions_{1}_{2}_{3}", version, groupId, request.m_sSiteGuid, type.ToString());
-            string mutexName = string.Concat("Group EntitlementSearchDefinitions GID_", groupId);
             this.cacheTime = 4;
-
             EntitlementSearchDefinitions result = null;
 
             // If it is the first page, always rebuild value and set it
             if (request.m_nPageIndex == 0)
             {
                 result = BuildValue(groupId, definitions, request, order, group);
-
                 this.cacheService.Set(cacheKey, new CachingProvider.BaseModuleCache(result), cacheTime);
             }
             else
             {
                 // For second page onwards, use cache
-                result = base.Get(cacheKey, mutexName, groupId, definitions, request, order, group);
+                result = base.Get(cacheKey, groupId, definitions, request, order, group);
             }
 
             return result;

@@ -1,28 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Reflection;
-using System.ServiceModel;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Data;
-using TVinciShared;
-using DAL;
-using Tvinci.Core.DAL;
-using ApiObjects.Statistics;
 using Core.Catalog.Cache;
-using GroupsCacheManager;
 using System.Threading.Tasks;
 using ApiObjects;
 using Core.Catalog.Response;
 using KLogMonitor;
-using ApiObjects.PlayCycle;
 using KlogMonitorHelper;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
-using Core.Users;
 using ConfigurationManager;
 using ApiObjects.Response;
 
@@ -193,10 +180,6 @@ namespace Core.Catalog.Request
             int nFormatID = 0;
             int nBillingTypeID = 0;
             int countryId = 0;
-            
-            List<Task> tasks = new List<Task>();
-            ContextData contextData = new ContextData();
-
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
 
             int fileDuration = 0; // from db
@@ -272,11 +255,16 @@ namespace Core.Catalog.Request
                 int nSwhoosh = 0;
                 int nMediaDuration = 0;
                 int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
-                tasks.Add(Task.Run(() => CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, 
-                                                                              nBillingTypeID, nCDNID, nMediaDuration, countryId, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, 
-                                                                              nStop, nFinish, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, 
-                                                                              nFormatID, dNow, nUpdaterID, nBrowser, platform, m_oMediaPlayRequestData.m_sSiteGuid, 
-                                                                              m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
+
+                // since by default we used to write this log, we don't write it only if the account specified not to write it
+                if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
+                {
+                    CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
+                                                                              nBillingTypeID, nCDNID, nMediaDuration, countryId, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
+                                                                              nStop, nFinish, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID,
+                                                                              nFormatID, dNow, nUpdaterID, nBrowser, platform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                                              m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh);
+                }
                 
                 if (!resultParse || action == MediaPlayActions.HIT)
                 {
@@ -295,23 +283,18 @@ namespace Core.Catalog.Request
             //if this is not a bit rate change, log for mediahit for statistics
             if ((!resultParse || action == MediaPlayActions.HIT) && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
             {
-                tasks.Add(Task.Run(() => WriteLiveViews(this.m_nGroupID, mediaId, mediaTypeId, locationSec, contextData)));
+                WriteLiveViews(this.m_nGroupID, mediaId, mediaTypeId, locationSec);
             }
 
             mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.HIT);
-            if (tasks != null && tasks.Count > 0)
-            {
-                Task.WaitAll(tasks.ToArray());
-            }
 
             return mediaHitResponse;
         }
 
-        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime, ContextData context)
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
         {
             try
             {
-                context.Load();
                 int parentGroupID = CatalogCache.Instance().GetParentGroup(groupID);
 
                 if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_MEDIA_HIT, playTime, false))

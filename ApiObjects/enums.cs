@@ -811,7 +811,9 @@ namespace ApiObjects
     {
         CROWDSOURCE = 0,
         BUZZFEED = 1,
-        EXTERNAL_RECORDINGS = 2
+        WRITE_MEDIA_EOH_STATISTICS_LOG = 2,
+        WRITE_NEW_WATCHER_MEDIA_ACTION_LOG = 3,
+        EXTERNAL_RECORDINGS = 4
     }
 
     public enum ResponseStatus

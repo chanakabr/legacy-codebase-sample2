@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
-using ApiObjects.PlayCycle;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
@@ -16,9 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
-using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -208,9 +205,6 @@ namespace Core.Catalog.Request
                     nActionID = CatalogLogic.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
                 }
 
-                List<Task> tasks = new List<Task>();
-                ContextData contextData = new ContextData();
-
                 if (mediaId != 0)
                 {
                     if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
@@ -225,41 +219,40 @@ namespace Core.Catalog.Request
                             playCycleKey = CatalogDAL.GetOrInsertPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                         }
 
-                        tasks.Add(Task.Run(() => CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                                        nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
-                                                        m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
+                        // since by default we used to write this log, we don't write it only if the account specified not to write it
+                        if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
+                        {
+                            CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                                                    nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
+                                                                    m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                                    m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh);
+                        }
                     }
                 }
 
                 if (nActionID != -1)
                 {
                     if (nActionID != (int)MediaPlayActions.HIT)
-                    {                        
-                        tasks.Add(Task.Run(() => CatalogLogic.WriteNewWatcherMediaActionLog(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId,
+                    {
+                        CatalogLogic.WriteNewWatcherMediaActionLog(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId,
                                                                                         m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc,
-                                                                                        nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, contextData)));
+                                                                                        nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
                     }
                     else if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
                     // log for mediahit for statistics
                     {
-                        tasks.Add(Task.Run(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
+                        WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime);
                     }
 
                     if (IsFirstPlay(nActionID))
                     {                        
-                        tasks.Add(Task.Run(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
-                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, contextData)));
+                        WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
+                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID);
                     }
                 }
                 else
                 {
                     response.status.Set((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
-                }
-
-                if (tasks != null && tasks.Count > 0)
-                {
-                    Task.WaitAll(tasks.ToArray());
                 }
             }
 
@@ -614,11 +607,10 @@ namespace Core.Catalog.Request
             }
         }
 
-        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime, ContextData context)
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
         {
             try
             {
-                context.Load();
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
 
                 if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_MEDIA_HIT, playTime, false))
@@ -632,11 +624,10 @@ namespace Core.Catalog.Request
         }
 
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
-            string siteGuid, string udid, int platform, int countryID, ContextData context)
+            string siteGuid, string udid, int platform, int countryID)
         {
             try
             {
-                context.Load();
                 //ApiDAL.Update_MediaViews(mediaID, mediaFileID);  // -https://kaltura.atlassian.net/browse/BEO-4390
 
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);

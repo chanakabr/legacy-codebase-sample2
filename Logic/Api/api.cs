@@ -9965,13 +9965,15 @@ namespace Core.Api
             return groupConfigResult;
         }
 
-        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
+        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings,
+                                                        List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExludeSettings)
         {
             bool result = false;
 
             try
             {
-                result = LayeredCache.Instance.SetLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+                result = LayeredCache.Instance.SetLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings,
+                                                                            layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExludeSettings);
             }
             catch (Exception ex)
             {

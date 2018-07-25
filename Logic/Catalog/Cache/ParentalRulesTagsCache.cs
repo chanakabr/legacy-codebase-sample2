@@ -58,11 +58,9 @@ namespace Core.Catalog
         public ParentalRulesTags GetParentalRulesTags(int groupId, string siteGuid)
         {
             string cacheKey = string.Format("{0}_parental_rules_tags_{1}_{2}", version, groupId, siteGuid);
-            string mutexName = string.Concat("Group ParentalRulesTags GID_", groupId);
-
             this.cacheTime = 4;
 
-            return base.Get(cacheKey, mutexName, groupId, siteGuid);   
+            return base.Get(cacheKey, groupId, siteGuid);   
         }
     }
 }

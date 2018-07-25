@@ -1663,20 +1663,30 @@ namespace Core.Api
             return Core.Api.api.GetLayeredCacheGroupConfig(groupId);
         }
 
-        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
+        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExcludeSettings,
+                                                            List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExcludeSettings)
         {
-            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExcludeSettings,
+                                                                layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings);
         }
 
-        public static bool UpdateLayeredCacheGroupConfigST(int groupId, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings)
+        public static bool UpdateLayeredCacheGroupConfigST(int groupId, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExcludeSettings,
+                                                            string layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, bool shouldOverrideExistingInvalidationKeyExcludeSettings)
         {
-            string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             if (layeredCacheSettingsToExclude == null)
             {
                 layeredCacheSettingsToExclude = new string[0];
             }
 
-            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
+            string[] layeredCacheInvalidationKeySettingsToExclude = layeredCacheInvalidationKeySettingsToExcludeCommaSeperated.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            if (layeredCacheInvalidationKeySettingsToExclude == null)
+            {
+                layeredCacheInvalidationKeySettingsToExclude = new string[0];
+            }
+
+            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExcludeSettings,
+                                                                new List<string>(layeredCacheInvalidationKeySettingsToExclude), shouldOverrideExistingInvalidationKeyExcludeSettings);
         }
 
         public static bool DoActionRules()
