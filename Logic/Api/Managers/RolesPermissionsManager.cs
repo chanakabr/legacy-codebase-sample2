@@ -74,7 +74,7 @@ namespace APILogic.Api.Managers
 
             if (response.Ids != null)
             {
-                roleIds = response.Ids.ToList();
+                roleIds.AddRange(response.Ids);
             }
 
             return roleIds;

@@ -1324,7 +1324,7 @@ namespace Core.ConditionalAccess
                         price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theSub.m_oSubscriptionPriceCode.m_oPrise));
                     }
 
-                    if (blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
+                    if (!string.IsNullOrEmpty(userId) && userId != "0" && blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
                     {
                         theReason = PriceReason.UserSuspended;
                         return price;
