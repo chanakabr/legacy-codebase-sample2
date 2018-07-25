@@ -4252,7 +4252,8 @@ namespace WS_API
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings,
+                                                                        layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings);
             }
             else
             {
@@ -4270,7 +4271,8 @@ namespace WS_API
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings);
+                response = Core.Api.Module.UpdateLayeredCacheGroupConfigST(groupId, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings,
+                                                                        layeredCacheInvalidationKeySettingsToExcludeCommaSeperated, shouldOverrideExistingInvalidationKeyExcludeSettings);
             }
             else
             {
