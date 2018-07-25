@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -32,21 +33,19 @@ namespace WebAPI.Managers.Models
             ret.Add("executionTime", "\"executionTime\": " + ExecutionTime);
             if (Result != null)
             {
-                if (Result is IKalturaSerializable)
+                if (Result is IEnumerable)
+                {
+                    JsonManager jsonManager = JsonManager.GetInstance();
+                    propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.Serialize(item))) + "]";
+                }
+                else if (Result is IKalturaSerializable)
                 {
                     propertyValue = (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete);
                 }
                 else
                 {
                     JsonManager jsonManager = JsonManager.GetInstance();
-                    if (Result.GetType().IsArray)
-                    {
-                        propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.Serialize(item))) + "]";
-                    }
-                    else
-                    {
-                        propertyValue = jsonManager.Serialize(Result);
-                    }
+                    propertyValue = jsonManager.Serialize(Result);
                 };
                 ret.Add("result", "\"result\": " + propertyValue);
             }
@@ -60,23 +59,19 @@ namespace WebAPI.Managers.Models
             ret.Add("executionTime", "<executionTime>" + ExecutionTime + "</executionTime>");
             if (Result != null)
             {
-                if(Result is IKalturaSerializable)
+                if (Result is IEnumerable)
+                {
+                    propertyValue = "<item>" + String.Join("</item><item>", (Result as IEnumerable<object>).Select(item => (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : item.ToString())) + "</item>";
+                }
+                else if (Result is IKalturaSerializable)
                 {
                     propertyValue = (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete);
                 }
                 else
                 {
-                    JsonManager jsonManager = JsonManager.GetInstance();
-                    if (Result.GetType().IsArray)
-                    {
-                        propertyValue = "<item>" + String.Join("</item><item>", (Result as IEnumerable<object>).Select(item => (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : item.ToString())) + "</item>";
-                    }
-                    else
-                    {
-                        propertyValue = Result.ToString();
-                    }
+                    propertyValue = Result.ToString();
                 }
-                
+
                 ret.Add("result", "<result>" + propertyValue + "</result>");
             }
             return ret;
