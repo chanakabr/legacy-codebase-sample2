@@ -565,12 +565,12 @@ namespace GroupsCacheManager
                 {
                     UpdateOrderByObject(ref channel, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
                 }
-
             }
             else
             {
                 channel = null;
             }
+
             return channel;
         }
 
