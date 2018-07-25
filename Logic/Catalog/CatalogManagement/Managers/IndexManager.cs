@@ -334,9 +334,10 @@ namespace Core.Catalog.CatalogManagement
                         result = UpdateChannelPercolator(esApi, channel, new List<int>() { groupId }, mediaAliases, epgAliases);
                     }
                     else
-                    {                        
+                    {
                         GroupManager groupManager = new GroupManager();
                         Group group = groupManager.GetGroup(groupId);
+
                         if (group == null || group.channelIDs == null || group.channelIDs.Count == 0)
                         {
                             return result;
@@ -346,7 +347,8 @@ namespace Core.Catalog.CatalogManagement
                         foreach (int channelId in channelIds)
                         {
                             Channel channelToUpdate = ChannelRepository.GetChannel(channelId, group);
-                            if (channel != null)
+
+                            if (channelToUpdate != null)
                             {
                                 result = result && UpdateChannelPercolator(esApi, channelToUpdate, group.m_nSubGroup, mediaAliases, epgAliases);
                             }
