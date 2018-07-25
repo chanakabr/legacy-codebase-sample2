@@ -854,6 +854,7 @@ namespace Core.Social
                 {
                     JToken tempToken;
                     totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
                     if (totalItems > 0)
                     {
                         documents = jsonObj.SelectToken("hits.hits").Select(item => new StatisticsView()
@@ -868,6 +869,7 @@ namespace Core.Social
             }
             catch (Exception ex)
             {
+                documents = null;
                 log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), ex);
             }
 

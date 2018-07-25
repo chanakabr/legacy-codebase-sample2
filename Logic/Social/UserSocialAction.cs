@@ -30,8 +30,8 @@ namespace Core.Social
         public UserSocialActionResponse AddUserSocialAction(int groupID, UserSocialActionRequest actionRequest)
         {
             UserSocialActionResponse response = new UserSocialActionResponse();
-            ApiObjects.Response.Status ExternalStatus = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            ApiObjects.Response.Status InternalStatus = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status ExternalStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status InternalStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             string dbRecordId = string.Empty;
             string FBObjectID = string.Empty;
             string FBActionID = string.Empty;
@@ -42,17 +42,17 @@ namespace Core.Social
                // SocialBL = BaseSocialBL.GetBaseSocialImpl(groupID) as BaseSocialBL;
 
                 // check user is valid
-                Core.Users.UserResponseObject uObj = Core.Social.Utils.GetUserDataByID(actionRequest.SiteGuid, groupID);
+                Users.UserResponseObject uObj = Utils.GetUserDataByID(actionRequest.SiteGuid, groupID);
 
-                if (uObj != null && uObj.m_RespStatus == ApiObjects.ResponseStatus.OK)
+                if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
                 {
                     if (uObj.m_user == null || uObj.m_user.m_oBasicData == null)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.UserDoesNotExist, ApiObjects.Response.eResponseStatus.UserDoesNotExist.ToString());
+                        response.Status = new Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
                         return response;
                     }
                     // get user social privacy settings per action 
-                    ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
+                    Status status = new Status((int)eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                     SocialPrivacySettings userPrivacySettings = UserSocialPrivacySettings(actionRequest.SiteGuid, groupID, out status);
                     if (userPrivacySettings == null || status.Code == (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound)
                     {
@@ -73,7 +73,7 @@ namespace Core.Social
                             SocialBL.GetUserSocialAction(actionRequest.SiteGuid, SocialPlatform.UNKNOWN, actionRequest.AssetType, actionRequest.Action, actionRequest.AssetID, out doc);
                             if (doc != null && doc.IsActive == true)
                             {
-                                response.Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked, ApiObjects.Response.eResponseStatus.AssetAlreadyLiked.ToString());
+                                response.Status = new Status((int)eResponseStatus.AssetAlreadyLiked, ApiObjects.Response.eResponseStatus.AssetAlreadyLiked.ToString());
                             }
                             else
                             {
@@ -145,7 +145,7 @@ namespace Core.Social
             catch (Exception ex)
             {
                 log.ErrorFormat("AddUserSocialAction: Error while get user privacy settings . actionRequest = {0} ex = {2}", actionRequest.ToString(), ex);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return response;
             }
 
@@ -175,7 +175,6 @@ namespace Core.Social
 
             if (doc != null)
             {
-                
                 response.UserAction = new UserSocialActionRequest()
                 {
                     Id = doc.id,
@@ -196,7 +195,15 @@ namespace Core.Social
             }
         }
 
-        //delete row from  ES due to UNLIKE action 
+        /// <summary>
+        /// delete row from  ES due to UNLIKE action 
+        /// </summary>
+        /// <param name="actionRequest"></param>
+        /// <param name="groupId"></param>
+        /// <param name="nRateValue"></param>
+        /// <param name="date"></param>
+        /// <param name="eAction"></param>
+        /// <returns></returns>
         private bool DeleteActionFromES(UserSocialActionRequest actionRequest, int groupId, int nRateValue = 0, DateTime date = default(DateTime), eUserAction eAction = eUserAction.LIKE)
         {
             bool result = false;
@@ -284,6 +291,7 @@ namespace Core.Social
                     {
                         int totalItems = 1;
                         List<StatisticsView> lSocialActionView = Utils.DecodeSearchJsonObject(res, ref totalItems);
+
                         if (lSocialActionView != null && lSocialActionView.Count > 0)
                         {
                             sID = lSocialActionView[0].ID;

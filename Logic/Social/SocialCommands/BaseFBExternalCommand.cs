@@ -80,15 +80,22 @@ namespace Core.Social.SocialCommands
             FBActionID = string.Empty;
             string sDecryptedToken;
             SocialNetwork fbNetwork = null;
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error ,ApiObjects.Response.eResponseStatus.Error.ToString());
 
             if (privacySettings.SocialNetworks != null && privacySettings.SocialNetworks.Count > 0)
             {
-                fbNetwork = privacySettings.SocialNetworks.Where(x => x.Network == SocialPlatform.FACEBOOK).FirstOrDefault();
+                fbNetwork = privacySettings.SocialNetworks.FirstOrDefault(x => x.Network == SocialPlatform.FACEBOOK);
+                SocialActionPrivacy socialActionPrivacy = null;
+
+                if (fbNetwork != null)
+                {
+                    socialActionPrivacy = fbNetwork.SocialAction.FirstOrDefault(x => (int)x.Action == (int)m_eUserAction);
+                }
+
                 // default value is dont_allow
-                eSocialActionPrivacy? socialActionPrivacy = fbNetwork.SocialAction.Where(x => (int)x.Action == (int)m_eUserAction).Select(x => x.Privacy).FirstOrDefault();
-                if (fbNetwork == null || !socialActionPrivacy.HasValue || socialActionPrivacy.Value == eSocialActionPrivacy.DONT_ALLOW)
+                if (socialActionPrivacy == null || socialActionPrivacy.Privacy == eSocialActionPrivacy.DONT_ALLOW)
+                {
                     return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.SocialActionPrivacyDontAllow, ApiObjects.Response.eResponseStatus.SocialActionPrivacyDontAllow.ToString());
+                }
             }
 
             if (!ValidateUserCredentials(out sDecryptedToken))
@@ -112,10 +119,8 @@ namespace Core.Social.SocialCommands
             }
 
             eSocialPrivacy ePrivacy = fbNetwork.SocialPrivacy;
-
             string sJsonPrivacy = string.Empty;
-
-
+            
             m_oFBWrapper.GetPrivacyGroupJSONString(m_oUser.m_sSiteGUID, ApplicationConfiguration.FacebookConfiguration.ListName.Value, ePrivacy, ref sJsonPrivacy);
             if (!string.IsNullOrEmpty(sJsonPrivacy))
             {
@@ -123,8 +128,7 @@ namespace Core.Social.SocialCommands
             }
 
             SocialActionResponseStatus response = DoUserAction(ref sDecryptedToken, ref FBObjectID, out FBActionID);
-            status = ConvertSocialActionResponseStatus(response);
-            return status;
+            return ConvertSocialActionResponseStatus(response);
         }
 
         private ApiObjects.Response.Status ConvertSocialActionResponseStatus(SocialActionResponseStatus response)
