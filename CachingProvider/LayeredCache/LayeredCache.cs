@@ -423,7 +423,9 @@ namespace CachingProvider.LayeredCache
 
         public bool IsReadAction()
         {
-            return HttpContext.Current.Items != null && HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] != null ? (bool)HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] : false;
+            return HttpContext.Current != null && 
+                   HttpContext.Current.Items != null && 
+                   HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] != null ? (bool)HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] : false;
         }
 
         public bool TryGetKeyFromSession<T>(string key, ref T genericParameter)
@@ -431,7 +433,7 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                if (HttpContext.Current.Items[key] != null)
+                if (HttpContext.Current != null && HttpContext.Current.Items[key] != null)
                 {
                     genericParameter = (T)HttpContext.Current.Items[key];
                     res = genericParameter != null && true;
@@ -447,9 +449,12 @@ namespace CachingProvider.LayeredCache
 
         public void InsertResultsToSession<T>(Dictionary<string, T> results)
         {
-            foreach (KeyValuePair<string, T> pair in results)
+            if (HttpContext.Current != null && HttpContext.Current.Items != null)
             {
-                HttpContext.Current.Items[pair.Key] = pair.Value;
+                foreach (KeyValuePair<string, T> pair in results)
+                {
+                    HttpContext.Current.Items[pair.Key] = pair.Value;
+                }
             }
         }
 
@@ -1127,7 +1132,7 @@ namespace CachingProvider.LayeredCache
                 sessionResultMapping = new Dictionary<string, T>();
                 foreach (string key in keys)
                 {
-                    if (HttpContext.Current.Items[key] != null)
+                    if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[key] != null)
                     {
                         T genericParameter = (T)HttpContext.Current.Items[key];
                         if (genericParameter != null)
