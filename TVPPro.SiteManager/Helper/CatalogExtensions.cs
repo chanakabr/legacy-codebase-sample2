@@ -20,11 +20,7 @@ namespace TVPPro
                     if (media != null)
                     {
                         sb.AppendLine();
-                        sb.AppendFormat("MediaID = {0}, Name = {1}, Description = {2}, CreationDate = {3}, EndDate = {4}, FinalDate = {5}, PublishDate = {6}, StartDate = {7}, LikeCounter = {8}, UpdateDate = {9}",
-                            media.AssetId, media.m_sName, media.m_sDescription, media.m_dCreationDate, media.m_dEndDate, media.m_dFinalDate, media.m_dPublishDate, media.m_dStartDate, media.m_nLikeCounter, media.m_dUpdateDate);
-                        sb.AppendLine();
-                        sb.AppendFormat("MediaType: MediaTypeName = {1}, MediaTypeID = {0} | Rating : RatingAvg = {2}, RatingCount = {3}, RatingSum = {4}, Views = {5}",
-                            media.m_oMediaType.m_nTypeID, media.m_oMediaType.m_sTypeName, media.m_oRatingMedia.m_nRatingAvg, media.m_oRatingMedia.m_nRatingCount, media.m_oRatingMedia.m_nRatingSum, media.m_oRatingMedia.m_nViwes);
+                        sb.AppendFormat(media.ToStringEx());
                         sb.AppendFormat("External IDs = {0}", media.m_ExternalIDs != null ? media.m_ExternalIDs.FirstOrDefault().ToString() : "null");
                         if (media.m_lFiles != null && media.m_lFiles.Count > 0)
                         {
@@ -117,8 +113,7 @@ namespace TVPPro
             }
             return retVal.ToString();
         }
-
-
+        
         public static string ToStringEx(this EpgProgramResponse response)
         {
             StringBuilder retVal = new StringBuilder();
@@ -326,6 +321,33 @@ namespace TVPPro
                 }
             }
             return retVal.ToString();
+        }
+
+        public static string ToStringEx(this MediaObj media)
+        {
+            if (media != null)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendFormat("MediaID = {0}, Name = {1}, Description = {2}, CreationDate = {3}, EndDate = {4}, FinalDate = {5}, PublishDate = {6}, StartDate = {7}, LikeCounter = {8}, UpdateDate = {9}",
+                                media.AssetId, media.m_sName, media.m_sDescription, media.m_dCreationDate, media.m_dEndDate, media.m_dFinalDate, media.m_dPublishDate, media.m_dStartDate, media.m_nLikeCounter, media.m_dUpdateDate);
+
+                sb.AppendLine();
+
+                if (media.m_oMediaType != null)
+                {
+                    sb.AppendFormat("MediaType: MediaTypeName = {1}, MediaTypeID = {0} | ", media.m_oMediaType.m_nTypeID, media.m_oMediaType.m_sTypeName);
+                }
+
+                if (media.m_oRatingMedia != null)
+                {
+                    sb.AppendFormat("Rating : RatingAvg = {0}, RatingCount = {1}, RatingSum = {2}, Views = {3}",
+                                    media.m_oRatingMedia.m_nRatingAvg, media.m_oRatingMedia.m_nRatingCount, media.m_oRatingMedia.m_nRatingSum, media.m_oRatingMedia.m_nViwes);
+                }
+
+                return sb.ToString();   
+            }
+
+            return string.Empty;
         }
     }
 }

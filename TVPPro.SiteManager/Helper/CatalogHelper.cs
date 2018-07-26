@@ -65,8 +65,12 @@ namespace TVPPro.SiteManager.Helper
                         oRow.StartDate = media.m_dStartDate;
                         oRow.EndPurchaseDate = media.m_dEndDate;
 
-                        oRow.ViewCounter = media.m_oRatingMedia.m_nViwes;
-                        oRow.Rate = media.m_oRatingMedia.m_nRatingAvg;
+                        if (media.m_oRatingMedia != null)
+                        {
+                            oRow.ViewCounter = media.m_oRatingMedia.m_nViwes;
+                            oRow.Rate = media.m_oRatingMedia.m_nRatingAvg;
+                        }
+                       
                         oRow.Likes = media.m_nLikeCounter.ToString();
 
                         oRow.CatalogStartDate = media.m_dCatalogStartDate;
