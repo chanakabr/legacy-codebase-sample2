@@ -43,9 +43,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                Version version = new Version(OPC_MERGE_VERSION);
-                Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
-                if (requestVersion.CompareTo(version) > 0)
+                if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
                 {
                     bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
                     response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets);

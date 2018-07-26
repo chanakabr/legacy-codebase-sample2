@@ -10379,21 +10379,21 @@ namespace WebAPI.Models.Catalog
                     }
                     EnableStartOverState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableStartOverState"].ToString(), true);
                 }
-                if (parameters.ContainsKey("bufferCatchUp") && parameters["bufferCatchUp"] != null)
+                if (parameters.ContainsKey("bufferCatchUpSetting") && parameters["bufferCatchUpSetting"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        BufferCatchUpSchemaProperty.Validate("bufferCatchUp", parameters["bufferCatchUp"]);
+                        BufferCatchUpSchemaProperty.Validate("bufferCatchUpSetting", parameters["bufferCatchUpSetting"]);
                     }
-                    BufferCatchUp = (Int64) Convert.ChangeType(parameters["bufferCatchUp"], typeof(Int64));
+                    BufferCatchUp = (Int64) Convert.ChangeType(parameters["bufferCatchUpSetting"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("bufferTrickPlay") && parameters["bufferTrickPlay"] != null)
+                if (parameters.ContainsKey("bufferTrickPlaySetting") && parameters["bufferTrickPlaySetting"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        BufferTrickPlaySchemaProperty.Validate("bufferTrickPlay", parameters["bufferTrickPlay"]);
+                        BufferTrickPlaySchemaProperty.Validate("bufferTrickPlaySetting", parameters["bufferTrickPlaySetting"]);
                     }
-                    BufferTrickPlay = (Int64) Convert.ChangeType(parameters["bufferTrickPlay"], typeof(Int64));
+                    BufferTrickPlay = (Int64) Convert.ChangeType(parameters["bufferTrickPlaySetting"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("enableRecordingPlaybackNonEntitledChannelState") && parameters["enableRecordingPlaybackNonEntitledChannelState"] != null)
                 {
@@ -10427,61 +10427,61 @@ namespace WebAPI.Models.Catalog
                     }
                     ExternalCdvrId = (String) Convert.ChangeType(parameters["externalCdvrId"], typeof(String));
                 }
-                if (parameters.ContainsKey("cdvrEnabled") && parameters["cdvrEnabled"] != null)
+                if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        CdvrEnabledSchemaProperty.Validate("cdvrEnabled", parameters["cdvrEnabled"]);
+                        CdvrEnabledSchemaProperty.Validate("enableCdvr", parameters["enableCdvr"]);
                     }
-                    CdvrEnabled = (Boolean) Convert.ChangeType(parameters["cdvrEnabled"], typeof(Boolean));
+                    CdvrEnabled = (Boolean) Convert.ChangeType(parameters["enableCdvr"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("catchUpEnabled") && parameters["catchUpEnabled"] != null)
+                if (parameters.ContainsKey("enableCatchUp") && parameters["enableCatchUp"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        CatchUpEnabledSchemaProperty.Validate("catchUpEnabled", parameters["catchUpEnabled"]);
+                        CatchUpEnabledSchemaProperty.Validate("enableCatchUp", parameters["enableCatchUp"]);
                     }
-                    CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["catchUpEnabled"], typeof(Boolean));
+                    CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["enableCatchUp"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("startOverEnabled") && parameters["startOverEnabled"] != null)
+                if (parameters.ContainsKey("enableStartOver") && parameters["enableStartOver"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        StartOverEnabledSchemaProperty.Validate("startOverEnabled", parameters["startOverEnabled"]);
+                        StartOverEnabledSchemaProperty.Validate("enableStartOver", parameters["enableStartOver"]);
                     }
-                    StartOverEnabled = (Boolean) Convert.ChangeType(parameters["startOverEnabled"], typeof(Boolean));
+                    StartOverEnabled = (Boolean) Convert.ChangeType(parameters["enableStartOver"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("summedCatchUpBuffer") && parameters["summedCatchUpBuffer"] != null)
+                if (parameters.ContainsKey("catchUpBuffer") && parameters["catchUpBuffer"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        SummedCatchUpBufferSchemaProperty.Validate("summedCatchUpBuffer", parameters["summedCatchUpBuffer"]);
+                        SummedCatchUpBufferSchemaProperty.Validate("catchUpBuffer", parameters["catchUpBuffer"]);
                     }
-                    SummedCatchUpBuffer = (Int64) Convert.ChangeType(parameters["summedCatchUpBuffer"], typeof(Int64));
+                    SummedCatchUpBuffer = (Int64) Convert.ChangeType(parameters["catchUpBuffer"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("summedTrickPlayBuffer") && parameters["summedTrickPlayBuffer"] != null)
+                if (parameters.ContainsKey("trickPlayBuffer") && parameters["trickPlayBuffer"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        SummedTrickPlayBufferSchemaProperty.Validate("summedTrickPlayBuffer", parameters["summedTrickPlayBuffer"]);
+                        SummedTrickPlayBufferSchemaProperty.Validate("trickPlayBuffer", parameters["trickPlayBuffer"]);
                     }
-                    SummedTrickPlayBuffer = (Int64) Convert.ChangeType(parameters["summedTrickPlayBuffer"], typeof(Int64));
+                    SummedTrickPlayBuffer = (Int64) Convert.ChangeType(parameters["trickPlayBuffer"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("recordingPlaybackNonEntitledChannelEnabled") && parameters["recordingPlaybackNonEntitledChannelEnabled"] != null)
+                if (parameters.ContainsKey("enableRecordingPlaybackNonEntitledChannel") && parameters["enableRecordingPlaybackNonEntitledChannel"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        RecordingPlaybackNonEntitledChannelEnabledSchemaProperty.Validate("recordingPlaybackNonEntitledChannelEnabled", parameters["recordingPlaybackNonEntitledChannelEnabled"]);
+                        RecordingPlaybackNonEntitledChannelEnabledSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannel", parameters["enableRecordingPlaybackNonEntitledChannel"]);
                     }
-                    RecordingPlaybackNonEntitledChannelEnabled = (Boolean) Convert.ChangeType(parameters["recordingPlaybackNonEntitledChannelEnabled"], typeof(Boolean));
+                    RecordingPlaybackNonEntitledChannelEnabled = (Boolean) Convert.ChangeType(parameters["enableRecordingPlaybackNonEntitledChannel"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("trickPlayEnabled") && parameters["trickPlayEnabled"] != null)
+                if (parameters.ContainsKey("enableTrickPlay") && parameters["enableTrickPlay"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        TrickPlayEnabledSchemaProperty.Validate("trickPlayEnabled", parameters["trickPlayEnabled"]);
+                        TrickPlayEnabledSchemaProperty.Validate("enableTrickPlay", parameters["enableTrickPlay"]);
                     }
-                    TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["trickPlayEnabled"], typeof(Boolean));
+                    TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["enableTrickPlay"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("channelType") && parameters["channelType"] != null)
                 {
@@ -12407,11 +12407,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13240,11 +13240,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };

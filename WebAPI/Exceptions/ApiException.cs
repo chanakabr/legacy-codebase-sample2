@@ -230,6 +230,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHANNEL_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ChannelSystemNameAlreadyInUse, "System Name Already Used", "The channel system name is already in use");
         public static ClientExceptionType CHANNEL_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChannelDoesNotExist, "Channel Does Not Exist");
         public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
+        public static ClientExceptionType ACCOUNT_IS_NOT_OPC_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");

@@ -46,8 +46,13 @@ namespace WebAPI.Clients
                 Signature = GetSignature(SignString, value);
             }
         }
-        
+
         #region New Catalog Management    
+
+        public bool DoesGroupUsesTemplates(int groupId)
+        {
+            return CatalogManager.DoesGroupUsesTemplates(groupId);
+        }
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -318,7 +323,7 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             eAssetTypes assetType = eAssetTypes.UNKNOWN;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -568,7 +573,7 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
