@@ -858,8 +858,9 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
                     bool deleteResult = true;
+                    bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
                     // delete index only for OPC accounts since previously channels index didn't exist
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (doesGroupUsesTemplates)
                     {
                         deleteResult = IndexManager.DeleteChannel(groupId, channelId);
                     }
@@ -871,7 +872,7 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         // invalidate channel
-                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        if (doesGroupUsesTemplates && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
                         {
                             log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
