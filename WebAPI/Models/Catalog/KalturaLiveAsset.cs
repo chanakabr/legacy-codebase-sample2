@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Linear media asset info
     /// </summary>
     [Serializable]
-    public partial class KalturaLinearMediaAsset : KalturaMediaAsset
+    public partial class KalturaLiveAsset : KalturaMediaAsset
     {
 
         /// <summary>

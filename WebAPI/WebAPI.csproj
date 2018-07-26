@@ -354,7 +354,7 @@
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStruct.cs" />
-    <Compile Include="Models\Catalog\KalturaLinearMediaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaLiveAsset.cs" />
     <Compile Include="Models\Catalog\KalturaMediaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaImageType.cs" />
     <Compile Include="Models\Catalog\KalturaMetaDataType.cs" />

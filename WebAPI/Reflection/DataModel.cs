@@ -2736,7 +2736,23 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaLinearMediaAsset":
+                case "KalturaListFollowDataTvSeriesResponse":
+                    switch(property.Name)
+                    {
+                        case "FollowDataList":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaListResponse":
+                    switch(property.Name)
+                    {
+                        case "TotalCount":
+                            return "totalCount";
+                    }
+                    break;
+                    
+                case "KalturaLiveAsset":
                     switch(property.Name)
                     {
                         case "BufferCatchUp":
@@ -2773,22 +2789,6 @@ namespace WebAPI.Reflection
                             return "summedTrickPlayBuffer";
                         case "TrickPlayEnabled":
                             return "trickPlayEnabled";
-                    }
-                    break;
-                    
-                case "KalturaListFollowDataTvSeriesResponse":
-                    switch(property.Name)
-                    {
-                        case "FollowDataList":
-                            return "objects";
-                    }
-                    break;
-                    
-                case "KalturaListResponse":
-                    switch(property.Name)
-                    {
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     

@@ -236,16 +236,16 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+            Type KalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
 
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToAdd = null;
                 // in case asset is linear media
-                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToAdd = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetToAdd = AutoMapper.Mapper.Map<LiveAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // in case asset is media
@@ -282,9 +282,9 @@ namespace WebAPI.Clients
             }
 
             // in case asset is Linear Media
-            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result = Mapper.Map<KalturaLiveAsset>(response.Object);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
@@ -371,7 +371,7 @@ namespace WebAPI.Clients
                 case eAssetTypes.MEDIA:
                     if ((response.Object as MediaAsset).MediaAssetType == MediaAssetType.Linear)
                     {
-                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                        result = Mapper.Map<KalturaLiveAsset>(response.Object);
                     }
                     else
                     {
@@ -400,15 +400,15 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+            Type KalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToUpdate = null;
-                // in case asset is linear media
-                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                // in case asset is live
+                if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToUpdate = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetToUpdate = AutoMapper.Mapper.Map<LiveAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // in case asset is media
@@ -444,10 +444,10 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            // in case asset is Linear Media
-            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            // in case asset is live
+            if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result = Mapper.Map<KalturaLiveAsset>(response.Object);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
@@ -530,7 +530,7 @@ namespace WebAPI.Clients
                                 KalturaMediaAsset kalturaMediaAsset = null;
                                 if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
                                 {
-                                    kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);
+                                    kalturaMediaAsset = Mapper.Map<KalturaLiveAsset>(mediaAssetToConvert);
                                 }
                                 else
                                 {

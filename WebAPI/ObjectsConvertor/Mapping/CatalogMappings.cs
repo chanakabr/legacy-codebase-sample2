@@ -541,7 +541,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaAsset to Asset
             Mapper.CreateMap<KalturaAsset, Asset>()
                 .Include<KalturaMediaAsset, MediaAsset>()
-                .Include<KalturaLinearMediaAsset, LinearMediaAsset>();
+                .Include<KalturaLiveAsset, LiveAsset>();
 
             //KalturaMediaAsset to MediaAsset
             Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()
@@ -563,7 +563,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //KalturaLinearMediaAsset to LinearMediaAsset
-            Mapper.CreateMap<KalturaLinearMediaAsset, LinearMediaAsset>()
+            Mapper.CreateMap<KalturaLiveAsset, LiveAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
@@ -601,7 +601,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Asset to KalturaAsset
             Mapper.CreateMap<Asset, KalturaAsset>()
                 .Include<MediaAsset, KalturaMediaAsset>()
-                .Include<LinearMediaAsset, KalturaLinearMediaAsset>();
+                .Include<LiveAsset, KalturaLiveAsset>();
 
             //MediaAsset to KalturaMediaAsset
             Mapper.CreateMap<MediaAsset, KalturaMediaAsset>()
@@ -627,7 +627,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //LinearMediaAsset to KalturaLinearMediaAsset
-            Mapper.CreateMap<LinearMediaAsset, KalturaLinearMediaAsset>()
+            Mapper.CreateMap<LiveAsset, KalturaLiveAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))

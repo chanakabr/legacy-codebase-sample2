@@ -9968,7 +9968,7 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
-    public partial class KalturaLinearMediaAsset
+    public partial class KalturaLiveAsset
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
