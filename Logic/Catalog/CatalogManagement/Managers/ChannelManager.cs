@@ -407,6 +407,12 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
+                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return result;
+                }
+
                 ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
                     GroupId = groupId,
@@ -439,6 +445,12 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return response;
+                }
+
                 if (channelToAdd == null)
                 {
                     response.SetStatus(eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
@@ -602,6 +614,12 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return response;
+                }
+
                 if (channelToUpdate == null)
                 {
                     response.SetStatus(eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
@@ -780,12 +798,19 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
+        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                if (shouldCheckGroupUsesTemplates && !doesGroupUsesTemplates)
+                {
+                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return response;
+                }
+
                 response.Object = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets);
                 if (response.Object != null)
                 {
@@ -793,7 +818,14 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                    if (doesGroupUsesTemplates)
+                    {
+                        response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                    }
+                    else
+                    {
+                        response.SetStatus(eResponseStatus.ObjectNotExist, "KSQL Channel with given ID does not exist");
+                    }
                 }                
             }
             catch (Exception ex)
@@ -816,7 +848,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //check if channel exists - isAllowedToViewInactiveAssets = true becuase only operator can delete channel
-                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true);                
+                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true, false);                
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response = channelResponse.Status;
@@ -824,8 +856,14 @@ namespace Core.Catalog.CatalogManagement
                 }                
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
-                {                    
-                    bool deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                {
+                    bool deleteResult = true;
+                    // delete index only for OPC accounts since previously channels index didn't exist
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                    }
+
                     if (!deleteResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after DeleteChannel", channelId);
@@ -859,7 +897,13 @@ namespace Core.Catalog.CatalogManagement
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
-            {                
+            {
+                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return result;
+                }
+
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
                 if (channelIds != null && channelIds.Count > 0)
                 {

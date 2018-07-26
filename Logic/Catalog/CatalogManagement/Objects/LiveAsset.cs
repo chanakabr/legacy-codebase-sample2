@@ -8,7 +8,7 @@ using ApiObjects.TimeShiftedTv;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class LinearMediaAsset: MediaAsset
+    public class LiveAsset: MediaAsset
     {
         public TstvState? EnableCdvrState { get; set; }
         public TstvState? EnableCatchUpState { get; set; }
@@ -28,7 +28,7 @@ namespace Core.Catalog.CatalogManagement
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public LinearChannelType ChannelType { get; set; }
 
-        public LinearMediaAsset()
+        public LiveAsset()
             :base()
         {
             this.EnableCdvrState = null;
@@ -51,7 +51,7 @@ namespace Core.Catalog.CatalogManagement
             this.ChannelType = LinearChannelType.Unknown;
         }
 
-        public LinearMediaAsset(TstvState enableCdvr, TstvState enableCatchUp, TstvState enableStartOver, TstvState enableTrickPlay, TstvState enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
+        public LiveAsset(TstvState enableCdvr, TstvState enableCatchUp, TstvState enableStartOver, TstvState enableTrickPlay, TstvState enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
                                 long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
             : base(mediaAsset)
         {

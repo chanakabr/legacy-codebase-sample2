@@ -264,6 +264,7 @@ namespace ApiObjects.Response
         MissingBasicValueForAsset = 4071,
         CanNotDeleteParentAssetStruct = 4072,
         CanNotDeleteConnectingAssetStructMeta = 4073,
+        AccountIsNotOpcSupported = 4074,
 
         #endregion
 

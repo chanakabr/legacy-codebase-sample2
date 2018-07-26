@@ -913,7 +913,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAsset = jobject.ToObject<MediaAsset>();
                         if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
                         {
-                            mediaAsset = jobject.ToObject<LinearMediaAsset>();                            
+                            mediaAsset = jobject.ToObject<LiveAsset>();                            
                         }
 
                         mediaAssets.Add(mediaAsset);                        
@@ -1531,9 +1531,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static LinearMediaAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset)
+        private static LiveAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset)
         {
-            LinearMediaAsset result = null;
+            LiveAsset result = null;
             if (dt == null || dt.Rows == null || dt.Rows.Count != 1)
             {
                 log.WarnFormat("CreateLinearMediaAssetResponseFromDataTable - returned table is not valid");
@@ -1552,13 +1552,13 @@ namespace Core.Catalog.CatalogManagement
             string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
             LinearChannelType channelType = (LinearChannelType)ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_channel_type");
             TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            result = new LinearMediaAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
+            result = new LiveAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
                                                 catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
 
             return result;
         }
 
-        private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToAdd, long userId)
+        private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToAdd, long userId)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1587,7 +1587,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LinearMediaAsset linearMediaAssetToUpdate, long userId)
+        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToUpdate, long userId)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1856,14 +1856,14 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        bool isLinear = assetToAdd is LinearMediaAsset;
+                        bool isLinear = assetToAdd is LiveAsset;
                         MediaAsset mediaAssetToAdd = assetToAdd as MediaAsset;
                         if (mediaAssetToAdd != null)
                         {
                             result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, isLinear, userId);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
-                                LinearMediaAsset linearMediaAssetToAdd = assetToAdd as LinearMediaAsset;
+                                LiveAsset linearMediaAssetToAdd = assetToAdd as LiveAsset;
                                 result = AddLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToAdd, userId);
                             }
                         }
@@ -1909,7 +1909,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        bool isLinear = assetToUpdate is LinearMediaAsset;
+                        bool isLinear = assetToUpdate is LiveAsset;
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
                         MediaAsset currentAsset = assets[0] as MediaAsset;
                         // validate that existing asset is indeed linear media
@@ -1925,7 +1925,7 @@ namespace Core.Catalog.CatalogManagement
                             result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
-                                LinearMediaAsset linearMediaAssetToUpdate = assetToUpdate as LinearMediaAsset;
+                                LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
                                 result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId);
                             }
                         }

@@ -209,7 +209,7 @@
     <Compile Include="Catalog\CatalogManagement\Objects\Image.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Ratio.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ImageType.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\LinearMediaAsset.cs" />
+    <Compile Include="Catalog\CatalogManagement\Objects\LiveAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Topic.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\CatalogManager.cs" />
