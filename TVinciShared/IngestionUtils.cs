@@ -629,9 +629,10 @@ namespace TVinciShared
                                 else
                                 {
                                     ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("tags_translate");
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("tag_ID", "=", tagTranslations[ls.m_sLang].Value);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("tag_ID", "=", nTagID);
                                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", GetLanguageId(ls.m_sLang));
                                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", ls.m_sVal.Trim());
                                     insertQuery.Execute();
                                     insertQuery.Finish();
                                     insertQuery = null;
