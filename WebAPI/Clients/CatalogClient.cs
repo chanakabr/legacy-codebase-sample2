@@ -34,6 +34,7 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         public string Signature { get; set; }
         public string SignString { get; set; }
@@ -2093,9 +2094,17 @@ namespace WebAPI.Clients
 
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
-            {
-                result = response.ChannelObj != null ?
-                    Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+            {                
+                Version version = new Version(OPC_MERGE_VERSION);
+                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                if (requestVersion.CompareTo(version) > 0)
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaDynamicChannel>(response.ChannelObj) : null;
+                }
+                else
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+                }
             }
             else
             {
