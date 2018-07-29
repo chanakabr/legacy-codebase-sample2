@@ -11433,7 +11433,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(IdIn != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
@@ -11453,7 +11453,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(IdIn != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
