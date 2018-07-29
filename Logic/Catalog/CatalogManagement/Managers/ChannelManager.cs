@@ -857,12 +857,16 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
-                    bool deleteResult = true;
+                    bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
                         deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                    }
+                    else
+                    {
+                        deleteResult = CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete);
                     }
 
                     if (!deleteResult)
@@ -872,10 +876,22 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         // invalidate channel
-                        if (doesGroupUsesTemplates && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        if (doesGroupUsesTemplates)
                         {
-                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
-                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                            {
+                                log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
+                                                    channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                            }
+                        }
+                        // update group cache
+                        else
+                        {
+                            string[] keys = new string[1] { APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId) };
+                            if (!TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys))
+                            {
+                                log.ErrorFormat("Failed to UpdateCache channel with id: {0}, keys: {1} after deleting channel", channelId, keys[0]);
+                            }
                         }
 
                         response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

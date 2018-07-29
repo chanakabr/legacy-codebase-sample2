@@ -340,7 +340,7 @@ namespace APILogic.CRUD
             return status;
         }
 
-        private static string BuildChannelCacheKey(int groupId, int channelId)
+        internal static string BuildChannelCacheKey(int groupId, int channelId)
         {
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, version);
         }
