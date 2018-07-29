@@ -9918,7 +9918,12 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "update":
-                            ret.Add("id", new MethodParam(){
+                            paramName = "id";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) < 0)
+                            {
+                                paramName = "channelId";
+                            }
+                            ret.Add(paramName, new MethodParam(){
                                 Type = typeof(int),
                             });
                             ret.Add("channel", new MethodParam(){

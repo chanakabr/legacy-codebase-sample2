@@ -219,6 +219,7 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>       
         [Action("update")]
         [ApiAuthorize]
+        [OldStandardArgument("id", "channelId", sinceVersion = OPC_MERGE_VERSION)]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
