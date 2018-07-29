@@ -876,16 +876,14 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         // invalidate channel
-                        if (doesGroupUsesTemplates)
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
                         {
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
-                            {
-                                log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
-                                                    channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
-                            }
+                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
+                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
                         }
+
                         // update group cache
-                        else
+                        if (!doesGroupUsesTemplates)
                         {
                             string[] keys = new string[1] { APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId) };
                             if (!TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys))
