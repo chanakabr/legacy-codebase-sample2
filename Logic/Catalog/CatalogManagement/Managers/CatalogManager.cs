@@ -740,7 +740,31 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
+        internal static bool IsGroupIdExcludedFromTemplatesImplementation(long groupId)
+        {
+            bool res = false;
+            string rawStrFromConfig = ConfigurationManager.ApplicationConfiguration.ExcludeTemplatesImplementation.Value;
+            if (rawStrFromConfig.Length > 0)
+            {
+                string[] strArrOfIDs = rawStrFromConfig.Split(';');
+                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
+                {
+                    List<long> listOfIDs = strArrOfIDs.Select(s =>
+                    {
+                        long l = 0;
+                        if (Int64.TryParse(s, out l))
+                            return l;
+                        return 0;
+                    }).ToList();
+
+                    res = listOfIDs.Contains(groupId);
+                }
+            }
+
+            return res;
+        }
+
         #endregion
 
         #region Public Methods        

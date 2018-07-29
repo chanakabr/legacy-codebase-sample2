@@ -122,6 +122,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PwlalPMaxResultsSize;
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
         public static StringConfigurationValue MetaFeaturesPattern;
+        public static StringConfigurationValue ExcludeTemplatesImplementation;
 
         #endregion
 
@@ -531,6 +532,11 @@ namespace ConfigurationManager
                 DefaultValue = @"\W|[^ ]{64}[^ ]",
                 ShouldAllowEmpty = true
             };
+            ExcludeTemplatesImplementation = new ConfigurationManager.StringConfigurationValue("EXCLUDE_TEMPLATES_IMPLEMENTATION")
+            {
+                DefaultValue = "203",
+                ShouldAllowEmpty = true
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -632,7 +638,8 @@ namespace ConfigurationManager
                     PwwawpMaxResultsSize,
                     PwlalPMaxResultsSize,
                     PreviewModuleNumOfCancelOrRefundAttempts,
-                    MetaFeaturesPattern
+                    MetaFeaturesPattern,
+                    ExcludeTemplatesImplementation
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
