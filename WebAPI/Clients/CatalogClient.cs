@@ -34,6 +34,7 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         public string Signature { get; set; }
         public string SignString { get; set; }
@@ -46,8 +47,13 @@ namespace WebAPI.Clients
                 Signature = GetSignature(SignString, value);
             }
         }
-        
+
         #region New Catalog Management    
+
+        public bool DoesGroupUsesTemplates(int groupId)
+        {
+            return CatalogManager.DoesGroupUsesTemplates(groupId);
+        }
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -236,16 +242,16 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+            Type KalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
 
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToAdd = null;
                 // in case asset is linear media
-                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToAdd = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetToAdd = AutoMapper.Mapper.Map<LiveAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // in case asset is media
@@ -282,9 +288,9 @@ namespace WebAPI.Clients
             }
 
             // in case asset is Linear Media
-            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result = Mapper.Map<KalturaLiveAsset>(response.Object);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
@@ -318,7 +324,7 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             eAssetTypes assetType = eAssetTypes.UNKNOWN;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -371,7 +377,7 @@ namespace WebAPI.Clients
                 case eAssetTypes.MEDIA:
                     if ((response.Object as MediaAsset).MediaAssetType == MediaAssetType.Linear)
                     {
-                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                        result = Mapper.Map<KalturaLiveAsset>(response.Object);
                     }
                     else
                     {
@@ -400,15 +406,15 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+            Type KalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToUpdate = null;
-                // in case asset is linear media
-                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                // in case asset is live
+                if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToUpdate = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetToUpdate = AutoMapper.Mapper.Map<LiveAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // in case asset is media
@@ -444,10 +450,10 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            // in case asset is Linear Media
-            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            // in case asset is live
+            if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaLinearMediaAsset>(response.Object);
+                result = Mapper.Map<KalturaLiveAsset>(response.Object);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
@@ -530,7 +536,7 @@ namespace WebAPI.Clients
                                 KalturaMediaAsset kalturaMediaAsset = null;
                                 if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
                                 {
-                                    kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);
+                                    kalturaMediaAsset = Mapper.Map<KalturaLiveAsset>(mediaAssetToConvert);
                                 }
                                 else
                                 {
@@ -568,7 +574,7 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
@@ -2088,9 +2094,17 @@ namespace WebAPI.Clients
 
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
-            {
-                result = response.ChannelObj != null ?
-                    Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+            {                
+                Version version = new Version(OPC_MERGE_VERSION);
+                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                if (requestVersion.CompareTo(version) > 0)
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaDynamicChannel>(response.ChannelObj) : null;
+                }
+                else
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+                }
             }
             else
             {

@@ -23,6 +23,9 @@ namespace WebAPI.Controllers
     [Service("channel")]
     public class ChannelController : IKalturaController
     {
+
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
+
         /// <summary>
         /// Returns channel        
         /// </summary>
@@ -40,8 +43,22 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
-                response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets);
+                if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
+                {
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
+                    response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets);
+                }
+                else
+                {
+                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID,
+                                                                                Utils.Utils.GetLanguageFromRequest(), id);
+
+                    // if no response - return not found status 
+                    if (response == null || response.Id == 0)
+                    {
+                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Channel");
+                    }
+                }
             }
             catch (ClientException ex)
             {
@@ -138,18 +155,16 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
         [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;
-            Type manualChannelType = typeof(KalturaManualChannel);
-            Type dynamicChannelType = typeof(KalturaDynamicChannel);
-            Type channelType = typeof(KalturaChannel);
+            int groupId = KS.GetFromRequest().GroupId;            
             bool isManualChannelOrDynamicChannel = false;
 
             // KalturaManualChannel or KalturaDynamicChannel                             
-            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+            if (channel is KalturaManualChannel || channel is KalturaDynamicChannel)
             {
                 if (channel.OrderBy == null)
                 {
@@ -166,11 +181,20 @@ namespace WebAPI.Controllers
                 if (isManualChannelOrDynamicChannel)
                 {
                     response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
-                }
-                // KalturaChannel (backward comparability)
-                else if (channelType.IsAssignableFrom(channel.GetType()))
+                }                
+                else
                 {
-                    response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
+                    Version version = new Version(OPC_MERGE_VERSION);
+                    Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
+                    if (requestVersion.CompareTo(version) > 0)
+                    {
+                        throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, "KalturaChannel");
+                    }
+                    // KalturaChannel (backward compatibility)
+                    else if (channel is KalturaChannel)
+                    {
+                        response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
+                    }
                 }
 
             }
@@ -195,19 +219,21 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>       
         [Action("update")]
         [ApiAuthorize]
+        [OldStandardArgument("id", "channelId", sinceVersion = OPC_MERGE_VERSION)]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaChannel Update(int id, KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
-            Type manualChannelType = typeof(KalturaManualChannel);
-            Type dynamicChannelType = typeof(KalturaDynamicChannel);
-            Type channelType = typeof(KalturaChannel);
-            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+            bool isManualChannelOrDynamicChannel = false;
+
+            if (channel is KalturaManualChannel || channel is KalturaDynamicChannel)
             {
+                isManualChannelOrDynamicChannel = true;
                 // Validate channel
                 channel.ValidateForUpdate();
             }
@@ -215,12 +241,19 @@ namespace WebAPI.Controllers
             try
             {
                 // KalturaManualChannel or KalturaDynamicChannel                             
-                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                if (isManualChannelOrDynamicChannel)
                 {
                     response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, userId);
                 }
-                // KalturaChannel (backward compatability)
-                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                
+                Version version = new Version(OPC_MERGE_VERSION);
+                Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
+                if (requestVersion.CompareTo(version) > 0)
+                {
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, "KalturaChannel");
+                }
+                // KalturaChannel (backward compatibility)
+                else if (channel is KalturaChannel)                
                 {
                     channel.Id = id;
                     response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
@@ -314,6 +347,7 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaChannelListResponse response = null;

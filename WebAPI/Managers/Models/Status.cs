@@ -33,7 +33,7 @@ namespace WebAPI.Managers.Models
             ret.Add("executionTime", "\"executionTime\": " + ExecutionTime);
             if (Result != null)
             {
-                if (Result is IEnumerable)
+                if (Result is IEnumerable && !(Result is string))
                 {
                     JsonManager jsonManager = JsonManager.GetInstance();
                     propertyValue = "[" + String.Join(", ", (Result as IEnumerable<object>).Select(item => jsonManager.Serialize(item))) + "]";

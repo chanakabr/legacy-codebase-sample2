@@ -9968,7 +9968,7 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
-    public partial class KalturaLinearMediaAsset
+    public partial class KalturaLiveAsset
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -9977,14 +9977,14 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(BufferCatchUp.HasValue)
             {
-                ret.Add("bufferCatchUp", "\"bufferCatchUp\": " + BufferCatchUp);
+                ret.Add("bufferCatchUpSetting", "\"bufferCatchUpSetting\": " + BufferCatchUp);
             }
             if(BufferTrickPlay.HasValue)
             {
-                ret.Add("bufferTrickPlay", "\"bufferTrickPlay\": " + BufferTrickPlay);
+                ret.Add("bufferTrickPlaySetting", "\"bufferTrickPlaySetting\": " + BufferTrickPlay);
             }
-            ret.Add("catchUpEnabled", "\"catchUpEnabled\": " + CatchUpEnabled.ToString().ToLower());
-            ret.Add("cdvrEnabled", "\"cdvrEnabled\": " + CdvrEnabled.ToString().ToLower());
+            ret.Add("enableCatchUp", "\"enableCatchUp\": " + CatchUpEnabled.ToString().ToLower());
+            ret.Add("enableCdvr", "\"enableCdvr\": " + CdvrEnabled.ToString().ToLower());
             if(ChannelType.HasValue)
             {
                 ret.Add("channelType", "\"channelType\": " + "\"" + Enum.GetName(typeof(KalturaLinearChannelType), ChannelType) + "\"");
@@ -10017,11 +10017,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("externalEpgIngestId", "\"externalEpgIngestId\": " + "\"" + EscapeJson(ExternalEpgIngestId) + "\"");
             }
-            ret.Add("recordingPlaybackNonEntitledChannelEnabled", "\"recordingPlaybackNonEntitledChannelEnabled\": " + RecordingPlaybackNonEntitledChannelEnabled.ToString().ToLower());
-            ret.Add("startOverEnabled", "\"startOverEnabled\": " + StartOverEnabled.ToString().ToLower());
-            ret.Add("summedCatchUpBuffer", "\"summedCatchUpBuffer\": " + SummedCatchUpBuffer);
-            ret.Add("summedTrickPlayBuffer", "\"summedTrickPlayBuffer\": " + SummedTrickPlayBuffer);
-            ret.Add("trickPlayEnabled", "\"trickPlayEnabled\": " + TrickPlayEnabled.ToString().ToLower());
+            ret.Add("enableRecordingPlaybackNonEntitledChannel", "\"enableRecordingPlaybackNonEntitledChannel\": " + RecordingPlaybackNonEntitledChannelEnabled.ToString().ToLower());
+            ret.Add("enableStartOver", "\"enableStartOver\": " + StartOverEnabled.ToString().ToLower());
+            ret.Add("catchUpBuffer", "\"catchUpBuffer\": " + SummedCatchUpBuffer);
+            ret.Add("trickPlayBuffer", "\"trickPlayBuffer\": " + SummedTrickPlayBuffer);
+            ret.Add("enableTrickPlay", "\"enableTrickPlay\": " + TrickPlayEnabled.ToString().ToLower());
             return ret;
         }
         
@@ -10032,14 +10032,14 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(BufferCatchUp.HasValue)
             {
-                ret.Add("bufferCatchUp", "<bufferCatchUp>" + BufferCatchUp + "</bufferCatchUp>");
+                ret.Add("bufferCatchUpSetting", "<bufferCatchUpSetting>" + BufferCatchUp + "</bufferCatchUpSetting>");
             }
             if(BufferTrickPlay.HasValue)
             {
-                ret.Add("bufferTrickPlay", "<bufferTrickPlay>" + BufferTrickPlay + "</bufferTrickPlay>");
+                ret.Add("bufferTrickPlaySetting", "<bufferTrickPlaySetting>" + BufferTrickPlay + "</bufferTrickPlaySetting>");
             }
-            ret.Add("catchUpEnabled", "<catchUpEnabled>" + CatchUpEnabled.ToString().ToLower() + "</catchUpEnabled>");
-            ret.Add("cdvrEnabled", "<cdvrEnabled>" + CdvrEnabled.ToString().ToLower() + "</cdvrEnabled>");
+            ret.Add("enableCatchUp", "<enableCatchUp>" + CatchUpEnabled.ToString().ToLower() + "</enableCatchUp>");
+            ret.Add("enableCdvr", "<enableCdvr>" + CdvrEnabled.ToString().ToLower() + "</enableCdvr>");
             if(ChannelType.HasValue)
             {
                 ret.Add("channelType", "<channelType>" + "\"" + Enum.GetName(typeof(KalturaLinearChannelType), ChannelType) + "\"" + "</channelType>");
@@ -10072,11 +10072,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("externalEpgIngestId", "<externalEpgIngestId>" + EscapeXml(ExternalEpgIngestId) + "</externalEpgIngestId>");
             }
-            ret.Add("recordingPlaybackNonEntitledChannelEnabled", "<recordingPlaybackNonEntitledChannelEnabled>" + RecordingPlaybackNonEntitledChannelEnabled.ToString().ToLower() + "</recordingPlaybackNonEntitledChannelEnabled>");
-            ret.Add("startOverEnabled", "<startOverEnabled>" + StartOverEnabled.ToString().ToLower() + "</startOverEnabled>");
-            ret.Add("summedCatchUpBuffer", "<summedCatchUpBuffer>" + SummedCatchUpBuffer + "</summedCatchUpBuffer>");
-            ret.Add("summedTrickPlayBuffer", "<summedTrickPlayBuffer>" + SummedTrickPlayBuffer + "</summedTrickPlayBuffer>");
-            ret.Add("trickPlayEnabled", "<trickPlayEnabled>" + TrickPlayEnabled.ToString().ToLower() + "</trickPlayEnabled>");
+            ret.Add("enableRecordingPlaybackNonEntitledChannel", "<enableRecordingPlaybackNonEntitledChannel>" + RecordingPlaybackNonEntitledChannelEnabled.ToString().ToLower() + "</enableRecordingPlaybackNonEntitledChannel>");
+            ret.Add("enableStartOver", "<enableStartOver>" + StartOverEnabled.ToString().ToLower() + "</enableStartOver>");
+            ret.Add("catchUpBuffer", "<catchUpBuffer>" + SummedCatchUpBuffer + "</catchUpBuffer>");
+            ret.Add("trickPlayBuffer", "<trickPlayBuffer>" + SummedTrickPlayBuffer + "</trickPlayBuffer>");
+            ret.Add("enableTrickPlay", "<enableTrickPlay>" + TrickPlayEnabled.ToString().ToLower() + "</enableTrickPlay>");
             return ret;
         }
     }
@@ -11433,7 +11433,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(IdIn != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
@@ -11453,7 +11453,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(IdIn != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }

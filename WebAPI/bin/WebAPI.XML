@@ -7787,92 +7787,92 @@
             connectedParentMetaId
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaLinearMediaAsset">
+        <member name="T:WebAPI.Models.Catalog.KalturaLiveAsset">
             <summary>
             Linear media asset info
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvrState">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.EnableCdvrState">
             <summary>
             Enable CDVR, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUpState">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.EnableCatchUpState">
             <summary>
             Enable catch-up, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOverState">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.EnableStartOverState">
             <summary>
             Enable start over, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferCatchUp">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.BufferCatchUp">
             <summary>
             buffer Catch-up, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferTrickPlay">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.BufferTrickPlay">
             <summary>
             buffer Trick-play, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannelState">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.EnableRecordingPlaybackNonEntitledChannelState">
             <summary>
             Enable Recording playback for non entitled channel, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlayState">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.EnableTrickPlayState">
             <summary>
             Enable trick-play, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalEpgIngestId">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.ExternalEpgIngestId">
             <summary>
             External identifier used when ingesting programs for this linear media asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalCdvrId">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.ExternalCdvrId">
             <summary>
             External identifier for the CDVR
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CdvrEnabled">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.CdvrEnabled">
             <summary>
             Is CDVR enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpEnabled">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.CatchUpEnabled">
             <summary>
             Is catch-up enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.StartOverEnabled">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.StartOverEnabled">
             <summary>
             Is start over enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedCatchUpBuffer">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.SummedCatchUpBuffer">
             <summary>
             summed Catch-up buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.SummedTrickPlayBuffer">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.SummedTrickPlayBuffer">
             <summary>
             summed Trick-play buffer, the TimeShiftedTvPartnerSettings are also taken into consideration
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.RecordingPlaybackNonEntitledChannelEnabled">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.RecordingPlaybackNonEntitledChannelEnabled">
             <summary>
             Is recording playback for non entitled channel enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayEnabled">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.TrickPlayEnabled">
             <summary>
             Is trick-play enabled for this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ChannelType">
+        <member name="P:WebAPI.Models.Catalog.KalturaLiveAsset.ChannelType">
             <summary>
             channel type, possible values: UNKNOWN, DTT, OTT, DTT_AND_OTT
             </summary>
