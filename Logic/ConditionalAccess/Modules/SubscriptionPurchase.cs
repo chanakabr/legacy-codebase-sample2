@@ -13,25 +13,16 @@ namespace Core.ConditionalAccess.Modules
         #region member
 
         public string productId { get; set; }
-
         public int maxNumberOfViews { get; set; }
         public int viewLifeCycle { get; set; }
-         
         public bool isEntitledToPreviewModule { get; set; }
         public bool usageModuleExists { get; set; }
         public bool isRecurring { get; set; }
-
         public long previewModuleId { get; set; }
-
         public DateTime? entitlementDate { get; set; }
-
         public SubscriptionPurchaseStatus status { get; set; }
-
-        public string languageCode
-        {
-            get;
-            set;
-        }
+        public string languageCode { get; set; }
+        public long processPurchasesId { get; set; }
 
         public override eTransactionType type
         {
@@ -42,9 +33,7 @@ namespace Core.ConditionalAccess.Modules
         }
 
         #endregion
-
-        public long processPurchasesId { get; set; }
-
+        
         public SubscriptionPurchase(int groupId)
             : base(groupId) 
         {
@@ -104,9 +93,17 @@ namespace Core.ConditionalAccess.Modules
             bool success = false;
             try
             {
-                long result = ConditionalAccessDAL.CancelSubscription((int)this.purchaseId, this.GroupId, this.siteGuid, this.productId, (int)this.status);
-                if (result > 0)
+                if (this.status == SubscriptionPurchaseStatus.Fail)
                 {
+                    long result = ConditionalAccessDAL.CancelSubscription((int)this.purchaseId, this.GroupId, this.siteGuid, this.productId, (int)this.status);
+                    if (result > 0)
+                    {
+                        success = true;
+                    }
+                }
+                else if (this.status == SubscriptionPurchaseStatus.OK)
+                {
+                    ConditionalAccessDAL.Update_MPPRenewalData(this.purchaseId, true, this.endDate.Value, 0, "CA_CONNECTION_STRING", this.siteGuid, (int)SubscriptionPurchaseStatus.OK, this.billingTransactionId);
                     success = true;
                 }
             }
