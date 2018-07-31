@@ -178,8 +178,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
-        public static bool DeleteMedia(int groupId, int assetId)
+        
         public static bool DeleteMedia(int groupId, int assetId)
         {
             bool result = false;
