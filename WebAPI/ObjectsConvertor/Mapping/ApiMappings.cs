@@ -17,15 +17,16 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class ApiMappings
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             //Language 
-            Mapper.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
+            cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -33,7 +34,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //KalturaLanguage
-            Mapper.CreateMap<LanguageObj, KalturaLanguage>()
+            cfg.CreateMap<LanguageObj, KalturaLanguage>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
@@ -41,19 +42,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
 
             //KalturaCurrency
-            Mapper.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
+            cfg.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
                 .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);
+            cfg.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);
 
             #region Parental Rules
 
             // ParentalRule to KalturaParentalRule
-            Mapper.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
+            cfg.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -71,7 +72,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType.Value)));
 
             // KalturaParentalRule to ParentalRule
-            Mapper.CreateMap<KalturaParentalRule, ParentalRule>()
+            cfg.CreateMap<KalturaParentalRule, ParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -89,39 +90,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.level, opt => opt.Ignore());
 
             // PinResponse
-            Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
+            cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Pin
-            Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPin>()
+            cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPin>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
-            Mapper.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
+            cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Permission, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
             // Purchase Settings Response
-            Mapper.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
+            cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
-            Mapper.CreateMap<GenericRule, WebAPI.Models.API.KalturaGenericRule>()
+            cfg.CreateMap<GenericRule, WebAPI.Models.API.KalturaGenericRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
 
             //KalturaUserAssetRule
-            Mapper.CreateMap<GenericRule, KalturaUserAssetRule>()
+            cfg.CreateMap<GenericRule, KalturaUserAssetRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -130,7 +131,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region OSS Adapter
 
-            Mapper.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
+            cfg.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -139,7 +140,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<OSSAdapter, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+            cfg.CreateMap<OSSAdapter, WebAPI.Models.API.KalturaOSSAdapterProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -147,11 +148,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
+            cfg.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
+            cfg.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
@@ -164,7 +165,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Recommendation Engine
 
-            Mapper.CreateMap<WebAPI.Models.API.KalturaRecommendationProfile, RecommendationEngine>()
+            cfg.CreateMap<WebAPI.Models.API.KalturaRecommendationProfile, RecommendationEngine>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -173,7 +174,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationProfile>()
+            cfg.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -181,7 +182,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
-            Mapper.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationProfile>()
+            cfg.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecommendationEngine.ID))
@@ -194,7 +195,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region External Channel
 
-            Mapper.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
+            cfg.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
@@ -204,7 +205,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
                ;
 
-            Mapper.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
+            cfg.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
@@ -214,7 +215,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
                ;
 
-            Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
+            cfg.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalChannel.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ExternalChannel.Name))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalChannel.ExternalIdentifier))
@@ -229,7 +230,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Export Tasks
 
             //Bulk export task 
-            Mapper.CreateMap<BulkExportTask, KalturaExportTask>()
+            cfg.CreateMap<BulkExportTask, KalturaExportTask>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.ExternalKey))
@@ -244,49 +245,49 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Roles and Permissions
 
-            Mapper.CreateMap<PermissionItem, KalturaPermissionItem>()
+            cfg.CreateMap<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
+            cfg.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
 
-            Mapper.CreateMap<ApiParameterPermissionItem, KalturaApiParameterPermissionItem>()
+            cfg.CreateMap<ApiParameterPermissionItem, KalturaApiParameterPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertApiParameterPermissionItemAction(src.Action)));
 
-            Mapper.CreateMap<ApiArgumentPermissionItem, KalturaApiArgumentPermissionItem>()
+            cfg.CreateMap<ApiArgumentPermissionItem, KalturaApiArgumentPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
 
-            Mapper.CreateMap<Permission, KalturaPermission>()
+            cfg.CreateMap<Permission, KalturaPermission>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)));
 
-            Mapper.CreateMap<GroupPermission, KalturaGroupPermission>()
+            cfg.CreateMap<GroupPermission, KalturaGroupPermission>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)))
               .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
 
-            Mapper.CreateMap<Role, KalturaUserRole>()
+            cfg.CreateMap<Role, KalturaUserRole>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)))
              .ForMember(dest => dest.PermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, false)))
              .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, true)));
 
-            Mapper.CreateMap<KalturaUserRole, Role>()
+            cfg.CreateMap<KalturaUserRole, Role>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
@@ -299,14 +300,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             //Api.RegistrySettings to KalturaRegistrySettings
-            Mapper.CreateMap<RegistrySettings, KalturaRegistrySettings>()
+            cfg.CreateMap<RegistrySettings, KalturaRegistrySettings>()
               .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #region TimeShiftedTv
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
-            Mapper.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
+            cfg.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.IsCatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.IsCdvrEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.IsStartOverEnabled))
@@ -330,7 +331,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)));// convert to days 
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
-            Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
+            cfg.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
                 .ForMember(dest => dest.IsCatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.IsCdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForMember(dest => dest.IsStartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
@@ -357,7 +358,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region CDN Adapter
 
-            Mapper.CreateMap<KalturaCDNAdapterProfile, CDNAdapter>()
+            cfg.CreateMap<KalturaCDNAdapterProfile, CDNAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -367,7 +368,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-            Mapper.CreateMap<CDNAdapter, KalturaCDNAdapterProfile>()
+            cfg.CreateMap<CDNAdapter, KalturaCDNAdapterProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -382,24 +383,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region CDN Settings
 
             //CDNPartnerSettings to KalturaCDNPartnerSettings
-            Mapper.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
+            cfg.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
                 .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
                 .ForMember(dest => dest.DefaultAdapterId, opt => opt.MapFrom(src => src.DefaultAdapter));
 
             //KalturaCDNPartnerSettings to CDNPartnerSettings 
-            Mapper.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
+            cfg.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
                 .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapterId))
                 .ForMember(dest => dest.DefaultAdapter, opt => opt.MapFrom(src => src.DefaultAdapterId));
 
             #endregion
 
             #region regions
-            Mapper.CreateMap<KeyValuePair, KalturaRegionalChannel>()
+            cfg.CreateMap<KeyValuePair, KalturaRegionalChannel>()
               .ForMember(dest => dest.LinearChannelId, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.value));
 
 
-            Mapper.CreateMap<Region, KalturaRegion>()
+            cfg.CreateMap<Region, KalturaRegion>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.externalId))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
@@ -411,11 +412,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region DeviceFamily
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
-            Mapper.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
+            cfg.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<DeviceBrand, WebAPI.Models.Domains.KalturaDeviceBrand>()
+            cfg.CreateMap<DeviceBrand, WebAPI.Models.Domains.KalturaDeviceBrand>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId));
@@ -424,7 +425,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region KalturaCountry
 
-            Mapper.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
+            cfg.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -435,7 +436,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent))
                 .ForMember(dest => dest.TimeZoneId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
 
-            Mapper.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
+            cfg.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -445,7 +446,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Meta
 
-            Mapper.CreateMap<Meta, KalturaMeta>()
+            cfg.CreateMap<Meta, KalturaMeta>()
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
               .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertFieldName(src.FieldName)))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
@@ -456,7 +457,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
               ;
 
-            Mapper.CreateMap<KalturaMeta, Meta>()
+            cfg.CreateMap<KalturaMeta, Meta>()
              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -473,7 +474,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Search History
 
-            Mapper.CreateMap<SearchHistory, KalturaSearchHistory>()
+            cfg.CreateMap<SearchHistory, KalturaSearchHistory>()
               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.action))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
               .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.deviceId))
@@ -488,7 +489,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region DRM Adapter
 
-            Mapper.CreateMap<DrmAdapter, KalturaDrmProfile>()
+            cfg.CreateMap<DrmAdapter, KalturaDrmProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -501,22 +502,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region AssetRule
 
-            Mapper.CreateMap<KalturaAssetCondition, AssetCondition>()
+            cfg.CreateMap<KalturaAssetCondition, AssetCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
-            Mapper.CreateMap<AssetCondition, KalturaAssetCondition>()
+            cfg.CreateMap<AssetCondition, KalturaAssetCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
-            Mapper.CreateMap<AssetRule, KalturaAssetRule>()
+            cfg.CreateMap<AssetRule, KalturaAssetRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<KalturaAssetRule, AssetRule>()
+            cfg.CreateMap<KalturaAssetRule, AssetRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -524,7 +525,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // KalturaSlimAsset to SlimAsset
-            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
+            cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.Type)));
 
@@ -532,14 +533,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region AssetUserRule
 
-            Mapper.CreateMap<AssetUserRule, KalturaAssetUserRule>()
+            cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetUserRuleActions(src.Actions)))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => Mapper.Map<List<KalturaAssetCondition>>(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<KalturaAssetUserRule, AssetUserRule>()
+            cfg.CreateMap<KalturaAssetUserRule, AssetUserRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetUserRuleActions(src.Actions)))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => Mapper.Map<List<AssetCondition>>(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -549,7 +550,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Media Concurrency Rule
-            Mapper.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
+            cfg.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
             .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
             .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))

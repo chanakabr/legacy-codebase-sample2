@@ -4,31 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Models.General;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class GeneralMeppings
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             // KalturaStringValue
-            Mapper.CreateMap<string, KalturaStringValue>()
+            cfg.CreateMap<string, KalturaStringValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaBooleanValue
-            Mapper.CreateMap<bool, KalturaBooleanValue>()
+            cfg.CreateMap<bool, KalturaBooleanValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaDoubleValue
-            Mapper.CreateMap<double, KalturaDoubleValue>()
+            cfg.CreateMap<double, KalturaDoubleValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaIntegerValue
-            Mapper.CreateMap<int, KalturaIntegerValue>()
+            cfg.CreateMap<int, KalturaIntegerValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaLongValue
-            Mapper.CreateMap<long, KalturaLongValue>()
+            cfg.CreateMap<long, KalturaLongValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
         }
     }

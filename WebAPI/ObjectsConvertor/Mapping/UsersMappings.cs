@@ -12,32 +12,33 @@ using WebAPI.Utils;
 using System;
 using ApiObjects.SSOAdapter;
 using System.Linq;
+using AutoMapper.Configuration;
 
 namespace ObjectsConvertor.Mapping
 {
     public class UsersMappings
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             // PinCode
-            Mapper.CreateMap<PinCodeResponse, KalturaUserLoginPin>()
+            cfg.CreateMap<PinCodeResponse, KalturaUserLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                 .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
 
             // UserType
-            Mapper.CreateMap<UserType, KalturaOTTUserType>()
+            cfg.CreateMap<UserType, KalturaOTTUserType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // Country
-            Mapper.CreateMap<Core.Users.Country, KalturaCountry>()
+            cfg.CreateMap<Core.Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //// UserBasicData
-            //Mapper.CreateMap<UserBasicData, KalturaUserBasicData>()
+            //cfg.CreateMap<UserBasicData, KalturaUserBasicData>()
             //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
             //    .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
             //    .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
@@ -55,7 +56,7 @@ namespace ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User
-            Mapper.CreateMap<UserResponseObject, KalturaOTTUser>()
+            cfg.CreateMap<UserResponseObject, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sLastName))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sUserName))
@@ -81,7 +82,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
 
             // User
-            Mapper.CreateMap<User, KalturaOTTUser>()
+            cfg.CreateMap<User, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
@@ -107,18 +108,18 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))); // for activation status
 
             // SlimUser
-            Mapper.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
+            cfg.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName));
 
             // UserId to SlimUser
-            Mapper.CreateMap<int, KalturaBaseOTTUser>()
+            cfg.CreateMap<int, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
 
             // Rest UserBasicData ==> WS_Users UserBasicData
-            Mapper.CreateMap<KalturaOTTUser, UserBasicData>()
+            cfg.CreateMap<KalturaOTTUser, UserBasicData>()
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
@@ -136,38 +137,38 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
 
             // Country
-            Mapper.CreateMap<KalturaCountry, Core.Users.Country>()
+            cfg.CreateMap<KalturaCountry, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.m_sCountryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.m_sCountryCode, opt => opt.MapFrom(src => src.Code));
 
             // UserType
-            Mapper.CreateMap<KalturaOTTUserType, UserType>()
+            cfg.CreateMap<KalturaOTTUserType, UserType>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            Mapper.CreateMap<Dictionary<string, KalturaStringValue>, UserDynamicData>()
+            cfg.CreateMap<Dictionary<string, KalturaStringValue>, UserDynamicData>()
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
 
             // MediaId to AssetInfo
-            Mapper.CreateMap<string, KalturaAssetInfo>()
+            cfg.CreateMap<string, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => ConvertToLong(src)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // Rest WS_Users FavoritObject ==>  Favorite  
-            Mapper.CreateMap<FavoritObject, KalturaFavorite>()
+            cfg.CreateMap<FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)));
 
             // UserItemsList to KalturaUserAssetsList
-            Mapper.CreateMap<UserItemsList, KalturaUserAssetsList>()
+            cfg.CreateMap<UserItemsList, KalturaUserAssetsList>()
                 .ForMember(dest => dest.List, opt => opt.MapFrom(src => src.ItemsList))
                 .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)));
 
             // Item to KalturaUserAssetsListItem
-            Mapper.CreateMap<Item, KalturaUserAssetsListItem>()
+            cfg.CreateMap<Item, KalturaUserAssetsListItem>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ItemId))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.ItemType)))
@@ -175,7 +176,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Item to KalturaUserAssetsListItem
-            Mapper.CreateMap<KalturaUserAssetsListItem, Item>()
+            cfg.CreateMap<KalturaUserAssetsListItem, Item>()
                 .ForMember(dest => dest.ItemId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
                 .ForMember(dest => dest.ItemType, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.Type)))
@@ -183,28 +184,28 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Country
-            Mapper.CreateMap<int, Core.Users.Country>()
+            cfg.CreateMap<int, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src));
 
             #region UserInterest
 
-            Mapper.CreateMap<KalturaUserInterest, UserInterest>()
+            cfg.CreateMap<KalturaUserInterest, UserInterest>()
                .ForMember(dest => dest.UserInterestId, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
-            Mapper.CreateMap<UserInterest, KalturaUserInterest>()
+            cfg.CreateMap<UserInterest, KalturaUserInterest>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserInterestId))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
-            Mapper.CreateMap<KalturaUserInterestTopic, UserInterestTopic>()
+            cfg.CreateMap<KalturaUserInterestTopic, UserInterestTopic>()
                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
                ;
 
-            Mapper.CreateMap<UserInterestTopic, KalturaUserInterestTopic>()
+            cfg.CreateMap<UserInterestTopic, KalturaUserInterestTopic>()
              .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
              .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
@@ -213,19 +214,19 @@ namespace ObjectsConvertor.Mapping
             #endregion
 
             // UserDynamicData to KalturaOTTUserDynamicData
-            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
+            cfg.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
 
-            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicDataList>()
+            cfg.CreateMap<UserDynamicData, KalturaOTTUserDynamicDataList>()
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
-            Mapper.CreateMap<SSOAdapter, KalturaSSOAdapterProfile>()
+            cfg.CreateMap<SSOAdapter, KalturaSSOAdapterProfile>()
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.ToDictionary(k => k.Key, v => v.Value) : null));
 
-            Mapper.CreateMap<KalturaSSOAdapterProfile, SSOAdapter>()
+            cfg.CreateMap<KalturaSSOAdapterProfile, SSOAdapter>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertSsoAdapterSettings(src)));
         }
 
