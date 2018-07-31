@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContextDataObject.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="KLogEnums.cs" />
     <Compile Include="Events.cs" />

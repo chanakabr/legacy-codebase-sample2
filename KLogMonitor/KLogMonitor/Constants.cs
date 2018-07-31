@@ -19,6 +19,9 @@ namespace KLogMonitor
         // same key as in REST solution  WebAPI.Filters.RequestParser 
         // in-case changing this  - you must change there  as well
         public const string KS = "global_ks";
+        
+        // key in which the value of muti-thread context data will be saved
+        public const string MULTI_THREAD_DATA_KEY = "context_data";
 
         // event names (for monitor)
         public const string EVENT_API_START = "start";
