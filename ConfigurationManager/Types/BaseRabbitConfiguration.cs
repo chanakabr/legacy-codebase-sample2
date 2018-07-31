@@ -16,6 +16,7 @@ namespace ConfigurationManager
         public StringConfigurationValue Queue;
         public StringConfigurationValue VirtualHost;
         public StringConfigurationValue ExchangeType;
+        public NumericConfigurationValue Heartbeat;
 
         public BaseRabbitConfiguration(string key) : base(key)
         {
@@ -83,6 +84,14 @@ namespace ConfigurationManager
             ExchangeType = new StringConfigurationValue("exchangeType", this)
             {
                 ShouldAllowEmpty = true
+            };
+
+            // heartbeat
+            Heartbeat = new NumericConfigurationValue("heartbeat", this)
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 20,
+                Description = "Heartbeat timeout in seconds. see: https://www.rabbitmq.com/heartbeats.html"
             };
         }
 
