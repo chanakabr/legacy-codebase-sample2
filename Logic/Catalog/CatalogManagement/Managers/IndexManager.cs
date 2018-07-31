@@ -178,7 +178,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         public static bool DeleteMedia(int groupId, int assetId)
         {
             bool result = false;
@@ -190,7 +190,7 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
                 return result;
             }
-            
+
             List<LanguageObj> languages = null;
             bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
@@ -213,6 +213,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
                     return false;
                 }
+
                 languages = group.GetLangauges();
             }
 
@@ -221,17 +222,17 @@ namespace Core.Catalog.CatalogManagement
                 if (languages != null && languages.Count > 0)
                 {
                     result = true;
-                    
+
                     foreach (LanguageObj lang in languages)
                     {
                         string type = GetTanslationType(MEDIA, lang);
                         ESDeleteResult deleteResult = esApi.DeleteDoc(index, type, assetId.ToString());
-                        result = deleteResult.Ok && result;                        
+                        result = deleteResult.Ok && result;
                     }
-                }                       
+                }
             }
             catch (Exception ex)
-            {            
+            {
                 log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", assetId, ex);
             }
 
