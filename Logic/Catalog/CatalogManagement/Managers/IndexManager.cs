@@ -190,17 +190,34 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
                 return result;
             }
-
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            
+            List<LanguageObj> languages = null;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
-                return result;
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
+                    return false;
+                }
+
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+            }
+            else
+            {
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
+                    return false;
+                }
+                languages = group.GetLangauges();
             }
 
             try
             {
-                List<LanguageObj> languages = catalogGroupCache.LanguageMapById.Values.ToList();
                 if (languages != null && languages.Count > 0)
                 {
                     result = true;
