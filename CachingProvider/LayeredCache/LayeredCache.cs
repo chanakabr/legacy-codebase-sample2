@@ -174,18 +174,8 @@ namespace CachingProvider.LayeredCache
                         }
                     }
                 }
-                else
-                {
-                    res = true;
-                }
-
                 if (shouldAddSessionResults)
                 {
-                    if (results == null)
-                    {
-                        results = new Dictionary<string, T>();
-                    }
-
                     foreach (KeyValuePair<string, T> pair in sessionResultMapping)
                     {
                         results.Add(pair.Key, pair.Value);
