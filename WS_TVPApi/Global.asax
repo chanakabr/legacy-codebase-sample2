@@ -12,6 +12,17 @@
         Tvinci.Data.Loaders.CatalogRequestManager.EndPointAddress = ConfigurationManager.AppSettings["CatalogServiceURL"];
         Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ConfigurationManager.AppSettings["CatalogServiceSignatureKey"];
   
+        string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
+        if(logDir != null)
+        {
+            logDir = System.Environment.ExpandEnvironmentVariables(logDir);
+        }
+        else
+        {
+            logDir = "C:\\log\\tvpapi";
+        }
+        log4net.GlobalContext.Properties["LogDir"] = logDir;
+
         // set monitor and log configuration files
         KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
         KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
