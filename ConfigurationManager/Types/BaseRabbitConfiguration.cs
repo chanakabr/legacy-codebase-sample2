@@ -16,6 +16,7 @@ namespace ConfigurationManager
         public StringConfigurationValue Queue;
         public StringConfigurationValue VirtualHost;
         public StringConfigurationValue ExchangeType;
+        public NumericConfigurationValue Heartbeat;
 
         public BaseRabbitConfiguration(string key) : base(key)
         {
@@ -84,6 +85,14 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
+
+            // heartbeat
+            Heartbeat = new NumericConfigurationValue("heartbeat", this)
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 20,
+                Description = "Heartbeat timeout in seconds. see: https://www.rabbitmq.com/heartbeats.html"
+            };
         }
 
         public void CopyBaseValues(BaseRabbitConfiguration source)
@@ -132,6 +141,7 @@ namespace ConfigurationManager
             result &= Queue.Validate();
             result &= VirtualHost.Validate();
             result &= ExchangeType.Validate();
+            result &= Heartbeat.Validate();
 
             return result;
         }
