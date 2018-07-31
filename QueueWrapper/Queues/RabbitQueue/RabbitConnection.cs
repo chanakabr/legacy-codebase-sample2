@@ -505,9 +505,8 @@ namespace QueueWrapper
                                 HostName = configuration.Host,
                                 Password = configuration.Password,
                                 UserName = configuration.Username, 
-                                RequestedHeartbeat = configuration.Heartbeat
                             };
-                            
+
                             int port;
 
                             if (int.TryParse(configuration.Port, out port))

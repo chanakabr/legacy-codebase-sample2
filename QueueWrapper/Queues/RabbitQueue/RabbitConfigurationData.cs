@@ -17,7 +17,6 @@ namespace QueueWrapper
         public string VirtualHost { get; set; }
         public string Username { get; set; }
         public string ContentType { get; set; }
-        public ushort Heartbeat { get; set; }
 
         public RabbitConfigurationData(string exchange, string queueName, string sRoutingKey, 
             string host, string password, string exchangeType, string virtualPort, string username, string port, string contentType = "")

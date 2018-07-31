@@ -39,8 +39,6 @@ namespace QueueWrapper
             }
         }
 
-        private ushort heartbeat = 0;
-
         #endregion
 
         #region Essentials for ENQUEUE
@@ -216,7 +214,6 @@ namespace QueueWrapper
             userName = ApplicationConfiguration.RabbitConfiguration.Default.UserName.Value;
             password = ApplicationConfiguration.RabbitConfiguration.Default.Password.Value;
             port = ApplicationConfiguration.RabbitConfiguration.Default.Port.IntValue.ToString();
-            heartbeat = (ushort)ApplicationConfiguration.RabbitConfiguration.Default.Heartbeat.IntValue;
 
             switch (m_eConfigType)
             {
@@ -397,10 +394,7 @@ namespace QueueWrapper
             }
             else
             {
-                configData = new RabbitConfigurationData(exchange, queue, routingKey, hostName, password, exchangeType, virtualHost, userName, port, contentType)
-                {
-                    Heartbeat = heartbeat
-                };
+                configData = new RabbitConfigurationData(exchange, queue, routingKey, hostName, password, exchangeType, virtualHost, userName, port, contentType);
             }
 
             return configData;
