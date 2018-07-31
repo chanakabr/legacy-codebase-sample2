@@ -100,10 +100,10 @@ namespace TVPApiServices
         List<Media> GetMediasByRating(InitializationObject initObj, int rating);
 
         [OperationContract]
-        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
+        string MediaMark(InitializationObject initObj, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId, bool isReportingMode = false);
 
         [OperationContract]
-        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID);
+        string MediaHit(InitializationObject initObj, int mediaType, long iMediaID, long iFileID, int iLocation, string NPVRID, long programId, bool isReportingMode = false);
 
         [OperationContract]
         MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID);
@@ -307,5 +307,9 @@ namespace TVPApiServices
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleAssets(InitializationObject initObj, eBundleType bundleType, int bundleId,
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+
+        [OperationContract]
+        string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData, long programId,
+                             bool isReportingMode = false);
     }
 }

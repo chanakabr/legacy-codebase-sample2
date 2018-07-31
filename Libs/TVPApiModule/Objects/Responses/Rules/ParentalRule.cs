@@ -82,10 +82,10 @@ namespace TVPApiModule.Objects.Responses
             this.id = rule.id;
             this.name = rule.name;
             this.description = rule.description;
-            this.order = rule.order;
-            this.mediaTagTypeId = rule.mediaTagTypeId;
-            this.epgTagTypeId = rule.epgTagTypeId;
-            this.blockAnonymousAccess = rule.blockAnonymousAccess;
+            this.order = rule.order.Value;
+            this.mediaTagTypeId = rule.mediaTagTypeId.Value;
+            this.epgTagTypeId = rule.epgTagTypeId.Value;
+            this.blockAnonymousAccess = rule.blockAnonymousAccess.Value;
 
             switch (rule.ruleType)
             {

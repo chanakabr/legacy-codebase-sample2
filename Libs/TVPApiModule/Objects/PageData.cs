@@ -754,13 +754,18 @@ namespace TVPApi
         //Get TVM Accounts by Account ID - there can be more than one per ID so the media type is also necessary
         public TVMAccountType GetTVMAccountByAccountType(AccountType accountType)
         {
-            string AccountName = accountType.ToString();
-            dsPageData.TVMAccountsRow tvmRow = (from accounts in DataOnPage.TVMAccounts
-                                                where accounts.Name == AccountName
-                                                select accounts).FirstOrDefault();
+            if (DataOnPage != null && DataOnPage.TVMAccounts != null)
+            {
+                string AccountName = accountType.ToString();
+                dsPageData.TVMAccountsRow tvmRow = DataOnPage.TVMAccounts.FirstOrDefault(accounts => accounts.Name == AccountName);
 
-            TVMAccountType retVal = new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
-            return retVal;
+                if (tvmRow != null)
+                {
+                    return new TVMAccountType(tvmRow.Player_UN, tvmRow.Player_Pass, tvmRow.Name, tvmRow.Base_Group_ID, tvmRow.Group_ID, tvmRow.Api_Ws_User, tvmRow.Api_Ws_Password);
+                }
+            }
+            
+            return new TVMAccountType();
         }
 
         //Get TVM Accounts by Group ID

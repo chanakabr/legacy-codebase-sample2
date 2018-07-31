@@ -25,15 +25,10 @@ namespace TVPApiServices
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
-    public class PlayerService : System.Web.Services.WebService
+    public class PlayerService : WebService, IPlayerService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public PlayerService()
-        {
-
-        }
-
+        
         public class ErrorMessageWrapper
         {
             public string MediaId { get; set; }
@@ -47,7 +42,7 @@ namespace TVPApiServices
             public Media Media { get; set; }
             public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] Rules { get; set; }
         }
-
+        
         /// <summary>
         /// RetrieveMediaXML
         /// </summary>
@@ -71,7 +66,7 @@ namespace TVPApiServices
                 {
                     retMedia.Media = MediaHelper.GetMediaInfo(initObj, MediaID, picSize, groupID);
 
-                    Media.File trailerFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower()).SingleOrDefault();
+                    Media.File trailerFile = retMedia.Media.Files.SingleOrDefault(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrailerFileFormat.ToLower());
 
                     if (!trailerFile.Equals(default(Media.File)))
                     {
@@ -82,7 +77,7 @@ namespace TVPApiServices
                         retMedia.Media.Files.Insert(0, trailerFile);
                     }
 
-                    Media.File trickPlayFile = retMedia.Media.Files.Where(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower()).SingleOrDefault();
+                    Media.File trickPlayFile = retMedia.Media.Files.SingleOrDefault(x => x.Format.ToLower() == ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).TechnichalConfiguration.Data.Player.TrickPlayFileFormat.ToLower());
 
                     if (!trickPlayFile.Equals(default(Media.File)))
                     {
@@ -94,9 +89,6 @@ namespace TVPApiServices
                     }
 
                     retMedia.Rules = new ApiApiService(groupID, initObj.Platform).GetGroupMediaRules((int)MediaID, int.Parse(initObj.SiteGuid), initObj.UDID);
-
-                    // for debug
-                    //retMedia.Rules = new TVPPro.SiteManager.TvinciPlatform.api.GroupRule[]{};
                 }
                 catch (Exception ex)
                 {
@@ -112,8 +104,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
-        [System.Xml.Serialization.XmlInclude(typeof(TVPApi.ActionHelper.FileHolder))]
-        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, TVPApi.ActionHelper.FileHolder fileParam, int iLocation)
+        [System.Xml.Serialization.XmlInclude(typeof(ActionHelper.FileHolder))]
+        public string MediaMark(InitializationObject initObj, Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action Action, ActionHelper.FileHolder fileParam, 
+                                int iLocation, long programId, bool isReportingMode = false)
         {
             string sRet = string.Empty;
 
@@ -123,7 +116,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, fileParam, iLocation, string.Empty);
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iLocation, string.Empty, fileParam, isReportingMode, programId);
                 }
                 catch (Exception ex)
                 {
@@ -139,7 +132,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Mark player position")]
-        public string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation)
+        public string MediaHit(InitializationObject initObj, long iMediaID, long iFileID, int iLocation, long programId, bool isReportingMode = false)
         {
             string sRet = string.Empty;
 
@@ -149,7 +142,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, string.Empty);
+                    sRet = ActionHelper.MediaHit(initObj, groupID, initObj.Platform, iMediaID, iFileID, iLocation, string.Empty, programId, isReportingMode);
                 }
                 catch (Exception ex)
                 {

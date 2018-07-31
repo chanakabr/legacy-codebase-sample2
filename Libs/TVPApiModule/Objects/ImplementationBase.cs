@@ -17,16 +17,15 @@ namespace TVPApiModule.Objects
     {
         protected InitializationObject _initObj;
         protected int _nGroupID;
-
-
+        
         public ImplementationBase(int nGroupID, InitializationObject initObj)
         {
             _nGroupID = nGroupID;
             _initObj = initObj;
         }
-
-
-        public virtual Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, System.Collections.Specialized.NameValueCollection nameValueCollection = null)
+        
+        public virtual Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, 
+                                                                         System.Collections.Specialized.NameValueCollection nameValueCollection = null)
         {
             bool isSingleLogin = TVPApi.ConfigManager.GetInstance()
                                        .GetConfig(_nGroupID, _initObj.Platform)
@@ -34,8 +33,7 @@ namespace TVPApiModule.Objects
 
             return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, _initObj.UDID, string.Empty, isSingleLogin, nameValueCollection);
         }
-
-
+        
         public virtual DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
             return new TVPApiModule.Services.ApiDomainsService(_nGroupID, _initObj.Platform).AddDeviceToDomain(_initObj.DomainID, _initObj.UDID, sDeviceName, nDeviceBrandID);
@@ -48,20 +46,21 @@ namespace TVPApiModule.Objects
 
         }
 
-        public virtual string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID)
+        public virtual string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false)
         {
-            return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID, sNPVRID);
+            return ActionHelper.MediaHit(_initObj, _nGroupID, _initObj.Platform, nMediaID, nFileID, nLocationID, sNPVRID, programId, isReportingMode);
+        }
+        
+        public virtual string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, 
+                                                        string sPaymentMethodID, string sEncryptedCVV)
+        {
+            return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, 
+                                                   _initObj.SiteGuid, sExtraParams, _initObj.UDID, sPaymentMethodID, sEncryptedCVV);
         }
 
-
-        public virtual string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV)
+        public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false)
         {
-            return new ApiConditionalAccessService(_nGroupID, _initObj.Platform).ChargeUserForSubscription(dPrice, sCurrency, sSubscriptionID, sCouponCode, sIP, _initObj.SiteGuid, sExtraParams, _initObj.UDID, sPaymentMethodID, sEncryptedCVV);
-        }
-
-        public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID)
-        {
-            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaID, nFileID, nLocationID, sNPVRID);
+            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nLocationID, sNPVRID, programId, nMediaID, nFileID, isReportingMode);
         }
 
         public virtual bool IsItemPurchased(int iFileID, string sUserGuid)
@@ -146,6 +145,5 @@ namespace TVPApiModule.Objects
             }
             return retVal;
         }
-
     }
 }

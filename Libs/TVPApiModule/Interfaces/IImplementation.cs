@@ -15,11 +15,11 @@ namespace TVPApiModule.Interfaces
 
         DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
 
-        string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID);
+        string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false);
 
         string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV);
 
-        string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID);
+        string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false);
 
         bool IsItemPurchased(int iFileID, string sUserGuid);
 
