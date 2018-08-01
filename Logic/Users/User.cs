@@ -34,7 +34,7 @@ namespace Core.Users
         public User(int nGroupID, int nUserID, bool shouldSaveInCache = false)
             : this()
         {
-            Initialize(nUserID, nGroupID, shouldSaveInCache);
+            Initialize(nUserID, nGroupID);
         }
 
         public User Clone()
@@ -421,35 +421,15 @@ namespace Core.Users
             m_oDynamicData = oDynamicData;
         }
 
-        public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldSaveInCache = true)
+        public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldGoToDb = false)
         {
             bool result = false;
 
             try
             {
-                User user = null;
-                // Get user from cache by siteGUID
-                UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(nUserID, nGroupID);
-
-                if (user != null)
-                {
-                    m_oBasicData = user.m_oBasicData;
-                    m_oDynamicData = user.m_oDynamicData;
-                    m_sSiteGUID = user.m_sSiteGUID;
-                    m_domianID = user.m_domianID;
-                    m_eUserState = user.m_eUserState;
-                    m_eSuspendState = user.m_eSuspendState;
-                    m_nSSOOperatorID = user.m_nSSOOperatorID;
-                    m_isDomainMaster = user.m_isDomainMaster;
-                    m_eSuspendState = user.m_eSuspendState;
-                    result = true;
-                }
-                else
+                if (shouldGoToDb)
                 {
                     result = m_oBasicData.Initialize(nUserID, nGroupID);
-
-                    this.SetReadingInvalidationKeys();
 
                     if (!result)
                     {
@@ -469,11 +449,26 @@ namespace Core.Users
 
                     m_eUserState = GetCurrentUserState(nUserID, nGroupID, false);
 
-                    // Add user to cache only if initialization succeeded
-                    if (shouldSaveInCache && result)
-                    {
-                        usersCache.InsertUser(this, nGroupID);
-                    }
+                    return result;
+                }
+
+                User user = null;
+                // Get user from cache by siteGUID
+                UsersCache usersCache = UsersCache.Instance();
+                user = usersCache.GetUser(nUserID, nGroupID);
+
+                if (user != null)
+                {
+                    m_oBasicData = user.m_oBasicData;
+                    m_oDynamicData = user.m_oDynamicData;
+                    m_sSiteGUID = user.m_sSiteGUID;
+                    m_domianID = user.m_domianID;
+                    m_eUserState = user.m_eUserState;
+                    m_eSuspendState = user.m_eSuspendState;
+                    m_nSSOOperatorID = user.m_nSSOOperatorID;
+                    m_isDomainMaster = user.m_isDomainMaster;
+                    m_eSuspendState = user.m_eSuspendState;
+                    result = true;
                 }
 
             }
@@ -498,13 +493,13 @@ namespace Core.Users
 
             try
             {
-                res = Initialize(nUserID, nGroupID, false);
+                res = Initialize(nUserID, nGroupID);
                 m_domianID = domainID;
                 m_isDomainMaster = isDomainMaster;
 
                 // Add user to cache
-                UsersCache usersCache = UsersCache.Instance();
-                usersCache.InsertUser(this, nGroupID);
+                //UsersCache usersCache = UsersCache.Instance();
+                //usersCache.InsertUser(this, nGroupID);
             }
             catch (Exception ex)
             {
@@ -580,12 +575,12 @@ namespace Core.Users
             return (Save(nGroupID, false));
         }
 
-        public int Save(Int32 groupId, bool bIsSetUserActive, bool isRemoveFromCache = true)
+        public int Save(Int32 groupId, bool bIsSetUserActive)
         {
             try
             {
                 this.GroupId = groupId;
-                this.shouldRemoveFromCache = isRemoveFromCache;
+                this.shouldRemoveFromCache = true;
                 this.shouldSetUserActive = bIsSetUserActive;
 
                 // New user - Insert
@@ -676,11 +671,6 @@ namespace Core.Users
                 }
             }
 
-            if (this.userId > 0)
-            {
-                this.InvalidateUser();
-            }
-
             return success;
         }
 
@@ -689,14 +679,6 @@ namespace Core.Users
             bool success = false;
 
             this.userId = int.Parse(this.m_sSiteGUID);
-
-            if (this.shouldRemoveFromCache)
-            {
-                UsersCache usersCache = UsersCache.Instance();
-                usersCache.RemoveUser(this.userId, this.GroupId);
-
-                this.InvalidateUser();
-            }
 
             // activation
             if (this.shouldSetUserActive)
@@ -753,9 +735,10 @@ namespace Core.Users
                 }
             }
 
-            if (this.userId > 0)
+            if (this.shouldRemoveFromCache)
             {
-                this.InvalidateUser();
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(this.userId, this.GroupId);
             }
 
             return success;
@@ -884,7 +867,7 @@ namespace Core.Users
         {
             UserResponseObject retVal = new UserResponseObject();
             User u = new User();
-            u.Initialize(siteGuid, nGroupID, false);
+            u.Initialize(siteGuid, nGroupID);
             UserState currentState = GetCurrentUserState(siteGuid, nGroupID);
             long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
@@ -1062,7 +1045,7 @@ namespace Core.Users
         {
             UserResponseObject retObj = new UserResponseObject();
             User u = new User();
-            bool init = u.Initialize(siteGuid, nGroupID, false);
+            bool init = u.Initialize(siteGuid, nGroupID);
 
             if (!init)
             {
@@ -1104,7 +1087,7 @@ namespace Core.Users
                 if (nID > 0)
                 {
                     User u = new User();
-                    bool bOk = u.Initialize(nID, nGroupID, false);
+                    bool bOk = u.Initialize(nID, nGroupID);
 
                     if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
                     {
@@ -1192,7 +1175,7 @@ namespace Core.Users
             //Check if UserGuid is valid
             User user = new User();
 
-            bool init = user.Initialize(userGuid, nGroupID, false);
+            bool init = user.Initialize(userGuid, nGroupID);
 
             UserResponseObject resp = new UserResponseObject();
 
@@ -1211,7 +1194,7 @@ namespace Core.Users
         public static bool IsUserValid(int nGroupID, int userGuid, ref User user)
         {
             // Check if UserGuid is valid
-            bool init = user.Initialize(userGuid, nGroupID, false);
+            bool init = user.Initialize(userGuid, nGroupID);
 
             UserResponseObject resp = new UserResponseObject();
 
@@ -1263,21 +1246,6 @@ namespace Core.Users
 
         #region Invalidation
 
-        public void InvalidateUser()
-        {
-            User.InvalidateUser(this.m_sSiteGUID);
-        }
-
-        public static void InvalidateUser(string siteGuid)
-        {
-
-            List<string> invalidationKeys = new List<string>()
-                {
-                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid)
-                };
-
-            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
-        }
         public virtual void SetReadingInvalidationKeys()
         {
             User.SetReadingInvalidationKeys(this.m_sSiteGUID);

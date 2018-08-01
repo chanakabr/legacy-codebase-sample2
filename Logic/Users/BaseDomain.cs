@@ -503,8 +503,8 @@ namespace Core.Users
             }
 
             // insert the new domain to cache 
-            DomainsCache oDomainCache = DomainsCache.Instance();
-            bool bInsert = oDomainCache.InsertDomain(domain);
+            //DomainsCache oDomainCache = DomainsCache.Instance();
+            //bool bInsert = oDomainCache.InsertDomain(domain);
 
             int nActivationStatus = DomainDal.GetDomainDeviceActivateStatus(m_nGroupID, nDeviceID);
 
@@ -856,7 +856,7 @@ namespace Core.Users
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
-            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;
@@ -1009,7 +1009,7 @@ namespace Core.Users
             DomainsCache oDomainCache = DomainsCache.Instance();
 
             // validate domain
-            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID, false);
+            var domain = oDomainCache.GetDomain(nDomainID, m_nGroupID);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 result.Code = (int)eResponseStatus.Error;

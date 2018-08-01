@@ -65,7 +65,7 @@ namespace Core.Users
             // get domain by domain id from Cache 
             DomainsCache domainsCache = DomainsCache.Instance();
 
-            Domain domain = domainsCache.GetDomain(nDomainID, nGroupID, bCache);
+            Domain domain = domainsCache.GetDomain(nDomainID, nGroupID);
 
             return domain;
         }
@@ -87,7 +87,7 @@ namespace Core.Users
                         case DomainStatus.OK: // add domain to Cache
                         case DomainStatus.DomainCreatedWithoutNPVRAccount:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                            DomainsCache.Instance().InsertDomain(domain);
+                            //DomainsCache.Instance().InsertDomain(domain);
 
                             // set user role to master 
                             long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;

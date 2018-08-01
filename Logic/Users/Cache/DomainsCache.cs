@@ -1,4 +1,5 @@
 ﻿using CachingProvider;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using KLogMonitor;
 using System;
@@ -94,7 +95,7 @@ namespace Core.Users.Cache
             foreach (var domainId in allDomains.Keys)
             {
                 DateTime updateDate = allDomains[domainId];
-                string cacheKey = string.Format("{0}{1}", sDomainKeyCache, domainId);
+                string cacheKey = LayeredCacheKeys.GetDomainKey(domainId);
 
                 cacheKeys.Add(cacheKey, domainId);
 
@@ -165,17 +166,6 @@ namespace Core.Users.Cache
                     log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
                 }
             }
-
-            string invalidDomainsString = string.Empty;
-
-            if (invalidDomainIds != null && invalidDomainIds.Count > 0)
-            {
-                invalidDomainsString = string.Join(",", invalidDomainIds);
-            }
-
-            log.InfoFormat("Get invalid domains - invalid domains for group id {0} are: {1}",
-                groupId, invalidDomainsString);
-
             return invalidDomainIds;
         }
 
@@ -187,14 +177,6 @@ namespace Core.Users.Cache
         private static object syncRoot = new Object();
         private ConcurrentDictionary<int, ReaderWriterLockSlim> m_oLockers; // readers-writers lockers for operator channel ids.        
         private ICachingService cache = null;
-        private readonly double dCacheTT;
-        private string sDomainKeyCache = "domain_";
-        private string sDLMCache = "DLM_";
-        private const int RETRY_LIMIT = 3;
-        #endregion
-
-        #region Constants
-        protected const string DOMAIN_LOG_FILENAME = "DomainCache";
         #endregion
 
         private static DomainsCache instance = null;
@@ -204,7 +186,6 @@ namespace Core.Users.Cache
             // create to instance of cache to domain  external (by CouchBase)
             cache = CouchBaseCache<Domain>.GetInstance("CACHE");
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
-            dCacheTT = ApplicationConfiguration.DomainCacheDocTimeout.DoubleValue;     //set ttl time for document            
         }
 
         /*Method that lock domain when change the object*/
@@ -250,21 +231,10 @@ namespace Core.Users.Cache
             return instance;
         }
 
-        internal void LogCachingError(string msg, string key, object obj, string methodName, string logFile)
-        {
-            StringBuilder sb = new StringBuilder(msg);
-            sb.Append(String.Concat(" Key: ", key));
-            sb.Append(String.Concat(" Val: ", obj != null ? obj.ToString() : "null"));
-            sb.Append(String.Concat(" Method Name: ", methodName));
-            sb.Append(String.Concat(" Cache Data: ", ToString()));
-            log.Debug("CacheError - " + sb.ToString());
-        }
-
-
         #region Public methods
 
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
-        internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
+        /*internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
         {
             Domain domain = null;
             Random random = new Random();
@@ -286,14 +256,17 @@ namespace Core.Users.Cache
                     {
                         while (limitRetries > 0)
                         {
-                            //try insert to Cache
-                            // set this Domain object anyway - Shouldn't get here if domain already exsits
-                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT);
-                            if (insertSuccess)
+                            //try insert to Cache                                              
+                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
+                            if (!insertSuccess)
+                            {
+                                Thread.Sleep(random.Next(50));
+                                limitRetries--;
+                            }
+                            else
+                            {
                                 break;
-
-                            limitRetries--;
-                            Thread.Sleep(random.Next(50));
+                            }
                         }
                     }
                 }
@@ -330,9 +303,56 @@ namespace Core.Users.Cache
                 return null;
             }
         }
+        */
 
+        internal Domain GetDomain(int domainId, int groupId)
+        {
+            Domain domain = null;
 
-        internal bool InsertDomain(Domain domain)
+            try
+            {
+                string key = LayeredCacheKeys.GetDomainKey(domainId);
+                Domain domainToGet = null;
+                if (!LayeredCache.Instance.Get<Domain>(key, ref domainToGet, GetDomain, new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } }, groupId,
+                                                    LayeredCacheConfigNames.DOMAIN_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetHouseholdInvalidationKey(domainId) }))
+                {
+                    log.DebugFormat("GetDomain - Couldn't get domainId {0}", domainId);
+                }
+                else
+                {
+                    domain = TVinciShared.ObjectCopier.Clone<Domain>(domainToGet);
+                    DomainFactory.InitializeDLM(domain);
+
+                    // Mark reading invalidation key for domain and its devices
+                    if (domain != null)
+                    {
+                        domain.SetReadingInvalidationKeys();
+
+                        if (domain.m_deviceFamilies != null)
+                        {
+                            foreach (var deviceContainer in domain.m_deviceFamilies)
+                            {
+                                if (deviceContainer.DeviceInstances != null)
+                                {
+                                    foreach (var device in deviceContainer.DeviceInstances)
+                                    {
+                                        device.SetReadingInvalidationKeys();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDomain for groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+
+            return domain;
+        }
+
+        /*internal bool InsertDomain(Domain domain)
         {
             bool bInsert = false;
             Random r = new Random();
@@ -368,8 +388,9 @@ namespace Core.Users.Cache
                 return false;
             }
         }
+        */
 
-        internal bool RemoveDomain(int nDomainID)
+        /*internal bool RemoveDomain(int nDomainID)
         {
             bool bIsRemove = false;
             Random r = new Random();
@@ -404,6 +425,29 @@ namespace Core.Users.Cache
                 return false;
             }
         }
+        */
+
+        internal bool RemoveDomain(int domainId)
+        {
+            bool res = false;
+            try
+            {
+                string invalidationKey = LayeredCacheKeys.GetHouseholdInvalidationKey(domainId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed removing domain {0} from cache", domainId);
+                    return res;
+                }
+
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed removing domain {0} from cache, ex = {1}", domainId, ex.Message), ex);
+            }
+
+            return res;
+        }
 
         #region Users
 
@@ -412,7 +456,6 @@ namespace Core.Users.Cache
             try
             {
                 bool bUsers = false;
-                string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
                 bUsers = UsersListFromDomain(nDomainID, oDomain, usersIDs, pendingUsersIDs, masterGUIDs, defaultUsersIDs);
 
                 if (!bUsers) // continue to get the domain 
@@ -492,16 +535,18 @@ namespace Core.Users.Cache
         }
         */
 
-        private static T JsonToObject<T>(string json)
+        /*private static T JsonToObject<T>(string json)
         {
             if (!string.IsNullOrEmpty(json))
                 return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
             else
                 return default(T);
         }
+        */
 
+        #region public DLM Methods
 
-        internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager)
+        /*internal bool GetDLM(int nDomainLimitID, int nGroupID, out LimitationsManager oLimitationsManager)
         {
             string sKey = string.Empty;
             sKey = string.Format("{0}{1}", sDLMCache, nDomainLimitID);
@@ -540,8 +585,34 @@ namespace Core.Users.Cache
             else
                 return false;
         }
+        */
 
-        internal bool RemoveDLM(int nDlmID)
+        internal bool GetDLM(int dlmId, int groupId, out LimitationsManager dlm)
+        {
+            dlm = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetDlmKey(dlmId);
+                LimitationsManager dlmToGet = null;
+                if (!LayeredCache.Instance.Get<LimitationsManager>(key, ref dlmToGet, GetDlm, new Dictionary<string, object>() { { "groupId", groupId }, { "dlmId", dlmId } }, groupId,
+                                                    LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDlmInvalidationKey(dlmId) }))
+                {
+                    log.DebugFormat("GetDLM - Couldn't get dlmId {0}", dlmId);
+                }
+                else
+                {
+                    dlm = TVinciShared.ObjectCopier.Clone<LimitationsManager>(dlmToGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDLM for groupId: {0}, dlmId: {1}", groupId, dlmId), ex);
+            }
+
+            return dlm != null;
+        }
+
+        /*internal bool RemoveDLM(int nDlmID)
         {
             bool bIsRemove = false;
             Random r = new Random();
@@ -551,7 +622,7 @@ namespace Core.Users.Cache
                 string sKey = string.Format("{0}{1}", sDLMCache, nDlmID);
 
                 //try remove domain from cache 
-                while (limitRetries > 0)
+                while (limitRetries > 0)                
                 {
                     BaseModuleCache bModule = cache.Remove(sKey);
                     if (bModule != null && bModule.result != null)
@@ -576,5 +647,79 @@ namespace Core.Users.Cache
                 return false;
             }
         }
+        */
+
+        internal bool RemoveDLM(int dlmId)
+        {
+            bool res = false;
+            try
+            {
+                string invalidationKey = LayeredCacheKeys.GetDlmInvalidationKey(dlmId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed removing DLM {0} from cache", dlmId);
+                    return res;
+                }
+
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed removing DLM {0} from cache, ex = {1}", dlmId, ex.Message), ex);
+            }
+
+            return res;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static Tuple<Domain, bool> GetDomain(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Domain domain = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? domainId = funcParams["domainId"] as int?;
+                    domain = DomainFactory.GetDomain(groupId.Value, domainId.Value);
+                    res = domain != null && domain.m_DomainStatus != DomainStatus.Error;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDomain failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Domain, bool>(domain, res);
+        }
+
+        private static Tuple<LimitationsManager, bool> GetDlm(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            LimitationsManager dlm = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("dlmId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? dlmId = funcParams["dlmId"] as int?;
+                    dlm = DomainFactory.GetDLM(groupId.Value, dlmId.Value);
+                    res = dlm != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDlm failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<LimitationsManager, bool>(dlm, res);
+        }
+
+        #endregion
+
     }
 }

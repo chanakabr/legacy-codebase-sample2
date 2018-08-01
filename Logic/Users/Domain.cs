@@ -2512,7 +2512,7 @@ namespace Core.Users
 
             // Domain found, let's initialize it (users, device families, ...)            
             DomainsCache oDomainCache = DomainsCache.Instance();
-            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID, false);
+            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID);
             bool init = Initialize(domain);
 
             if (m_masterGUIDs == null || m_masterGUIDs.Count == 0)
