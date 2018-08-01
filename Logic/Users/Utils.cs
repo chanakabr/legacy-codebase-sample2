@@ -590,17 +590,6 @@ namespace Core.Users
             return res;
         }
 
-        internal static MutexSecurity CreateMutex()
-        {
-            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            MutexSecurity mutexSecurity = new MutexSecurity();
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.FullControl, AccessControlType.Allow));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.ChangePermissions, AccessControlType.Deny));
-            mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
-
-            return mutexSecurity;
-        }
-
         public static string GetMinPeriodDescription(int id)
         {
             string res = null;

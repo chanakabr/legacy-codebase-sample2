@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Billing;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,35 @@ namespace APILogic.ConditionalAccess.Managers
             UnifiedBillingCycle unifiedBillingCycle = null;
             try
             {
-                bool result = DAL.BillingDAL.GetDomainUnifiedBillingCycle(domainId, billingCycle, out unifiedBillingCycle);
+                string key = DAL.UtilsDal.GetDomainUnifiedBillingCycleKey(domainId, billingCycle);
+                bool isReadAction = LayeredCache.Instance.IsReadAction();
+                if (isReadAction && LayeredCache.Instance.TryGetKeyFromSession<UnifiedBillingCycle>(key, ref unifiedBillingCycle))
+                {
+                    if (unifiedBillingCycle.endDate == 0)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return unifiedBillingCycle;
+                    }
+                }
+                else
+                {
+                    DAL.BillingDAL.GetDomainUnifiedBillingCycle(domainId, billingCycle, out unifiedBillingCycle);
+                }
+
+                if (isReadAction)
+                {
+                    Dictionary<string, UnifiedBillingCycle> resultsToAdd = new Dictionary<string, UnifiedBillingCycle>();
+                    resultsToAdd.Add(key, unifiedBillingCycle != null ? unifiedBillingCycle : new UnifiedBillingCycle() { endDate = 0 });
+                    LayeredCache.Instance.InsertResultsToSession<UnifiedBillingCycle>(resultsToAdd);
+
+                    if (unifiedBillingCycle.endDate == 0)
+                    {
+                        return null;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -31,8 +60,6 @@ namespace APILogic.ConditionalAccess.Managers
 
             return unifiedBillingCycle;
         }
-
-             
 
         public static bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, long endDate)
         {            

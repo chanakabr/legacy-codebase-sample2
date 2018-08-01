@@ -348,7 +348,7 @@ namespace Core.Users
 
             if (nID != 0)
             {
-                u.Initialize(nID, m_nGroupID, false);
+                u.Initialize(nID, m_nGroupID);
                 resp.m_user = u;
                 resp.m_RespStatus = ResponseStatus.OK;
 
@@ -379,7 +379,7 @@ namespace Core.Users
 
             if (nID != 0 && nID == tokenUserID)
             {
-                u.Initialize(nID, m_nGroupID, false);
+                u.Initialize(nID, m_nGroupID);
 
                 bool resetSession = DAL.UsersDal.SetUserSessionStatus(nID, 0, 0);
                 u.activationToken = sToken;
@@ -435,7 +435,7 @@ namespace Core.Users
 
             User newUser = new User();
             User masterUser = new User();
-            bool bInit = newUser.Initialize(nUserID, m_nGroupID, false) && masterUser.Initialize(nMasterUserID, m_nGroupID, false);
+            bool bInit = newUser.Initialize(nUserID, m_nGroupID) && masterUser.Initialize(nMasterUserID, m_nGroupID);
 
             if (nUserID <= 0 || nMasterUserID <= 0 || !bInit || !masterUser.m_isDomainMaster)
             {
@@ -544,7 +544,7 @@ namespace Core.Users
 
             u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
-            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData), true);    //u.Save(m_nGroupID);  
+            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
 
             // add role to user
             if (nUserID > 0)
@@ -682,7 +682,7 @@ namespace Core.Users
                 return false;
 
             User u = new User();
-            if (!u.Initialize(userID, m_nGroupID, false))
+            if (!u.Initialize(userID, m_nGroupID))
                 return false;
 
             if (u != null && u.m_oBasicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
@@ -698,7 +698,7 @@ namespace Core.Users
         {
             Int32 nUserID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID, false);
+            u.Initialize(nUserID, m_nGroupID);
 
             if (u.m_oBasicData.m_sPassword != "")
             {
@@ -777,7 +777,7 @@ namespace Core.Users
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User();
 
-                u.Initialize(nUserID, m_nGroupID, shouldSaveInCache);
+                u.Initialize(nUserID, m_nGroupID);
 
                 if (m_newsLetterImpl != null)
                 {
@@ -1095,7 +1095,7 @@ namespace Core.Users
                 UserResponseObject resp = new UserResponseObject();
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User();
-                u.Initialize(nUserID, m_nGroupID, false);
+                u.Initialize(nUserID, m_nGroupID);
                 if (u.m_oBasicData.m_sUserName != "")
                 {
                     UserBasicData b = new UserBasicData();
@@ -1252,7 +1252,7 @@ namespace Core.Users
                 return ret;
             }
 
-            uro.m_user.Save(m_nGroupID, false, true);
+            uro.m_user.Save(m_nGroupID, false);
             ret.m_user = uro.m_user;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
@@ -1262,7 +1262,7 @@ namespace Core.Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             User user = new User();
-            if (!user.Initialize(userId, m_nGroupID, false))
+            if (!user.Initialize(userId, m_nGroupID))
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get user data");
                 return response;
@@ -1274,7 +1274,7 @@ namespace Core.Users
                 return response;
             }
 
-            if (user.Save(m_nGroupID, false, true) != userId)
+            if (user.Save(m_nGroupID, false) != userId)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to save user data");
                 return response;
@@ -1289,7 +1289,7 @@ namespace Core.Users
             UserResponseObject ret = new UserResponseObject();
             Int32 nID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nID, m_nGroupID, false);
+            u.Initialize(nID, m_nGroupID);
             if (string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
                 ret.m_RespStatus = ResponseStatus.UserDoesNotExist;
@@ -1305,7 +1305,7 @@ namespace Core.Users
                 return ret;
             }
 
-            u.Save(m_nGroupID, false, true);
+            u.Save(m_nGroupID, false);
             ret.m_user = u;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
@@ -1599,7 +1599,7 @@ namespace Core.Users
         {
             Int32 nUserID = GetUserIDByUserName(sUN);
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID, false);
+            u.Initialize(nUserID, m_nGroupID);
 
             if (!string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
@@ -1935,7 +1935,7 @@ namespace Core.Users
             //Check if UserID is valid
             User user = new User();
 
-            bool bInit = user.Initialize(nUserID, nGroupID, shouldSaveInCache);
+            bool bInit = user.Initialize(nUserID, nGroupID);
 
             UserResponseObject resp = new UserResponseObject();
 

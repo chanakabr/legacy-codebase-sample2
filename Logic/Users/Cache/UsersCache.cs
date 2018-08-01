@@ -42,10 +42,6 @@ namespace Core.Users
 
         #region OutOfProcessCache           
         private ICachingService cache = null;
-        private readonly double cacheTTL;
-        private readonly bool shouldUseCache;
-        private string userKeyCache = "user";
-        private const int RETRY_LIMIT = 3;
         #endregion
 
         private static UsersCache instance = null;
@@ -65,8 +61,6 @@ namespace Core.Users
         {
             // create an instance of user to external cache (by CouchBase)
             cache = CouchBaseCache<User>.GetInstance("CACHE");
-            cacheTTL = GetDocTTLSettings();     //set ttl time for document
-            shouldUseCache = ApplicationConfiguration.UsersCacheConfiguration.ShouldUseCache.Value;
         }
 
         #endregion
@@ -90,7 +84,7 @@ namespace Core.Users
         #region Public methods
 
         // try getting the user from the cache
-        internal User GetUser(int userID, int groupID)
+        /*internal User GetUser(int userID, int groupID)
         {
             User userObject = null;
             try
@@ -115,8 +109,38 @@ namespace Core.Users
                 return null;
             }
         }
+        */
 
-        internal bool InsertUser(User user, int groupID)
+        internal User GetUser(int userId, int groupId)
+        {
+            User user = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetUserKey(userId, groupId);
+                User userToGet = null;
+                if (!LayeredCache.Instance.Get<User>(key, ref userToGet, GetUser, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } }, groupId,
+                                                    LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserInvalidationKey(userId.ToString()) }))
+                {
+                    log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
+                }
+                else
+                {
+                    user = TVinciShared.ObjectCopier.Clone<User>(userToGet);
+                    if (user != null)
+                    {
+                        user.SetReadingInvalidationKeys();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetUser for groupId: {0}, userId: {1}", groupId, userId), ex);
+            }
+
+            return user;
+        }
+
+        /*internal bool InsertUser(User user, int groupID)
         {
             bool isInsertSuccess = false;
             Random r = new Random();
@@ -166,8 +190,9 @@ namespace Core.Users
                 return false;
             }
         }
+        */
 
-        internal bool RemoveUser(int userID, int groupID)
+        /*internal bool RemoveUser(int userID, int groupID)
         {
             bool isRemoveSuccess = false;
             Random r = new Random();
@@ -218,6 +243,55 @@ namespace Core.Users
                 log.Error(string.Format("Failed removing user {0} from cache, ex = {1}", userID, ex.Message), ex);
                 return false;
             }
+        }
+        */
+
+        internal bool RemoveUser(int userId, int groupId)
+        {
+            bool res = false;
+            try
+            {
+                string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(userId.ToString());
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed removing user {0} from cache", userId);
+                    return res;
+                }
+
+                res = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed removing user {0} from cache, ex = {1}", userId, ex.Message), ex);
+            }
+
+            return res;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static Tuple<User, bool> GetUser(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            User user = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("userId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? userId = funcParams["userId"] as int?;
+                    user = new User();
+                    res = groupId.HasValue && userId.HasValue && user.Initialize(userId.Value, groupId.Value, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUser failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<User, bool>(user, res);
         }
 
         #endregion
