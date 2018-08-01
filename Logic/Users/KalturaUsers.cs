@@ -263,7 +263,9 @@ namespace Core.Users
                 FlowManager.AddDomain(ref userResponse, this, newUser, basicData.m_sUserName, nUserID, domainInfo, keyValueList);
             }
             else
+            {
                 userResponse.Initialize(ResponseStatus.OK, newUser);
+            }
 
             // add role to user
             if (userResponse.m_RespStatus == ResponseStatus.OK || userResponse.m_RespStatus == ResponseStatus.UserWithNoDomain)

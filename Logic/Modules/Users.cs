@@ -626,7 +626,7 @@ namespace Core.Users
 
             if (userResponseList != null)
             {
-                userResponseList = userResponseList.Select(x => x).Where(y => y.m_RespStatus != ResponseStatus.UserDoesNotExist).ToList();
+                userResponseList = userResponseList.Where(y => y.m_RespStatus != ResponseStatus.UserDoesNotExist).ToList();
             }
             return userResponseList;
         }
@@ -667,19 +667,18 @@ namespace Core.Users
         
         public static UserResponseObject AddNewUser(int nGroupID, UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword, string sAffiliateCode)
         {
+            UserResponseObject response = null;
             if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers t = null;
                 Utils.GetBaseImpl(ref t, nGroupID);
-                if (t != null)
-                {
-                    return t.AddNewUser(oBasicData, sDynamicData, sPassword);
-                }
-                else
+                if (t == null)
                 {
                     return null;
                 }
+
+                response = t.AddNewUser(oBasicData, sDynamicData, sPassword);
             }
             else
             {
@@ -688,15 +687,16 @@ namespace Core.Users
 
                 // get group ID + user type
                 Utils.GetBaseImpl(ref kUser, nGroupID);
-                if (kUser != null)
-                {
-                    return FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, new List<KeyValuePair>());
-                }
-                else
+                if (kUser == null)
                 {
                     return null;
                 }
+                
+                // TODO SHIR - EDIT
+                response = FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, new List<KeyValuePair>());
             }
+
+            return response;
         }
 
         
@@ -1674,7 +1674,7 @@ namespace Core.Users
         public static LongIdsResponse GetUserRoleIds(int nGroupID, string userId)
         {
             // add userId to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = userId != null ? userId : "null";
+            HttpContext.Current.Items[Constants.USER_ID] = userId ?? "null";
 
             LongIdsResponse response = new LongIdsResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1687,7 +1687,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static ApiObjects.Response.Status AddRoleToUser(int nGroupID, string userId, long roleId)
         {
@@ -1706,7 +1705,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static ApiObjects.Response.Status DeleteUser(int nGroupID, int userId)
         {

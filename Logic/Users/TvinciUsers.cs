@@ -727,7 +727,7 @@ namespace Core.Users
         public override UserResponseObject AddNewUser(string sBasicDataXML, string sDynamicDataXML, string sPassword)
         {
             UserBasicData b = new UserBasicData();
-            b.Initialize(sBasicDataXML);
+            b.Initialize(sBasicDataXML, null, m_nGroupID);
 
             bool bOk = Core.Users.Utils.SetPassword(sPassword, ref b, m_nGroupID);
             if (bOk == false)
@@ -767,9 +767,7 @@ namespace Core.Users
             return retVal;
 
         }
-
-
-
+        
         public override UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true)
         {
             try
@@ -871,12 +869,7 @@ namespace Core.Users
                                 string sFirstName = dtUserBasicData.DefaultView[i].Row["FIRST_NAME"].ToString();
                                 string sLastName = dtUserBasicData.DefaultView[i].Row["LAST_NAME"].ToString();
                                 string sEmail = dtUserBasicData.DefaultView[i].Row["EMAIL_ADD"].ToString();
-
                                 string sAddress = dtUserBasicData.DefaultView[i].Row["ADDRESS"].ToString();
-                                object oAffiliates = dtUserBasicData.DefaultView[i].Row["REG_AFF"];
-                                string sAffiliate = "";
-                                if (oAffiliates != null && oAffiliates != DBNull.Value)
-                                    sAffiliate = oAffiliates.ToString();
                                 string sCity = dtUserBasicData.DefaultView[i].Row["CITY"].ToString();
                                 Int32 nStateID = int.Parse(dtUserBasicData.DefaultView[i].Row["STATE_ID"].ToString());
                                 Int32 nCountryID = int.Parse(dtUserBasicData.DefaultView[i].Row["COUNTRY_ID"].ToString());
@@ -887,39 +880,47 @@ namespace Core.Users
                                 Int32 nFacebookImagePermitted = int.Parse(dtUserBasicData.DefaultView[i].Row["FACEBOOK_IMAGE_PERMITTED"].ToString());
                                 string sCoGuid = dtUserBasicData.DefaultView[i].Row["CoGuid"].ToString();
                                 string sExternalToken = dtUserBasicData.DefaultView[i].Row["ExternalToken"].ToString();
+                                string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["fb_token"]);
+                                string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["user_type_desc"]);
+                                bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(dtUserBasicData.DefaultView[i].Row, "is_default"));
+                                Int32 userId = int.Parse(dtUserBasicData.DefaultView[i].Row["ID"].ToString());
+                                object oAffiliates = dtUserBasicData.DefaultView[i].Row["REG_AFF"];
+                                DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["CREATE_DATE"]);
+                                DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["UPDATE_DATE"]);
+
+                                string sAffiliate = "";
+                                if (oAffiliates != null && oAffiliates != DBNull.Value)
+                                    sAffiliate = oAffiliates.ToString();
+
                                 bool bFacebookImagePermitted = false;
                                 if (nFacebookImagePermitted == 1)
                                     bFacebookImagePermitted = true;
+
                                 string sFacebookImage = "";
                                 if (oFacebookImage != null && oFacebookImage != DBNull.Value)
                                     sFacebookImage = oFacebookImage.ToString();
+
                                 string sFacebookID = "";
                                 if (oFacebookID != null && oFacebookID != DBNull.Value)
                                     sFacebookID = oFacebookID.ToString();
-
-
-                                string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["fb_token"]);
-
+                                
                                 int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[i].Row["user_type_id"]);
                                 if (nUserTypeID == 0)
                                 {
                                     nUserTypeID = null;
                                 }
-                                string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["user_type_desc"]);
-                                bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(dtUserBasicData.DefaultView[i].Row, "is_default"));
+                                
                                 UserType userType = new UserType(nUserTypeID, sUserType, isDefault);
 
                                 UserBasicData userBasicData = new UserBasicData();
 
-                                userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress,
-                                    sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, userType);
+                                userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, 
+                                                         sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, 
+                                                         userType, userId, m_nGroupID, createDate, updateDate);
 
                                 resp.Add(userBasicData);
                             }
-                            catch
-                            {
-
-                            }
+                            catch { }
                         }
                     }
                 }
@@ -1099,7 +1100,7 @@ namespace Core.Users
                 if (u.m_oBasicData.m_sUserName != "")
                 {
                     UserBasicData b = new UserBasicData();
-                    b.Initialize(sBasicDataXML);
+                    b.Initialize(sBasicDataXML, sSiteGUID, m_nGroupID);
                     UserDynamicData d = new UserDynamicData();
                     d.Initialize(sDynamicDataXML);
                     u.Update(b, d, m_nGroupID);

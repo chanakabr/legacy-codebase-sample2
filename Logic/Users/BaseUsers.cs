@@ -17,12 +17,55 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        #region Consts
+
         private const string ROLE_ALREADY_ASSIGNED_TO_USER_ERROR = "Role already assigned to user";
         private const string USER_ROLES_LAYERED_CACHE_CONFIG_NAME = "GetUserRoles";
 
         public const int PIN_NUMBER_OF_DIGITS = 10;
         public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
         public const int PIN_MAX_NUMBER_OF_DIGITS = 10;
+
+        #endregion
+
+        #region Data Members
+
+        protected Int32 m_nGroupID;
+        protected Int32 m_nActivationMustHours;
+        protected Int32 m_nTokenValidityHours;
+        protected Int32 m_nChangePinTokenValidityHours;
+
+        protected string m_sWelcomeMailTemplate;
+        protected string m_sWelcomeFacebookMailTemplate;
+        protected string m_sForgotPasswordMail;
+        protected string m_sChangePasswordMail;
+        protected string m_sChangedPinMail;
+        protected string m_sActivationMail;
+        protected string m_sMailFromName;
+        protected string m_sMailFromAdd;
+        protected string m_sMailServer;
+        protected string m_sMailServerUN;
+        protected string m_sMailServerPass;
+        protected string m_sWelcomeMailSubject;
+        protected string m_sWelcomeFacebookMailSubject;
+        protected string m_sForgotPassMailSubject;
+        protected string m_sChangePassMailSubject;
+        protected string m_sChangedPinMailSubject;
+        protected string m_sSendPasswordMailTemplate;
+        protected string m_sSendPasswordMailSubject;
+
+        protected int m_sMailSSL = 0;
+        protected int m_sMailPort = 0;
+
+        //static protected bool m_bIsInitialized;
+        protected bool? m_bIsActivationNeeded; // Visibility reduced && type changed to nullable bool
+        //due to MCORP-1685. Use IsActivationNeeded declared in this abstract class in order to access it
+
+        protected BaseNewsLetterImpl m_newsLetterImpl;
+
+        protected BaseMailImpl m_mailImpl;
+
+        #endregion
 
         protected BaseUsers() { }
         protected BaseUsers(Int32 nGroupID)
@@ -33,14 +76,14 @@ namespace Core.Users
             Initialize();
         }
 
+        #region Abstract Methods
+
         ////Domain
         //public abstract Domain AddDomain(string domainName, string domainDescription, Int32 masterUserGuid, Int32 nGroupID);
         //public abstract Domain SetDomainInfo(Int32 domainID, string domainName, Int32 nGroupID, string domainDescription);
         public abstract Domain AddUserToDomain(Int32 nGroupID, Int32 domainID, Int32 userGuid, bool isMaster);
         //public abstract Domain RemoveUserFromDomain(Int32 nGroupID, Int32 domainID, Int32 userGUID);
         //public abstract Domain GetDomainInfo(Int32 domainID, Int32 nGroupID);
-
-
         public abstract UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins);
         public abstract UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
         public abstract UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
@@ -65,6 +108,59 @@ namespace Core.Users
         public abstract ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId);
         public abstract UserResponse GetUserByExternalID(string externalID, int operatorID);
         public abstract UserResponse GetUserByName(string userName, int groupId);
+        public abstract UserResponseObject CheckToken(string sToken);
+        public abstract bool ResendWelcomeMail(string sUN);
+        public abstract bool ResendActivationMail(string sUN);
+        public abstract UserResponseObject RenewPassword(string sUN, string sPass, int nGroupID);
+        public abstract UserResponseObject ActivateAccount(string sUN, string sToken);
+        public abstract UserResponseObject ActivateAccountByDomainMaster(string sMasterUN, string sUN, string sToken);
+        public abstract bool IsUserActivated(ref string sUserName, ref Int32 nUserID);
+        public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
+        public abstract bool SendPasswordMail(string sUN);
+        public abstract void Initialize();
+        public abstract UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
+        public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
+        public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
+        public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
+        public abstract UserResponseObject ForgotPassword(string sUN);
+        public abstract UserResponseObject ChangePassword(string sUN);
+        public abstract ResponseStatus SendChangedPinMail(string sSiteGuid, int nRuleID);
+        public abstract string GetUserToken(string sSiteGUID, Int32 nGroupID);
+        public abstract void Hit(string sSiteGUID);
+        public abstract void Logout(string sSiteGUID);
+        public abstract ApiObjects.Response.Status ResendActivationToken(string username);
+
+        #endregion
+
+        #region Offline user Media Asset
+
+        /// <summary>
+        /// Get usesr all offline items
+        /// </summary>
+        /// <returns></returns>
+        public abstract UserOfflineObject[] GetUserOfflineMedia(Int32 nGroupID, string sSiteGuid);
+        /// <summary>
+        /// Get usesr offline items
+        /// </summary>
+        /// <returns></returns>
+        //public abstract UserOfflineObject[] GetUserOfflineItemsByFileType(Int32 nGroupID, string sSiteGuid, string sFileType);
+        /// <summary>
+        /// Add user offline items
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool AddUserOfflineItems(Int32 nGroupID, string sSiteGuid, string sMediaID);
+        /// <summary>
+        /// Remove user offline items
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool RemoveUserOfflineItems(Int32 nGroupID, string sSiteGuid, string sMediaID);
+        /// <summary>
+        /// Clear user off line items
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool ClearUserOfflineItems(Int32 nGroupID, string sSiteGuid);
+
+        #endregion
 
         public virtual bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {
@@ -160,8 +256,7 @@ namespace Core.Users
 
             return true;
         }
-
-
+        
         private bool WriteFavoriteToES(ApiObjects.Statistics.MediaView oMediaView)
         {
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
@@ -314,17 +409,7 @@ namespace Core.Users
 
             return ret;
         }
-
-        public abstract UserResponseObject CheckToken(string sToken);
-        public abstract bool ResendWelcomeMail(string sUN);
-        public abstract bool ResendActivationMail(string sUN);
-        public abstract UserResponseObject RenewPassword(string sUN, string sPass, int nGroupID);
-        public abstract UserResponseObject ActivateAccount(string sUN, string sToken);
-        public abstract UserResponseObject ActivateAccountByDomainMaster(string sMasterUN, string sUN, string sToken);
-        public abstract bool IsUserActivated(ref string sUserName, ref Int32 nUserID);
-        public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
-        public abstract bool SendPasswordMail(string sUN);
-
+        
         public virtual ApiObjects.Response.Status IsUserActivated(Int32 userID)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
@@ -364,82 +449,7 @@ namespace Core.Users
             }
             return response;
         }
-
-        public abstract void Initialize();
-        public abstract UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
-        public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
-        public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
-        public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
-        public abstract UserResponseObject ForgotPassword(string sUN);
-        public abstract UserResponseObject ChangePassword(string sUN);
-        public abstract ResponseStatus SendChangedPinMail(string sSiteGuid, int nRuleID);
-        public abstract string GetUserToken(string sSiteGUID, Int32 nGroupID);
-        public abstract void Hit(string sSiteGUID);
-        public abstract void Logout(string sSiteGUID);
-
-        protected Int32 m_nGroupID;
-        protected Int32 m_nActivationMustHours;
-        protected Int32 m_nTokenValidityHours;
-        protected Int32 m_nChangePinTokenValidityHours;
-
-        protected string m_sWelcomeMailTemplate;
-        protected string m_sWelcomeFacebookMailTemplate;
-        protected string m_sForgotPasswordMail;
-        protected string m_sChangePasswordMail;
-        protected string m_sChangedPinMail;
-        protected string m_sActivationMail;
-        protected string m_sMailFromName;
-        protected string m_sMailFromAdd;
-        protected string m_sMailServer;
-        protected string m_sMailServerUN;
-        protected string m_sMailServerPass;
-        protected string m_sWelcomeMailSubject;
-        protected string m_sWelcomeFacebookMailSubject;
-        protected string m_sForgotPassMailSubject;
-        protected string m_sChangePassMailSubject;
-        protected string m_sChangedPinMailSubject;
-        protected string m_sSendPasswordMailTemplate;
-        protected string m_sSendPasswordMailSubject;
-
-        protected int m_sMailSSL = 0;
-        protected int m_sMailPort = 0;
-
-        //static protected bool m_bIsInitialized;
-        protected bool? m_bIsActivationNeeded; // Visibility reduced && type changed to nullable bool
-        //due to MCORP-1685. Use IsActivationNeeded declared in this abstract class in order to access it
-
-        protected BaseNewsLetterImpl m_newsLetterImpl;
-
-        protected BaseMailImpl m_mailImpl;
-
-        #region Offline user Media Asset
-        /// <summary>
-        /// Get usesr all offline items
-        /// </summary>
-        /// <returns></returns>
-        public abstract UserOfflineObject[] GetUserOfflineMedia(Int32 nGroupID, string sSiteGuid);
-        /// <summary>
-        /// Get usesr offline items
-        /// </summary>
-        /// <returns></returns>
-        //public abstract UserOfflineObject[] GetUserOfflineItemsByFileType(Int32 nGroupID, string sSiteGuid, string sFileType);
-        /// <summary>
-        /// Add user offline items
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool AddUserOfflineItems(Int32 nGroupID, string sSiteGuid, string sMediaID);
-        /// <summary>
-        /// Remove user offline items
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool RemoveUserOfflineItems(Int32 nGroupID, string sSiteGuid, string sMediaID);
-        /// <summary>
-        /// Clear user off line items
-        /// </summary>
-        /// <returns></returns>
-        public abstract bool ClearUserOfflineItems(Int32 nGroupID, string sSiteGuid);
-        #endregion
-
+       
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
 
@@ -542,8 +552,7 @@ namespace Core.Users
 
             return true;
         }
-
-
+        
         private List<UserType> GetUserTypesList(DataTable dtUserTypes)
         {
             List<UserType> userTypesList = new List<UserType>();
@@ -561,8 +570,7 @@ namespace Core.Users
             }
             return userTypesList;
         }
-
-
+        
         public virtual UserType[] GetGroupUserTypes(Int32 nGroupID)
         {
             List<UserType> userTypesList;
@@ -578,8 +586,11 @@ namespace Core.Users
             return userTypesList.ToArray();
         }
 
-
-        // if no UserBasicData object is present send null instead
+        /// <summary>
+        /// if no UserBasicData object is present send null instead
+        /// </summary>
+        /// <param name="oBasicData"></param>
+        /// <returns></returns>
         public virtual bool IsActivationNeeded(UserBasicData oBasicData)
         {
             if (!m_bIsActivationNeeded.HasValue)
@@ -868,8 +879,12 @@ namespace Core.Users
             }
         }
 
-
-        /*Return for each item true/false if it exists in the list of the user  */
+        /// <summary>
+        /// Return for each item true/false if it exists in the list of the user
+        /// </summary>
+        /// <param name="userItemList"></param>
+        /// <param name="nGroupID"></param>
+        /// <returns></returns>
         public List<ApiObjects.KeyValuePair> IsItemExistsInList(UserItemList userItemList, int nGroupID)
         {
             try
@@ -1001,10 +1016,7 @@ namespace Core.Users
             }
             return response;
         }
-
-
-
-
+        
         private static IEnumerable<int> Digits(bool first)
         {
             int firstNumber = first ? 1 : 0;
@@ -1122,12 +1134,13 @@ namespace Core.Users
             }
             return isUserValid;
         }
-
-        /*
-         * Get: groupID , PIN , secret
-         * return UserResponse
-         * login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN
-         */
+        
+        /// <summary>
+        /// login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN 
+        /// </summary>
+        /// <param name="PIN"></param>
+        /// <param name="secret"></param>
+        /// <returns>UserResponse</returns>
         public UserResponse ValidateLoginWithPin(string PIN, string secret)
         {
             UserResponse response = new UserResponse();
@@ -1429,9 +1442,7 @@ namespace Core.Users
             }
             return response;
         }
-
-        public abstract ApiObjects.Response.Status ResendActivationToken(string username);
-
+        
         public UsersListItemResponse AddItemToUsersList(int itemId, ListType listType, ListItemType itemType, int order, string userId, int groupId)
         {
             UsersListItemResponse response = new UsersListItemResponse()

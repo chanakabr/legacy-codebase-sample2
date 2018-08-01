@@ -593,9 +593,8 @@ namespace Core.Users
                 {
                     this.Insert();
                 }
-                else
-                    // Existing user - Remove & Update from cache
-                    if (int.TryParse(m_sSiteGUID, out this.userId))
+                // Existing user - Remove & Update from cache
+                else if (int.TryParse(m_sSiteGUID, out this.userId))
                 {
                     this.Update();
                 }
@@ -641,9 +640,16 @@ namespace Core.Users
 
                 // add user role
                 long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue; 
-                if (roleId > 0)
+                if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
                 {
-                    DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true);
+                    m_oBasicData.RoleIds.Add(roleId);
+                }
+
+                // TODO SHIR  - SET ROLES
+                if (m_oBasicData.RoleIds.Count > 0)
+                {
+                    UsersDal.InsertUserRoleIds(this.GroupId, m_sSiteGUID, m_oBasicData.RoleIds);
+
                 }
                 else
                 {
