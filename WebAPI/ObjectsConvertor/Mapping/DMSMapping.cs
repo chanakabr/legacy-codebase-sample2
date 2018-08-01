@@ -16,51 +16,51 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             // from dms to local
             cfg.CreateMap<DMSGroupConfiguration, KalturaConfigurationGroup>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigurationIdentifiers, opt => opt.MapFrom(src => src.ConfigFileIds))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.NumberOfDevices, opt => opt.ResolveUsing(src => src.NumberOfDevices))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.ConfigurationIdentifiers, opt => opt.ResolveUsing(src => src.ConfigFileIds))
+                .ForMember(dest => dest.Tags, opt => opt.ResolveUsing(src => src.Tags));
 
             // from local to dms  
             cfg.CreateMap<KalturaConfigurationGroup, DMSGroupConfiguration>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigurationIdentifiers))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.NumberOfDevices, opt => opt.ResolveUsing(src => src.NumberOfDevices))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.ConfigFileIds, opt => opt.ResolveUsing(src => src.ConfigurationIdentifiers))
+                .ForMember(dest => dest.Tags, opt => opt.ResolveUsing(src => src.Tags));
 
             // from DMSConfigurationMin to KalturaConfigurationMin
             cfg.CreateMap<DMSConfigurationMin, KalturaConfigurationIdentifier>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             // from local to dms  
             cfg.CreateMap<KalturaConfigurationIdentifier, DMSConfigurationMin>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             // from dms to local
             cfg.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()
-                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.ResolveUsing(src => src.GroupId))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.Tag, opt => opt.ResolveUsing(src => src.Tag));
 
             // from local to dms  
             cfg.CreateMap<KalturaConfigurationGroupTag, DMSTagMapping>()
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
+                .ForMember(dest => dest.GroupId, opt => opt.ResolveUsing(src => src.ConfigurationGroupId))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.Tag, opt => opt.ResolveUsing(src => src.Tag));
 
             // from dms to local
             cfg.CreateMap<DMSDeviceMapping, KalturaConfigurationGroupDevice>()
-                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.ResolveUsing(src => src.GroupId))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.Udid, opt => opt.ResolveUsing(src => src.Udid));
 
             cfg.CreateMap<BaseReport, KalturaReport>()
                 .Include<DMSDevice, KalturaDeviceReport>()
@@ -68,46 +68,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // from dms to local
             cfg.CreateMap<DMSDevice, KalturaDeviceReport>()
-                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
-                .ForMember(dest => dest.LastAccessIP, opt => opt.MapFrom(src => src.LastAccessIP))
-                .ForMember(dest => dest.OperationSystem, opt => opt.MapFrom(src => src.OperationSystem))
-                .ForMember(dest => dest.PushParameters, opt => opt.MapFrom(src => src.PushParameters))
-                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
-                .ForMember(dest => dest.UserAgent, opt => opt.MapFrom(src => src.UserAgent))
-                .ForMember(dest => dest.VersionAppName, opt => opt.MapFrom(src => src.VersionAppName))
-                .ForMember(dest => dest.VersionNumber, opt => opt.MapFrom(src => src.VersionNumber))
-                .ForMember(dest => dest.VersionPlatform, opt => opt.MapFrom(src => ConvertPlatform(src.VersionPlatform)));
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.ResolveUsing(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.GroupId))
+                .ForMember(dest => dest.LastAccessDate, opt => opt.ResolveUsing(src => src.LastAccessDate))
+                .ForMember(dest => dest.LastAccessIP, opt => opt.ResolveUsing(src => src.LastAccessIP))
+                .ForMember(dest => dest.OperationSystem, opt => opt.ResolveUsing(src => src.OperationSystem))
+                .ForMember(dest => dest.PushParameters, opt => opt.ResolveUsing(src => src.PushParameters))
+                .ForMember(dest => dest.Udid, opt => opt.ResolveUsing(src => src.Udid))
+                .ForMember(dest => dest.UserAgent, opt => opt.ResolveUsing(src => src.UserAgent))
+                .ForMember(dest => dest.VersionAppName, opt => opt.ResolveUsing(src => src.VersionAppName))
+                .ForMember(dest => dest.VersionNumber, opt => opt.ResolveUsing(src => src.VersionNumber))
+                .ForMember(dest => dest.VersionPlatform, opt => opt.ResolveUsing(src => ConvertPlatform(src.VersionPlatform)));
 
             // from dms to local
             cfg.CreateMap<DMSPushParams, KalturaPushParams>()
-                .ForMember(dest => dest.ExternalToken, opt => opt.MapFrom(src => src.ExternalToken))
-                .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
+                .ForMember(dest => dest.ExternalToken, opt => opt.ResolveUsing(src => src.ExternalToken))
+                .ForMember(dest => dest.Token, opt => opt.ResolveUsing(src => src.Token));
 
             // from dms to local
             cfg.CreateMap<DMSAppVersion, KalturaConfigurations>()
-                .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
-                .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
-                .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
-                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
-                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.AppName, opt => opt.ResolveUsing(src => src.AppName))
+                .ForMember(dest => dest.ClientVersion, opt => opt.ResolveUsing(src => src.ClientVersion))
+                .ForMember(dest => dest.IsForceUpdate, opt => opt.ResolveUsing(src => src.IsForceUpdate))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.GroupId))
+                .ForMember(dest => dest.ExternalPushId, opt => opt.ResolveUsing(src => src.ExternalPushId))
+                .ForMember(dest => dest.Content, opt => opt.ResolveUsing(src => ConvertToContent(src.Params)))
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.ResolveUsing(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id));
 
             // from local to dms 
             cfg.CreateMap<KalturaConfigurations, DMSAppVersion>()
-                .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
-                .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
-                .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
-                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.AppName, opt => opt.ResolveUsing(src => src.AppName))
+                .ForMember(dest => dest.ClientVersion, opt => opt.ResolveUsing(src => src.ClientVersion))
+                .ForMember(dest => dest.IsForceUpdate, opt => opt.ResolveUsing(src => src.IsForceUpdate))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.GroupId, opt => opt.ResolveUsing(src => src.PartnerId))
+                .ForMember(dest => dest.ExternalPushId, opt => opt.ResolveUsing(src => src.ExternalPushId))
+                .ForMember(dest => dest.Params, opt => opt.ResolveUsing(src => ConvertToParms(src.Content)))
+                .ForMember(dest => dest.GroupConfigurationId, opt => opt.ResolveUsing(src => src.ConfigurationGroupId))
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id));
         }
 
         private static Dictionary<string, object> ConvertToParms(string data)

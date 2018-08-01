@@ -25,73 +25,73 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             // FacebookResponse to ClientFacebookResponse
             cfg.CreateMap<FacebookResponseObject, KalturaFacebookSocial>()
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.fbUser.id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.fbUser.name))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.fbUser.first_name))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.fbUser.last_name))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.fbUser.email))
-                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.fbUser.gender))
-                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.fbUser.Birthday))
-                .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom(src => src.pic))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
+                .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.fbUser.id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.fbUser.name))
+                .ForMember(dest => dest.FirstName, opt => opt.ResolveUsing(src => src.fbUser.first_name))
+                .ForMember(dest => dest.LastName, opt => opt.ResolveUsing(src => src.fbUser.last_name))
+                .ForMember(dest => dest.Email, opt => opt.ResolveUsing(src => src.fbUser.email))
+                .ForMember(dest => dest.Gender, opt => opt.ResolveUsing(src => src.fbUser.gender))
+                .ForMember(dest => dest.Birthday, opt => opt.ResolveUsing(src => src.fbUser.Birthday))
+                .ForMember(dest => dest.PictureUrl, opt => opt.ResolveUsing(src => src.pic))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.status))
+                .ForMember(dest => dest.UserId, opt => opt.ResolveUsing(src => src.siteGuid));
 
             cfg.CreateMap<FacebookResponseObject, KalturaSocialResponse>()
-                .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.data))
-                .ForMember(dest => dest.SocialNetworkUsername, opt => opt.MapFrom(src => src.facebookName))
-                .ForMember(dest => dest.SocialUser, opt => opt.MapFrom(src => src.fbUser))
-                .ForMember(dest => dest.KalturaName, opt => opt.MapFrom(src => src.tvinciName))
-                .ForMember(dest => dest.MinFriends, opt => opt.MapFrom(src => src.minFriends))
-                .ForMember(dest => dest.Pic, opt => opt.MapFrom(src => src.pic))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status))
-                .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.token))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
+                .ForMember(dest => dest.Data, opt => opt.ResolveUsing(src => src.data))
+                .ForMember(dest => dest.SocialNetworkUsername, opt => opt.ResolveUsing(src => src.facebookName))
+                .ForMember(dest => dest.SocialUser, opt => opt.ResolveUsing(src => src.fbUser))
+                .ForMember(dest => dest.KalturaName, opt => opt.ResolveUsing(src => src.tvinciName))
+                .ForMember(dest => dest.MinFriends, opt => opt.ResolveUsing(src => src.minFriends))
+                .ForMember(dest => dest.Pic, opt => opt.ResolveUsing(src => src.pic))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.status))
+                .ForMember(dest => dest.Token, opt => opt.ResolveUsing(src => src.token))
+                .ForMember(dest => dest.UserId, opt => opt.ResolveUsing(src => src.siteGuid));
 
             // FBUser to FacebookUser
             cfg.CreateMap<FBUser, KalturaSocialUser>()
-                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.email))
-                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.first_name))
-                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.gender))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.last_name))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid));
+                .ForMember(dest => dest.Birthday, opt => opt.ResolveUsing(src => src.Birthday))
+                .ForMember(dest => dest.Email, opt => opt.ResolveUsing(src => src.email))
+                .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.id))
+                .ForMember(dest => dest.FirstName, opt => opt.ResolveUsing(src => src.first_name))
+                .ForMember(dest => dest.Gender, opt => opt.ResolveUsing(src => src.gender))
+                .ForMember(dest => dest.LastName, opt => opt.ResolveUsing(src => src.last_name))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.name))
+                .ForMember(dest => dest.UserId, opt => opt.ResolveUsing(src => src.m_sSiteGuid));
 
             // Country
             cfg.CreateMap<Core.Users.Country, KalturaCountry>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.m_nObjecrtID))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.m_sCountryName))
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.m_sCountryCode));
 
             //// UserBasicData
             //cfg.CreateMap<UserBasicData, KalturaUserBasicData>()
-            //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
-            //    .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
-            //    .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
-            //    .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_Country))
-            //    .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.m_sEmail))
-            //    .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_CoGuid))
-            //    .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_sFacebookID))
-            //    .ForMember(dest => dest.FacebookImage, opt => opt.MapFrom(src => src.m_bIsFacebookImagePermitted ? src.m_sFacebookImage : null))
-            //    .ForMember(dest => dest.FacebookToken, opt => opt.MapFrom(src => src.m_sFacebookToken))
-            //    .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_sFirstName))
-            //    .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_sLastName))
-            //    .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_sPhone))
-            //    .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_sUserName))
-            //    .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_UserType))
-            //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
+            //    .ForMember(dest => dest.Address, opt => opt.ResolveUsing(src => src.m_sAddress))
+            //    .ForMember(dest => dest.AffiliateCode, opt => opt.ResolveUsing(src => src.m_sAffiliateCode))
+            //    .ForMember(dest => dest.City, opt => opt.ResolveUsing(src => src.m_sCity))
+            //    .ForMember(dest => dest.Country, opt => opt.ResolveUsing(src => src.m_Country))
+            //    .ForMember(dest => dest.Email, opt => opt.ResolveUsing(src => src.m_sEmail))
+            //    .ForMember(dest => dest.ExternalId, opt => opt.ResolveUsing(src => src.m_CoGuid))
+            //    .ForMember(dest => dest.FacebookId, opt => opt.ResolveUsing(src => src.m_sFacebookID))
+            //    .ForMember(dest => dest.FacebookImage, opt => opt.ResolveUsing(src => src.m_bIsFacebookImagePermitted ? src.m_sFacebookImage : null))
+            //    .ForMember(dest => dest.FacebookToken, opt => opt.ResolveUsing(src => src.m_sFacebookToken))
+            //    .ForMember(dest => dest.FirstName, opt => opt.ResolveUsing(src => src.m_sFirstName))
+            //    .ForMember(dest => dest.LastName, opt => opt.ResolveUsing(src => src.m_sLastName))
+            //    .ForMember(dest => dest.Phone, opt => opt.ResolveUsing(src => src.m_sPhone))
+            //    .ForMember(dest => dest.Username, opt => opt.ResolveUsing(src => src.m_sUserName))
+            //    .ForMember(dest => dest.UserType, opt => opt.ResolveUsing(src => src.m_UserType))
+            //    .ForMember(dest => dest.Zip, opt => opt.ResolveUsing(src => src.m_sZip));
 
             // FacebookConfig to KalturaFacebookConfig
             cfg.CreateMap<FacebookConfig, KalturaSocialFacebookConfig>()
-                .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
-                .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
+                .ForMember(dest => dest.AppId, opt => opt.ResolveUsing(src => src.sFBKey))
+                .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => src.sFBPermissions));
 
             // SocialActivityDoc to KalturaSocialFriendActivity
             cfg.CreateMap<SocialActivityDoc, KalturaSocialFriendActivity>()
-                .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.ActivitySubject.ActorTvinciUsername))
-                .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
+                .ForMember(dest => dest.SocialAction, opt => opt.ResolveUsing(src => src))
+                .ForMember(dest => dest.UserFullName, opt => opt.ResolveUsing(src => src.ActivitySubject.ActorTvinciUsername))
+                .ForMember(dest => dest.UserPictureUrl, opt => opt.ResolveUsing(src => src.ActivitySubject.ActorPicUrl));
 
             // SocialActivityDoc to KalturaSocialAction
             cfg.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
@@ -101,32 +101,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // SocialFeedItem to KalturaTwitterTwit
             cfg.CreateMap<SocialFeedItem, KalturaTwitterTwit>()
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
-                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.ResolveUsing(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.ResolveUsing(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.ResolveUsing(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.ResolveUsing(src => src.PopularityCounter))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.ResolveUsing(src => src.CreatorImageUrl));
 
             // SocialFeedItem to KalturaFacebookPost
             cfg.CreateMap<SocialFeedItem, KalturaFacebookPost>()
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
-                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
-                .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.FeedItemLink))
-                .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
+                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.ResolveUsing(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.ResolveUsing(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.ResolveUsing(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.ResolveUsing(src => src.PopularityCounter))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.ResolveUsing(src => src.CreatorImageUrl))
+                .ForMember(dest => dest.Link, opt => opt.ResolveUsing(src => src.FeedItemLink))
+                .ForMember(dest => dest.Comments, opt => opt.ResolveUsing(src => src.Comments));
 
             // SocialFeedItemComment to KalturaSocialNetworkComment
             cfg.CreateMap<SocialFeedItemComment, KalturaSocialNetworkComment>()
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
-                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.ResolveUsing(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.ResolveUsing(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.ResolveUsing(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.ResolveUsing(src => src.PopularityCounter))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.ResolveUsing(src => src.CreatorImageUrl));
 
             cfg.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialPrivacySettings>().ConstructUsing(ConvertSocialNetwork);
 
@@ -136,72 +136,72 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
 
             cfg.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)));
+                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.AssetID))
+                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.Action)));
 
             cfg.CreateMap<KalturaSocialAction ,ApiObjects.Social.UserSocialActionRequest>()
-                 .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)))
-                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertWatchParams(src.Url))); ;
+                 .ForMember(dest => dest.AssetID, opt => opt.ResolveUsing(src => src.AssetId))
+                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)))
+                 .ForMember(dest => dest.ExtraParams, opt => opt.ResolveUsing(src => ConvertWatchParams(src.Url))); ;
 
 
             cfg.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionRate>()
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
-                  .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.ExtraParams)));
+                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.AssetID))
+                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.Action)))
+                  .ForMember(dest => dest.Rate, opt => opt.ResolveUsing(src => ConvertRateParams(src.ExtraParams)));
 
             cfg.CreateMap<KalturaSocialActionRate, ApiObjects.Social.UserSocialActionRequest>()
-                 .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)))
-                  .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertRateParams(src.Rate)));
+                 .ForMember(dest => dest.AssetID, opt => opt.ResolveUsing(src => src.AssetId))
+                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)))
+                  .ForMember(dest => dest.ExtraParams, opt => opt.ResolveUsing(src => ConvertRateParams(src.Rate)));
 
 
             cfg.CreateMap<UserSocialActionResponse, KalturaSocialAction>()
-                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
-                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
-                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
-                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ConvertWatchParams(src.UserAction.ExtraParams)))
+                .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.UserAction.AssetID))
+                .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.UserAction.AssetType)))
+                .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.UserAction.Action)))
+                .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => ConvertWatchParams(src.UserAction.ExtraParams)))
                 ;
 
             cfg.CreateMap<UserSocialActionResponse, KalturaSocialActionRate>()
-               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
-               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
-               .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
-               .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.UserAction.ExtraParams)))
+               .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.UserAction.AssetID))
+               .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.UserAction.AssetType)))
+               .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.UserAction.Action)))
+               .ForMember(dest => dest.Rate, opt => opt.ResolveUsing(src => ConvertRateParams(src.UserAction.ExtraParams)))
                ;
 
             //cfg.CreateMap<UserSocialActionResponse, KalturaSocialActionWatch>()
-            //             .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
-            //   .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
-            //   .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
-            //   .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ConvertWatchParams(src.UserAction.ExtraParams)))
+            //             .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.UserAction.AssetID))
+            //   .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.UserAction.AssetType)))
+            //   .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.UserAction.Action)))
+            //   .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => ConvertWatchParams(src.UserAction.ExtraParams)))
             //   ;
 
             //cfg.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionWatch>()
-            //    .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
-            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))            
-            //    .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-            //    .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
-            //    .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ConvertWatchParams(src.ExtraParams)));
+            //    .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.AssetID))
+            //    .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))            
+            //    .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+            //    .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.Action)))
+            //    .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => ConvertWatchParams(src.ExtraParams)));
 
 
             //cfg.CreateMap<KalturaSocialActionWatch, ApiObjects.Social.UserSocialActionRequest>()
-            //   .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
-            //   .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-            //   .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)))
-            //    .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertWatchParams(src.Url)));
+            //   .ForMember(dest => dest.AssetID, opt => opt.ResolveUsing(src => src.AssetId))
+            //   .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+            //   .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)))
+            //    .ForMember(dest => dest.ExtraParams, opt => opt.ResolveUsing(src => ConvertWatchParams(src.Url)));
 
             cfg.CreateMap<ApiObjects.Social.UserSocialActionResponse, KalturaUserSocialActionResponse>().ConstructUsing(ConvertSocialActionResponse);
 
             cfg.CreateMap<KalturaSocialAction, UserSocialActionQueryRequest>()                
-                 .ForMember(dest => dest.m_eAssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.m_eUserActions, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)));
+                 .ForMember(dest => dest.m_eAssetType, opt => opt.ResolveUsing(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.m_eUserActions, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)));
             
         }
 

@@ -27,26 +27,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             //Language 
             cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
-                .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.Code))
+                .ForMember(dest => dest.Direction, opt => opt.ResolveUsing(src => src.Direction))
+                .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.IsDefault));
 
             //KalturaLanguage
             cfg.CreateMap<LanguageObj, KalturaLanguage>()
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
-                .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
-                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.Code))
+                .ForMember(dest => dest.Direction, opt => opt.ResolveUsing(src => src.Direction))
+                .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
+                .ForMember(dest => dest.SystemName, opt => opt.ResolveUsing(src => src.Name));
 
             //KalturaCurrency
             cfg.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
-                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.m_sCurrencyCD2))
+                .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.m_bIsDefault))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.m_sCurrencyName))
+                .ForMember(dest => dest.Sign, opt => opt.ResolveUsing(src => src.m_sCurrencySign));
 
             //AssetType to Catalog.StatsType
             cfg.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);
@@ -55,174 +55,174 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // ParentalRule to KalturaParentalRule
             cfg.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
-                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
-                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType.Value)));
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.ResolveUsing(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.description, opt => opt.ResolveUsing(src => src.description))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.ResolveUsing(src => src.epgTagTypeId))
+                .ForMember(dest => dest.epgTagValues, opt => opt.ResolveUsing(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.id, opt => opt.ResolveUsing(src => src.id))
+                .ForMember(dest => dest.isDefault, opt => opt.ResolveUsing(src => src.isDefault))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.ResolveUsing(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.ResolveUsing(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.name, opt => opt.ResolveUsing(src => src.name))
+                .ForMember(dest => dest.order, opt => opt.ResolveUsing(src => src.order))
+                .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.isActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.ResolveUsing(src => src.UpdateDate))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)));
 
             // KalturaParentalRule to ParentalRule
             cfg.CreateMap<KalturaParentalRule, ParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
-                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
-                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => x.value).ToList()))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)))
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.ResolveUsing(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.description, opt => opt.ResolveUsing(src => src.description))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.ResolveUsing(src => src.epgTagTypeId))
+                .ForMember(dest => dest.epgTagValues, opt => opt.ResolveUsing(src => src.epgTagValues.Select(x => x.value).ToList()))
+                .ForMember(dest => dest.isDefault, opt => opt.ResolveUsing(src => src.isDefault))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.ResolveUsing(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.ResolveUsing(src => src.mediaTagValues.Select(x => x.value).ToList()))
+                .ForMember(dest => dest.name, opt => opt.ResolveUsing(src => src.name))
+                .ForMember(dest => dest.order, opt => opt.ResolveUsing(src => src.order))
+                .ForMember(dest => dest.isActive, opt => opt.ResolveUsing(src => src.IsActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.ResolveUsing(src => src.UpdateDate))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType)))
                 .ForMember(dest => dest.id, opt => opt.Ignore())
                 .ForMember(dest => dest.level, opt => opt.Ignore());
 
             // PinResponse
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
+                .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.ResolveUsing(src => src.pin))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaPinType.parental));
 
             // Pin
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPin>()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
+                .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.ResolveUsing(src => src.pin))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaPinType.parental));
 
             // Purchase Settings
             cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.Permission, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
+                .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.ResolveUsing(src => src.pin))
+                .ForMember(dest => dest.Permission, opt => opt.ResolveUsing(src => ConvertPurchaseSetting(src.type)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaPinType.purchase));
 
             // Purchase Settings Response
             cfg.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
+                .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.ResolveUsing(src => src.pin))
+                .ForMember(dest => dest.PurchaseSettingsType, opt => opt.ResolveUsing(src => ConvertPurchaseSetting(src.type)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaPinType.purchase));
 
             cfg.CreateMap<GenericRule, WebAPI.Models.API.KalturaGenericRule>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+                .ForMember(dest => dest.RuleType, opt => opt.ResolveUsing(src => ConvertRuleType(src.RuleType)));
 
             //KalturaUserAssetRule
             cfg.CreateMap<GenericRule, KalturaUserAssetRule>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+                .ForMember(dest => dest.RuleType, opt => opt.ResolveUsing(src => ConvertRuleType(src.RuleType)));
             #endregion
 
             #region OSS Adapter
 
             cfg.CreateMap<WebAPI.Models.API.KalturaOSSAdapterProfile, OSSAdapter>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
-               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+               .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.ResolveUsing(src => src.Settings == null))
+               .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertOSSAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier));
 
             cfg.CreateMap<OSSAdapter, WebAPI.Models.API.KalturaOSSAdapterProfile>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
-              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertOSSAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier));
 
             cfg.CreateMap<OSSAdapterBase, WebAPI.Models.API.KalturaOSSAdapterBaseProfile>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             cfg.CreateMap<OSSAdapterResponse, WebAPI.Models.API.KalturaOSSAdapterProfile>()
-             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.OSSAdapter.AdapterUrl))
-             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.OSSAdapter.ExternalIdentifier))
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OSSAdapter.ID))
-             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.OSSAdapter.IsActive))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OSSAdapter.Name))
-             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.OSSAdapter.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
+             .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.OSSAdapter.AdapterUrl))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.OSSAdapter.ExternalIdentifier))
+             .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.OSSAdapter.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.OSSAdapter.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.OSSAdapter.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.OSSAdapter.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertOSSAdapterSettings(src.OSSAdapter.Settings)));
 
             #endregion
 
             #region Recommendation Engine
 
             cfg.CreateMap<WebAPI.Models.API.KalturaRecommendationProfile, RecommendationEngine>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
-               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+               .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.ResolveUsing(src => src.Settings == null))
+               .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertRecommendationEngineSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier));
 
             cfg.CreateMap<RecommendationEngine, WebAPI.Models.API.KalturaRecommendationProfile>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
-              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertRecommendationEngineSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier));
 
             cfg.CreateMap<RecommendationEngineResponse, WebAPI.Models.API.KalturaRecommendationProfile>()
-             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.RecommendationEngine.AdapterUrl))
-             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.RecommendationEngine.ExternalIdentifier))
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecommendationEngine.ID))
-             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.RecommendationEngine.IsActive))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RecommendationEngine.Name))
-             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.RecommendationEngine.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.RecommendationEngine.Settings)));
+             .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.RecommendationEngine.AdapterUrl))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.RecommendationEngine.ExternalIdentifier))
+             .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.RecommendationEngine.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.RecommendationEngine.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.RecommendationEngine.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.RecommendationEngine.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertRecommendationEngineSettings(src.RecommendationEngine.Settings)));
 
             #endregion
 
             #region External Channel
 
             cfg.CreateMap<WebAPI.Models.API.KalturaExternalChannelProfile, ExternalChannel>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.RecommendationEngineId))
-               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
+               .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.ResolveUsing(src => src.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.ResolveUsing(src => src.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.Enrichments)))
                ;
 
             cfg.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.RecommendationEngineId))
-               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.ResolveUsing(src => src.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.ResolveUsing(src => src.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.Enrichments)))
                ;
 
             cfg.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalChannel.ID))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ExternalChannel.Name))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalChannel.ExternalIdentifier))
-               .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.ExternalChannel.RecommendationEngineId))
-               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.ExternalChannel.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ExternalChannel.ID))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.ExternalChannel.Name))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.ResolveUsing(src => src.ExternalChannel.ExternalIdentifier))
+               .ForMember(dest => dest.RecommendationEngineId, opt => opt.ResolveUsing(src => src.ExternalChannel.RecommendationEngineId))
+               .ForMember(dest => dest.FilterExpression, opt => opt.ResolveUsing(src => src.ExternalChannel.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.ExternalChannel.IsActive))
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
                ;
 
             #endregion
@@ -231,66 +231,66 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //Bulk export task 
             cfg.CreateMap<BulkExportTask, KalturaExportTask>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.ExternalKey))
-                .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertExportDataType(src.DataType)))
-                .ForMember(dest => dest.ExportType, opt => opt.MapFrom(src => ConvertExportType(src.ExportType)))
-                .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.Filter))
-                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
-                .ForMember(dest => dest.NotificationUrl, opt => opt.MapFrom(src => src.NotificationUrl))
-                .ForMember(dest => dest.VodTypes, opt => opt.MapFrom(src => src.VodTypes))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Alias, opt => opt.ResolveUsing(src => src.ExternalKey))
+                .ForMember(dest => dest.DataType, opt => opt.ResolveUsing(src => ConvertExportDataType(src.DataType)))
+                .ForMember(dest => dest.ExportType, opt => opt.ResolveUsing(src => ConvertExportType(src.ExportType)))
+                .ForMember(dest => dest.Filter, opt => opt.ResolveUsing(src => src.Filter))
+                .ForMember(dest => dest.Frequency, opt => opt.ResolveUsing(src => src.Frequency))
+                .ForMember(dest => dest.NotificationUrl, opt => opt.ResolveUsing(src => src.NotificationUrl))
+                .ForMember(dest => dest.VodTypes, opt => opt.ResolveUsing(src => src.VodTypes))
+                .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive));
             #endregion
 
             #region Roles and Permissions
 
             cfg.CreateMap<PermissionItem, KalturaPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             cfg.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.Service, opt => opt.ResolveUsing(src => src.Service))
+               .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => src.Action));
 
             cfg.CreateMap<ApiParameterPermissionItem, KalturaApiParameterPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
-               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter))
-               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertApiParameterPermissionItemAction(src.Action)));
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.Object, opt => opt.ResolveUsing(src => src.Object))
+               .ForMember(dest => dest.Parameter, opt => opt.ResolveUsing(src => src.Parameter))
+               .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertApiParameterPermissionItemAction(src.Action)));
 
             cfg.CreateMap<ApiArgumentPermissionItem, KalturaApiArgumentPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
-               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
+               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.Service, opt => opt.ResolveUsing(src => src.Service))
+               .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => src.Action))
+               .ForMember(dest => dest.Parameter, opt => opt.ResolveUsing(src => src.Parameter));
 
             cfg.CreateMap<Permission, KalturaPermission>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)));
 
             cfg.CreateMap<GroupPermission, KalturaGroupPermission>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.PermissionItems, opt => opt.MapFrom(src => ConvertPermissionItems(src.PermissionItems)))
-              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
+            .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)))
+              .ForMember(dest => dest.Group, opt => opt.ResolveUsing(src => src.UsersGroup));
 
             cfg.CreateMap<Role, KalturaUserRole>()
-           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)))
-             .ForMember(dest => dest.PermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, false)))
-             .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, true)));
+           .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+             .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+             .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissions(src.Permissions)))
+             .ForMember(dest => dest.PermissionNames, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.Permissions, false)))
+             .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.Permissions, true)));
 
             cfg.CreateMap<KalturaUserRole, Role>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
+            .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+            .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
 
             #endregion
 
@@ -301,82 +301,82 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //Api.RegistrySettings to KalturaRegistrySettings
             cfg.CreateMap<RegistrySettings, KalturaRegistrySettings>()
-              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
-              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
+              .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.key))
+              .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => src.value));
 
             #region TimeShiftedTv
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             cfg.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
-                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.IsCatchUpEnabled))
-                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.IsCdvrEnabled))
-                .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.IsStartOverEnabled))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.IsTrickPlayEnabled))
-                .ForMember(dest => dest.CatchUpBufferLength, opt => opt.MapFrom(src => src.CatchUpBufferLength))
-                .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.MapFrom(src => src.TrickPlayBufferLength))
-                .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.MapFrom(src => src.RecordingScheduleWindow))
-                .ForMember(dest => dest.RecordingScheduleWindowEnabled, opt => opt.MapFrom(src => src.IsRecordingScheduleWindowEnabled))
-                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
-                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds))
-                .ForMember(dest => dest.ProtectionEnabled, opt => opt.MapFrom(src => src.IsProtectionEnabled))
-                .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
-                .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
-                .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
-                .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled))
-                .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
-                .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
-                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)));// convert to days 
+                .ForMember(dest => dest.CatchUpEnabled, opt => opt.ResolveUsing(src => src.IsCatchUpEnabled))
+                .ForMember(dest => dest.CdvrEnabled, opt => opt.ResolveUsing(src => src.IsCdvrEnabled))
+                .ForMember(dest => dest.StartOverEnabled, opt => opt.ResolveUsing(src => src.IsStartOverEnabled))
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.ResolveUsing(src => src.IsTrickPlayEnabled))
+                .ForMember(dest => dest.CatchUpBufferLength, opt => opt.ResolveUsing(src => src.CatchUpBufferLength))
+                .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.ResolveUsing(src => src.TrickPlayBufferLength))
+                .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.ResolveUsing(src => src.RecordingScheduleWindow))
+                .ForMember(dest => dest.RecordingScheduleWindowEnabled, opt => opt.ResolveUsing(src => src.IsRecordingScheduleWindowEnabled))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.ResolveUsing(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.ResolveUsing(src => src.PaddingAfterProgramEnds))
+                .ForMember(dest => dest.ProtectionEnabled, opt => opt.ResolveUsing(src => src.IsProtectionEnabled))
+                .ForMember(dest => dest.ProtectionPeriod, opt => opt.ResolveUsing(src => src.ProtectionPeriod))
+                .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.ResolveUsing(src => src.ProtectionQuotaPercentage))
+                .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.ResolveUsing(src => src.RecordingLifetimePeriod))
+                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.ResolveUsing(src => src.CleanupNoticePeriod))
+                .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.ResolveUsing(src => src.IsSeriesRecordingEnabled))
+                .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.ResolveUsing(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
+                .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.ResolveUsing(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
+                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.ResolveUsing(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.ResolveUsing(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.ResolveUsing(src => src.RecoveryGracePeriod / (24 * 60 * 60)));// convert to days 
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             cfg.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
-                .ForMember(dest => dest.IsCatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
-                .ForMember(dest => dest.IsCdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
-                .ForMember(dest => dest.IsStartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForMember(dest => dest.IsTrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
-                .ForMember(dest => dest.CatchUpBufferLength, opt => opt.MapFrom(src => src.CatchUpBufferLength))
-                .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.MapFrom(src => src.TrickPlayBufferLength))
-                .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.MapFrom(src => src.RecordingScheduleWindow))
-                .ForMember(dest => dest.IsRecordingScheduleWindowEnabled, opt => opt.MapFrom(src => src.RecordingScheduleWindowEnabled))
-                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.MapFrom(src => src.PaddingBeforeProgramStarts))
-                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.MapFrom(src => src.PaddingAfterProgramEnds))
-                .ForMember(dest => dest.IsProtectionEnabled, opt => opt.MapFrom(src => src.ProtectionEnabled))
-                .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
-                .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
-                .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
-                .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled))
-                .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
-                .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
-                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod * 24 * 60 * 60));// convert days to seconds
+                .ForMember(dest => dest.IsCatchUpEnabled, opt => opt.ResolveUsing(src => src.CatchUpEnabled))
+                .ForMember(dest => dest.IsCdvrEnabled, opt => opt.ResolveUsing(src => src.CdvrEnabled))
+                .ForMember(dest => dest.IsStartOverEnabled, opt => opt.ResolveUsing(src => src.StartOverEnabled))
+                .ForMember(dest => dest.IsTrickPlayEnabled, opt => opt.ResolveUsing(src => src.TrickPlayEnabled))
+                .ForMember(dest => dest.CatchUpBufferLength, opt => opt.ResolveUsing(src => src.CatchUpBufferLength))
+                .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.ResolveUsing(src => src.TrickPlayBufferLength))
+                .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.ResolveUsing(src => src.RecordingScheduleWindow))
+                .ForMember(dest => dest.IsRecordingScheduleWindowEnabled, opt => opt.ResolveUsing(src => src.RecordingScheduleWindowEnabled))
+                .ForMember(dest => dest.PaddingBeforeProgramStarts, opt => opt.ResolveUsing(src => src.PaddingBeforeProgramStarts))
+                .ForMember(dest => dest.PaddingAfterProgramEnds, opt => opt.ResolveUsing(src => src.PaddingAfterProgramEnds))
+                .ForMember(dest => dest.IsProtectionEnabled, opt => opt.ResolveUsing(src => src.ProtectionEnabled))
+                .ForMember(dest => dest.ProtectionPeriod, opt => opt.ResolveUsing(src => src.ProtectionPeriod))
+                .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.ResolveUsing(src => src.ProtectionQuotaPercentage))
+                .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.ResolveUsing(src => src.RecordingLifetimePeriod))
+                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.ResolveUsing(src => src.CleanupNoticePeriod))
+                .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.ResolveUsing(src => src.SeriesRecordingEnabled))
+                .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.ResolveUsing(src => src.NonEntitledChannelPlaybackEnabled))
+                .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.ResolveUsing(src => src.NonExistingChannelPlaybackEnabled))
+                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.ResolveUsing(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.ResolveUsing(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.ResolveUsing(src => src.RecoveryGracePeriod * 24 * 60 * 60));// convert days to seconds
 
             #endregion
 
             #region CDN Adapter
 
             cfg.CreateMap<KalturaCDNAdapterProfile, CDNAdapter>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value : true))
-               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+               .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+               .ForMember(dest => dest.BaseUrl, opt => opt.ResolveUsing(src => src.BaseUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive.HasValue ? src.IsActive.Value : true))
+               .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertCDNAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.SystemName, opt => opt.ResolveUsing(src => src.SystemName))
+               .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.SharedSecret));
 
             cfg.CreateMap<CDNAdapter, KalturaCDNAdapterProfile>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-              .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+              .ForMember(dest => dest.BaseUrl, opt => opt.ResolveUsing(src => src.BaseUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertCDNAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.SystemName, opt => opt.ResolveUsing(src => src.SystemName))
+              .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.SharedSecret));
 
             #endregion
 
@@ -384,28 +384,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //CDNPartnerSettings to KalturaCDNPartnerSettings
             cfg.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
-                .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
-                .ForMember(dest => dest.DefaultAdapterId, opt => opt.MapFrom(src => src.DefaultAdapter));
+                .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.ResolveUsing(src => src.DefaultRecordingAdapter))
+                .ForMember(dest => dest.DefaultAdapterId, opt => opt.ResolveUsing(src => src.DefaultAdapter));
 
             //KalturaCDNPartnerSettings to CDNPartnerSettings 
             cfg.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
-                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapterId))
-                .ForMember(dest => dest.DefaultAdapter, opt => opt.MapFrom(src => src.DefaultAdapterId));
+                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.ResolveUsing(src => src.DefaultRecordingAdapterId))
+                .ForMember(dest => dest.DefaultAdapter, opt => opt.ResolveUsing(src => src.DefaultAdapterId));
 
             #endregion
 
             #region regions
             cfg.CreateMap<KeyValuePair, KalturaRegionalChannel>()
-              .ForMember(dest => dest.LinearChannelId, opt => opt.MapFrom(src => src.key))
-              .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.value));
+              .ForMember(dest => dest.LinearChannelId, opt => opt.ResolveUsing(src => src.key))
+              .ForMember(dest => dest.ChannelNumber, opt => opt.ResolveUsing(src => src.value));
 
 
             cfg.CreateMap<Region, KalturaRegion>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
-              .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.externalId))
-              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-              .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.id))
+              .ForMember(dest => dest.ExternalId, opt => opt.ResolveUsing(src => src.externalId))
+              .ForMember(dest => dest.IsDefault, opt => opt.ResolveUsing(src => src.isDefault))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.name))
+              .ForMember(dest => dest.RegionalChannels, opt => opt.ResolveUsing(src => src.linearChannels));
 
             #endregion
 
@@ -413,61 +413,61 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             cfg.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             cfg.CreateMap<DeviceBrand, WebAPI.Models.Domains.KalturaDeviceBrand>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.ResolveUsing(src => src.DeviceFamilyId));
 
             #endregion
 
             #region KalturaCountry
 
             cfg.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
-                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
-                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.CurrencySign))
-                .ForMember(dest => dest.LanguagesCode, opt => opt.MapFrom(src => src.LanguageCodes != null ? string.Join(",", src.LanguageCodes) : string.Empty))
-                .ForMember(dest => dest.MainLanguageCode, opt => opt.MapFrom(src => src.MainLanguageCode))
-                .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent))
-                .ForMember(dest => dest.TimeZoneId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.Code))
+                .ForMember(dest => dest.CurrencyCode, opt => opt.ResolveUsing(src => src.CurrencyCode))
+                .ForMember(dest => dest.CurrencySign, opt => opt.ResolveUsing(src => src.CurrencySign))
+                .ForMember(dest => dest.LanguagesCode, opt => opt.ResolveUsing(src => src.LanguageCodes != null ? string.Join(",", src.LanguageCodes) : string.Empty))
+                .ForMember(dest => dest.MainLanguageCode, opt => opt.ResolveUsing(src => src.MainLanguageCode))
+                .ForMember(dest => dest.VatPercent, opt => opt.ResolveUsing(src => src.VatPercent))
+                .ForMember(dest => dest.TimeZoneId, opt => opt.ResolveUsing(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
 
             cfg.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
-                .ForMember(dest => dest.TimeZoneId, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.ResolveUsing(src => src.Code))
+                .ForMember(dest => dest.TimeZoneId, opt => opt.ResolveUsing(src => string.IsNullOrEmpty(src.TimeZoneId) ? null : src.TimeZoneId));
 
             #endregion
 
             #region Meta
 
             cfg.CreateMap<Meta, KalturaMeta>()
-              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertFieldName(src.FieldName)))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
-              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
-              .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
+              .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+              .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertFieldName(src.FieldName)))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => new KalturaMultilingualString(src.Name)))
+              .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
+              .ForMember(dest => dest.Features, opt => opt.ResolveUsing(src => ConvertFeatures(src.Features)))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.ParentId, opt => opt.ResolveUsing(src => src.ParentId))
+              .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
               ;
 
             cfg.CreateMap<KalturaMeta, Meta>()
-             .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-             .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
-             .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
-             .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
-             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-             .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
-             .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
+             .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+             .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertMetaFieldName(src.FieldName)))
+             .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+             .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
+             .ForMember(dest => dest.MultipleValue, opt => opt.ResolveUsing(src => src.MultipleValue))
+             .ForMember(dest => dest.SkipFeatures, opt => opt.ResolveUsing(src => src.Features == null))
+             .ForMember(dest => dest.Features, opt => opt.ResolveUsing(src => ConvertFeatures(src.Features)))
+             .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+             .ForMember(dest => dest.ParentId, opt => opt.ResolveUsing(src => src.ParentId))
+             .ForMember(dest => dest.PartnerId, opt => opt.ResolveUsing(src => src.PartnerId))
              ;
 
             #endregion
@@ -475,14 +475,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Search History
 
             cfg.CreateMap<SearchHistory, KalturaSearchHistory>()
-              .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.action))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
-              .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.deviceId))
-              .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.language))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-              .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.createdAt))
-              .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.service))
-              .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
+              .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => src.action))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.id))
+              .ForMember(dest => dest.DeviceId, opt => opt.ResolveUsing(src => src.deviceId))
+              .ForMember(dest => dest.Language, opt => opt.ResolveUsing(src => src.language))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.name))
+              .ForMember(dest => dest.CreatedAt, opt => opt.ResolveUsing(src => src.createdAt))
+              .ForMember(dest => dest.Service, opt => opt.ResolveUsing(src => src.service))
+              .ForMember(dest => dest.Filter, opt => opt.ResolveUsing(src => src.filter.ToString()))
               ;
 
             #endregion
@@ -490,71 +490,71 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region DRM Adapter
 
             cfg.CreateMap<DrmAdapter, KalturaDrmProfile>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
-              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.ExternalIdentifier))
-              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => src.Settings))
+              .ForMember(dest => dest.SystemName, opt => opt.ResolveUsing(src => src.ExternalIdentifier))
+              .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.SharedSecret));
 
             #endregion
 
             #region AssetRule
 
             cfg.CreateMap<KalturaAssetCondition, AssetCondition>()
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
+                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+                .ForMember(dest => dest.Ksql, opt => opt.ResolveUsing(src => src.Ksql));
 
             cfg.CreateMap<AssetCondition, KalturaAssetCondition>()
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
+                .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+                .ForMember(dest => dest.Ksql, opt => opt.ResolveUsing(src => src.Ksql));
 
             cfg.CreateMap<AssetRule, KalturaAssetRule>()
-              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
-              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)))
-              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             cfg.CreateMap<KalturaAssetRule, AssetRule>()
-              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
-              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)))
-              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             // KalturaSlimAsset to SlimAsset
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.Type)));
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.Type)));
 
             #endregion
 
             #region AssetUserRule
 
             cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
-              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetUserRuleActions(src.Actions)))
-              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => Mapper.Map<List<KalturaAssetCondition>>(src.Conditions)))
-              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => ConvertAssetUserRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => Mapper.Map<List<KalturaAssetCondition>>(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             cfg.CreateMap<KalturaAssetUserRule, AssetUserRule>()
-              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetUserRuleActions(src.Actions)))
-              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => Mapper.Map<List<AssetCondition>>(src.Conditions)))
-              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => ConvertAssetUserRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => Mapper.Map<List<AssetCondition>>(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.ResolveUsing(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
 
             #endregion
 
             #region Media Concurrency Rule
             cfg.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
-            .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
-            .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));           
+            .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.RuleID))
+            .ForMember(dest => dest.Limitation, opt => opt.ResolveUsing(src => src.Limitation))
+            .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.ResolveUsing(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
+            .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));           
             #endregion
 
         }       
