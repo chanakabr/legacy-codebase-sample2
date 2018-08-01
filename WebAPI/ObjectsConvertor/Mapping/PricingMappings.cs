@@ -33,7 +33,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
-               .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
+               .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
                .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
@@ -49,7 +49,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate) : SerializationUtils.ConvertToUnixTimestamp(src.startDate.HasValue ? src.startDate.Value : src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
-               .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
+               .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
                ;
 
@@ -131,7 +131,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // BundleCodeContainer to SlimChannel
             cfg.CreateMap<SubscriptionsPricesContainer, KalturaSubscriptionPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
-               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
@@ -147,7 +147,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
                //.ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
-               .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => ConvertServices(src.m_lServices)))
+               .ForMember(dest => dest.PremiumServices, opt => opt.ResolveUsing(src => ConvertServices(src.m_lServices)))
                .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
                .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
@@ -170,9 +170,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
-               .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
-               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
-               .ForMember(dest => dest.DependencyType, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)))
+               .ForMember(dest => dest.ProductCodes, opt => opt.ResolveUsing(src => ConvertProductCodes(src.ExternalProductCodes)))
+               .ForMember(dest => dest.CouponGroups, opt => opt.ResolveUsing(src => ConvertCouponsGroup(src.CouponsGroups)))
+               .ForMember(dest => dest.DependencyType, opt => opt.ResolveUsing(src => ConvertSubscriptionType(src.Type)))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.IsCancellationBlocked, opt => opt.MapFrom(src => src.BlockCancellation))
                .ForMember(dest => dest.PricePlanIds, opt => opt.MapFrom(src =>
@@ -213,7 +213,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PrePaidId, opt => opt.MapFrom(src => src.m_relevantPP))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
                .ForMember(dest => dest.PurchasedMediaFileId, opt => opt.MapFrom(src => src.m_lPurchasedMediaFileID))
-               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
                .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate.Value) : 0))
@@ -229,7 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // CouponData to CouponDetails
             cfg.CreateMap<CouponData, KalturaCoupon>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
-               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)))
+               .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertCouponStatus(src.m_CouponStatus)))
                .ForMember(dest => dest.LeftUses, opt => opt.MapFrom(src => src.leftUses))
                .ForMember(dest => dest.TotalUses, opt => opt.MapFrom(src => src.totalUses))
                ;
@@ -263,7 +263,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PrePaidId, opt => opt.MapFrom(src => src.m_relevantPP))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
                .ForMember(dest => dest.PurchasedMediaFileId, opt => opt.MapFrom(src => src.m_lPurchasedMediaFileID))
-               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
                .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate.Value) : 0))
@@ -281,14 +281,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertSetType(src.Type)));
 
             cfg.CreateMap<DependencySet, KalturaSubscriptionDependencySet>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.BaseSubscriptionId, opt => opt.MapFrom(src => src.BaseSubscriptionId))
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.AddOnIds != null ? string.Join(",", src.AddOnIds) : string.Empty))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertSetType(src.Type)));
             ;
 
             cfg.CreateMap<PriceDetails, KalturaPriceDetails>()
@@ -326,8 +326,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))
                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oCollectionPriceCode != null ? src.m_oCollectionPriceCode.m_nObjectID : 0))
-               .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
-               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
+               .ForMember(dest => dest.ProductCodes, opt => opt.ResolveUsing(src => ConvertProductCodes(src.ExternalProductCodes)))
+               .ForMember(dest => dest.CouponGroups, opt => opt.ResolveUsing(src => ConvertCouponsGroup(src.CouponsGroups)))
                ;
 
             // DiscountDetails
