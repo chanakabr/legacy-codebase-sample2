@@ -178,7 +178,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         public static bool DeleteMedia(int groupId, int assetId)
         {
             bool result = false;
@@ -191,30 +191,48 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            List<LanguageObj> languages = null;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
-                return result;
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
+                    return false;
+                }
+
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+            }
+            else
+            {
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
+                    return false;
+                }
+
+                languages = group.GetLangauges();
             }
 
             try
             {
-                List<LanguageObj> languages = catalogGroupCache.LanguageMapById.Values.ToList();
                 if (languages != null && languages.Count > 0)
                 {
                     result = true;
-                    
+
                     foreach (LanguageObj lang in languages)
                     {
                         string type = GetTanslationType(MEDIA, lang);
                         ESDeleteResult deleteResult = esApi.DeleteDoc(index, type, assetId.ToString());
-                        result = deleteResult.Ok && result;                        
+                        result = deleteResult.Ok && result;
                     }
-                }                       
+                }
             }
             catch (Exception ex)
-            {            
+            {
                 log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", assetId, ex);
             }
 

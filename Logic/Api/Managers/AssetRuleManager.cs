@@ -420,7 +420,7 @@ namespace Core.Api.Managers
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
-                    string assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type);
+                    string assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType);
 
                     long assetId = long.Parse(slimAsset.Id);
                     string assetTypeInvalidationKey = slimAsset.Type == eAssetTypes.MEDIA ?
@@ -672,6 +672,8 @@ namespace Core.Api.Managers
                                     }
                                 }
                             }
+
+                            log.Debug("GetAllAssetRules - success");
                         }
                     }
                 }
@@ -741,6 +743,8 @@ namespace Core.Api.Managers
                                     assetRulesByAsset.Add(currAssetRuleWithKsql);
                                 }
                             });
+
+                            log.Debug("GetAssetRulesByAsset - success");
                         }
                     }
                 }
@@ -785,6 +789,7 @@ namespace Core.Api.Managers
                         assetRules.Add(assetRule);
                     }
                 }
+                log.Debug("GetAllAssetRulesDB - success");
             }
             catch (Exception ex)
             {

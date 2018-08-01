@@ -445,7 +445,8 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                bool isGroupExcludedFromTemplatesImplementation = CatalogManager.IsGroupIdExcludedFromTemplatesImplementation(groupId);
+                if (!CatalogManager.DoesGroupUsesTemplates(groupId) && !isGroupExcludedFromTemplatesImplementation)
                 {
                     response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return response;
@@ -489,60 +490,65 @@ namespace Core.Catalog.CatalogManagement
                     channelToAdd.filterTree = temporaryNode;
                 }
 
-                // Validate asset types
-                if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
-                {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
-                        return response;
-                    }
-
-                    List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
-                    if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
-                    {
-                        response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                        eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
-                        return response;
-                    }
-                }
-
                 List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
-                // validate medias exist for manual channel only
-                if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
-                {
-                    mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (GroupsCacheManager.ManualMedia manualMedia in channelToAdd.m_lManualMedias)
-                    {
-                        long mediaId;
-                        if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
-                        {
-                            assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                            mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
-                        }
-                    }
 
-                    if (assets.Count > 0)
+                // validations for groups that use templates implementation (should be all but QA group...)
+                if (!isGroupExcludedFromTemplatesImplementation)
+                {
+                    // Validate asset types
+                    if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
                     {
-                        // isAllowedToViewInactiveAssets = true becuase only operator can add channel
-                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
-                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
-                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                            response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                            eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
                             return response;
                         }
-                    }     
-                }
 
-                if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
-                    && !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
-                {
-                    response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
-                    return response;
+                        List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
+                        if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
+                        {
+                            response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                            eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                            return response;
+                        }
+                    }
+                    
+                    // validate medias exist for manual channel only
+                    if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
+                    {
+                        mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
+                        List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                        foreach (GroupsCacheManager.ManualMedia manualMedia in channelToAdd.m_lManualMedias)
+                        {
+                            long mediaId;
+                            if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                            {
+                                assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                                mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
+                            }
+                        }
+
+                        if (assets.Count > 0)
+                        {
+                            // isAllowedToViewInactiveAssets = true becuase only operator can add channel
+                            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
+                            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
+                            {
+                                List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
+                                response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                                                eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                                return response;
+                            }
+                        }
+                    }
+
+                    if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
+                        && !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
+                    {
+                        response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                        return response;
+                    }
                 }
 
                 List <KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -857,12 +863,16 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
-                    bool deleteResult = true;
+                    bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
                         deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                    }
+                    else
+                    {
+                        deleteResult = CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete);
                     }
 
                     if (!deleteResult)
@@ -872,10 +882,20 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         // invalidate channel
-                        if (doesGroupUsesTemplates && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
                         {
                             log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        }
+
+                        // update group cache
+                        if (!doesGroupUsesTemplates)
+                        {
+                            string[] keys = new string[1] { APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId) };
+                            if (!TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys))
+                            {
+                                log.ErrorFormat("Failed to UpdateCache channel with id: {0}, keys: {1} after deleting channel", channelId, keys[0]);
+                            }
                         }
 
                         response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

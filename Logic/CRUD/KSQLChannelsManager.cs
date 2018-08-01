@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -226,6 +227,13 @@ namespace APILogic.CRUD
                 };
 
                 TVinciShared.QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+
+                // invalidate channel
+                if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupID, channel.ID)))
+                {
+                    log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
+                                        channel.ID, LayeredCacheKeys.GetChannelInvalidationKey(groupID, channel.ID));
+                }
             }
             catch (Exception ex)
             {
@@ -340,7 +348,7 @@ namespace APILogic.CRUD
             return status;
         }
 
-        private static string BuildChannelCacheKey(int groupId, int channelId)
+        internal static string BuildChannelCacheKey(int groupId, int channelId)
         {
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, version);
         }
