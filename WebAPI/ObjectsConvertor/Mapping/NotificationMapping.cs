@@ -20,282 +20,282 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             //NotificationPartnerSettings to KalturaPartnerNotificationSettings
             cfg.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.ResolveUsing(src => src.IsPushNotificationEnabled))
-                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.ResolveUsing(src => src.IsPushSystemAnnouncementsEnabled))
-                 .ForMember(dest => dest.PushStartHour, opt => opt.ResolveUsing(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.ResolveUsing(src => src.PushEndHour))
-                 .ForMember(dest => dest.InboxEnabled, opt => opt.ResolveUsing(src => src.IsInboxEnabled))
-                 .ForMember(dest => dest.MessageTTLDays, opt => opt.ResolveUsing(src => src.MessageTTLDays))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.ResolveUsing(src => src.AutomaticIssueFollowNotifications))
-                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.ResolveUsing(src => src.TopicExpirationDurationDays))
-                 .ForMember(dest => dest.ReminderEnabled, opt => opt.ResolveUsing(src => src.IsRemindersEnabled))
-                 .ForMember(dest => dest.ReminderOffset, opt => opt.ResolveUsing(src => src.RemindersPrePaddingSec))
-                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.ResolveUsing(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.ResolveUsing(src => src.ChurnMailSubject))
-                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.ResolveUsing(src => src.ChurnMailTemplateName))
-                 .ForMember(dest => dest.SenderEmail, opt => opt.ResolveUsing(src => src.SenderEmail))
-                 .ForMember(dest => dest.MailSenderName, opt => opt.ResolveUsing(src => src.MailSenderName))
-                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.ResolveUsing(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.ResolveUsing(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.InboxEnabled, opt => opt.MapFrom(src => src.IsInboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
+                 .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             cfg.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
-                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.ResolveUsing(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.ResolveUsing(src => src.PushSystemAnnouncementsEnabled))
-                 .ForMember(dest => dest.PushStartHour, opt => opt.ResolveUsing(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.ResolveUsing(src => src.PushEndHour))
-                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.ResolveUsing(src => src.InboxEnabled))
-                 .ForMember(dest => dest.MessageTTLDays, opt => opt.ResolveUsing(src => src.MessageTTLDays))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.ResolveUsing(src => src.AutomaticIssueFollowNotification))
-                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.ResolveUsing(src => src.TopicExpirationDurationDays))
-                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.ResolveUsing(src => src.ReminderEnabled))
-                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.ResolveUsing(src => src.ReminderOffset))
-                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.ResolveUsing(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.ResolveUsing(src => src.ChurnMailSubject))
-                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.ResolveUsing(src => src.ChurnMailTemplateName))
-                 .ForMember(dest => dest.SenderEmail, opt => opt.ResolveUsing(src => src.SenderEmail))
-                 .ForMember(dest => dest.MailSenderName, opt => opt.ResolveUsing(src => src.MailSenderName))
-                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.ResolveUsing(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.ResolveUsing(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.MapFrom(src => src.InboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
+                 .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
             cfg.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.ResolveUsing(src => src.IsPushNotificationEnabled))
-                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.ResolveUsing(src => src.IsPushSystemAnnouncementsEnabled))
-                 .ForMember(dest => dest.PushStartHour, opt => opt.ResolveUsing(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.ResolveUsing(src => src.PushEndHour))
-                 .ForMember(dest => dest.InboxEnabled, opt => opt.ResolveUsing(src => src.IsInboxEnabled))
-                 .ForMember(dest => dest.MessageTTLDays, opt => opt.ResolveUsing(src => src.MessageTTLDays))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.ResolveUsing(src => src.AutomaticIssueFollowNotifications))
-                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.ResolveUsing(src => src.TopicExpirationDurationDays))
-                 .ForMember(dest => dest.ReminderEnabled, opt => opt.ResolveUsing(src => src.IsRemindersEnabled))
-                 .ForMember(dest => dest.ReminderOffset, opt => opt.ResolveUsing(src => src.RemindersPrePaddingSec))
-                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.ResolveUsing(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.ResolveUsing(src => src.ChurnMailSubject))
-                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.ResolveUsing(src => src.ChurnMailTemplateName))
-                 .ForMember(dest => dest.SenderEmail, opt => opt.ResolveUsing(src => src.SenderEmail))
-                 .ForMember(dest => dest.MailSenderName, opt => opt.ResolveUsing(src => src.MailSenderName))
-                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.ResolveUsing(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.ResolveUsing(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.InboxEnabled, opt => opt.MapFrom(src => src.IsInboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
+                 .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
             cfg.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
-                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.ResolveUsing(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.ResolveUsing(src => src.PushSystemAnnouncementsEnabled))
-                 .ForMember(dest => dest.PushStartHour, opt => opt.ResolveUsing(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.ResolveUsing(src => src.PushEndHour))
-                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.ResolveUsing(src => src.InboxEnabled))
-                 .ForMember(dest => dest.MessageTTLDays, opt => opt.ResolveUsing(src => src.MessageTTLDays))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.ResolveUsing(src => src.AutomaticIssueFollowNotification))
-                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.ResolveUsing(src => src.TopicExpirationDurationDays))
-                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.ResolveUsing(src => src.ReminderEnabled))
-                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.ResolveUsing(src => src.ReminderOffset))
-                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.ResolveUsing(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.ResolveUsing(src => src.ChurnMailSubject))
-                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.ResolveUsing(src => src.ChurnMailTemplateName))
-                 .ForMember(dest => dest.SenderEmail, opt => opt.ResolveUsing(src => src.SenderEmail))
-                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.ResolveUsing(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.MailSenderName, opt => opt.ResolveUsing(src => src.MailSenderName))
-                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.ResolveUsing(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.MapFrom(src => src.InboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
+                 .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.ResolveUsing(src => src.EnablePush))
-                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.ResolveUsing(src => src.FollowSettings.EnablePush))
-                 .ForMember(dest => dest.MailEnabled, opt => opt.ResolveUsing(src => src.EnableMail))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.ResolveUsing(src => src.EnableSms));
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
+                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
+                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
 
             cfg.CreateMap<bool?, UserFollowSettings>()
-               .ForMember(dest => dest.EnablePush, opt => opt.ResolveUsing(src => src));
+               .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 
             cfg.CreateMap<KalturaNotificationsSettings, UserNotificationSettings>()
-                 .ForMember(dest => dest.EnablePush, opt => opt.ResolveUsing(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.FollowSettings, opt => opt.ResolveUsing(src => src.PushFollowEnabled))
-                 .ForMember(dest => dest.EnableMail, opt => opt.ResolveUsing(src => src.MailEnabled))
-                 .ForMember(dest => dest.EnableSms, opt => opt.ResolveUsing(src => src.SmsEnabled));
+                 .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled))
+                 .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
+                 .ForMember(dest => dest.EnableSms, opt => opt.MapFrom(src => src.SmsEnabled));
 
             cfg.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
-                 .ForMember(dest => dest.Enabled, opt => opt.ResolveUsing(src => src.Enabled))
-                 .ForMember(dest => dest.Message, opt => opt.ResolveUsing(src => src.Message))
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.MessageAnnouncementId))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.Recipients, opt => opt.ResolveUsing(src => ConvertRecipientsType(src.Recipients)))
-                 .ForMember(dest => dest.StartTime, opt => opt.ResolveUsing(src => src.StartTime))
-                 .ForMember(dest => dest.Timezone, opt => opt.ResolveUsing(src => src.Timezone))
-                 .ForMember(dest => dest.ImageUrl, opt => opt.ResolveUsing(src => src.ImageUrl))
-                 .ForMember(dest => dest.IncludeMail, opt => opt.ResolveUsing(src => src.IncludeMail))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.ResolveUsing(src => src.IncludeSms))
-                 .ForMember(dest => dest.MailTemplate, opt => opt.ResolveUsing(src => src.MailTemplate))
-                 .ForMember(dest => dest.MailSubject, opt => opt.ResolveUsing(src => src.MailSubject))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertAnnouncementStatusType(src.Status)));
+                 .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MessageAnnouncementId))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => ConvertRecipientsType(src.Recipients)))
+                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                 .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
+                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                 .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
             cfg.CreateMap<MessageTemplate, KalturaMessageTemplate>()
-                 .ForMember(dest => dest.Message, opt => opt.ResolveUsing(src => src.Message))
-                 .ForMember(dest => dest.DateFormat, opt => opt.ResolveUsing(src => src.DateFormat))
-                 .ForMember(dest => dest.Sound, opt => opt.ResolveUsing(src => src.Sound))
-                 .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => src.Action))
-                 .ForMember(dest => dest.URL, opt => opt.ResolveUsing(src => src.URL))
-                 .ForMember(dest => dest.MailTemplate, opt => opt.ResolveUsing(src => src.MailTemplate))
-                 .ForMember(dest => dest.MailSubject, opt => opt.ResolveUsing(src => src.MailSubject))
-                 .ForMember(dest => dest.RatioId, opt => opt.ResolveUsing(src => src.RatioId))
-                 .ForMember(dest => dest.MessageType, opt => opt.ResolveUsing(src => ConvertTemplateAssetType(src.TemplateType)));
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
             cfg.CreateMap<KalturaMessageTemplate, MessageTemplate>()
-                 .ForMember(dest => dest.Message, opt => opt.ResolveUsing(src => src.Message))
-                 .ForMember(dest => dest.DateFormat, opt => opt.ResolveUsing(src => src.DateFormat))
-                 .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => src.Action))
-                 .ForMember(dest => dest.Sound, opt => opt.ResolveUsing(src => src.Sound))
-                 .ForMember(dest => dest.URL, opt => opt.ResolveUsing(src => src.URL))
-                 .ForMember(dest => dest.MailTemplate, opt => opt.ResolveUsing(src => src.MailTemplate))
-                 .ForMember(dest => dest.MailSubject, opt => opt.ResolveUsing(src => src.MailSubject))
-                 .ForMember(dest => dest.RatioId, opt => opt.ResolveUsing(src => src.RatioId))
-                 .ForMember(dest => dest.TemplateType, opt => opt.ResolveUsing(src => ConvertTemplateAssetType(src.MessageType)));
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
 
             cfg.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => ParseInt(src.FollowReference)))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
             cfg.CreateMap<FollowDataBase, KalturaFollowTvSeries>()
-                .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => ParseInt(src.FollowReference)))
-                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title));
+                .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
             cfg.CreateMap<KalturaFollowDataTvSeries, FollowDataBase>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
             cfg.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                 .ForMember(dest => dest.FollowReference, opt => opt.ResolveUsing(src => src.AssetId.ToString()))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title))
-                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.AssetId))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => 0));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId.ToString()))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
             
             cfg.CreateMap<KalturaFollowTvSeries, FollowDataBase>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                 .ForMember(dest => dest.FollowReference, opt => opt.ResolveUsing(src => src.AssetId))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
             cfg.CreateMap<KalturaFollowTvSeries, FollowDataTvSeries>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                 .ForMember(dest => dest.FollowReference, opt => opt.ResolveUsing(src => src.AssetId.ToString()))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Title))
-                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.AssetId))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => 0));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId.ToString()))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // KalturaPersonalList <-> FollowDataBase
             cfg.CreateMap<KalturaPersonalList, FollowDataBase>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.Id))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.ResolveUsing(src => src.Ksql))
-                 .ForMember(dest => dest.Timestamp, opt => opt.ResolveUsing(src => src.CreateDate))
-                 .ForMember(dest => dest.Title, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => 0))
-                 .ForMember(dest => dest.PartnerListType, opt => opt.ResolveUsing(src => src.PartnerListType));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.Ksql))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.CreateDate))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                 .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
 
             cfg.CreateMap<FollowDataBase, KalturaPersonalList>()
-                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.AnnouncementId))
-                .ForMember(dest => dest.Ksql, opt => opt.ResolveUsing(src => src.FollowPhrase))
-                .ForMember(dest => dest.CreateDate, opt => opt.ResolveUsing(src => src.Timestamp))
-                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Title))
-                .ForMember(dest => dest.PartnerListType, opt => opt.ResolveUsing(src => src.PartnerListType));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnouncementId))
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FollowPhrase))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
 
             cfg.CreateMap<int, KalturaPersonalFollowFeed>()
-               .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src));
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
 
             cfg.CreateMap<int, KalturaPersonalFeed>()
-               .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src));
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
 
             //InboxMessage to KalturaInboxMessage
             cfg.CreateMap<InboxMessage, KalturaInboxMessage>()
-                 .ForMember(dest => dest.CreatedAt, opt => opt.ResolveUsing(src => src.CreatedAtSec))
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
-                 .ForMember(dest => dest.Message, opt => opt.ResolveUsing(src => src.Message))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.State)))
-                 .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => src.Url))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)));
+                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAtSec))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.State)))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Category)));
 
             //KalturaInboxMessage TO InboxMessage
             cfg.CreateMap<KalturaInboxMessage, InboxMessage>()
-                 .ForMember(dest => dest.Category, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Type)))
-                 .ForMember(dest => dest.CreatedAtSec, opt => opt.ResolveUsing(src => src.CreatedAt))
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
-                 .ForMember(dest => dest.Message, opt => opt.ResolveUsing(src => src.Message))
-                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.Status)))
-                 .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => src.Url));
+                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Type)))
+                 .ForMember(dest => dest.CreatedAtSec, opt => opt.MapFrom(src => src.CreatedAt))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.Status)))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             //DbAnnouncement to KalturaTopic
             cfg.CreateMap<DbAnnouncement, KalturaTopic>()
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.SubscribersAmount, opt => opt.ResolveUsing(src => src.SubscribersAmount))
-                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.ResolveUsing(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.ResolveUsing(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
+                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
+                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)));
 
             //KalturaTopic TO DbAnnouncement
             cfg.CreateMap<KalturaTopic, DbAnnouncement>()
-                 .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.SubscribersAmount, opt => opt.ResolveUsing(src => src.SubscribersAmount))
-                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.ResolveUsing(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.ResolveUsing(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)));
+                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
+                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)));
 
             //RegistryParameter to KalturaPushWebParameters
             cfg.CreateMap<RegistryResponse, KalturaRegistryResponse>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.ResolveUsing(src => src.NotificationId))
-                 .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.Key))
-                 .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => src.Url));
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.NotificationId))
+                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             //DbReminder to KalturaReminder
             cfg.CreateMap<DbReminder, KalturaReminder>()
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => src is KalturaSeriesReminder ? KalturaReminderType.SERIES : KalturaReminderType.ASSET));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src is KalturaSeriesReminder ? KalturaReminderType.SERIES : KalturaReminderType.ASSET));
 
             // KalturaReminder to DbReminder
             cfg.CreateMap<KalturaReminder, DbReminder>()
-                 .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
+                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             //DbReminder to KalturaAssetReminder
             cfg.CreateMap<DbReminder, KalturaAssetReminder>()
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.AssetId, opt => opt.ResolveUsing(src => src.Reference))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaReminderType.ASSET))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.ASSET))
                  ;
 
             //DbReminder to KalturaAssetReminder
             cfg.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
-                 .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-                 .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                 .ForMember(dest => dest.SeriesId, opt => opt.ResolveUsing(src => src.SeriesId))
-                 .ForMember(dest => dest.SeasonNumber, opt => opt.ResolveUsing(src => GetLongNullableValue(src.SeasonNumber)))
-                 .ForMember(dest => dest.EpgChannelId, opt => opt.ResolveUsing(src => src.EpgChannelId))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => KalturaReminderType.SERIES))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => GetLongNullableValue(src.SeasonNumber)))
+                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SERIES))
                  ;
 
             cfg.CreateMap<DbReminder, KalturaReminder>()
@@ -305,72 +305,72 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
             cfg.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
-                .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-                .ForMember(dest => dest.SeriesId, opt => opt.ResolveUsing(src => src.SeriesId))
-                .ForMember(dest => dest.SeasonNumber, opt => opt.ResolveUsing(src => src.SeasonNumber))
-                .ForMember(dest => dest.EpgChannelId, opt => opt.ResolveUsing(src => src.EpgChannelId));
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
             #region Engagement Adapter
 
             cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
-               .ForMember(dest => dest.ID, opt => opt.ResolveUsing(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-               .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
-               .ForMember(dest => dest.ProviderUrl, opt => opt.ResolveUsing(src => src.ProviderUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
-               .ForMember(dest => dest.SkipSettings, opt => opt.ResolveUsing(src => src.Settings == null))
-               .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
                ;
 
             cfg.CreateMap<EngagementAdapter, KalturaEngagementAdapter>()
-              .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-              .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.AdapterUrl))
-              .ForMember(dest => dest.ProviderUrl, opt => opt.ResolveUsing(src => src.ProviderUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
               ;
 
             cfg.CreateMap<EngagementAdapterBase, KalturaEngagementAdapterBase>()
-               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.ID))
-               .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.Name));
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             cfg.CreateMap<EngagementAdapterResponse, KalturaEngagementAdapter>()
-             .ForMember(dest => dest.AdapterUrl, opt => opt.ResolveUsing(src => src.EngagementAdapter.AdapterUrl))
-             .ForMember(dest => dest.ProviderUrl, opt => opt.ResolveUsing(src => src.EngagementAdapter.ProviderUrl))
-             .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.EngagementAdapter.ID))
-             .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => src.EngagementAdapter.IsActive))
-             .ForMember(dest => dest.Name, opt => opt.ResolveUsing(src => src.EngagementAdapter.Name))
-             .ForMember(dest => dest.SharedSecret, opt => opt.ResolveUsing(src => src.EngagementAdapter.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.EngagementAdapter.AdapterUrl))
+             .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.EngagementAdapter.ProviderUrl))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EngagementAdapter.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.EngagementAdapter.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.EngagementAdapter.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.EngagementAdapter.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
 
             #endregion
 
             #region Engagement
 
             cfg.CreateMap<KalturaEngagement, Engagement>()
-               .ForMember(dest => dest.AdapterDynamicData, opt => opt.ResolveUsing(src => src.AdapterDynamicData))
-               .ForMember(dest => dest.AdapterId, opt => opt.ResolveUsing(src => src.AdapterId))
-               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType( src.Type)))
-               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
-               .ForMember(dest => dest.IntervalSeconds, opt => opt.ResolveUsing(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTimeInSeconds)))
-               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.ResolveUsing(src => src.TotalNumberOfRecipients))
-               .ForMember(dest => dest.UserList, opt => opt.ResolveUsing(src => src.UserList))
-               .ForMember(dest => dest.CouponGroupId, opt => opt.ResolveUsing(src => src.CouponGroupId))
+               .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
+               .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
+               .ForMember(dest => dest.EngagementType, opt => opt.MapFrom(src => ConvertEngagementType( src.Type)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
+               .ForMember(dest => dest.SendTime, opt => opt.MapFrom(src => ConvertSendTime(src.SendTimeInSeconds)))
+               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
+               .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
 
             cfg.CreateMap<Engagement, KalturaEngagement>()
-               .ForMember(dest => dest.AdapterDynamicData, opt => opt.ResolveUsing(src => src.AdapterDynamicData))
-               .ForMember(dest => dest.AdapterId, opt => opt.ResolveUsing(src => src.AdapterId))
-               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertEngagementType(src.EngagementType)))
-               .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => src.Id))
-               .ForMember(dest => dest.IntervalSeconds, opt => opt.ResolveUsing(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTime)))
-               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.ResolveUsing(src => src.TotalNumberOfRecipients))
-               .ForMember(dest => dest.UserList, opt => opt.ResolveUsing(src => src.UserList))
-               .ForMember(dest => dest.CouponGroupId, opt => opt.ResolveUsing(src => src.CouponGroupId))
+               .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
+               .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertEngagementType(src.EngagementType)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
+               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.MapFrom(src => ConvertSendTime(src.SendTime)))
+               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
+               .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
             
             #endregion

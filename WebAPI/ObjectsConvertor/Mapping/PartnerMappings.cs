@@ -19,18 +19,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             // map KalturaBillingPartnerConfig to PartnerConfiguration
             cfg.CreateMap<KalturaBillingPartnerConfig, PartnerConfiguration>()
-                .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => src.Value))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertPartnerConfigurationType(src.getType())));
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPartnerConfigurationType(src.getType())));
 
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
-                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => string.Join(",", src.DeviceFamilyIds)))
-                .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)));
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
+                .ForMember(dest => dest.EvictionPolicy, opt => opt.MapFrom(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)));
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
-                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => src.GetDeviceFamilyIds()))
-                .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
+                .ForMember(dest => dest.PriorityOrder, opt => opt.MapFrom(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
         }
         
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

@@ -14,23 +14,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             // KalturaStringValue
             cfg.CreateMap<string, KalturaStringValue>()
-                .ForMember(dest => dest.value, opt => opt.ResolveUsing(src => src));
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaBooleanValue
             cfg.CreateMap<bool, KalturaBooleanValue>()
-                .ForMember(dest => dest.value, opt => opt.ResolveUsing(src => src));
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaDoubleValue
             cfg.CreateMap<double, KalturaDoubleValue>()
-                .ForMember(dest => dest.value, opt => opt.ResolveUsing(src => src));
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaIntegerValue
             cfg.CreateMap<int, KalturaIntegerValue>()
-                .ForMember(dest => dest.value, opt => opt.ResolveUsing(src => src));
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
 
             // KalturaLongValue
             cfg.CreateMap<long, KalturaLongValue>()
-                .ForMember(dest => dest.value, opt => opt.ResolveUsing(src => src));
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
         }
     }
 }
