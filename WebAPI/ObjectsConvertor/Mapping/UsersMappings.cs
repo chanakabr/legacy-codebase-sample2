@@ -74,12 +74,12 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_CoGuid))
                 .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_UserType))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
-                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
-                .ForMember(dest => dest.SuspensionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
+                .ForMember(dest => dest.SuspentionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
+                .ForMember(dest => dest.SuspensionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
+                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
 
             // User
             cfg.CreateMap<User, KalturaOTTUser>()
@@ -100,12 +100,12 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_oBasicData.m_CoGuid))
                 .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_oBasicData.m_UserType))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_domianID))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_oDynamicData)))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => ConvertDynamicData(src.m_oDynamicData)))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
-                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
-                .ForMember(dest => dest.SuspensionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
+                .ForMember(dest => dest.SuspentionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
+                .ForMember(dest => dest.SuspensionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))); // for activation status
+                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))); // for activation status
 
             // SlimUser
             cfg.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
@@ -123,7 +123,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
-                .ForMember(dest => dest.m_Country, opt => opt.MapFrom(src => ConvertContry(src.Country, src.CountryId)))
+                .ForMember(dest => dest.m_Country, opt => opt.ResolveUsing(src => ConvertContry(src.Country, src.CountryId)))
                 .ForMember(dest => dest.m_sEmail, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.m_CoGuid, opt => opt.MapFrom(src => src.ExternalId != null ? src.ExternalId : null))
                 .ForMember(dest => dest.m_sFacebookID, opt => opt.MapFrom(src => src.FacebookId))
@@ -148,11 +148,11 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<Dictionary<string, KalturaStringValue>, UserDynamicData>()
-                .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
+                .ForMember(dest => dest.m_sUserData, opt => opt.ResolveUsing(src => ConvertDynamicData(src)));
 
             // MediaId to AssetInfo
             cfg.CreateMap<string, KalturaAssetInfo>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => ConvertToLong(src)))
+                .ForMember(dest => dest.Id, opt => opt.ResolveUsing(src => ConvertToLong(src)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // Rest WS_Users FavoritObject ==>  Favorite  
@@ -165,22 +165,22 @@ namespace ObjectsConvertor.Mapping
             // UserItemsList to KalturaUserAssetsList
             cfg.CreateMap<UserItemsList, KalturaUserAssetsList>()
                 .ForMember(dest => dest.List, opt => opt.MapFrom(src => src.ItemsList))
-                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)));
+                .ForMember(dest => dest.ListType, opt => opt.ResolveUsing(src => ConvertUserAssetsListType(src.ListType)));
 
             // Item to KalturaUserAssetsListItem
             cfg.CreateMap<Item, KalturaUserAssetsListItem>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ItemId))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.ItemType)))
-                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertUserAssetsListItemType(src.ItemType)))
+                .ForMember(dest => dest.ListType, opt => opt.ResolveUsing(src => ConvertUserAssetsListType(src.ListType)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Item to KalturaUserAssetsListItem
             cfg.CreateMap<KalturaUserAssetsListItem, Item>()
                 .ForMember(dest => dest.ItemId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
-                .ForMember(dest => dest.ItemType, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.Type)))
-                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)))
+                .ForMember(dest => dest.ItemType, opt => opt.ResolveUsing(src => ConvertUserAssetsListItemType(src.Type)))
+                .ForMember(dest => dest.ListType, opt => opt.ResolveUsing(src => ConvertUserAssetsListType(src.ListType)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Country
@@ -216,18 +216,18 @@ namespace ObjectsConvertor.Mapping
             // UserDynamicData to KalturaOTTUserDynamicData
             cfg.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
+                .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => ConvertDynamicDataKey(src)))
+                .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => ConvertDynamicDataValue(src)));
 
             cfg.CreateMap<UserDynamicData, KalturaOTTUserDynamicDataList>()
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => ConvertDynamicData(src)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             cfg.CreateMap<SSOAdapter, KalturaSSOAdapterProfile>()
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.ToDictionary(k => k.Key, v => v.Value) : null));
 
             cfg.CreateMap<KalturaSSOAdapterProfile, SSOAdapter>()
-                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertSsoAdapterSettings(src)));
+                .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertSsoAdapterSettings(src)));
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)
