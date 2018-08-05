@@ -17,11 +17,11 @@ namespace DAL
         private const string SP_GET_USER_TYPE_DATA = "Get_UserTypeData";
         private const string SP_GET_USER_TYPE_DATA_BY_IDS = "Get_UserTypesDataByIDs";
         private const string SP_GET_USER_BASIC_DATA = "Get_UserBasicData";
+        private const string SP_GET_USERS_BASIC_DATA = "Get_UsersBasicData";
         private const string SP_GET_USER_DOMAINS = "sp_GetUserDomains";
         private const string SP_INSERT_USER = "sp_InsertUser";
         private const string SP_GET_IS_ACTIVATION_NEEDED = "Get_IsActivationNeeded";
         private const string SP_GET_ACTIVATION_TOKEN = "Get_ActivationToken";
-        private const string SP_GET_USERS_BASIC_DATA = "Get_UsersBasicData";
         private const string SP_GET_GROUP_USERS = "Get_GroupUsers";
         private const string SP_GET_GROUP_USERS_SEARCH_FIELDS = "Get_GroupUsersSearchFields";
         private const string SP_GET_DEVICES_TO_USERS_NON_PUSH = "Get_DevicesToUsersNonPushAction";
@@ -149,6 +149,7 @@ namespace DAL
         {
             try
             {
+                // TODO SHIR - UPDATE StoredProcedure TO RETURN CREATE_DATE, UPDATE_DATE AND ID
                 ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USER_BASIC_DATA);
                 spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -174,6 +175,7 @@ namespace DAL
 
         public static DataTable GetUsersBasicData(long[] usersIDs)
         {
+            // TODO SHIR - ADD CREATE_DATE, UPDATE_DATE, ID TO StoredProcedure
             ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USERS_BASIC_DATA);
             spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -659,7 +661,18 @@ namespace DAL
             return (int)res;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="roleIds"></param>
+        /// <returns>Return True if roles update successfully</returns>
+        public static bool InsertUserRoleIds(int groupId, string userId, List<long> roleIds)
+        {
+            // TODO SHIR  - InsertUserRoleIds
+            throw new NotImplementedException();
+        }
 
         public static DateTime GetLastUserSessionDate(int nSiteGuid, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
         {
@@ -1320,9 +1333,10 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, string sFacebookToken, string sUserName, string sFirstName,
-                                        string sLastName, string sEmail, string sAddress, string sCity, int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                        string sCoGuid = "")
+        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
+                                         string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
+                                         int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                         string sCoGuid = "")
         {
             try
             {
@@ -1969,6 +1983,7 @@ namespace DAL
             {
                 return 0;
             }
+
             return rowCount;
         }
 
