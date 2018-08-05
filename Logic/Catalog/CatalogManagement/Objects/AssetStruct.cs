@@ -18,8 +18,6 @@ namespace Core.Catalog.CatalogManagement
         public bool? IsPredefined { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
-        // TODO - Need to support adding/editing AssociationTag per asset struct
-        public string AssociationTag { get; set; }
         /// <summary>
         /// Asset Struct Meta list (the key is the metaID)
         /// </summary>
@@ -39,7 +37,6 @@ namespace Core.Catalog.CatalogManagement
             this.SystemName = string.Empty;
             this.MetaIds = new List<long>();
             this.IsPredefined = null;
-            this.AssociationTag = string.Empty;
             this.ParentId = 0;
             this.CreateDate = 0;
             this.UpdateDate = 0;
@@ -59,7 +56,6 @@ namespace Core.Catalog.CatalogManagement
             this.SystemName = systemName;
             this.MetaIds = new List<long>();
             this.IsPredefined = isPredefined;
-            this.AssociationTag = associationTag;
             this.ParentId = parentId;
             this.CreateDate = createDate;
             this.UpdateDate = updateDate;
@@ -78,7 +74,6 @@ namespace Core.Catalog.CatalogManagement
             this.SystemName = string.Copy(assetStructToCopy.SystemName);
             this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
             this.IsPredefined = assetStructToCopy.IsPredefined;
-            this.AssociationTag = assetStructToCopy.AssociationTag;
             this.ParentId = assetStructToCopy.ParentId;
             this.CreateDate = assetStructToCopy.CreateDate;
             this.UpdateDate = assetStructToCopy.UpdateDate;
@@ -135,7 +130,6 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);
-            sb.AppendFormat("AssociationTag: {0}, ", AssociationTag);
             sb.AppendFormat("ParentId: {0}, ", ParentId.HasValue ? ParentId.Value.ToString() : string.Empty);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);
             sb.AppendFormat("UpdateDate: {0}", UpdateDate);
