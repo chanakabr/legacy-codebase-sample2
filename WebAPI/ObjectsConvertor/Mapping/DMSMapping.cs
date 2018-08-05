@@ -78,7 +78,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserAgent, opt => opt.MapFrom(src => src.UserAgent))
                 .ForMember(dest => dest.VersionAppName, opt => opt.MapFrom(src => src.VersionAppName))
                 .ForMember(dest => dest.VersionNumber, opt => opt.MapFrom(src => src.VersionNumber))
-                .ForMember(dest => dest.VersionPlatform, opt => opt.MapFrom(src => ConvertPlatform(src.VersionPlatform)));
+                .ForMember(dest => dest.VersionPlatform, opt => opt.ResolveUsing(src => ConvertPlatform(src.VersionPlatform)));
 
             // from dms to local
             cfg.CreateMap<DMSPushParams, KalturaPushParams>()
@@ -90,10 +90,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
+                .ForMember(dest => dest.Content, opt => opt.ResolveUsing(src => ConvertToContent(src.Params)))
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
@@ -102,10 +102,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
+                .ForMember(dest => dest.Params, opt => opt.ResolveUsing(src => ConvertToParms(src.Content)))
                 .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
         }

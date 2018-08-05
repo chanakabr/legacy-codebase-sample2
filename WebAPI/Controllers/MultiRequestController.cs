@@ -55,13 +55,27 @@ namespace WebAPI.Controllers
             }
             else if (typeof(IList).IsAssignableFrom(parameter.GetType()))
             {
-                int index;
-                if (!int.TryParse(token, out index))
+                List<object> parametersList = new List<object>(parameter as IEnumerable<object>);
+                if (token.Equals("*") && parametersList.All(x => x.GetType().IsSubclassOf(typeof(KalturaOTTObject))))
                 {
-                    throw new RequestParserException();
-                }
+                    string propertyName = tokens.ElementAt(0);
+                    tokens.RemoveAt(0);
+                   
+                    string str = string.Join(", ", parametersList.Select(item => item.GetType().GetProperties().FirstOrDefault
+                        (property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase)).GetValue(item)));
 
-                result = ((IList)parameter)[index];
+                    result = str;
+                }
+                else
+                {
+                    int index;
+                    if (!int.TryParse(token, out index))
+                    {
+                        throw new RequestParserException();
+                    }
+
+                    result = parametersList[index];
+                }
             }
             else if (parameter.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
             {
