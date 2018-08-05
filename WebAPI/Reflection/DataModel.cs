@@ -8741,6 +8741,590 @@ namespace WebAPI.Reflection
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string paramName;
             string newParamName = null;
+            if(isOldVersion)
+            {
+                switch (service)
+                {
+                    case "announcement":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "createAnnouncement":
+                                action = "enablesystemannouncements";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "asset":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "assethistory":
+                        switch(action)
+                        {
+                            case "clean":
+                                action = "cleanoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "bookmark":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "cdvradapterprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "channel":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "entitlement":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "exporttask":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "externalchannelprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "favorite":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "followtvseries":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "homenetwork":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "household":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householddevice":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householdpaymentgateway":
+                        switch(action)
+                        {
+                            case "delete":
+                                action = "disable";
+                                break;
+                                
+                            case "set":
+                                action = "enable";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householdpremiumservice":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householduser":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "licensedurl":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "meta":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "notificationspartnersettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "notificationssettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "ossadapterprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "ottuser":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "add":
+                                action = "register";
+                                break;
+                                
+                            case "sendPassword":
+                                action = "resetpassword";
+                                break;
+                                
+                            case "resetPassword":
+                                action = "setpassword";
+                                break;
+                                
+                            case "changePassword":
+                                action = "updatelogindata";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "parentalrule":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentgatewayprofile":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentgatewayprofilesettings":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentmethodprofile":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "personalfeed":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "pin":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "purchasesettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "recommendationprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "registrysettings":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "session":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "social":
+                        switch(action)
+                        {
+                            case "getByToken":
+                                action = "getbytokenoldstandard";
+                                break;
+                                
+                            case "config":
+                                action = "getconfiguration";
+                                break;
+                                
+                            case "merge":
+                                action = "mergeoldstandard";
+                                break;
+                                
+                            case "register":
+                                action = "registeroldstandard";
+                                break;
+                                
+                            case "unmerge":
+                                action = "unmergeoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "subscription":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "topic":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "transaction":
+                        switch(action)
+                        {
+                            case "purchase":
+                                action = "purchaseoldstandard";
+                                break;
+                                
+                            case "purchaseSessionId":
+                                action = "purchasesessionidoldstandard";
+                                break;
+                                
+                            case "waiver":
+                                action = "setwaiver";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "transactionhistory":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userassetrule":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userassetslistitem":
+                        switch(action)
+                        {
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userrole":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                }
+            }
             switch (service)
             {
                 case "announcement":
