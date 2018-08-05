@@ -7,11 +7,15 @@ using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
 using ODBCWrapper;
 using Tvinci.Core.DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class UsersDal : BaseDal
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Private Constants
 
         private const string SP_GET_USER_TYPE_DATA = "Get_UserTypeData";
@@ -30,9 +34,9 @@ namespace DAL
         private const string SP_GET_USER_TYPE = "Get_UserType";
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         private const string DELETE_USER = "Delete_User";
+
         #endregion
-
-
+        
         /*
          * IsUseModifiedSP == true calls SP: Get_DevicesToUsersPushAction
          * IsUseModifiedSP == false calls SP: Get_DevicesToUsersNonPushAction
@@ -149,8 +153,7 @@ namespace DAL
         {
             try
             {
-                // TODO SHIR - UPDATE StoredProcedure TO RETURN CREATE_DATE, UPDATE_DATE AND ID
-                ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USER_BASIC_DATA);
+                StoredProcedure spGetUserBasicData = new StoredProcedure(SP_GET_USER_BASIC_DATA);
                 spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 spGetUserBasicData.AddParameter("@userID", userID);
@@ -175,18 +178,16 @@ namespace DAL
 
         public static DataTable GetUsersBasicData(long[] usersIDs)
         {
-            // TODO SHIR - ADD CREATE_DATE, UPDATE_DATE, ID TO StoredProcedure
-            ODBCWrapper.StoredProcedure spGetUserBasicData = new ODBCWrapper.StoredProcedure(SP_GET_USERS_BASIC_DATA);
+            StoredProcedure spGetUserBasicData = new StoredProcedure(SP_GET_USERS_BASIC_DATA);
             spGetUserBasicData.SetConnectionKey("USERS_CONNECTION_STRING");
-
             spGetUserBasicData.AddIDListParameter("@usersIDs", usersIDs.ToList(), "Id");
-
             DataSet ds = spGetUserBasicData.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 return ds.Tables[0];
             }
+
             return null;
         }
 
@@ -668,10 +669,25 @@ namespace DAL
         /// <param name="userId"></param>
         /// <param name="roleIds"></param>
         /// <returns>Return True if roles update successfully</returns>
-        public static bool InsertUserRoleIds(int groupId, string userId, List<long> roleIds)
+        public static bool UpsertUserRoleIds(int groupId, long userId, List<long> roleIds)
         {
-            // TODO SHIR  - InsertUserRoleIds
-            throw new NotImplementedException();
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("UpsertUserRoleIds");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@userId", userId);
+                sp.AddIDListParameter("@roleIds", roleIds, "id");
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpsertUserRoleIds in DB, groupId: {0}, userId: {1}, roleIds:{2}, ex:{3} ", groupId, userId, string.Join(", ", roleIds), ex);
+            }
+
+            return result;
         }
 
         public static DateTime GetLastUserSessionDate(int nSiteGuid, ref int userSessionID, ref string userSession, ref string lastUserIP, ref DateTime dbNow)
@@ -1336,7 +1352,7 @@ namespace DAL
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         string sCoGuid = "")
+                                         DateTime updateDate, string sCoGuid, string externalToken)
         {
             try
             {
@@ -1344,11 +1360,11 @@ namespace DAL
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
-
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ExternalToken", "=", externalToken);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
                 if (!string.IsNullOrEmpty(sUserName))
@@ -1379,6 +1395,7 @@ namespace DAL
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ZIP", "=", sZip);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
+                updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
 
                 updateQuery += "WHERE";
