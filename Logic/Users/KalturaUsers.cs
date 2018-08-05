@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
@@ -228,72 +229,42 @@ namespace Core.Users
                 basicData.m_sUserName = string.Format(basicData.m_sUserName + "_{0}", User.GetNextGUID());
 
             newUser.Initialize(basicData, dynamicData, GroupId, password);
-            if (newUser.m_sSiteGUID != "")
+            if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != basicData)
             {
                 userResponse.Initialize(ResponseStatus.UserExists, newUser);
                 return userResponse;
             }
-            else
-            {
-                if (newUser.m_oBasicData != basicData)
-                {
-                    userResponse.Initialize(ResponseStatus.UserExists, newUser);
-                    return userResponse;
-                }
-            }
 
             if (!string.IsNullOrEmpty(newUser.m_oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(GroupId, newUser.m_oBasicData.m_CoGuid) > 0)
             {
                 userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
                 return userResponse;
             }
-
-            if (!string.IsNullOrEmpty(newUser.m_oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(GroupId, newUser.m_oBasicData.m_CoGuid) > 0)
-            {
-                userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
-                return userResponse;
-            }
-
+            
             // save user
-            int nUserID = FlowManager.SaveUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
-
+            int userId = FlowManager.SaveUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
+            if (userId <= 0)
+            {
+                userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
+                return userResponse;
+            }
+            
             // add domain
             if (newUser.m_domianID <= 0)
             {
-                FlowManager.AddDomain(ref userResponse, this, newUser, basicData.m_sUserName, nUserID, domainInfo, keyValueList);
+                FlowManager.AddDomain(ref userResponse, this, newUser, basicData.m_sUserName, userId, domainInfo, keyValueList);
             }
             else
             {
                 userResponse.Initialize(ResponseStatus.OK, newUser);
             }
 
-            // add role to user
+            // add role to user + create default rules
             if (userResponse.m_RespStatus == ResponseStatus.OK || userResponse.m_RespStatus == ResponseStatus.UserWithNoDomain)
             {
-                long roleId;
-
-                if (DAL.UsersDal.IsUserDomainMaster(GroupId, nUserID))
-                {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;                    
-                }
-                else
-                {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;                    
-                }
-
-                if (roleId != 0)
-                {
-                    DAL.UsersDal.Insert_UserRole(GroupId, nUserID.ToString(), roleId, true);
-                }
-                else
-                {
-                    userResponse.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
-                    log.ErrorFormat("User created with no role. userId = {0}", nUserID);
-                }
+                FlowManager.CreateDefaultRules(ref userResponse, this, newUser, userId.ToString(), GroupId, keyValueList);
             }
-            // create default rules
-            FlowManager.CreateDefaultRules(ref userResponse, this, newUser, newUser.m_sSiteGUID, GroupId, keyValueList);
-
+            
             // subscribe to news letter
             FlowManager.SubscribeToNewsLetter(ref userResponse, this, dynamicData, newUser, keyValueList);
 
@@ -369,8 +340,38 @@ namespace Core.Users
 
         internal override bool MidCreateDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo)
         {
-            // return client.SetDefaultRules(wsUserName, wSPass, siteGuid);
-            return true;
+            // TODO SHIR - SEE IF DATA\INIT ARE CURRECT
+            long roleId;
+
+            if (DAL.UsersDal.IsUserDomainMaster(GroupId, int.Parse(siteGuid)))
+            {
+                roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+            }
+            else
+            {
+                roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+            }
+
+            if (roleId > 0 && !userResponse.m_user.m_oBasicData.RoleIds.Contains(roleId))
+            {
+                userResponse.m_user.m_oBasicData.RoleIds.Add(roleId);
+            }
+
+            if (userResponse.m_user.m_oBasicData.RoleIds.Count > 0 && UsersDal.InsertUserRoleIds(GroupId, siteGuid, userResponse.m_user.m_oBasicData.RoleIds))
+            {
+                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
+                }
+
+                userResponse.Initialize(ResponseStatus.OK, userResponse.m_user);
+                return true;
+            }
+
+            userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, userResponse.m_user);
+            log.ErrorFormat("User created with no role. userId = {0}", siteGuid);
+            return false;
         }
 
         public override void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList) { }
@@ -631,7 +632,7 @@ namespace Core.Users
 
         internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList, string userIP)
         {
-            try
+            if (siteGuids != null)
             {
                 for (int i = 0; i < siteGuids.Count; i++)
                 {
@@ -639,15 +640,12 @@ namespace Core.Users
                     {
                         UserResponseObject temp = FlowManager.GetUserData(this, siteGuids[i], keyValueList, userIP);
                         if (temp != null)
+                        {
                             userResponses.Add(temp);
+                        }
                     }
-                    catch
-                    {
-                    }
+                    catch { }
                 }
-            }
-            catch
-            {
             }
         }
 

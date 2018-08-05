@@ -89,6 +89,7 @@ namespace Core.Users
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
                             //DomainsCache.Instance().InsertDomain(domain);
 
+                            // TODO SHIR - SET ROLES IN AddDomain
                             // set user role to master 
                             long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
                             if (roleId > 0 && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)

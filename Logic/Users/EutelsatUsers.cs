@@ -21,13 +21,13 @@ namespace Core.Users
 
         public override UserResponseObject AddNewUser(UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword)
         {
-            UserResponseObject resp = new UserResponseObject();
-            User u = new User();
+            UserResponseObject userResponse = new UserResponseObject();
+            User newUser = new User();
             // if username or password empty return with WrongPasswordOrUserName response
             if (string.IsNullOrEmpty(oBasicData.m_sUserName) || string.IsNullOrEmpty(sPassword))
             {
-                resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
+                return userResponse;
             }
 
             if (!string.IsNullOrEmpty(oBasicData.m_sUserName) && oBasicData.m_sUserName.ToLower().Contains("anonymous"))
@@ -35,64 +35,51 @@ namespace Core.Users
                 oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());
             }
 
-            u.Initialize(oBasicData, sDynamicData, m_nGroupID, sPassword);
+            newUser.Initialize(oBasicData, sDynamicData, m_nGroupID, sPassword);
 
-            if (!string.IsNullOrEmpty(u.m_sSiteGUID))
+            if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != oBasicData)
             {
-                resp.Initialize(ResponseStatus.UserExists, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.UserExists, newUser);
+                return userResponse;
             }
-
-            if (u.m_oBasicData != oBasicData)
-            {
-                resp.Initialize(ResponseStatus.UserExists, u);
-                return resp;
-            }
-
-            int newUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
+            
+            int newUserID = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
 
             if (newUserID <= 0)
             {
-                resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
+                return userResponse;
             }
 
-            if (u.m_domianID <= 0)
+            if (newUser.m_domianID <= 0)
             {
-                bool bValidDomainStatus = base.CheckAddDomain(ref resp, u, oBasicData.m_sUserName, newUserID);
+                base.CheckAddDomain(ref userResponse, newUser, oBasicData.m_sUserName, newUserID);
             }
             else
             {
-                resp.Initialize(ResponseStatus.OK, u);
+                userResponse.Initialize(ResponseStatus.OK, newUser);
             }
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
-            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
+            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") && m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))
             {
-                if (m_newsLetterImpl != null)
-                {
-                    if (!m_newsLetterImpl.IsUserSubscribed(u))
-                    {
-                        m_newsLetterImpl.Subscribe(resp.m_user);
-                    }
-                }
+                m_newsLetterImpl.Subscribe(userResponse.m_user);
             }
 
             //Send Wellcome Email
             if (m_mailImpl != null)
             {
-                SendMailImpl(resp.m_user);
+                SendMailImpl(userResponse.m_user);
             }
             else
             {
                 WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
-
-                bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
+                Utils.SendMail(m_nGroupID, sMailReq);
             }
 
-            if (resp.m_RespStatus != ResponseStatus.OK)
+            if (userResponse.m_RespStatus != ResponseStatus.OK)
             {
-                return resp;
+                return userResponse;
             }
 
             string sOperatorCoGuid = string.Empty;
@@ -100,12 +87,12 @@ namespace Core.Users
             int nOperatorGroupID = 0;
             int nHouseholdID = 0;
 
-            if (Utils.GetUserOperatorAndHouseholdIDs(m_nGroupID, resp.m_user.m_oBasicData.m_CoGuid, ref nOperatorID, ref sOperatorCoGuid, ref nOperatorGroupID, ref nHouseholdID))
+            if (Utils.GetUserOperatorAndHouseholdIDs(m_nGroupID, userResponse.m_user.m_oBasicData.m_CoGuid, ref nOperatorID, ref sOperatorCoGuid, ref nOperatorGroupID, ref nHouseholdID))
             {
-                bool res = DAL.UsersDal.InsertUserOperator(resp.m_user.m_sSiteGUID, resp.m_user.m_oBasicData.m_CoGuid, nOperatorID);
+                DAL.UsersDal.InsertUserOperator(userResponse.m_user.m_sSiteGUID, userResponse.m_user.m_oBasicData.m_CoGuid, nOperatorID);
             }
 
-            return resp;
+            return userResponse;
         }
 
         public override UserResponseObject ActivateAccount(string sUN, string sToken)

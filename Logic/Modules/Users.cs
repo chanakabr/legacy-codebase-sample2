@@ -692,7 +692,6 @@ namespace Core.Users
                     return null;
                 }
                 
-                // TODO SHIR - EDIT
                 response = FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, new List<KeyValuePair>());
             }
 
@@ -735,10 +734,8 @@ namespace Core.Users
             {
                 return t.SetUserData(sSiteGUID, oBasicData, sDynamicData);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
         
         public static void Hit(int nGroupID, string sSiteGUID)

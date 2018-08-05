@@ -265,7 +265,7 @@ namespace Core.Users
                 nStateID = m_State.m_nObjecrtID;
             }
 
-            // TODO SHIR - check if need to add here the roleIds for save or to do it only in the phoenix level -> YES
+            // TODO SHIR - update roleIds
             bool saved = DAL.UsersDal.SaveBasicData(nUserID,
                                                     m_sPassword,
                                                     m_sSalt,
@@ -287,7 +287,7 @@ namespace Core.Users
                                                     m_sTwitterToken,
                                                     m_sTwitterTokenSecret,
                                                     m_CoGuid);
-
+            
             return saved;
         }
         
@@ -326,6 +326,36 @@ namespace Core.Users
             }
 
             return isRoleIdsSet;
+        }
+
+        public void Copy(UserBasicData other)
+        {
+            if (!string.IsNullOrEmpty(other.m_sUserName))
+            {
+                this.m_sUserName = other.m_sUserName;
+            }
+
+            this.m_sEmail = other.m_sEmail;
+            this.m_sFirstName = other.m_sFirstName;
+            this.m_sLastName = other.m_sLastName;
+            this.m_Country = other.m_Country;
+            this.m_sAddress = other.m_sAddress;
+            this.m_sCity = other.m_sCity;
+            this.m_sPhone = other.m_sPhone;
+            this.m_State = other.m_State;
+            this.m_sZip = other.m_sZip;
+            this.m_sFacebookID = other.m_sFacebookID;
+            this.m_sFacebookImage = other.m_sFacebookImage;
+            this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
+            this.m_sFacebookToken = other.m_sFacebookToken;
+            this.m_UserType = other.m_UserType;
+            this.m_CoGuid = other.m_CoGuid;
+
+            if (other.RoleIds != null && other.RoleIds.Count > 0)
+            {
+                this.RoleIds = other.RoleIds;
+            }
+            UpdateDate = DateTime.MinValue;
         }
     }
 }

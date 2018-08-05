@@ -1412,6 +1412,7 @@ namespace Core.Users
             return response;
         }
 
+        // TODO SHIR - COPY FROM HERE
         public ApiObjects.Response.Status AddRoleToUser(int groupId, string userId, long roleId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();

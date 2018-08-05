@@ -1132,8 +1132,9 @@ namespace Core.Users
             // if user was added successfully as master - set user role to be master
             long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
 
-            if (eDomainResponseStatus == DomainResponseStatus.OK && DAL.UsersDal.IsUserDomainMaster(nGroupID, nUserID))
+            if (eDomainResponseStatus == DomainResponseStatus.OK && UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
+                // TODO SHIR - SET ROLES IN AddUserToDomain
                 if (roleId > 0 && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
                 {
                     // add invalidation key for user roles cache
