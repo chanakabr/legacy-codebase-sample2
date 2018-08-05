@@ -1130,18 +1130,29 @@ namespace Core.Users
             }
 
             // if user was added successfully as master - set user role to be master
-            long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
-
             if (eDomainResponseStatus == DomainResponseStatus.OK && UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
-                // TODO SHIR - SET ROLES IN AddUserToDomain
-                if (roleId > 0 && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
+                User currUser = UsersCache.Instance().GetUser(nUserID, nGroupID);
+                if (currUser != null)
                 {
-                    // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
-                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                    if (roleId > 0 && !currUser.m_oBasicData.RoleIds.Contains(roleId))
                     {
-                        log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
+                        currUser.m_oBasicData.RoleIds.Add(roleId);
+                    }
+
+                    if (currUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
+                    {
+                        // add invalidation key for user roles cache
+                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("User created with no role. userId = {0}", nUserID);
                     }
                 }
             }
@@ -2615,7 +2626,7 @@ namespace Core.Users
                     UserBasicData uBasic = new UserBasicData();
                     bool initBasic = uBasic.Initialize(nUserID, nGroupID);
                     uBasic.m_sEmail = masterUser.m_oBasicData.m_sEmail;
-                    saved = uBasic.Save(nUserID);
+                    saved = uBasic.Save(nUserID, nGroupID);
 
                     if (!saved)
                     {

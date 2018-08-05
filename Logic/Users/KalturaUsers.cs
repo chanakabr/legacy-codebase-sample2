@@ -342,8 +342,9 @@ namespace Core.Users
         {
             // TODO SHIR - SEE IF DATA\INIT ARE CURRECT
             long roleId;
+            int userId = int.Parse(siteGuid);
 
-            if (DAL.UsersDal.IsUserDomainMaster(GroupId, int.Parse(siteGuid)))
+            if (DAL.UsersDal.IsUserDomainMaster(GroupId, userId))
             {
                 roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
             }
@@ -357,7 +358,7 @@ namespace Core.Users
                 userResponse.m_user.m_oBasicData.RoleIds.Add(roleId);
             }
 
-            if (userResponse.m_user.m_oBasicData.RoleIds.Count > 0 && UsersDal.InsertUserRoleIds(GroupId, siteGuid, userResponse.m_user.m_oBasicData.RoleIds))
+            if (userResponse.m_user.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(GroupId, userId, userResponse.m_user.m_oBasicData.RoleIds))
             {
                 string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
@@ -634,7 +635,10 @@ namespace Core.Users
         {
             if (siteGuids != null)
             {
-                for (int i = 0; i < siteGuids.Count; i++)
+                // TODO SHIR - TALK WITH LIOR
+                //for (int i = 0; i < siteGuids.Count; i++)
+                int limit = Math.Min(siteGuids.Count, 500);
+                for (int i = 0; i < limit; i++)
                 {
                     try
                     {

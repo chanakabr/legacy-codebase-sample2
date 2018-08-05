@@ -282,7 +282,7 @@ namespace Core.Users
                     if (nUserID > 0)
                     {
                         Utils.SetPassword(sPass, ref userBasic, m_nGroupID);
-                        userBasic.Save(nUserID);
+                        userBasic.Save(nUserID, m_nGroupID);
                         userDynamic.Save(nUserID, m_nGroupID);
                         //userDynamic.Save(nUserID);
 
@@ -498,50 +498,18 @@ namespace Core.Users
 
         private void UpdateUserBasicData(UserResponseObject userInfo, UserBasicData newUserData)
         {
-            UserBasicData oldUserData = userInfo.m_user.m_oBasicData;
-
             bool isBasicChanged = false;
-            if (!oldUserData.m_sUserName.Equals(newUserData.m_sUserName))
+            if (!userInfo.m_user.m_oBasicData.m_sUserName.Equals(newUserData.m_sUserName))
             {
-                oldUserData.m_sUserName = newUserData.m_sUserName;
-                oldUserData.m_sPassword = newUserData.m_sUserName.ToLower();
-                oldUserData.m_sEmail = newUserData.m_sUserName;
+                userInfo.m_user.m_oBasicData.m_sUserName = newUserData.m_sUserName;
+                userInfo.m_user.m_oBasicData.m_sPassword = newUserData.m_sUserName.ToLower();
+                userInfo.m_user.m_oBasicData.m_sEmail = newUserData.m_sUserName;
                 isBasicChanged = true;
             }
-
-            if (!string.IsNullOrEmpty(newUserData.m_sFirstName) && !oldUserData.m_sFirstName.Equals(newUserData.m_sFirstName))
+            
+            if (userInfo.m_user.m_oBasicData.Copy(newUserData) || isBasicChanged)
             {
-                oldUserData.m_sFirstName = newUserData.m_sFirstName;
-                isBasicChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(newUserData.m_sLastName) && !oldUserData.m_sLastName.Equals(newUserData.m_sLastName))
-            {
-                oldUserData.m_sLastName = newUserData.m_sLastName;
-                isBasicChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(newUserData.m_sPhone) && !oldUserData.m_sPhone.Equals(newUserData.m_sPhone))
-            {
-                oldUserData.m_sPhone = newUserData.m_sPhone;
-                isBasicChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(newUserData.m_sCity) && !oldUserData.m_sCity.Equals(newUserData.m_sCity))
-            {
-                oldUserData.m_sCity = newUserData.m_sCity;
-                isBasicChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(newUserData.m_sZip) && !oldUserData.m_sZip.Equals(newUserData.m_sZip))
-            {
-                oldUserData.m_sZip = newUserData.m_sZip;
-                isBasicChanged = true;
-            }
-
-            if (isBasicChanged)
-            {
-                oldUserData.Save(int.Parse(userInfo.m_user.m_sSiteGUID));
+                userInfo.m_user.m_oBasicData.Save(int.Parse(userInfo.m_user.m_sSiteGUID), userInfo.m_user.GroupId);
             }
         }
 

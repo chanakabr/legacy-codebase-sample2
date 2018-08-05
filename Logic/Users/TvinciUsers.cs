@@ -573,10 +573,9 @@ namespace Core.Users
                 newUser.m_oBasicData.RoleIds.Add(roleId);
             }
 
-            string strUserId = userId.ToString();
-            if (newUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.InsertUserRoleIds(m_nGroupID, strUserId, newUser.m_oBasicData.RoleIds))
+            if (newUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
             {
-                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(strUserId);
+                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
@@ -810,7 +809,10 @@ namespace Core.Users
             {
                 List<UserResponseObject> resp = new List<UserResponseObject>(sSiteGUIDs.Length);
 
-                for (int i = 0; i < sSiteGUIDs.Length; i++)
+                // TODO SHIR - TALK WITH LIOR
+                //for (int i = 0; i < sSiteGUIDs.Length; i++)
+                int limit = Math.Min(sSiteGUIDs.Length, 500);
+                for (int i = 0; i < limit; i++)
                 {
                     try
                     {

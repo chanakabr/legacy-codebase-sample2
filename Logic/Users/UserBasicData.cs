@@ -44,25 +44,28 @@ namespace Core.Users
 
         public UserBasicData()
         {
-            m_sUserName = "";
-            m_sFacebookImage = "";
-            m_sFacebookID = "";
-            m_bIsFacebookImagePermitted = false;
-            m_sPassword = "";
-            m_sSalt = "";
-            m_sFirstName = "";
-            m_sLastName = "";
-            m_sEmail = "";
-            m_sAddress = "";
-            m_sCity = "";
+            m_sPassword = string.Empty;
+            m_sSalt = string.Empty;
+            m_sUserName = string.Empty;
+            m_sFirstName = string.Empty;
+            m_sLastName = string.Empty;
+            m_sEmail = string.Empty;
+            m_sAddress = string.Empty;
+            m_sCity = string.Empty;
             m_State = null;
             m_Country = null;
-            m_sZip = "";
-            m_sPhone = "";
-            m_sAffiliateCode = "";
+            m_sZip = string.Empty;
+            m_sPhone = string.Empty;
+            m_sFacebookID = string.Empty;
+            m_sFacebookImage = string.Empty;
+            m_bIsFacebookImagePermitted = false;
+            m_sAffiliateCode = string.Empty;
+            m_CoGuid = string.Empty;
+            m_ExternalToken = string.Empty;
             m_sFacebookToken = string.Empty;
             m_sTwitterToken = string.Empty;
             m_sTwitterTokenSecret = string.Empty;
+            //m_UserType = null;
             RoleIds = new List<long>();
             CreateDate = DateTime.MinValue;
             UpdateDate = DateTime.MinValue;
@@ -95,7 +98,7 @@ namespace Core.Users
             object oFacebookImage = dtUserBasicData.DefaultView[0].Row["FACEBOOK_IMAGE"];
             Int32 nFacebookImagePermitted = int.Parse(dtUserBasicData.DefaultView[0].Row["FACEBOOK_IMAGE_PERMITTED"].ToString());
             string sCoGuid = dtUserBasicData.DefaultView[0].Row["CoGuid"].ToString();
-            string sExternalToken = dtUserBasicData.DefaultView[0].Row["ExternalToken"].ToString();
+            string sExternalToken = dtUserBasicData.DefaultView[0].Row["externaltoken"].ToString();
             string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[0].Row["fb_token"]);
             string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[0].Row["user_type_desc"]);
             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[0].Row["is_default"]));
@@ -130,24 +133,7 @@ namespace Core.Users
 
             return res;
         }
-
-        // TODO SHIR - DELETE IF DONT NEED
-        //public void Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
-        //                       Int32 nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL, 
-        //                       string sAffiliate, UserType userType, Int32 userId, Int32 groupId)
-        //{
-        //    Initialize(sUserName, sPassword, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, 
-        //               bIsFacebookImagePermitted, sFacebookImageURL, sAffiliate, string.Empty, userType, userId, groupId);
-        //}
-
-        //public void Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
-        //                       Int32 nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL, 
-        //                       string sAffiliate, string sFacebookToken, UserType userType, Int32 userId, Int32 groupId)
-        //{
-        //    Initialize(sUserName, sPassword, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, 
-        //               bIsFacebookImagePermitted, sFacebookImageURL, sAffiliate, m_sFacebookToken, string.Empty, string.Empty, userType, userId, groupId, DateTime.MinValue, DateTime.MinValue);
-        //}
-
+        
         public bool Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                int nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL, 
                                string sAffiliate, string sFacebookToken, string sCoGuid, string sExternalToken, UserType userType, Int32 userId, Int32 groupId, 
@@ -155,12 +141,9 @@ namespace Core.Users
         {
             bool res = true;
 
-            m_sUserName = sUserName;
-            m_sFacebookID = sFacebookID;
-            m_sFacebookImage = sFacebookImageURL;
-            m_bIsFacebookImagePermitted = bIsFacebookImagePermitted;
             m_sPassword = sPassword;
             m_sSalt = sSalt;
+            m_sUserName = sUserName;
             m_sFirstName = sFirstName;
             m_sLastName = sLastName;
             m_sEmail = sEmail;
@@ -168,11 +151,16 @@ namespace Core.Users
             m_sCity = sCity;
             m_sZip = sZip;
             m_sPhone = sPhone;
-            m_sFacebookToken = sFacebookToken;
+            m_sFacebookID = sFacebookID;
+            m_sFacebookImage = sFacebookImageURL;
+            m_bIsFacebookImagePermitted = bIsFacebookImagePermitted;
+            m_sAffiliateCode = String.IsNullOrEmpty(sAffiliate) ? "" : sAffiliate;
             m_CoGuid = sCoGuid;
             m_ExternalToken = sExternalToken;
+            m_sFacebookToken = sFacebookToken;
+            //m_sTwitterToken = string.Empty;
+            //m_sTwitterTokenSecret = string.Empty;
             m_UserType = userType;
-            m_sAffiliateCode = String.IsNullOrEmpty(sAffiliate) ? "" : sAffiliate;
             CreateDate = createDate;
             UpdateDate = updateDate;
 
@@ -186,7 +174,6 @@ namespace Core.Users
             {
                 m_Country = new Country();
                 bool res2 = m_Country.Initialize(nCountryID);
-
                 res = res && res2;
             }
 
@@ -250,7 +237,7 @@ namespace Core.Users
             return res;
         }
         
-        public bool Save(Int32 nUserID)
+        public bool Save(Int32 nUserID, int groupId)
         {
             int nCountryID = (-1);
             int nStateID = (-1);
@@ -265,7 +252,8 @@ namespace Core.Users
                 nStateID = m_State.m_nObjecrtID;
             }
 
-            // TODO SHIR - update roleIds
+            this.UpdateDate = DateTime.UtcNow;
+            
             bool saved = DAL.UsersDal.SaveBasicData(nUserID,
                                                     m_sPassword,
                                                     m_sSalt,
@@ -286,7 +274,12 @@ namespace Core.Users
                                                     m_sAffiliateCode,
                                                     m_sTwitterToken,
                                                     m_sTwitterTokenSecret,
-                                                    m_CoGuid);
+                                                    this.UpdateDate,
+                                                    m_CoGuid,
+                                                    m_ExternalToken);
+                                                    //m_UserType
+
+            saved &= UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
             
             return saved;
         }
@@ -328,34 +321,142 @@ namespace Core.Users
             return isRoleIdsSet;
         }
 
-        public void Copy(UserBasicData other)
+        /// <summary>
+        /// copy all properites from other UserBasicData to currenct object
+        /// </summary>
+        /// <param name="other"></param>
+        public bool Copy(UserBasicData other)
         {
+            bool isBasicChanged = false;
+
+            if (!string.IsNullOrEmpty(other.m_sPassword))
+            {
+                this.m_sPassword = other.m_sPassword;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sSalt))
+            {
+                this.m_sSalt = other.m_sSalt;
+            }
+
             if (!string.IsNullOrEmpty(other.m_sUserName))
             {
                 this.m_sUserName = other.m_sUserName;
             }
 
-            this.m_sEmail = other.m_sEmail;
-            this.m_sFirstName = other.m_sFirstName;
-            this.m_sLastName = other.m_sLastName;
-            this.m_Country = other.m_Country;
-            this.m_sAddress = other.m_sAddress;
-            this.m_sCity = other.m_sCity;
-            this.m_sPhone = other.m_sPhone;
-            this.m_State = other.m_State;
-            this.m_sZip = other.m_sZip;
-            this.m_sFacebookID = other.m_sFacebookID;
-            this.m_sFacebookImage = other.m_sFacebookImage;
-            this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
-            this.m_sFacebookToken = other.m_sFacebookToken;
-            this.m_UserType = other.m_UserType;
-            this.m_CoGuid = other.m_CoGuid;
+            if (!string.IsNullOrEmpty(other.m_sFirstName) && !this.m_sFirstName.Equals(other.m_sFirstName))
+            {
+                this.m_sFirstName = other.m_sFirstName;
+                isBasicChanged = true;
+            }
 
+            if (!string.IsNullOrEmpty(other.m_sLastName) && !this.m_sLastName.Equals(other.m_sLastName))
+            {
+                this.m_sLastName = other.m_sLastName;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sEmail))
+            {
+                this.m_sEmail = other.m_sEmail;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sAddress))
+            {
+                this.m_sAddress = other.m_sAddress;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sCity) && !this.m_sCity.Equals(other.m_sCity))
+            {
+                this.m_sCity = other.m_sCity;
+                isBasicChanged = true;
+            }
+
+            if (other.m_State != null)
+            {
+                this.m_State = other.m_State;
+            }
+
+            if (other.m_Country != null)
+            {
+                this.m_Country = other.m_Country;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sZip) && !this.m_sZip.Equals(other.m_sZip))
+            {
+                this.m_sZip = other.m_sZip;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sPhone) && !this.m_sPhone.Equals(other.m_sPhone))
+            {
+                this.m_sPhone = other.m_sPhone;
+                isBasicChanged = true;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sFacebookID))
+            {
+                this.m_sFacebookID = other.m_sFacebookID;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sFacebookImage))
+            {
+                this.m_sFacebookImage = other.m_sFacebookImage;
+            }
+
+            this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
+
+            if (!string.IsNullOrEmpty(other.m_sAffiliateCode))
+            {
+                this.m_sAffiliateCode = other.m_sAffiliateCode;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_CoGuid))
+            {
+                this.m_CoGuid = other.m_CoGuid;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_ExternalToken))
+            {
+                this.m_ExternalToken = other.m_ExternalToken;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sFacebookToken))
+            {
+                this.m_sFacebookToken = other.m_sFacebookToken;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sTwitterToken))
+            {
+                this.m_sTwitterToken = other.m_sTwitterToken;
+            }
+
+            if (!string.IsNullOrEmpty(other.m_sTwitterTokenSecret))
+            {
+                this.m_sTwitterTokenSecret = other.m_sTwitterTokenSecret;
+            }
+
+            if (!other.m_UserType.Equals(default(UserType)))
+            {
+                this.m_UserType = other.m_UserType;
+            }
+            
             if (other.RoleIds != null && other.RoleIds.Count > 0)
             {
                 this.RoleIds = other.RoleIds;
             }
-            UpdateDate = DateTime.MinValue;
+
+            if (!other.CreateDate.Equals(DateTime.MinValue))
+            {
+                this.CreateDate = other.CreateDate;
+            }
+
+            if (!other.UpdateDate.Equals(DateTime.MinValue))
+            {
+                this.UpdateDate = other.UpdateDate;
+            }
+
+            return isBasicChanged;
         }
     }
 }

@@ -614,7 +614,7 @@ namespace Core.Users
                     m_oBasicData.RoleIds.Add(roleId);
                 }
 
-                if (m_oBasicData.RoleIds.Count > 0 && UsersDal.InsertUserRoleIds(this.GroupId, this.m_sSiteGUID, m_oBasicData.RoleIds))
+                if (m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                 {
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
@@ -668,7 +668,7 @@ namespace Core.Users
             // update
             else
             {
-                bool saved = m_oBasicData.Save(this.userId);
+                bool saved = m_oBasicData.Save(this.userId, this.GroupId);
 
                 if (!saved)
                 {
