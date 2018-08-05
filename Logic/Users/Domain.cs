@@ -2991,6 +2991,24 @@ namespace Core.Users
             domainUserIds.AddRange(m_UsersIDs);
             domainUserIds = domainUserIds.Distinct().ToList();
 
+            // get household devices            
+            if (m_deviceFamilies != null && m_deviceFamilies.Count > 0)
+            {
+                List<string> domainUdids = new List<string>();
+                domainUdids = m_deviceFamilies.SelectMany(x => x.DeviceInstances).Where(y => !string.IsNullOrEmpty(y.m_deviceUDID)).Select(z => z.m_deviceUDID).ToList();
+
+                domainUdids = domainUdids.Distinct().ToList();
+
+                foreach (string udid in domainUdids)
+                {
+                    DomainResponseStatus domainResponseStatus = RemoveDeviceFromDomain(udid);
+                    if (domainResponseStatus != DomainResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Error while RemoveDeviceFromDomain. domainId: {0}, udid: {1}", m_nDomainID, udid);
+                    }
+                }
+            }
+
             int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status, shouldPurge);
 
             //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;

@@ -1838,7 +1838,6 @@ namespace Core.Catalog
                 }
 
                 parentMediaTypes = catalogGroupCache.AssetStructsMapById.ToDictionary(x => (int)x.Key, x => (int)x.Value.ParentId);
-                associationTags = catalogGroupCache.AssetStructsMapById.ToDictionary(x => (int)x.Key, x => x.Value.AssociationTag);
             }
             else
             {
