@@ -13,6 +13,7 @@ using System;
 using ApiObjects.SSOAdapter;
 using System.Linq;
 using AutoMapper.Configuration;
+using TVinciShared;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -37,7 +38,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
-            //// UserBasicData
+            // UserBasicData
             //cfg.CreateMap<UserBasicData, KalturaUserBasicData>()
             //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
             //    .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
@@ -55,7 +56,7 @@ namespace ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_UserType))
             //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
-            // User
+            // UserResponseObject to KalturaOTTUser
             cfg.CreateMap<UserResponseObject, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sLastName))
@@ -79,9 +80,12 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspentionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.SuspensionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
+                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)))
+                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_user.m_oBasicData.RoleIds)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.CreateDate.ToUnixTimestamp()))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.UpdateDate.ToUnixTimestamp()));
 
-            // User
+            // User to KalturaOTTUser
             cfg.CreateMap<User, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName))
@@ -105,20 +109,23 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SuspentionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
                 .ForMember(dest => dest.SuspensionState, opt => opt.ResolveUsing(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))); // for activation status
+                .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))) // for activation status
+                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_oBasicData.RoleIds)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_oBasicData.CreateDate.ToUnixTimestamp()))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_oBasicData.UpdateDate.ToUnixTimestamp()));
 
-            // SlimUser
+            // KalturaOTTUser to KalturaBaseOTTUser
             cfg.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName));
 
-            // UserId to SlimUser
+            // UserId to KalturaBaseOTTUser
             cfg.CreateMap<int, KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
 
-            // Rest UserBasicData ==> WS_Users UserBasicData
+            // KalturaOTTUser to UserBasicData
             cfg.CreateMap<KalturaOTTUser, UserBasicData>()
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
@@ -134,7 +141,10 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sPhone, opt => opt.MapFrom(src => src.Phone))
                 .ForMember(dest => dest.m_sUserName, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.m_UserType, opt => opt.ResolveUsing(src => src.UserType == null ? null : src.UserType))
-                .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
+                .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip))
+                .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetRoleIds()))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate.UnixTimestampToDateTime()))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate.UnixTimestampToDateTime()));
 
             // Country
             cfg.CreateMap<KalturaCountry, Core.Users.Country>()
@@ -257,7 +267,11 @@ namespace ObjectsConvertor.Mapping
             return response;
         }
 
-        // ListType to KalturaUserAssetsListType
+        /// <summary>
+        /// ListType to KalturaUserAssetsListType
+        /// </summary>
+        /// <param name="listType"></param>
+        /// <returns></returns>
         private static KalturaUserAssetsListType ConvertUserAssetsListType(ListType listType)
         {
             KalturaUserAssetsListType result;
@@ -278,7 +292,11 @@ namespace ObjectsConvertor.Mapping
             return result;
         }
 
-        // KalturaUserAssetsListType to ListType
+        /// <summary>
+        /// KalturaUserAssetsListType to ListType
+        /// </summary>
+        /// <param name="listType"></param>
+        /// <returns></returns>
         public static ListType ConvertUserAssetsListType(KalturaUserAssetsListType listType)
         {
             ListType result;
@@ -340,8 +358,6 @@ namespace ObjectsConvertor.Mapping
             long output = 0;
             long.TryParse(src, out output);
             return output;
-
-
         }
 
         private static KalturaUserState ConvertResponseStatusToUserState(ResponseStatus type, bool isActivationGracePeriod)

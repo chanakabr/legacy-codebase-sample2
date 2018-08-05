@@ -4539,7 +4539,8 @@
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.AddRole(System.Int64)">
-            <summary>Edit user details.        
+            <summary>
+            Deprecate - use Register or Update actions instead by setting user.roleIds parameter
             </summary>
             <param name="roleId"> The role identifier to add</param>
             <remarks>
@@ -4590,7 +4591,7 @@
             <param name="filter">Filter request</param>
             <remarks>Possible status codes: 
             UserDoesNotExist = 2000 </remarks>
-            <returns></returns>
+            <returns>List of OTTUser limited in 500 items</returns>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.UpdateDynamicData(System.String,WebAPI.Models.General.KalturaStringValue)">
             <summary>
@@ -12041,6 +12042,11 @@
             List of user identifiers separated by ','
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.RoleIdsIn">
+            <summary>
+            Comma separated list of role Ids.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
             <summary>
             Kaltura Session
@@ -12355,6 +12361,21 @@
         <member name="P:WebAPI.Models.Users.KalturaOTTUser.UserState">
             <summary>
             User state
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUser.RoleIds">
+            <summary>
+            Comma separated list of role Ids.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUser.CreateDate">
+            <summary>
+            User create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUser.UpdateDate">
+            <summary>
+            User last update date
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserAssetsList">
@@ -13997,6 +14018,20 @@
             <summary>
             Summary description for Swagger
             </summary>
+        </member>
+        <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
+            <summary>
+            ListType to KalturaUserAssetsListType
+            </summary>
+            <param name="listType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(WebAPI.Models.Users.KalturaUserAssetsListType)">
+            <summary>
+            KalturaUserAssetsListType to ListType
+            </summary>
+            <param name="listType"></param>
+            <returns></returns>
         </member>
         <member name="T:WS_API.API">
             <summary>
