@@ -4591,7 +4591,7 @@
             <param name="filter">Filter request</param>
             <remarks>Possible status codes: 
             UserDoesNotExist = 2000 </remarks>
-            <returns></returns>
+            <returns>List of OTTUser limited in 500 items</returns>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.UpdateDynamicData(System.String,WebAPI.Models.General.KalturaStringValue)">
             <summary>
@@ -12040,6 +12040,11 @@
         <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.IdIn">
             <summary>
             List of user identifiers separated by ','
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.RoleIdsIn">
+            <summary>
+            Comma separated list of role Ids.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">

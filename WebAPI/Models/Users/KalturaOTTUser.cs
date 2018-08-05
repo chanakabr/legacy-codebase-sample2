@@ -228,22 +228,26 @@ namespace WebAPI.Models.Users
         internal List<long> GetRoleIds()
         {
             List<long> values = new List<long>();
-            string[] stringValues = RoleIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
+            
+            if (!string.IsNullOrEmpty(RoleIds))
             {
-                long value;
-                if (long.TryParse(stringValue, out value) && value != 0)
+                string[] stringValues = RoleIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
                 {
-                    if (values.Contains(value))
+                    long value;
+                    if (long.TryParse(stringValue, out value) && value != 0)
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIds");
-                    }
+                        if (values.Contains(value))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIds");
+                        }
 
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIds");
+                        values.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIds");
+                    }
                 }
             }
 

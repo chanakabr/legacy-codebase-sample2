@@ -18887,6 +18887,10 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
+            if(RoleIdsIn != null)
+            {
+                ret.Add("roleIdsIn", "\"roleIdsIn\": " + "\"" + EscapeJson(RoleIdsIn) + "\"");
+            }
             if(UsernameEqual != null)
             {
                 ret.Add("usernameEqual", "\"usernameEqual\": " + "\"" + EscapeJson(UsernameEqual) + "\"");
@@ -18906,6 +18910,10 @@ namespace WebAPI.Models.Users
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(RoleIdsIn != null)
+            {
+                ret.Add("roleIdsIn", "<roleIdsIn>" + EscapeXml(RoleIdsIn) + "</roleIdsIn>");
             }
             if(UsernameEqual != null)
             {

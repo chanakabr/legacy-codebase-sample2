@@ -44,6 +44,15 @@ namespace WebAPI.Models.Users
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string IdIn { get; set; }
 
+        // TODO SHIR - SET permissions IN C:\SourceCode\Master\tvpapi_rest\permissions\permission_items\objects\kalturaottuser.json
+        /// <summary>
+        /// Comma separated list of role Ids.
+        /// </summary>
+        [DataMember(Name = "roleIdsIn")]
+        [JsonProperty("roleIdsIn")]
+        [XmlElement(ElementName = "roleIdsIn")]
+        public string RoleIdsIn { get; set; }
+
         internal void Validate()
         {
             if ((!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(ExternalIdEqual) && !string.IsNullOrEmpty(IdIn)) ||
@@ -70,6 +79,36 @@ namespace WebAPI.Models.Users
 
             return list;
         }
+
+        internal HashSet<long> GetRoleIdsIn()
+        {
+            HashSet<long> values = new HashSet<long>();
+
+            if (!string.IsNullOrEmpty(RoleIdsIn))
+            {
+                string[] stringValues = RoleIdsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value) && value != 0)
+                    {
+                        if (values.Contains(value))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIdsIn");
+                        }
+
+                        values.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIdsIn");
+                    }
+                }
+            }
+            
+            return values;
+        }
+
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
             return KalturaOTTUserOrderBy.NONE;

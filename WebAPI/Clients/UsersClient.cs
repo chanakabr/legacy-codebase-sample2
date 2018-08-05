@@ -466,10 +466,28 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds)
+        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds, HashSet<long> roleIds = null)
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;
+
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                List<string> filteredUsersIds = new List<string>();
+                for (int i = 0; i < usersIds.Count; i++)
+                {
+                    List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
+                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    {
+                        if (roleIds.Any(userRoleIds.Contains))
+                        {
+                            filteredUsersIds.Add(usersIds[i]);
+                        }
+                    }
+                }
+
+                usersIds = filteredUsersIds;
+            }
             
             try
             {

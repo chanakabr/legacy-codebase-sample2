@@ -3339,6 +3339,8 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "IdIn":
                             return "idIn";
+                        case "RoleIdsIn":
+                            return "roleIdsIn";
                         case "UsernameEqual":
                             return "usernameEqual";
                     }

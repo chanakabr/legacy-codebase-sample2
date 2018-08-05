@@ -10,6 +10,17 @@
       "parameter": "externalId",
       "action": "UPDATE",
       "type": "Parameter"
+    },
+	{
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_RoleIds_Write",
+      "object": "KalturaOTTUser",
+      "parameter": "roleIds",
+      "action": "WRITE",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"
