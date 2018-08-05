@@ -3273,6 +3273,8 @@ namespace WebAPI.Reflection
                             return "country";
                         case "CountryId":
                             return "countryId";
+                        case "CreateDate":
+                            return "createDate";
                         case "DynamicData":
                             return "dynamicData";
                         case "Email":
@@ -3291,10 +3293,14 @@ namespace WebAPI.Reflection
                             return "isHouseholdMaster";
                         case "Phone":
                             return "phone";
+                        case "RoleIds":
+                            return "roleIds";
                         case "SuspensionState":
                             return "suspensionState";
                         case "SuspentionState":
                             return "suspentionState";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UserState":
                             return "userState";
                         case "UserType":

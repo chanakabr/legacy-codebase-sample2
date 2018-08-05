@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -172,8 +173,7 @@ namespace WebAPI.Models.Users
         [OldStandardProperty("suspention_state")]
         [Obsolete]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
-
-
+        
         /// <summary>
         /// Suspension state
         /// </summary>
@@ -193,9 +193,61 @@ namespace WebAPI.Models.Users
         [OldStandardProperty("user_state")]
         public KalturaUserState UserState { get; set; }
 
+        /// <summary>
+        /// Comma separated list of role Ids.
+        /// </summary>
+        [DataMember(Name = "roleIds")]
+        [JsonProperty("roleIds")]
+        [XmlElement(ElementName = "roleIds")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public string RoleIds { get; set; }
+
+        /// <summary>
+        /// User create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// User last update date
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         internal int getHouseholdID()
         {
             return HouseholdID.HasValue ? (int) HouseholdID : 0;
+        }
+
+        internal List<long> GetRoleIds()
+        {
+            List<long> values = new List<long>();
+            string[] stringValues = RoleIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                long value;
+                if (long.TryParse(stringValue, out value) && value != 0)
+                {
+                    if (values.Contains(value))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIds");
+                    }
+
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIds");
+                }
+            }
+
+            return values;
         }
     }
 }

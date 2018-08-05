@@ -553,7 +553,7 @@ namespace WebAPI.Controllers
             }
 
             if (response != null && response.Count > 0)
-                return response.First();
+                return response.FirstOrDefault();
             else
                 return null;
         }
@@ -612,17 +612,14 @@ namespace WebAPI.Controllers
             KalturaOTTUser response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            if (string.IsNullOrEmpty(id))
+            {
+                id = KS.GetFromRequest().UserId;
+            }
 
             try
             {
-                if (!string.IsNullOrEmpty(id))
-                {
-                    response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
-                }
-                else
-                {
-                    response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user);
-                }
+                response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
             }
             catch (ClientException ex)
             {
@@ -636,7 +633,8 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        /// <summary>Edit user details.        
+        /// <summary>
+        /// Deprecate - use Register or Update actions instead by setting user.roleIds parameter
         /// </summary>
         /// <param name="roleId"> The role identifier to add</param>
         /// <remarks>
