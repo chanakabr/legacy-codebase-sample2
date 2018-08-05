@@ -29,6 +29,7 @@ namespace ElasticSearchHandler.Updaters
         protected ElasticSearch.Common.ESSerializerV2 esSerializer;
         protected ElasticSearch.Common.ElasticSearchApi esApi;
         protected EpgBL.BaseEpgBL epgBL;
+        protected int sizeOfBulk;
 
         #endregion
 
@@ -70,6 +71,14 @@ namespace ElasticSearchHandler.Updaters
             esApi = new ElasticSearch.Common.ElasticSearchApi();
 
             epgBL = EpgBL.Utils.GetInstance(this.groupId);
+
+            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 50;
+            }
+
         }
 
         #endregion
@@ -210,6 +219,9 @@ namespace ElasticSearchHandler.Updaters
                     }
                     else
                     {
+                        List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                        List<KeyValuePair<string, string>> invalidResults = null;
+
                         // Temporarily - assume success
                         bool temporaryResult = true;
 
@@ -222,7 +234,6 @@ namespace ElasticSearchHandler.Updaters
 
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
-                                List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
                                 string alias = GetAlias();
 
                                 // Create bulk request object for each program
@@ -254,31 +265,59 @@ namespace ElasticSearchHandler.Updaters
                                         routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                                         ttl = ttl
                                     });
-                                }
 
-                                // send request to ES API
-                                var invalidResults = esApi.CreateBulkRequest(bulkRequests);
-
-                                if (invalidResults != null && invalidResults.Count > 0)
-                                {
-                                    foreach (var invalidResult in invalidResults)
+                                    if (bulkRequests.Count > sizeOfBulk)
                                     {
-                                        log.Error("Error - " + string.Format(
-                                            "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                            groupId, EPG, invalidResult.Key, invalidResult.Value));
-                                    }
+                                        // send request to ES API
+                                       invalidResults = esApi.CreateBulkRequest(bulkRequests);
 
-                                    result = false;
-                                    temporaryResult = false;
-                                }
-                                else
-                                {
-                                    temporaryResult &= true;
+                                        if (invalidResults != null && invalidResults.Count > 0)
+                                        {
+                                            foreach (var invalidResult in invalidResults)
+                                            {
+                                                log.Error("Error - " + string.Format(
+                                                    "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                                    groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                            }
+
+                                            result = false;
+                                            temporaryResult = false;
+                                        }
+                                        else
+                                        {
+                                            temporaryResult &= true;
+                                        }
+
+                                        bulkRequests.Clear();
+                                    }
                                 }
                             }
                         }
 
-                        result = temporaryResult;
+                        if (bulkRequests.Count > 0)
+                        {
+                            // send request to ES API
+                            invalidResults = esApi.CreateBulkRequest(bulkRequests);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var invalidResult in invalidResults)
+                                {
+                                    log.Error("Error - " + string.Format(
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                }
+
+                                result = false;
+                                temporaryResult = false;
+                            }
+                            else
+                            {
+                                temporaryResult &= true;
+                            }
+
+                            result = temporaryResult;
+                        }
                     }
                 }
             }

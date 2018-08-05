@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 
 namespace ElasticSearchHandler
 {
@@ -27,6 +28,8 @@ namespace ElasticSearchHandler
                 // If the request is for a rebuild:
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
+                    HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = true;
+
                     #region Rebuild
 
                     Synchronizer.CouchbaseSynchronizer synchronizer = new Synchronizer.CouchbaseSynchronizer(0, 3600);
