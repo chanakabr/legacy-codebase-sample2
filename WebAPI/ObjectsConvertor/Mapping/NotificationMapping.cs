@@ -10,15 +10,16 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class NotificationMapping
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             //NotificationPartnerSettings to KalturaPartnerNotificationSettings
-            Mapper.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()
+            cfg.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
                  .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
@@ -39,7 +40,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
-            Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
+            cfg.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
                  .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
@@ -60,7 +61,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
-            Mapper.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
+            cfg.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
                  .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
@@ -81,7 +82,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
-            Mapper.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
+            cfg.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
                  .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
@@ -101,27 +102,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
-            Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
+            cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
                  .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
 
-            Mapper.CreateMap<bool?, UserFollowSettings>()
+            cfg.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 
-            Mapper.CreateMap<KalturaNotificationsSettings, UserNotificationSettings>()
+            cfg.CreateMap<KalturaNotificationsSettings, UserNotificationSettings>()
                  .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled))
                  .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
                  .ForMember(dest => dest.EnableSms, opt => opt.MapFrom(src => src.SmsEnabled));
 
-            Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
+            cfg.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MessageAnnouncementId))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => ConvertRecipientsType(src.Recipients)))
+                 .ForMember(dest => dest.Recipients, opt => opt.ResolveUsing(src => ConvertRecipientsType(src.Recipients)))
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
@@ -129,10 +130,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
-                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
+                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
-            Mapper.CreateMap<MessageTemplate, KalturaMessageTemplate>()
+            cfg.CreateMap<MessageTemplate, KalturaMessageTemplate>()
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
@@ -141,10 +142,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
-                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
+                 .ForMember(dest => dest.MessageType, opt => opt.ResolveUsing(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
-            Mapper.CreateMap<KalturaMessageTemplate, MessageTemplate>()
+            cfg.CreateMap<KalturaMessageTemplate, MessageTemplate>()
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
@@ -153,9 +154,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
-                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
+                 .ForMember(dest => dest.TemplateType, opt => opt.ResolveUsing(src => ConvertTemplateAssetType(src.MessageType)));
 
-            Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
+            cfg.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
@@ -163,7 +164,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
-            Mapper.CreateMap<FollowDataBase, KalturaFollowTvSeries>()
+            cfg.CreateMap<FollowDataBase, KalturaFollowTvSeries>()
                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
@@ -171,14 +172,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
-            Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataBase>()
+            cfg.CreateMap<KalturaFollowDataTvSeries, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
-            Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
+            cfg.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId.ToString()))
@@ -188,7 +189,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
             
-            Mapper.CreateMap<KalturaFollowTvSeries, FollowDataBase>()
+            cfg.CreateMap<KalturaFollowTvSeries, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId))
@@ -196,7 +197,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
-            Mapper.CreateMap<KalturaFollowTvSeries, FollowDataTvSeries>()
+            cfg.CreateMap<KalturaFollowTvSeries, FollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId.ToString()))
@@ -207,7 +208,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // KalturaPersonalList <-> FollowDataBase
-            Mapper.CreateMap<KalturaPersonalList, FollowDataBase>()
+            cfg.CreateMap<KalturaPersonalList, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.Ksql))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.CreateDate))
@@ -215,72 +216,72 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                  .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
 
-            Mapper.CreateMap<FollowDataBase, KalturaPersonalList>()
+            cfg.CreateMap<FollowDataBase, KalturaPersonalList>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AnnouncementId))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FollowPhrase))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType));
 
-            Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
+            cfg.CreateMap<int, KalturaPersonalFollowFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
 
-            Mapper.CreateMap<int, KalturaPersonalFeed>()
+            cfg.CreateMap<int, KalturaPersonalFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
 
             //InboxMessage to KalturaInboxMessage
-            Mapper.CreateMap<InboxMessage, KalturaInboxMessage>()
+            cfg.CreateMap<InboxMessage, KalturaInboxMessage>()
                  .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAtSec))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
-                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.State)))
+                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.State)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Category)));
+                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)));
 
             //KalturaInboxMessage TO InboxMessage
-            Mapper.CreateMap<KalturaInboxMessage, InboxMessage>()
-                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Type)))
+            cfg.CreateMap<KalturaInboxMessage, InboxMessage>()
+                 .ForMember(dest => dest.Category, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Type)))
                  .ForMember(dest => dest.CreatedAtSec, opt => opt.MapFrom(src => src.CreatedAt))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
-                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.Status)))
+                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.Status)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             //DbAnnouncement to KalturaTopic
-            Mapper.CreateMap<DbAnnouncement, KalturaTopic>()
+            cfg.CreateMap<DbAnnouncement, KalturaTopic>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
                  .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)));
+                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.ResolveUsing(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)));
 
             //KalturaTopic TO DbAnnouncement
-            Mapper.CreateMap<KalturaTopic, DbAnnouncement>()
+            cfg.CreateMap<KalturaTopic, DbAnnouncement>()
                  .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
                  .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)));
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.ResolveUsing(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)));
 
             //RegistryParameter to KalturaPushWebParameters
-            Mapper.CreateMap<RegistryResponse, KalturaRegistryResponse>()
+            cfg.CreateMap<RegistryResponse, KalturaRegistryResponse>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.NotificationId))
                  .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             //DbReminder to KalturaReminder
-            Mapper.CreateMap<DbReminder, KalturaReminder>()
+            cfg.CreateMap<DbReminder, KalturaReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src is KalturaSeriesReminder ? KalturaReminderType.SERIES : KalturaReminderType.ASSET));
 
             // KalturaReminder to DbReminder
-            Mapper.CreateMap<KalturaReminder, DbReminder>()
+            cfg.CreateMap<KalturaReminder, DbReminder>()
                  .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             //DbReminder to KalturaAssetReminder
-            Mapper.CreateMap<DbReminder, KalturaAssetReminder>()
+            cfg.CreateMap<DbReminder, KalturaAssetReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference))
@@ -288,7 +289,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //DbReminder to KalturaAssetReminder
-            Mapper.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
+            cfg.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
@@ -297,13 +298,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SERIES))
                  ;
 
-            Mapper.CreateMap<DbReminder, KalturaReminder>()
+            cfg.CreateMap<DbReminder, KalturaReminder>()
                 .Include<DbSeriesReminder, KalturaSeriesReminder>();
 
-            Mapper.CreateMap<KalturaReminder, DbReminder>()
+            cfg.CreateMap<KalturaReminder, DbReminder>()
                 .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
-            Mapper.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
+            cfg.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
@@ -312,61 +313,61 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Engagement Adapter
 
-            Mapper.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
+            cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
-               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.Settings)))
                ;
 
-            Mapper.CreateMap<EngagementAdapter, KalturaEngagementAdapter>()
+            cfg.CreateMap<EngagementAdapter, KalturaEngagementAdapter>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
               .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.Settings)))
               ;
 
-            Mapper.CreateMap<EngagementAdapterBase, KalturaEngagementAdapterBase>()
+            cfg.CreateMap<EngagementAdapterBase, KalturaEngagementAdapterBase>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<EngagementAdapterResponse, KalturaEngagementAdapter>()
+            cfg.CreateMap<EngagementAdapterResponse, KalturaEngagementAdapter>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.EngagementAdapter.AdapterUrl))
              .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.EngagementAdapter.ProviderUrl))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EngagementAdapter.ID))
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.EngagementAdapter.IsActive))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.EngagementAdapter.Name))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.EngagementAdapter.SharedSecret))
-             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
+             .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
 
             #endregion
 
             #region Engagement
 
-            Mapper.CreateMap<KalturaEngagement, Engagement>()
+            cfg.CreateMap<KalturaEngagement, Engagement>()
                .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
-               .ForMember(dest => dest.EngagementType, opt => opt.MapFrom(src => ConvertEngagementType( src.Type)))
+               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType( src.Type)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTime, opt => opt.MapFrom(src => ConvertSendTime(src.SendTimeInSeconds)))
+               .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTimeInSeconds)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
 
-            Mapper.CreateMap<Engagement, KalturaEngagement>()
+            cfg.CreateMap<Engagement, KalturaEngagement>()
                .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertEngagementType(src.EngagementType)))
+               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertEngagementType(src.EngagementType)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.MapFrom(src => ConvertSendTime(src.SendTime)))
+               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTime)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))

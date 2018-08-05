@@ -29,11 +29,6 @@ namespace WebAPI
                 //defaults: new { id = RouteParameter.Optional }
             );
 
-            Mapper.Initialize(cfg =>
-            {
-
-            });
-
             //Removing Newton and adding Jil
             config.Formatters.RemoveAt(0);
             config.Formatters.Insert(0, new JilFormatter());

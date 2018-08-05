@@ -33,6 +33,7 @@ namespace WebAPI.Utils
         private const string EPG_CACHE_KEY_PREFIX = "epg";
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
@@ -283,9 +284,7 @@ namespace WebAPI.Utils
             var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration, managementData);
 
             if (assets != null)
-            {
-                return Mapper.Map<List<KalturaAsset>>(assets);
-            }
+                return  MapAssets(assets);
             else
                 return null;
         }
@@ -631,7 +630,7 @@ namespace WebAPI.Utils
 
             if (assets != null)
             {
-                List<KalturaAsset> tempAssets = Mapper.Map<List<KalturaAsset>>(assets);
+                List<KalturaAsset> tempAssets = MapAssets(assets);
 
                 if (responseProfile != null)
                 {
@@ -695,6 +694,37 @@ namespace WebAPI.Utils
                 return null;
             }
             return null;
+        }
+
+        private static List<KalturaAsset> MapAssets(List<BaseObject> assets)
+        {
+            List<KalturaAsset> result = new List<KalturaAsset>();
+            foreach (BaseObject asset in assets)
+            {
+                KalturaAsset assetToAdd = null;
+                if (asset.AssetType == eAssetTypes.MEDIA && asset is MediaObj)
+                {
+                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);
+                    Version version = new Version(OPC_MERGE_VERSION);
+                    Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                    MediaObj mediaObj = asset as MediaObj;
+                    if (requestVersion.CompareTo(version) > 0)
+                    {
+                        if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
+                        {
+                            assetToAdd = AutoMapper.Mapper.Map<KalturaLiveAsset>(mediaObj);
+                        }
+                    }
+                }
+                else
+                {
+                    assetToAdd = AutoMapper.Mapper.Map<KalturaAsset>(asset);
+                }
+
+                result.Add(assetToAdd);
+            }
+
+            return result;
         }
 
         public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,

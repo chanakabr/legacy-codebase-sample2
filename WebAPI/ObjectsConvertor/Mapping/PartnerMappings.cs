@@ -9,27 +9,28 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
 using ApiObjects;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class PartnerMappings
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             // map KalturaBillingPartnerConfig to PartnerConfiguration
-            Mapper.CreateMap<KalturaBillingPartnerConfig, PartnerConfiguration>()
+            cfg.CreateMap<KalturaBillingPartnerConfig, PartnerConfiguration>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPartnerConfigurationType(src.getType())));
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertPartnerConfigurationType(src.getType())));
 
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
-            Mapper.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
+            cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
-                .ForMember(dest => dest.EvictionPolicy, opt => opt.MapFrom(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)));
+                .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)));
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
-            Mapper.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
+            cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
-                .ForMember(dest => dest.PriorityOrder, opt => opt.MapFrom(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
+                .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
         }
         
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

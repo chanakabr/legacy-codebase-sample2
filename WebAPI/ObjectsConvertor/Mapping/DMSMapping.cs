@@ -6,15 +6,16 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
 using WebAPI.Models.General;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class DMSMapping
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             // from dms to local
-            Mapper.CreateMap<DMSGroupConfiguration, KalturaConfigurationGroup>()
+            cfg.CreateMap<DMSGroupConfiguration, KalturaConfigurationGroup>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -24,7 +25,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
             // from local to dms  
-            Mapper.CreateMap<KalturaConfigurationGroup, DMSGroupConfiguration>()
+            cfg.CreateMap<KalturaConfigurationGroup, DMSGroupConfiguration>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -34,39 +35,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
             // from DMSConfigurationMin to KalturaConfigurationMin
-            Mapper.CreateMap<DMSConfigurationMin, KalturaConfigurationIdentifier>()
+            cfg.CreateMap<DMSConfigurationMin, KalturaConfigurationIdentifier>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // from local to dms  
-            Mapper.CreateMap<KalturaConfigurationIdentifier, DMSConfigurationMin>()
+            cfg.CreateMap<KalturaConfigurationIdentifier, DMSConfigurationMin>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // from dms to local
-            Mapper.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()
+            cfg.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
 
             // from local to dms  
-            Mapper.CreateMap<KalturaConfigurationGroupTag, DMSTagMapping>()
+            cfg.CreateMap<KalturaConfigurationGroupTag, DMSTagMapping>()
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
 
             // from dms to local
-            Mapper.CreateMap<DMSDeviceMapping, KalturaConfigurationGroupDevice>()
+            cfg.CreateMap<DMSDeviceMapping, KalturaConfigurationGroupDevice>()
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
 
-            Mapper.CreateMap<BaseReport, KalturaReport>()
+            cfg.CreateMap<BaseReport, KalturaReport>()
                 .Include<DMSDevice, KalturaDeviceReport>()
                 ;
 
             // from dms to local
-            Mapper.CreateMap<DMSDevice, KalturaDeviceReport>()
+            cfg.CreateMap<DMSDevice, KalturaDeviceReport>()
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
@@ -77,34 +78,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserAgent, opt => opt.MapFrom(src => src.UserAgent))
                 .ForMember(dest => dest.VersionAppName, opt => opt.MapFrom(src => src.VersionAppName))
                 .ForMember(dest => dest.VersionNumber, opt => opt.MapFrom(src => src.VersionNumber))
-                .ForMember(dest => dest.VersionPlatform, opt => opt.MapFrom(src => ConvertPlatform(src.VersionPlatform)));
+                .ForMember(dest => dest.VersionPlatform, opt => opt.ResolveUsing(src => ConvertPlatform(src.VersionPlatform)));
 
             // from dms to local
-            Mapper.CreateMap<DMSPushParams, KalturaPushParams>()
+            cfg.CreateMap<DMSPushParams, KalturaPushParams>()
                 .ForMember(dest => dest.ExternalToken, opt => opt.MapFrom(src => src.ExternalToken))
                 .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
 
             // from dms to local
-            Mapper.CreateMap<DMSAppVersion, KalturaConfigurations>()
+            cfg.CreateMap<DMSAppVersion, KalturaConfigurations>()
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
+                .ForMember(dest => dest.Content, opt => opt.ResolveUsing(src => ConvertToContent(src.Params)))
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             // from local to dms 
-            Mapper.CreateMap<KalturaConfigurations, DMSAppVersion>()
+            cfg.CreateMap<KalturaConfigurations, DMSAppVersion>()
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.Platform, opt => opt.ResolveUsing(src => ConvertPlatform(src.Platform)))
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
+                .ForMember(dest => dest.Params, opt => opt.ResolveUsing(src => ConvertToParms(src.Content)))
                 .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
         }

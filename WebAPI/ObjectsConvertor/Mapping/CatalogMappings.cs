@@ -22,15 +22,17 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using WebAPI.Utils;
+using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class CatalogMappings
-    {
-        public static void RegisterMappings()
+    {        
+
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             //MediaPicture to Image
-            Mapper.CreateMap<Picture, KalturaMediaImage>()
+            cfg.CreateMap<Picture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
@@ -40,7 +42,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id));
 
             //EPGPicture to Image
-            Mapper.CreateMap<EpgPicture, KalturaMediaImage>()
+            cfg.CreateMap<EpgPicture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.PicHeight))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
@@ -49,7 +51,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
             //File 
-            Mapper.CreateMap<FileMedia, KalturaMediaFile>()
+            cfg.CreateMap<FileMedia, KalturaMediaFile>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nMediaID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nFileId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
@@ -67,13 +69,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize));
 
             //BuzzScore
-            Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
+            cfg.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
                  .ForMember(dest => dest.NormalizedAvgScore, opt => opt.MapFrom(src => src.NormalizedWeightedAverageScore))
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
             //AssetStats 
-            Mapper.CreateMap<AssetStatsResult, KalturaAssetStatistics>()
+            cfg.CreateMap<AssetStatsResult, KalturaAssetStatistics>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                  .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.m_nLikes))
                  .ForMember(dest => dest.Views, opt => opt.MapFrom(src => src.m_nViews))
@@ -82,7 +84,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.BuzzAvgScore, opt => opt.MapFrom(src => src.m_buzzAverScore));
 
             //Media to AssetInfo
-            Mapper.CreateMap<MediaObj, KalturaAssetInfo>()
+            cfg.CreateMap<MediaObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Name, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Description, src.m_sDescription)))
@@ -94,7 +96,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
 
             //EPG to AssetInfo
-            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaAssetInfo>()
+            cfg.CreateMap<EPGChannelProgrammeObject, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeName, src.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeDescription, src.DESCRIPTION)))
@@ -106,7 +108,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
 
             //EPG to AssetInfo
-            Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
+            cfg.CreateMap<ProgramObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeName, src.m_oProgram.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeDescription, src.m_oProgram.DESCRIPTION)))
@@ -118,7 +120,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)));
 
             //EPG (recording) to AssetInfo
-            Mapper.CreateMap<RecordingObj, KalturaRecordingAsset>()
+            cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Program.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeDescription)))
@@ -130,7 +132,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             //EPG (recording) to AssetInfo
-            Mapper.CreateMap<RecordingObj, KalturaAssetInfo>()
+            cfg.CreateMap<RecordingObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RecordingId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Program.m_oProgram.ProgrammeName, src.Program.m_oProgram.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Program.m_oProgram.ProgrammeDescription, src.Program.m_oProgram.DESCRIPTION)))
@@ -142,28 +144,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             //Media to SlimAssetInfo
-            Mapper.CreateMap<MediaObj, KalturaBaseAssetInfo>()
+            cfg.CreateMap<MediaObj, KalturaBaseAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name).ToString()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description).ToString()))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID));
 
             //Media to SlimAssetInfo
-            Mapper.CreateMap<ProgramObj, KalturaBaseAssetInfo>()
+            cfg.CreateMap<ProgramObj, KalturaBaseAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeName).ToString()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeDescription).ToString()))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.epg));
 
             //channelObj to Channel
-            Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
+            cfg.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sTitle)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)));
 
             //Channel (Catalog) to Channel
-            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaChannel>()
+            cfg.CreateMap<Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
@@ -171,43 +173,43 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
-                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)));
+                .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)));
 
             //KalturaChannelProfile to KSQLChannel
-            Mapper.CreateMap<WebAPI.Models.API.KalturaChannelProfile, KSQLChannel>()
+            cfg.CreateMap<WebAPI.Models.API.KalturaChannelProfile, KSQLChannel>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToInt32(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderToOrderObj(src.Order)))
                ;
 
             //KSQLChannel to KalturaChannelProfile
-            Mapper.CreateMap<KSQLChannel, WebAPI.Models.API.KalturaChannelProfile>()
+            cfg.CreateMap<KSQLChannel, WebAPI.Models.API.KalturaChannelProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)));
 
             //KalturaChannel to KSQLChannel
-            Mapper.CreateMap<KalturaChannel, KSQLChannel>()
+            cfg.CreateMap<KalturaChannel, KSQLChannel>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name != null ? src.Name.GetDefaultLanugageValue() : src.OldName))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null? src.Description.GetDefaultLanugageValue() : src.OldDescription))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.Order.Value)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
+               .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.Order.Value)))
+               .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
 
             //KSQLChannel to KalturaChannel
-            Mapper.CreateMap<KSQLChannel, KalturaChannel>()
+            cfg.CreateMap<KSQLChannel, KalturaChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
                .ForMember(dest => dest.OldName, opt => opt.MapFrom(src => src.Name))
@@ -216,26 +218,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
                .ForMember(dest => dest.OldDescription, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
+               .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.IsActive)))
+               .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.Order)))
+               .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
 
             //Channel (Catalog) to KalturaDynamicChannel
-            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
+            cfg.CreateMap<Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
+                .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.m_nIsActive)))
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
+                .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
 
             //KalturaDynamicChannel to Channel (Catalog)  
-            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, Channel>()
+            cfg.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
@@ -245,8 +247,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
-               .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
-               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.searchGroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.KSQL))
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
                .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
@@ -254,19 +256,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
 
             //Channel (Catalog) to KalturaManualChannel
-            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
+            cfg.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
+                .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.m_nIsActive)))
+                .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
 
             //KalturaManualChannel to Channel (Catalog)
-            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, Channel>()
+            cfg.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
@@ -274,10 +276,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.getAssetTypes()))
                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
-               .ForMember(dest => dest.m_lManualMedias, opt => opt.MapFrom(src => ConvertToManualMedias(src.MediaIds)))
+               .ForMember(dest => dest.m_lManualMedias, opt => opt.ResolveUsing(src => ConvertToManualMedias(src.MediaIds)))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue && src.IsActive.Value ? 1 : 0))
-               .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
-               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.searchGroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.GroupBy)))
                .ForMember(dest => dest.m_nChannelTypeID, opt => opt.MapFrom(src => (int)ChannelType.Manual))
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
                .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
@@ -285,7 +287,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
 
             //CategoryResponse to Category
-            Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
+            cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.m_nParentCategoryID))
@@ -294,44 +296,44 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
 
             //AssetBookmarks to KalturaAssetBookmarks
-            Mapper.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
+            cfg.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetID))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
                 .ForMember(dest => dest.Bookmarks, opt => opt.MapFrom(src => src.Bookmarks));
 
             //Bookmark to KalturaAssetBookmark
-            Mapper.CreateMap<Bookmark, WebAPI.Models.Catalog.KalturaAssetBookmark>()
+            cfg.CreateMap<Bookmark, WebAPI.Models.Catalog.KalturaAssetBookmark>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
-                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)))
+                .ForMember(dest => dest.PositionOwner, opt => opt.ResolveUsing(src => ConvertPositionOwner(src.UserType)))
                 .ForMember(dest => dest.IsFinishedWatching, opt => opt.MapFrom(src => src.IsFinishedWatching));
 
             //User to KalturaBaseOTTUser
-            Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
+            cfg.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName));
 
             //UnifiedSearchResuannounclt to KalturaSlimAsset
-            Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
+            cfg.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)));
             
             // Country
-            Mapper.CreateMap<Core.Users.Country, WebAPI.Models.Users.KalturaCountry>()
+            cfg.CreateMap<Core.Users.Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //BaseObject to KalturaAsset
-            Mapper.CreateMap<BaseObject, KalturaAsset>()
+            cfg.CreateMap<BaseObject, KalturaAsset>()
                 .Include<ProgramObj, KalturaProgramAsset>()
                 .Include<MediaObj, KalturaMediaAsset>()
                 .Include<RecordingObj, KalturaRecordingAsset>();
 
             //EPG to KalturaProgramAsset
-            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaProgramAsset>()
+            cfg.CreateMap<EPGChannelProgrammeObject, KalturaProgramAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeDescription)))
@@ -348,7 +350,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LINEAR_MEDIA_ID > 0 ? (long?)src.LINEAR_MEDIA_ID : null));
 
             //EPG to KalturaProgramAsset
-            Mapper.CreateMap<ProgramObj, KalturaProgramAsset>()
+            cfg.CreateMap<ProgramObj, KalturaProgramAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeDescription)))
@@ -365,7 +367,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.m_oProgram.LINEAR_MEDIA_ID : null));
 
             //EPG to KalturaProgramAsset
-            Mapper.CreateMap<RecordingObj, KalturaRecordingAsset>()
+            cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Program.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeDescription)))
@@ -381,10 +383,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.Program.m_oProgram.CRID))
                 .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.Program.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.Program.m_oProgram.LINEAR_MEDIA_ID : null))
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
-                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType));
+                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType));            
 
             //Media to KalturaMediaAsset
-            Mapper.CreateMap<MediaObj, KalturaMediaAsset>()
+            cfg.CreateMap<MediaObj, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name.ToList(), src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description.ToList(), src.m_sDescription)))
@@ -408,8 +410,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
+            //Media to KalturaMediaAsset
+            cfg.CreateMap<MediaObj, KalturaLiveAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name.ToList(), src.m_sName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description.ToList(), src.m_sDescription)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreationDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dUpdateDate)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
+                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
+                .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.m_oMediaType.m_sTypeName))
+                .ForMember(dest => dest.DeviceRuleId, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoBlockRuleId, opt => opt.MapFrom(src => src.GeoblockRule))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
+                .ForMember(dest => dest.SummedCatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
+                .ForMember(dest => dest.BufferTrickPlay, opt => opt.Ignore())
+                .ForMember(dest => dest.BufferCatchUp, opt => opt.Ignore())
+                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.EnableCatchUp))
+                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.EnableCDVR))
+                .ForMember(dest => dest.EnableCatchUpState, opt => opt.Ignore())
+                .ForMember(dest => dest.EnableCdvrState, opt => opt.Ignore())
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.Ignore())
+                .ForMember(dest => dest.EnableStartOverState, opt => opt.Ignore())
+                .ForMember(dest => dest.EnableTrickPlayState, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalCdvrId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.Ignore())
+                .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.EnableStartOver))
+                .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.EnableTrickPlay))
+                .ForMember(dest => dest.ChannelType, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs));
+
             //EPG to AssetInfo
-            Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
+            cfg.CreateMap<ProgramObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeName, src.m_oProgram.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeDescription, src.m_oProgram.DESCRIPTION)))
@@ -422,10 +464,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
 
             //Comments to KalturaAssetComment
-            Mapper.CreateMap<Comments, KalturaAssetComment>()
+            cfg.CreateMap<Comments, KalturaAssetComment>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
-                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.AssetType)))
+                .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertToKalturaAssetType(src.AssetType)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
@@ -434,11 +476,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Aggregations - asset counts
             // Aggregation - asset count
-            Mapper.CreateMap<AggregationsResult, KalturaAssetsCount>()
+            cfg.CreateMap<AggregationsResult, KalturaAssetsCount>()
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.field))
                 .ForMember(dest => dest.Objects, opt => opt.MapFrom(src => src.results));
 
-            Mapper.CreateMap<AggregationResult, KalturaAssetCount>()
+            cfg.CreateMap<AggregationResult, KalturaAssetCount>()
                 .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.count))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
                 .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs));
@@ -446,7 +488,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region New Catalog Management
 
             // AssetStruct to KalturaAssetStruct
-            Mapper.CreateMap<AssetStruct, KalturaAssetStruct>()
+            cfg.CreateMap<AssetStruct, KalturaAssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
@@ -461,13 +503,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId));
 
             // KalturaAssetStruct to AssetStruct
-            Mapper.CreateMap<KalturaAssetStruct, AssetStruct>()
+            cfg.CreateMap<KalturaAssetStruct, AssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
-                .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
+                .ForMember(dest => dest.MetaIds, opt => opt.ResolveUsing(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
@@ -477,7 +519,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId));
 
             // MediaFileType to KalturaMediaFileType
-            Mapper.CreateMap<MediaFileType, KalturaMediaFileType>()
+            cfg.CreateMap<MediaFileType, KalturaMediaFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -485,14 +527,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
-                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.StreamerType, opt => opt.ResolveUsing(src => ConvertStreamerType(src.StreamerType)))
                 .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.Quality, opt => opt.ResolveUsing(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.VideoCodecs)))
                 .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.AudioCodecs)));
 
             // KalturaMediaFileType to MediaFileType
-            Mapper.CreateMap<KalturaMediaFileType, MediaFileType>()
+            cfg.CreateMap<KalturaMediaFileType, MediaFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -500,18 +542,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
-                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.StreamerType, opt => opt.ResolveUsing(src => ConvertStreamerType(src.StreamerType)))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId))
-                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.Quality, opt => opt.ResolveUsing(src => ConvertToAssetFileTypeQuality(src.Quality)))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.VideoCodecs)))
                 .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.AudioCodecs)));
 
             // Topic to KalturaMeta
-            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()
+            cfg.CreateMap<Topic, Models.API.KalturaMeta>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))
+              .ForMember(dest => dest.DataType, opt => opt.ResolveUsing(src => ConvertToKalturaMetaDataType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.Type == ApiObjects.MetaType.Tag))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -525,34 +567,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AssetType, opt => opt.Ignore());
 
             // KalturaMeta to Topic
-            Mapper.CreateMap<Models.API.KalturaMeta, Topic>()
+            cfg.CreateMap<Models.API.KalturaMeta, Topic>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Id) ? long.Parse(src.Id) : 0))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToMetaType(src.DataType, src.MultipleValue)))
+              .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertToMetaType(src.DataType, src.MultipleValue)))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => ConvertToNullableLong(src.ParentId)))
+              .ForMember(dest => dest.ParentId, opt => opt.ResolveUsing(src => ConvertToNullableLong(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaAsset to Asset
-            Mapper.CreateMap<KalturaAsset, Asset>()
+            cfg.CreateMap<KalturaAsset, Asset>()
                 .Include<KalturaMediaAsset, MediaAsset>()
                 .Include<KalturaLiveAsset, LiveAsset>();
 
             //KalturaMediaAsset to MediaAsset
-            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()
+            cfg.CreateMap<KalturaMediaAsset, MediaAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
                 .ForMember(dest => dest.DescriptionsWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
                 .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
                 .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.HasValue ? src.Type.Value : 0)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
@@ -563,15 +605,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //KalturaLinearMediaAsset to LinearMediaAsset
-            Mapper.CreateMap<KalturaLiveAsset, LiveAsset>()
+            cfg.CreateMap<KalturaLiveAsset, LiveAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
                 .ForMember(dest => dest.DescriptionsWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
                 .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
                 .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.HasValue ? src.Type.Value : 0)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
@@ -585,26 +627,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
-                .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableCatchUpState)))
-                .ForMember(dest => dest.EnableCdvrState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableCdvrState)))
-                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
-                .ForMember(dest => dest.EnableStartOverState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableStartOverState)))
-                .ForMember(dest => dest.EnableTrickPlayState, opt => opt.MapFrom(src => ConvertToTstvState(src.EnableTrickPlayState)))               
+                .ForMember(dest => dest.EnableCatchUpState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableCatchUpState)))
+                .ForMember(dest => dest.EnableCdvrState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableCdvrState)))
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
+                .ForMember(dest => dest.EnableStartOverState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableStartOverState)))
+                .ForMember(dest => dest.EnableTrickPlayState, opt => opt.ResolveUsing(src => ConvertToTstvState(src.EnableTrickPlayState)))               
                 .ForMember(dest => dest.ExternalCdvrId, opt => opt.MapFrom(src => src.ExternalCdvrId))
                 .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.MapFrom(src => src.ExternalEpgIngestId))
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.BufferTrickPlay, opt => opt.MapFrom(src => src.BufferTrickPlay))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
-                .ForMember(dest => dest.ChannelType, opt => opt.MapFrom(src => ConvertToLinearChannelType(src.ChannelType)));
+                .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToLinearChannelType(src.ChannelType)));
 
             // Asset to KalturaAsset
-            Mapper.CreateMap<Asset, KalturaAsset>()
+            cfg.CreateMap<Asset, KalturaAsset>()
                 .Include<MediaAsset, KalturaMediaAsset>()
                 .Include<LiveAsset, KalturaLiveAsset>();
 
             //MediaAsset to KalturaMediaAsset
-            Mapper.CreateMap<MediaAsset, KalturaMediaAsset>()
+            cfg.CreateMap<MediaAsset, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))
@@ -627,7 +669,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //LinearMediaAsset to KalturaLinearMediaAsset
-            Mapper.CreateMap<LiveAsset, KalturaLiveAsset>()
+            cfg.CreateMap<LiveAsset, KalturaLiveAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))
@@ -653,21 +695,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.BufferCatchUp, opt => opt.MapFrom(src => src.BufferCatchUp))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
-                .ForMember(dest => dest.EnableCatchUpState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableCatchUpState)))
-                .ForMember(dest => dest.EnableCdvrState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableCdvrState)))
-                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
-                .ForMember(dest => dest.EnableStartOverState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableStartOverState)))
-                .ForMember(dest => dest.EnableTrickPlayState, opt => opt.MapFrom(src => ConvertToKalturaTimeShiftedTvState(src.EnableTrickPlayState)))            
+                .ForMember(dest => dest.EnableCatchUpState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableCatchUpState)))
+                .ForMember(dest => dest.EnableCdvrState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableCdvrState)))
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableRecordingPlaybackNonEntitledChannelState)))
+                .ForMember(dest => dest.EnableStartOverState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableStartOverState)))
+                .ForMember(dest => dest.EnableTrickPlayState, opt => opt.ResolveUsing(src => ConvertToKalturaTimeShiftedTvState(src.EnableTrickPlayState)))            
                 .ForMember(dest => dest.ExternalCdvrId, opt => opt.MapFrom(src => src.ExternalCdvrId))
                 .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.MapFrom(src => src.ExternalEpgIngestId))
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
-                .ForMember(dest => dest.ChannelType, opt => opt.MapFrom(src => ConvertToKalturaLinearChannelType(src.ChannelType)));
+                .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToKalturaLinearChannelType(src.ChannelType)));
 
             // AssetStructMeta to KalturaAssetStructMeta
-            Mapper.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()
+            cfg.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()
                 .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
                 .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
                 .ForMember(dest => dest.IngestReferencePath, opt => opt.MapFrom(src => src.IngestReferencePath))
@@ -677,7 +719,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaAssetStructMeta to AssetStructMeta
-            Mapper.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
+            cfg.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
                .ForMember(dest => dest.IngestReferencePath, opt => opt.MapFrom(src => src.IngestReferencePath))
@@ -690,13 +732,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Tag
 
-            Mapper.CreateMap<TagValue, KalturaTag>()
+            cfg.CreateMap<TagValue, KalturaTag>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.tagId))
               .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
               .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.TagsInOtherLanguages, src.value)))
               ;
 
-            Mapper.CreateMap<KalturaTag, TagValue>()
+            cfg.CreateMap<KalturaTag, TagValue>()
              .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId))
              .ForMember(dest => dest.tagId, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag.GetDefaultLanugageValue()))
@@ -707,7 +749,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region ImageType
 
-            Mapper.CreateMap<ImageType, KalturaImageType>()
+            cfg.CreateMap<ImageType, KalturaImageType>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -716,7 +758,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               ;
 
-            Mapper.CreateMap<KalturaImageType, ImageType>()
+            cfg.CreateMap<KalturaImageType, ImageType>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -729,14 +771,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Ratio
 
-            Mapper.CreateMap<Core.Catalog.CatalogManagement.Ratio, KalturaRatio>()
+            cfg.CreateMap<Core.Catalog.CatalogManagement.Ratio, KalturaRatio>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
               .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
               .ForMember(dest => dest.PrecisionPrecentage, opt => opt.MapFrom(src => src.PrecisionPrecentage));
 
-            Mapper.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
+            cfg.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
@@ -747,33 +789,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Image
 
-            Mapper.CreateMap<Core.Catalog.CatalogManagement.Image, KalturaImage>()
+            cfg.CreateMap<Core.Catalog.CatalogManagement.Image, KalturaImage>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
               .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
-              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType)))
+              .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.ResolveUsing(src => ConvertImageObjectType(src.ImageObjectType)))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
-            Mapper.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
+            cfg.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
               .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
-              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType.Value)))
+              .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.ResolveUsing(src => ConvertImageObjectType(src.ImageObjectType.Value)))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             #endregion
 
             #region AssetFile
             //File 
-            Mapper.CreateMap<AssetFile, KalturaMediaFile>()
+            cfg.CreateMap<AssetFile, KalturaMediaFile>()
                  .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
                  .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
                  .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
@@ -799,7 +841,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //File 
-            Mapper.CreateMap<KalturaMediaFile, AssetFile>()
+            cfg.CreateMap<KalturaMediaFile, AssetFile>()
                  .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
                  .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
                  .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
@@ -807,7 +849,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
                  .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
+                 .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
                  .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                  .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -815,7 +857,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                  .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
                  .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
-                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
+                 .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
                  .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))

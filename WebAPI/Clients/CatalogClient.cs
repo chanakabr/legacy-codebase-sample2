@@ -34,6 +34,7 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         public string Signature { get; set; }
         public string SignString { get; set; }
@@ -46,8 +47,13 @@ namespace WebAPI.Clients
                 Signature = GetSignature(SignString, value);
             }
         }
-        
+
         #region New Catalog Management    
+
+        public bool DoesGroupUsesTemplates(int groupId)
+        {
+            return CatalogManager.DoesGroupUsesTemplates(groupId);
+        }
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -318,7 +324,7 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
             eAssetTypes assetType = eAssetTypes.UNKNOWN;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -568,7 +574,7 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
@@ -2088,9 +2094,17 @@ namespace WebAPI.Clients
 
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
-            {
-                result = response.ChannelObj != null ?
-                    Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+            {                
+                Version version = new Version(OPC_MERGE_VERSION);
+                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                if (requestVersion.CompareTo(version) > 0)
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaDynamicChannel>(response.ChannelObj) : null;
+                }
+                else
+                {
+                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+                }
             }
             else
             {

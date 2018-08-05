@@ -54,6 +54,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
+        [Deprecated("5.0.1.0")]
         public string IdIn { get; set; }       
 
         internal List<int> getTypeIn()

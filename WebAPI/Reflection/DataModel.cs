@@ -2756,13 +2756,13 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "BufferCatchUp":
-                            return "bufferCatchUp";
+                            return "bufferCatchUpSetting";
                         case "BufferTrickPlay":
-                            return "bufferTrickPlay";
+                            return "bufferTrickPlaySetting";
                         case "CatchUpEnabled":
-                            return "catchUpEnabled";
+                            return "enableCatchUp";
                         case "CdvrEnabled":
-                            return "cdvrEnabled";
+                            return "enableCdvr";
                         case "ChannelType":
                             return "channelType";
                         case "EnableCatchUpState":
@@ -2780,15 +2780,15 @@ namespace WebAPI.Reflection
                         case "ExternalEpgIngestId":
                             return "externalEpgIngestId";
                         case "RecordingPlaybackNonEntitledChannelEnabled":
-                            return "recordingPlaybackNonEntitledChannelEnabled";
+                            return "enableRecordingPlaybackNonEntitledChannel";
                         case "StartOverEnabled":
-                            return "startOverEnabled";
+                            return "enableStartOver";
                         case "SummedCatchUpBuffer":
-                            return "summedCatchUpBuffer";
+                            return "catchUpBuffer";
                         case "SummedTrickPlayBuffer":
-                            return "summedTrickPlayBuffer";
+                            return "trickPlayBuffer";
                         case "TrickPlayEnabled":
-                            return "trickPlayEnabled";
+                            return "enableTrickPlay";
                     }
                     break;
                     
@@ -9918,7 +9918,12 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "update":
-                            ret.Add("id", new MethodParam(){
+                            paramName = "id";
+                            if(isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) < 0)
+                            {
+                                paramName = "channelId";
+                            }
+                            ret.Add(paramName, new MethodParam(){
                                 Type = typeof(int),
                             });
                             ret.Add("channel", new MethodParam(){

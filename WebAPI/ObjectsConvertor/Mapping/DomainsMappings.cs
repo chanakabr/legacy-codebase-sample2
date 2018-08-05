@@ -10,45 +10,46 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Utils;
+using AutoMapper.Configuration;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
     public class DomainsMappings
     {
-        public static void RegisterMappings()
+        public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             //Device
-            Mapper.CreateMap<Device, KalturaHouseholdDevice>()
+            cfg.CreateMap<Device, KalturaHouseholdDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.m_state)))
+                .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
                 .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ? 
                     new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null));
 
-            Mapper.CreateMap<Device, KalturaDevice>()
+            cfg.CreateMap<Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.m_state)))
+                .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
 
             //HomeNetwork
-            Mapper.CreateMap<HomeNetwork, KalturaHomeNetwork>()
+            cfg.CreateMap<HomeNetwork, KalturaHomeNetwork>()
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.UID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             //DeviceContainer to KalturaHouseholdDeviceFamily
-            Mapper.CreateMap<DeviceContainer, KalturaDeviceFamily>()
+            cfg.CreateMap<DeviceContainer, KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
@@ -56,7 +57,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Devices, opt => opt.MapFrom(src => src.DeviceInstances));
 
             //DeviceFamilyLimitations to KalturaDeviceFamily
-            Mapper.CreateMap<DeviceFamilyLimitations, KalturaHouseholdDeviceFamilyLimitations>()
+            cfg.CreateMap<DeviceFamilyLimitations, KalturaHouseholdDeviceFamilyLimitations>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.deviceFamily))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.quantity))
@@ -64,7 +65,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency));
 
             //Domain
-            Mapper.CreateMap<Domain, KalturaHousehold>()
+            cfg.CreateMap<Domain, KalturaHousehold>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nDomainID))
                 .ForMember(dest => dest.DefaultUsers, opt => opt.MapFrom(src => src.m_DefaultUsersIDs))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
@@ -79,19 +80,19 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.MasterUsers, opt => opt.MapFrom(src => src.m_masterGUIDs))
                 .ForMember(dest => dest.PendingUsers, opt => opt.MapFrom(src => src.m_PendingUsersIDs))
                 .ForMember(dest => dest.RegionId, opt => opt.MapFrom(src => src.m_nRegion))
-                .ForMember(dest => dest.Restriction, opt => opt.MapFrom(src => ConvertDomainRestriction(src.m_DomainRestriction)))
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDomainStatus(src.m_DomainStatus)))
+                .ForMember(dest => dest.Restriction, opt => opt.ResolveUsing(src => ConvertDomainRestriction(src.m_DomainRestriction)))
+                .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDomainStatus(src.m_DomainStatus)))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies))
                 .ForMember(dest=> dest.RoleId , opt => opt.MapFrom(src => src.roleId));
 
             //string (pin) to KalturaDevicePin
-            Mapper.CreateMap<string, KalturaDevicePin>()
+            cfg.CreateMap<string, KalturaDevicePin>()
                 .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src));
 
             //DLM to KalturaHouseholdLimitationModule
-            Mapper.CreateMap<LimitationsManager, KalturaHouseholdLimitations>()
+            cfg.CreateMap<LimitationsManager, KalturaHouseholdLimitations>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.domianLimitID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DomainLimitName))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.Concurrency))
@@ -105,10 +106,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamiliesLimitations, opt => opt.MapFrom(src => src.lDeviceFamilyLimitations));
 
             //DomainDevice
-            Mapper.CreateMap<DomainDevice, KalturaHouseholdDevice>()
+            cfg.CreateMap<DomainDevice, KalturaHouseholdDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.ActivataionStatus)))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.ActivataionStatus)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.DomainId))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.DeviceBrandId))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ActivatedOn)))
