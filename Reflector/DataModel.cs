@@ -157,6 +157,7 @@ namespace Reflector
             file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            string paramName;");
+            file.WriteLine("            string newParamName = null;");
             file.WriteLine("            switch (service)");
             file.WriteLine("            {");
 
@@ -208,6 +209,7 @@ namespace Reflector
                         if (hasOldStandard)
                         {
                             file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
+                            file.WriteLine("                            newParamName = null;");
                             foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
                             {
                                 if (oldStandardArgumentAttribute.newName == parameter.Name)
@@ -217,6 +219,7 @@ namespace Reflector
                                         file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) < 0)");
                                         file.WriteLine("                            {");
                                         file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
                                         file.WriteLine("                            }");
                                     }
                                 }
@@ -230,6 +233,7 @@ namespace Reflector
                                         file.WriteLine("                            if(isOldVersion)");
                                         file.WriteLine("                            {");
                                         file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
                                         file.WriteLine("                            }");
                                     }
                                 }
@@ -240,6 +244,7 @@ namespace Reflector
                             paramName = "\"" + parameter.Name + "\"";
                         }
                         file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
+                        file.WriteLine("                                NewName = newParamName,");
                         if (parameter.IsOptional)
                         {
                             file.WriteLine("                                IsOptional = true,");

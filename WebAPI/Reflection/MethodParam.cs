@@ -20,6 +20,7 @@ namespace WebAPI.Reflection
         public bool IsDateTime { get; set; }
         public RuntimeSchemeArgumentAttribute SchemeArgument { get; set; }
         public object DefaultValue { get; set; }
+        public string NewName { get; set; }
 
         public MethodParam()
         {
@@ -31,6 +32,7 @@ namespace WebAPI.Reflection
             IsList = false;
             IsMap = false;
             IsDateTime = false;
+            NewName = null;
         }
     }
 }

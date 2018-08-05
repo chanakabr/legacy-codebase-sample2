@@ -830,18 +830,25 @@ namespace WebAPI.Filters
 
                 if (!reqParams.ContainsKey(name) || reqParams[name] == null)
                 {
-                    if (methodArg.IsOptional)
+                    if (methodArg.NewName != null && reqParams.ContainsKey(methodArg.NewName) && reqParams[methodArg.NewName] != null)
                     {
-                        methodParams.Add(methodArg.DefaultValue);
-                        continue;
+                        name = methodArg.NewName;
                     }
-                    else if (methodArg.IsNullable)
+                    else
                     {
-                        methodParams.Add(null);
-                        continue;
-                    }
+                        if (methodArg.IsOptional)
+                        {
+                            methodParams.Add(methodArg.DefaultValue);
+                            continue;
+                        }
+                        else if (methodArg.IsNullable)
+                        {
+                            methodParams.Add(null);
+                            continue;
+                        }
 
-                    throw new RequestParserException(RequestParserException.MISSING_PARAMETER, name);
+                        throw new RequestParserException(RequestParserException.MISSING_PARAMETER, name);
+                    }
                 }
 
                 try
@@ -852,13 +859,10 @@ namespace WebAPI.Filters
                     // so we do it ourselves in this not so good looking way
                     if (methodArg.IsEnum)
                     {
-                        if (reqParams[name] != null)
+                        string paramAsString = reqParams[name].ToString();
+                        if (paramAsString != null)
                         {
-                            string paramAsString = reqParams[name].ToString();
-                            if (paramAsString != null)
-                            {
-                                value = Enum.Parse(methodArg.Type, paramAsString, true);
-                            }
+                            value = Enum.Parse(methodArg.Type, paramAsString, true);
                         }
                     }
 
