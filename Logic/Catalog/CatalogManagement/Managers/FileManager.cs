@@ -567,7 +567,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate media doesn't already have a file with this type
                 List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
-                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToAdd.TypeId).Count() > 0)
+                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToAdd.TypeId).Any())
                 {
                     result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                     return result;
@@ -712,7 +712,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetFileToUpdate.TypeId.HasValue)
                 {
                     List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
-                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id).Count() > 0)
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id).Any())
                     {
                         result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                         return result;

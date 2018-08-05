@@ -177,7 +177,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // get only active images
-                images = imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).Count() > 0 ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
+                images = imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).Any() ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
             }
 
             List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
@@ -338,7 +338,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> assetMetas = (from row in metas
                                                                        where (Int64)row["ASSET_ID"] == id
                                                                        select row);
-                        if (assetMetas != null && assetMetas.Count() > 0)
+                        if (assetMetas != null && assetMetas.Any())
                         {
                             assetDataset.Tables.Add(assetMetas.CopyToDataTable());
                         }
@@ -350,7 +350,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> assetTags = (from row in tags
                                                                       where (Int64)row["ASSET_ID"] == id
                                                                       select row);
-                        if (assetTags != null && assetTags.Count() > 0)
+                        if (assetTags != null && assetTags.Any())
                         {
                             assetDataset.Tables.Add(assetTags.CopyToDataTable());
                         }
@@ -362,7 +362,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> assetFiles = (from row in files
                                                                        where (Int64)row["MEDIA_ID"] == id
                                                                        select row);
-                        if (assetFiles != null && assetFiles.Count() > 0)
+                        if (assetFiles != null && assetFiles.Any())
                         {
                             assetDataset.Tables.Add(assetFiles.CopyToDataTable());
                         }
@@ -374,7 +374,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> assetImages = (from row in images
                                                                         where (Int64)row["ASSET_ID"] == id
                                                                         select row);
-                        if (assetImages != null && assetImages.Count() > 0)
+                        if (assetImages != null && assetImages.Any())
                         {
                             assetDataset.Tables.Add(assetImages.CopyToDataTable());
                         }
@@ -386,7 +386,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
                                                                                where (Int64)row["ID"] == id
                                                                                select row);
-                        if (assetUpdateDateRow != null && assetUpdateDateRow.Count() > 0)
+                        if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
                         {
                             assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
                         }
@@ -398,7 +398,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> linearMediaRow = (from row in linearMedias
                                                                                where (Int64)row["MEDIA_ID"] == id
                                                                                select row);
-                        if (linearMediaRow != null && linearMediaRow.Count() > 0)
+                        if (linearMediaRow != null && linearMediaRow.Any())
                         {
                             assetDataset.Tables.Add(linearMediaRow.CopyToDataTable());
                         }
@@ -1313,12 +1313,12 @@ namespace Core.Catalog.CatalogManagement
                         DataTable basicDataTable = ds.Tables[0].Clone();
                         basicDataTable.ImportRow(basicDataRow);
                         assetDataset.Tables.Add(basicDataTable);
-                        if (metas.Count() > 0)
+                        if (metas.Any())
                         {
                             EnumerableRowCollection<DataRow> assetMetas = (from row in metas
                                                                            where (Int64)row["ASSET_ID"] == id
                                                                            select row);
-                            if (assetMetas != null && assetMetas.Count() > 0)
+                            if (assetMetas != null && assetMetas.Any())
                             {
                                 assetDataset.Tables.Add(assetMetas.CopyToDataTable());
                             }
@@ -1328,12 +1328,12 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        if (tags.Count() > 0)
+                        if (tags.Any())
                         {
                             EnumerableRowCollection<DataRow> assetTags = (from row in tags
                                                                           where (Int64)row["ASSET_ID"] == id
                                                                           select row);
-                            if (assetTags != null && assetTags.Count() > 0)
+                            if (assetTags != null && assetTags.Any())
                             {
                                 assetDataset.Tables.Add(assetTags.CopyToDataTable());
                             }
@@ -1349,12 +1349,12 @@ namespace Core.Catalog.CatalogManagement
                         // add table for images so CreateMediaAsset will work
                         assetDataset.Tables.Add(new DataTable());
 
-                        if (assetUpdateDate.Count() > 0)
+                        if (assetUpdateDate.Any())
                         {
                             EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
                                                                                    where (Int64)row["ID"] == id
                                                                                    select row);
-                            if (assetUpdateDateRow != null && assetUpdateDateRow.Count() > 0)
+                            if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
                             {
                                 assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
                             }
@@ -1368,7 +1368,7 @@ namespace Core.Catalog.CatalogManagement
                         if (mediaAsset != null)
                         {
                             EnumerableRowCollection<DataRow> assetFileTypes = null;
-                            if (fileTypes.Count() > 0)
+                            if (fileTypes.Any())
                             {
                                 assetFileTypes = (from row in fileTypes
                                                   where (Int64)row["MEDIA_ID"] == id
@@ -1396,7 +1396,7 @@ namespace Core.Catalog.CatalogManagement
             // File Types + is free
             HashSet<int> fileTypes = null;
             HashSet<int> freeFileTypes = null;            
-            if (assetFileTypes != null && assetFileTypes.Count() > 0)
+            if (assetFileTypes != null && assetFileTypes.Any())
             {
                 fileTypes = new HashSet<int>();
                 freeFileTypes = new HashSet<int>();

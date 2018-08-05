@@ -18,7 +18,7 @@ namespace Core.Catalog.CatalogManagement
         public Dictionary<string, Topic> TopicsMapBySystemName { get; set; }
         public Dictionary<long, Topic> TopicsMapById { get; set; }
 
-        /// Indicates if this group has DTT regionalization support or not
+        /// Indicates if this group has DTT regionalisation support or not
         /// </summary>
         public bool IsRegionalizationEnabled { get; set; }
 

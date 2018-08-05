@@ -93,16 +93,15 @@ namespace APILogic.Api.Managers
                 //}
               
                 Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
-                if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
+                if (rolesPermission != null && rolesPermission.Any() && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                 {   
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
-                    if (userRoleIDs != null && userRoleIDs.Count() > 0)
+                    if (userRoleIDs != null && userRoleIDs.Any())
                     {
                         if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                         {
                             var userRoles = rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x.Key));
-                            if (userRoles != null && userRoles.Count() > 0
-                                && userRoles.Where(x => x.Value).Count() == 0)
+                            if (userRoles != null && userRoles.Any() && userRoles.Where(x => x.Value).Count() == 0)
                             {
                                 return true;
                             }
@@ -134,18 +133,18 @@ namespace APILogic.Api.Managers
                     log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
                 
-                if (roles != null && roles.Count() > 0)
+                if (roles != null && roles.Any())
                 {
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
-                    if (userRoleIDs != null && userRoleIDs.Count() > 0)
+                    if (userRoleIDs != null && userRoleIDs.Any())
                     {
                         // get list of all user permissions 
                         List<Permission> permissions = roles.Where(x=> userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).ToList();
-                        if (permissions != null && permissions.Count() > 0)
+                        if (permissions != null && permissions.Any())
                         {
                             var permissionItems = permissions.Where(x => x.PermissionItems != null).SelectMany(x => x.PermissionItems).ToList();
 
-                            if (permissionItems != null && permissionItems.Where(x => x.Name.ToLower() == permissionItem.ToLower() && x.IsExcluded).Count() > 0)
+                            if (permissionItems != null && permissionItems.Where(x => x.Name.ToLower() == permissionItem.ToLower() && x.IsExcluded).Any())
                             {
                                 return false;
                             }
@@ -176,7 +175,7 @@ namespace APILogic.Api.Managers
                     log.ErrorFormat("Failed getting GetPermissionRoleByGroup from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
 
-                if (roles != null && roles.Count() > 0)
+                if (roles != null && roles.Any())
                 {
                     return BuildPermissionItemsDictionary(roles);
                 }                
@@ -201,7 +200,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue)
                     {
                         roles = ApiDAL.GetRoles(groupId.Value, null); // get all roles for this group
-                        if (roles != null && roles.Count() > 0)
+                        if (roles != null && roles.Any())
                         {
                             res = true;
                         }
