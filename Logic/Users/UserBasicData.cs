@@ -76,7 +76,7 @@ namespace Core.Users
             bool res = false;
             DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID, nGroupID);
 
-            if (dtUserBasicData != null && dtUserBasicData.Rows != null && dtUserBasicData.Rows.Count > 0)
+            if (dtUserBasicData != null && dtUserBasicData.Rows != null && dtUserBasicData.Rows.Count == 0)
             {
                 return false;
             }
