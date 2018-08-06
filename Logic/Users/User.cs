@@ -229,7 +229,7 @@ namespace Core.Users
 
         public int Update(UserBasicData oBasicData, UserDynamicData oDynamicData, Int32 nGroupID)
         {
-            if (m_sSiteGUID != "")
+            if (!string.IsNullOrEmpty(m_sSiteGUID))
             {
                 //Try Getting user current object so we return the current values on the response
                 int currentUserID;
@@ -248,27 +248,8 @@ namespace Core.Users
                 }
 
                 //Update basic and dynamic data
-                if (!string.IsNullOrEmpty(oBasicData.m_sUserName))
-                {
-                    m_oBasicData.m_sUserName = oBasicData.m_sUserName;
-                }
-
-                m_oBasicData.m_sEmail = oBasicData.m_sEmail;
-                m_oBasicData.m_sFirstName = oBasicData.m_sFirstName;
-                m_oBasicData.m_sLastName = oBasicData.m_sLastName;
-                m_oBasicData.m_Country = oBasicData.m_Country;
-                m_oBasicData.m_sAddress = oBasicData.m_sAddress;
-                m_oBasicData.m_sCity = oBasicData.m_sCity;
-                m_oBasicData.m_sPhone = oBasicData.m_sPhone;
-                m_oBasicData.m_State = oBasicData.m_State;
-                m_oBasicData.m_sZip = oBasicData.m_sZip;
-                m_oBasicData.m_sFacebookID = oBasicData.m_sFacebookID;
-                m_oBasicData.m_sFacebookImage = oBasicData.m_sFacebookImage;
-                m_oBasicData.m_bIsFacebookImagePermitted = oBasicData.m_bIsFacebookImagePermitted;
-                m_oBasicData.m_sFacebookToken = oBasicData.m_sFacebookToken;
-                m_oBasicData.m_UserType = oBasicData.m_UserType;
-                m_oBasicData.m_CoGuid = oBasicData.m_CoGuid;
-                m_oDynamicData = oDynamicData;
+                this.m_oBasicData.Copy(oBasicData);
+                this.m_oDynamicData = oDynamicData;
             }
 
             int userID = Save(nGroupID);
@@ -569,13 +550,8 @@ namespace Core.Users
         {
             return "";
         }
-
-        public int Save(int nGroupID)
-        {
-            return (Save(nGroupID, false));
-        }
-
-        public int Save(Int32 groupId, bool bIsSetUserActive)
+        
+        public int Save(Int32 groupId, bool bIsSetUserActive = false)
         {
             try
             {
@@ -588,9 +564,8 @@ namespace Core.Users
                 {
                     this.Insert();
                 }
-                else
-                    // Existing user - Remove & Update from cache
-                    if (int.TryParse(m_sSiteGUID, out this.userId))
+                // Existing user - Remove & Update from cache
+                else if (int.TryParse(m_sSiteGUID, out this.userId))
                 {
                     this.Update();
                 }
@@ -624,11 +599,9 @@ namespace Core.Users
             }
 
             this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
-                                             m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted,
-                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
-                                             m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
-                                             countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
-                                             m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
+                                                  m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
+                                                  m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity, countryID, stateID, 
+                                                  m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode, m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
 
             if (this.userId > 0)
             {
@@ -636,9 +609,18 @@ namespace Core.Users
 
                 // add user role
                 long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue; 
-                if (roleId > 0)
+                if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
                 {
-                    DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true);
+                    m_oBasicData.RoleIds.Add(roleId);
+                }
+
+                if (m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
+                {
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);
+                    }
                 }
                 else
                 {
@@ -652,8 +634,7 @@ namespace Core.Users
                 this.userId = -1;
                 return success;
             }
-
-
+            
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 m_oDynamicData.UserId = this.userId;
@@ -687,7 +668,7 @@ namespace Core.Users
             // update
             else
             {
-                bool saved = m_oBasicData.Save(this.userId);
+                bool saved = m_oBasicData.Save(this.userId, this.GroupId);
 
                 if (!saved)
                 {

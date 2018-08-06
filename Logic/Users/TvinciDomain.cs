@@ -87,17 +87,29 @@ namespace Core.Users
                         case DomainStatus.OK: // add domain to Cache
                         case DomainStatus.DomainCreatedWithoutNPVRAccount:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
-                            //DomainsCache.Instance().InsertDomain(domain);
-
-                            // set user role to master 
-                            long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
-                            if (roleId > 0 && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
+                            // if user was added successfully as master - set user role to be master
+                            User currUser = UsersCache.Instance().GetUser(nMasterUserGuid, nGroupID);
+                            if (currUser != null)
                             {
-                                // add invalidation key for user roles cache
-                                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nMasterUserGuid.ToString());
-                                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                // set user role to master 
+                                long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                                if (roleId > 0 && !currUser.m_oBasicData.RoleIds.Contains(roleId))
                                 {
-                                    log.ErrorFormat("Failed to set invalidation key on AddDomain key = {0}", invalidationKey);
+                                    currUser.m_oBasicData.RoleIds.Add(roleId);
+                                }
+
+                                if (currUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(nGroupID, nMasterUserGuid, currUser.m_oBasicData.RoleIds))
+                                {
+                                    // add invalidation key for user roles cache
+                                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nMasterUserGuid.ToString());
+                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                    {
+                                        log.ErrorFormat("Failed to set invalidation key on AddDomain key = {0}", invalidationKey);
+                                    }
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("User created with no role. userId = {0}", nMasterUserGuid);
                                 }
                             }
                             break;

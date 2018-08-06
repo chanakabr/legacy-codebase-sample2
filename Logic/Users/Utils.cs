@@ -1120,7 +1120,6 @@ namespace Core.Users
 
         public static Tuple<List<long>, bool> Get_UserRoleIds(Dictionary<string, object> funcParams)
         {
-            bool res = false;
             List<long> roleIds = null;
 
             try
@@ -1136,16 +1135,16 @@ namespace Core.Users
                         if (groupId.HasValue && !string.IsNullOrEmpty(userId))
                         {
                             roleIds = UsersDal.Get_UserRoleIds(groupId.Value, userId);
-                            res = true;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
+                roleIds = null;
                 log.Error(string.Format("GetUserRoleIds failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<List<long>, bool>(roleIds, res);
+            return new Tuple<List<long>, bool>(roleIds, roleIds != null);
         }
 
         public static DrmPolicy GetDrmPolicy(int groupId)

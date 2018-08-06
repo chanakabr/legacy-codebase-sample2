@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
@@ -509,113 +510,108 @@ namespace Core.Users
 
         public override UserResponseObject AddNewUser(UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword)
         {
-            UserResponseObject resp = new UserResponseObject();
-            User u = new User();
+            UserResponseObject userResponse = new UserResponseObject();
+            User newUser = new User();
             // if username or password empty return with WrongPasswordOrUserName response
             if (string.IsNullOrEmpty(oBasicData.m_sUserName) || string.IsNullOrEmpty(sPassword))
             {
-                resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
+                return userResponse;
             }
 
             if (!string.IsNullOrEmpty(oBasicData.m_sUserName) && oBasicData.m_sUserName.ToLower().Contains("anonymous"))
             {
                 oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());
             }
-
-            int userID = GetUserIDByUserName(oBasicData.m_sUserName);
-            if (userID > 0)
+            
+            if (GetUserIDByUserName(oBasicData.m_sUserName) > 0)
             {
-                resp.Initialize(ResponseStatus.UserExists, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.UserExists, newUser);
+                return userResponse;
             }
 
             if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
             {
-                resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
+                return userResponse;
             }
 
             if (!Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID))
             {
-                resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
-                return resp;
+                userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
+                return userResponse;
             }
 
-            u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
+            newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
-            int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
+            int userId = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
+            if (userId <= 0)
+            {
+                userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
+                return userResponse;
+            }
+
+            if (newUser.m_domianID <= 0)
+            {
+                CheckAddDomain(ref userResponse, newUser, oBasicData.m_sUserName, userId);
+            }
 
             // add role to user
-            if (nUserID > 0)
+            long roleId;
+
+            if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, userId))
             {
-                long roleId;
-
-                if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, nUserID))
-                {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
-                }
-                else
-                {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;                    
-                }
-
-                if (roleId != 0)
-                {
-                    DAL.UsersDal.Insert_UserRole(m_nGroupID, nUserID.ToString(), roleId, true);
-                }
-                else
-                {
-                    resp.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
-                    log.ErrorFormat("User created with no role. userId = {0}", userID);
-                }
-
-                // add notifications event 
-                Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, nUserID, string.Empty);
+                roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
             }
             else
             {
-                resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
-                return resp;
+                roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
             }
 
-            if (u.m_domianID <= 0)
+            if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
             {
-                bool bValidDomainStatus = CheckAddDomain(ref resp, u, oBasicData.m_sUserName, nUserID);
+                newUser.m_oBasicData.RoleIds.Add(roleId);
+            }
+
+            if (newUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
+            {
+                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
+                }
+
+                userResponse.Initialize(ResponseStatus.OK, newUser);
             }
             else
             {
-                resp.Initialize(ResponseStatus.OK, u);
+                userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
+                log.ErrorFormat("User created with no role. userId = {0}", userId);
             }
 
-            CreateDefaultRules(u.m_sSiteGUID, m_nGroupID);
+            // add notifications event 
+            Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, userId, string.Empty);
 
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
-            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
+            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") &&
+                m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))
             {
-                if (m_newsLetterImpl != null)
-                {
-                    if (!m_newsLetterImpl.IsUserSubscribed(u))
-                    {
-                        m_newsLetterImpl.Subscribe(resp.m_user);
-                    }
-                }
+                m_newsLetterImpl.Subscribe(userResponse.m_user);
             }
 
             //Send Welcome Email
             if (m_mailImpl != null)
             {
-                SendMailImpl(resp.m_user);
+                SendMailImpl(userResponse.m_user);
             }
             else
             {
                 WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
-
                 log.DebugFormat("params for welcom mail ws_users sMailReq.m_sSubject={0}, oBasicData.m_sUserName={1}, sMailReq.m_sTemplateName={2}", sMailReq.m_sSubject, oBasicData.m_sUserName, sMailReq.m_sTemplateName);
-                bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
+                Utils.SendMail(m_nGroupID, sMailReq);
             }
 
-            return resp;
+            return userResponse;
         }
 
         protected bool CheckAddDomain(ref UserResponseObject resp, User u, string sUserName, int nUserID)
@@ -668,13 +664,7 @@ namespace Core.Users
 
             return m_mailImpl.SendMail(user);
         }
-
-        public bool CreateDefaultRules(string sSiteGuid, int nGroupID)
-        {
-            // return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
-            return true;
-        }
-
+        
         public override bool ResendActivationMail(string username)
         {
             Int32 userID = GetUserIDByUserName(username);
@@ -727,7 +717,7 @@ namespace Core.Users
         public override UserResponseObject AddNewUser(string sBasicDataXML, string sDynamicDataXML, string sPassword)
         {
             UserBasicData b = new UserBasicData();
-            b.Initialize(sBasicDataXML);
+            b.Initialize(sBasicDataXML, null, m_nGroupID);
 
             bool bOk = Core.Users.Utils.SetPassword(sPassword, ref b, m_nGroupID);
             if (bOk == false)
@@ -767,9 +757,7 @@ namespace Core.Users
             return retVal;
 
         }
-
-
-
+        
         public override UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true)
         {
             try
@@ -817,14 +805,15 @@ namespace Core.Users
 
         public override List<UserResponseObject> GetUsersData(string[] sSiteGUIDs)
         {
-            try
+            if (sSiteGUIDs != null)
             {
-                List<UserResponseObject> resp = new List<UserResponseObject>();
+                List<UserResponseObject> resp = new List<UserResponseObject>(sSiteGUIDs.Length);
 
-
-                for (int i = 0; i < sSiteGUIDs.Length; i++)
+                // TODO SHIR - TALK WITH LIOR
+                //for (int i = 0; i < sSiteGUIDs.Length; i++)
+                int limit = Math.Min(sSiteGUIDs.Length, 500);
+                for (int i = 0; i < limit; i++)
                 {
-
                     try
                     {
                         UserResponseObject temp = GetUserData(sSiteGUIDs[i]);
@@ -833,18 +822,13 @@ namespace Core.Users
                             resp.Add(temp);
                         }
                     }
-                    catch
-                    {
-
-                    }
-
+                    catch { }
                 }
+
                 return resp;
             }
-            catch
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public override List<UserBasicData> GetUsersBasicData(long[] nSiteGUIDs)
@@ -871,12 +855,7 @@ namespace Core.Users
                                 string sFirstName = dtUserBasicData.DefaultView[i].Row["FIRST_NAME"].ToString();
                                 string sLastName = dtUserBasicData.DefaultView[i].Row["LAST_NAME"].ToString();
                                 string sEmail = dtUserBasicData.DefaultView[i].Row["EMAIL_ADD"].ToString();
-
                                 string sAddress = dtUserBasicData.DefaultView[i].Row["ADDRESS"].ToString();
-                                object oAffiliates = dtUserBasicData.DefaultView[i].Row["REG_AFF"];
-                                string sAffiliate = "";
-                                if (oAffiliates != null && oAffiliates != DBNull.Value)
-                                    sAffiliate = oAffiliates.ToString();
                                 string sCity = dtUserBasicData.DefaultView[i].Row["CITY"].ToString();
                                 Int32 nStateID = int.Parse(dtUserBasicData.DefaultView[i].Row["STATE_ID"].ToString());
                                 Int32 nCountryID = int.Parse(dtUserBasicData.DefaultView[i].Row["COUNTRY_ID"].ToString());
@@ -887,39 +866,47 @@ namespace Core.Users
                                 Int32 nFacebookImagePermitted = int.Parse(dtUserBasicData.DefaultView[i].Row["FACEBOOK_IMAGE_PERMITTED"].ToString());
                                 string sCoGuid = dtUserBasicData.DefaultView[i].Row["CoGuid"].ToString();
                                 string sExternalToken = dtUserBasicData.DefaultView[i].Row["ExternalToken"].ToString();
+                                string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["fb_token"]);
+                                string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["user_type_desc"]);
+                                bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(dtUserBasicData.DefaultView[i].Row, "is_default"));
+                                Int32 userId = int.Parse(dtUserBasicData.DefaultView[i].Row["ID"].ToString());
+                                object oAffiliates = dtUserBasicData.DefaultView[i].Row["REG_AFF"];
+                                DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["CREATE_DATE"]);
+                                DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["UPDATE_DATE"]);
+
+                                string sAffiliate = "";
+                                if (oAffiliates != null && oAffiliates != DBNull.Value)
+                                    sAffiliate = oAffiliates.ToString();
+
                                 bool bFacebookImagePermitted = false;
                                 if (nFacebookImagePermitted == 1)
                                     bFacebookImagePermitted = true;
+
                                 string sFacebookImage = "";
                                 if (oFacebookImage != null && oFacebookImage != DBNull.Value)
                                     sFacebookImage = oFacebookImage.ToString();
+
                                 string sFacebookID = "";
                                 if (oFacebookID != null && oFacebookID != DBNull.Value)
                                     sFacebookID = oFacebookID.ToString();
-
-
-                                string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["fb_token"]);
-
+                                
                                 int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[i].Row["user_type_id"]);
                                 if (nUserTypeID == 0)
                                 {
                                     nUserTypeID = null;
                                 }
-                                string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["user_type_desc"]);
-                                bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(dtUserBasicData.DefaultView[i].Row, "is_default"));
+                                
                                 UserType userType = new UserType(nUserTypeID, sUserType, isDefault);
 
                                 UserBasicData userBasicData = new UserBasicData();
 
-                                userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress,
-                                    sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, userType);
+                                userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, 
+                                                         sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, 
+                                                         userType, userId, m_nGroupID, createDate, updateDate);
 
                                 resp.Add(userBasicData);
                             }
-                            catch
-                            {
-
-                            }
+                            catch { }
                         }
                     }
                 }
@@ -1099,7 +1086,7 @@ namespace Core.Users
                 if (u.m_oBasicData.m_sUserName != "")
                 {
                     UserBasicData b = new UserBasicData();
-                    b.Initialize(sBasicDataXML);
+                    b.Initialize(sBasicDataXML, sSiteGUID, m_nGroupID);
                     UserDynamicData d = new UserDynamicData();
                     d.Initialize(sDynamicDataXML);
                     u.Update(b, d, m_nGroupID);
@@ -1132,9 +1119,6 @@ namespace Core.Users
                     resp.Initialize(ResponseStatus.InternalError, null);
                     return resp;
                 }
-
-                bool isSubscribeNewsLetter = false;
-                bool isUnSubscribeNewsLeter = false;
                 
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
@@ -1163,40 +1147,40 @@ namespace Core.Users
                 {
                     oBasicData.m_CoGuid = u.m_oBasicData.m_CoGuid;
                 }
-                if (m_newsLetterImpl != null)
+
+                bool isSubscribeNewsLetter = false;
+                bool isUnSubscribeNewsLeter = false;
+                
+                if (m_newsLetterImpl != null && sDynamicData != null && u.m_oDynamicData != null)
                 {
-                    if (sDynamicData != null && u.m_oDynamicData != null)
+                    bool isNewNewsLetter = false;
+                    bool isOldNewsLetter = false;
+
+                    foreach (UserDynamicDataContainer data in sDynamicData.GetDynamicData())
                     {
-                        bool isNewNewsLetter = false;
-                        bool isOldNewsLetter = false;
-
-                        foreach (UserDynamicDataContainer data in sDynamicData.GetDynamicData())
+                        if (data.m_sDataType.ToLower().Equals("newsletter") && data.m_sValue.ToLower().Equals("true"))
                         {
-                            if (data.m_sDataType.ToLower().Equals("newsletter") && data.m_sValue.ToLower().Equals("true"))
-                            {
-                                isNewNewsLetter = true;
-                                break;
-                            }
+                            isNewNewsLetter = true;
+                            break;
                         }
+                    }
 
-                        foreach (UserDynamicDataContainer olddata in u.m_oDynamicData.GetDynamicData())
+                    foreach (UserDynamicDataContainer olddata in u.m_oDynamicData.GetDynamicData())
+                    {
+                        if (olddata.m_sDataType.ToLower().Equals("newsletter") && olddata.m_sValue.ToLower().Equals("true"))
                         {
-                            if (olddata.m_sDataType.ToLower().Equals("newsletter") && olddata.m_sValue.ToLower().Equals("true"))
-                            {
-                                isOldNewsLetter = true;
-                                break;
-                            }
+                            isOldNewsLetter = true;
+                            break;
                         }
+                    }
 
-                        isSubscribeNewsLetter = (isNewNewsLetter && !isOldNewsLetter);
-                        isUnSubscribeNewsLeter = (isOldNewsLetter && !isNewNewsLetter);
+                    isSubscribeNewsLetter = (isNewNewsLetter && !isOldNewsLetter);
+                    isUnSubscribeNewsLeter = (isOldNewsLetter && !isNewNewsLetter);
 
-                        if (isNewNewsLetter && oBasicData.m_sEmail != u.m_oBasicData.m_sEmail)
-                        {
-                            m_newsLetterImpl.UnSubscribe(u);
-                            isSubscribeNewsLetter = true;
-                        }
-
+                    if (isNewNewsLetter && oBasicData.m_sEmail != u.m_oBasicData.m_sEmail)
+                    {
+                        m_newsLetterImpl.UnSubscribe(u);
+                        isSubscribeNewsLetter = true;
                     }
                 }
 
@@ -1207,22 +1191,18 @@ namespace Core.Users
                     resp.Initialize(ResponseStatus.WrongPasswordOrUserName, null);
                     return resp;
                 }
+
                 if (isSubscribeNewsLetter && m_newsLetterImpl != null)
                 {
                     m_newsLetterImpl.Subscribe(u);
                 }
-                else
+                else if (isUnSubscribeNewsLeter)
                 {
-                    if (isUnSubscribeNewsLeter)
-                    {
-                        m_newsLetterImpl.UnSubscribe(u);
-
-                    }
+                    m_newsLetterImpl.UnSubscribe(u);
                 }
 
                 // add notifications event if email was changed
                 Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.UpdateUser, nUserID, string.Empty);
-
                 resp.Initialize(ResponseStatus.OK, u);
             }
             catch
