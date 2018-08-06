@@ -34,6 +34,19 @@
       "parameter": "externalIdEqual",
       "action": "READ",
       "type": "Parameter"
+    },
+	{
+      "permissions": [
+		"Manager",
+        "Operator",
+		"Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_RoleIdsIn_Write",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "roleIdsIn",
+      "action": "WRITE",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

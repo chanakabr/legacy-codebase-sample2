@@ -14257,23 +14257,23 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -15222,11 +15222,11 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetailsFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17744,6 +17744,15 @@ namespace WebAPI.Models.Users
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaOTTUserFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -17776,6 +17785,10 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("roleIdsIn") && parameters["roleIdsIn"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        RoleIdsInSchemaProperty.Validate("roleIdsIn", parameters["roleIdsIn"]);
+                    }
                     RoleIdsIn = (String) Convert.ChangeType(parameters["roleIdsIn"], typeof(String));
                 }
             }
