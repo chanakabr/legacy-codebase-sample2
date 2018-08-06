@@ -42,10 +42,23 @@
 		"Administrator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaOTTUserFilter_RoleIdsIn_Write",
+      "name": "KalturaOTTUserFilter_RoleIdsIn_Insert",
       "object": "KalturaOTTUserFilter",
       "parameter": "roleIdsIn",
-      "action": "WRITE",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+	{
+      "permissions": [
+		"Manager",
+        "Operator",
+		"Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_RoleIdsIn_Update",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "roleIdsIn",
+      "action": "UPDATE",
       "type": "Parameter"
     }
   ],
