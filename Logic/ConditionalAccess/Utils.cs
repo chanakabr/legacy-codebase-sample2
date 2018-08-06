@@ -4404,7 +4404,7 @@ namespace Core.ConditionalAccess
             DomainBundles domainBundles = null;
             try
             {
-                if (funcParams != null && funcParams.Count == 3 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId"))
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId"))
                 {
                     int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;
                     if (groupId.HasValue && domainId.HasValue)
