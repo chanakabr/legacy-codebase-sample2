@@ -1332,15 +1332,12 @@ namespace Core.ConditionalAccess
 
                     bool blockDoublePurchase = false;
                     theReason = PriceReason.ForPurchase;
-                    int domainID = 0;
-                    List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainID);
-                    DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subCode, domainID);
-                    int entitmlemntCount = 0;
-
-                    if (dt != null)
+                    DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
+                    int domainId = 0;
+                    if (Utils.IsUserValid(userId, groupId, ref domainId, ref userSuspendStatus))
                     {
-                        entitmlemntCount = dt.Rows.Count;
-                        if (entitmlemntCount > 0)
+                        DomainBundles domainBundles = GetDomainBundles(groupId, domainId);
+                        if (domainBundles != null && domainBundles.EntitledSubscriptions != null && domainBundles.EntitledSubscriptions.ContainsKey(subCode))
                         {
                             theReason = PriceReason.SubscriptionPurchased;
 
@@ -1348,16 +1345,13 @@ namespace Core.ConditionalAccess
                             {
                                 price.m_dPrice = 0.0;
                             }
-                            else if (entitmlemntCount == 1)
+                            else if (domainBundles.EntitledSubscriptions[subCode].Count == 1)
                             {
                                 object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", groupId, 60 * 60 * 24, "billing_connection");
-
-                                if (dbBlockDoublePurchase != null &&
-                                    dbBlockDoublePurchase != DBNull.Value &&
-                                    ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)
+                                if (dbBlockDoublePurchase != null && dbBlockDoublePurchase != DBNull.Value && ODBCWrapper.Utils.GetIntSafeVal(dbBlockDoublePurchase) == 1)
                                 {
                                     blockDoublePurchase = true;
-                                    price.m_dPrice = -1;
+                                    price.m_dPrice = 0.0;
                                 }
                             }
                             else
@@ -1369,7 +1363,7 @@ namespace Core.ConditionalAccess
 
                     if (theReason != PriceReason.SubscriptionPurchased || !blockDoublePurchase)
                     {
-                        if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
+                        if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainId))
                         {
                             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
                             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
@@ -1382,7 +1376,7 @@ namespace Core.ConditionalAccess
                                         && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                                     {
                                         //get key from CB household_renewBillingCycle
-                                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
+                                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
                                     }
                                 }
                             }
@@ -1412,13 +1406,13 @@ namespace Core.ConditionalAccess
                                         (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
                                 }
 
-                                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId, (long)domainID);
+                                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId, (long)domainId);
                             }
                         }
 
                         if (price != null && price.m_dPrice != 0)
                         {
-                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID, !string.IsNullOrEmpty(couponCode));
+                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainId, !string.IsNullOrEmpty(couponCode));
                         }
                     }
                 }
@@ -4299,6 +4293,199 @@ namespace Core.ConditionalAccess
                     }
                 }
             }
+        }
+
+        private static DomainBundles GetDomainBundlesFromDb(int groupId, int domainId)
+        {
+            DomainBundles result = null;
+            try
+            {
+                List<int> usersInDomain = Utils.GetAllUsersInDomain(groupId, domainId);
+                DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainId, usersInDomain, groupId);
+                if (dataSet != null && IsBundlesDataSetValid(dataSet))
+                {
+                    result = new DomainBundles();
+                    // iterate over subscriptions
+                    DataTable subs = dataSet.Tables[0];
+                    int waiver = 0;
+                    DateTime purchaseDate = DateTime.MinValue;
+                    DateTime endDate = DateTime.MinValue;
+
+                    if (subs != null && subs.Rows != null && subs.Rows.Count > 0)
+                    {
+                        DataRow[] subsRows = subs.Select().OrderBy(u => u["END_DATE"]).ToArray();
+
+                        foreach (var subsRow in subsRows)
+                        {
+                            int numOfUses = 0;
+                            int maxNumOfUses = 0;
+                            string bundleCode = string.Empty;
+                            int gracePeriodMinutes = 0;
+                            GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
+                                                                ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+
+                            // decide which is the correct end period
+                            if (endDate < DateTime.UtcNow)
+                                endDate = endDate.AddMinutes(gracePeriodMinutes);
+
+                            int subCode = 0;
+                            if (Int32.TryParse(bundleCode, out subCode) && subCode > 0)
+                            {
+                                if (!result.EntitledSubscriptions.ContainsKey(bundleCode))
+                                {
+                                    result.EntitledSubscriptions[bundleCode] = new List<UserBundlePurchase>();
+                                }
+
+                                result.EntitledSubscriptions[bundleCode].Add(new UserBundlePurchase()
+                                {
+                                    sBundleCode = bundleCode,
+                                    nWaiver = waiver,
+                                    dtPurchaseDate = purchaseDate,
+                                    dtEndDate = endDate,
+                                    nNumOfUses = numOfUses,
+                                    nMaxNumOfUses = maxNumOfUses
+                                });
+                            }
+                        }
+                    }
+
+                    //iterate over collections
+                    DataTable colls = dataSet.Tables[1];
+                    if (colls != null && colls.Rows != null && colls.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < colls.Rows.Count; i++)
+                        {
+                            int numOfUses = 0;
+                            int maxNumOfUses = 0;
+                            string bundleCode = string.Empty;
+                            waiver = 0;
+                            purchaseDate = DateTime.MinValue;
+                            endDate = DateTime.MinValue;
+
+                            GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
+
+                            int collCode = 0;
+                            if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
+                            {
+                                if (!result.EntitledCollections.ContainsKey(bundleCode))
+                                {
+                                    result.EntitledCollections[bundleCode] = new List<UserBundlePurchase>();
+                                }
+
+                                result.EntitledCollections[bundleCode].Add(new UserBundlePurchase()
+                                {
+                                    sBundleCode = bundleCode,
+                                    nWaiver = waiver,
+                                    dtPurchaseDate = purchaseDate,
+                                    dtEndDate = endDate,
+                                    nNumOfUses = numOfUses,
+                                    nMaxNumOfUses = maxNumOfUses
+                                });
+                            }
+                            else
+                            {
+                                //log
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAllDomainBundles for groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<DomainBundles, bool> InitializeDomainBundles(Dictionary<string, object> funcParams)
+        {
+            DomainBundles domainBundles = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;
+                    if (groupId.HasValue && domainId.HasValue)
+                    {
+                        domainBundles = GetDomainBundlesFromDb(groupId.Value, domainId.Value);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("InitializeDomainBundles failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            bool res = domainBundles != null;
+
+            return new Tuple<DomainBundles, bool>(domainBundles, res);
+        }
+
+        public static DomainBundles GetDomainBundles(int groupId, int domainId)
+        {
+            DomainBundles domainBundles = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetDomainBundlesKey(groupId, domainId);
+                DomainBundles tempDomainBundles = null;
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
+                if (LayeredCache.Instance.Get<DomainBundles>(key, ref tempDomainBundles, InitializeDomainBundles, funcParams, groupId, LayeredCacheConfigNames.GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME,
+                                                                LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId)) && tempDomainBundles != null)
+                {
+                    domainBundles = ObjectCopier.Clone<DomainBundles>(tempDomainBundles);
+                    // remove expired subscriptions
+                    if (tempDomainBundles.EntitledSubscriptions != null)
+                    {
+                        foreach (KeyValuePair<string, List<UserBundlePurchase>> pair in tempDomainBundles.EntitledSubscriptions)
+                        {
+                            List<UserBundlePurchase> validPurchases = new List<UserBundlePurchase>();
+                            if (pair.Value != null)
+                            {
+                                validPurchases = pair.Value.Where(x => x.dtEndDate > DateTime.UtcNow).ToList();
+                                if (validPurchases != null && validPurchases.Count > 0)
+                                {
+                                    domainBundles.EntitledSubscriptions[pair.Key] = new List<UserBundlePurchase>(validPurchases);
+                                }
+                                else
+                                {
+                                    domainBundles.EntitledSubscriptions.Remove(pair.Key);
+                                }
+                            }
+                        }
+                    }
+
+                    // remove expired collections
+                    if (tempDomainBundles.EntitledCollections != null)
+                    {
+                        foreach (KeyValuePair<string, List<UserBundlePurchase>> pair in tempDomainBundles.EntitledCollections)
+                        {
+                            List<UserBundlePurchase> validPurchases = new List<UserBundlePurchase>();
+                            if (pair.Value != null)
+                            {
+                                validPurchases = pair.Value.Where(x => x.dtEndDate > DateTime.UtcNow).ToList();
+                                if (validPurchases != null && validPurchases.Count > 0)
+                                {
+                                    domainBundles.EntitledCollections[pair.Key] = new List<UserBundlePurchase>(validPurchases);
+                                }
+                                else
+                                {
+                                    domainBundles.EntitledCollections.Remove(pair.Key);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDomainBundles, groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+
+            return domainBundles;
         }
 
         private static ChannelsContainingMediaRequest InitializeCatalogChannelsRequest(int nGroupID, int nMediaID, List<int> channelsToCheck)
