@@ -157,6 +157,79 @@ namespace Reflector
             file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            string paramName;");
+            file.WriteLine("            string newParamName = null;");
+
+            file.WriteLine("            if(isOldVersion)");
+            file.WriteLine("            {");
+
+            file.WriteLine("                switch (service)");
+            file.WriteLine("                {");
+
+            foreach (Type controller in controllers)
+            {
+                List<MethodInfo> actions = controller.GetMethods().ToList();
+                bool hasOldVersionActions = false;
+                foreach (MethodInfo action in actions)
+                {
+                    if (action.DeclaringType != controller)
+                    {
+                        continue;
+                    }
+
+                    OldStandardActionAttribute oldStandardActionAttribute = action.GetCustomAttribute<OldStandardActionAttribute>(true);
+                    if (oldStandardActionAttribute != null)
+                    {
+                        hasOldVersionActions = true;
+                        break;
+                    }
+                }
+                if (!hasOldVersionActions)
+                {
+                    continue;
+                }
+
+                ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute == null)
+                {
+                    continue;
+                }
+
+                file.WriteLine("                    case \"" + serviceAttribute.Name.ToLower() + "\":");
+                file.WriteLine("                        switch(action)");
+                file.WriteLine("                        {");
+
+                actions.Sort(new MethodInfoComparer());
+
+                foreach (MethodInfo action in actions)
+                {
+                    if (action.DeclaringType != controller)
+                    {
+                        continue;
+                    }
+
+                    ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    if (actionAttribute == null)
+                    {
+                        continue;
+                    }
+
+                    OldStandardActionAttribute oldStandardActionAttribute = action.GetCustomAttribute<OldStandardActionAttribute>(true);
+                    if (oldStandardActionAttribute == null)
+                    {
+                        continue;
+                    }
+                    file.WriteLine("                            case \"" + oldStandardActionAttribute.oldName + "\":");
+                    file.WriteLine("                                action = \"" + actionAttribute.Name.ToLower() + "\";");
+                    file.WriteLine("                                break;");
+                    file.WriteLine("                                ");
+                }
+                file.WriteLine("                        }");
+                file.WriteLine("                        break;");
+                file.WriteLine("                        ");
+            }
+            file.WriteLine("                }");
+            file.WriteLine("            }");
+
             file.WriteLine("            switch (service)");
             file.WriteLine("            {");
 
@@ -208,6 +281,7 @@ namespace Reflector
                         if (hasOldStandard)
                         {
                             file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
+                            file.WriteLine("                            newParamName = null;");
                             foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
                             {
                                 if (oldStandardArgumentAttribute.newName == parameter.Name)
@@ -217,6 +291,7 @@ namespace Reflector
                                         file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) < 0)");
                                         file.WriteLine("                            {");
                                         file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
                                         file.WriteLine("                            }");
                                     }
                                 }
@@ -230,6 +305,7 @@ namespace Reflector
                                         file.WriteLine("                            if(isOldVersion)");
                                         file.WriteLine("                            {");
                                         file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
+                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
                                         file.WriteLine("                            }");
                                     }
                                 }
@@ -240,6 +316,7 @@ namespace Reflector
                             paramName = "\"" + parameter.Name + "\"";
                         }
                         file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
+                        file.WriteLine("                                NewName = newParamName,");
                         if (parameter.IsOptional)
                         {
                             file.WriteLine("                                IsOptional = true,");
