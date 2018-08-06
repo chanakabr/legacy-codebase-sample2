@@ -114,8 +114,7 @@ namespace WebAPI.Clients
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -151,7 +150,7 @@ namespace WebAPI.Clients
                     throw new ClientException((int)response.resp.Code, response.resp.Message);
                 }
             }
-
+            
             user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
 
             return user;
@@ -467,12 +466,29 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds)
+        public List<Models.Users.KalturaOTTUser> GetUsersData(int groupId, List<string> usersIds, HashSet<long> roleIds = null)
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;
 
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                List<string> filteredUsersIds = new List<string>();
+                for (int i = 0; i < usersIds.Count; i++)
+                {
+                    List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
+                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    {
+                        if (roleIds.Any(userRoleIds.Contains))
+                        {
+                            filteredUsersIds.Add(usersIds[i]);
+                        }
+                    }
+                }
 
+                usersIds = filteredUsersIds;
+            }
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -503,13 +519,10 @@ namespace WebAPI.Clients
 
         public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
         {
+            UserResponse response = null;
             UserBasicData userBasicData = Mapper.Map<UserBasicData>(user);
             UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(user.DynamicData);
-
-            WebAPI.Models.Users.KalturaOTTUser responseUser = null;
-            UserResponse response = null;
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -533,8 +546,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
             }
 
-            responseUser = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
-
+            WebAPI.Models.Users.KalturaOTTUser responseUser = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
             return responseUser;
         }
 
@@ -750,9 +762,7 @@ namespace WebAPI.Clients
         internal bool AddRoleToUser(int groupId, string userId, long roleId)
         {
             ApiObjects.Response.Status response = null;
-
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

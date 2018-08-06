@@ -489,7 +489,7 @@ namespace WebAPI.App_Start
 
                     try
                     {
-                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.StartDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
                         media.Basic.Dates.Start = media.Basic.Dates.CatalogStart;
                     }
                     catch (Exception ex)
@@ -592,7 +592,7 @@ namespace WebAPI.App_Start
                             // add booleans 
                             if (entry.Value.GetType() == typeof(KalturaBooleanValue))
                             {
-                                media.Structure.Doubles.Metas.Add(new MetaWithoutInnerElement()
+                                media.Structure.Booleans.BooleanList.Add(new MetaWithoutInnerElement()
                                 {
                                     Name = entry.Key ?? string.Empty,
                                     Value = ((KalturaBooleanValue)entry.Value).value ? "true" : "false"

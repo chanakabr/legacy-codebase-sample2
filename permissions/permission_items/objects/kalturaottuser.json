@@ -15,11 +15,22 @@
       "permissions": [
         "Administrator"
       ],
-      "excluded_permissions": [],
-      "name": "KalturaOTTUser_RoleIds_Write",
+      "excluded_permissions": [ ],
+      "name": "KalturaOTTUser_RoleIds_Insert",
       "object": "KalturaOTTUser",
       "parameter": "roleIds",
-      "action": "WRITE",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_RoleIds_Update",
+      "object": "KalturaOTTUser",
+      "parameter": "roleIds",
+      "action": "UPDATE",
       "type": "Parameter"
     }
   ],

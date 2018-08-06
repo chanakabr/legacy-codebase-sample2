@@ -943,14 +943,11 @@ namespace WebAPI.Reflection
                 case "KalturaPermission":
                     return new KalturaPermission(parameters);
                     
-                case "KalturaPermissionFilter":
-                    return new KalturaPermissionFilter(parameters);
-                    
                 case "KalturaPermissionItem":
                     return new KalturaPermissionItem(parameters);
                     
-                case "KalturaPermissionListResponse":
-                    return new KalturaPermissionListResponse(parameters);
+                case "KalturaPermissionsFilter":
+                    return new KalturaPermissionsFilter(parameters);
                     
                 case "KalturaPersistedFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -11795,13 +11792,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute TagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTag")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11843,13 +11840,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute TypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTagFilter")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12244,23 +12241,23 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute DefaultAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -13726,19 +13723,6 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaPermissionFilter
-    {
-        public KalturaPermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("currentUserPermissionsContains") && parameters["currentUserPermissionsContains"] != null)
-                {
-                    CurrentUserPermissionsContains = (Boolean) Convert.ChangeType(parameters["currentUserPermissionsContains"], typeof(Boolean));
-                }
-            }
-        }
-    }
     public partial class KalturaPermissionItem
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionItem")
@@ -13775,17 +13759,17 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaPermissionListResponse
+    public partial class KalturaPermissionsFilter
     {
-        public KalturaPermissionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                if (parameters.ContainsKey("ids") && parameters["ids"] != null)
                 {
-                    if (parameters["objects"] is JArray)
+                    if (parameters["ids"] is JArray)
                     {
-                        Permissions = buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["objects"]);
+                        Ids = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
                     }
                 }
             }
@@ -14273,23 +14257,23 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -15238,11 +15222,11 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetailsFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17394,6 +17378,33 @@ namespace WebAPI.Models.Users
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute RoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaOTTUser(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -17599,6 +17610,30 @@ namespace WebAPI.Models.Users
                     }
                     UserState = (KalturaUserState) Enum.Parse(typeof(KalturaUserState), parameters["user_state"].ToString(), true);
                 }
+                if (parameters.ContainsKey("roleIds") && parameters["roleIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RoleIdsSchemaProperty.Validate("roleIds", parameters["roleIds"]);
+                    }
+                    RoleIds = (String) Convert.ChangeType(parameters["roleIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    }
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
+                    }
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
             }
         }
     }
@@ -17738,6 +17773,10 @@ namespace WebAPI.Models.Users
                         IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     }
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("roleIdsIn") && parameters["roleIdsIn"] != null)
+                {
+                    RoleIdsIn = (String) Convert.ChangeType(parameters["roleIdsIn"], typeof(String));
                 }
             }
         }

@@ -18594,6 +18594,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("countryId", "\"countryId\": " + CountryId);
             }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(DynamicData != null)
             {
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
@@ -18659,6 +18660,10 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("phone", "\"phone\": " + "\"" + EscapeJson(Phone) + "\"");
             }
+            if(RoleIds != null)
+            {
+                ret.Add("roleIds", "\"roleIds\": " + "\"" + EscapeJson(RoleIds) + "\"");
+            }
             ret.Add("suspensionState", "\"suspensionState\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspensionState), SuspensionState) + "\"");
             if(!omitObsolete)
             {
@@ -18668,6 +18673,7 @@ namespace WebAPI.Models.Users
                     ret.Add("suspention_state", "\"suspention_state\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "\"");
                 }
             }
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             ret.Add("userState", "\"userState\": " + "\"" + Enum.GetName(typeof(KalturaUserState), UserState) + "\"");
             if (currentVersion == null || isOldVersion)
             {
@@ -18719,6 +18725,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("countryId", "<countryId>" + CountryId + "</countryId>");
             }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(DynamicData != null)
             {
                 propertyValue = "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
@@ -18784,6 +18791,10 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("phone", "<phone>" + EscapeXml(Phone) + "</phone>");
             }
+            if(RoleIds != null)
+            {
+                ret.Add("roleIds", "<roleIds>" + EscapeXml(RoleIds) + "</roleIds>");
+            }
             ret.Add("suspensionState", "<suspensionState>" + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspensionState), SuspensionState) + "\"" + "</suspensionState>");
             if(!omitObsolete)
             {
@@ -18793,6 +18804,7 @@ namespace WebAPI.Models.Users
                 ret.Add("suspention_state", "<suspention_state>" + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "\"" + "</suspention_state>");
                 }
             }
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             ret.Add("userState", "<userState>" + "\"" + Enum.GetName(typeof(KalturaUserState), UserState) + "\"" + "</userState>");
             if (currentVersion == null || isOldVersion)
             {
@@ -18901,6 +18913,10 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
+            if(RoleIdsIn != null)
+            {
+                ret.Add("roleIdsIn", "\"roleIdsIn\": " + "\"" + EscapeJson(RoleIdsIn) + "\"");
+            }
             if(UsernameEqual != null)
             {
                 ret.Add("usernameEqual", "\"usernameEqual\": " + "\"" + EscapeJson(UsernameEqual) + "\"");
@@ -18920,6 +18936,10 @@ namespace WebAPI.Models.Users
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(RoleIdsIn != null)
+            {
+                ret.Add("roleIdsIn", "<roleIdsIn>" + EscapeXml(RoleIdsIn) + "</roleIdsIn>");
             }
             if(UsernameEqual != null)
             {

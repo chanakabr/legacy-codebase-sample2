@@ -3273,6 +3273,8 @@ namespace WebAPI.Reflection
                             return "country";
                         case "CountryId":
                             return "countryId";
+                        case "CreateDate":
+                            return "createDate";
                         case "DynamicData":
                             return "dynamicData";
                         case "Email":
@@ -3291,10 +3293,14 @@ namespace WebAPI.Reflection
                             return "isHouseholdMaster";
                         case "Phone":
                             return "phone";
+                        case "RoleIds":
+                            return "roleIds";
                         case "SuspensionState":
                             return "suspensionState";
                         case "SuspentionState":
                             return "suspentionState";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UserState":
                             return "userState";
                         case "UserType":
@@ -3333,6 +3339,8 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "IdIn":
                             return "idIn";
+                        case "RoleIdsIn":
+                            return "roleIdsIn";
                         case "UsernameEqual":
                             return "usernameEqual";
                     }
@@ -8754,6 +8762,591 @@ namespace WebAPI.Reflection
             Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string paramName;
+            string newParamName = null;
+            if(isOldVersion)
+            {
+                switch (service)
+                {
+                    case "announcement":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "createAnnouncement":
+                                action = "enablesystemannouncements";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "asset":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "assethistory":
+                        switch(action)
+                        {
+                            case "clean":
+                                action = "cleanoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "bookmark":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "cdvradapterprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "channel":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "entitlement":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "exporttask":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "externalchannelprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "favorite":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "followtvseries":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "homenetwork":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "household":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householddevice":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householdpaymentgateway":
+                        switch(action)
+                        {
+                            case "delete":
+                                action = "disable";
+                                break;
+                                
+                            case "set":
+                                action = "enable";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householdpremiumservice":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "householduser":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "licensedurl":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "meta":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "notificationspartnersettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "notificationssettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "ossadapterprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "ottuser":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "add":
+                                action = "register";
+                                break;
+                                
+                            case "sendPassword":
+                                action = "resetpassword";
+                                break;
+                                
+                            case "resetPassword":
+                                action = "setpassword";
+                                break;
+                                
+                            case "changePassword":
+                                action = "updatelogindata";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "parentalrule":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentgatewayprofile":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentgatewayprofilesettings":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "paymentmethodprofile":
+                        switch(action)
+                        {
+                            case "add":
+                                action = "addoldstandard";
+                                break;
+                                
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "personalfeed":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "pin":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "purchasesettings":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "recommendationprofile":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                            case "update":
+                                action = "updateoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "registrysettings":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "session":
+                        switch(action)
+                        {
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "social":
+                        switch(action)
+                        {
+                            case "getByToken":
+                                action = "getbytokenoldstandard";
+                                break;
+                                
+                            case "config":
+                                action = "getconfiguration";
+                                break;
+                                
+                            case "merge":
+                                action = "mergeoldstandard";
+                                break;
+                                
+                            case "register":
+                                action = "registeroldstandard";
+                                break;
+                                
+                            case "unmerge":
+                                action = "unmergeoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "subscription":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "topic":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "transaction":
+                        switch(action)
+                        {
+                            case "purchase":
+                                action = "purchaseoldstandard";
+                                break;
+                                
+                            case "purchaseSessionId":
+                                action = "purchasesessionidoldstandard";
+                                break;
+                                
+                            case "waiver":
+                                action = "setwaiver";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "transactionhistory":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userassetrule":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userassetslistitem":
+                        switch(action)
+                        {
+                            case "delete":
+                                action = "deleteoldstandard";
+                                break;
+                                
+                            case "get":
+                                action = "getoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                    case "userrole":
+                        switch(action)
+                        {
+                            case "list":
+                                action = "listoldstandard";
+                                break;
+                                
+                        }
+                        break;
+                        
+                }
+            }
             switch (service)
             {
                 case "announcement":
@@ -8761,6 +9354,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("announcement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAnnouncement),
                             });
@@ -8768,6 +9362,7 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("announcement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAnnouncement),
                             });
@@ -8775,6 +9370,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
@@ -8784,10 +9380,12 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAnnouncementFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -8797,6 +9395,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -8806,9 +9405,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("announcementId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("announcement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAnnouncement),
                             });
@@ -8816,6 +9417,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("announcement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAnnouncement),
                             });
@@ -8823,9 +9425,11 @@ namespace WebAPI.Reflection
                             
                         case "updatestatus":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             return ret;
@@ -8838,6 +9442,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("appToken", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAppToken),
                             });
@@ -8845,35 +9450,42 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "startsession":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("tokenHash", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("userId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("expiry", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int32),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -8888,6 +9500,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("comment", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetComment),
                             });
@@ -8895,10 +9508,12 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetCommentFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -8914,6 +9529,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("asset", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAsset),
                             });
@@ -8921,9 +9537,11 @@ namespace WebAPI.Reflection
                             
                         case "autocomplete":
                             ret.Add("query", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -8931,6 +9549,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("filter_types", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -8938,6 +9557,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaIntegerValue>),
                             });
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -8945,6 +9565,7 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("size", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -8954,6 +9575,7 @@ namespace WebAPI.Reflection
                             
                         case "channel":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "channel") {
                                     RequiresPermission = false,
@@ -8963,6 +9585,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -8970,6 +9593,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -8977,12 +9601,14 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("filter_query", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -8991,6 +9617,7 @@ namespace WebAPI.Reflection
                             
                         case "count":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9000,6 +9627,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "delete") {
                                     RequiresPermission = false,
@@ -9009,6 +9637,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetReferenceType),
                             });
@@ -9016,6 +9645,7 @@ namespace WebAPI.Reflection
                             
                         case "externalchannel":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "externalChannel") {
                                     RequiresPermission = false,
@@ -9025,6 +9655,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9032,6 +9663,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -9039,12 +9671,14 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("utc_offset", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -9058,6 +9692,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("free_param", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -9066,9 +9701,11 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetReferenceType),
                             });
@@ -9076,13 +9713,16 @@ namespace WebAPI.Reflection
                             
                         case "getadscontext":
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetType),
                             });
                             ret.Add("contextDataParams", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPlaybackContextOptions),
                             });
@@ -9090,13 +9730,16 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetReferenceType),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9107,13 +9750,16 @@ namespace WebAPI.Reflection
                             
                         case "getplaybackcontext":
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetType),
                             });
                             ret.Add("contextDataParams", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPlaybackContextOptions),
                             });
@@ -9121,12 +9767,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9136,10 +9784,12 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetInfoFilter),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9147,6 +9797,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -9154,6 +9805,7 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9163,20 +9815,24 @@ namespace WebAPI.Reflection
                             
                         case "related":
                             ret.Add("media_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("filter_types", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9184,6 +9840,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaIntegerValue>),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9194,6 +9851,7 @@ namespace WebAPI.Reflection
                             
                         case "relatedexternal":
                             ret.Add("asset_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("asset_id", "asset", "relatedExternal") {
                                     RequiresPermission = false,
@@ -9203,12 +9861,14 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("filter_type_ids", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9216,11 +9876,13 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaIntegerValue>),
                             });
                             ret.Add("utc_offset", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9228,6 +9890,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("free_param", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -9236,6 +9899,7 @@ namespace WebAPI.Reflection
                             
                         case "removemetasandtags":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "removeMetasAndTags") {
                                     RequiresPermission = false,
@@ -9245,10 +9909,12 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetReferenceType),
                             });
                             ret.Add("idIn", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("idIn", "asset", "removeMetasAndTags") {
                                     RequiresPermission = false,
@@ -9261,11 +9927,13 @@ namespace WebAPI.Reflection
                             
                         case "search":
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsNullable = true,
                                 Type = typeof(KalturaOrder),
                                 IsEnum = true,
                             });
                             ret.Add("filter_types", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9273,6 +9941,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaIntegerValue>),
                             });
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -9283,6 +9952,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9290,12 +9960,14 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("request_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -9304,15 +9976,18 @@ namespace WebAPI.Reflection
                             
                         case "searchexternal":
                             ret.Add("query", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
                             ret.Add("filter_type_ids", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9320,11 +9995,13 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaIntegerValue>),
                             });
                             ret.Add("utc_offset", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -9335,6 +10012,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "asset", "update") {
                                     RequiresPermission = false,
@@ -9344,6 +10022,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("asset", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAsset),
                             });
@@ -9357,9 +10036,11 @@ namespace WebAPI.Reflection
                     {
                         case "getcontext":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("contextType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaContextType),
                             });
@@ -9367,6 +10048,7 @@ namespace WebAPI.Reflection
                             
                         case "playmanifest":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("partnerId", "assetFile", "playManifest") {
                                     RequiresPermission = false,
@@ -9376,13 +10058,16 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetType),
                             });
                             ret.Add("assetFileId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetFileId", "assetFile", "playManifest") {
                                     RequiresPermission = false,
@@ -9392,10 +10077,12 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("contextType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPlaybackContextType),
                             });
                             ret.Add("ks", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -9410,6 +10097,7 @@ namespace WebAPI.Reflection
                     {
                         case "clean":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9419,6 +10107,7 @@ namespace WebAPI.Reflection
                             
                         case "cleanoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9428,12 +10117,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetHistoryFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9443,12 +10134,14 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetHistoryFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9464,6 +10157,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("assetRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetRule),
                             });
@@ -9471,12 +10165,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9486,9 +10182,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("assetRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetRule),
                             });
@@ -9502,6 +10200,7 @@ namespace WebAPI.Reflection
                     {
                         case "query":
                             ret.Add("query", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetStatisticsQuery),
                             });
@@ -9515,6 +10214,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("assetStruct", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetStruct),
                             });
@@ -9522,6 +10222,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "delete") {
                                     RequiresPermission = false,
@@ -9534,6 +10235,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9543,6 +10245,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "update") {
                                     RequiresPermission = false,
@@ -9552,6 +10255,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetStruct", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetStruct),
                             });
@@ -9565,6 +10269,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetStructMetaFilter),
                             });
@@ -9572,6 +10277,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("assetStructId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetStructId", "assetStructMeta", "update") {
                                     RequiresPermission = false,
@@ -9581,6 +10287,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("metaId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("metaId", "assetStructMeta", "update") {
                                     RequiresPermission = false,
@@ -9590,6 +10297,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetStructMeta", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetStructMeta),
                             });
@@ -9603,6 +10311,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("assetUserRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetUserRule),
                             });
@@ -9610,6 +10319,7 @@ namespace WebAPI.Reflection
                             
                         case "attachuser":
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("ruleId", "assetUserRule", "attachUser") {
                                     RequiresPermission = false,
@@ -9622,6 +10332,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetUserRule", "delete") {
                                     RequiresPermission = false,
@@ -9634,6 +10345,7 @@ namespace WebAPI.Reflection
                             
                         case "detachuser":
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("ruleId", "assetUserRule", "detachUser") {
                                     RequiresPermission = false,
@@ -9646,6 +10358,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9655,6 +10368,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetUserRule", "update") {
                                     RequiresPermission = false,
@@ -9664,6 +10378,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("assetUserRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetUserRule),
                             });
@@ -9677,6 +10392,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("bookmark", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBookmark),
                             });
@@ -9684,16 +10400,20 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("asset_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("asset_type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetType),
                             });
                             ret.Add("file_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("player_asset_data", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPlayerAssetData),
                             });
@@ -9701,6 +10421,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBookmarkFilter),
                             });
@@ -9708,6 +10429,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetsFilter),
                             });
@@ -9721,12 +10443,14 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBulkFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9736,6 +10460,7 @@ namespace WebAPI.Reflection
                             
                         case "servelog":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
@@ -9748,6 +10473,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -9760,6 +10486,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDNAdapterProfile),
                             });
@@ -9767,17 +10494,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "adapterId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "adapter_id";
+                                newParamName = "adapterId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             ret.Add("adapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -9787,9 +10518,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("adapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDNAdapterProfile),
                             });
@@ -9806,6 +10539,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDNPartnerSettings),
                             });
@@ -9819,6 +10553,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDVRAdapterProfile),
                             });
@@ -9826,22 +10561,28 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "adapterId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "adapter_id";
+                                newParamName = "adapterId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             paramName = "adapterId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "adapter_id";
+                                newParamName = "adapterId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -9854,9 +10595,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("adapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDVRAdapterProfile),
                             });
@@ -9864,6 +10607,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCDVRAdapterProfile),
                             });
@@ -9877,6 +10621,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("channel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaChannel),
                             });
@@ -9884,6 +10629,7 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("channel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaChannelProfile),
                             });
@@ -9891,17 +10637,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "channelId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "channel_id";
+                                newParamName = "channelId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "channel", "get") {
                                     RequiresPermission = false,
@@ -9914,6 +10664,7 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "channel", "getOldStandard") {
                                     RequiresPermission = false,
@@ -9926,12 +10677,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaChannelsFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -9941,14 +10694,18 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             paramName = "id";
+                            newParamName = null;
                             if(isOldVersion || currentVersion.CompareTo(new Version("5.0.0.0")) < 0)
                             {
                                 paramName = "channelId";
+                                newParamName = "id";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("channel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaChannel),
                             });
@@ -9956,6 +10713,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("channel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaChannelProfile),
                             });
@@ -9969,6 +10727,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCollectionFilter),
                             });
@@ -9982,6 +10741,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("compensation", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCompensation),
                             });
@@ -9989,12 +10749,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
@@ -10007,6 +10769,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("configurationGroup", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroup),
                             });
@@ -10014,12 +10777,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -10029,9 +10794,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("configurationGroup", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroup),
                             });
@@ -10045,6 +10812,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("configurationGroupDevice", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroupDevice),
                             });
@@ -10052,22 +10820,26 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroupDeviceFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10083,6 +10855,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("configurationGroupTag", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroupTag),
                             });
@@ -10090,18 +10863,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("tag", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("tag", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationGroupTagFilter),
                             });
@@ -10115,6 +10891,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("configurations", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurations),
                             });
@@ -10122,18 +10899,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurationsFilter),
                             });
@@ -10141,21 +10921,27 @@ namespace WebAPI.Reflection
                             
                         case "servebydevice":
                             ret.Add("applicationName", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("clientVersion", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("platform", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("tag", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
@@ -10164,9 +10950,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("configurations", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaConfigurations),
                             });
@@ -10180,6 +10968,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCountryFilter),
                             });
@@ -10193,6 +10982,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("code", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -10205,6 +10995,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("couponsGroup", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCouponsGroup),
                             });
@@ -10212,15 +11003,18 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "generate":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("couponGenerationOptions", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCouponGenerationOptions),
                             });
@@ -10228,6 +11022,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "couponsGroup", "get") {
                                     RequiresPermission = false,
@@ -10243,9 +11038,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("couponsGroup", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCouponsGroup),
                             });
@@ -10259,6 +11056,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCurrencyFilter),
                             });
@@ -10290,6 +11088,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10314,6 +11113,7 @@ namespace WebAPI.Reflection
                     {
                         case "send":
                             ret.Add("emailMessage", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEmailMessage),
                             });
@@ -10327,6 +11127,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("engagementAdapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEngagementAdapter),
                             });
@@ -10334,18 +11135,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -10355,9 +11159,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("engagementAdapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEngagementAdapter),
                             });
@@ -10371,6 +11177,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("engagement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEngagement),
                             });
@@ -10378,18 +11185,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEngagementFilter),
                             });
@@ -10403,62 +11213,83 @@ namespace WebAPI.Reflection
                     {
                         case "buy":
                             paramName = "itemId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "item_id";
+                                newParamName = "itemId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "isSubscription";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "is_subscription";
+                                newParamName = "isSubscription";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             ret.Add("price", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(float),
                             });
                             ret.Add("currency", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "couponCode";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "coupon_code";
+                                newParamName = "couponCode";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "extraParams";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "extra_params";
+                                newParamName = "extraParams";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "encryptedCvv";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "encrypted_cvv";
+                                newParamName = "encryptedCvv";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "fileId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "file_id";
+                                newParamName = "fileId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -10467,11 +11298,14 @@ namespace WebAPI.Reflection
                             
                         case "cancel":
                             paramName = "assetId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_id";
+                                newParamName = "assetId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "entitlement", "cancel") {
                                     RequiresPermission = false,
@@ -10481,15 +11315,19 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "productType";
+                            newParamName = null;
                             if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
+                                newParamName = "productType";
                             }
                             if(isOldVersion)
                             {
                                 paramName = "transaction_type";
+                                newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
@@ -10497,17 +11335,21 @@ namespace WebAPI.Reflection
                             
                         case "cancelrenewal":
                             paramName = "subscriptionId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "subscription_id";
+                                newParamName = "subscriptionId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "cancelscheduledsubscription":
                             ret.Add("scheduledSubscriptionId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("scheduledSubscriptionId", "entitlement", "cancelScheduledSubscription") {
                                     RequiresPermission = false,
@@ -10523,11 +11365,14 @@ namespace WebAPI.Reflection
                             
                         case "forcecancel":
                             paramName = "assetId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_id";
+                                newParamName = "assetId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "entitlement", "forceCancel") {
                                     RequiresPermission = false,
@@ -10537,15 +11382,19 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "productType";
+                            newParamName = null;
                             if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
+                                newParamName = "productType";
                             }
                             if(isOldVersion)
                             {
                                 paramName = "transaction_type";
+                                newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
@@ -10553,17 +11402,21 @@ namespace WebAPI.Reflection
                             
                         case "getnextrenewal":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "grant":
                             paramName = "productId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "product_id";
+                                newParamName = "productId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("productId", "entitlement", "grant") {
                                     RequiresPermission = false,
@@ -10573,23 +11426,30 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "productType";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "product_type";
+                                newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
                             ret.Add("history", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             paramName = "contentId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "content_id";
+                                newParamName = "contentId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
@@ -10598,10 +11458,12 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEntitlementFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10611,10 +11473,12 @@ namespace WebAPI.Reflection
                             
                         case "listexpired":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEntitlementsFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10624,6 +11488,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEntitlementsFilter),
                             });
@@ -10631,21 +11496,26 @@ namespace WebAPI.Reflection
                             
                         case "swap":
                             ret.Add("currentProductId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("newProductId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("history", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             return ret;
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("entitlement", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEntitlement),
                             });
@@ -10659,10 +11529,12 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEpgChannelFilter),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -10679,6 +11551,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("task", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExportTask),
                             });
@@ -10686,18 +11559,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10707,6 +11583,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10716,6 +11593,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "exportTask", "update") {
                                     RequiresPermission = false,
@@ -10725,6 +11603,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("task", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExportTask),
                             });
@@ -10732,6 +11611,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("task", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExportTask),
                             });
@@ -10745,11 +11625,14 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             paramName = "externalChannel";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "external_channel";
+                                newParamName = "externalChannel";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExternalChannelProfile),
                             });
@@ -10757,11 +11640,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "externalChannelId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "external_channel_id";
+                                newParamName = "externalChannelId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -10774,9 +11660,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("externalChannelId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("externalChannel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExternalChannelProfile),
                             });
@@ -10784,6 +11672,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("external_channel", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExternalChannelProfile),
                             });
@@ -10797,6 +11686,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("favorite", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFavorite),
                             });
@@ -10804,14 +11694,17 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("media_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("media_type", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("extra_data", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -10820,12 +11713,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "deleteoldstandard":
                             ret.Add("media_ids", new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaIntegerValue),
                                 Type = typeof(List<KalturaIntegerValue>),
@@ -10834,6 +11729,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10843,12 +11739,14 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFavoriteFilter),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -10856,6 +11754,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(List<KalturaCatalogWithHolder>),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -10870,6 +11769,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("followTvSeries", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFollowTvSeries),
                             });
@@ -10877,17 +11777,21 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("asset_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "delete":
                             paramName = "assetId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_id";
+                                newParamName = "assetId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "followTvSeries", "delete") {
                                     RequiresPermission = false,
@@ -10900,22 +11804,27 @@ namespace WebAPI.Reflection
                             
                         case "deletewithtoken":
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFollowTvSeriesFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10925,6 +11834,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -10932,6 +11842,7 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -10947,11 +11858,14 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             paramName = "homeNetwork";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "home_network";
+                                newParamName = "homeNetwork";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHomeNetwork),
                             });
@@ -10959,11 +11873,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "externalId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "external_id";
+                                newParamName = "externalId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -10976,9 +11893,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("externalId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("homeNetwork", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHomeNetwork),
                             });
@@ -10986,6 +11905,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("home_network", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHomeNetwork),
                             });
@@ -10999,6 +11919,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("household", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHousehold),
                             });
@@ -11006,12 +11927,15 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("description", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("external_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -11020,6 +11944,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -11034,6 +11959,7 @@ namespace WebAPI.Reflection
                             
                         case "deletebyoperator":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaIdentifierTypeFilter),
                             });
@@ -11041,6 +11967,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -11055,10 +11982,12 @@ namespace WebAPI.Reflection
                             
                         case "getbyoperator":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaIdentifierTypeFilter),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsList = true,
@@ -11069,12 +11998,14 @@ namespace WebAPI.Reflection
                             
                         case "getchargeid":
                             ret.Add("pg_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "getoldstandard":
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaHouseholdWithHolder),
                                 Type = typeof(List<KalturaHouseholdWithHolder>),
@@ -11083,17 +12014,21 @@ namespace WebAPI.Reflection
                             
                         case "purge":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "resetfrequency":
                             paramName = "frequencyType";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "household_frequency_type";
+                                newParamName = "frequencyType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaHouseholdFrequencyType),
                             });
@@ -11104,30 +12039,37 @@ namespace WebAPI.Reflection
                             
                         case "setchargeid":
                             ret.Add("pg_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("charge_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "setpaymentmethodexternalid":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("payment_method_name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("payment_details", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("payment_method_external_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "suspend":
                             ret.Add("roleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -11137,6 +12079,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("household", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHousehold),
                             });
@@ -11144,9 +12087,11 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("description", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -11159,6 +12104,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("device", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdDevice),
                             });
@@ -11166,46 +12112,58 @@ namespace WebAPI.Reflection
                             
                         case "addbypin":
                             paramName = "deviceName";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "device_name";
+                                newParamName = "deviceName";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "addoldstandard":
                             ret.Add("device_name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("device_brand_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "delete":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "generatepin":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "brandId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "brand_id";
+                                newParamName = "brandId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -11215,6 +12173,7 @@ namespace WebAPI.Reflection
                             
                         case "getstatus":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -11223,6 +12182,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11232,12 +12192,15 @@ namespace WebAPI.Reflection
                             
                         case "loginwithpin":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -11246,9 +12209,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("device", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdDevice),
                             });
@@ -11256,18 +12221,22 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("device_name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "updatestatus":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaDeviceStatus),
                             });
@@ -11281,6 +12250,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -11293,35 +12263,43 @@ namespace WebAPI.Reflection
                     {
                         case "disable":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "enable":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "getchargeid":
                             ret.Add("paymentGatewayExternalId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "invoke":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("intent", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "extraParameters";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "extra_parameters";
+                                newParamName = "extraParameters";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaKeyValue),
                                 Type = typeof(List<KalturaKeyValue>),
@@ -11333,21 +12311,25 @@ namespace WebAPI.Reflection
                             
                         case "resume":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "setchargeid":
                             ret.Add("paymentGatewayExternalId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("chargeId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "suspend":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -11360,6 +12342,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("householdPaymentMethod", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdPaymentMethod),
                             });
@@ -11367,9 +12350,11 @@ namespace WebAPI.Reflection
                             
                         case "forceremove":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("paymentMethodId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "forceRemove") {
                                     RequiresPermission = false,
@@ -11385,9 +12370,11 @@ namespace WebAPI.Reflection
                             
                         case "remove":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("paymentMethodId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "remove") {
                                     RequiresPermission = false,
@@ -11400,9 +12387,11 @@ namespace WebAPI.Reflection
                             
                         case "setasdefault":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("paymentMethodId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("paymentMethodId", "householdPaymentMethod", "setAsDefault") {
                                     RequiresPermission = false,
@@ -11415,15 +12404,19 @@ namespace WebAPI.Reflection
                             
                         case "setexternalid":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("paymentMethodName", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("paymentDetails", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("paymentMethodExternalId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -11457,6 +12450,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("householdUser", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdUser),
                             });
@@ -11464,12 +12458,15 @@ namespace WebAPI.Reflection
                             
                         case "addbyoperator":
                             ret.Add("user_id_to_add", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("household_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("is_master", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = false,
                                 Type = typeof(bool),
@@ -11478,9 +12475,11 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("user_id_to_add", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("is_master", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = false,
                                 Type = typeof(bool),
@@ -11489,17 +12488,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "id";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "user_id_to_delete";
+                                newParamName = "id";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11515,6 +12518,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("image", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaImage),
                             });
@@ -11522,6 +12526,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "image", "delete") {
                                     RequiresPermission = false,
@@ -11534,6 +12539,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11543,6 +12549,7 @@ namespace WebAPI.Reflection
                             
                         case "setcontent":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "image", "setContent") {
                                     RequiresPermission = false,
@@ -11552,6 +12559,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("content", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaContentResource),
                             });
@@ -11565,6 +12573,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("imageType", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaImageType),
                             });
@@ -11572,6 +12581,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "imageType", "delete") {
                                     RequiresPermission = false,
@@ -11584,6 +12594,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11593,6 +12604,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "imageType", "update") {
                                     RequiresPermission = false,
@@ -11602,6 +12614,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("imageType", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaImageType),
                             });
@@ -11615,18 +12628,21 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaInboxMessageFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11636,9 +12652,11 @@ namespace WebAPI.Reflection
                             
                         case "updatestatus":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaInboxMessageStatus),
                             });
@@ -11652,6 +12670,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaLanguageFilter),
                             });
@@ -11665,6 +12684,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaLastPositionFilter),
                             });
@@ -11678,6 +12698,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("request", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaLicensedUrlBaseRequest),
                             });
@@ -11685,57 +12706,75 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             paramName = "assetType";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_type";
+                                newParamName = "assetType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaAssetType),
                             });
                             paramName = "contentId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "content_id";
+                                newParamName = "contentId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             paramName = "baseUrl";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "base_url";
+                                newParamName = "baseUrl";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "assetId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_id";
+                                newParamName = "assetId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             paramName = "startDate";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "start_date";
+                                newParamName = "startDate";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int64),
                             });
                             paramName = "streamType";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "stream_type";
+                                newParamName = "streamType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -11761,6 +12800,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("mediaFile", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMediaFile),
                             });
@@ -11768,6 +12808,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "mediaFile", "delete") {
                                     RequiresPermission = false,
@@ -11780,6 +12821,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11789,6 +12831,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "mediaFile", "update") {
                                     RequiresPermission = false,
@@ -11798,6 +12841,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("mediaFile", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMediaFile),
                             });
@@ -11811,6 +12855,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("mediaFileType", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMediaFileType),
                             });
@@ -11818,6 +12863,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -11827,9 +12873,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("mediaFileType", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMediaFileType),
                             });
@@ -11843,15 +12891,19 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             paramName = "messageType";
+                            newParamName = null;
                             if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
+                                newParamName = "messageType";
                             }
                             if(isOldVersion)
                             {
                                 paramName = "asset_Type";
+                                newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaMessageTemplateType),
                             });
@@ -11859,6 +12911,7 @@ namespace WebAPI.Reflection
                             
                         case "set":
                             ret.Add("message_template", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMessageTemplate),
                             });
@@ -11866,19 +12919,24 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             paramName = "messageType";
+                            newParamName = null;
                             if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
+                                newParamName = "messageType";
                             }
                             if(isOldVersion)
                             {
                                 paramName = "asset_Type";
+                                newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaMessageTemplateType),
                             });
                             ret.Add("template", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMessageTemplate),
                             });
@@ -11892,6 +12950,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("meta", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMeta),
                             });
@@ -11899,6 +12958,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "meta", "delete") {
                                     RequiresPermission = false,
@@ -11911,6 +12971,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11920,6 +12981,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -11929,6 +12991,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "meta", "update") {
                                     RequiresPermission = false,
@@ -11938,6 +13001,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("meta", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMeta),
                             });
@@ -11945,9 +13009,11 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("meta", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMeta),
                             });
@@ -11961,6 +13027,7 @@ namespace WebAPI.Reflection
                     {
                         case "do":
                             ret.Add("request", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(KalturaMultiRequestAction[]),
                             });
                             return ret;
@@ -11973,9 +13040,11 @@ namespace WebAPI.Reflection
                     {
                         case "register":
                             ret.Add("identifier", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaNotificationType),
                             });
@@ -11983,9 +13052,11 @@ namespace WebAPI.Reflection
                             
                         case "sendpush":
                             ret.Add("userId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("pushMessage", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPushMessage),
                             });
@@ -11993,12 +13064,14 @@ namespace WebAPI.Reflection
                             
                         case "sendsms":
                             ret.Add("message", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "setdevicepushtoken":
                             ret.Add("pushToken", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -12017,6 +13090,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaNotificationsPartnerSettings),
                             });
@@ -12024,6 +13098,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerNotificationSettings),
                             });
@@ -12043,6 +13118,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaNotificationsSettings),
                             });
@@ -12050,6 +13126,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaNotificationSettings),
                             });
@@ -12057,13 +13134,16 @@ namespace WebAPI.Reflection
                             
                         case "updatewithtoken":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaNotificationsSettings),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -12076,11 +13156,14 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             paramName = "ossAdapter";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "oss_adapter";
+                                newParamName = "ossAdapter";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaOSSAdapterProfile),
                             });
@@ -12088,28 +13171,35 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "ossAdapterId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "oss_adapter_id";
+                                newParamName = "ossAdapterId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             paramName = "ossAdapterId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "oss_adapter_id";
+                                newParamName = "ossAdapterId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -12122,9 +13212,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("ossAdapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("ossAdapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaOSSAdapterProfile),
                             });
@@ -12132,6 +13224,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("oss_adapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaOSSAdapterProfile),
                             });
@@ -12145,9 +13238,11 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("oss_adapter_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12156,9 +13251,11 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("oss_adapter_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12170,9 +13267,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("oss_adapter_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12187,6 +13286,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -12199,37 +13299,47 @@ namespace WebAPI.Reflection
                     {
                         case "activate":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "activationToken";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "activation_token";
+                                newParamName = "activationToken";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "addrole":
                             paramName = "roleId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "role_id";
+                                newParamName = "roleId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "anonymouslogin":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12241,12 +13351,15 @@ namespace WebAPI.Reflection
                             
                         case "facebooklogin":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12264,6 +13377,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -12273,24 +13387,30 @@ namespace WebAPI.Reflection
                             
                         case "login":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             paramName = "extraParams";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "extra_params";
+                                newParamName = "extraParams";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsMap = true,
@@ -12298,6 +13418,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12306,17 +13427,21 @@ namespace WebAPI.Reflection
                             
                         case "loginwithpin":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("secret", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12328,14 +13453,18 @@ namespace WebAPI.Reflection
                             
                         case "refreshsession":
                             paramName = "refreshToken";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "refresh_token";
+                                newParamName = "refreshToken";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12344,13 +13473,16 @@ namespace WebAPI.Reflection
                             
                         case "register":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("user", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaOTTUser),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("password", "ottUser", "register") {
                                     RequiresPermission = false,
@@ -12362,52 +13494,64 @@ namespace WebAPI.Reflection
                             
                         case "resendactivationtoken":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "resetpassword":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "setinitialpassword":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "setpassword":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "update":
                             ret.Add("user", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaOTTUser),
                             });
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -12421,9 +13565,11 @@ namespace WebAPI.Reflection
                             
                         case "updatedynamicdata":
                             ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("value", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaStringValue),
                             });
@@ -12431,40 +13577,51 @@ namespace WebAPI.Reflection
                             
                         case "updatelogindata":
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "oldPassword";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "old_password";
+                                newParamName = "oldPassword";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "newPassword";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "new_password";
+                                newParamName = "newPassword";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "updatepassword":
                             ret.Add("userId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "validatetoken":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -12477,6 +13634,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("parentalRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaParentalRule),
                             });
@@ -12484,6 +13642,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "delete") {
                                     RequiresPermission = false,
@@ -12496,19 +13655,25 @@ namespace WebAPI.Reflection
                             
                         case "disable":
                             paramName = "ruleId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "rule_id";
+                                newParamName = "ruleId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             paramName = "entityReference";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "by";
+                                newParamName = "entityReference";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -12516,11 +13681,14 @@ namespace WebAPI.Reflection
                             
                         case "disabledefault":
                             paramName = "entityReference";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "by";
+                                newParamName = "entityReference";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -12528,19 +13696,25 @@ namespace WebAPI.Reflection
                             
                         case "enable":
                             paramName = "ruleId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "rule_id";
+                                newParamName = "ruleId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             paramName = "entityReference";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "by";
+                                newParamName = "entityReference";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -12548,6 +13722,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "get") {
                                     RequiresPermission = false,
@@ -12560,6 +13735,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaParentalRuleFilter),
                             });
@@ -12567,6 +13743,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRuleFilter),
                             });
@@ -12574,6 +13751,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "parentalRule", "update") {
                                     RequiresPermission = false,
@@ -12583,6 +13761,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("parentalRule", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaParentalRule),
                             });
@@ -12605,6 +13784,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerConfigurationFilter),
                             });
@@ -12612,6 +13792,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("configuration", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerConfiguration),
                             });
@@ -12625,17 +13806,21 @@ namespace WebAPI.Reflection
                     {
                         case "delete":
                             paramName = "paymentGatewayId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway_id";
+                                newParamName = "paymentGatewayId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "forceremovepaymentmethod":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "forceRemovePaymentMethod") {
                                     RequiresPermission = false,
@@ -12645,6 +13830,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "forceRemovePaymentMethod") {
                                     RequiresPermission = false,
@@ -12660,6 +13846,7 @@ namespace WebAPI.Reflection
                             
                         case "removepaymentmethod":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "removePaymentMethod") {
                                     RequiresPermission = false,
@@ -12669,6 +13856,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "removePaymentMethod") {
                                     RequiresPermission = false,
@@ -12681,12 +13869,14 @@ namespace WebAPI.Reflection
                             
                         case "set":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "setpaymentmethod":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_gateway_id", "paymentGateway", "setPaymentMethod") {
                                     RequiresPermission = false,
@@ -12696,6 +13886,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("payment_method_id", "paymentGateway", "setPaymentMethod") {
                                     RequiresPermission = false,
@@ -12714,6 +13905,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("paymentGateway", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentGatewayProfile),
                             });
@@ -12721,11 +13913,14 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             paramName = "paymentGateway";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway";
+                                newParamName = "paymentGateway";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentGatewayProfile),
                             });
@@ -12733,39 +13928,50 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "paymentGatewayId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway_id";
+                                newParamName = "paymentGatewayId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             paramName = "paymentGatewayId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway_id";
+                                newParamName = "paymentGatewayId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "getconfiguration":
                             ret.Add("alias", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("intent", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             paramName = "extraParameters";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "extra_parameters";
+                                newParamName = "extraParameters";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaKeyValue),
                                 Type = typeof(List<KalturaKeyValue>),
@@ -12780,9 +13986,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("paymentGateway", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentGatewayProfile),
                             });
@@ -12790,19 +13998,25 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             paramName = "paymentGatewayId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway_id";
+                                newParamName = "paymentGatewayId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             paramName = "paymentGateway";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway";
+                                newParamName = "paymentGateway";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentGatewayProfile),
                             });
@@ -12816,6 +14030,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("profile", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentGatewayProfile),
                             });
@@ -12823,9 +14038,11 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12834,9 +14051,11 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12848,9 +14067,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -12865,6 +14086,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("paymentMethod", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
                             });
@@ -12872,9 +14094,11 @@ namespace WebAPI.Reflection
                             
                         case "addoldstandard":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("payment_method", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
                             });
@@ -12882,21 +14106,25 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("paymentMethodId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "deleteoldstandard":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("payment_method_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfileFilter),
                             });
@@ -12904,15 +14132,18 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "update":
                             ret.Add("paymentMethodId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("paymentMethod", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
                             });
@@ -12920,19 +14151,25 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             paramName = "paymentGatewayId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_gateway_id";
+                                newParamName = "paymentGatewayId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             paramName = "paymentMethod";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "payment_method";
+                                newParamName = "paymentMethod";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
                             });
@@ -12964,11 +14201,13 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("assets", new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaPersonalAssetRequest),
                                 Type = typeof(List<KalturaPersonalAssetRequest>),
                             });
                             ret.Add("with", new MethodParam(){
+                                NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaPersonalAssetWithHolder),
                                 Type = typeof(List<KalturaPersonalAssetWithHolder>),
@@ -12983,10 +14222,12 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPersonalFeedFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -12996,6 +14237,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("order_by", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13003,6 +14245,7 @@ namespace WebAPI.Reflection
                                 IsEnum = true,
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13018,6 +14261,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("personalList", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPersonalList),
                             });
@@ -13025,6 +14269,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("personalListId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("personalListId", "personalList", "delete") {
                                     RequiresPermission = false,
@@ -13037,12 +14282,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPersonalListFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13058,14 +14305,17 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPinType),
                             });
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13075,14 +14325,17 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPinType),
                             });
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13092,18 +14345,22 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPinType),
                             });
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPin),
                             });
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13113,17 +14370,21 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPinType),
                             });
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13133,13 +14394,16 @@ namespace WebAPI.Reflection
                             
                         case "validate":
                             ret.Add("pin", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaPinType),
                             });
                             ret.Add("ruleId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13155,6 +14419,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
@@ -13167,10 +14432,12 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPricesFilter),
                             });
                             ret.Add("coupon_code", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13185,6 +14452,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13200,6 +14468,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13209,9 +14478,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("pricePlan", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPricePlan),
                             });
@@ -13225,6 +14496,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaProductPriceFilter),
                             });
@@ -13238,6 +14510,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -13245,6 +14518,7 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -13252,10 +14526,12 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("entityReference", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPurchaseSettings),
                             });
@@ -13263,9 +14539,11 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("setting", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("by", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaEntityReferenceBy),
                             });
@@ -13279,6 +14557,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("ratio", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRatio),
                             });
@@ -13289,9 +14568,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("ratio", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRatio),
                             });
@@ -13305,11 +14586,14 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             paramName = "recommendationEngine";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "recommendation_engine";
+                                newParamName = "recommendationEngine";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecommendationProfile),
                             });
@@ -13317,17 +14601,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             paramName = "recommendationEngineId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "recommendation_engine_id";
+                                newParamName = "recommendationEngineId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -13340,9 +14628,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("recommendationEngineId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("recommendationEngine", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecommendationProfile),
                             });
@@ -13350,6 +14640,7 @@ namespace WebAPI.Reflection
                             
                         case "updateoldstandard":
                             ret.Add("recommendation_engine", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecommendationProfile),
                             });
@@ -13363,9 +14654,11 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -13374,9 +14667,11 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -13388,9 +14683,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsMap = true,
                                 GenericType = typeof(KalturaStringValue),
                                 Type = typeof(SerializableDictionary<string, KalturaStringValue>),
@@ -13405,6 +14702,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("recording", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecording),
                             });
@@ -13412,30 +14710,35 @@ namespace WebAPI.Reflection
                             
                         case "cancel":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecordingFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13445,6 +14748,7 @@ namespace WebAPI.Reflection
                             
                         case "protect":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
@@ -13457,6 +14761,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
                             });
@@ -13482,6 +14787,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("reminder", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaReminder),
                             });
@@ -13489,9 +14795,11 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaReminderType),
                             });
@@ -13499,26 +14807,32 @@ namespace WebAPI.Reflection
                             
                         case "deletewithtoken":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaReminderType),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaReminderFilter<>),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13534,16 +14848,19 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaReportFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13559,6 +14876,7 @@ namespace WebAPI.Reflection
                     {
                         case "clean":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13568,18 +14886,21 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSearchHistoryFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13595,6 +14916,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("recording", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSeriesRecording),
                             });
@@ -13602,15 +14924,18 @@ namespace WebAPI.Reflection
                             
                         case "cancel":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "cancelbyepgid":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("epgId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("epgId", "seriesRecording", "cancelByEpgId") {
                                     RequiresPermission = false,
@@ -13623,9 +14948,11 @@ namespace WebAPI.Reflection
                             
                         case "cancelbyseasonnumber":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("seasonNumber", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("seasonNumber", "seriesRecording", "cancelBySeasonNumber") {
                                     RequiresPermission = false,
@@ -13638,15 +14965,18 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "deletebyseasonnumber":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("seasonNumber", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("seasonNumber", "seriesRecording", "deleteBySeasonNumber") {
                                     RequiresPermission = false,
@@ -13659,6 +14989,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13674,6 +15005,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("session", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13687,11 +15019,14 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             paramName = "session";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "ks_to_parse";
+                                newParamName = "session";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13703,6 +15038,7 @@ namespace WebAPI.Reflection
                             
                         case "switchuser":
                             ret.Add("userIdToSwitch", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -13715,6 +15051,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("socialAction", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSocialAction),
                             });
@@ -13722,16 +15059,19 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSocialActionFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13747,10 +15087,12 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSocialCommentFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13766,6 +15108,7 @@ namespace WebAPI.Reflection
                     {
                         case "get":
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13773,12 +15116,15 @@ namespace WebAPI.Reflection
                             
                         case "getbytoken":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13786,12 +15132,15 @@ namespace WebAPI.Reflection
                             
                         case "getbytokenoldstandard":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13799,11 +15148,13 @@ namespace WebAPI.Reflection
                             
                         case "getconfiguration":
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsNullable = true,
                                 Type = typeof(KalturaSocialNetwork),
                                 IsEnum = true,
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -13813,16 +15164,20 @@ namespace WebAPI.Reflection
                             
                         case "login":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
                             ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13831,9 +15186,11 @@ namespace WebAPI.Reflection
                             
                         case "merge":
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13841,21 +15198,27 @@ namespace WebAPI.Reflection
                             
                         case "mergeoldstandard":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("social_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13863,16 +15226,20 @@ namespace WebAPI.Reflection
                             
                         case "register":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
                             ret.Add("email", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13881,22 +15248,28 @@ namespace WebAPI.Reflection
                             
                         case "registeroldstandard":
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("should_create_domain", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             ret.Add("subscribe_newsletter", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(bool),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
                             ret.Add("email", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -13905,6 +15278,7 @@ namespace WebAPI.Reflection
                             
                         case "unmerge":
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13912,15 +15286,19 @@ namespace WebAPI.Reflection
                             
                         case "unmergeoldstandard":
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("username", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("password", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaSocialNetwork),
                             });
@@ -13928,6 +15306,7 @@ namespace WebAPI.Reflection
                             
                         case "updateconfiguration":
                             ret.Add("configuration", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSocialConfig),
                             });
@@ -13941,12 +15320,14 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSocialFriendActivityFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -13962,6 +15343,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("ssoAdapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSSOAdapterProfile),
                             });
@@ -13969,12 +15351,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("ssoAdapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "generatesharedsecret":
                             ret.Add("ssoAdapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -13984,9 +15368,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("ssoAdapterId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("ssoAdapter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSSOAdapterProfile),
                             });
@@ -14000,6 +15386,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionFilter),
                             });
@@ -14007,6 +15394,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionsFilter),
                             });
@@ -14014,9 +15402,11 @@ namespace WebAPI.Reflection
                             
                         case "validatecoupon":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("code", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -14029,6 +15419,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("subscriptionSet", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionSet),
                             });
@@ -14036,6 +15427,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "delete") {
                                     RequiresPermission = false,
@@ -14048,6 +15440,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "get") {
                                     RequiresPermission = false,
@@ -14060,6 +15453,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14069,6 +15463,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscriptionSet", "update") {
                                     RequiresPermission = false,
@@ -14078,6 +15473,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("subscriptionSet", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionSet),
                             });
@@ -14091,6 +15487,7 @@ namespace WebAPI.Reflection
                     {
                         case "getcountry":
                             ret.Add("ip", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -14114,6 +15511,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("tag", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTag),
                             });
@@ -14121,6 +15519,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "tag", "delete") {
                                     RequiresPermission = false,
@@ -14133,12 +15532,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTagFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14148,9 +15549,11 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             ret.Add("tag", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTag),
                             });
@@ -14167,6 +15570,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("settings", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTimeShiftedTvPartnerSettings),
                             });
@@ -14180,12 +15584,14 @@ namespace WebAPI.Reflection
                     {
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
                             
                         case "get":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "topic", "get") {
                                     RequiresPermission = false,
@@ -14198,12 +15604,14 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTopicFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14213,6 +15621,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14222,9 +15631,11 @@ namespace WebAPI.Reflection
                             
                         case "updatestatus":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("automaticIssueNotification", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTopicAutomaticIssueNotification),
                             });
@@ -14238,6 +15649,7 @@ namespace WebAPI.Reflection
                     {
                         case "downgrade":
                             ret.Add("purchase", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPurchase),
                             });
@@ -14245,6 +15657,7 @@ namespace WebAPI.Reflection
                             
                         case "getpurchasesessionid":
                             ret.Add("purchaseSession", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPurchaseSession),
                             });
@@ -14252,19 +15665,24 @@ namespace WebAPI.Reflection
                             
                         case "processreceipt":
                             ret.Add("product_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("product_type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
                             ret.Add("purchase_receipt", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("payment_gateway_name", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("content_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
@@ -14273,6 +15691,7 @@ namespace WebAPI.Reflection
                             
                         case "purchase":
                             ret.Add("purchase", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPurchase),
                             });
@@ -14280,6 +15699,7 @@ namespace WebAPI.Reflection
                             
                         case "purchaseoldstandard":
                             ret.Add("price", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(float),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("price", "transaction", "purchaseOldStandard") {
                                     RequiresPermission = false,
@@ -14289,9 +15709,11 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("currency", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("product_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("product_id", "transaction", "purchaseOldStandard") {
                                     RequiresPermission = false,
@@ -14301,25 +15723,30 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("product_type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
                             ret.Add("content_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("coupon", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("payment_method_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
@@ -14332,6 +15759,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -14340,29 +15768,36 @@ namespace WebAPI.Reflection
                             
                         case "purchasesessionidoldstandard":
                             ret.Add("price", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(float),
                             });
                             ret.Add("currency", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("product_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("product_type", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
                             ret.Add("content_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
                             });
                             ret.Add("coupon", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
                             ret.Add("preview_module_id", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
@@ -14371,11 +15806,14 @@ namespace WebAPI.Reflection
                             
                         case "setwaiver":
                             paramName = "assetId";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "asset_id";
+                                newParamName = "assetId";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "transaction", "setWaiver") {
                                     RequiresPermission = false,
@@ -14385,11 +15823,14 @@ namespace WebAPI.Reflection
                                 },
                             });
                             paramName = "transactionType";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "transaction_type";
+                                newParamName = "transactionType";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTransactionType),
                             });
@@ -14397,39 +15838,50 @@ namespace WebAPI.Reflection
                             
                         case "updatestate":
                             ret.Add("payment_gateway_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("adapter_transaction_state", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("external_transaction_id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("external_status", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("external_message", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("fail_reason", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             ret.Add("signature", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "updatestatus":
                             ret.Add("paymentGatewayId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("externalTransactionId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("signature", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTransactionStatus),
                             });
@@ -14437,6 +15889,7 @@ namespace WebAPI.Reflection
                             
                         case "upgrade":
                             ret.Add("purchase", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPurchase),
                             });
@@ -14444,6 +15897,7 @@ namespace WebAPI.Reflection
                             
                         case "validatereceipt":
                             ret.Add("externalReceipt", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaExternalReceipt),
                             });
@@ -14457,12 +15911,14 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTransactionHistoryFilter),
                             });
                             ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14472,6 +15928,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14487,6 +15944,7 @@ namespace WebAPI.Reflection
                     {
                         case "getnextrenewal":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -14499,6 +15957,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("uploadToken", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14508,9 +15967,11 @@ namespace WebAPI.Reflection
                             
                         case "upload":
                             ret.Add("uploadTokenId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("fileData", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(KalturaOTTFile),
                             });
                             return ret;
@@ -14523,6 +15984,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserAssetRuleFilter),
                             });
@@ -14530,6 +15992,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaGenericRuleFilter),
                             });
@@ -14543,6 +16006,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserAssetsListFilter),
                             });
@@ -14556,6 +16020,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("userAssetsListItem", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserAssetsListItem),
                             });
@@ -14563,9 +16028,11 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("listType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaUserAssetsListType),
                             });
@@ -14573,6 +16040,7 @@ namespace WebAPI.Reflection
                             
                         case "deleteoldstandard":
                             ret.Add("userAssetsListItem", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserAssetsListItem),
                             });
@@ -14580,13 +16048,16 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("listType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaUserAssetsListType),
                             });
                             ret.Add("itemType", new MethodParam(){
+                                NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaUserAssetsListItemType),
                             });
@@ -14594,6 +16065,7 @@ namespace WebAPI.Reflection
                             
                         case "getoldstandard":
                             ret.Add("userAssetsListItem", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserAssetsListItem),
                             });
@@ -14607,6 +16079,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("userInterest", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserInterest),
                             });
@@ -14614,18 +16087,22 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
                             
                         case "deletewithtoken":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("token", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("partnerId", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(int),
                             });
                             return ret;
@@ -14641,6 +16118,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("secret", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -14649,11 +16127,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             paramName = "pinCode";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "pin_code";
+                                newParamName = "pinCode";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             return ret;
@@ -14663,14 +16144,18 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             paramName = "pinCode";
+                            newParamName = null;
                             if(isOldVersion)
                             {
                                 paramName = "pin_code";
+                                newParamName = "pinCode";
                             }
                             ret.Add(paramName, new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(string),
                             });
                             ret.Add("secret", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
@@ -14685,6 +16170,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             ret.Add("role", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserRole),
                             });
@@ -14692,12 +16178,14 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14707,6 +16195,7 @@ namespace WebAPI.Reflection
                             
                         case "listoldstandard":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
@@ -14716,6 +16205,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
                                 Type = typeof(long),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "userRole", "update") {
                                     RequiresPermission = false,
@@ -14725,6 +16215,7 @@ namespace WebAPI.Reflection
                                 },
                             });
                             ret.Add("role", new MethodParam(){
+                                NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserRole),
                             });
