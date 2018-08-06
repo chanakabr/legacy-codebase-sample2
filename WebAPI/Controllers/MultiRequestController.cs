@@ -60,11 +60,22 @@ namespace WebAPI.Controllers
                 {
                     string propertyName = tokens.ElementAt(0);
                     tokens.RemoveAt(0);
-                   
-                    string str = string.Join(", ", parametersList.Select(item => item.GetType().GetProperties().FirstOrDefault
-                        (property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase)).GetValue(item)));
 
-                    result = str;
+                    List<object> valueList = new List<object>();
+                    foreach (var item in parametersList)
+                    {
+                        PropertyInfo propertyInfo = item.GetType().GetProperties().FirstOrDefault(property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
+                        if (propertyInfo != null)
+                        {
+                            var value = propertyInfo.GetValue(item);
+                            if (value != null)
+                            {
+                                valueList.Add(value);
+                            }
+                        }
+                    }
+                    
+                    result = string.Join(", ", valueList);
                 }
                 else
                 {
