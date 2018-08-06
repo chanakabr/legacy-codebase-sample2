@@ -15,7 +15,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "Permission_Add",
+      "name": "Permission_GetCurrentPermissions",
       "service": "Permission",
       "action": "GetCurrentPermissions",
       "type": "Action"
