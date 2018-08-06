@@ -711,6 +711,26 @@ namespace Core.Catalog.CatalogManagement
             searchObject.m_bUseFinalEndDate = false;
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+
+            // If it is a manual channel without media, make it an empty request
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual &&
+                (channel.m_lChannelTags == null || channel.m_lChannelTags.Count == 0))
+            {
+                searchObject.m_eCutWith = CutWith.AND;
+                searchObject.m_eFilterTagsAndMetasCutWith = CutWith.AND;
+                searchObject.m_lFilterTagsAndMetas = new List<SearchValue>()
+                {
+                    new SearchValue("media_id", "0")
+                    {
+                        m_eInnerCutWith = CutWith.AND,
+                        m_lValue = new List<string>()
+                        {
+                            "0"
+                        }
+                    }
+                };
+            }
+
             return searchObject;
         }
 
