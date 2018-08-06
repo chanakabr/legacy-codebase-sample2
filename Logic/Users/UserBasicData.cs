@@ -76,51 +76,39 @@ namespace Core.Users
             bool res = false;
             DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID, nGroupID);
 
-            if (dtUserBasicData == null || dtUserBasicData.DefaultView.Count == 0)
+            if (dtUserBasicData != null && dtUserBasicData.Rows != null && dtUserBasicData.Rows.Count > 0)
             {
                 return false;
             }
 
-            string sUserName = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
-            string sPass = dtUserBasicData.DefaultView[0].Row["PASSWORD"].ToString();
-            string sSalt = dtUserBasicData.DefaultView[0].Row["SALT"].ToString();
-            string sFirstName = dtUserBasicData.DefaultView[0].Row["FIRST_NAME"].ToString();
-            string sLastName = dtUserBasicData.DefaultView[0].Row["LAST_NAME"].ToString();
-            string sEmail = dtUserBasicData.DefaultView[0].Row["EMAIL_ADD"].ToString();
-            string sAddress = dtUserBasicData.DefaultView[0].Row["ADDRESS"].ToString();
-            object oAffiliates = dtUserBasicData.DefaultView[0].Row["REG_AFF"];
-            string sCity = dtUserBasicData.DefaultView[0].Row["CITY"].ToString();
-            Int32 nStateID = int.Parse(dtUserBasicData.DefaultView[0].Row["STATE_ID"].ToString());
-            Int32 nCountryID = int.Parse(dtUserBasicData.DefaultView[0].Row["COUNTRY_ID"].ToString());
-            string sZip = dtUserBasicData.DefaultView[0].Row["ZIP"].ToString();
-            string sPhone = dtUserBasicData.DefaultView[0].Row["PHONE"].ToString();
-            object oFacebookID = dtUserBasicData.DefaultView[0].Row["FACEBOOK_ID"];
-            object oFacebookImage = dtUserBasicData.DefaultView[0].Row["FACEBOOK_IMAGE"];
-            Int32 nFacebookImagePermitted = int.Parse(dtUserBasicData.DefaultView[0].Row["FACEBOOK_IMAGE_PERMITTED"].ToString());
-            string sCoGuid = dtUserBasicData.DefaultView[0].Row["CoGuid"].ToString();
-            string sExternalToken = dtUserBasicData.DefaultView[0].Row["externaltoken"].ToString();
-            string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[0].Row["fb_token"]);
-            string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[0].Row["user_type_desc"]);
-            bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[0].Row["is_default"]));
-            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["CREATE_DATE"]);
-            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["UPDATE_DATE"]);
+            DataRow drUserBasicData = dtUserBasicData.Rows[0];
 
-            bool bFacebookImagePermitted = (nFacebookImagePermitted == 1);
-
-            string sAffiliate = "";
-            if (oAffiliates != null && oAffiliates != DBNull.Value)
-                sAffiliate = oAffiliates.ToString();
+            string sUserName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "USERNAME");
+            string sPass = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PASSWORD");
+            string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT"); 
+            string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME"); 
+            string sLastName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "LAST_NAME"); 
+            string sEmail = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "EMAIL_ADD"); 
+            string sAddress = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ADDRESS");
+            string sAffiliate = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "REG_AFF");
+            string sCity = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CITY"); 
+            Int32 nStateID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "STATE_ID"); 
+            Int32 nCountryID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "COUNTRY_ID"); 
+            string sZip = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ZIP"); 
+            string sPhone = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PHONE");
+            string sFacebookID = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_ID"); 
+            string sFacebookImage = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_IMAGE");
+            bool bFacebookImagePermitted = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FACEBOOK_IMAGE_PERMITTED"));
+            string sCoGuid = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CoGuid"); 
+            string sExternalToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "externaltoken"); 
+            string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "fb_token"); 
+            string sUserType = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "user_type_desc"); 
+            bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
+            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
+            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE"); 
             
-            string sFacebookImage = "";
-            if (oFacebookImage != null && oFacebookImage != DBNull.Value)
-                sFacebookImage = oFacebookImage.ToString();
-
-            string sFacebookID = "";
-            if (oFacebookID != null && oFacebookID != DBNull.Value)
-                sFacebookID = oFacebookID.ToString();
-            
-            int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[0].Row["user_type_id"]);
-            if (nUserTypeID == 0)
+            int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
+            if (nUserTypeID.HasValue && nUserTypeID.Value == 0)
             {
                 nUserTypeID = null;
             }

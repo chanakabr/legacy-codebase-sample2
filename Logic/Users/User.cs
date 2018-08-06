@@ -612,21 +612,21 @@ namespace Core.Users
                 if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
                 {
                     m_oBasicData.RoleIds.Add(roleId);
-                }
 
-                if (m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
-                {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                     {
-                        log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);
+                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("User created with no role. userId = {0}", m_sSiteGUID);
                     }
                 }
-                else
-                {
-                    log.ErrorFormat("User created with no role. userId = {0}", m_sSiteGUID);
-                }
-
+                
                 success = true;
             }
             else

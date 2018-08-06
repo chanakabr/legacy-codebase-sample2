@@ -356,18 +356,16 @@ namespace Core.Users
             if (roleId > 0 && !userResponse.m_user.m_oBasicData.RoleIds.Contains(roleId))
             {
                 userResponse.m_user.m_oBasicData.RoleIds.Add(roleId);
-            }
-
-            if (userResponse.m_user.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(GroupId, userId, userResponse.m_user.m_oBasicData.RoleIds))
-            {
-                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                if (UsersDal.UpsertUserRoleIds(GroupId, userId, userResponse.m_user.m_oBasicData.RoleIds))
                 {
-                    log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
+                    }
+                    
+                    return true;
                 }
-
-                userResponse.Initialize(ResponseStatus.OK, userResponse.m_user);
-                return true;
             }
 
             userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, userResponse.m_user);

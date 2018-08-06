@@ -1139,20 +1139,20 @@ namespace Core.Users
                     if (roleId > 0 && !currUser.m_oBasicData.RoleIds.Contains(roleId))
                     {
                         currUser.m_oBasicData.RoleIds.Add(roleId);
-                    }
 
-                    if (currUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
-                    {
-                        // add invalidation key for user roles cache
-                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        if (UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
+                            // add invalidation key for user roles cache
+                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
+                            }
                         }
-                    }
-                    else
-                    {
-                        log.ErrorFormat("User created with no role. userId = {0}", nUserID);
+                        else
+                        {
+                            log.ErrorFormat("User created with no role. userId = {0}", nUserID);
+                        }
                     }
                 }
             }
