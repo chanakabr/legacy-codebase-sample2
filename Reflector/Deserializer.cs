@@ -28,7 +28,7 @@ namespace Reflector
             types.Remove(typeof(KalturaGenericListResponse<>));
         }
         
-        protected override void wrtieHeader()
+        protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using Newtonsoft.Json.Linq;");
@@ -41,14 +41,14 @@ namespace Reflector
             file.WriteLine("using WebAPI.Reflection;");
         }
 
-        protected override void wrtieBody()
+        protected override void writeBody()
         {
             wrtieUsing();
             wrtieDeserializer();
             wrtiePartialClasses();
         }
 
-        protected override void wrtieFooter()
+        protected override void writeFooter()
         {
         }
         

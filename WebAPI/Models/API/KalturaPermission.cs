@@ -31,6 +31,14 @@ namespace WebAPI.Models.API
         public string Name { get; set; }
 
         /// <summary>
+        /// Permission friendly name
+        /// </summary>
+        [DataMember(Name = "friendlyName")]
+        [JsonProperty("friendlyName")]
+        [XmlElement(ElementName = "friendlyName")]
+        public string FriendlyName { get; set; }
+
+        /// <summary>
         /// List of permission items associated with the permission
         /// </summary>
         [DataMember(Name = "permissionItems")]

@@ -7,18 +7,6 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "PaymentGateway_List",
-      "service": "PaymentGateway",
-      "action": "List",
-      "type": "Action"
-    },
-    {
-      "permissions": [
-        "User",
-        "Master",
-        "Operator"
-      ],
-      "excluded_permissions": [],
       "name": "PaymentGateway_Get",
       "service": "PaymentGateway",
       "action": "Get",
@@ -72,6 +60,18 @@
       "name": "PaymentGateway_RemovePaymentMethod",
       "service": "PaymentGateway",
       "action": "RemovePaymentMethod",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PaymentGateway_List",
+      "service": "PaymentGateway",
+      "action": "List",
       "type": "Action"
     },
     {

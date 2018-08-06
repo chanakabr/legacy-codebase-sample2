@@ -2472,20 +2472,20 @@ namespace WebAPI.Clients
             }
         }
 
-        internal List<KalturaPermission> GetPermissions(int groupId, List<long> ids)
+        internal KalturaPermissionListResponse GetPermissions(int groupId, long userId)
         {
-            List<KalturaPermission> permissions = new List<KalturaPermission>();
+            KalturaPermissionListResponse result = new KalturaPermissionListResponse();
             PermissionsResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetPermissions(groupId, ids);
+                    response = Core.Api.Module.GetUserPermissions(groupId, userId);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2499,9 +2499,35 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            permissions = AutoMapper.Mapper.Map<List<KalturaPermission>>(response.Permissions);
+            result.Permissions = AutoMapper.Mapper.Map<List<KalturaPermission>>(response.Permissions);
+            result.TotalCount = result.Permissions.Count;
 
-            return permissions;
+            return result;
+        }
+
+        internal string GetCurrentGroupPermissions(int groupId)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    result = Core.Api.Module.GetCurrentGroupPermissions(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (string.IsNullOrEmpty(result))
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return result;            
         }
 
         internal KalturaUserRole AddRole(int groupId, KalturaUserRole role)
@@ -3873,5 +3899,6 @@ namespace WebAPI.Clients
 
             return result;
         }
+
     }
 }

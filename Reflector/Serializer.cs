@@ -45,7 +45,7 @@ namespace Reflector
             types.Remove(typeof(KalturaMultilingualString));
         }
         
-        protected override void wrtieHeader()
+        protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
@@ -54,13 +54,13 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
         }
 
-        protected override void wrtieBody()
+        protected override void writeBody()
         {
             wrtieUsing();
             wrtiePartialClasses();
         }
 
-        protected override void wrtieFooter()
+        protected override void writeFooter()
         {
         }
 

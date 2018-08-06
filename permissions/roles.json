@@ -31,7 +31,7 @@
         "PURCHASE_PPV",
         "RENEW_SUBSCRIPTION",
         "PURCHASE_SERVICE",
-        "LOGIN"		
+        "LOGIN"
       ],
       "excluded_permissions": [],
       "name": "Master"
@@ -41,7 +41,7 @@
         "Operator",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-		"VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -52,7 +52,7 @@
         "Manager",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-		"VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -64,7 +64,7 @@
         "Administrator",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-		"VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "Administrator"
@@ -75,6 +75,60 @@
       ],
       "excluded_permissions": [],
       "name": "ExternalPaymentGateway"
+    },
+    {
+      "name": "QaTest_updated"
+    },
+    {
+      "name": "QaSuspendPurchase"
+    },
+    {
+      "name": "QaSuspendPlayback"
+    },
+    {
+      "name": "QaTest1Updated"
+    },
+    {
+      "name": "QaTest2"
+    },
+    {
+      "name": "QaTest888"
+    },
+    {
+      "name": "RenewSuspended"
+    },
+    {
+      "name": "QaTest888"
+    },
+    {
+      "name": "PlaybackSuspended"
+    },
+    {
+      "name": "PurchaseService"
+    },
+    {
+      "name": "SuspendPurchasePPV"
+    },
+    {
+      "name": "PurchaseService"
+    },
+    {
+      "name": "SuspendPurchaseSubscription"
+    },
+    {
+      "name": "SuspendPlaybackSubscription"
+    },
+    {
+      "name": "SuspendPlaybackPPV"
+    },
+    {
+      "name": "LoginSuspended"
+    },
+    {
+      "name": "CancelSubscriptionSuspended"
+    },
+    {
+      "name": "QaTest_updated"
     },
     {
       "permissions": [
@@ -91,6 +145,678 @@
         "CANCEL_SUBSCRIPTION"
       ],
       "name": "DefaultSuspendedRole"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "Role_163014"
+    },
+    {
+      "name": "9552"
+    },
+    {
+      "name": "9235"
+    },
+    {
+      "name": "9685"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "Role_197599"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "Role_39393"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "QaTest2"
+    },
+    {
+      "name": "QaTest2"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "LOGIN"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PLAYBACK_PPV"
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION"
+    },
+    {
+      "name": "PURCHASE_PPV"
+    },
+    {
+      "name": "PURCHASE_SERVICE"
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION"
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Permission_List",
+      "service": "Permission",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Permission_Add",
+      "service": "Permission",
+      "action": "GetCurrentPermissions",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

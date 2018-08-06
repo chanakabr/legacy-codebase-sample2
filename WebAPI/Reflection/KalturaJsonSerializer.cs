@@ -14112,6 +14112,32 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaPermissionFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CurrentUserPermissionsContains.HasValue)
+            {
+                ret.Add("currentUserPermissionsContains", "\"currentUserPermissionsContains\": " + CurrentUserPermissionsContains.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CurrentUserPermissionsContains.HasValue)
+            {
+                ret.Add("currentUserPermissionsContains", "<currentUserPermissionsContains>" + CurrentUserPermissionsContains.ToString().ToLower() + "</currentUserPermissionsContains>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPermissionItem
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -14148,17 +14174,17 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaPermissionsFilter
+    public partial class KalturaPermissionListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(Ids != null)
+            if(Permissions != null)
             {
-                propertyValue = "[" + String.Join(", ", Ids.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("ids", "\"ids\": " + propertyValue);
+                propertyValue = "[" + String.Join(", ", Permissions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
             }
             return ret;
         }
@@ -14168,10 +14194,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(Ids != null)
+            if(Permissions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
-                ret.Add("ids", "<ids>" + propertyValue + "</ids>");
+                propertyValue = "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

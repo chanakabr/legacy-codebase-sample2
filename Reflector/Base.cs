@@ -72,18 +72,18 @@ namespace Reflector
             file = new StreamWriter(path);
         }
 
-        public void wrtie()
+        public void write()
         {
-            wrtieHeader();
-            wrtieBody();
-            wrtieFooter();
+            writeHeader();
+            writeBody();
+            writeFooter();
 
             file.Close();
         }
 
-        protected abstract void wrtieHeader();
-        protected abstract void wrtieBody();
-        protected abstract void wrtieFooter();
+        protected abstract void writeHeader();
+        protected abstract void writeBody();
+        protected abstract void writeFooter();
 
         protected string GetTypeName(Type type, bool addGenericDefinition = false)
         {

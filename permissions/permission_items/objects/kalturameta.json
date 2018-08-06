@@ -21,7 +21,7 @@
       "parameter": "isProtected",
       "action": "UPDATE",
       "type": "Parameter"
-    }	
+    }
   ],
   "type": "Parameter"
 }

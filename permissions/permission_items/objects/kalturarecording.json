@@ -21,7 +21,7 @@
       "parameter": "type",
       "action": "UPDATE",
       "type": "Parameter"
-    },	
+    },
     {
       "permissions": [
         "Operator"
@@ -32,7 +32,7 @@
       "parameter": "isProtected",
       "action": "INSERT",
       "type": "Parameter"
-    },	
+    },
     {
       "permissions": [
         "Operator"

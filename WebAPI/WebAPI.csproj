@@ -259,6 +259,7 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
     <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
@@ -617,7 +618,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
-    <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
+    <Compile Include="Models\API\KalturaPermissionFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
     <Compile Include="Models\API\KalturaExportTask.cs" />
     <Compile Include="Models\API\KalturaExportDataType.cs" />

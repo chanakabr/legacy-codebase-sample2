@@ -21,13 +21,13 @@ namespace Reflector
         static void Main(string[] args)
         {
             DataModel dataModel = new DataModel();
-            dataModel.wrtie();
+            dataModel.write();
 
             Serializer serializer = new Serializer();
-            serializer.wrtie();
+            serializer.write();
 
             Deserializer deserializer = new Deserializer();
-            deserializer.wrtie();
+            deserializer.write();
         }
     }
 }

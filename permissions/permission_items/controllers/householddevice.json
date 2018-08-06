@@ -35,20 +35,6 @@
       "excluded_permissions": [
         "OLD_SUSPEND"
       ],
-      "name": "HouseholdDevice_Delete",
-      "service": "HouseholdDevice",
-      "action": "Delete",
-      "type": "Action"
-    },
-    {
-      "permissions": [
-        "User",
-        "Master",
-        "Operator"
-      ],
-      "excluded_permissions": [
-        "OLD_SUSPEND"
-      ],
       "name": "HouseholdDevice_AddByPin",
       "service": "HouseholdDevice",
       "action": "AddByPin",
@@ -104,6 +90,20 @@
       "name": "HouseholdDevice_UpdateStatus",
       "service": "HouseholdDevice",
       "action": "UpdateStatus",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdDevice_Delete",
+      "service": "HouseholdDevice",
+      "action": "Delete",
       "type": "Action"
     },
     {
