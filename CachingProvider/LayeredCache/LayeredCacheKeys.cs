@@ -79,6 +79,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
+        public static string GetDomainBundlesKey(int groupId, int domainId)
+        {
+            return string.Format("domainBundles_groupId_{0}_domainId_{1}", groupId, domainId);
+        }
+
         public static string GetPermissionsRolesIdsKey(int groupId)
         {
             return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
