@@ -1458,6 +1458,16 @@ namespace Core.Api
             return Core.Api.api.GetPermissions(groupId, permissionIds);
         }
 
+        public static string GetCurrentGroupPermissions(int groupId)
+        {
+            return Core.Api.api.GetCurrentGroupPermissions(groupId);
+        }
+
+        public static PermissionsResponse GetUserPermissions(int groupId, long userId = 0)
+        {
+            return Core.Api.api.GetUserPermissions(groupId, userId);
+        }
+
         public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         {
             return Core.Api.api.AddPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);

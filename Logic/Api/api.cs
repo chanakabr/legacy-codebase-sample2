@@ -8452,7 +8452,69 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = DAL.ApiDAL.GetPermissions(groupId, permissionIds);
+                List<Role> roles = DAL.ApiDAL.GetRoles(groupId, new List<long>());
+                if (roles != null && roles.Any())
+                {
+                    response.Permissions = roles.SelectMany(x => x.Permissions).Distinct().ToList();
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting permissions. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static string GetCurrentGroupPermissions(int groupId)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                List<Role> roles = DAL.ApiDAL.GetRoles(groupId, new List<long>());
+                if (roles != null && roles.Any())
+                {
+                    HashSet<string> permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (Role role in roles)
+                    {
+                        if (role.Permissions != null && role.Permissions.Any())
+                        {
+                            foreach (Permission permission in role.Permissions)
+                            {
+                                if (!string.IsNullOrEmpty(permission.Name) && !permissions.Contains(permission.Name))
+                                {
+                                    permissions.Add(permission.Name);
+                                }
+                            }
+                        }
+                    }
+
+                    if (permissions.Count > 0)
+                    {
+                        result = string.Join(",", permissions);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting GetCurrentGroupPermissions. group id = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, long userId = 0)
+        {
+            PermissionsResponse response = new PermissionsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetUserPermissions(groupId, userId);
                 if (response.Permissions != null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -8464,7 +8526,7 @@ namespace Core.Api
             }
 
             return response;
-        }
+        }        
 
         public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         {

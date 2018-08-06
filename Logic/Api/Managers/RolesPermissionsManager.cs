@@ -79,8 +79,6 @@ namespace APILogic.Api.Managers
 
             return roleIds;
         }
-
-
       
         public static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
         {
@@ -162,7 +160,7 @@ namespace APILogic.Api.Managers
             return true;
         }
 
-        private static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
+        internal static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
         {
             try
             {
@@ -238,6 +236,43 @@ namespace APILogic.Api.Managers
             }
 
             return status;
+        }
+
+        public static List<Permission> GetUserPermissions(int groupId, long userId)
+        {
+            List<Permission> result = null;
+            try
+            {               
+                List<Role> roles = null;
+                string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+
+                if (roles != null && roles.Any())
+                {
+                    if (userId > 0)
+                    {
+                        // get list of all user permissions 
+                        List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
+                        result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).ToList();
+                    }
+                    else
+                    {                        
+                        result = roles.SelectMany(x => x.Permissions).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAllDomainBundles for groupId: {0}, userId: {1}", groupId, userId), ex);
+
+            }
+
+            return result;
         }
 
     }
