@@ -80,7 +80,21 @@ namespace Core.ConditionalAccess
                 CollectionsData = new Dictionary<int,Collection>();                
             }
         }
-
-
     }
+
+    [Serializable]
+    public class DomainBundles
+    {
+        [JsonProperty("EntitledSubscriptions")]
+        public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledSubscriptions { get; set; }
+        [JsonProperty("EntitledCollections")]
+        public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledCollections { get; set; }
+
+        public DomainBundles()
+        {
+            EntitledSubscriptions = new Dictionary<string, List<Utils.UserBundlePurchase>>();
+            EntitledCollections = new Dictionary<string, List<Utils.UserBundlePurchase>>();
+        }
+    }
+
 }
