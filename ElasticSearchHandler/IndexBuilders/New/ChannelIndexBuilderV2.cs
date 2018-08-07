@@ -177,6 +177,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 try
                 {
                     List<Channel> groupChannels = null;
+                    List<int> subGroups = new List<int>();
+
                     if (doesGroupUsesTemplates)
                     {
                         groupChannels = ChannelManager.GetGroupChannels(groupId);
@@ -232,7 +234,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             else
                             {
                                 mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                                MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+                                MediaSearchObj mediaSearchObject = IndexManager.BuildBaseChannelSearchObject(currentChannel, null);
 
                                 mediaQueryParser.oSearchObject = mediaSearchObject;
                                 channelQuery = mediaQueryParser.BuildSearchQueryString(true);
@@ -276,29 +278,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             return true;
         }
-
-        private static ApiObjects.SearchObjects.MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
-        {
-            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
-            searchObject.m_nGroupId = channel.m_nGroupID;
-            searchObject.m_bExact = true;
-            searchObject.m_eCutWith = channel.m_eCutWith;
-
-            if (channel.m_nMediaType != null)
-            {
-                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
-            }
-
-            searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
-            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
-
-            searchObject.m_bUseStartDate = false;
-            searchObject.m_bUseFinalEndDate = false;
-
-            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
-            return searchObject;
-        }
-
+        
         private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
            ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)
         {
