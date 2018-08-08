@@ -245,7 +245,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\": \"\";");
                         }
                         break;
 
@@ -267,7 +267,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\" : \"\";");
                         }
                         break;
                 }
