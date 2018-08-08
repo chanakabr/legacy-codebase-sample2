@@ -255,8 +255,7 @@ namespace Core.Users
             }
             return userResponses;
         }
-
-
+        
         public static ApiObjects.Response.Status DeleteUser(Int32 siteGuid, KalturaBaseUsers user)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
