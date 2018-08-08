@@ -250,7 +250,7 @@ namespace APILogic.Api.Managers
 
                 if (roles != null && roles.Any())
                 {
-                    result = roles.SelectMany(x => x.Permissions).ToList();
+                    result = roles.SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
                 }
             }
             catch (Exception ex)
@@ -273,7 +273,10 @@ namespace APILogic.Api.Managers
                 {
                     // get list of all user permissions 
                     List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
-                    result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
+                    if (userRoleIDs != null && userRoleIDs.Count > 0 && roles.Any(x => userRoleIDs.Contains(x.Id)))
+                    {
+                        result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
+                    }                                         
                 }
             }
             catch (Exception ex)
