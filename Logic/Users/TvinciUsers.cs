@@ -544,8 +544,45 @@ namespace Core.Users
 
             newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
-            int userId = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));    //u.Save(m_nGroupID);  
-            if (userId <= 0)
+            int userId = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
+
+            // add role to user
+            if (userId > 0)
+            {
+                long roleId;
+
+                if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, userId))
+                {
+                    roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                }
+                else
+                {
+                    roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+                }
+
+                if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
+                {
+                    newUser.m_oBasicData.RoleIds.Add(roleId);
+
+                    if (UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
+                    {
+                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
+                        }
+                    }
+                    else
+                    {
+                        userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
+                        log.ErrorFormat("User created with no role. userId = {0}", userId);
+                    }
+                }
+
+                // add notifications event 
+                Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, userId, string.Empty);
+            }
+            else
             {
                 userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
                 return userResponse;
@@ -555,43 +592,11 @@ namespace Core.Users
             {
                 CheckAddDomain(ref userResponse, newUser, oBasicData.m_sUserName, userId);
             }
-
-            // add role to user
-            long roleId;
-
-            if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, userId))
-            {
-                roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
-            }
             else
             {
-                roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
-            }
-
-            if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
-            {
-                newUser.m_oBasicData.RoleIds.Add(roleId);
-            }
-
-            if (newUser.m_oBasicData.RoleIds.Count > 0 && UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
-            {
-                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
-                }
-
                 userResponse.Initialize(ResponseStatus.OK, newUser);
             }
-            else
-            {
-                userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
-                log.ErrorFormat("User created with no role. userId = {0}", userId);
-            }
-
-            // add notifications event 
-            Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, userId, string.Empty);
-
+            
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") &&
                 m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))
@@ -833,84 +838,60 @@ namespace Core.Users
 
         public override List<UserBasicData> GetUsersBasicData(long[] nSiteGUIDs)
         {
+            List<UserBasicData> resp = new List<UserBasicData>();
+
             try
             {
-                List<UserBasicData> resp = new List<UserBasicData>();
-
                 DataTable dtUserBasicData = UsersDal.GetUsersBasicData(nSiteGUIDs);
 
-                if (dtUserBasicData != null)
+                if (dtUserBasicData != null && dtUserBasicData.Rows != null && dtUserBasicData.Rows.Count > 0)
                 {
-                    Int32 nCount = dtUserBasicData.DefaultView.Count;
-
-                    if (nCount > 0)
+                    foreach (DataRow drUserBasicData in dtUserBasicData.Rows)
                     {
-                        for (int i = 0; i < dtUserBasicData.Rows.Count; i++)
+                        try
                         {
-                            try
+                            string sUserName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "USERNAME");
+                            string sPass = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PASSWORD");
+                            string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT");
+                            string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME");
+                            string sLastName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "LAST_NAME");
+                            string sEmail = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "EMAIL_ADD");
+                            string sAddress = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ADDRESS");
+                            string sAffiliate = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "REG_AFF");
+                            string sCity = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CITY");
+                            Int32 nStateID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "STATE_ID");
+                            Int32 nCountryID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "COUNTRY_ID");
+                            string sZip = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ZIP");
+                            string sPhone = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PHONE");
+                            string sFacebookID = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_ID");
+                            string sFacebookImage = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_IMAGE");
+                            bool bFacebookImagePermitted = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FACEBOOK_IMAGE_PERMITTED"));
+                            string sCoGuid = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CoGuid");
+                            string sExternalToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "externaltoken");
+                            string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "fb_token");
+                            string sUserType = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "user_type_desc");
+                            bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
+                            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
+                            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
+                            Int32 userId = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "ID");
+
+                            int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
+                            if (nUserTypeID.HasValue && nUserTypeID.Value == 0)
                             {
-                                string sUserName = dtUserBasicData.DefaultView[i].Row["USERNAME"].ToString();
-                                string sPass = dtUserBasicData.DefaultView[i].Row["PASSWORD"].ToString();
-                                string sSalt = dtUserBasicData.DefaultView[i].Row["SALT"].ToString();
-                                string sFirstName = dtUserBasicData.DefaultView[i].Row["FIRST_NAME"].ToString();
-                                string sLastName = dtUserBasicData.DefaultView[i].Row["LAST_NAME"].ToString();
-                                string sEmail = dtUserBasicData.DefaultView[i].Row["EMAIL_ADD"].ToString();
-                                string sAddress = dtUserBasicData.DefaultView[i].Row["ADDRESS"].ToString();
-                                string sCity = dtUserBasicData.DefaultView[i].Row["CITY"].ToString();
-                                Int32 nStateID = int.Parse(dtUserBasicData.DefaultView[i].Row["STATE_ID"].ToString());
-                                Int32 nCountryID = int.Parse(dtUserBasicData.DefaultView[i].Row["COUNTRY_ID"].ToString());
-                                string sZip = dtUserBasicData.DefaultView[i].Row["ZIP"].ToString();
-                                string sPhone = dtUserBasicData.DefaultView[i].Row["PHONE"].ToString();
-                                object oFacebookID = dtUserBasicData.DefaultView[i].Row["FACEBOOK_ID"];
-                                object oFacebookImage = dtUserBasicData.DefaultView[i].Row["FACEBOOK_IMAGE"];
-                                Int32 nFacebookImagePermitted = int.Parse(dtUserBasicData.DefaultView[i].Row["FACEBOOK_IMAGE_PERMITTED"].ToString());
-                                string sCoGuid = dtUserBasicData.DefaultView[i].Row["CoGuid"].ToString();
-                                string sExternalToken = dtUserBasicData.DefaultView[i].Row["ExternalToken"].ToString();
-                                string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["fb_token"]);
-                                string sUserType = ODBCWrapper.Utils.GetSafeStr(dtUserBasicData.DefaultView[i].Row["user_type_desc"]);
-                                bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetByteSafeVal(dtUserBasicData.DefaultView[i].Row, "is_default"));
-                                Int32 userId = int.Parse(dtUserBasicData.DefaultView[i].Row["ID"].ToString());
-                                object oAffiliates = dtUserBasicData.DefaultView[i].Row["REG_AFF"];
-                                DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["CREATE_DATE"]);
-                                DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dtUserBasicData.DefaultView[0].Row["UPDATE_DATE"]);
-
-                                string sAffiliate = "";
-                                if (oAffiliates != null && oAffiliates != DBNull.Value)
-                                    sAffiliate = oAffiliates.ToString();
-
-                                bool bFacebookImagePermitted = false;
-                                if (nFacebookImagePermitted == 1)
-                                    bFacebookImagePermitted = true;
-
-                                string sFacebookImage = "";
-                                if (oFacebookImage != null && oFacebookImage != DBNull.Value)
-                                    sFacebookImage = oFacebookImage.ToString();
-
-                                string sFacebookID = "";
-                                if (oFacebookID != null && oFacebookID != DBNull.Value)
-                                    sFacebookID = oFacebookID.ToString();
-                                
-                                int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserBasicData.DefaultView[i].Row["user_type_id"]);
-                                if (nUserTypeID == 0)
-                                {
-                                    nUserTypeID = null;
-                                }
-                                
-                                UserType userType = new UserType(nUserTypeID, sUserType, isDefault);
-
-                                UserBasicData userBasicData = new UserBasicData();
-
-                                userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, 
-                                                         sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, 
-                                                         userType, userId, m_nGroupID, createDate, updateDate);
-
-                                resp.Add(userBasicData);
+                                nUserTypeID = null;
                             }
-                            catch { }
+                            UserType userType = new UserType(nUserTypeID, sUserType, isDefault);
+
+                            UserBasicData userBasicData = new UserBasicData();
+                            userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone,
+                                                        sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken,
+                                                        userType, userId, m_nGroupID, createDate, updateDate);
+
+                            resp.Add(userBasicData);
                         }
+                        catch { }
                     }
                 }
-
                 return resp;
             }
             catch
