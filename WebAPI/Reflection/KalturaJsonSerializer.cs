@@ -96,7 +96,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Sources != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Sources.Count > 0 ? "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("sources", "<sources>" + propertyValue + "</sources>");
             }
             return ret;
@@ -139,7 +139,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(AdsPolicy.HasValue)
             {
-                ret.Add("adsPolicy", "<adsPolicy>" + "\"" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "\"" + "</adsPolicy>");
+                ret.Add("adsPolicy", "<adsPolicy>" + "" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "" + "</adsPolicy>");
             }
             if(Id.HasValue)
             {
@@ -438,12 +438,12 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("action_date", "<action_date>" + actionDate + "</action_date>");
                 }
             }
-            ret.Add("billingAction", "<billingAction>" + "\"" + Enum.GetName(typeof(KalturaBillingAction), billingAction) + "\"" + "</billingAction>");
+            ret.Add("billingAction", "<billingAction>" + "" + Enum.GetName(typeof(KalturaBillingAction), billingAction) + "" + "</billingAction>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("billing_action", "<billing_action>" + "\"" + Enum.GetName(typeof(KalturaBillingAction), billingAction) + "\"" + "</billing_action>");
+            ret.Add("billing_action", "<billing_action>" + "" + Enum.GetName(typeof(KalturaBillingAction), billingAction) + "" + "</billing_action>");
             }
-            ret.Add("billingPriceType", "<billingPriceType>" + "\"" + Enum.GetName(typeof(KalturaBillingPriceType), billingPriceType) + "\"" + "</billingPriceType>");
+            ret.Add("billingPriceType", "<billingPriceType>" + "" + Enum.GetName(typeof(KalturaBillingPriceType), billingPriceType) + "" + "</billingPriceType>");
             if(billingProviderRef.HasValue)
             {
                 ret.Add("billingProviderRef", "<billingProviderRef>" + billingProviderRef + "</billingProviderRef>");
@@ -468,15 +468,15 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("is_recurring", "<is_recurring>" + isRecurring.ToString().ToLower() + "</is_recurring>");
                 }
             }
-            ret.Add("itemType", "<itemType>" + "\"" + Enum.GetName(typeof(KalturaBillingItemsType), itemType) + "\"" + "</itemType>");
+            ret.Add("itemType", "<itemType>" + "" + Enum.GetName(typeof(KalturaBillingItemsType), itemType) + "" + "</itemType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("item_type", "<item_type>" + "\"" + Enum.GetName(typeof(KalturaBillingItemsType), itemType) + "\"" + "</item_type>");
+            ret.Add("item_type", "<item_type>" + "" + Enum.GetName(typeof(KalturaBillingItemsType), itemType) + "" + "</item_type>");
             }
-            ret.Add("paymentMethod", "<paymentMethod>" + "\"" + Enum.GetName(typeof(KalturaPaymentMethodType), paymentMethod) + "\"" + "</paymentMethod>");
+            ret.Add("paymentMethod", "<paymentMethod>" + "" + Enum.GetName(typeof(KalturaPaymentMethodType), paymentMethod) + "" + "</paymentMethod>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("payment_method", "<payment_method>" + "\"" + Enum.GetName(typeof(KalturaPaymentMethodType), paymentMethod) + "\"" + "</payment_method>");
+            ret.Add("payment_method", "<payment_method>" + "" + Enum.GetName(typeof(KalturaPaymentMethodType), paymentMethod) + "" + "</payment_method>");
             }
             if(paymentMethodExtraDetails != null)
             {
@@ -560,7 +560,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(transactions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = transactions.Count > 0 ? "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -694,7 +694,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("settings", "<settings>" + propertyValue + "</settings>");
             }
             if(SharedSecret != null)
@@ -730,7 +730,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -778,7 +778,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             ret.Add("amount", "<amount>" + Amount + "</amount>");
             ret.Add("appliedRenewalIterations", "<appliedRenewalIterations>" + AppliedRenewalIterations + "</appliedRenewalIterations>");
-            ret.Add("compensationType", "<compensationType>" + "\"" + Enum.GetName(typeof(KalturaCompensationType), CompensationType) + "\"" + "</compensationType>");
+            ret.Add("compensationType", "<compensationType>" + "" + Enum.GetName(typeof(KalturaCompensationType), CompensationType) + "" + "</compensationType>");
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("purchaseId", "<purchaseId>" + PurchaseId + "</purchaseId>");
             ret.Add("subscriptionId", "<subscriptionId>" + SubscriptionId + "</subscriptionId>");
@@ -836,7 +836,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("licenseURL", "<licenseURL>" + EscapeXml(LicenseURL) + "</licenseURL>");
             }
-            ret.Add("scheme", "<scheme>" + "\"" + Enum.GetName(typeof(KalturaDrmSchemeName), Scheme) + "\"" + "</scheme>");
+            ret.Add("scheme", "<scheme>" + "" + Enum.GetName(typeof(KalturaDrmSchemeName), Scheme) + "" + "</scheme>");
             return ret;
         }
     }
@@ -1156,10 +1156,10 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("next_renewal_date", "<next_renewal_date>" + NextRenewalDate + "</next_renewal_date>");
                 }
             }
-            ret.Add("paymentMethod", "<paymentMethod>" + "\"" + Enum.GetName(typeof(KalturaPaymentMethodType), PaymentMethod) + "\"" + "</paymentMethod>");
+            ret.Add("paymentMethod", "<paymentMethod>" + "" + Enum.GetName(typeof(KalturaPaymentMethodType), PaymentMethod) + "" + "</paymentMethod>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("payment_method", "<payment_method>" + "\"" + Enum.GetName(typeof(KalturaPaymentMethodType), PaymentMethod) + "\"" + "</payment_method>");
+            ret.Add("payment_method", "<payment_method>" + "" + Enum.GetName(typeof(KalturaPaymentMethodType), PaymentMethod) + "" + "</payment_method>");
             }
             if(ProductId != null)
             {
@@ -1183,7 +1183,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(!omitObsolete)
             {
-                ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), Type) + "\"" + "</type>");
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaTransactionType), Type) + "" + "</type>");
             }
             if(UserId != null)
             {
@@ -1229,7 +1229,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(!omitObsolete)
             {
-                ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), Type) + "\"" + "</type>");
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaTransactionType), Type) + "" + "</type>");
             }
             if(UserId != null)
             {
@@ -1272,20 +1272,20 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementTypeEqual.HasValue)
             {
-                ret.Add("entitlementTypeEqual", "<entitlementTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "\"" + "</entitlementTypeEqual>");
+                ret.Add("entitlementTypeEqual", "<entitlementTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "" + "</entitlementTypeEqual>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("entitlement_type", "<entitlement_type>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "\"" + "</entitlement_type>");
+                ret.Add("entitlement_type", "<entitlement_type>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "" + "</entitlement_type>");
                 }
             }
-            ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"" + "</entityReferenceEqual>");
+            ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
             if(IsExpiredEqual.HasValue)
             {
                 ret.Add("isExpiredEqual", "<isExpiredEqual>" + IsExpiredEqual.ToString().ToLower() + "</isExpiredEqual>");
             }
             if(ProductTypeEqual.HasValue)
             {
-                ret.Add("productTypeEqual", "<productTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductTypeEqual) + "\"" + "</productTypeEqual>");
+                ret.Add("productTypeEqual", "<productTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductTypeEqual) + "" + "</productTypeEqual>");
             }
             return ret;
         }
@@ -1312,7 +1312,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Entitlements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Entitlements.Count > 0 ? "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -1397,11 +1397,11 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"" + "</by>");
-            ret.Add("entitlementType", "<entitlementType>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "\"" + "</entitlementType>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
+            ret.Add("entitlementType", "<entitlementType>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "" + "</entitlementType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("entitlement_type", "<entitlement_type>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "\"" + "</entitlement_type>");
+            ret.Add("entitlement_type", "<entitlement_type>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "" + "</entitlement_type>");
             }
             return ret;
         }
@@ -1532,7 +1532,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(PremiumServices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PremiumServices.Count > 0 ? "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -1656,7 +1656,7 @@ namespace WebAPI.Models.ConditionalAccess
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
-            ret.Add("streamType", "<streamType>" + "\"" + Enum.GetName(typeof(KalturaStreamType), StreamType) + "\"" + "</streamType>");
+            ret.Add("streamType", "<streamType>" + "" + Enum.GetName(typeof(KalturaStreamType), StreamType) + "" + "</streamType>");
             return ret;
         }
     }
@@ -1772,17 +1772,17 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Messages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("messages", "<messages>" + propertyValue + "</messages>");
             }
             if(Sources != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Sources.Count > 0 ? "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("sources", "<sources>" + propertyValue + "</sources>");
             }
             return ret;
@@ -1826,7 +1826,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(Context.HasValue)
             {
-                ret.Add("context", "<context>" + "\"" + Enum.GetName(typeof(KalturaPlaybackContextType), Context) + "\"" + "</context>");
+                ret.Add("context", "<context>" + "" + Enum.GetName(typeof(KalturaPlaybackContextType), Context) + "" + "</context>");
             }
             if(MediaProtocol != null)
             {
@@ -1836,7 +1836,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("streamerType", "<streamerType>" + EscapeXml(StreamerType) + "</streamerType>");
             }
-            ret.Add("urlType", "<urlType>" + "\"" + Enum.GetName(typeof(KalturaUrlType), UrlType) + "\"" + "</urlType>");
+            ret.Add("urlType", "<urlType>" + "" + Enum.GetName(typeof(KalturaUrlType), UrlType) + "" + "</urlType>");
             return ret;
         }
     }
@@ -1882,11 +1882,11 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && AdsPolicy.HasValue)
             {
-                ret.Add("adsPolicy", "<adsPolicy>" + "\"" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "\"" + "</adsPolicy>");
+                ret.Add("adsPolicy", "<adsPolicy>" + "" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "" + "</adsPolicy>");
             }
             if(Drm != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Drm.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Drm.Count > 0 ? "<item>" + String.Join("</item><item>", Drm.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("drm", "<drm>" + propertyValue + "</drm>");
             }
             if(Format != null)
@@ -2045,7 +2045,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(FilesIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FilesIds.Count > 0 ? "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("filesIds", "<filesIds>" + propertyValue + "</filesIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -2062,7 +2062,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(SubscriptionsIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionsIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubscriptionsIds.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionsIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("subscriptionsIds", "<subscriptionsIds>" + propertyValue + "</subscriptionsIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -2216,7 +2216,7 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("contentId", "<contentId>" + ContentId + "</contentId>");
             }
             ret.Add("productId", "<productId>" + ProductId + "</productId>");
-            ret.Add("productType", "<productType>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "\"" + "</productType>");
+            ret.Add("productType", "<productType>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</productType>");
             return ret;
         }
     }
@@ -2282,8 +2282,8 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "<id>" + Id + "</id>");
             }
             ret.Add("isProtected", "<isProtected>" + IsProtected.ToString().ToLower() + "</isProtected>");
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "\"" + "</status>");
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"" + "</type>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "" + "</status>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRecordingType), Type) + "" + "</type>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             if(ViewableUntilDate.HasValue)
             {
@@ -2380,7 +2380,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -2458,7 +2458,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -2488,7 +2488,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaRuleActionType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRuleActionType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -2531,7 +2531,7 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("epgId", "<epgId>" + EpgId + "</epgId>");
             if(ExcludedSeasons != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ExcludedSeasons.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ExcludedSeasons.Count > 0 ? "<item>" + String.Join("</item><item>", ExcludedSeasons.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("excludedSeasons", "<excludedSeasons>" + propertyValue + "</excludedSeasons>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
@@ -2543,7 +2543,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("seriesId", "<seriesId>" + EscapeXml(SeriesId) + "</seriesId>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRecordingType), Type) + "" + "</type>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             return ret;
         }
@@ -2588,7 +2588,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -2876,7 +2876,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
             }
-            ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"" + "</entityReferenceEqual>");
+            ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
             if(StartDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
@@ -2916,7 +2916,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"" + "</by>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
@@ -2965,7 +2965,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("adapterTransactionStatus", "<adapterTransactionStatus>" + "\"" + Enum.GetName(typeof(KalturaTransactionAdapterStatus), AdapterStatus) + "\"" + "</adapterTransactionStatus>");
+            ret.Add("adapterTransactionStatus", "<adapterTransactionStatus>" + "" + Enum.GetName(typeof(KalturaTransactionAdapterStatus), AdapterStatus) + "" + "</adapterTransactionStatus>");
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
@@ -3012,7 +3012,7 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("date", "<date>" + Date + "</date>");
             if(Entitlements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Entitlements.Count > 0 ? "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("entitlements", "<entitlements>" + propertyValue + "</entitlements>");
             }
             if(Price != null)
@@ -3107,12 +3107,12 @@ namespace WebAPI.Models.Social
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
             }
-            ret.Add("actionPrivacy", "<actionPrivacy>" + "\"" + Enum.GetName(typeof(KalturaSocialActionPrivacy), ActionPrivacy) + "\"" + "</actionPrivacy>");
+            ret.Add("actionPrivacy", "<actionPrivacy>" + "" + Enum.GetName(typeof(KalturaSocialActionPrivacy), ActionPrivacy) + "" + "</actionPrivacy>");
             if(Network.HasValue)
             {
-                ret.Add("network", "<network>" + "\"" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "\"" + "</network>");
+                ret.Add("network", "<network>" + "" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "" + "</network>");
             }
-            ret.Add("privacy", "<privacy>" + "\"" + Enum.GetName(typeof(KalturaSocialPrivacy), Privacy) + "\"" + "</privacy>");
+            ret.Add("privacy", "<privacy>" + "" + Enum.GetName(typeof(KalturaSocialPrivacy), Privacy) + "" + "</privacy>");
             return ret;
         }
     }
@@ -3142,7 +3142,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Comments != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Comments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Comments.Count > 0 ? "<item>" + String.Join("</item><item>", Comments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("comments", "<comments>" + propertyValue + "</comments>");
             }
             if(Link != null)
@@ -3192,9 +3192,9 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Network.HasValue)
             {
-                ret.Add("network", "<network>" + "\"" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "\"" + "</network>");
+                ret.Add("network", "<network>" + "" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "" + "</network>");
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaSocialStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaSocialStatus), Status) + "" + "</status>");
             return ret;
         }
     }
@@ -3329,12 +3329,12 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("actionType", "<actionType>" + "\"" + Enum.GetName(typeof(KalturaSocialActionType), ActionType) + "\"" + "</actionType>");
+            ret.Add("actionType", "<actionType>" + "" + Enum.GetName(typeof(KalturaSocialActionType), ActionType) + "" + "</actionType>");
             if(AssetId.HasValue)
             {
                 ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             }
-            ret.Add("assetType", "<assetType>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"" + "</assetType>");
+            ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -3382,7 +3382,7 @@ namespace WebAPI.Models.Social
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
             }
-            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             return ret;
         }
     }
@@ -3408,7 +3408,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -3498,9 +3498,9 @@ namespace WebAPI.Models.Social
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
-            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             ret.Add("createDateGreaterThan", "<createDateGreaterThan>" + CreateDateGreaterThan + "</createDateGreaterThan>");
-            ret.Add("socialPlatformEqual", "<socialPlatformEqual>" + "\"" + Enum.GetName(typeof(KalturaSocialPlatform), SocialPlatformEqual) + "\"" + "</socialPlatformEqual>");
+            ret.Add("socialPlatformEqual", "<socialPlatformEqual>" + "" + Enum.GetName(typeof(KalturaSocialPlatform), SocialPlatformEqual) + "" + "</socialPlatformEqual>");
             return ret;
         }
     }
@@ -3526,7 +3526,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -3673,7 +3673,7 @@ namespace WebAPI.Models.Social
             }
             if(AssetTypeEqual.HasValue)
             {
-                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             }
             return ret;
         }
@@ -3700,7 +3700,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4000,7 +4000,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(PermissionItems != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PermissionItems.Count > 0 ? "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actionPermissionItems", "<actionPermissionItems>" + propertyValue + "</actionPermissionItems>");
             }
             return ret;
@@ -4051,7 +4051,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(NetworkStatus != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = NetworkStatus.Count > 0 ? "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("failStatus", "<failStatus>" + propertyValue + "</failStatus>");
             }
             if(SocialAction != null)
@@ -4184,7 +4184,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("action", "<action>" + "\"" + Enum.GetName(typeof(KalturaApiParameterPermissionItemAction), Action) + "\"" + "</action>");
+            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaApiParameterPermissionItemAction), Action) + "" + "</action>");
             if(Object != null)
             {
                 ret.Add("object", "<object>" + EscapeXml(Object) + "</object>");
@@ -4260,7 +4260,7 @@ namespace WebAPI.Models.General
             }
             if(HashType.HasValue)
             {
-                ret.Add("hashType", "<hashType>" + "\"" + Enum.GetName(typeof(KalturaAppTokenHashType), HashType) + "\"" + "</hashType>");
+                ret.Add("hashType", "<hashType>" + "" + Enum.GetName(typeof(KalturaAppTokenHashType), HashType) + "" + "</hashType>");
             }
             if(Id != null)
             {
@@ -4280,7 +4280,7 @@ namespace WebAPI.Models.General
             }
             if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && SessionType.HasValue)
             {
-                ret.Add("sessionType", "<sessionType>" + "\"" + Enum.GetName(typeof(KalturaSessionType), SessionType) + "\"" + "</sessionType>");
+                ret.Add("sessionType", "<sessionType>" + "" + Enum.GetName(typeof(KalturaSessionType), SessionType) + "" + "</sessionType>");
             }
             if(SessionUserId != null)
             {
@@ -4288,7 +4288,7 @@ namespace WebAPI.Models.General
             }
             if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion))
             {
-                ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaAppTokenStatus), Status) + "\"" + "</status>");
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaAppTokenStatus), Status) + "" + "</status>");
             }
             if(Token != null)
             {
@@ -4402,7 +4402,7 @@ namespace WebAPI.Models.General
             }
             if(RelatedProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedProfiles", "<relatedProfiles>" + propertyValue + "</relatedProfiles>");
             }
             return ret;
@@ -4508,7 +4508,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(!ret.ContainsKey("objectType") && objectType != null)
@@ -4564,7 +4564,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaIdentifierTypeBy), By) + "\"" + "</by>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaIdentifierTypeBy), By) + "" + "</by>");
             if(Identifier != null)
             {
                 ret.Add("identifier", "<identifier>" + EscapeXml(Identifier) + "</identifier>");
@@ -4614,7 +4614,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Values != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4740,7 +4740,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4790,7 +4790,7 @@ namespace WebAPI.Models.General
             }
             if(eventType.HasValue)
             {
-                ret.Add("eventType", "<eventType>" + "\"" + Enum.GetName(typeof(KalturaEventAction), eventType) + "\"" + "</eventType>");
+                ret.Add("eventType", "<eventType>" + "" + Enum.GetName(typeof(KalturaEventAction), eventType) + "" + "</eventType>");
             }
             ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
             if(systemName != null)
@@ -4830,7 +4830,7 @@ namespace WebAPI.Models.General
             }
             if(relatedObjects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = relatedObjects.Count > 0 ? "<item>" + String.Join("</item><item>", relatedObjects.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("relatedObjects", "<relatedObjects>" + propertyValue + "</relatedObjects>");
             }
             return ret;
@@ -4920,7 +4920,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5042,7 +5042,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5201,7 +5201,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("recipients", "<recipients>" + "\"" + Enum.GetName(typeof(KalturaAnnouncementRecipientsType), Recipients) + "\"" + "</recipients>");
+            ret.Add("recipients", "<recipients>" + "" + Enum.GetName(typeof(KalturaAnnouncementRecipientsType), Recipients) + "" + "</recipients>");
             if(StartTime.HasValue)
             {
                 ret.Add("startTime", "<startTime>" + StartTime + "</startTime>");
@@ -5210,7 +5210,7 @@ namespace WebAPI.Models.Notifications
                 ret.Add("start_time", "<start_time>" + StartTime + "</start_time>");
                 }
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "" + "</status>");
             if(Timezone != null)
             {
                 ret.Add("timezone", "<timezone>" + EscapeXml(Timezone) + "</timezone>");
@@ -5270,7 +5270,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaReminderType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaReminderType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -5354,7 +5354,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Announcements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5436,7 +5436,7 @@ namespace WebAPI.Models.Notification
             }
             if(ExtraParameters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ExtraParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ExtraParameters.Count > 0 ? "<item>" + String.Join("</item><item>", ExtraParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("extraParameters", "<extraParameters>" + propertyValue + "</extraParameters>");
             }
             if(FirstName != null)
@@ -5510,7 +5510,7 @@ namespace WebAPI.Models.Notification
             ret.Add("intervalSeconds", "<intervalSeconds>" + IntervalSeconds + "</intervalSeconds>");
             ret.Add("sendTimeInSeconds", "<sendTimeInSeconds>" + SendTimeInSeconds + "</sendTimeInSeconds>");
             ret.Add("totalNumberOfRecipients", "<totalNumberOfRecipients>" + TotalNumberOfRecipients + "</totalNumberOfRecipients>");
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaEngagementType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaEngagementType), Type) + "" + "</type>");
             if(UserList != null)
             {
                 ret.Add("userList", "<userList>" + EscapeXml(UserList) + "</userList>");
@@ -5568,7 +5568,7 @@ namespace WebAPI.Models.Notification
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("engagementAdapterSettings", "<engagementAdapterSettings>" + propertyValue + "</engagementAdapterSettings>");
             }
             if(SharedSecret != null)
@@ -5634,7 +5634,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(EngagementAdapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = EngagementAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5696,7 +5696,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Engagements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Engagements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Engagements.Count > 0 ? "<item>" + String.Join("</item><item>", Engagements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5874,7 +5874,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(FollowDataList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5919,8 +5919,8 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaInboxMessageStatus), Status) + "\"" + "</status>");
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaInboxMessageType), Type) + "\"" + "</type>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaInboxMessageStatus), Status) + "" + "</status>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaInboxMessageType), Type) + "" + "</type>");
             if(Url != null)
             {
                 ret.Add("url", "<url>" + EscapeXml(Url) + "</url>");
@@ -5992,7 +5992,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(InboxMessages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6020,7 +6020,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(InboxMessages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6042,7 +6042,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaInboxMessageType), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaInboxMessageType), type) + "" + "</type>");
             return ret;
         }
     }
@@ -6068,7 +6068,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(FollowDataList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6096,7 +6096,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Announcements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6186,14 +6186,14 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
-            ret.Add("messageType", "<messageType>" + "\"" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "\"" + "</messageType>");
+            ret.Add("messageType", "<messageType>" + "" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "" + "</messageType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("asset_type", "<asset_type>" + "\"" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "\"" + "</asset_type>");
+            ret.Add("asset_type", "<asset_type>" + "" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "" + "</asset_type>");
             }
             if (currentVersion == null || isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) > 0)
             {
-            ret.Add("assetType", "<assetType>" + "\"" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "\"" + "</assetType>");
+            ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaMessageTemplateType), MessageType) + "" + "</assetType>");
             }
             if(RatioId != null)
             {
@@ -6556,7 +6556,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalFollowFeed != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6602,7 +6602,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalFollowFeed != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6696,7 +6696,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalListList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6836,7 +6836,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Reminders != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Reminders.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Reminders.Count > 0 ? "<item>" + String.Join("</item><item>", Reminders.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6947,7 +6947,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("automaticIssueNotification", "<automaticIssueNotification>" + "\"" + Enum.GetName(typeof(KalturaTopicAutomaticIssueNotification), AutomaticIssueNotification) + "\"" + "</automaticIssueNotification>");
+            ret.Add("automaticIssueNotification", "<automaticIssueNotification>" + "" + Enum.GetName(typeof(KalturaTopicAutomaticIssueNotification), AutomaticIssueNotification) + "" + "</automaticIssueNotification>");
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -7004,7 +7004,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Topics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7032,7 +7032,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Topics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7076,7 +7076,7 @@ namespace WebAPI.App_Start
             string propertyValue;
             if(args != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", args.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = args.Count > 0 ? "<item>" + String.Join("</item><item>", args.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("args", "<args>" + propertyValue + "</args>");
             }
             if(code != null)
@@ -7280,17 +7280,17 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(MediaFiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaFiles.Count > 0 ? "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaFiles", "<mediaFiles>" + propertyValue + "</mediaFiles>");
             }
             if(Metas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("metas", "<metas>" + propertyValue + "</metas>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
@@ -7305,7 +7305,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("tags", "<tags>" + propertyValue + "</tags>");
             }
             if(Type.HasValue)
@@ -7365,10 +7365,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("position", "<position>" + Position + "</position>");
             }
-            ret.Add("positionOwner", "<positionOwner>" + "\"" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "\"" + "</positionOwner>");
+            ret.Add("positionOwner", "<positionOwner>" + "" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "" + "</positionOwner>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("position_owner", "<position_owner>" + "\"" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "\"" + "</position_owner>");
+            ret.Add("position_owner", "<position_owner>" + "" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "" + "</position_owner>");
             }
             if(User != null)
             {
@@ -7400,7 +7400,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Bookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7429,7 +7429,7 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
-            ret.Add("assetType", "<assetType>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"" + "</assetType>");
+            ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             ret.Add("id", "<id>" + Id + "</id>");
             if(SubHeader != null)
             {
@@ -7456,7 +7456,7 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
-            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             return ret;
         }
     }
@@ -7482,7 +7482,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7516,7 +7516,7 @@ namespace WebAPI.Models.Catalog
             ret.Add("count", "<count>" + Count + "</count>");
             if(SubCounts != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubCounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubCounts.Count > 0 ? "<item>" + String.Join("</item><item>", SubCounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("subs", "<subs>" + propertyValue + "</subs>");
             }
             if(Value != null)
@@ -7550,7 +7550,7 @@ namespace WebAPI.Models.Catalog
             ret.Add("assetsCount", "<assetsCount>" + AssetsCount + "</assetsCount>");
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7572,7 +7572,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("value", "<value>" + "\"" + Enum.GetName(typeof(KalturaGroupByField), Value) + "\"" + "</value>");
+            ret.Add("value", "<value>" + "" + Enum.GetName(typeof(KalturaGroupByField), Value) + "" + "</value>");
             return ret;
         }
     }
@@ -7682,7 +7682,7 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
-            ret.Add("assetType", "<assetType>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"" + "</assetType>");
+            ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             if(Duration.HasValue)
             {
                 ret.Add("duration", "<duration>" + Duration + "</duration>");
@@ -7769,7 +7769,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && filterTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", filterTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = filterTypes.Count > 0 ? "<item>" + String.Join("</item><item>", filterTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("filterTypes", "<filterTypes>" + propertyValue + "</filterTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -7778,10 +7778,10 @@ namespace WebAPI.Models.Catalog
             }
             if(StatusEqual.HasValue)
             {
-                ret.Add("statusEqual", "<statusEqual>" + "\"" + Enum.GetName(typeof(KalturaWatchStatus), StatusEqual) + "\"" + "</statusEqual>");
+                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaWatchStatus), StatusEqual) + "" + "</statusEqual>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("filter_status", "<filter_status>" + "\"" + Enum.GetName(typeof(KalturaWatchStatus), StatusEqual) + "\"" + "</filter_status>");
+                ret.Add("filter_status", "<filter_status>" + "" + Enum.GetName(typeof(KalturaWatchStatus), StatusEqual) + "" + "</filter_status>");
                 }
             }
             if(TypeIn != null)
@@ -7790,7 +7790,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && with != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", with.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = with.Count > 0 ? "<item>" + String.Join("</item><item>", with.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("with", "<with>" + propertyValue + "</with>");
             }
             return ret;
@@ -7818,7 +7818,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7884,7 +7884,7 @@ namespace WebAPI.Models.Catalog
             }
             if(ExtraParams != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ExtraParams.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ExtraParams.Count > 0 ? "<item>" + String.Join("</item><item>", ExtraParams.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("extraParams", "<extraParams>" + propertyValue + "</extraParams>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -7893,7 +7893,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Metas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("metas", "<metas>" + propertyValue + "</metas>");
             }
             if(StartDate.HasValue)
@@ -7906,7 +7906,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("tags", "<tags>" + propertyValue + "</tags>");
             }
             return ret;
@@ -7943,21 +7943,21 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("cut_with", "<cut_with>" + "\"" + Enum.GetName(typeof(KalturaCutWith), cutWith) + "\"" + "</cut_with>");
+            ret.Add("cut_with", "<cut_with>" + "" + Enum.GetName(typeof(KalturaCutWith), cutWith) + "" + "</cut_with>");
             if(FilterTags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FilterTags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FilterTags.Count > 0 ? "<item>" + String.Join("</item><item>", FilterTags.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("filter_tags", "<filter_tags>" + propertyValue + "</filter_tags>");
             }
             if(IDs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = IDs.Count > 0 ? "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
-            ret.Add("referenceType", "<referenceType>" + "\"" + Enum.GetName(typeof(KalturaCatalogReferenceBy), ReferenceType) + "\"" + "</referenceType>");
+            ret.Add("referenceType", "<referenceType>" + "" + Enum.GetName(typeof(KalturaCatalogReferenceBy), ReferenceType) + "" + "</referenceType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("reference_type", "<reference_type>" + "\"" + Enum.GetName(typeof(KalturaCatalogReferenceBy), ReferenceType) + "\"" + "</reference_type>");
+            ret.Add("reference_type", "<reference_type>" + "" + Enum.GetName(typeof(KalturaCatalogReferenceBy), ReferenceType) + "" + "</reference_type>");
             }
             return ret;
         }
@@ -7992,7 +7992,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(RequestId != null)
@@ -8028,7 +8028,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8082,7 +8082,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsBookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8118,7 +8118,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8150,7 +8150,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Assets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assets", "<assets>" + propertyValue + "</assets>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -8244,7 +8244,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsStatistics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsStatistics.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8276,7 +8276,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
             }
-            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             ret.Add("endDateGreaterThanOrEqual", "<endDateGreaterThanOrEqual>" + EndDateGreaterThanOrEqual + "</endDateGreaterThanOrEqual>");
             ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
             return ret;
@@ -8440,7 +8440,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetStructs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetStructs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetStructs.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8552,7 +8552,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetStructMetas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetStructMetas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetStructMetas.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructMetas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8618,12 +8618,12 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(MediaFiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaFiles.Count > 0 ? "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaFiles", "<mediaFiles>" + propertyValue + "</mediaFiles>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -8698,7 +8698,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(GroupBy != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = GroupBy.Count > 0 ? "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("groupBy", "<groupBy>" + propertyValue + "</groupBy>");
             }
             if(Ksql != null)
@@ -8762,7 +8762,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("position", "<position>" + Position + "</position>");
             }
-            ret.Add("positionOwner", "<positionOwner>" + "\"" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "\"" + "</positionOwner>");
+            ret.Add("positionOwner", "<positionOwner>" + "" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "" + "</positionOwner>");
             ret.Add("programId", "<programId>" + ProgramId + "</programId>");
             if(!omitObsolete && User != null)
             {
@@ -8810,12 +8810,12 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && AssetIn != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetIn.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetIn.Count > 0 ? "<item>" + String.Join("</item><item>", AssetIn.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetIn", "<assetIn>" + propertyValue + "</assetIn>");
             }
             if(AssetTypeEqual.HasValue)
             {
-                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             }
             return ret;
         }
@@ -8842,7 +8842,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsBookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8880,7 +8880,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("action", "<action>" + "\"" + Enum.GetName(typeof(KalturaBookmarkActionType), action) + "\"" + "</action>");
+            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBookmarkActionType), action) + "" + "</action>");
             if(averageBitRate.HasValue)
             {
                 ret.Add("averageBitrate", "<averageBitrate>" + averageBitRate + "</averageBitrate>");
@@ -8921,7 +8921,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("bundleTypeEqual", "<bundleTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaBundleType), BundleTypeEqual) + "\"" + "</bundleTypeEqual>");
+            ret.Add("bundleTypeEqual", "<bundleTypeEqual>" + "" + Enum.GetName(typeof(KalturaBundleType), BundleTypeEqual) + "" + "</bundleTypeEqual>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             if(TypeIn != null)
             {
@@ -9012,7 +9012,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaCatalogWith), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaCatalogWith), type) + "" + "</type>");
             return ret;
         }
     }
@@ -9114,7 +9114,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -9142,7 +9142,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(IsActive.HasValue)
@@ -9151,7 +9151,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && MediaTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaTypes.Count > 0 ? "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("media_types", "<media_types>" + propertyValue + "</media_types>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
@@ -9173,7 +9173,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Order.HasValue)
             {
-                ret.Add("order", "<order>" + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), Order) + "\"" + "</order>");
+                ret.Add("order", "<order>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), Order) + "" + "</order>");
             }
             if(OrderBy != null)
             {
@@ -9251,7 +9251,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!ret.ContainsKey("orderBy"))
             {
-                ret.Add("orderBy", "<orderBy>" + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "\"" + "</orderBy>");
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "" + "</orderBy>");
             }
             return ret;
         }
@@ -9278,7 +9278,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9319,7 +9319,7 @@ namespace WebAPI.Models.Catalog
             }
             if(orderBy.HasValue)
             {
-                ret.Add("orderBy", "<orderBy>" + "\"" + Enum.GetName(typeof(KalturaChannelOrderBy), orderBy) + "\"" + "</orderBy>");
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaChannelOrderBy), orderBy) + "" + "</orderBy>");
             }
             if(SlidingWindowPeriod.HasValue)
             {
@@ -9415,7 +9415,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(!ret.ContainsKey("assetTypes") && !isOldVersion && AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
             }
             if(!ret.ContainsKey("groupBy") && !isOldVersion && GroupBy != null)
@@ -9459,7 +9459,7 @@ namespace WebAPI.Models.Catalog
             }
             if(OrderBy.HasValue)
             {
-                ret.Add("orderBy", "<orderBy>" + "\"" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "\"" + "</orderBy>");
+                ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaMetaTagOrderBy), OrderBy) + "" + "</orderBy>");
             }
             return ret;
         }
@@ -9494,7 +9494,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Assets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(ChannelID.HasValue)
@@ -9534,7 +9534,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -9590,7 +9590,7 @@ namespace WebAPI.Models.Catalog
             }
             if(IDs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = IDs.Count > 0 ? "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             if(StartTime.HasValue)
@@ -9651,14 +9651,14 @@ namespace WebAPI.Models.Catalog
             ret.Add("imageObjectId", "<imageObjectId>" + ImageObjectId + "</imageObjectId>");
             if(ImageObjectType.HasValue)
             {
-                ret.Add("imageObjectType", "<imageObjectType>" + "\"" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectType) + "\"" + "</imageObjectType>");
+                ret.Add("imageObjectType", "<imageObjectType>" + "" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectType) + "" + "</imageObjectType>");
             }
             ret.Add("imageTypeId", "<imageTypeId>" + ImageTypeId + "</imageTypeId>");
             if(IsDefault.HasValue)
             {
                 ret.Add("isDefault", "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>");
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaImageStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaImageStatus), Status) + "" + "</status>");
             if(Url != null)
             {
                 ret.Add("url", "<url>" + EscapeXml(Url) + "</url>");
@@ -9711,7 +9711,7 @@ namespace WebAPI.Models.Catalog
             }
             if(ImageObjectTypeEqual.HasValue)
             {
-                ret.Add("imageObjectTypeEqual", "<imageObjectTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectTypeEqual) + "\"" + "</imageObjectTypeEqual>");
+                ret.Add("imageObjectTypeEqual", "<imageObjectTypeEqual>" + "" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectTypeEqual) + "" + "</imageObjectTypeEqual>");
             }
             if(IsDefaultEqual.HasValue)
             {
@@ -9742,7 +9742,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9872,7 +9872,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(ImageTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ImageTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ImageTypes.Count > 0 ? "<item>" + String.Join("</item><item>", ImageTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9900,7 +9900,7 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("position", "<position>" + Position + "</position>");
-            ret.Add("position_owner", "<position_owner>" + "\"" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "\"" + "</position_owner>");
+            ret.Add("position_owner", "<position_owner>" + "" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "" + "</position_owner>");
             if(UserId != null)
             {
                 ret.Add("user_id", "<user_id>" + EscapeXml(UserId) + "</user_id>");
@@ -9930,13 +9930,13 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"" + "</by>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             if(Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaLastPositionAssetType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaLastPositionAssetType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -9962,7 +9962,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(LastPositions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = LastPositions.Count > 0 ? "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10042,27 +10042,27 @@ namespace WebAPI.Models.Catalog
             ret.Add("enableCdvr", "<enableCdvr>" + CdvrEnabled.ToString().ToLower() + "</enableCdvr>");
             if(ChannelType.HasValue)
             {
-                ret.Add("channelType", "<channelType>" + "\"" + Enum.GetName(typeof(KalturaLinearChannelType), ChannelType) + "\"" + "</channelType>");
+                ret.Add("channelType", "<channelType>" + "" + Enum.GetName(typeof(KalturaLinearChannelType), ChannelType) + "" + "</channelType>");
             }
             if(EnableCatchUpState.HasValue)
             {
-                ret.Add("enableCatchUpState", "<enableCatchUpState>" + "\"" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableCatchUpState) + "\"" + "</enableCatchUpState>");
+                ret.Add("enableCatchUpState", "<enableCatchUpState>" + "" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableCatchUpState) + "" + "</enableCatchUpState>");
             }
             if(EnableCdvrState.HasValue)
             {
-                ret.Add("enableCdvrState", "<enableCdvrState>" + "\"" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableCdvrState) + "\"" + "</enableCdvrState>");
+                ret.Add("enableCdvrState", "<enableCdvrState>" + "" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableCdvrState) + "" + "</enableCdvrState>");
             }
             if(EnableRecordingPlaybackNonEntitledChannelState.HasValue)
             {
-                ret.Add("enableRecordingPlaybackNonEntitledChannelState", "<enableRecordingPlaybackNonEntitledChannelState>" + "\"" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableRecordingPlaybackNonEntitledChannelState) + "\"" + "</enableRecordingPlaybackNonEntitledChannelState>");
+                ret.Add("enableRecordingPlaybackNonEntitledChannelState", "<enableRecordingPlaybackNonEntitledChannelState>" + "" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableRecordingPlaybackNonEntitledChannelState) + "" + "</enableRecordingPlaybackNonEntitledChannelState>");
             }
             if(EnableStartOverState.HasValue)
             {
-                ret.Add("enableStartOverState", "<enableStartOverState>" + "\"" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableStartOverState) + "\"" + "</enableStartOverState>");
+                ret.Add("enableStartOverState", "<enableStartOverState>" + "" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableStartOverState) + "" + "</enableStartOverState>");
             }
             if(EnableTrickPlayState.HasValue)
             {
-                ret.Add("enableTrickPlayState", "<enableTrickPlayState>" + "\"" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableTrickPlayState) + "\"" + "</enableTrickPlayState>");
+                ret.Add("enableTrickPlayState", "<enableTrickPlayState>" + "" + Enum.GetName(typeof(KalturaTimeShiftedTvState), EnableTrickPlayState) + "" + "</enableTrickPlayState>");
             }
             if(ExternalCdvrId != null)
             {
@@ -10532,7 +10532,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Files != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Files.Count > 0 ? "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10625,7 +10625,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Quality.HasValue)
             {
-                ret.Add("quality", "<quality>" + "\"" + Enum.GetName(typeof(KalturaMediaFileTypeQuality), Quality) + "\"" + "</quality>");
+                ret.Add("quality", "<quality>" + "" + Enum.GetName(typeof(KalturaMediaFileTypeQuality), Quality) + "" + "</quality>");
             }
             if(Status.HasValue)
             {
@@ -10633,7 +10633,7 @@ namespace WebAPI.Models.Catalog
             }
             if(StreamerType.HasValue)
             {
-                ret.Add("streamerType", "<streamerType>" + "\"" + Enum.GetName(typeof(KalturaMediaFileStreamerType), StreamerType) + "\"" + "</streamerType>");
+                ret.Add("streamerType", "<streamerType>" + "" + Enum.GetName(typeof(KalturaMediaFileStreamerType), StreamerType) + "" + "</streamerType>");
             }
             if(UpdateDate.HasValue)
             {
@@ -10668,7 +10668,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Types != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Types.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Types.Count > 0 ? "<item>" + String.Join("</item><item>", Types.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10808,12 +10808,12 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(ChildCategories != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ChildCategories.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ChildCategories.Count > 0 ? "<item>" + String.Join("</item><item>", ChildCategories.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("childCategories", "<childCategories>" + propertyValue + "</childCategories>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -10826,7 +10826,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(Name != null)
@@ -10877,12 +10877,12 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Bookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("bookmarks", "<bookmarks>" + propertyValue + "</bookmarks>");
             }
             if(Files != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Files.Count > 0 ? "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("files", "<files>" + propertyValue + "</files>");
             }
             ret.Add("following", "<following>" + Following.ToString().ToLower() + "</following>");
@@ -10890,7 +10890,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaAssetType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaAssetType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -10916,7 +10916,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10953,7 +10953,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(FileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>";
+                propertyValue = FileIds.Count > 0 ? "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>" : "";
                 ret.Add("fileIds", "<fileIds>" + propertyValue + "</fileIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -10964,7 +10964,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaAssetType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaAssetType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -10984,7 +10984,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaPersonalAssetWith), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPersonalAssetWith), type) + "" + "</type>");
             return ret;
         }
     }
@@ -11260,7 +11260,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Ratios != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ratios.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ratios.Count > 0 ? "<item>" + String.Join("</item><item>", Ratios.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11295,7 +11295,7 @@ namespace WebAPI.Models.Catalog
             }
             if(RecordingType.HasValue)
             {
-                ret.Add("recordingType", "<recordingType>" + "\"" + Enum.GetName(typeof(KalturaRecordingType), RecordingType) + "\"" + "</recordingType>");
+                ret.Add("recordingType", "<recordingType>" + "" + Enum.GetName(typeof(KalturaRecordingType), RecordingType) + "" + "</recordingType>");
             }
             return ret;
         }
@@ -11418,7 +11418,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("endDateLessThanOrNull", "<endDateLessThanOrNull>" + EndDateLessThanOrNull + "</endDateLessThanOrNull>");
             }
-            ret.Add("recordingTypeEqual", "<recordingTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaScheduledRecordingAssetType), RecordingTypeEqual) + "\"" + "</recordingTypeEqual>");
+            ret.Add("recordingTypeEqual", "<recordingTypeEqual>" + "" + Enum.GetName(typeof(KalturaScheduledRecordingAssetType), RecordingTypeEqual) + "" + "</recordingTypeEqual>");
             if(StartDateGreaterThanOrNull.HasValue)
             {
                 ret.Add("startDateGreaterThanOrNull", "<startDateGreaterThanOrNull>" + StartDateGreaterThanOrNull + "</startDateGreaterThanOrNull>");
@@ -11548,7 +11548,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaAssetType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaAssetType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -11574,7 +11574,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11674,7 +11674,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11830,7 +11830,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11893,12 +11893,12 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Conditions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
             return ret;
@@ -11966,7 +11966,7 @@ namespace WebAPI.Models.API
                 propertyValue = AssetApplied.ToXml(currentVersion, omitObsolete);
                 ret.Add("assetApplied", "<assetApplied>" + propertyValue + "</assetApplied>");
             }
-            ret.Add("conditionsContainType", "<conditionsContainType>" + "\"" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "\"" + "</conditionsContainType>");
+            ret.Add("conditionsContainType", "<conditionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "" + "</conditionsContainType>");
             return ret;
         }
     }
@@ -11992,7 +11992,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12025,12 +12025,12 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Conditions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
             return ret;
@@ -12084,7 +12084,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12160,7 +12160,7 @@ namespace WebAPI.Models.API
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("settings", "<settings>" + propertyValue + "</settings>");
             }
             if(SharedSecret != null)
@@ -12196,7 +12196,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Adapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12252,7 +12252,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaChannelEnrichment), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaChannelEnrichment), type) + "" + "</type>");
             return ret;
         }
     }
@@ -12311,7 +12311,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>" : "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -12346,7 +12346,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("order", "<order>" + "\"" + Enum.GetName(typeof(KalturaOrder), Order) + "\"" + "</order>");
+            ret.Add("order", "<order>" + "" + Enum.GetName(typeof(KalturaOrder), Order) + "" + "</order>");
             return ret;
         }
     }
@@ -12367,7 +12367,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"" + "</concurrencyLimitationType>");
+            ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "" + "</concurrencyLimitationType>");
             ret.Add("limit", "<limit>" + Limit + "</limit>");
             return ret;
         }
@@ -12396,7 +12396,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaRuleConditionType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRuleConditionType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -12498,7 +12498,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12596,7 +12596,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12624,7 +12624,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12652,7 +12652,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12754,7 +12754,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Adapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12782,7 +12782,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ids.Count > 0 ? "<item>" + String.Join("</item><item>", ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -12862,15 +12862,15 @@ namespace WebAPI.Models.API
             {
                 ret.Add("alias", "<alias>" + EscapeXml(Alias) + "</alias>");
             }
-            ret.Add("dataType", "<dataType>" + "\"" + Enum.GetName(typeof(KalturaExportDataType), DataType) + "\"" + "</dataType>");
+            ret.Add("dataType", "<dataType>" + "" + Enum.GetName(typeof(KalturaExportDataType), DataType) + "" + "</dataType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("data_type", "<data_type>" + "\"" + Enum.GetName(typeof(KalturaExportDataType), DataType) + "\"" + "</data_type>");
+            ret.Add("data_type", "<data_type>" + "" + Enum.GetName(typeof(KalturaExportDataType), DataType) + "" + "</data_type>");
             }
-            ret.Add("exportType", "<exportType>" + "\"" + Enum.GetName(typeof(KalturaExportType), ExportType) + "\"" + "</exportType>");
+            ret.Add("exportType", "<exportType>" + "" + Enum.GetName(typeof(KalturaExportType), ExportType) + "" + "</exportType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("export_type", "<export_type>" + "\"" + Enum.GetName(typeof(KalturaExportType), ExportType) + "\"" + "</export_type>");
+            ret.Add("export_type", "<export_type>" + "" + Enum.GetName(typeof(KalturaExportType), ExportType) + "" + "</export_type>");
             }
             if(Filter != null)
             {
@@ -12906,7 +12906,7 @@ namespace WebAPI.Models.API
             }
             if(VodTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = VodTypes.Count > 0 ? "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("vodTypes", "<vodTypes>" + propertyValue + "</vodTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -12964,7 +12964,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13032,7 +13032,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Enrichments != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Enrichments.Count > 0 ? "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("enrichments", "<enrichments>" + propertyValue + "</enrichments>");
             }
             if(ExternalIdentifier != null)
@@ -13100,7 +13100,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13150,10 +13150,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("ruleType", "<ruleType>" + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "\"" + "</ruleType>");
+            ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "" + "</ruleType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("rule_type", "<rule_type>" + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "\"" + "</rule_type>");
+            ret.Add("rule_type", "<rule_type>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "" + "</rule_type>");
             }
             return ret;
         }
@@ -13230,7 +13230,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(GenericRules != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = GenericRules.Count > 0 ? "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13370,7 +13370,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13401,7 +13401,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"" + "</concurrencyLimitationType>");
+            ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "" + "</concurrencyLimitationType>");
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -13436,7 +13436,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13514,12 +13514,12 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && AssetType.HasValue)
             {
-                ret.Add("assetType", "<assetType>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"" + "</assetType>");
+                ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             }
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(DataType.HasValue)
             {
-                ret.Add("dataType", "<dataType>" + "\"" + Enum.GetName(typeof(KalturaMetaDataType), DataType) + "\"" + "</dataType>");
+                ret.Add("dataType", "<dataType>" + "" + Enum.GetName(typeof(KalturaMetaDataType), DataType) + "" + "</dataType>");
             }
             if(Features != null)
             {
@@ -13527,7 +13527,7 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && FieldName.HasValue)
             {
-                ret.Add("fieldName", "<fieldName>" + "\"" + Enum.GetName(typeof(KalturaMetaFieldName), FieldName) + "\"" + "</fieldName>");
+                ret.Add("fieldName", "<fieldName>" + "" + Enum.GetName(typeof(KalturaMetaFieldName), FieldName) + "" + "</fieldName>");
             }
             if(HelpText != null)
             {
@@ -13560,7 +13560,7 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && Type.HasValue)
             {
-                ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaMetaType), Type) + "\"" + "</type>");
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaMetaType), Type) + "" + "</type>");
             }
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             return ret;
@@ -13623,11 +13623,11 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetTypeEqual.HasValue)
             {
-                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+                ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             }
             if(DataTypeEqual.HasValue)
             {
-                ret.Add("dataTypeEqual", "<dataTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaMetaDataType), DataTypeEqual) + "\"" + "</dataTypeEqual>");
+                ret.Add("dataTypeEqual", "<dataTypeEqual>" + "" + Enum.GetName(typeof(KalturaMetaDataType), DataTypeEqual) + "" + "</dataTypeEqual>");
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FeaturesIn != null)
             {
@@ -13635,11 +13635,11 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FieldNameEqual.HasValue)
             {
-                ret.Add("fieldNameEqual", "<fieldNameEqual>" + "\"" + Enum.GetName(typeof(KalturaMetaFieldName), FieldNameEqual) + "\"" + "</fieldNameEqual>");
+                ret.Add("fieldNameEqual", "<fieldNameEqual>" + "" + Enum.GetName(typeof(KalturaMetaFieldName), FieldNameEqual) + "" + "</fieldNameEqual>");
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FieldNameNotEqual.HasValue)
             {
-                ret.Add("fieldNameNotEqual", "<fieldNameNotEqual>" + "\"" + Enum.GetName(typeof(KalturaMetaFieldName), FieldNameNotEqual) + "\"" + "</fieldNameNotEqual>");
+                ret.Add("fieldNameNotEqual", "<fieldNameNotEqual>" + "" + Enum.GetName(typeof(KalturaMetaFieldName), FieldNameNotEqual) + "" + "</fieldNameNotEqual>");
             }
             if(IdIn != null)
             {
@@ -13651,7 +13651,7 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && TypeEqual.HasValue)
             {
-                ret.Add("typeEqual", "<typeEqual>" + "\"" + Enum.GetName(typeof(KalturaMetaType), TypeEqual) + "\"" + "</typeEqual>");
+                ret.Add("typeEqual", "<typeEqual>" + "" + Enum.GetName(typeof(KalturaMetaType), TypeEqual) + "" + "</typeEqual>");
             }
             return ret;
         }
@@ -13678,7 +13678,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Metas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13800,7 +13800,7 @@ namespace WebAPI.Models.API
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("ossAdapterSettings", "<ossAdapterSettings>" + propertyValue + "</ossAdapterSettings>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -13840,7 +13840,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(OSSAdapterProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = OSSAdapterProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13959,7 +13959,7 @@ namespace WebAPI.Models.API
             }
             if(epgTagValues != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", epgTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = epgTagValues.Count > 0 ? "<item>" + String.Join("</item><item>", epgTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("epgTagValues", "<epgTagValues>" + propertyValue + "</epgTagValues>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -13986,7 +13986,7 @@ namespace WebAPI.Models.API
             }
             if(mediaTagValues != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", mediaTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = mediaTagValues.Count > 0 ? "<item>" + String.Join("</item><item>", mediaTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaTagValues", "<mediaTagValues>" + propertyValue + "</mediaTagValues>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -14001,13 +14001,13 @@ namespace WebAPI.Models.API
             {
                 ret.Add("order", "<order>" + order + "</order>");
             }
-            ret.Add("origin", "<origin>" + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"" + "</origin>");
+            ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             if(ruleType.HasValue)
             {
-                ret.Add("ruleType", "<ruleType>" + "\"" + Enum.GetName(typeof(KalturaParentalRuleType), ruleType) + "\"" + "</ruleType>");
+                ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaParentalRuleType), ruleType) + "" + "</ruleType>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("rule_type", "<rule_type>" + "\"" + Enum.GetName(typeof(KalturaParentalRuleType), ruleType) + "\"" + "</rule_type>");
+                ret.Add("rule_type", "<rule_type>" + "" + Enum.GetName(typeof(KalturaParentalRuleType), ruleType) + "" + "</rule_type>");
                 }
             }
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
@@ -14035,7 +14035,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(EntityReferenceEqual.HasValue)
             {
-                ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"" + "</entityReferenceEqual>");
+                ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
             }
             return ret;
         }
@@ -14062,7 +14062,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(ParentalRule != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ParentalRule.Count > 0 ? "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14194,7 +14194,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Permissions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Permissions.Count > 0 ? "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14221,12 +14221,12 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("origin", "<origin>" + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"" + "</origin>");
+            ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             if(PIN != null)
             {
                 ret.Add("pin", "<pin>" + EscapeXml(PIN) + "</pin>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaPinType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPinType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -14251,12 +14251,12 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("origin", "<origin>" + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"" + "</origin>");
+            ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             if(PIN != null)
             {
                 ret.Add("pin", "<pin>" + EscapeXml(PIN) + "</pin>");
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaPinType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPinType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -14281,7 +14281,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Permission.HasValue)
             {
-                ret.Add("permission", "<permission>" + "\"" + Enum.GetName(typeof(KalturaPurchaseSettingsType), Permission) + "\"" + "</permission>");
+                ret.Add("permission", "<permission>" + "" + Enum.GetName(typeof(KalturaPurchaseSettingsType), Permission) + "" + "</permission>");
             }
             return ret;
         }
@@ -14311,10 +14311,10 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(PurchaseSettingsType.HasValue)
             {
-                ret.Add("purchaseSettingsType", "<purchaseSettingsType>" + "\"" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "\"" + "</purchaseSettingsType>");
+                ret.Add("purchaseSettingsType", "<purchaseSettingsType>" + "" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "" + "</purchaseSettingsType>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("purchase_settings_type", "<purchase_settings_type>" + "\"" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "\"" + "</purchase_settings_type>");
+                ret.Add("purchase_settings_type", "<purchase_settings_type>" + "" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "" + "</purchase_settings_type>");
                 }
             }
             return ret;
@@ -14418,7 +14418,7 @@ namespace WebAPI.Models.API
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("recommendationEngineSettings", "<recommendationEngineSettings>" + propertyValue + "</recommendationEngineSettings>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -14458,7 +14458,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(RecommendationProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RecommendationProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14506,7 +14506,7 @@ namespace WebAPI.Models.API
             }
             if(RegionalChannels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RegionalChannels.Count > 0 ? "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("linearChannels", "<linearChannels>" + propertyValue + "</linearChannels>");
             }
             return ret;
@@ -14582,7 +14582,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Regions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Regions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Regions.Count > 0 ? "<item>" + String.Join("</item><item>", Regions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14644,7 +14644,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(RegistrySettings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RegistrySettings.Count > 0 ? "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14666,7 +14666,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"" + "</by>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             return ret;
         }
     }
@@ -14786,7 +14786,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14977,7 +14977,7 @@ namespace WebAPI.Models.API
             }
             if(ProtectionPolicy.HasValue)
             {
-                ret.Add("protectionPolicy", "<protectionPolicy>" + "\"" + Enum.GetName(typeof(KalturaProtectionPolicy), ProtectionPolicy) + "\"" + "</protectionPolicy>");
+                ret.Add("protectionPolicy", "<protectionPolicy>" + "" + Enum.GetName(typeof(KalturaProtectionPolicy), ProtectionPolicy) + "" + "</protectionPolicy>");
             }
             if(ProtectionQuotaPercentage.HasValue)
             {
@@ -14985,7 +14985,7 @@ namespace WebAPI.Models.API
             }
             if(QuotaOveragePolicy.HasValue)
             {
-                ret.Add("quotaOveragePolicy", "<quotaOveragePolicy>" + "\"" + Enum.GetName(typeof(KalturaQuotaOveragePolicy), QuotaOveragePolicy) + "\"" + "</quotaOveragePolicy>");
+                ret.Add("quotaOveragePolicy", "<quotaOveragePolicy>" + "" + Enum.GetName(typeof(KalturaQuotaOveragePolicy), QuotaOveragePolicy) + "" + "</quotaOveragePolicy>");
             }
             if(RecordingLifetimePeriod.HasValue)
             {
@@ -15082,7 +15082,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("ruleType", "<ruleType>" + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "\"" + "</ruleType>");
+            ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "" + "</ruleType>");
             return ret;
         }
     }
@@ -15142,7 +15142,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Rules != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Rules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Rules.Count > 0 ? "<item>" + String.Join("</item><item>", Rules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15202,7 +15202,7 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && Permissions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Permissions.Count > 0 ? "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("permissions", "<permissions>" + propertyValue + "</permissions>");
             }
             return ret;
@@ -15246,7 +15246,7 @@ namespace WebAPI.Models.API
             }
             if(!omitObsolete && Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -15274,7 +15274,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(UserRoles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserRoles.Count > 0 ? "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15313,10 +15313,10 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("asset_id", "<asset_id>" + EscapeXml(AssetId) + "</asset_id>");
             }
-            ret.Add("asset_type", "<asset_type>" + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"" + "</asset_type>");
+            ret.Add("asset_type", "<asset_type>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</asset_type>");
             if(FilePrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FilePrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FilePrices.Count > 0 ? "<item>" + String.Join("</item><item>", FilePrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("file_prices", "<file_prices>" + propertyValue + "</file_prices>");
             }
             return ret;
@@ -15398,12 +15398,12 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(CouponGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = CouponGroups.Count > 0 ? "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("couponsGroups", "<couponsGroups>" + propertyValue + "</couponsGroups>");
             }
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
@@ -15435,7 +15435,7 @@ namespace WebAPI.Models.Pricing
             }
             if(ProductCodes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductCodes.Count > 0 ? "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("productCodes", "<productCodes>" + propertyValue + "</productCodes>");
             }
             if(StartDate.HasValue)
@@ -15506,7 +15506,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Collections != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Collections.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Collections.Count > 0 ? "<item>" + String.Join("</item><item>", Collections.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15576,7 +15576,7 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("leftUses", "<leftUses>" + LeftUses + "</leftUses>");
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaCouponStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaCouponStatus), Status) + "" + "</status>");
             if(TotalUses.HasValue)
             {
                 ret.Add("totalUses", "<totalUses>" + TotalUses + "</totalUses>");
@@ -15680,11 +15680,11 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(CouponGroupType.HasValue)
             {
-                ret.Add("couponGroupType", "<couponGroupType>" + "\"" + Enum.GetName(typeof(KalturaCouponGroupType), CouponGroupType) + "\"" + "</couponGroupType>");
+                ret.Add("couponGroupType", "<couponGroupType>" + "" + Enum.GetName(typeof(KalturaCouponGroupType), CouponGroupType) + "" + "</couponGroupType>");
             }
             if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(!DeprecatedAttribute.IsDeprecated("4.8.2.0", currentVersion) && DiscountCode.HasValue)
@@ -15764,7 +15764,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(couponsGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", couponsGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = couponsGroups.Count > 0 ? "<item>" + String.Join("</item><item>", couponsGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15827,7 +15827,7 @@ namespace WebAPI.Models.Pricing
             }
             if(MultiCurrencyDiscount != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MultiCurrencyDiscount.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MultiCurrencyDiscount.Count > 0 ? "<item>" + String.Join("</item><item>", MultiCurrencyDiscount.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("multiCurrencyDiscount", "<multiCurrencyDiscount>" + propertyValue + "</multiCurrencyDiscount>");
             }
             if(name != null)
@@ -15886,7 +15886,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Discounts != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Discounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Discounts.Count > 0 ? "<item>" + String.Join("</item><item>", Discounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15992,7 +15992,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVPriceDetails != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVPriceDetails.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVPriceDetails.Count > 0 ? "<item>" + String.Join("</item><item>", PPVPriceDetails.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvPriceDetails", "<ppvPriceDetails>" + propertyValue + "</ppvPriceDetails>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16024,7 +16024,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ItemPrice != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ItemPrice.Count > 0 ? "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -16102,7 +16102,7 @@ namespace WebAPI.Models.Pricing
             }
             if(Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(DiscountModule != null)
@@ -16112,7 +16112,7 @@ namespace WebAPI.Models.Pricing
             }
             if(FileTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
             }
             if(FirstDeviceLimitation.HasValue)
@@ -16363,7 +16363,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVDescriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVDescriptions.Count > 0 ? "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvDescriptions", "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16407,10 +16407,10 @@ namespace WebAPI.Models.Pricing
                 ret.Add("purchased_media_file_id", "<purchased_media_file_id>" + PurchasedMediaFileId + "</purchased_media_file_id>");
                 }
             }
-            ret.Add("purchaseStatus", "<purchaseStatus>" + "\"" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "\"" + "</purchaseStatus>");
+            ret.Add("purchaseStatus", "<purchaseStatus>" + "" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "" + "</purchaseStatus>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("purchase_status", "<purchase_status>" + "\"" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "\"" + "</purchase_status>");
+            ret.Add("purchase_status", "<purchase_status>" + "" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "" + "</purchase_status>");
             }
             if(PurchaseUserId != null)
             {
@@ -16422,7 +16422,7 @@ namespace WebAPI.Models.Pricing
             }
             if(RelatedMediaFileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedMediaFileIds.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedMediaFileIds", "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16569,7 +16569,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVDescriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVDescriptions.Count > 0 ? "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvDescriptions", "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>");
             }
             if(PPVModuleId != null)
@@ -16594,7 +16594,7 @@ namespace WebAPI.Models.Pricing
             }
             if(RelatedMediaFileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedMediaFileIds.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedMediaFileIds", "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>");
             }
             if(StartDate.HasValue)
@@ -16772,7 +16772,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(Id.HasValue)
@@ -16781,7 +16781,7 @@ namespace WebAPI.Models.Pricing
             }
             if(MultiCurrencyPrice != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MultiCurrencyPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MultiCurrencyPrice.Count > 0 ? "<item>" + String.Join("</item><item>", MultiCurrencyPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("multiCurrencyPrice", "<multiCurrencyPrice>" + propertyValue + "</multiCurrencyPrice>");
             }
             if(name != null)
@@ -16844,7 +16844,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Prices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Prices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Prices.Count > 0 ? "<item>" + String.Join("</item><item>", Prices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -16988,7 +16988,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(PricePlans != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PricePlans.Count > 0 ? "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17078,14 +17078,14 @@ namespace WebAPI.Models.Pricing
                 ret.Add("product_id", "<product_id>" + EscapeXml(ProductId) + "</product_id>");
                 }
             }
-            ret.Add("productType", "<productType>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "\"" + "</productType>");
+            ret.Add("productType", "<productType>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</productType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("product_type", "<product_type>" + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "\"" + "</product_type>");
+            ret.Add("product_type", "<product_type>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</product_type>");
             }
             if(!isOldVersion)
             {
-                ret.Add("purchaseStatus", "<purchaseStatus>" + "\"" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "\"" + "</purchaseStatus>");
+                ret.Add("purchaseStatus", "<purchaseStatus>" + "" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "" + "</purchaseStatus>");
             }
             return ret;
         }
@@ -17112,7 +17112,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ProductsPrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17140,7 +17140,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ProductsPrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17462,12 +17462,12 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(CouponGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = CouponGroups.Count > 0 ? "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("couponsGroups", "<couponsGroups>" + propertyValue + "</couponsGroups>");
             }
             if(!DeprecatedAttribute.IsDeprecated("4.3.0.0", currentVersion) && CouponsGroup != null)
@@ -17479,11 +17479,11 @@ namespace WebAPI.Models.Pricing
                 ret.Add("coupons_group", "<coupons_group>" + propertyValue + "</coupons_group>");
                 }
             }
-            ret.Add("dependencyType", "<dependencyType>" + "\"" + Enum.GetName(typeof(KalturaSubscriptionDependencyType), DependencyType) + "\"" + "</dependencyType>");
+            ret.Add("dependencyType", "<dependencyType>" + "" + Enum.GetName(typeof(KalturaSubscriptionDependencyType), DependencyType) + "" + "</dependencyType>");
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(DiscountModule != null)
@@ -17509,7 +17509,7 @@ namespace WebAPI.Models.Pricing
             }
             if(FileTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17580,12 +17580,12 @@ namespace WebAPI.Models.Pricing
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Names.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Names.Count > 0 ? "<item>" + String.Join("</item><item>", Names.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("names", "<names>" + propertyValue + "</names>");
             }
             if(PremiumServices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PremiumServices.Count > 0 ? "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("premiumServices", "<premiumServices>" + propertyValue + "</premiumServices>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17612,7 +17612,7 @@ namespace WebAPI.Models.Pricing
             }
             if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && PricePlans != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PricePlans.Count > 0 ? "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("pricePlans", "<pricePlans>" + propertyValue + "</pricePlans>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17629,7 +17629,7 @@ namespace WebAPI.Models.Pricing
             }
             if(ProductCodes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductCodes.Count > 0 ? "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("productCodes", "<productCodes>" + propertyValue + "</productCodes>");
             }
             if(ProrityInOrder.HasValue)
@@ -17658,7 +17658,7 @@ namespace WebAPI.Models.Pricing
             }
             if(UserTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserTypes.Count > 0 ? "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("userTypes", "<userTypes>" + propertyValue + "</userTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17800,7 +17800,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Subscriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Subscriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17849,10 +17849,10 @@ namespace WebAPI.Models.Pricing
             }
             if(!ret.ContainsKey("purchaseStatus") && !omitObsolete)
             {
-                ret.Add("purchaseStatus", "<purchaseStatus>" + "\"" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "\"" + "</purchaseStatus>");
+                ret.Add("purchaseStatus", "<purchaseStatus>" + "" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "" + "</purchaseStatus>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("purchase_status", "<purchase_status>" + "\"" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "\"" + "</purchase_status>");
+                ret.Add("purchase_status", "<purchase_status>" + "" + Enum.GetName(typeof(KalturaPurchaseStatus), PurchaseStatus) + "" + "</purchase_status>");
                 }
             }
             return ret;
@@ -17897,7 +17897,7 @@ namespace WebAPI.Models.Pricing
             }
             if(Type.HasValue)
             {
-                ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaSubscriptionSetType), Type) + "\"" + "</type>");
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaSubscriptionSetType), Type) + "" + "</type>");
             }
             return ret;
         }
@@ -17939,7 +17939,7 @@ namespace WebAPI.Models.Pricing
             }
             if(TypeEqual.HasValue)
             {
-                ret.Add("typeEqual", "<typeEqual>" + "\"" + Enum.GetName(typeof(KalturaSubscriptionSetType), TypeEqual) + "\"" + "</typeEqual>");
+                ret.Add("typeEqual", "<typeEqual>" + "" + Enum.GetName(typeof(KalturaSubscriptionSetType), TypeEqual) + "" + "</typeEqual>");
             }
             return ret;
         }
@@ -17966,7 +17966,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(SubscriptionSets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubscriptionSets.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17993,10 +17993,10 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaSubscriptionsFilterBy), By) + "\"" + "</by>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaSubscriptionsFilterBy), By) + "" + "</by>");
             if(Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -18418,7 +18418,7 @@ namespace WebAPI.Models.Users
             }
             if(!omitObsolete && MediaIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaIds.Count > 0 ? "<item>" + String.Join("</item><item>", MediaIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("media_ids", "<media_ids>" + propertyValue + "</media_ids>");
             }
             if(MediaTypeEqual.HasValue)
@@ -18466,7 +18466,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(Favorites != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Favorites.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Favorites.Count > 0 ? "<item>" + String.Join("</item><item>", Favorites.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -18726,7 +18726,7 @@ namespace WebAPI.Models.Users
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(DynamicData != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -18793,20 +18793,20 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("roleIds", "<roleIds>" + EscapeXml(RoleIds) + "</roleIds>");
             }
-            ret.Add("suspensionState", "<suspensionState>" + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspensionState), SuspensionState) + "\"" + "</suspensionState>");
+            ret.Add("suspensionState", "<suspensionState>" + "" + Enum.GetName(typeof(KalturaHouseholdSuspensionState), SuspensionState) + "" + "</suspensionState>");
             if(!omitObsolete)
             {
-                ret.Add("suspentionState", "<suspentionState>" + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "\"" + "</suspentionState>");
+                ret.Add("suspentionState", "<suspentionState>" + "" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "" + "</suspentionState>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("suspention_state", "<suspention_state>" + "\"" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "\"" + "</suspention_state>");
+                ret.Add("suspention_state", "<suspention_state>" + "" + Enum.GetName(typeof(KalturaHouseholdSuspentionState), SuspentionState) + "" + "</suspention_state>");
                 }
             }
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
-            ret.Add("userState", "<userState>" + "\"" + Enum.GetName(typeof(KalturaUserState), UserState) + "\"" + "</userState>");
+            ret.Add("userState", "<userState>" + "" + Enum.GetName(typeof(KalturaUserState), UserState) + "" + "</userState>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("user_state", "<user_state>" + "\"" + Enum.GetName(typeof(KalturaUserState), UserState) + "\"" + "</user_state>");
+            ret.Add("user_state", "<user_state>" + "" + Enum.GetName(typeof(KalturaUserState), UserState) + "" + "</user_state>");
             }
             if(UserType != null)
             {
@@ -18968,7 +18968,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(Users != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19071,7 +19071,7 @@ namespace WebAPI.Models.Users
             }
             if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion))
             {
-                ret.Add("sessionType", "<sessionType>" + "\"" + Enum.GetName(typeof(KalturaSessionType), sessionType) + "\"" + "</sessionType>");
+                ret.Add("sessionType", "<sessionType>" + "" + Enum.GetName(typeof(KalturaSessionType), sessionType) + "" + "</sessionType>");
             }
             if(udid != null)
             {
@@ -19168,7 +19168,7 @@ namespace WebAPI.Models.Users
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("settings", "<settings>" + propertyValue + "</settings>");
             }
             if(SharedSecret != null)
@@ -19200,7 +19200,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(SSOAdapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SSOAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SSOAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", SSOAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19233,13 +19233,13 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(List != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", List.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = List.Count > 0 ? "<item>" + String.Join("</item><item>", List.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("list", "<list>" + propertyValue + "</list>");
             }
-            ret.Add("listType", "<listType>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "\"" + "</listType>");
+            ret.Add("listType", "<listType>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "" + "</listType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("list_type", "<list_type>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "\"" + "</list_type>");
+            ret.Add("list_type", "<list_type>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "" + "</list_type>");
             }
             return ret;
         }
@@ -19270,16 +19270,16 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "\"" + "</assetTypeEqual>");
+            ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("asset_type", "<asset_type>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "\"" + "</asset_type>");
+            ret.Add("asset_type", "<asset_type>" + "" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "" + "</asset_type>");
             }
-            ret.Add("by", "<by>" + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"" + "</by>");
-            ret.Add("listTypeEqual", "<listTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListTypeEqual) + "\"" + "</listTypeEqual>");
+            ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
+            ret.Add("listTypeEqual", "<listTypeEqual>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListTypeEqual) + "" + "</listTypeEqual>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("list_type", "<list_type>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListTypeEqual) + "\"" + "</list_type>");
+            ret.Add("list_type", "<list_type>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListTypeEqual) + "" + "</list_type>");
             }
             return ret;
         }
@@ -19329,10 +19329,10 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
             }
-            ret.Add("listType", "<listType>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "\"" + "</listType>");
+            ret.Add("listType", "<listType>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "" + "</listType>");
             if (currentVersion == null || isOldVersion)
             {
-            ret.Add("list_type", "<list_type>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "\"" + "</list_type>");
+            ret.Add("list_type", "<list_type>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "" + "</list_type>");
             }
             if(OrderIndex.HasValue)
             {
@@ -19342,7 +19342,7 @@ namespace WebAPI.Models.Users
                 ret.Add("order_index", "<order_index>" + OrderIndex + "</order_index>");
                 }
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaUserAssetsListItemType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaUserAssetsListItemType), Type) + "" + "</type>");
             if(UserId != null)
             {
                 ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");
@@ -19412,7 +19412,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(UserInterests != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserInterests.Count > 0 ? "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19570,7 +19570,7 @@ namespace WebAPI.Models.Partner
                 ret.Add("partner_configuration_type", "<partner_configuration_type>" + propertyValue + "</partner_configuration_type>");
                 }
             }
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaPartnerConfigurationType), Type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPartnerConfigurationType), Type) + "" + "</type>");
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
@@ -19602,7 +19602,7 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");
             }
-            ret.Add("evictionPolicy", "<evictionPolicy>" + "\"" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "\"" + "</evictionPolicy>");
+            ret.Add("evictionPolicy", "<evictionPolicy>" + "" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "" + "</evictionPolicy>");
             return ret;
         }
     }
@@ -19640,7 +19640,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("partnerConfigurationTypeEqual", "<partnerConfigurationTypeEqual>" + "\"" + Enum.GetName(typeof(KalturaPartnerConfigurationType), PartnerConfigurationTypeEqual) + "\"" + "</partnerConfigurationTypeEqual>");
+            ret.Add("partnerConfigurationTypeEqual", "<partnerConfigurationTypeEqual>" + "" + Enum.GetName(typeof(KalturaPartnerConfigurationType), PartnerConfigurationTypeEqual) + "" + "</partnerConfigurationTypeEqual>");
             return ret;
         }
     }
@@ -19660,7 +19660,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaPartnerConfigurationType), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPartnerConfigurationType), type) + "" + "</type>");
             return ret;
         }
     }
@@ -19686,7 +19686,7 @@ namespace WebAPI.Models.Partner
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19731,7 +19731,7 @@ namespace WebAPI.Models.Upload
             ret.Add("id", "<id>" + Id + "</id>");
             if(Status.HasValue)
             {
-                ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaBatchJobStatus), Status) + "\"" + "</status>");
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBatchJobStatus), Status) + "" + "</status>");
             }
             if(UpdateDate.HasValue)
             {
@@ -19761,7 +19761,7 @@ namespace WebAPI.Models.Upload
             string propertyValue;
             if(StatusEqual.HasValue)
             {
-                ret.Add("statusEqual", "<statusEqual>" + "\"" + Enum.GetName(typeof(KalturaBatchJobStatus), StatusEqual) + "\"" + "</statusEqual>");
+                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBatchJobStatus), StatusEqual) + "" + "</statusEqual>");
             }
             return ret;
         }
@@ -19788,7 +19788,7 @@ namespace WebAPI.Models.Upload
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19843,7 +19843,7 @@ namespace WebAPI.Models.Upload
             }
             if(Status.HasValue)
             {
-                ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaUploadTokenStatus), Status) + "\"" + "</status>");
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaUploadTokenStatus), Status) + "" + "</status>");
             }
             if(UpdateDate.HasValue)
             {
@@ -19894,7 +19894,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(ConfigurationIdentifiers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ConfigurationIdentifiers.Count > 0 ? "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("configurationIdentifiers", "<configurationIdentifiers>" + propertyValue + "</configurationIdentifiers>");
             }
             if(Id != null)
@@ -19910,7 +19910,7 @@ namespace WebAPI.Models.DMS
             ret.Add("partnerId", "<partnerId>" + PartnerId + "</partnerId>");
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("tags", "<tags>" + propertyValue + "</tags>");
             }
             return ret;
@@ -20000,7 +20000,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20028,7 +20028,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20118,7 +20118,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20226,7 +20226,7 @@ namespace WebAPI.Models.DMS
             }
             ret.Add("isForceUpdate", "<isForceUpdate>" + IsForceUpdate.ToString().ToLower() + "</isForceUpdate>");
             ret.Add("partnerId", "<partnerId>" + PartnerId + "</partnerId>");
-            ret.Add("platform", "<platform>" + "\"" + Enum.GetName(typeof(KalturaPlatform), Platform) + "\"" + "</platform>");
+            ret.Add("platform", "<platform>" + "" + Enum.GetName(typeof(KalturaPlatform), Platform) + "" + "</platform>");
             return ret;
         }
     }
@@ -20278,7 +20278,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20370,7 +20370,7 @@ namespace WebAPI.Models.DMS
             {
                 ret.Add("versionNumber", "<versionNumber>" + EscapeXml(VersionNumber) + "</versionNumber>");
             }
-            ret.Add("versionPlatform", "<versionPlatform>" + "\"" + Enum.GetName(typeof(KalturaPlatform), VersionPlatform) + "\"" + "</versionPlatform>");
+            ret.Add("versionPlatform", "<versionPlatform>" + "" + Enum.GetName(typeof(KalturaPlatform), VersionPlatform) + "" + "</versionPlatform>");
             return ret;
         }
     }
@@ -20514,7 +20514,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(!omitObsolete && Devices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Devices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Devices.Count > 0 ? "<item>" + String.Join("</item><item>", Devices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("devices", "<devices>" + propertyValue + "</devices>");
             }
             return ret;
@@ -20628,7 +20628,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaDeviceRegistrationStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaDeviceRegistrationStatus), Status) + "" + "</status>");
             return ret;
         }
     }
@@ -20720,7 +20720,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20888,7 +20888,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && DefaultUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DefaultUsers.Count > 0 ? "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("defaultUsers", "<defaultUsers>" + propertyValue + "</defaultUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20901,7 +20901,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && DeviceFamilies != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamilies.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DeviceFamilies.Count > 0 ? "<item>" + String.Join("</item><item>", DeviceFamilies.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("deviceFamilies", "<deviceFamilies>" + propertyValue + "</deviceFamilies>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20962,7 +20962,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && MasterUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MasterUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MasterUsers.Count > 0 ? "<item>" + String.Join("</item><item>", MasterUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("masterUsers", "<masterUsers>" + propertyValue + "</masterUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20975,7 +20975,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && PendingUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PendingUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PendingUsers.Count > 0 ? "<item>" + String.Join("</item><item>", PendingUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("pendingUsers", "<pendingUsers>" + propertyValue + "</pendingUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20992,7 +20992,7 @@ namespace WebAPI.Models.Domains
             }
             if(Restriction.HasValue)
             {
-                ret.Add("restriction", "<restriction>" + "\"" + Enum.GetName(typeof(KalturaHouseholdRestriction), Restriction) + "\"" + "</restriction>");
+                ret.Add("restriction", "<restriction>" + "" + Enum.GetName(typeof(KalturaHouseholdRestriction), Restriction) + "" + "</restriction>");
             }
             if(RoleId.HasValue)
             {
@@ -21000,11 +21000,11 @@ namespace WebAPI.Models.Domains
             }
             if(State.HasValue)
             {
-                ret.Add("state", "<state>" + "\"" + Enum.GetName(typeof(KalturaHouseholdState), State) + "\"" + "</state>");
+                ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaHouseholdState), State) + "" + "</state>");
             }
             if(!omitObsolete && Users != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("users", "<users>" + propertyValue + "</users>");
             }
             if(UsersLimit.HasValue)
@@ -21115,11 +21115,11 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && State.HasValue)
             {
-                ret.Add("state", "<state>" + "\"" + Enum.GetName(typeof(KalturaDeviceState), State) + "\"" + "</state>");
+                ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaDeviceState), State) + "" + "</state>");
             }
             if(Status.HasValue)
             {
-                ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaDeviceStatus), Status) + "\"" + "</status>");
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaDeviceStatus), Status) + "" + "</status>");
             }
             if(Udid != null)
             {
@@ -21242,7 +21242,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21354,7 +21354,7 @@ namespace WebAPI.Models.Domains
             }
             if(DeviceFamiliesLimitations != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamiliesLimitations.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DeviceFamiliesLimitations.Count > 0 ? "<item>" + String.Join("</item><item>", DeviceFamiliesLimitations.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("deviceFamiliesLimitations", "<deviceFamiliesLimitations>" + propertyValue + "</deviceFamiliesLimitations>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -21480,7 +21480,7 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("isMaster", "<isMaster>" + IsMaster.ToString().ToLower() + "</isMaster>");
             }
-            ret.Add("status", "<status>" + "\"" + Enum.GetName(typeof(KalturaHouseholdUserStatus), Status) + "\"" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaHouseholdUserStatus), Status) + "" + "</status>");
             if(UserId != null)
             {
                 ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");
@@ -21536,7 +21536,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21558,7 +21558,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("type", "<type>" + "\"" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "\"" + "</type>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "" + "</type>");
             return ret;
         }
     }
@@ -21606,7 +21606,7 @@ namespace WebAPI.Models.Billing
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("selectedBy", "<selectedBy>" + "\"" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "\"" + "</selectedBy>");
+            ret.Add("selectedBy", "<selectedBy>" + "" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "" + "</selectedBy>");
             return ret;
         }
     }
@@ -21632,7 +21632,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21744,7 +21744,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21776,7 +21776,7 @@ namespace WebAPI.Models.Billing
                 propertyValue = paymentGateway.ToXml(currentVersion, omitObsolete);
                 ret.Add("payment_gateway", "<payment_gateway>" + propertyValue + "</payment_gateway>");
             }
-            ret.Add("selected_by", "<selected_by>" + "\"" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "\"" + "</selected_by>");
+            ret.Add("selected_by", "<selected_by>" + "" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "" + "</selected_by>");
             return ret;
         }
     }
@@ -21846,7 +21846,7 @@ namespace WebAPI.Models.Billing
             }
             if(!omitObsolete && PaymentMethods != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentMethods.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("paymentMethods", "<paymentMethods>" + propertyValue + "</paymentMethods>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -21855,10 +21855,10 @@ namespace WebAPI.Models.Billing
             }
             if(selectedBy.HasValue)
             {
-                ret.Add("selectedBy", "<selectedBy>" + "\"" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "\"" + "</selectedBy>");
+                ret.Add("selectedBy", "<selectedBy>" + "" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "" + "</selectedBy>");
                 if (currentVersion == null || isOldVersion)
                 {
-                ret.Add("selected_by", "<selected_by>" + "\"" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "\"" + "</selected_by>");
+                ret.Add("selected_by", "<selected_by>" + "" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "" + "</selected_by>");
                 }
             }
             return ret;
@@ -21890,7 +21890,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Configuration != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Configuration.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Configuration.Count > 0 ? "<item>" + String.Join("</item><item>", Configuration.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("paymentGatewayConfiguration", "<paymentGatewayConfiguration>" + propertyValue + "</paymentGatewayConfiguration>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -22080,7 +22080,7 @@ namespace WebAPI.Models.Billing
             }
             if(Settings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("paymentGatewaySettings", "<paymentGatewaySettings>" + propertyValue + "</paymentGatewaySettings>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -22136,7 +22136,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(PaymentGatewayProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentGatewayProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -22192,7 +22192,7 @@ namespace WebAPI.Models.Billing
             }
             if(HouseholdPaymentMethods != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", HouseholdPaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = HouseholdPaymentMethods.Count > 0 ? "<item>" + String.Join("</item><item>", HouseholdPaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("householdPaymentMethods", "<householdPaymentMethods>" + propertyValue + "</householdPaymentMethods>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -22316,7 +22316,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(PaymentMethodProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentMethodProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
