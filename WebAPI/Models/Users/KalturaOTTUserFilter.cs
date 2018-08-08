@@ -82,6 +82,8 @@ namespace WebAPI.Models.Users
 
         internal HashSet<long> GetRoleIdsIn()
         {
+            // TODO SHIR - CHECK GetRoleIdsIn
+            // this.GetIdsIn<long>(RoleIdsIn, "roleIdsIn")
             HashSet<long> values = new HashSet<long>();
 
             if (!string.IsNullOrEmpty(RoleIdsIn))
