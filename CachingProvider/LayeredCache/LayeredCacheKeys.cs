@@ -89,6 +89,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
         }
 
+        public static string GetGroupPermissionItemsDictionaryKey(int groupId)
+        {
+            return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
+        }
+
         public static string GetFileCdnDataKey(int fileId)
         {
             return string.Format("fileCdnData_fileId_{0}", fileId);
@@ -835,6 +840,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPermissionsRolesIdsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_permissionRoleIds_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupPermissionItemsDictionaryInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
         #endregion
