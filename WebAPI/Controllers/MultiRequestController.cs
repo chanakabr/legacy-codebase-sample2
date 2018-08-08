@@ -65,13 +65,15 @@ namespace WebAPI.Controllers
                     foreach (var item in parametersList)
                     {
                         PropertyInfo propertyInfo = item.GetType().GetProperties().FirstOrDefault(property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
-                        if (propertyInfo != null)
+                        if (propertyInfo == null)
                         {
-                            var value = propertyInfo.GetValue(item);
-                            if (value != null)
-                            {
-                                valueList.Add(value);
-                            }
+                            throw new RequestParserException();
+                        }
+
+                        var value = propertyInfo.GetValue(item);
+                        if (value != null)
+                        {
+                            valueList.Add(value);
                         }
                     }
                     
