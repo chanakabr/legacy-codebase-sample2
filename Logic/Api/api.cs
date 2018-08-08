@@ -8495,7 +8495,6 @@ namespace Core.Api
                 response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId);
                 if (response.Permissions != null)
                 {
-                    response.Permissions.OrderBy(x => x.Id);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -8519,6 +8518,7 @@ namespace Core.Api
                 response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetUserPermissions(groupId, userId);
                 if (response.Permissions != null)
                 {
+                    response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
