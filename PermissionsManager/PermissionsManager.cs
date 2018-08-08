@@ -1008,11 +1008,15 @@ namespace PermissionsManager
                         foreach (JObject roleJson in roles)
                         {
                             FileRole role = roleJson.ToObject<FileRole>();
-                            rolesFromFiles.Add(role);
 
-                            if (!dictionaryRolesFromFiles.ContainsKey(role.Name))
+                            if (role != null)
                             {
-                                dictionaryRolesFromFiles.Add(role.Name, role);
+                                rolesFromFiles.Add(role);
+
+                                if (!dictionaryRolesFromFiles.ContainsKey(role.Name))
+                                {
+                                    dictionaryRolesFromFiles.Add(role.Name, role);
+                                }
                             }
                         }
                     }
@@ -1022,11 +1026,15 @@ namespace PermissionsManager
                         foreach (JObject permissionJson in permissions)
                         {
                             FilePermission permission = permissionJson.ToObject<FilePermission>();
-                            permissionsFromFiles.Add(permission);
 
-                            if (!dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
+                            if (permission != null)
                             {
-                                dictionaryPermissionsFromFiles.Add(permission.Name, permission);
+                                permissionsFromFiles.Add(permission);
+
+                                if (!dictionaryPermissionsFromFiles.ContainsKey(permission.Name))
+                                {
+                                    dictionaryPermissionsFromFiles.Add(permission.Name, permission);
+                                }
                             }
                         }
                     }
@@ -1036,11 +1044,15 @@ namespace PermissionsManager
                         foreach (JObject permissionItemJson in permissionItems)
                         {
                             FilePermissionItem permissionItem = permissionItemJson.ToObject<FilePermissionItem>();
-                            permissionItemsFromFiles.Add(permissionItem);
 
-                            if (!dictionaryPermissionItemsFromFiles.ContainsKey(permissionItem.Name))
+                            if (permissionItem != null)
                             {
-                                dictionaryPermissionItemsFromFiles.Add(permissionItem.Name, permissionItem);
+                                permissionItemsFromFiles.Add(permissionItem);
+
+                                if (!dictionaryPermissionItemsFromFiles.ContainsKey(permissionItem.Name))
+                                {
+                                    dictionaryPermissionItemsFromFiles.Add(permissionItem.Name, permissionItem);
+                                }
                             }
                         }
                     }
