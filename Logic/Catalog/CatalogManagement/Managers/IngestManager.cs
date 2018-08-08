@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -44,6 +45,22 @@ namespace Core.Catalog.CatalogManagement
                 ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "Error while loading file");
                 log.ErrorFormat("Failed loading file: {0}. groupId:{1}. Exception: {2}", xml, groupId, ex);
                 return ingestResponse;
+            }
+            ApiObjects.
+            XmlSerializer ser = new XmlSerializer(typeof(, new Type[] { typeof(StatusWrapper) });
+            XmlDocument xd = null;
+            using (MemoryStream memStm = new MemoryStream())
+            {
+                ser.Serialize(memStm, input);
+                memStm.Position = 0;
+                XmlReaderSettings settings = new XmlReaderSettings();
+                settings.IgnoreWhitespace = true;
+
+                using (var xtr = XmlReader.Create(memStm, settings))
+                {
+                    xd = new XmlDocument();
+                    xd.Load(xtr);
+                }
             }
 
             try

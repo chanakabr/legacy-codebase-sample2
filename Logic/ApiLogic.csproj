@@ -205,7 +205,6 @@
     <Compile Include="Catalog\CatalogManagement\Objects\AssetStructMeta.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\EpgAsset.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\MediaAssetXml.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\XmlAttribute.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ExcelTemplateAttribute.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaFileType.cs" />
