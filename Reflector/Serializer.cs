@@ -202,7 +202,14 @@ namespace Reflector
                         break;
 
                     case PropertyType.ENUM:
-                        value = "\"\\\"\" + Enum.GetName(typeof(" + realType + "), " + propertyName + ") + \"\\\"\"";
+                        if (serializeType == SerializeType.JSON)
+                        {
+                            value = "\"\\\"\" + Enum.GetName(typeof(" + realType + "), " + propertyName + ") + \"\\\"\"";
+                        }
+                        else
+                        {
+                            value = "\"\" + Enum.GetName(typeof(" + realType + "), " + propertyName + ") + \"\"";
+                        }
                         break;
 
                     case PropertyType.BOOLEAN:
@@ -238,7 +245,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\": \"\";");
                         }
                         break;
 
@@ -249,7 +256,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(pair => \"<itemKey>\" + pair.Key + \"</itemKey>\" + pair.Value.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(pair => \"<itemKey>\" + pair.Key + \"</itemKey>\" + pair.Value.ToXml(currentVersion, omitObsolete))) + \"</item>\" : \"\";");
                         }
                         break;
 
@@ -260,7 +267,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\" : \"\";");
                         }
                         break;
                 }

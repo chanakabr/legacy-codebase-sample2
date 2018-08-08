@@ -44,13 +44,13 @@ namespace WebAPI.Models.Users
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string IdIn { get; set; }
 
-        // TODO SHIR - SET permissions IN C:\SourceCode\Master\tvpapi_rest\permissions\permission_items\objects\kalturaottuser.json
         /// <summary>
         /// Comma separated list of role Ids.
         /// </summary>
         [DataMember(Name = "roleIdsIn")]
         [JsonProperty("roleIdsIn")]
         [XmlElement(ElementName = "roleIdsIn")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public string RoleIdsIn { get; set; }
 
         internal void Validate()
