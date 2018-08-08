@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
                         }
                     }
                     
-                    result = string.Join(", ", valueList);
+                    result = string.Join(",", valueList);
                 }
                 else
                 {

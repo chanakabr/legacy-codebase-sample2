@@ -473,33 +473,43 @@ namespace WebAPI.Clients
 
             if (roleIds != null && roleIds.Count > 0)
             {
-                List<string> filteredUsersIds = new List<string>();
-                for (int i = 0; i < usersIds.Count; i++)
+                if (usersIds == null || usersIds.Count == 0)
                 {
-                    List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
-                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    usersIds = Core.Users.Module.GetUserIdsByRoleIds(groupId, roleIds);
+                }
+                else
+                {
+                    List<string> filteredUsersIds = new List<string>();
+                    for (int i = 0; i < usersIds.Count; i++)
                     {
-                        if (roleIds.Any(userRoleIds.Contains))
+                        List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
+                        if (userRoleIds != null && userRoleIds.Count > 0)
                         {
-                            filteredUsersIds.Add(usersIds[i]);
+                            if (roleIds.Any(userRoleIds.Contains))
+                            {
+                                filteredUsersIds.Add(usersIds[i]);
+                            }
                         }
                     }
-                }
 
-                usersIds = filteredUsersIds;
-            }
-            
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.GetUsers(groupId, usersIds.ToArray(), Utils.Utils.GetClientIP());
+                    usersIds = filteredUsersIds;
                 }
             }
-            catch (Exception ex)
+
+            if (usersIds != null && usersIds.Count > 0)
             {
-                log.ErrorFormat("Error while GetUsersData. exception: {0}, ", ex);
-                ErrorUtils.HandleWSException(ex);
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        response = Core.Users.Module.GetUsers(groupId, usersIds.ToArray(), Utils.Utils.GetClientIP());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while GetUsersData. exception: {0}, ", ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
             }
 
             if (response == null || response.users == null)
@@ -516,7 +526,7 @@ namespace WebAPI.Clients
 
             return users;
         }
-
+        
         public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
         {
             UserResponse response = null;
@@ -959,7 +969,7 @@ namespace WebAPI.Clients
 
             return listItem;
         }
-
+        
         internal bool DeleteItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType)
         {
             ApiObjects.Response.Status response = null;

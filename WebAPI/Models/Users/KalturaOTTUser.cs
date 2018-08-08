@@ -235,7 +235,7 @@ namespace WebAPI.Models.Users
                 foreach (string stringValue in stringValues)
                 {
                     long value;
-                    if (long.TryParse(stringValue, out value) && value != 0)
+                    if (long.TryParse(stringValue, out value))
                     {
                         if (values.Contains(value))
                         {

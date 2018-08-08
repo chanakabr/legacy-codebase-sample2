@@ -841,25 +841,37 @@ namespace WebAPI.Controllers
             try
             {
                 HashSet<long> roleIdsIn = filter != null ? filter.GetRoleIdsIn() : null;
+                bool isOperatorAndAbove = RolesManager.GetRoleIds(KS.GetFromRequest()).Count(ur => ur > RolesManager.MASTER_ROLE_ID) > 0;
 
                 // call client
                 if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UsernameEqual) && string.IsNullOrEmpty(filter.IdIn)))
                 {
-                    // get all users of the master / itself                    
-                    List<string> householdUserIds = new List<string>();
-
-                    if (HouseholdUtils.GetHouseholdFromRequest() != null)
-                    {
-                        householdUserIds.AddRange(HouseholdUtils.GetHouseholdUserIds(groupId).Distinct());
-                    }
-                    else
-                    {
-                        string userId = KS.GetFromRequest().UserId;
-                        householdUserIds.Add(userId);
-                    }
-
                     response = new KalturaOTTUserListResponse();
+                    string userId = KS.GetFromRequest().UserId;
+                    string originalUserId = KS.GetFromRequest().OriginalUserId;
+                    if (string.IsNullOrEmpty(originalUserId))
+                    {
+                        originalUserId = userId;
+                    }
+
+                    // get all users of the master / itself                    
+                    List<string> householdUserIds = null;
+
+                    if (!userId.Equals(originalUserId) || !isOperatorAndAbove)
+                    {
+                        householdUserIds = new List<string>();
+                        if (HouseholdUtils.GetHouseholdFromRequest() != null)
+                        {
+                            householdUserIds.AddRange(HouseholdUtils.GetHouseholdUserIds(groupId).Distinct());
+                        }
+                        else
+                        {
+                            householdUserIds.Add(userId);
+                        }
+                    }
+
                     response.Users = ClientsManager.UsersClient().GetUsersData(groupId, householdUserIds, roleIdsIn);
+
                     if (response.Users != null)
                     {
                         response.TotalCount = response.Users.Count();
@@ -879,9 +891,7 @@ namespace WebAPI.Controllers
                     List<string> usersToGet = null;
                     KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
                     
-                    // TODO SHIR - ASK IRA ABOUT THIS
-                    var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest());
-                    if (household != null && userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) == 0)
+                    if (household != null && !isOperatorAndAbove)
                     {
                         var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUsers != null && householdUsers.Count > 0)
@@ -890,7 +900,7 @@ namespace WebAPI.Controllers
                         }
                     }
                     // operator +
-                    else if (userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) > 0)
+                    else if (isOperatorAndAbove)
                     {
                         usersToGet = filter.GetIdIn();
                     }
