@@ -15,7 +15,7 @@
       "permissions": [
         "Administrator"
       ],
-      "excluded_permissions": [ ],
+      "excluded_permissions": [],
       "name": "KalturaOTTUser_RoleIds_Insert",
       "object": "KalturaOTTUser",
       "parameter": "roleIds",

@@ -5,9 +5,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "Permission_List",
+      "name": "Permission_GetCurrentPermissions",
       "service": "Permission",
-      "action": "List",
+      "action": "GetCurrentPermissions",
       "type": "Action"
     },
     {
@@ -15,9 +15,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "Permission_GetCurrentPermissions",
+      "name": "Permission_List",
       "service": "Permission",
-      "action": "GetCurrentPermissions",
+      "action": "List",
       "type": "Action"
     }
   ],
