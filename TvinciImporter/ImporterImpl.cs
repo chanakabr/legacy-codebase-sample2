@@ -1724,10 +1724,10 @@ namespace TvinciImporter
 
         }
 
-        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus, int parentGroupId, out eAction action)
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus, int parentGroupId)
         {
             sErrorMessage = "";
-            action = eAction.Update; // default
+            eAction action = eAction.Update; // default
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -1926,7 +1926,7 @@ namespace TvinciImporter
 
             return true;
         }
-
+        
         private static XmlNode DownloadThumbPic(int mediaId, int groupId, string thumb, XmlNode itemName, string mainLang, Dictionary<int, string> ratiosThumb)
         {
             string sName = GetMultiLangValue(mainLang, ref itemName);
@@ -1947,6 +1947,7 @@ namespace TvinciImporter
             }
             return itemName;
         }
+
         private static void SetRatioIdsWithPicUrl(int groupId, Dictionary<string, string> ratioStrThumb, out Dictionary<int, List<string>> ratioSizesList, out Dictionary<int, string> ratiosThumb)
         {
             ratioSizesList = new Dictionary<int, List<string>>();
@@ -5084,16 +5085,8 @@ namespace TvinciImporter
                             string sCoGuid = "";
                             string sErrorMessage = "";
                             bool isActive = false;
-                            eAction action = eAction.Update;
-                            bool bProcess = ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus, nParentGroupID, out action);
-
-                            if (bProcess == false)
-                            {
-                                log.ErrorFormat("Error import mediaIndex{0}. CoGuid:{1}, MediaID:{2}, ErrorMessage:{3}", mediaIndex, sCoGuid, nMediaID, sErrorMessage);
-                                sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
-                                continue;
-                            }
-                            else
+                            
+                            if (ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus, nParentGroupID))
                             {
                                 ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
                                 ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
@@ -5102,9 +5095,10 @@ namespace TvinciImporter
 
                                 // Update record in Catalog (see the flow inside Update Index
                                 //change eAction.Delete
-                                bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
-                                if (resultMQ)
+                                if (ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update))
+                                {
                                     log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                }
                                 else
                                 {
                                     log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
@@ -5113,7 +5107,14 @@ namespace TvinciImporter
 
                                 // update notification 
                                 if (isActive)
+                                {
                                     UpdateNotificationsRequests(nGroupID, nMediaID);
+                                }
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Error import mediaIndex{0}. CoGuid:{1}, MediaID:{2}, ErrorMessage:{3}", mediaIndex, sCoGuid, nMediaID, sErrorMessage);
+                                sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
                             }
                         }
                         catch (Exception exc)
@@ -5135,7 +5136,6 @@ namespace TvinciImporter
                 }
                 catch (Exception ex)
                 {
-
                     log.ErrorFormat("Error while import media xml:{0}. GID:{1}", sXML, nGroupID);
                     sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
                 }
