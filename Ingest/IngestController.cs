@@ -2,6 +2,7 @@
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -71,10 +72,19 @@ namespace Ingest
                             {
                                 OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "VOD Ingest";
 
-                                if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
+                                // TODO SHIR - USER_NAME AND PASSWORD OF OPC
+                                if (CatalogManager.DoesGroupUsesTemplates(groupID))
                                 {
-                                    HandleMediaIngestResponse(response, request.Data, ingestResponse);
+                                    if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
+                                    {
+                                        HandleMediaIngestResponse(response, request.Data, ingestResponse);
+                                    }
                                 }
+                                else
+                                {
+                                    ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data);
+                                }
+                                
                                 break;
                             }
                         case eIngestType.Adi:
