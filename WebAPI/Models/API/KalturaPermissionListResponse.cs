@@ -5,23 +5,26 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    /// <summary>
-    /// Permissions filter
-    /// </summary>
-    public partial class KalturaPermissionsFilter : KalturaOTTObject
-    {
 
+    /// <summary>
+    /// Permissions list
+    /// </summary>
+    [DataContract(Name = "Permissions", Namespace = "")]
+    [XmlRoot("Permissions")]
+    public partial class KalturaPermissionListResponse : KalturaListResponse
+    {
         /// <summary>
-        /// The permissions identifiers
+        /// A list of permissions
         /// </summary>
-        [DataMember(Name = "ids")]
-        [JsonProperty("ids")]
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaLongValue> Ids { get; set; }
+        public List<KalturaPermission> Permissions { get; set; }
     }
 }

@@ -5,7 +5,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLiveAsset_enableCdvrState_USAGE",
+      "name": "KalturaLiveAsset_enableCdvr_USAGE",
       "object": "KalturaLiveAsset",
       "parameter": "enableCdvrState",
       "action": "USAGE",
@@ -38,9 +38,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLiveAsset_bufferCatchUpSetting_USAGE",
+      "name": "KalturaLiveAsset_bufferCatchUp_USAGE",
       "object": "KalturaLiveAsset",
-      "parameter": "bufferCatchUpSetting",
+      "parameter": "bufferCatchUp",
       "action": "USAGE",
       "type": "Parameter"
     },
@@ -49,9 +49,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLiveAsset_bufferTrickPlaySetting_USAGE",
+      "name": "KalturaLiveAsset_bufferTrickPlay_USAGE",
       "object": "KalturaLiveAsset",
-      "parameter": "bufferTrickPlaySetting",
+      "parameter": "bufferTrickPlay",
       "action": "USAGE",
       "type": "Parameter"
     },

@@ -2640,6 +2640,19 @@
             "objectType": "KalturaBillingPartnerConfig"}
             </param>        
         </member>
+        <member name="M:WebAPI.Controllers.PermissionController.GetCurrentPermissions">
+            <summary>
+            Returns permission names as comma separated string
+            </summary>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PermissionController.List(WebAPI.Models.API.KalturaPermissionFilter)">
+            <summary>
+            Retrieving permissions by identifiers, if filter is empty, returns all partner permissions
+            </summary>
+            <param name="filter">Filter for permissions</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.PersonalAssetController.List(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetRequest},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder})">
             <summary>
             Lists personal enriched data for given assets.
@@ -4647,6 +4660,16 @@
             Adapters
             </summary>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaPermissionListResponse">
+            <summary>
+            Permissions list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPermissionListResponse.Permissions">
+            <summary>
+            A list of permissions
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaAssetRuleBase">
             <summary>
             Asset rule base
@@ -5369,14 +5392,14 @@
             Adapters
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaPermissionsFilter">
+        <member name="T:WebAPI.Models.API.KalturaPermissionFilter">
             <summary>
             Permissions filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaPermissionsFilter.Ids">
+        <member name="P:WebAPI.Models.API.KalturaPermissionFilter.CurrentUserPermissionsContains">
             <summary>
-            The permissions identifiers
+            Indicates whether the results should be filtered by userId using the current
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaExportFilter">
@@ -5765,10 +5788,15 @@
             Permission name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermission.FriendlyName">
+            <summary>
+            Permission friendly name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaPermission.PermissionItems">
             <summary>
             List of permission items associated with the permission
-            </summary>
+            </summary>       
         </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>
@@ -13977,7 +14005,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Managers.RolesManager.BuildPermissionItemsDictionary(System.Collections.Generic.List{WebAPI.Models.API.KalturaUserRole})">
+        <member name="M:WebAPI.Managers.RolesManager.BuildGroupPermissionItemsDictionary(System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
             </summary>
@@ -14013,11 +14041,6 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
-        </member>
-        <member name="T:WebAPI.Swagger">
-            <summary>
-            Summary description for Swagger
-            </summary>
         </member>
         <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
             <summary>

@@ -3533,12 +3533,20 @@ namespace WebAPI.Reflection
                 case "KalturaPermission":
                     switch(property.Name)
                     {
+                        case "FriendlyName":
+                            return "friendlyName";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
-                        case "PermissionItems":
-                            return "permissionItems";
+                    }
+                    break;
+                    
+                case "KalturaPermissionFilter":
+                    switch(property.Name)
+                    {
+                        case "CurrentUserPermissionsContains":
+                            return "currentUserPermissionsContains";
                     }
                     break;
                     
@@ -3554,11 +3562,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaPermissionsFilter":
+                case "KalturaPermissionListResponse":
                     switch(property.Name)
                     {
-                        case "Ids":
-                            return "ids";
+                        case "Permissions":
+                            return "objects";
                     }
                     break;
                     
@@ -7717,6 +7725,20 @@ namespace WebAPI.Reflection
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
                             return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "permission":
+                    switch(action)
+                    {
+                        case "getcurrentpermissions":
+                            RolesManager.ValidateActionPermitted("permission", "getCurrentPermissions", false);
+                            return PermissionController.GetCurrentPermissions();
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("permission", "list", false);
+                            return PermissionController.List((KalturaPermissionFilter) methodParams[0]);
                             
                     }
                     break;
@@ -14150,6 +14172,25 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "permission":
+                    switch(action)
+                    {
+                        case "getcurrentpermissions":
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermissionFilter),
                             });
                             return ret;
                             

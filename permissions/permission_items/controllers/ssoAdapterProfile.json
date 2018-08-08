@@ -2,21 +2,11 @@
   "permission_items": [
     {
       "permissions": [
-        "Administrator"
-      ],
-      "excluded_permissions": [],
-      "name": "SsoAdapterProfile_GetConfiguration",
-      "service":  "SsoAdapterProfile",
-      "action": "GetConfiguration",
-      "type": "Action"
-    },
-    {
-      "permissions": [
         "Operator"
       ],
       "excluded_permissions": [],
       "name": "SsoAdapterProfile_List",
-      "service":  "SsoAdapterProfile",
+      "service": "SsoAdapterProfile",
       "action": "List",
       "type": "Action"
     },
@@ -26,7 +16,7 @@
       ],
       "excluded_permissions": [],
       "name": "SsoAdapterProfile_Delete",
-      "service":  "SsoAdapterProfile",
+      "service": "SsoAdapterProfile",
       "action": "Delete",
       "type": "Action"
     },
@@ -36,7 +26,7 @@
       ],
       "excluded_permissions": [],
       "name": "SsoAdapterProfile_Add",
-      "service":  "SsoAdapterProfile",
+      "service": "SsoAdapterProfile",
       "action": "Add",
       "type": "Action"
     },
@@ -46,7 +36,7 @@
       ],
       "excluded_permissions": [],
       "name": "SsoAdapterProfile_Update",
-      "service":  "SsoAdapterProfile",
+      "service": "SsoAdapterProfile",
       "action": "Update",
       "type": "Action"
     },
@@ -56,8 +46,18 @@
       ],
       "excluded_permissions": [],
       "name": "SsoAdapterProfile_GenerateSharedSecret",
-      "service":  "SsoAdapterProfile",
+      "service": "SsoAdapterProfile",
       "action": "GenerateSharedSecret",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "SsoAdapterProfile_GetConfiguration",
+      "service": "SsoAdapterProfile",
+      "action": "GetConfiguration",
       "type": "Action"
     }
   ],

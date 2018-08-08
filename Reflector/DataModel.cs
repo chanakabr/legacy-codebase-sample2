@@ -24,7 +24,7 @@ namespace Reflector
 
         }
         
-        protected override void wrtieHeader()
+        protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
@@ -47,7 +47,7 @@ namespace Reflector
             file.WriteLine("    {");
         }
 
-        protected override void wrtieBody()
+        protected override void writeBody()
         {
             wrtiePropertyApiName();
             wrtieExecAction();
@@ -55,7 +55,7 @@ namespace Reflector
             wrtieGetFailureHttpCode();
         }
 
-        protected override void wrtieFooter()
+        protected override void writeFooter()
         {
             file.WriteLine("    }");
             file.WriteLine("}");

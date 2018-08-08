@@ -10,6 +10,17 @@
       "parameter": "mediaIdEqual",
       "action": "READ",
       "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaChannelsFilter_mediaIdEqual_Read",
+      "object": "KalturaChannelsFilter",
+      "parameter": "mediaIdEqual",
+      "action": "READ",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

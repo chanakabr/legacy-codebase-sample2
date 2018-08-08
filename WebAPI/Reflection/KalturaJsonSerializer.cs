@@ -96,7 +96,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Sources != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Sources.Count > 0 ? "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("sources", "<sources>" + propertyValue + "</sources>");
             }
             return ret;
@@ -560,7 +560,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(transactions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = transactions.Count > 0 ? "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -730,7 +730,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -1312,7 +1312,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Entitlements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Entitlements.Count > 0 ? "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -1532,7 +1532,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(PremiumServices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PremiumServices.Count > 0 ? "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -1772,17 +1772,17 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Messages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("messages", "<messages>" + propertyValue + "</messages>");
             }
             if(Sources != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Sources.Count > 0 ? "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("sources", "<sources>" + propertyValue + "</sources>");
             }
             return ret;
@@ -1886,7 +1886,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(Drm != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Drm.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Drm.Count > 0 ? "<item>" + String.Join("</item><item>", Drm.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("drm", "<drm>" + propertyValue + "</drm>");
             }
             if(Format != null)
@@ -2045,7 +2045,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(FilesIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FilesIds.Count > 0 ? "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("filesIds", "<filesIds>" + propertyValue + "</filesIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -2062,7 +2062,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(SubscriptionsIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionsIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubscriptionsIds.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionsIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("subscriptionsIds", "<subscriptionsIds>" + propertyValue + "</subscriptionsIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -2380,7 +2380,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -2458,7 +2458,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -2531,7 +2531,7 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("epgId", "<epgId>" + EpgId + "</epgId>");
             if(ExcludedSeasons != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ExcludedSeasons.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ExcludedSeasons.Count > 0 ? "<item>" + String.Join("</item><item>", ExcludedSeasons.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("excludedSeasons", "<excludedSeasons>" + propertyValue + "</excludedSeasons>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
@@ -2588,7 +2588,7 @@ namespace WebAPI.Models.ConditionalAccess
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -3012,7 +3012,7 @@ namespace WebAPI.Models.ConditionalAccess
             ret.Add("date", "<date>" + Date + "</date>");
             if(Entitlements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Entitlements.Count > 0 ? "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("entitlements", "<entitlements>" + propertyValue + "</entitlements>");
             }
             if(Price != null)
@@ -3142,7 +3142,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Comments != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Comments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Comments.Count > 0 ? "<item>" + String.Join("</item><item>", Comments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("comments", "<comments>" + propertyValue + "</comments>");
             }
             if(Link != null)
@@ -3408,7 +3408,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -3526,7 +3526,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -3700,7 +3700,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4000,7 +4000,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(PermissionItems != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PermissionItems.Count > 0 ? "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actionPermissionItems", "<actionPermissionItems>" + propertyValue + "</actionPermissionItems>");
             }
             return ret;
@@ -4051,7 +4051,7 @@ namespace WebAPI.Models.Social
             string propertyValue;
             if(NetworkStatus != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = NetworkStatus.Count > 0 ? "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("failStatus", "<failStatus>" + propertyValue + "</failStatus>");
             }
             if(SocialAction != null)
@@ -4402,7 +4402,7 @@ namespace WebAPI.Models.General
             }
             if(RelatedProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedProfiles", "<relatedProfiles>" + propertyValue + "</relatedProfiles>");
             }
             return ret;
@@ -4508,7 +4508,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(!ret.ContainsKey("objectType") && objectType != null)
@@ -4614,7 +4614,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Values != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4740,7 +4740,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -4920,7 +4920,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5042,7 +5042,7 @@ namespace WebAPI.Models.General
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5354,7 +5354,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Announcements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5436,7 +5436,7 @@ namespace WebAPI.Models.Notification
             }
             if(ExtraParameters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ExtraParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ExtraParameters.Count > 0 ? "<item>" + String.Join("</item><item>", ExtraParameters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("extraParameters", "<extraParameters>" + propertyValue + "</extraParameters>");
             }
             if(FirstName != null)
@@ -5634,7 +5634,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(EngagementAdapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = EngagementAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5696,7 +5696,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Engagements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Engagements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Engagements.Count > 0 ? "<item>" + String.Join("</item><item>", Engagements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5874,7 +5874,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(FollowDataList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -5992,7 +5992,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(InboxMessages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6020,7 +6020,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(InboxMessages != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6068,7 +6068,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(FollowDataList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6096,7 +6096,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Announcements != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6556,7 +6556,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalFollowFeed != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6602,7 +6602,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalFollowFeed != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6696,7 +6696,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(PersonalListList != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -6836,7 +6836,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Reminders != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Reminders.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Reminders.Count > 0 ? "<item>" + String.Join("</item><item>", Reminders.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7004,7 +7004,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Topics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7032,7 +7032,7 @@ namespace WebAPI.Models.Notification
             string propertyValue;
             if(Topics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7076,7 +7076,7 @@ namespace WebAPI.App_Start
             string propertyValue;
             if(args != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", args.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = args.Count > 0 ? "<item>" + String.Join("</item><item>", args.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("args", "<args>" + propertyValue + "</args>");
             }
             if(code != null)
@@ -7280,12 +7280,12 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(MediaFiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaFiles.Count > 0 ? "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaFiles", "<mediaFiles>" + propertyValue + "</mediaFiles>");
             }
             if(Metas != null)
@@ -7400,7 +7400,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Bookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7482,7 +7482,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7516,7 +7516,7 @@ namespace WebAPI.Models.Catalog
             ret.Add("count", "<count>" + Count + "</count>");
             if(SubCounts != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubCounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubCounts.Count > 0 ? "<item>" + String.Join("</item><item>", SubCounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("subs", "<subs>" + propertyValue + "</subs>");
             }
             if(Value != null)
@@ -7550,7 +7550,7 @@ namespace WebAPI.Models.Catalog
             ret.Add("assetsCount", "<assetsCount>" + AssetsCount + "</assetsCount>");
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7769,7 +7769,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && filterTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", filterTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = filterTypes.Count > 0 ? "<item>" + String.Join("</item><item>", filterTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("filterTypes", "<filterTypes>" + propertyValue + "</filterTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -7790,7 +7790,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && with != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", with.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = with.Count > 0 ? "<item>" + String.Join("</item><item>", with.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("with", "<with>" + propertyValue + "</with>");
             }
             return ret;
@@ -7818,7 +7818,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -7951,7 +7951,7 @@ namespace WebAPI.Models.Catalog
             }
             if(IDs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = IDs.Count > 0 ? "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             ret.Add("referenceType", "<referenceType>" + "" + Enum.GetName(typeof(KalturaCatalogReferenceBy), ReferenceType) + "" + "</referenceType>");
@@ -7992,7 +7992,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(RequestId != null)
@@ -8028,7 +8028,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8082,7 +8082,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsBookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8118,7 +8118,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8150,7 +8150,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Assets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assets", "<assets>" + propertyValue + "</assets>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -8244,7 +8244,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsStatistics != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsStatistics.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8440,7 +8440,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetStructs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetStructs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetStructs.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8552,7 +8552,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetStructMetas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetStructMetas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetStructMetas.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructMetas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -8618,12 +8618,12 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(MediaFiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaFiles.Count > 0 ? "<item>" + String.Join("</item><item>", MediaFiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaFiles", "<mediaFiles>" + propertyValue + "</mediaFiles>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -8698,7 +8698,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(GroupBy != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = GroupBy.Count > 0 ? "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("groupBy", "<groupBy>" + propertyValue + "</groupBy>");
             }
             if(Ksql != null)
@@ -8810,7 +8810,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && AssetIn != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetIn.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetIn.Count > 0 ? "<item>" + String.Join("</item><item>", AssetIn.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetIn", "<assetIn>" + propertyValue + "</assetIn>");
             }
             if(AssetTypeEqual.HasValue)
@@ -8842,7 +8842,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(AssetsBookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9114,7 +9114,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -9142,7 +9142,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(IsActive.HasValue)
@@ -9151,7 +9151,7 @@ namespace WebAPI.Models.Catalog
             }
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && MediaTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaTypes.Count > 0 ? "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("media_types", "<media_types>" + propertyValue + "</media_types>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
@@ -9278,7 +9278,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9415,7 +9415,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(!ret.ContainsKey("assetTypes") && !isOldVersion && AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
             }
             if(!ret.ContainsKey("groupBy") && !isOldVersion && GroupBy != null)
@@ -9494,7 +9494,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Assets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             if(ChannelID.HasValue)
@@ -9534,7 +9534,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -9590,7 +9590,7 @@ namespace WebAPI.Models.Catalog
             }
             if(IDs != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = IDs.Count > 0 ? "<item>" + String.Join("</item><item>", IDs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             if(StartTime.HasValue)
@@ -9742,7 +9742,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9872,7 +9872,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(ImageTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ImageTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ImageTypes.Count > 0 ? "<item>" + String.Join("</item><item>", ImageTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -9933,7 +9933,7 @@ namespace WebAPI.Models.Catalog
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             if(Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaLastPositionAssetType), Type) + "" + "</type>");
@@ -9962,7 +9962,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(LastPositions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = LastPositions.Count > 0 ? "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10532,7 +10532,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Files != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Files.Count > 0 ? "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10668,7 +10668,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Types != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Types.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Types.Count > 0 ? "<item>" + String.Join("</item><item>", Types.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10808,12 +10808,12 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(ChildCategories != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ChildCategories.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ChildCategories.Count > 0 ? "<item>" + String.Join("</item><item>", ChildCategories.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("childCategories", "<childCategories>" + propertyValue + "</childCategories>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -10826,7 +10826,7 @@ namespace WebAPI.Models.Catalog
             }
             if(Images != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
             if(Name != null)
@@ -10877,12 +10877,12 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Bookmarks != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("bookmarks", "<bookmarks>" + propertyValue + "</bookmarks>");
             }
             if(Files != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Files.Count > 0 ? "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("files", "<files>" + propertyValue + "</files>");
             }
             ret.Add("following", "<following>" + Following.ToString().ToLower() + "</following>");
@@ -10916,7 +10916,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -10953,7 +10953,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(FileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>";
+                propertyValue = FileIds.Count > 0 ? "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>" : "";
                 ret.Add("fileIds", "<fileIds>" + propertyValue + "</fileIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -11260,7 +11260,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Ratios != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ratios.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ratios.Count > 0 ? "<item>" + String.Join("</item><item>", Ratios.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11574,7 +11574,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11674,7 +11674,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11830,7 +11830,7 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -11893,12 +11893,12 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Conditions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
             return ret;
@@ -11992,7 +11992,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12025,12 +12025,12 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Actions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             if(Conditions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
             return ret;
@@ -12084,7 +12084,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12196,7 +12196,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Adapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12311,7 +12311,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(AssetTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>";
+                propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>" : "";
                 ret.Add("assetTypes", "<assetTypes>" + propertyValue + "</assetTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -12498,7 +12498,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12596,7 +12596,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12624,7 +12624,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12652,7 +12652,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12754,7 +12754,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Adapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -12782,7 +12782,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ids.Count > 0 ? "<item>" + String.Join("</item><item>", ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -12906,7 +12906,7 @@ namespace WebAPI.Models.API
             }
             if(VodTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = VodTypes.Count > 0 ? "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("vodTypes", "<vodTypes>" + propertyValue + "</vodTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -12964,7 +12964,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13032,7 +13032,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Enrichments != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Enrichments.Count > 0 ? "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("enrichments", "<enrichments>" + propertyValue + "</enrichments>");
             }
             if(ExternalIdentifier != null)
@@ -13100,7 +13100,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13230,7 +13230,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(GenericRules != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = GenericRules.Count > 0 ? "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13370,7 +13370,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13436,7 +13436,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13678,7 +13678,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Metas != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Metas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13840,7 +13840,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(OSSAdapterProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = OSSAdapterProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -13959,7 +13959,7 @@ namespace WebAPI.Models.API
             }
             if(epgTagValues != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", epgTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = epgTagValues.Count > 0 ? "<item>" + String.Join("</item><item>", epgTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("epgTagValues", "<epgTagValues>" + propertyValue + "</epgTagValues>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -13986,7 +13986,7 @@ namespace WebAPI.Models.API
             }
             if(mediaTagValues != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", mediaTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = mediaTagValues.Count > 0 ? "<item>" + String.Join("</item><item>", mediaTagValues.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("mediaTagValues", "<mediaTagValues>" + propertyValue + "</mediaTagValues>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -14062,7 +14062,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(ParentalRule != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ParentalRule.Count > 0 ? "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14075,6 +14075,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(FriendlyName != null)
+            {
+                ret.Add("friendlyName", "\"friendlyName\": " + "\"" + EscapeJson(FriendlyName) + "\"");
+            }
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -14082,11 +14086,6 @@ namespace WebAPI.Models.API
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            if(PermissionItems != null)
-            {
-                propertyValue = "[" + String.Join(", ", PermissionItems.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("permissionItems", "\"permissionItems\": " + propertyValue);
             }
             return ret;
         }
@@ -14096,6 +14095,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(FriendlyName != null)
+            {
+                ret.Add("friendlyName", "<friendlyName>" + EscapeXml(FriendlyName) + "</friendlyName>");
+            }
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -14104,10 +14107,31 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            if(PermissionItems != null)
+            return ret;
+        }
+    }
+    public partial class KalturaPermissionFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CurrentUserPermissionsContains.HasValue)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
-                ret.Add("permissionItems", "<permissionItems>" + propertyValue + "</permissionItems>");
+                ret.Add("currentUserPermissionsContains", "\"currentUserPermissionsContains\": " + CurrentUserPermissionsContains.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CurrentUserPermissionsContains.HasValue)
+            {
+                ret.Add("currentUserPermissionsContains", "<currentUserPermissionsContains>" + CurrentUserPermissionsContains.ToString().ToLower() + "</currentUserPermissionsContains>");
             }
             return ret;
         }
@@ -14148,17 +14172,17 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaPermissionsFilter
+    public partial class KalturaPermissionListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(Ids != null)
+            if(Permissions != null)
             {
-                propertyValue = "[" + String.Join(", ", Ids.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("ids", "\"ids\": " + propertyValue);
+                propertyValue = "[" + String.Join(", ", Permissions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
             }
             return ret;
         }
@@ -14168,10 +14192,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(Ids != null)
+            if(Permissions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
-                ret.Add("ids", "<ids>" + propertyValue + "</ids>");
+                propertyValue = Permissions.Count > 0 ? "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }
@@ -14434,7 +14458,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(RecommendationProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RecommendationProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14482,7 +14506,7 @@ namespace WebAPI.Models.API
             }
             if(RegionalChannels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RegionalChannels.Count > 0 ? "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("linearChannels", "<linearChannels>" + propertyValue + "</linearChannels>");
             }
             return ret;
@@ -14558,7 +14582,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Regions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Regions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Regions.Count > 0 ? "<item>" + String.Join("</item><item>", Regions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14620,7 +14644,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(RegistrySettings != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RegistrySettings.Count > 0 ? "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -14762,7 +14786,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15118,7 +15142,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(Rules != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Rules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Rules.Count > 0 ? "<item>" + String.Join("</item><item>", Rules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15178,7 +15202,7 @@ namespace WebAPI.Models.API
             }
             if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && Permissions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Permissions.Count > 0 ? "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("permissions", "<permissions>" + propertyValue + "</permissions>");
             }
             return ret;
@@ -15222,7 +15246,7 @@ namespace WebAPI.Models.API
             }
             if(!omitObsolete && Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -15250,7 +15274,7 @@ namespace WebAPI.Models.API
             string propertyValue;
             if(UserRoles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserRoles.Count > 0 ? "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15292,7 +15316,7 @@ namespace WebAPI.Models.Pricing
             ret.Add("asset_type", "<asset_type>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</asset_type>");
             if(FilePrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FilePrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FilePrices.Count > 0 ? "<item>" + String.Join("</item><item>", FilePrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("file_prices", "<file_prices>" + propertyValue + "</file_prices>");
             }
             return ret;
@@ -15374,12 +15398,12 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(CouponGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = CouponGroups.Count > 0 ? "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("couponsGroups", "<couponsGroups>" + propertyValue + "</couponsGroups>");
             }
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
@@ -15411,7 +15435,7 @@ namespace WebAPI.Models.Pricing
             }
             if(ProductCodes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductCodes.Count > 0 ? "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("productCodes", "<productCodes>" + propertyValue + "</productCodes>");
             }
             if(StartDate.HasValue)
@@ -15482,7 +15506,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Collections != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Collections.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Collections.Count > 0 ? "<item>" + String.Join("</item><item>", Collections.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15660,7 +15684,7 @@ namespace WebAPI.Models.Pricing
             }
             if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(!DeprecatedAttribute.IsDeprecated("4.8.2.0", currentVersion) && DiscountCode.HasValue)
@@ -15740,7 +15764,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(couponsGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", couponsGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = couponsGroups.Count > 0 ? "<item>" + String.Join("</item><item>", couponsGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15803,7 +15827,7 @@ namespace WebAPI.Models.Pricing
             }
             if(MultiCurrencyDiscount != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MultiCurrencyDiscount.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MultiCurrencyDiscount.Count > 0 ? "<item>" + String.Join("</item><item>", MultiCurrencyDiscount.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("multiCurrencyDiscount", "<multiCurrencyDiscount>" + propertyValue + "</multiCurrencyDiscount>");
             }
             if(name != null)
@@ -15862,7 +15886,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Discounts != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Discounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Discounts.Count > 0 ? "<item>" + String.Join("</item><item>", Discounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -15968,7 +15992,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVPriceDetails != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVPriceDetails.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVPriceDetails.Count > 0 ? "<item>" + String.Join("</item><item>", PPVPriceDetails.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvPriceDetails", "<ppvPriceDetails>" + propertyValue + "</ppvPriceDetails>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16000,7 +16024,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ItemPrice != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ItemPrice.Count > 0 ? "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -16078,7 +16102,7 @@ namespace WebAPI.Models.Pricing
             }
             if(Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(DiscountModule != null)
@@ -16088,7 +16112,7 @@ namespace WebAPI.Models.Pricing
             }
             if(FileTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
             }
             if(FirstDeviceLimitation.HasValue)
@@ -16339,7 +16363,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVDescriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVDescriptions.Count > 0 ? "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvDescriptions", "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16398,7 +16422,7 @@ namespace WebAPI.Models.Pricing
             }
             if(RelatedMediaFileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedMediaFileIds.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedMediaFileIds", "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -16545,7 +16569,7 @@ namespace WebAPI.Models.Pricing
             }
             if(PPVDescriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PPVDescriptions.Count > 0 ? "<item>" + String.Join("</item><item>", PPVDescriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ppvDescriptions", "<ppvDescriptions>" + propertyValue + "</ppvDescriptions>");
             }
             if(PPVModuleId != null)
@@ -16570,7 +16594,7 @@ namespace WebAPI.Models.Pricing
             }
             if(RelatedMediaFileIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = RelatedMediaFileIds.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedMediaFileIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("relatedMediaFileIds", "<relatedMediaFileIds>" + propertyValue + "</relatedMediaFileIds>");
             }
             if(StartDate.HasValue)
@@ -16748,7 +16772,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(Id.HasValue)
@@ -16757,7 +16781,7 @@ namespace WebAPI.Models.Pricing
             }
             if(MultiCurrencyPrice != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MultiCurrencyPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MultiCurrencyPrice.Count > 0 ? "<item>" + String.Join("</item><item>", MultiCurrencyPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("multiCurrencyPrice", "<multiCurrencyPrice>" + propertyValue + "</multiCurrencyPrice>");
             }
             if(name != null)
@@ -16820,7 +16844,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Prices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Prices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Prices.Count > 0 ? "<item>" + String.Join("</item><item>", Prices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -16964,7 +16988,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(PricePlans != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PricePlans.Count > 0 ? "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17088,7 +17112,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ProductsPrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17116,7 +17140,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(ProductsPrices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17438,12 +17462,12 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Channels != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
             if(CouponGroups != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = CouponGroups.Count > 0 ? "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("couponsGroups", "<couponsGroups>" + propertyValue + "</couponsGroups>");
             }
             if(!DeprecatedAttribute.IsDeprecated("4.3.0.0", currentVersion) && CouponsGroup != null)
@@ -17459,7 +17483,7 @@ namespace WebAPI.Models.Pricing
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Descriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
             }
             if(DiscountModule != null)
@@ -17485,7 +17509,7 @@ namespace WebAPI.Models.Pricing
             }
             if(FileTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17556,12 +17580,12 @@ namespace WebAPI.Models.Pricing
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             if(!DeprecatedAttribute.IsDeprecated("3.6.287.27312", currentVersion) && Names != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Names.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Names.Count > 0 ? "<item>" + String.Join("</item><item>", Names.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("names", "<names>" + propertyValue + "</names>");
             }
             if(PremiumServices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PremiumServices.Count > 0 ? "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("premiumServices", "<premiumServices>" + propertyValue + "</premiumServices>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17588,7 +17612,7 @@ namespace WebAPI.Models.Pricing
             }
             if(!DeprecatedAttribute.IsDeprecated("4.5.0.0", currentVersion) && PricePlans != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PricePlans.Count > 0 ? "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("pricePlans", "<pricePlans>" + propertyValue + "</pricePlans>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17605,7 +17629,7 @@ namespace WebAPI.Models.Pricing
             }
             if(ProductCodes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ProductCodes.Count > 0 ? "<item>" + String.Join("</item><item>", ProductCodes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("productCodes", "<productCodes>" + propertyValue + "</productCodes>");
             }
             if(ProrityInOrder.HasValue)
@@ -17634,7 +17658,7 @@ namespace WebAPI.Models.Pricing
             }
             if(UserTypes != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserTypes.Count > 0 ? "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("userTypes", "<userTypes>" + propertyValue + "</userTypes>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -17776,7 +17800,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(Subscriptions != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Subscriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17942,7 +17966,7 @@ namespace WebAPI.Models.Pricing
             string propertyValue;
             if(SubscriptionSets != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SubscriptionSets.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -17972,7 +17996,7 @@ namespace WebAPI.Models.Pricing
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaSubscriptionsFilterBy), By) + "" + "</by>");
             if(Ids != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Ids.Count > 0 ? "<item>" + String.Join("</item><item>", Ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("ids", "<ids>" + propertyValue + "</ids>");
             }
             return ret;
@@ -18394,7 +18418,7 @@ namespace WebAPI.Models.Users
             }
             if(!omitObsolete && MediaIds != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MediaIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MediaIds.Count > 0 ? "<item>" + String.Join("</item><item>", MediaIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("media_ids", "<media_ids>" + propertyValue + "</media_ids>");
             }
             if(MediaTypeEqual.HasValue)
@@ -18442,7 +18466,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(Favorites != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Favorites.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Favorites.Count > 0 ? "<item>" + String.Join("</item><item>", Favorites.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -18944,7 +18968,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(Users != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19176,7 +19200,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(SSOAdapters != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", SSOAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = SSOAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", SSOAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19209,7 +19233,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(List != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", List.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = List.Count > 0 ? "<item>" + String.Join("</item><item>", List.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("list", "<list>" + propertyValue + "</list>");
             }
             ret.Add("listType", "<listType>" + "" + Enum.GetName(typeof(KalturaUserAssetsListType), ListType) + "" + "</listType>");
@@ -19388,7 +19412,7 @@ namespace WebAPI.Models.Users
             string propertyValue;
             if(UserInterests != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = UserInterests.Count > 0 ? "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19662,7 +19686,7 @@ namespace WebAPI.Models.Partner
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19764,7 +19788,7 @@ namespace WebAPI.Models.Upload
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -19870,7 +19894,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(ConfigurationIdentifiers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = ConfigurationIdentifiers.Count > 0 ? "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("configurationIdentifiers", "<configurationIdentifiers>" + propertyValue + "</configurationIdentifiers>");
             }
             if(Id != null)
@@ -19886,7 +19910,7 @@ namespace WebAPI.Models.DMS
             ret.Add("partnerId", "<partnerId>" + PartnerId + "</partnerId>");
             if(Tags != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("tags", "<tags>" + propertyValue + "</tags>");
             }
             return ret;
@@ -19976,7 +20000,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20004,7 +20028,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20094,7 +20118,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20254,7 +20278,7 @@ namespace WebAPI.Models.DMS
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20490,7 +20514,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(!omitObsolete && Devices != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Devices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Devices.Count > 0 ? "<item>" + String.Join("</item><item>", Devices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("devices", "<devices>" + propertyValue + "</devices>");
             }
             return ret;
@@ -20696,7 +20720,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -20864,7 +20888,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && DefaultUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DefaultUsers.Count > 0 ? "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("defaultUsers", "<defaultUsers>" + propertyValue + "</defaultUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20877,7 +20901,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && DeviceFamilies != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamilies.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DeviceFamilies.Count > 0 ? "<item>" + String.Join("</item><item>", DeviceFamilies.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("deviceFamilies", "<deviceFamilies>" + propertyValue + "</deviceFamilies>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20938,7 +20962,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && MasterUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", MasterUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = MasterUsers.Count > 0 ? "<item>" + String.Join("</item><item>", MasterUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("masterUsers", "<masterUsers>" + propertyValue + "</masterUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20951,7 +20975,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && PendingUsers != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PendingUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PendingUsers.Count > 0 ? "<item>" + String.Join("</item><item>", PendingUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("pendingUsers", "<pendingUsers>" + propertyValue + "</pendingUsers>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -20980,7 +21004,7 @@ namespace WebAPI.Models.Domains
             }
             if(!omitObsolete && Users != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("users", "<users>" + propertyValue + "</users>");
             }
             if(UsersLimit.HasValue)
@@ -21218,7 +21242,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21330,7 +21354,7 @@ namespace WebAPI.Models.Domains
             }
             if(DeviceFamiliesLimitations != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", DeviceFamiliesLimitations.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = DeviceFamiliesLimitations.Count > 0 ? "<item>" + String.Join("</item><item>", DeviceFamiliesLimitations.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("deviceFamiliesLimitations", "<deviceFamiliesLimitations>" + propertyValue + "</deviceFamiliesLimitations>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -21512,7 +21536,7 @@ namespace WebAPI.Models.Domains
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21608,7 +21632,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21720,7 +21744,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Objects != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -21822,7 +21846,7 @@ namespace WebAPI.Models.Billing
             }
             if(!omitObsolete && PaymentMethods != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentMethods.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("paymentMethods", "<paymentMethods>" + propertyValue + "</paymentMethods>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -21866,7 +21890,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(Configuration != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", Configuration.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = Configuration.Count > 0 ? "<item>" + String.Join("</item><item>", Configuration.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("paymentGatewayConfiguration", "<paymentGatewayConfiguration>" + propertyValue + "</paymentGatewayConfiguration>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -22112,7 +22136,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(PaymentGatewayProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentGatewayProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -22168,7 +22192,7 @@ namespace WebAPI.Models.Billing
             }
             if(HouseholdPaymentMethods != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", HouseholdPaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = HouseholdPaymentMethods.Count > 0 ? "<item>" + String.Join("</item><item>", HouseholdPaymentMethods.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("householdPaymentMethods", "<householdPaymentMethods>" + propertyValue + "</householdPaymentMethods>");
                 if (currentVersion == null || isOldVersion)
                 {
@@ -22292,7 +22316,7 @@ namespace WebAPI.Models.Billing
             string propertyValue;
             if(PaymentMethodProfiles != null)
             {
-                propertyValue = "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
+                propertyValue = PaymentMethodProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
