@@ -237,7 +237,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     else
                     {
                         allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
-                    }                    
+                    }
 
                     if (allChannels == null || allChannels.Count == 0)
                     {
@@ -251,8 +251,18 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     foreach (Channel currentChannel in allChannels)
                     {
-                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
+                        if (currentChannel == null)
+                        {
+                            log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
                             continue;
+                        }
+
+                        // if group uses templates - index inactive channel as well
+                        if (!doesGroupUsesTemplates && currentChannel.m_nIsActive != 1)
+                        {
+                            log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
+                            continue;
+                        }
 
                         string channelQuery = string.Empty;
 
