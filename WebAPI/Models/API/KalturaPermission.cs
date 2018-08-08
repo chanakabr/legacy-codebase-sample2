@@ -40,11 +40,7 @@ namespace WebAPI.Models.API
 
         /// <summary>
         /// List of permission items associated with the permission
-        /// </summary>
-        [DataMember(Name = "permissionItems")]
-        [JsonProperty("permissionItems")]
-        [XmlArray(ElementName = "permissionItems", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPermissionItem> PermissionItems { get; set; }
+        /// </summary>       
+        internal List<KalturaPermissionItem> PermissionItems { get; set; }
     }
 }

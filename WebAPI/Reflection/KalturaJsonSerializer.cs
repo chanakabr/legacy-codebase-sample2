@@ -14075,6 +14075,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(FriendlyName != null)
+            {
+                ret.Add("friendlyName", "\"friendlyName\": " + "\"" + EscapeJson(FriendlyName) + "\"");
+            }
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -14082,11 +14086,6 @@ namespace WebAPI.Models.API
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            if(PermissionItems != null)
-            {
-                propertyValue = "[" + String.Join(", ", PermissionItems.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("permissionItems", "\"permissionItems\": " + propertyValue);
             }
             return ret;
         }
@@ -14096,6 +14095,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(FriendlyName != null)
+            {
+                ret.Add("friendlyName", "<friendlyName>" + EscapeXml(FriendlyName) + "</friendlyName>");
+            }
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -14103,11 +14106,6 @@ namespace WebAPI.Models.API
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
-            if(PermissionItems != null)
-            {
-                propertyValue = "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>";
-                ret.Add("permissionItems", "<permissionItems>" + propertyValue + "</permissionItems>");
             }
             return ret;
         }

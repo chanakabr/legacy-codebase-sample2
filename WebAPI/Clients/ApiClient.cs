@@ -2459,19 +2459,6 @@ namespace WebAPI.Clients
             return roles;
         }
 
-        internal List<KalturaUserRole> GetRoles()
-        {
-            try
-            {
-                return GetRoles(1);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Failed to get roles for default group (api_1)", ex);
-                return null;
-            }
-        }
-
         internal KalturaPermissionListResponse GetPermissions(int groupId, long userId)
         {
             KalturaPermissionListResponse result = new KalturaPermissionListResponse();
@@ -2480,7 +2467,14 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetUserPermissions(groupId, userId);
+                    if (userId > 0)
+                    {
+                        response = Core.Api.Module.GetUserPermissions(groupId, userId.ToString());
+                    }
+                    else
+                    {
+                        response = Core.Api.Module.GetGroupPermissions(groupId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -2505,7 +2499,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal string GetCurrentGroupPermissions(int groupId)
+        internal string GetCurrentUserPermissions(int groupId, string userId)
         {
             string result = string.Empty;
 
@@ -2513,7 +2507,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    result = Core.Api.Module.GetCurrentGroupPermissions(groupId);
+                    result = Core.Api.Module.GetCurrentUserPermissions(groupId, userId);
                 }
             }
             catch (Exception ex)

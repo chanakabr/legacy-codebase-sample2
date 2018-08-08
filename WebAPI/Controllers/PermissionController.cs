@@ -27,11 +27,12 @@ namespace WebAPI.Controllers
         {
             string response = null;
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetCurrentGroupPermissions(groupId);
+                response = ClientsManager.ApiClient().GetCurrentUserPermissions(groupId, userId.ToString());
             }
             catch (ClientException ex)
             {

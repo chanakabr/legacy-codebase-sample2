@@ -126,10 +126,5 @@ namespace WebAPI.Managers.Models
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 
-        [JsonIgnore]       
-        public Dictionary<string, Dictionary<long, Tuple<string, bool>>> PermissionItemsRolesMapping { get; set; }
-
-        [JsonIgnore]
-        public Dictionary<long, string> RolesIdsNamesMapping { get; set; }
     }
 }

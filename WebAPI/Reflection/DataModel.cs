@@ -3533,12 +3533,12 @@ namespace WebAPI.Reflection
                 case "KalturaPermission":
                     switch(property.Name)
                     {
+                        case "FriendlyName":
+                            return "friendlyName";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
-                        case "PermissionItems":
-                            return "permissionItems";
                     }
                     break;
                     
@@ -14186,6 +14186,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,

@@ -97,9 +97,6 @@ namespace WebAPI.App_Start
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
         {
-            if (request.GetRouteData().Route.RouteTemplate.ToLower().Contains("swagger"))
-                return response;
-
             object content = null;
             string message = "";
             int subCode = (int)StatusCode.OK;

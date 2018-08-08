@@ -214,7 +214,6 @@
     <Content Include="ws_domains_module.asmx" />
     <Content Include="ws_cas_module.asmx" />
     <Content Include="ws_billing_module.asmx" />
-    <Content Include="Swagger.ashx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
@@ -891,7 +890,6 @@
     <Compile Include="Exceptions\ClientException.cs" />
     <Compile Include="ObjectsConvertor\CatalogConvertor.cs" />
     <Compile Include="Filters\AutoMapperConfig.cs" />
-    <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WrappingHandler.cs" />
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="ObjectsConvertor\Mapping\BillingMappings.cs" />
@@ -961,9 +959,6 @@
     <Compile Include="Reflection\KalturaJsonDeserializer.cs" />
     <Compile Include="Reflection\KalturaJsonSerializer.cs" />
     <Compile Include="Reflection\MethodParam.cs" />
-    <Compile Include="Swagger.ashx.cs">
-      <DependentUpon>Swagger.ashx</DependentUpon>
-    </Compile>
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\DrmUtils.cs" />

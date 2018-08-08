@@ -5796,7 +5796,7 @@
         <member name="P:WebAPI.Models.API.KalturaPermission.PermissionItems">
             <summary>
             List of permission items associated with the permission
-            </summary>
+            </summary>       
         </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>
@@ -14005,7 +14005,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Managers.RolesManager.BuildPermissionItemsDictionary(System.Collections.Generic.List{WebAPI.Models.API.KalturaUserRole})">
+        <member name="M:WebAPI.Managers.RolesManager.BuildGroupPermissionItemsDictionary(System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
             </summary>
@@ -14041,11 +14041,6 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
-        </member>
-        <member name="T:WebAPI.Swagger">
-            <summary>
-            Summary description for Swagger
-            </summary>
         </member>
         <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
             <summary>
