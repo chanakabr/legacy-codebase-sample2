@@ -692,7 +692,7 @@ namespace Core.Catalog.CatalogManagement
             return sRules;
         }
 
-        private static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
+        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
         {
             ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
