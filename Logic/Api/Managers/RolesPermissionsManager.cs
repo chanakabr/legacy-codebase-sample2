@@ -195,8 +195,9 @@ namespace APILogic.Api.Managers
             {
                 string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                string permissionsManagerInvalidationKey = LayeredCacheKeys.PermissionsManagerInvalidationKey();
                 if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                            LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
+                                                            LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey, permissionsManagerInvalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
@@ -242,8 +243,9 @@ namespace APILogic.Api.Managers
                 List<Role> roles = null;
                 string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                string permissionsManagerInvalidationKey = LayeredCacheKeys.PermissionsManagerInvalidationKey();
                 if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
+                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey, permissionsManagerInvalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
@@ -303,6 +305,23 @@ namespace APILogic.Api.Managers
             {
                 log.Error(string.Format("Failed GetCurrentUserPermissions for groupId: {0}, userId: {1}", groupId, userId), ex);
 
+            }
+
+            return result;
+        }
+
+        public static bool SetAllInvalidaitonKeysRelatedPermissions(int groupId)
+        {
+            bool result = false;
+            try
+            {
+                string permissionRolesInvalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                string permissionItemsDictionaryInvalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                result = LayeredCache.Instance.SetInvalidationKey(permissionRolesInvalidationKey) && LayeredCache.Instance.SetInvalidationKey(permissionItemsDictionaryInvalidationKey);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("SetAllInvalidaitonKeysRelatedPermissions failed, groupId : {0}", groupId), ex);
             }
 
             return result;

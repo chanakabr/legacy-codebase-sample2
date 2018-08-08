@@ -212,10 +212,9 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Roles = new List<Role>() { role };
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
@@ -254,10 +253,9 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Roles = new List<Role>() { role };
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
@@ -304,10 +302,9 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
