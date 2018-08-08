@@ -79,13 +79,41 @@ namespace APILogic.Api.Managers
 
             return roleIds;
         }
-      
+
+        private static Tuple<List<Role>, bool> GetRolesByGroupId(Dictionary<string, object> funcParams)
+        {
+            List<Role> roles = new List<Role>();
+            bool res = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+
+                    if (groupId.HasValue)
+                    {
+                        roles = ApiDAL.GetRoles(groupId.Value, null); // get all roles for this group
+                        if (roles != null && roles.Any())
+                        {
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRolesByGroupId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<Role>, bool>(roles, res);
+        }
+
         public static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
         {
             try
             {
                 // Looks like this code was wrong. it should be reviewed by someone else
-                //if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
+                //if (string.IsNullOrEmpty(userId) || userId == "0")// anonymous
                 //{
                 //    return true;
                 //}
@@ -115,102 +143,70 @@ namespace APILogic.Api.Managers
 
         internal static bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem)
         {
+            bool result = false;
             try
-            {
+            {                
                 if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
                 {
-                    return true;
+                    result = true;
                 }
-
-                List<Role> roles = null;
-                string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
-                string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
+                else
                 {
-                    log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
-                }
-                
-                if (roles != null && roles.Any())
-                {
-                    List<long> userRoleIDs = GetRoleIds(groupId, userId);
-                    if (userRoleIDs != null && userRoleIDs.Any())
+                    // get list of all user permissions 
+                    List<Permission> permissions = GetUserPermissions(groupId, userId);
+                    if (permissions != null && permissions.Any())
                     {
-                        // get list of all user permissions 
-                        List<Permission> permissions = roles.Where(x=> userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).ToList();
-                        if (permissions != null && permissions.Any())
-                        {
-                            var permissionItems = permissions.Where(x => x.PermissionItems != null).SelectMany(x => x.PermissionItems).ToList();
-
-                            if (permissionItems != null && permissionItems.Where(x => x.Name.ToLower() == permissionItem.ToLower() && x.IsExcluded).Any())
-                            {
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        List<PermissionItem> permissionItems = permissions.Where(x => x.PermissionItems != null).SelectMany(x => x.PermissionItems).ToList();
+                        result = permissionItems != null && permissionItems.Any(x => x.Name.ToLower() == permissionItem.ToLower() && !x.IsExcluded);
                     }
                 }
             }
             catch (Exception ex)
             {
+                log.Error(string.Format("Failed IsPermittedPermissionItem, groupId: {0}, userId: {1}, permissionItem: {2}", groupId, userId, permissionItem), ex);
             }
-            return true;
+
+            return result;
         }
 
         internal static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
         {
+            Dictionary<string, List<KeyValuePair<long, bool>>> result = null;
             try
             {
-                List<Role> roles = null;
-                string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
-                string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
-                {
-                    log.ErrorFormat("Failed getting GetPermissionRoleByGroup from LayeredCache, groupId: {0}, key: {1}", groupId, key);
-                }
-
+                List<Role> roles = GetRolesByGroupId(groupId);
                 if (roles != null && roles.Any())
                 {
-                    return BuildPermissionItemsDictionary(roles);
+                    result = BuildPermissionItemsDictionary(roles);
                 }                
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("GetPermissionRoleByGroup failed, groupId : {0}, ex : {1}", groupId, ex);
             }
-            return null;
+
+            return result;
         }
 
-        private static Tuple<List<Role>, bool> GetRolesByGroupId(Dictionary<string, object> funcParams)
+        public static List<Role> GetRolesByGroupId(int groupId)
         {
-            List<Role> roles = new List<Role>();
-            bool res = false;
+            List<Role> roles = null;
             try
             {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                            LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
                 {
-                    int? groupId = funcParams["groupId"] as int?;
-
-                    if (groupId.HasValue)
-                    {
-                        roles = ApiDAL.GetRoles(groupId.Value, null); // get all roles for this group
-                        if (roles != null && roles.Any())
-                        {
-                            res = true;
-                        }
-                    }
+                    log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetRolesByGroupId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.ErrorFormat("GetRolesByGroupId failed, groupId : {0}, ex : {1}", groupId, ex);
             }
 
-            return new Tuple<List<Role>, bool>(roles, res);
+            return roles;
         }
 
         public static Status GetSuspentionStatus(int groupId, int householdId)
@@ -238,37 +234,71 @@ namespace APILogic.Api.Managers
             return status;
         }
 
-        public static List<Permission> GetUserPermissions(int groupId, long userId)
+        public static List<Permission> GetGroupPermissions(int groupId)
         {
             List<Permission> result = null;
             try
-            {               
+            {
                 List<Role> roles = null;
                 string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
                 if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
                                                         groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
                 {
-                    log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                    log.ErrorFormat("Failed getting GetGroupPermissions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
 
                 if (roles != null && roles.Any())
                 {
-                    if (userId > 0)
-                    {
-                        // get list of all user permissions 
-                        List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
-                        result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).ToList();
-                    }
-                    else
-                    {                        
-                        result = roles.SelectMany(x => x.Permissions).ToList();
-                    }
+                    result = roles.SelectMany(x => x.Permissions).ToList();
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetAllDomainBundles for groupId: {0}, userId: {1}", groupId, userId), ex);
+                log.Error(string.Format("Failed GetGroupPermissions for groupId: {0}", groupId), ex);
+
+            }
+
+            return result;
+        }
+
+        public static List<Permission> GetUserPermissions(int groupId, string userId)
+        {
+            List<Permission> result = null;
+            try
+            {
+                List<Role> roles = GetRolesByGroupId(groupId);
+
+                if (roles != null && roles.Any())
+                {
+                    // get list of all user permissions 
+                    List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
+                    result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetUserPermissions for groupId: {0}, userId: {1}", groupId, userId), ex);
+
+            }
+
+            return result;
+        }
+
+        public static string GetCurrentUserPermissions(int groupId, string userId)
+        {
+            string result = null;
+            try
+            {
+                List<Permission> permissions = GetUserPermissions(groupId, userId);
+                if (permissions != null)
+                {
+                    result = string.Join(",", permissions.Where(x => !string.IsNullOrEmpty(x.Name)).OrderBy(x => x.Name).Select(x => x.Name));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCurrentUserPermissions for groupId: {0}, userId: {1}", groupId, userId), ex);
 
             }
 

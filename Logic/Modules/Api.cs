@@ -1458,12 +1458,17 @@ namespace Core.Api
             return Core.Api.api.GetPermissions(groupId, permissionIds);
         }
 
-        public static string GetCurrentGroupPermissions(int groupId)
+        public static string GetCurrentUserPermissions(int groupId, string userId)
         {
-            return Core.Api.api.GetCurrentGroupPermissions(groupId);
+            return Core.Api.api.GetCurrentUserPermissions(groupId, userId);
         }
 
-        public static PermissionsResponse GetUserPermissions(int groupId, long userId = 0)
+        public static PermissionsResponse GetGroupPermissions(int groupId)
+        {
+            return Core.Api.api.GetGroupPermissions(groupId);
+        }
+
+        public static PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
             return Core.Api.api.GetUserPermissions(groupId, userId);
         }

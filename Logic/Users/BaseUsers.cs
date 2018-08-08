@@ -1397,17 +1397,8 @@ namespace Core.Users
                 List<long> roleIds = null;
                 
                 // try to get from cache            
-                if (LayeredCache.Instance.Get<List<long>>(key,
-                                                          ref roleIds, 
-                                                          Utils.Get_UserRoleIds, 
-                                                          new Dictionary<string, object>()
-                                                          {
-                                                              { "groupId", m_nGroupID },
-                                                              { "userId", userId }
-                                                          },
-                                                          groupId, 
-                                                          USER_ROLES_LAYERED_CACHE_CONFIG_NAME, 
-                                                          new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
+                                                          groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
                 {
                     response.Ids = roleIds;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
