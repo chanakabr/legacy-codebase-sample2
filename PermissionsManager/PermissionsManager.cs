@@ -14,6 +14,7 @@ using ApiObjects.Roles;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using ApiObjects;
+using CachingProvider.LayeredCache;
 
 namespace PermissionsManager
 {
@@ -1506,6 +1507,11 @@ namespace PermissionsManager
                 #endregion
 
                 #endregion
+
+                if (LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.PermissionsManagerInvalidationKey()))
+                {
+                    log.InfoFormat("!! Invalidated permissions manager key !!");
+                }
 
                 result = true;
             }
