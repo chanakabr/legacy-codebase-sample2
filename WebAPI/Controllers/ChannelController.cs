@@ -245,18 +245,20 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, userId);
                 }
-                
-                Version version = new Version(OPC_MERGE_VERSION);
-                Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
-                if (requestVersion.CompareTo(version) > 0)
+                else
                 {
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, "KalturaChannel");
-                }
-                // KalturaChannel (backward compatibility)
-                else if (channel is KalturaChannel)                
-                {
-                    channel.Id = id;
-                    response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
+                    Version version = new Version(OPC_MERGE_VERSION);
+                    Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
+                    if (requestVersion.CompareTo(version) > 0)
+                    {
+                        throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, "KalturaChannel");
+                    }
+                    // KalturaChannel (backward compatibility)
+                    else if (channel is KalturaChannel)
+                    {
+                        channel.Id = id;
+                        response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
+                    }
                 }
 
             }
