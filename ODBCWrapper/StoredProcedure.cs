@@ -85,6 +85,13 @@ namespace ODBCWrapper
         }
 
 
+        public void AddIDListParameter<T>(string sKey, ICollection<T> oListValue, string colName)
+        {
+            m_Parameters.Add(sKey, CreateDataTable<T>(oListValue, colName));
+
+            Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
+        }
+
         public void AddIDListParameter<T>(string sKey, List<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateDataTable<T>(oListValue, colName));

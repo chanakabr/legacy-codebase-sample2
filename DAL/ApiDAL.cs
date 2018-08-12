@@ -3209,6 +3209,7 @@ namespace DAL
                     {
                         permission.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ID");
                         permission.Name = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "NAME");
+                        permission.FriendlyName = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "FRIENDLY_NAME");
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
 
@@ -3325,43 +3326,6 @@ namespace DAL
             }
 
             return permissionPermissionItems;
-        }
-
-        public static List<Permission> GetPermissions(int groupId, List<long> permissionIds)
-        {
-            List<Permission> permissions = new List<Permission>();
-            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
-            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
-
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Permissions");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddIDListParameter<long>("@permission_ids", permissionIds, "ID");
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    DataTable permissionsTable = ds.Tables[0];
-                    DataTable permissionItemsTable = ds.Tables[1];
-
-                    permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
-
-                    rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
-
-                    if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null)
-                        permissions = rolesPermissions[0].Values.ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                permissions = null;
-                log.Error(string.Format("Error while getting permissions from DB, group id = {0}", groupId), ex);
-            }
-
-            return permissions;
         }
 
         public static Dictionary<long, string> GetPermissions(int groupId, List<string> permissionNames)

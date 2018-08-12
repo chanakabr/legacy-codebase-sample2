@@ -2323,6 +2323,35 @@ namespace DAL
             return updatedAdapater;
 
         }
-    }
+        
+        public static List<long> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
+        {
+            List<long> userIds = null;
 
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetUserIdsByRoleIds");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter("@roleIds", roleIds, "id");
+                DataTable dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    userIds = new List<long>(dt.Rows.Count);
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        userIds.Add(Utils.GetLongSafeVal(row, "USER_ID"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserIdsByRoleIds in DB, groupId: {0}, roleIds:{1}, ex:{2} ", groupId, string.Join(", ", roleIds), ex);
+            }
+
+            return userIds;
+        }
+    }
 }
