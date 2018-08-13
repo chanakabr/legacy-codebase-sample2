@@ -1127,12 +1127,6 @@ namespace Core.Users
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User(m_nGroupID, nUserID);
 
-                if (string.IsNullOrEmpty(u.m_sSiteGUID))
-                {
-                    resp.Initialize(ResponseStatus.InternalError, null);
-                    return resp;
-                }
-
                 bool isSubscribeNewsLetter = false;
                 bool isUnSubscribeNewsLeter = false;
                 
