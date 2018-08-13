@@ -53,7 +53,7 @@ namespace ElasticSearch.Utilities
 
             if (!string.IsNullOrEmpty(viewJson))
             {
-                foreach (var url in urls)
+                Parallel.ForEach<string>(urls, url =>
                 {
                     try
                     {
@@ -82,7 +82,7 @@ namespace ElasticSearch.Utilities
                             string.Format("Failed ex={0}, group={1};type={2}", ex.Message, groupId, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
                         result = false;
                     }
-                }
+                });
             }
 
             return result;

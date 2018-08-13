@@ -12,7 +12,7 @@ namespace CachingProvider.LayeredCache
         #region Constant Keys
 
         public const string GET_CURRENCIES_KEY = "currencies";
-
+        public const string PERMISSION_MANAGER_INVALIDATION_KEY = "invalidationKey_permissionsManager";
         public const string GET_RATIOS_KEY = "Ratios";
 
         #endregion
@@ -87,6 +87,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPermissionsRolesIdsKey(int groupId)
         {
             return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupPermissionItemsDictionaryKey(int groupId)
+        {
+            return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
@@ -835,6 +840,16 @@ namespace CachingProvider.LayeredCache
         public static string GetPermissionsRolesIdsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_permissionRoleIds_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupPermissionItemsDictionaryInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
+        }
+
+        public static string PermissionsManagerInvalidationKey()
+        {
+            return PERMISSION_MANAGER_INVALIDATION_KEY;
         }
 
         #endregion

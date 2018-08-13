@@ -1051,15 +1051,12 @@ namespace ODBCWrapper
                 string cbKeyPrefix = "DB_WriteLock_";
 
                 //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, "none", "ODBC_Net");
-
                 if (dbWriteLockParams != null)
                 {
-
                     if (dbWriteLockParams.Any(x => x.ToLower().Equals(sKey.ToLower().TrimStart('@'))))
                     {
                         //Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.CACHE);
                         CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
-
 
                         // ReadOnly request
                         if (!isWritable)
@@ -1069,6 +1066,19 @@ namespace ODBCWrapper
                                 if (oValue is System.Collections.IList)
                                 {
                                     foreach (var val in (oValue as System.Collections.IList))
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                        if (!string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + val)))
+                                        {
+                                            //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                            bRet = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else if (oValue is System.Collections.ICollection)
+                                {
+                                    foreach (var val in (oValue as System.Collections.ICollection))
                                     {
                                         //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
                                         if (!string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + val)))
@@ -1104,6 +1114,14 @@ namespace ODBCWrapper
                                 if (oValue is System.Collections.IList)
                                 {
                                     foreach (string val in oValue as IList<string>)
+                                    {
+                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, (uint)ApplicationConfiguration.DatabaseConfiguration.WriteLockTTL.IntValue);
+                                        //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                    }
+                                }
+                                else if (oValue is System.Collections.ICollection)
+                                {
+                                    foreach (string val in oValue as ICollection<string>)
                                     {
                                         bool res = cbManager.Set(cbKeyPrefix + val, executer, (uint)ApplicationConfiguration.DatabaseConfiguration.WriteLockTTL.IntValue);
                                         //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
