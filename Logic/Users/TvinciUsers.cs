@@ -813,11 +813,8 @@ namespace Core.Users
             if (sSiteGUIDs != null)
             {
                 List<UserResponseObject> resp = new List<UserResponseObject>(sSiteGUIDs.Length);
-
-                // TODO SHIR - TALK WITH LIOR
-                //for (int i = 0; i < sSiteGUIDs.Length; i++)
-                int limit = Math.Min(sSiteGUIDs.Length, 500);
-                for (int i = 0; i < limit; i++)
+                
+                for (int i = 0; i < sSiteGUIDs.Length; i++)
                 {
                     try
                     {
