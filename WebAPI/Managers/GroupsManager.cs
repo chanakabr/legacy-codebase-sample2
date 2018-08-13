@@ -129,7 +129,6 @@ namespace WebAPI.ClientManagers
         private static Group createNewInstance(int groupId)
         {
             Group group = null;
-            List<KalturaUserRole> roles = null;
 
             // if the group is not default group - get configuration from CB and languages
             if (groupId != 0)
@@ -150,24 +149,10 @@ namespace WebAPI.ClientManagers
                 var languages = ClientsManager.ApiClient().GetGroupLanguages(groupId);
                 if (languages != null)
                     group.Languages = Mapper.Map<List<Language>>(languages);
-
-
-                // get group roles
-                roles = ClientsManager.ApiClient().GetRoles(groupId);
             }
             else
             {
                 group = new Group();
-
-                // get default roles scheme for default group
-                roles = ClientsManager.ApiClient().GetRoles();
-            }
-
-            if (roles != null)
-            {
-                // build dictionary permission items - roles with groups dictionary, for easy access
-                group.PermissionItemsRolesMapping = RolesManager.BuildPermissionItemsDictionary(roles);
-                group.RolesIdsNamesMapping = roles.ToDictionary(dr => dr.getId(), dr => dr.Name);
             }
 
             return group;

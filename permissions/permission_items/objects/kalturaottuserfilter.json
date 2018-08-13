@@ -35,11 +35,11 @@
       "action": "READ",
       "type": "Parameter"
     },
-	{
+    {
       "permissions": [
-		"Manager",
         "Operator",
-		"Administrator"
+        "Manager",
+        "Administrator"
       ],
       "excluded_permissions": [],
       "name": "KalturaOTTUserFilter_RoleIdsIn_Insert",
@@ -48,11 +48,11 @@
       "action": "INSERT",
       "type": "Parameter"
     },
-	{
+    {
       "permissions": [
-		"Manager",
         "Operator",
-		"Administrator"
+        "Manager",
+        "Administrator"
       ],
       "excluded_permissions": [],
       "name": "KalturaOTTUserFilter_RoleIdsIn_Update",

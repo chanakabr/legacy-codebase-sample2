@@ -3533,12 +3533,20 @@ namespace WebAPI.Reflection
                 case "KalturaPermission":
                     switch(property.Name)
                     {
+                        case "FriendlyName":
+                            return "friendlyName";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
-                        case "PermissionItems":
-                            return "permissionItems";
+                    }
+                    break;
+                    
+                case "KalturaPermissionFilter":
+                    switch(property.Name)
+                    {
+                        case "CurrentUserPermissionsContains":
+                            return "currentUserPermissionsContains";
                     }
                     break;
                     
@@ -3554,11 +3562,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaPermissionsFilter":
+                case "KalturaPermissionListResponse":
                     switch(property.Name)
                     {
-                        case "Ids":
-                            return "ids";
+                        case "Permissions":
+                            return "objects";
                     }
                     break;
                     
@@ -7405,7 +7413,7 @@ namespace WebAPI.Reflection
                             {
                                 return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
-                            return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                            return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setinitialpassword":
                             if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
@@ -7455,7 +7463,7 @@ namespace WebAPI.Reflection
                         case "sendPassword":
                             if(isOldVersion)
                             {
-                                return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                                return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             break;
                             
@@ -7717,6 +7725,20 @@ namespace WebAPI.Reflection
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("paymentMethodProfile", "updateOldStandard", false);
                             return PaymentMethodProfileController.UpdateOldStandard((int) methodParams[0], (KalturaPaymentMethodProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "permission":
+                    switch(action)
+                    {
+                        case "getcurrentpermissions":
+                            RolesManager.ValidateActionPermitted("permission", "getCurrentPermissions", false);
+                            return PermissionController.GetCurrentPermissions();
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("permission", "list", false);
+                            return PermissionController.List((KalturaPermissionFilter) methodParams[0]);
                             
                     }
                     break;
@@ -13490,6 +13512,17 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(string),
                             });
+                            ret.Add("templateName", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("templateName", "ottUser", "resetPassword") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
                             return ret;
                             
                         case "setinitialpassword":
@@ -14150,6 +14183,25 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPaymentMethodProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "permission":
+                    switch(action)
+                    {
+                        case "getcurrentpermissions":
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermissionFilter),
                             });
                             return ret;
                             

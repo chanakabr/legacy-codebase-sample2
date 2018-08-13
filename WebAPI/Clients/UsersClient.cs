@@ -156,34 +156,10 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public bool SendNewPassword(int groupId, string userName)
+        public bool SendNewPassword(int groupId, string userName, string templateName)
         {
-            ApiObjects.Response.Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.SendRenewalPasswordMail(groupId, userName);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SendNewPassword. Username: {0}, exception: {1}", userName, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
+            Func<ApiObjects.Response.Status> sendRenewalPasswordMailFunc = () => Core.Users.Module.SendRenewalPasswordMail(groupId, userName, templateName);
+            return ClientUtils.GetResponseStatusFromWS(sendRenewalPasswordMailFunc);
         }
 
         public bool RenewPassword(int groupId, string userName, string password)
@@ -473,33 +449,43 @@ namespace WebAPI.Clients
 
             if (roleIds != null && roleIds.Count > 0)
             {
-                List<string> filteredUsersIds = new List<string>();
-                for (int i = 0; i < usersIds.Count; i++)
+                if (usersIds == null || usersIds.Count == 0)
                 {
-                    List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
-                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    usersIds = Core.Users.Module.GetUserIdsByRoleIds(groupId, roleIds);
+                }
+                else
+                {
+                    List<string> filteredUsersIds = new List<string>();
+                    for (int i = 0; i < usersIds.Count; i++)
                     {
-                        if (roleIds.Any(userRoleIds.Contains))
+                        List<long> userRoleIds = GetUserRoleIds(groupId, usersIds[i]);
+                        if (userRoleIds != null && userRoleIds.Count > 0)
                         {
-                            filteredUsersIds.Add(usersIds[i]);
+                            if (roleIds.Any(userRoleIds.Contains))
+                            {
+                                filteredUsersIds.Add(usersIds[i]);
+                            }
                         }
                     }
-                }
 
-                usersIds = filteredUsersIds;
-            }
-            
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.GetUsers(groupId, usersIds.ToArray(), Utils.Utils.GetClientIP());
+                    usersIds = filteredUsersIds;
                 }
             }
-            catch (Exception ex)
+
+            if (usersIds != null && usersIds.Count > 0)
             {
-                log.ErrorFormat("Error while GetUsersData. exception: {0}, ", ex);
-                ErrorUtils.HandleWSException(ex);
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        response = Core.Users.Module.GetUsers(groupId, usersIds.ToArray(), Utils.Utils.GetClientIP());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while GetUsersData. exception: {0}, ", ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
             }
 
             if (response == null || response.users == null)
@@ -516,7 +502,7 @@ namespace WebAPI.Clients
 
             return users;
         }
-
+        
         public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
         {
             UserResponse response = null;
@@ -959,7 +945,7 @@ namespace WebAPI.Clients
 
             return listItem;
         }
-
+        
         internal bool DeleteItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType)
         {
             ApiObjects.Response.Status response = null;

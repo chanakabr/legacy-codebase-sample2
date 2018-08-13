@@ -31,12 +31,16 @@ namespace WebAPI.Models.API
         public string Name { get; set; }
 
         /// <summary>
-        /// List of permission items associated with the permission
+        /// Permission friendly name
         /// </summary>
-        [DataMember(Name = "permissionItems")]
-        [JsonProperty("permissionItems")]
-        [XmlArray(ElementName = "permissionItems", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPermissionItem> PermissionItems { get; set; }
+        [DataMember(Name = "friendlyName")]
+        [JsonProperty("friendlyName")]
+        [XmlElement(ElementName = "friendlyName")]
+        public string FriendlyName { get; set; }
+
+        /// <summary>
+        /// List of permission items associated with the permission
+        /// </summary>       
+        internal List<KalturaPermissionItem> PermissionItems { get; set; }
     }
 }

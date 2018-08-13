@@ -45,7 +45,7 @@ namespace Reflector
             types.Remove(typeof(KalturaMultilingualString));
         }
         
-        protected override void wrtieHeader()
+        protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
@@ -54,13 +54,13 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
         }
 
-        protected override void wrtieBody()
+        protected override void writeBody()
         {
             wrtieUsing();
             wrtiePartialClasses();
         }
 
-        protected override void wrtieFooter()
+        protected override void writeFooter()
         {
         }
 
@@ -245,7 +245,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\": \"\";");
                         }
                         break;
 
@@ -267,7 +267,7 @@ namespace Reflector
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\";");
+                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToString())) + \"</item>\" : \"\";");
                         }
                         break;
                 }

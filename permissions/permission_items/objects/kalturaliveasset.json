@@ -5,8 +5,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableCdvr_USAGE",
-      "object": "KalturaLinearMediaAsset",
+      "name": "KalturaLiveAsset_enableCdvrState_USAGE",
+      "object": "KalturaLiveAsset",
       "parameter": "enableCdvrState",
       "action": "USAGE",
       "type": "Parameter"
@@ -16,8 +16,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableCatchUpState_USAGE",
-      "object": "KalturaLinearMediaAsset",
+      "name": "KalturaLiveAsset_enableCatchUpState_USAGE",
+      "object": "KalturaLiveAsset",
       "parameter": "enableCatchUpState",
       "action": "USAGE",
       "type": "Parameter"
@@ -27,8 +27,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableStartOverState_USAGE",
-      "object": "KalturaLinearMediaAsset",
+      "name": "KalturaLiveAsset_enableStartOverState_USAGE",
+      "object": "KalturaLiveAsset",
       "parameter": "enableStartOverState",
       "action": "USAGE",
       "type": "Parameter"
@@ -38,9 +38,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_bufferCatchUp_USAGE",
-      "object": "KalturaLinearMediaAsset",
-      "parameter": "bufferCatchUp",
+      "name": "KalturaLiveAsset_bufferCatchUpSetting_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "bufferCatchUpSetting",
       "action": "USAGE",
       "type": "Parameter"
     },
@@ -49,9 +49,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_bufferTrickPlay_USAGE",
-      "object": "KalturaLinearMediaAsset",
-      "parameter": "bufferTrickPlay",
+      "name": "KalturaLiveAsset_bufferTrickPlaySetting_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "bufferTrickPlaySetting",
       "action": "USAGE",
       "type": "Parameter"
     },
@@ -60,8 +60,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableRecordingPlaybackNonEntitledChannelState_USAGE",
-      "object": "KalturaLinearMediaAsset",
+      "name": "KalturaLiveAsset_enableRecordingPlaybackNonEntitledChannelState_USAGE",
+      "object": "KalturaLiveAsset",
       "parameter": "enableRecordingPlaybackNonEntitledChannelState",
       "action": "USAGE",
       "type": "Parameter"
@@ -71,8 +71,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaLinearMediaAsset_enableTrickPlayState_USAGE",
-      "object": "KalturaLinearMediaAsset",
+      "name": "KalturaLiveAsset_enableTrickPlayState_USAGE",
+      "object": "KalturaLiveAsset",
       "parameter": "enableTrickPlayState",
       "action": "USAGE",
       "type": "Parameter"

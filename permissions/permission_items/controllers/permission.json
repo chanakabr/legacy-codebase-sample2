@@ -2,21 +2,21 @@
   "permission_items": [
     {
       "permissions": [
-        "Manager"
+        "Operator"
       ],
       "excluded_permissions": [],
-      "name": "PartnerConfiguration_Update",
-      "service": "PartnerConfiguration",
-      "action": "Update",
+      "name": "Permission_GetCurrentPermissions",
+      "service": "Permission",
+      "action": "GetCurrentPermissions",
       "type": "Action"
     },
     {
       "permissions": [
-        "Manager"
+        "Operator"
       ],
       "excluded_permissions": [],
-      "name": "PartnerConfiguration_List",
-      "service": "PartnerConfiguration",
+      "name": "Permission_List",
+      "service": "Permission",
       "action": "List",
       "type": "Action"
     }

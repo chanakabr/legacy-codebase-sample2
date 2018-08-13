@@ -1,6 +1,9 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web;
 using WebAPI.ClientManagers;
@@ -15,7 +18,10 @@ using WebAPI.Models.General;
 namespace WebAPI.Managers
 {
     public class RolesManager
-    {       
+    {
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";
 
@@ -26,119 +32,7 @@ namespace WebAPI.Managers
         public const long MANAGER_ROLE_ID = 4;
         public const long ADMINISTRATOR_ROLE_ID = 5;
 
-        /// <summary>
-        /// Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
-        /// </summary>
-        /// <param name="roles">List of roles</param>
-        /// <returns>Dictionary of dictionaries, where the key of the first dictionary is a string representing a service action pair (format: {service}_{action}) 
-        /// and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
-        /// the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
-       
-       internal static Dictionary<string, Dictionary<long, Tuple<string, bool>>>  BuildPermissionItemsDictionary(List<KalturaUserRole> roles)
-        {
-            Dictionary<string, Dictionary<long, Tuple<string, bool>>> dictionary = new Dictionary<string, Dictionary<long, Tuple<string, bool>>>();                              
-            KalturaApiActionPermissionItem apiActionPermissionItem;
-            KalturaApiParameterPermissionItem apiParameterPermissionItem;
-            KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
-            string usersGroup;
-
-            foreach (KalturaUserRole role in roles)
-            {
-                foreach (KalturaPermission permission in role.Permissions)
-                {
-                    // if the permission is group permission, get the users group list to append later
-                    if (permission is KalturaGroupPermission)
-                    {
-                        usersGroup = ((KalturaGroupPermission)permission).Group;
-                    }
-                    else
-                    {
-                        usersGroup = string.Empty;
-                    }
-                    
-                    foreach (KalturaPermissionItem permissionItem in permission.PermissionItems)
-                    {
-                        // in case we have the following actions on KalturaApiParameterPermissionItem we need to create multiple items: ALL\WRITE
-                        Dictionary<string, bool> keyToExcludeMap = new Dictionary<string, bool>();
-                        // the dictionary is relevant only for action permission items
-                        if (permissionItem is KalturaApiActionPermissionItem)
-                        {
-                            apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
-                            keyToExcludeMap.Add(string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower(), apiActionPermissionItem.IsExcluded);
-                        }
-                        else if (permissionItem is KalturaApiParameterPermissionItem)
-                        {
-                            apiParameterPermissionItem = (KalturaApiParameterPermissionItem)permissionItem;
-                            string key = string.Empty;
-                            switch (apiParameterPermissionItem.Action)
-                            {
-                                case KalturaApiParameterPermissionItemAction.READ:                                    
-                                case KalturaApiParameterPermissionItemAction.INSERT:                                    
-                                case KalturaApiParameterPermissionItemAction.UPDATE:
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                                                    apiParameterPermissionItem.Action).ToLower(), apiParameterPermissionItem.IsExcluded);                                    
-                                    break;
-                                // add both insert and update
-                                case KalturaApiParameterPermissionItemAction.WRITE:
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
-                                    break;
-                                // add read, insert and update
-                                case KalturaApiParameterPermissionItemAction.ALL:
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
-                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
-                                                        KalturaApiParameterPermissionItemAction.READ).ToLower(), apiParameterPermissionItem.IsExcluded);
-                                    break;
-                                default:
-                                    continue;
-                                    break;
-                            }                            
-                        }
-                        else if (permissionItem is KalturaApiArgumentPermissionItem)
-                        {
-                            apiArgumentPermissionItem = (KalturaApiArgumentPermissionItem)permissionItem;
-                            keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower(), apiArgumentPermissionItem.IsExcluded);
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        foreach (KeyValuePair<string, bool> pair in keyToExcludeMap)
-                        {
-                            bool isExcluded = pair.Value;
-
-                            // if the dictionary already contains the action, try to append the role and /or the users group
-                            if (dictionary.ContainsKey(pair.Key))
-                            {
-                                if (!dictionary[pair.Key].ContainsKey(role.getId()))
-                                {
-                                    dictionary[pair.Key].Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));// usersGroup);
-                                }
-                                else
-                                {
-                                    dictionary[pair.Key][role.getId()] = new Tuple<string, bool>(string.Format("{0};{1}", usersGroup, dictionary[pair.Key][role.getId()]), isExcluded);
-                                }
-                            }
-                            // add the action to the dictionary
-                            else
-                            {
-                                Dictionary<long, Tuple<string, bool>> d = new Dictionary<long, Tuple<string, bool>>();
-                                d.Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));
-                                dictionary.Add(pair.Key, d);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return dictionary;
-        }
+        #region Private Methods
 
         private static KS getKS(bool silent)
         {
@@ -153,31 +47,241 @@ namespace WebAPI.Managers
             return ks;
         }
 
-        public static List<long> GetRoleIds(KS ks, bool appendOriginalRoles = true)
+        /// <summary>
+        /// Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
+        /// </summary>
+        /// <param name="roles">List of roles</param>
+        /// <returns>Dictionary of dictionaries, where the key of the first dictionary is a string representing a service action pair (format: {service}_{action}) 
+        /// and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
+        /// the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
+        private static Tuple<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>, bool> BuildGroupPermissionItemsDictionary(Dictionary<string, object> funcParams)
         {
-            List<long> roleIds = new List<long>() { RolesManager.ANONYMOUS_ROLE_ID };
-
-            if (ks.UserId != "0")
+            Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>> result = new Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>();            
+            try
             {
-                // not anonymous user - get user's roles
-                var userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
-                if (userRoleIds != null && userRoleIds.Count > 0)
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
                 {
-                    roleIds.AddRange(userRoleIds);
-                }
-
-                // if the ks was originally of operator - get he's roles too
-                if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
-                {
-                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
-                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
                     {
-                        roleIds.AddRange(userRoleIds);
+                        List<KalturaUserRole> groupUserRoles = ClientsManager.ApiClient().GetRoles(groupId.Value);
+                        if (groupUserRoles != null && groupUserRoles.Count > 0)
+                        {
+                            KalturaApiActionPermissionItem apiActionPermissionItem;
+                            KalturaApiParameterPermissionItem apiParameterPermissionItem;
+                            KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
+                            string usersGroup;
+
+                            foreach (KalturaUserRole role in groupUserRoles)
+                            {
+                                foreach (KalturaPermission permission in role.Permissions)
+                                {
+                                    // if the permission is group permission, get the users group list to append later
+                                    if (permission is KalturaGroupPermission)
+                                    {
+                                        usersGroup = ((KalturaGroupPermission)permission).Group;
+                                    }
+                                    else
+                                    {
+                                        usersGroup = string.Empty;
+                                    }
+
+                                    foreach (KalturaPermissionItem permissionItem in permission.PermissionItems)
+                                    {
+                                        // in case we have the following actions on KalturaApiParameterPermissionItem we need to create multiple items: ALL\WRITE
+                                        Dictionary<string, bool> keyToExcludeMap = new Dictionary<string, bool>();
+                                        // the dictionary is relevant only for action permission items
+                                        if (permissionItem is KalturaApiActionPermissionItem)
+                                        {
+                                            apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
+                                            keyToExcludeMap.Add(string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower(), apiActionPermissionItem.IsExcluded);
+                                        }
+                                        else if (permissionItem is KalturaApiParameterPermissionItem)
+                                        {
+                                            apiParameterPermissionItem = (KalturaApiParameterPermissionItem)permissionItem;
+                                            string key = string.Empty;
+                                            switch (apiParameterPermissionItem.Action)
+                                            {
+                                                case KalturaApiParameterPermissionItemAction.READ:
+                                                case KalturaApiParameterPermissionItemAction.INSERT:
+                                                case KalturaApiParameterPermissionItemAction.UPDATE:
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                                                    apiParameterPermissionItem.Action).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    break;
+                                                // add both insert and update
+                                                case KalturaApiParameterPermissionItemAction.WRITE:
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    break;
+                                                // add read, insert and update
+                                                case KalturaApiParameterPermissionItemAction.ALL:
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                        KalturaApiParameterPermissionItemAction.INSERT).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                        KalturaApiParameterPermissionItemAction.UPDATE).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter,
+                                                                        KalturaApiParameterPermissionItemAction.READ).ToLower(), apiParameterPermissionItem.IsExcluded);
+                                                    break;
+                                                default:
+                                                    continue;
+                                                    break;
+                                            }
+                                        }
+                                        else if (permissionItem is KalturaApiArgumentPermissionItem)
+                                        {
+                                            apiArgumentPermissionItem = (KalturaApiArgumentPermissionItem)permissionItem;
+                                            keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower(), apiArgumentPermissionItem.IsExcluded);
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
+                                        foreach (KeyValuePair<string, bool> pair in keyToExcludeMap)
+                                        {
+                                            bool isExcluded = pair.Value;
+
+                                            // if the dictionary already contains the action, try to append the role and /or the users group
+                                            if (result.ContainsKey(pair.Key))
+                                            {
+                                                if (!result[pair.Key].ContainsKey(role.getId()))
+                                                {
+                                                    result[pair.Key].Add(role.getId(), new KeyValuePair<string, bool>(usersGroup, isExcluded)); // usersGroup);
+                                                }
+                                                else
+                                                {
+                                                    result[pair.Key][role.getId()] = new KeyValuePair<string, bool>(string.Format("{0};{1}", usersGroup, result[pair.Key][role.getId()]), isExcluded);
+                                                }
+                                            }
+                                            // add the action to the dictionary
+                                            else
+                                            {
+                                                Dictionary<long, KeyValuePair<string, bool>> roleIdToKeyValuePairMap = new Dictionary<long, KeyValuePair<string, bool>>();
+                                                roleIdToKeyValuePairMap.Add(role.getId(), new KeyValuePair<string, bool>(usersGroup, isExcluded));
+                                                result.Add(pair.Key, roleIdToKeyValuePairMap);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-            return roleIds;
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildGroupPermissionItemsDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>, bool>(result, result != null && result.Count > 0);
         }
+
+        private static Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>> GetGroupPermissionItemsDictionary(int groupId)
+        {
+            Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>> result = new Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>();
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupPermissionItemsDictionaryKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID,
+                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupPermissionItemsDictionary, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static bool IsPermittedForRoles(int groupId, string objectPropertyKey, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // get group's roles schema            
+            Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>> permissionItemsDictionary = GetGroupPermissionItemsDictionary(groupId);
+
+            // if the permission for the property is not defined in the schema - return false
+            if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
+            {
+                return false;
+            }
+
+            Dictionary<long, KeyValuePair<string, bool>> roles = permissionItemsDictionary[objectPropertyKey];
+            bool isPermitted = false;
+
+
+            foreach (var roleId in roleIds)
+            {
+                // if the permission item for the action is part of one of the supplied roles - return true
+                if (roles.ContainsKey(roleId))
+                {
+                    if (roles[roleId].Value)
+                    {
+                        isPermitted = false; // is excluded ! 
+                        break;
+                    }
+
+                    isPermitted = true;
+
+                    // the action is permitted for the role, append the users group of the permission if defined
+                    if (usersGroupStringBuilder.Length == 0)
+                    {
+                        usersGroupStringBuilder.Append(roles[roleId]);
+                    }
+                    else
+                    {
+                        usersGroupStringBuilder.AppendFormat(";{0}", roles[roleId]);
+                    }
+                }
+            }
+
+            usersGroup = usersGroupStringBuilder.ToString();
+            return isPermitted;
+        }
+
+        private static bool IsArgumentPermittedForRoles(int groupId, string service, string action, string argument, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string methodArgumentKey = string.Format("{0}_{1}_{2}", service, action, argument).ToLower();
+            return IsPermittedForRoles(groupId, methodArgumentKey, roleIds, out usersGroup);
+        }
+
+        private static bool IsPropertyPermittedForRoles(int groupId, string type, string property, string action, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string objectPropertyKey = string.Format("{0}_{1}_{2}", type, property, action).ToLower();
+            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
+        }
+
+        private static bool IsActionPermittedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
+            return IsPermittedForRoles(groupId, serviceActionKey, roleIds, out usersGroup);
+        }
+
+        #endregion
+
+        #region Internal Methods
 
         /// <summary>
         /// Checks if an action from a service is allowed
@@ -276,81 +380,37 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.ACTION_ARGUMENT_FORBIDDEN, argument, service, action);
         }
 
-        private static bool IsPermittedForRoles(int groupId, string objectPropertyKey, List<long> roleIds, out string usersGroup)
+        #endregion
+
+        #region Public Methods
+
+        public static List<long> GetRoleIds(KS ks, bool appendOriginalRoles = true)
         {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
+            List<long> roleIds = new List<long>() { RolesManager.ANONYMOUS_ROLE_ID };
 
-            // get group's roles schema            
-            Dictionary<string, Dictionary<long, Tuple<string, bool>>>  permissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
-
-            // if the permission for the property is not defined in the schema - return false
-            if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
+            if (ks.UserId != "0")
             {
-                return false;
-            }
-
-            Dictionary<long, Tuple<string, bool>> roles = permissionItemsDictionary[objectPropertyKey];
-            bool isPermitted = false;
-
-
-            foreach (var roleId in roleIds)
-            {
-                // if the permission item for the action is part of one of the supplied roles - return true
-                if (roles.ContainsKey(roleId))
+                // not anonymous user - get user's roles
+                var userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+                if (userRoleIds != null && userRoleIds.Count > 0)
                 {
-                    if (roles[roleId].Item2)
-                    {
-                        isPermitted = false; // is excluded ! 
-                        break;
-                    }
+                    roleIds.AddRange(userRoleIds);
+                }
 
-                    isPermitted = true;
-
-                    // the action is permitted for the role, append the users group of the permission if defined
-                    if (usersGroupStringBuilder.Length == 0)
+                // if the ks was originally of operator - get he's roles too
+                if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
+                {
+                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
+                    if (userRoleIds != null && userRoleIds.Count > 0)
                     {
-                        usersGroupStringBuilder.Append(roles[roleId]);
-                    }
-                    else
-                    {
-                        usersGroupStringBuilder.AppendFormat(";{0}", roles[roleId]);
+                        roleIds.AddRange(userRoleIds);
                     }
                 }
             }
-
-            usersGroup = usersGroupStringBuilder.ToString();
-            return isPermitted;
+            return roleIds;
         }
 
-        private static bool IsArgumentPermittedForRoles(int groupId, string service, string action, string argument, List<long> roleIds, out string usersGroup)
-        {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
+        #endregion
 
-            // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string methodArgumentKey = string.Format("{0}_{1}_{2}", service, action, argument).ToLower();
-            return IsPermittedForRoles(groupId, methodArgumentKey, roleIds, out usersGroup);
-        }
-
-        private static bool IsPropertyPermittedForRoles(int groupId, string type, string property, string action, List<long> roleIds, out string usersGroup)
-        {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
-
-            // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string objectPropertyKey = string.Format("{0}_{1}_{2}", type, property, action).ToLower();
-            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
-        }
-
-        private static bool IsActionPermittedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
-        {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
-
-            // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
-            return IsPermittedForRoles(groupId, serviceActionKey, roleIds, out usersGroup);
-        }
     }
 }
