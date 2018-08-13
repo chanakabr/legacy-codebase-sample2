@@ -633,10 +633,7 @@ namespace Core.Users
         {
             if (siteGuids != null)
             {
-                // TODO SHIR - TALK WITH LIOR
-                //for (int i = 0; i < siteGuids.Count; i++)
-                int limit = Math.Min(siteGuids.Count, 500);
-                for (int i = 0; i < limit; i++)
+                for (int i = 0; i < siteGuids.Count; i++)
                 {
                     try
                     {

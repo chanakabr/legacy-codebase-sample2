@@ -113,7 +113,7 @@ namespace Core.ConditionalAccess
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
             DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE");
 
-            long endDateUnix =TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate);
+            long endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate);
 
             // validate renewal did not already happened
             if (Math.Abs(endDateUnix - nextEndDate) > 60)

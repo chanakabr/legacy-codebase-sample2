@@ -122,7 +122,7 @@ namespace Core.Users
         public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
         public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
         public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
-        public abstract UserResponseObject ForgotPassword(string sUN);
+        public abstract UserResponseObject ForgotPassword(string sUN, string templateName);
         public abstract UserResponseObject ChangePassword(string sUN);
         public abstract ResponseStatus SendChangedPinMail(string sSiteGuid, int nRuleID);
         public abstract string GetUserToken(string sSiteGUID, Int32 nGroupID);
@@ -1397,17 +1397,8 @@ namespace Core.Users
                 List<long> roleIds = null;
                 
                 // try to get from cache            
-                if (LayeredCache.Instance.Get<List<long>>(key,
-                                                          ref roleIds, 
-                                                          Utils.Get_UserRoleIds, 
-                                                          new Dictionary<string, object>()
-                                                          {
-                                                              { "groupId", m_nGroupID },
-                                                              { "userId", userId }
-                                                          },
-                                                          groupId, 
-                                                          USER_ROLES_LAYERED_CACHE_CONFIG_NAME, 
-                                                          new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
+                                                          groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
                 {
                     response.Ids = roleIds;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

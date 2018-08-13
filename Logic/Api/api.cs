@@ -212,10 +212,9 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Roles = new List<Role>() { role };
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
@@ -254,10 +253,9 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Roles = new List<Role>() { role };
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
@@ -304,10 +302,9 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
             }
@@ -8452,15 +8449,80 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = DAL.ApiDAL.GetPermissions(groupId, permissionIds);
-                if (response.Permissions != null)
+                List<Role> roles = DAL.ApiDAL.GetRoles(groupId, new List<long>());
+                if (roles != null && roles.Any())
                 {
+                    response.Permissions = roles.SelectMany(x => x.Permissions).Distinct().ToList();
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while getting permissions. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static string GetCurrentUserPermissions(int groupId, string userId)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                result = APILogic.Api.Managers.RolesPermissionsManager.GetCurrentUserPermissions(groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting GetCurrentUserPermissions. group id = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.Roles.PermissionsResponse GetGroupPermissions(int groupId)
+        {
+            PermissionsResponse response = new PermissionsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId);
+                if (response.Permissions != null)
+                {
+                    response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting GetGroupPermissions. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
+        {
+            PermissionsResponse response = new PermissionsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetUserPermissions(groupId, userId);
+                if (response.Permissions != null)
+                {
+                    response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting GetUserPermissions. group id = {0}", groupId), ex);
             }
 
             return response;

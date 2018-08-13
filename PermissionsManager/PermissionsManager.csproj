@@ -62,6 +62,10 @@
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191D9E7-8502-4B00-A488-771240E2CF40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
       <Name>CouchbaseManager</Name>

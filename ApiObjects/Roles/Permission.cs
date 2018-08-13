@@ -13,7 +13,10 @@ namespace ApiObjects.Roles
 
         [JsonProperty("name")]
         public string Name { get; set; }
-        
+
+        [JsonProperty("friendlyName")]
+        public string FriendlyName { get; set; }
+
         public List<PermissionItem> PermissionItems { get; set; }
 
         [JsonProperty("group_id")]

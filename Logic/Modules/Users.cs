@@ -11,6 +11,7 @@ using System.Text;
 using System.Web;
 using ApiObjects.SSOAdapter;
 using APILogic.Users;
+using DAL;
 
 namespace Core.Users
 {
@@ -514,8 +515,6 @@ namespace Core.Users
                 return null;
             }
         }
-
-
         
         public static UserResponseObject GetUserDataByCoGuid(int nGroupID, string sCoGuid, int operatorID)
         {
@@ -800,7 +799,8 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ForgotPassword(sUN);
+                // TODO SHIR - ASK IRA IF NEED TO SET IT IN TVPAPI
+                return t.ForgotPassword(sUN, null);
             }
             else
             {
@@ -1528,20 +1528,21 @@ namespace Core.Users
         }
 
         
-        public static ApiObjects.Response.Status SendRenewalPasswordMail(int nGroupID, string userName)
+        public static ApiObjects.Response.Status SendRenewalPasswordMail(int nGroupID, string userName, string templateName)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                UserResponseObject user = t.ForgotPassword(userName);
+                UserResponseObject user = t.ForgotPassword(userName, templateName);
                 if (user != null)
                 {
                     // convert response status
                     response = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
                 }
             }
+
             return response;
         }
 
@@ -1599,7 +1600,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static UsersResponse GetUsers(int nGroupID, string[] sSiteGUIDs, string userIP)
         {
@@ -1620,18 +1620,15 @@ namespace Core.Users
             response.users = GetUsersData(nGroupID, sSiteGUIDs, userIP);
             if (response.users != null || response.users.Count > 0)
             {
-                response.resp.Code = (int)ApiObjects.Response.eResponseStatus.OK;
-                response.resp.Message = ApiObjects.Response.eResponseStatus.OK.ToString();
+                response.resp.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             else
             {
-                response.resp.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.resp.Message = "Error";
+                response.resp.Set((int)eResponseStatus.Error, "Error");
             }
 
             return response;
         }
-
         
         public static UserResponse SetUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
         {
@@ -1648,7 +1645,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static FavoriteResponse FilterFavoriteMediaIds(int nGroupID, string userId, List<int> mediaIds, string udid, string mediaType, FavoriteOrderBy orderBy)
         {
@@ -1973,6 +1969,27 @@ namespace Core.Users
         public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
         {
             return SSOAdaptersManager.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
+        }
+
+        public static List<string> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
+        {
+            List<string> stringUserIds = null;
+            
+            try
+            {
+                List<long> longUserIds = UsersDal.GetUserIdsByRoleIds(groupId, roleIds);
+
+                if (longUserIds != null && longUserIds.Count > 0)
+                {
+                    stringUserIds = new List<string>(longUserIds.Select(x => x.ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Users.GetUserIdsByRoleIds, groupId: {0}, roleIds:{1}, ex:{2} ", groupId, string.Join(", ", roleIds), ex);
+            }
+
+            return stringUserIds;
         }
     }
 }
