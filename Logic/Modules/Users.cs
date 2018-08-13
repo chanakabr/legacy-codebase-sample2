@@ -799,7 +799,8 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ForgotPassword(sUN);
+                // TODO SHIR - ASK IRA IF NEED TO SET IT IN TVPAPI
+                return t.ForgotPassword(sUN, null);
             }
             else
             {
@@ -1527,20 +1528,21 @@ namespace Core.Users
         }
 
         
-        public static ApiObjects.Response.Status SendRenewalPasswordMail(int nGroupID, string userName)
+        public static ApiObjects.Response.Status SendRenewalPasswordMail(int nGroupID, string userName, string templateName)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                UserResponseObject user = t.ForgotPassword(userName);
+                UserResponseObject user = t.ForgotPassword(userName, templateName);
                 if (user != null)
                 {
                     // convert response status
                     response = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
                 }
             }
+
             return response;
         }
 

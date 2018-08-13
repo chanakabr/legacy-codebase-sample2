@@ -1293,25 +1293,22 @@ namespace Core.Users
             return true;
         }
 
-        public override UserResponseObject ForgotPassword(string sUN)
+        public override UserResponseObject ForgotPassword(string sUN, string templateName)
         {
             UserResponseObject ret = new UserResponseObject();
 
-            string sEmail = string.Empty;
+            string email = string.Empty;
             Int32 nID = 0;
-            string sFirstName = string.Empty;
-            string sToken = string.Empty;
+            string firstName = string.Empty;
+            string token = string.Empty;
 
-            if (UserGenerateToken(sUN, ref sEmail, ref nID, ref sFirstName, ref sToken) == true)
+            if (UserGenerateToken(sUN, ref email, ref nID, ref firstName, ref token) == true)
             {
                 //Send ForgotPasswordMail
-                ForgotPasswordMailRequest sMailRequest = GetForgotPasswordMailRequest(sFirstName, sEmail, sToken);
+                ForgotPasswordMailRequest sMailRequest = GetForgotPasswordMailRequest(firstName, email, token, templateName);
 
-                log.Debug("Forgot Pass - Start send to " + sEmail + " from" + m_sForgotPasswordMail);
-
-
+                log.Debug("Forgot Pass - Start send to " + email + " from" + m_sForgotPasswordMail);
                 Utils.SendMail(m_nGroupID, sMailRequest);
-
                 ret.Initialize(ResponseStatus.OK, null);
             }
             else
@@ -1476,17 +1473,20 @@ namespace Core.Users
             return response;
         }
 
-        protected ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
+        protected ForgotPasswordMailRequest GetForgotPasswordMailRequest(string firstName, string email, string token, string templateName)
         {
-            ForgotPasswordMailRequest retVal = new ForgotPasswordMailRequest();
-            retVal.m_sToken = sToken;
-            retVal.m_sTemplateName = m_sForgotPasswordMail;
-            retVal.m_sSubject = m_sForgotPassMailSubject;
-            retVal.m_sSenderTo = sEmail;
-            retVal.m_sSenderName = m_sMailFromName;
-            retVal.m_sSenderFrom = m_sMailFromAdd;
-            retVal.m_sFirstName = sFirstName;
-            retVal.m_eMailType = eMailTemplateType.ForgotPassword;
+            ForgotPasswordMailRequest retVal = new ForgotPasswordMailRequest()
+            {
+                m_sToken = token,
+                m_sTemplateName = string.IsNullOrEmpty(templateName) ? m_sForgotPasswordMail : templateName,
+                m_sSubject = m_sForgotPassMailSubject,
+                m_sSenderTo = email,
+                m_sSenderName = m_sMailFromName,
+                m_sSenderFrom = m_sMailFromAdd,
+                m_sFirstName = firstName,
+                m_eMailType = eMailTemplateType.ForgotPassword
+            };
+            
             return retVal;
         }
 

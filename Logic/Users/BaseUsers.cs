@@ -122,7 +122,7 @@ namespace Core.Users
         public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
         public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
         public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
-        public abstract UserResponseObject ForgotPassword(string sUN);
+        public abstract UserResponseObject ForgotPassword(string sUN, string templateName);
         public abstract UserResponseObject ChangePassword(string sUN);
         public abstract ResponseStatus SendChangedPinMail(string sSiteGuid, int nRuleID);
         public abstract string GetUserToken(string sSiteGUID, Int32 nGroupID);
