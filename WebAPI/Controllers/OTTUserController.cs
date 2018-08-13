@@ -279,17 +279,19 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
+        
         /// <summary>
         /// Send an e-mail with URL to enable the user to set new password.
-        /// </summary>        
+        /// </summary>
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
-        /// <remarks></remarks>
+        /// <param name="templateName">Template name for reset password</param>
+        /// <returns></returns>
         [Action("resetPassword")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardAction("sendPassword")]
-        static public bool resetPassword(int partnerId, string username)
+        [SchemeArgument("templateName", RequiresPermission = true)]
+        static public bool resetPassword(int partnerId, string username, string templateName = null)
         {
             bool response = false;
 
@@ -297,19 +299,15 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
             }
+
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().SendNewPassword(partnerId, username);
+                response = ClientsManager.UsersClient().SendNewPassword(partnerId, username, templateName);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }
-
-            if (response == false)
-            {
-                throw new InternalServerErrorException();
             }
 
             return response;

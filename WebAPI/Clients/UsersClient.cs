@@ -156,34 +156,10 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public bool SendNewPassword(int groupId, string userName)
+        public bool SendNewPassword(int groupId, string userName, string templateName)
         {
-            ApiObjects.Response.Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.SendRenewalPasswordMail(groupId, userName);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SendNewPassword. Username: {0}, exception: {1}", userName, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
+            Func<ApiObjects.Response.Status> sendRenewalPasswordMailFunc = () => Core.Users.Module.SendRenewalPasswordMail(groupId, userName, templateName);
+            return ClientUtils.GetResponseStatusFromWS(sendRenewalPasswordMailFunc);
         }
 
         public bool RenewPassword(int groupId, string userName, string password)

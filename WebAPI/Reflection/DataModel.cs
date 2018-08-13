@@ -7413,7 +7413,7 @@ namespace WebAPI.Reflection
                             {
                                 return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
-                            return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                            return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setinitialpassword":
                             if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
@@ -7463,7 +7463,7 @@ namespace WebAPI.Reflection
                         case "sendPassword":
                             if(isOldVersion)
                             {
-                                return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1]);
+                                return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             break;
                             
@@ -13511,6 +13511,17 @@ namespace WebAPI.Reflection
                             ret.Add("username", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            ret.Add("templateName", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("templateName", "ottUser", "resetPassword") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
                             });
                             return ret;
                             

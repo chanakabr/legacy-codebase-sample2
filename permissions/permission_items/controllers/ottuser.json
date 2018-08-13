@@ -270,6 +270,19 @@
       "service": "OTTUser",
       "action": "AddRole",
       "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "OTTUser_resetPassword_templateName",
+      "parameter": "templateName",
+      "service": "OTTUser",
+      "action": "resetPassword",
+      "type": "Argument"
     }
   ],
   "type": "Action"

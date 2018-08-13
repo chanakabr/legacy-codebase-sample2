@@ -4478,13 +4478,14 @@
             Wrong username or password = 1011, User exists = 2014
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String,System.String)">
             <summary>
             Send an e-mail with URL to enable the user to set new password.
-            </summary>        
+            </summary>
             <param name="partnerId">Partner Identifier</param>
             <param name="username">user name</param>
-            <remarks></remarks>
+            <param name="templateName">Template name for reset password</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.setInitialPassword(System.Int32,System.String,System.String)">
             <summary>
