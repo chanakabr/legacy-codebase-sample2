@@ -299,16 +299,7 @@ namespace Core.Catalog.CatalogManagement
                                 assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
                             }
 
-                            AssetStructMeta assetStructMeta = new AssetStructMeta()
-                            {
-                                AssetStructId = assetStructId,
-                                MetaId = metaId,
-                                IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
-                                ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
-                                DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
-                                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
-                                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"))
-                            };
+                            AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, assetStructId, metaId);
 
                             idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
                         }
@@ -679,22 +670,42 @@ namespace Core.Catalog.CatalogManagement
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    AssetStructMeta assetStructMeta = new AssetStructMeta()
-                    {
-                        AssetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"),
-                        MetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"),
-                        IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
-                        ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
-                        DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
-                        CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
-                        UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"))
-                    };
-
+                    AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr,
+                        ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"),
+                        ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"));
                     assetStructMetaList.Add(assetStructMeta);
                 }
             }
 
             return assetStructMetaList;
+        }
+
+        private static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
+        {
+            int? ingestPolicyId = ODBCWrapper.Utils.GetNullableInt(dr, "INGEST_INHERITANCE_POLICY");
+            IngestInheritancePolicy? ingestPolicy = null;
+            if (ingestPolicyId.HasValue)
+                ingestPolicy = (IngestInheritancePolicy)Enum.Parse(typeof(IngestInheritancePolicy), ingestPolicyId.Value.ToString());
+
+            int? parentInheritancePolicyId = ODBCWrapper.Utils.GetNullableInt(dr, "INGEST_INHERITANCE_POLICY");
+            InheritancePolicy? parentInheritancePolicy = null;
+            if (parentInheritancePolicyId.HasValue)
+                parentInheritancePolicy = (InheritancePolicy)Enum.Parse(typeof(InheritancePolicy), parentInheritancePolicyId.Value.ToString());
+
+            AssetStructMeta assetStructMeta = new AssetStructMeta()
+            {
+                AssetStructId = assetStructId,
+                MetaId = metaId,
+                IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
+                ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
+                DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
+                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
+                ParentAssetStructId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_ASSET_STRUCT_ID"),
+                IngestPolicy = ingestPolicy,
+                ParentInheritancePolicy = parentInheritancePolicy
+            };
+            return assetStructMeta;
         }
 
         #endregion
@@ -1875,9 +1886,18 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
+                int? parentInheritancePolicy = null;
+                if (assetStructMeta.ParentInheritancePolicy.HasValue)
+                    parentInheritancePolicy = (int)assetStructMeta.ParentInheritancePolicy.Value;
+
+                int? ingestPolicy = null;
+                if (assetStructMeta.IngestPolicy.HasValue)
+                    ingestPolicy = (int)assetStructMeta.IngestPolicy.Value;
+
                 DataTable dt = CatalogDAL.UpdateAssetStructMeta
-                    (assetStructId, MetaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId);
-                
+                                        (assetStructId, MetaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
+                    assetStructMeta.ParentAssetStructId, parentInheritancePolicy, ingestPolicy);
+
                 List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
 
                 if (assetStructMetaList != null)
