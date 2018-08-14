@@ -1741,11 +1741,14 @@ namespace Core.ConditionalAccess
                     if (domain.m_DomainStatus != DomainStatus.OK &&
                         domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
-                            response.Code = (int)eResponseStatus.DomainSuspended;
-                            response.Message = "Domain suspended";
-                            return response;
+                            if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            {
+                                response.Code = (int)eResponseStatus.DomainSuspended;
+                                response.Message = "Domain suspended";
+                                return response;
+                            }
                         }
                         else
                         {
