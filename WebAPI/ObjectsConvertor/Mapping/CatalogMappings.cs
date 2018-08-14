@@ -716,7 +716,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectFromIngest, opt => opt.MapFrom(src => src.ProtectFromIngest))
                 .ForMember(dest => dest.DefaultIngestValue, opt => opt.MapFrom(src => src.DefaultIngestValue))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.ParentAssetStructId, opt => opt.MapFrom(src => src.ParentAssetStructId))
+                .ForMember(dest => dest.ParentInheritancePolicy, opt => opt.MapFrom(src => ConvertToInheritancePolicy(src.ParentInheritancePolicy)))
+                .ForMember(dest => dest.IngestInheritancePolicy, opt => opt.MapFrom(src => ConvertToIngestInheritancePolicy(src.IngestPolicy)))
+                ;
 
             // KalturaAssetStructMeta to AssetStructMeta
             cfg.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
@@ -726,7 +730,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProtectFromIngest, opt => opt.MapFrom(src => src.ProtectFromIngest))
                .ForMember(dest => dest.DefaultIngestValue, opt => opt.MapFrom(src => src.DefaultIngestValue))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+               .ForMember(dest => dest.ParentInheritancePolicy, opt => opt.MapFrom(src => ConvertToInheritancePolicy(src.ParentInheritancePolicy)))
+               .ForMember(dest => dest.IngestPolicy, opt => opt.MapFrom(src => ConvertToIngestInheritancePolicy(src.IngestInheritancePolicy)))
+                ;
 
             #endregion
 
@@ -864,7 +871,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
 
             #endregion
-        }
+        }      
 
         private static List<GroupsCacheManager.ManualMedia> ConvertToManualMedias(string mediaIdString)
         {
@@ -2381,6 +2388,90 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return ppvModules;
+        }
+
+        private static KalturaInheritancePolicy? ConvertToInheritancePolicy(InheritancePolicy? parentInheritancePolicy)
+        {
+            KalturaInheritancePolicy? response = null;
+            if (parentInheritancePolicy.HasValue)
+            {
+                switch (parentInheritancePolicy.Value)
+                {
+                    case InheritancePolicy.Add:
+                        response = KalturaInheritancePolicy.ADD;
+                        break;
+                    case InheritancePolicy.Replace:
+                        response = KalturaInheritancePolicy.REPLACE;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown InheritancePolicy");
+                }
+            }
+
+            return response;
+        }
+
+        private static InheritancePolicy? ConvertToInheritancePolicy(KalturaInheritancePolicy? parentInheritancePolicy)
+        {
+            InheritancePolicy? response = null;
+            if (parentInheritancePolicy.HasValue)
+            {
+                switch (parentInheritancePolicy.Value)
+                {
+                    case KalturaInheritancePolicy.ADD:
+                        response = InheritancePolicy.Add;
+                        break;
+                    case KalturaInheritancePolicy.REPLACE:
+                        response = InheritancePolicy.Replace;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaInheritancePolicy");
+                }
+            }
+
+            return response;
+        }
+
+        private static KalturaIngestInheritancePolicy? ConvertToIngestInheritancePolicy(IngestInheritancePolicy? ingestInheritancePolicy)
+        {
+            KalturaIngestInheritancePolicy? response = null;
+            if (ingestInheritancePolicy.HasValue)
+            {
+                switch (ingestInheritancePolicy.Value)
+                {
+                    case IngestInheritancePolicy.Add:
+                        response = KalturaIngestInheritancePolicy.ADD;
+                        break;
+                    case IngestInheritancePolicy.Replace:
+                        response = KalturaIngestInheritancePolicy.REPLACE;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown IngestInheritancePolicy");
+                }
+            }
+
+            return response;
+        }
+
+        private static IngestInheritancePolicy? ConvertToIngestInheritancePolicy(KalturaIngestInheritancePolicy? ingestInheritancePolicy)
+        {
+            IngestInheritancePolicy? response = null;
+            if (ingestInheritancePolicy.HasValue)
+            {
+                switch (ingestInheritancePolicy.Value)
+                {
+                    case KalturaIngestInheritancePolicy.ADD:
+                        response = IngestInheritancePolicy.Add;
+                        break;
+                    case KalturaIngestInheritancePolicy.REPLACE:
+                        response = IngestInheritancePolicy.Replace;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaIngestInheritancePolicy");
+                }
+            }
+
+            return response;
         }
     }
 }

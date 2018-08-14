@@ -76,5 +76,30 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
+
+        /// <summary>
+        ///  Parent Asset Struct id (template_id)
+        /// </summary>
+        [DataMember(Name = "parentAssetStructId")]
+        [JsonProperty(PropertyName = "parentAssetStructId")]
+        [XmlElement(ElementName = "parentAssetStructId", IsNullable = true)]        
+        public long? ParentAssetStructId { get; set; }
+
+        /// <summary>
+        ///  Parent Inheritance Policy
+        /// </summary>
+        [DataMember(Name = "parentInheritancePolicy")]
+        [JsonProperty(PropertyName = "parentInheritancePolicy")]
+        [XmlElement(ElementName = "parentInheritancePolicy", IsNullable = true)]
+        public KalturaInheritancePolicy? ParentInheritancePolicy { get; set; }
+
+
+        /// <summary>
+        ///  Ingest Inheritance Policy
+        /// </summary>
+        [DataMember(Name = "ingestInheritancePolicy")]
+        [JsonProperty(PropertyName = "ingestInheritancePolicy")]
+        [XmlElement(ElementName = "ingestInheritancePolicy", IsNullable = true)]
+        public KalturaIngestInheritancePolicy? IngestInheritancePolicy { get; set; }
     }
 }

@@ -8459,11 +8459,23 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("defaultIngestValue", "\"defaultIngestValue\": " + "\"" + EscapeJson(DefaultIngestValue) + "\"");
             }
+            if(IngestInheritancePolicy.HasValue)
+            {
+                ret.Add("ingestInheritancePolicy", "\"ingestInheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaIngestInheritancePolicy), IngestInheritancePolicy) + "\"");
+            }
             if(IngestReferencePath != null)
             {
                 ret.Add("ingestReferencePath", "\"ingestReferencePath\": " + "\"" + EscapeJson(IngestReferencePath) + "\"");
             }
             ret.Add("metaId", "\"metaId\": " + MetaId);
+            if(ParentAssetStructId.HasValue)
+            {
+                ret.Add("parentAssetStructId", "\"parentAssetStructId\": " + ParentAssetStructId);
+            }
+            if(ParentInheritancePolicy.HasValue)
+            {
+                ret.Add("parentInheritancePolicy", "\"parentInheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaInheritancePolicy), ParentInheritancePolicy) + "\"");
+            }
             if(ProtectFromIngest.HasValue)
             {
                 ret.Add("protectFromIngest", "\"protectFromIngest\": " + ProtectFromIngest.ToString().ToLower());
@@ -8483,11 +8495,23 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("defaultIngestValue", "<defaultIngestValue>" + EscapeXml(DefaultIngestValue) + "</defaultIngestValue>");
             }
+            if(IngestInheritancePolicy.HasValue)
+            {
+                ret.Add("ingestInheritancePolicy", "<ingestInheritancePolicy>" + "" + Enum.GetName(typeof(KalturaIngestInheritancePolicy), IngestInheritancePolicy) + "" + "</ingestInheritancePolicy>");
+            }
             if(IngestReferencePath != null)
             {
                 ret.Add("ingestReferencePath", "<ingestReferencePath>" + EscapeXml(IngestReferencePath) + "</ingestReferencePath>");
             }
             ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
+            if(ParentAssetStructId.HasValue)
+            {
+                ret.Add("parentAssetStructId", "<parentAssetStructId>" + ParentAssetStructId + "</parentAssetStructId>");
+            }
+            if(ParentInheritancePolicy.HasValue)
+            {
+                ret.Add("parentInheritancePolicy", "<parentInheritancePolicy>" + "" + Enum.GetName(typeof(KalturaInheritancePolicy), ParentInheritancePolicy) + "" + "</parentInheritancePolicy>");
+            }
             if(ProtectFromIngest.HasValue)
             {
                 ret.Add("protectFromIngest", "<protectFromIngest>" + ProtectFromIngest.ToString().ToLower() + "</protectFromIngest>");

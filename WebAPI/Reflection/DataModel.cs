@@ -629,10 +629,16 @@ namespace WebAPI.Reflection
                             return "createDate";
                         case "DefaultIngestValue":
                             return "defaultIngestValue";
+                        case "IngestInheritancePolicy":
+                            return "ingestInheritancePolicy";
                         case "IngestReferencePath":
                             return "ingestReferencePath";
                         case "MetaId":
                             return "metaId";
+                        case "ParentAssetStructId":
+                            return "parentAssetStructId";
+                        case "ParentInheritancePolicy":
+                            return "parentInheritancePolicy";
                         case "ProtectFromIngest":
                             return "protectFromIngest";
                         case "UpdateDate":
