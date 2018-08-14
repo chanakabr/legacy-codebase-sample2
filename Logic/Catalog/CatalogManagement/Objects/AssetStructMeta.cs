@@ -16,6 +16,9 @@ namespace Core.Catalog.CatalogManagement
         public string DefaultIngestValue { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
+        public long? ParentAssetStructId { get; set; }
+        public InheritancePolicy? ParentInheritancePolicy { get; set; }
+        public IngestInheritancePolicy? IngestPolicy { get; set; }
 
         public AssetStructMeta()
         {
@@ -37,7 +40,22 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("DefaultIngestValue: {0}, ", DefaultIngestValue);
             sb.AppendFormat("CreateDate: {0} ", CreateDate);
             sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
+            sb.AppendFormat("ParentAssetStructId: {0} ", ParentAssetStructId);            
+            sb.AppendFormat("InheritancePolicy: {0} ", ParentInheritancePolicy);            
+            sb.AppendFormat("IngestInheritancePolicy: {0} ", IngestPolicy);            
             return sb.ToString();
         }
+    }
+
+    public enum InheritancePolicy
+    {
+        Add = 0,
+        Replace = 1
+    }
+
+    public enum IngestInheritancePolicy
+    {
+        Add = 0,
+        Replace = 1
     }
 }
