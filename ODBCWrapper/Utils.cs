@@ -68,6 +68,20 @@ namespace ODBCWrapper
             }
         }
 
+        public static long? GetNullableLong(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return Int64.Parse(dr[sField].ToString());
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static int GetIntSafeVal(DataRowView dr, string sField)
         {
             try

@@ -5413,7 +5413,8 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId)
+        public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId,
+            long? parentAssetStructId, int? parentInheritancePolicy, int? ingestInheritancePolicy)
         {
             StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5424,6 +5425,9 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@DefaultIngestValue", defaultIngestValue);
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@UserId", userId);
+            sp.AddParameter("@ParentAssetStructId", parentAssetStructId);
+            sp.AddParameter("@ParentInheritancePolicy", parentInheritancePolicy);
+            sp.AddParameter("@IngestInheritancePolicy", ingestInheritancePolicy);
 
             return sp.Execute();
         }
