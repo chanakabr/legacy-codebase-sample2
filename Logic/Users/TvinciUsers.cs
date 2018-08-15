@@ -1091,12 +1091,6 @@ namespace Core.Users
             {
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User(m_nGroupID, nUserID);
-
-                if (string.IsNullOrEmpty(u.m_sSiteGUID))
-                {
-                    resp.Initialize(ResponseStatus.InternalError, null);
-                    return resp;
-                }
                 
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
