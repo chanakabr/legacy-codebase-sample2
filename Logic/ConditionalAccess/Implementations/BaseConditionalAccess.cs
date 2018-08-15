@@ -13961,12 +13961,13 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                // filter domain externalRecordingIds if exist
-                if (shouldFilterByExternalRecordingIds)
+                // filter domain externalRecordingIds if exist and domain has recordings
+                if (DomainRecordingIdToRecordingMap != null && shouldFilterByExternalRecordingIds)
                 {
                     DomainRecordingIdToRecordingMap = DomainRecordingIdToRecordingMap.Where(x => x.Value.isExternalRecording && externalRecordingIds.Contains((x.Value as ExternalRecording).ExternalDomainRecordingId)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
+                // if domain has recordings (could also be filtered by external recordings ID already)
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                 {
                     Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
