@@ -4719,15 +4719,31 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool DeleteMediaAsset(int groupId, long id, long userId)
+        public static bool DeleteMediaAsset(int groupId, long id, long userId, bool shouldClearMedia = false)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaAsset");
+            // TODO SHIR - UPDATE StoredProcedure DeleteMediaAsset
+            StoredProcedure sp = new StoredProcedure("DeleteMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+
+            // UPDATE DeleteMediaAsset PROC AND SEND PARAM "shouldClearMedia" (default = 0)
+            // add if statment and check if shouldClearMedia == 0 then:
+            // update dbo.media with(rowlock)
+            // set[status] = 2,
+            // update_date = @utcNow,
+            // updater_id = @UpdaterId
+            // where group_id = @GroupId
+            //  and id = @Id
+            //  and[status] = 1;
+            // else if shouldClearMedia == 1 then:
+            // in Table Media update: EPG_IDENTIFIER = "", BLOCK_TEMPLATE_ID = 0, device_rule_id = 0 WATCH_PERMISSION_TYPE_ID = ASK IRA, PLAYERS_RULES = ASK IRA 
+            // and keep the media in status 1 !!
+
+            // TODO SHIR - ASK IRA IF ALSO NEED TO CLEAR PICS IN ERASE CASE.
         }
 
         public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId)
