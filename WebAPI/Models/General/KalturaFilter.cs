@@ -36,18 +36,26 @@ namespace WebAPI.Models.General
         }
 
         // TODO SHIR - USE THIS IN ALL PLACES..
-        internal HashSet<T> GetIdsIn<T>(string idsIn, string propertyName) where T : IConvertible
+        /// <summary>
+        /// Convert comma separated string to collection.
+        /// </summary>
+        /// <typeparam name="U">Collection of T</typeparam>
+        /// <typeparam name="T">Type of items in collection</typeparam>
+        /// <param name="itemsIn">Comma separated string</param>
+        /// <param name="propertyName">The propery name of comma separated string (for error message)</param>
+        /// <returns></returns>
+        internal U GetItemsIn<U,T>(string itemsIn, string propertyName) where T : IConvertible where U : ICollection<T>
         {
-            HashSet<T> values = new HashSet<T>();
-
-            if (!string.IsNullOrEmpty(idsIn))
+            U values = Activator.CreateInstance<U>();
+            
+            if (!string.IsNullOrEmpty(itemsIn))
             {
-                string[] stringValues = idsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 Type t = typeof(T);
                 foreach (string stringValue in stringValues)
                 {
                     T value;
-
+                    
                     try
                     {
                         value = (T)Convert.ChangeType(stringValue, t);
@@ -59,12 +67,10 @@ namespace WebAPI.Models.General
 
                     if (value != null && !value.Equals(default(T)))
                     {
-                        if (values.Contains(value))
+                        if (!values.Contains(value))
                         {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, propertyName);
+                            values.Add(value);
                         }
-
-                        values.Add(value);
                     }
                     else
                     {

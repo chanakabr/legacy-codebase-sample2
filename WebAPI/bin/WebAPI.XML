@@ -9667,6 +9667,16 @@
             Base filter
             </summary>
         </member>
+        <member name="M:WebAPI.Models.General.KalturaFilter`1.GetItemsIn``2(System.String,System.String)">
+            <summary>
+            Convert comma separated string to collection.
+            </summary>
+            <typeparam name="U">Collection of T</typeparam>
+            <typeparam name="T">Type of items in collection</typeparam>
+            <param name="itemsIn">Comma separated string</param>
+            <param name="propertyName">The propery name of comma separated string (for error message)</param>
+            <returns></returns>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
             <summary>
             order by

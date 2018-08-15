@@ -79,45 +79,13 @@ namespace WebAPI.Models.Users
 
             return list;
         }
-
-        internal HashSet<long> GetRoleIdsIn()
-        {
-            // TODO SHIR - CHECK GetRoleIdsIn
-            // this.GetIdsIn<long>(RoleIdsIn, "roleIdsIn")
-            HashSet<long> values = new HashSet<long>();
-
-            if (!string.IsNullOrEmpty(RoleIdsIn))
-            {
-                string[] stringValues = RoleIdsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value) && value != 0)
-                    {
-                        if (values.Contains(value))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIdsIn");
-                        }
-
-                        values.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIdsIn");
-                    }
-                }
-            }
-            
-            return values;
-        }
-
+        
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
             return KalturaOTTUserOrderBy.NONE;
         }
     }
-
-
+    
     public enum KalturaOTTUserOrderBy
     {
         NONE   
