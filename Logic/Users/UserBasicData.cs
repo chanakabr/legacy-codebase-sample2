@@ -199,7 +199,6 @@ namespace Core.Users
             m_sEmail = WS_Utils.GetNodeValue(ref t, "email");
             m_sAddress = WS_Utils.GetNodeValue(ref t, "address");
             m_sCity = WS_Utils.GetNodeValue(ref t, "city");
-            // TODO SHIR - ASK LIOR IF TO ADD CREATE_DATE AND UPDATE_DATE HERE.. (OLD METHOD)
             
             string sbIsFacebookImagePermitted = WS_Utils.GetNodeValue(ref t, "facebookimagepermitted").ToLower().Trim();
             m_bIsFacebookImagePermitted = (sbIsFacebookImagePermitted == "true");

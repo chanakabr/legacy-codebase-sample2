@@ -35,7 +35,7 @@ namespace Core.Catalog
         {
         }
 
-        public Metas(TagMeta tagMeta, string value, List<LanguageContainer> languageContainer)
+        public Metas(TagMeta tagMeta, string value, IEnumerable<LanguageContainer> languageContainer = null)
         {
             m_oTagMeta = tagMeta;
             m_sValue = value;
@@ -60,7 +60,7 @@ namespace Core.Catalog
         {
         }
 
-        public Tags(TagMeta tagMeta, List<string> values, List<LanguageContainer[]> languageContainers)
+        public Tags(TagMeta tagMeta, List<string> values, IEnumerable<LanguageContainer[]> languageContainers)
         {
             m_oTagMeta = tagMeta;
             m_lValues = new List<string>(values);

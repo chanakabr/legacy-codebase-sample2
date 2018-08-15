@@ -340,7 +340,6 @@ namespace Core.Users
 
         internal override bool MidCreateDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo)
         {
-            // TODO SHIR - SEE IF DATA\INIT ARE CURRECT
             long roleId;
             int userId = int.Parse(siteGuid);
 

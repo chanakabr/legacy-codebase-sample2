@@ -799,7 +799,6 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                // TODO SHIR - ASK IRA IF NEED TO SET IT IN TVPAPI
                 return t.ForgotPassword(sUN, null);
             }
             else

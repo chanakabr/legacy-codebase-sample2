@@ -203,9 +203,9 @@
     <Compile Include="Catalog\CatalogManagement\Objects\AssetFile.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\IndexManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetStructMeta.cs" />
+    <Compile Include="Catalog\CatalogManagement\Objects\AssetXmlSerializer.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\EpgAsset.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\XmlAttribute.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ExcelTemplateAttribute.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaFileType.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Image.cs" />
@@ -861,6 +861,10 @@
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
+      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
+      <Name>TvinciImporter</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
