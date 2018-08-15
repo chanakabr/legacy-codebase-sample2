@@ -71,20 +71,16 @@ namespace Ingest
                         case eIngestType.Tvinci:
                             {
                                 OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "VOD Ingest";
-
-                                // TODO SHIR - USER_NAME AND PASSWORD OF OPC
+                                
                                 if (CatalogManager.DoesGroupUsesTemplates(groupID))
-                                {
-                                    if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
-                                    {
-                                        HandleMediaIngestResponse(response, request.Data, ingestResponse);
-                                    }
-                                }
-                                else
                                 {
                                     ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data);
                                 }
-                                
+                                else if(TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
+                                {
+                                    HandleMediaIngestResponse(response, request.Data, ingestResponse);
+                                }
+
                                 break;
                             }
                         case eIngestType.Adi:
@@ -146,7 +142,6 @@ namespace Ingest
             }
 
             return ingestResponse;
-
         }
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
