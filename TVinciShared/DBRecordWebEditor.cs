@@ -2519,48 +2519,45 @@ namespace TVinciShared
                 string sPicID = m_sStartValue;
                 if (m_sStartValue.EndsWith(";"))
                     sPicID = sPicID.Substring(0, sPicID.Length - 1);
-                Int32 nPicID = 0;
-                try
-                {
-                    nPicID = int.Parse(sPicID);
-                }
-                catch
-                {
-                }
+                int nPicID = 0;
+                int.TryParse(sPicID, out nPicID);
 
                 if (nPicID > 0 || !string.IsNullOrEmpty(ImageUrl))
                 {
-                    object oPic = PageUtils.GetTableSingleVal("pics", "BASE_URL", int.Parse(sPicID));
-                    if (oPic != DBNull.Value && oPic != null)
+                    sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
+
+                    if (isDownloadPicWithImageServer && !string.IsNullOrEmpty(ImageUrl))
                     {
-                        sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
-                        string sPicURL = ImageUtils.GetTNName(oPic.ToString(), "tn");
-                        if (sBasePicsURL.EndsWith("=") == true)
-                        {
-                            string sTmp1 = "";
-                            string[] s = sPicURL.Split('.');
-                            for (int i = 0; i < s.Length - 1; i++)
-                            {
-                                if (i > 0)
-                                    sTmp1 += ".";
-                                sTmp1 += s[i];
-                            }
-                            sPicURL = sTmp1;
-                        }
-                        sTmp += "<img src=\"";
-                        sTmp += sBasePicsURL;
-                        if (sBasePicsURL.EndsWith("=") == false)
-                            sTmp += "/";
-                        Random random = new Random();
-                        int randomInt = random.Next();
-                        sTmp += sPicURL + "\" class=\"img_border\"/>";
-                        sTmp += "</td></tr>";
+                        sTmp += "<img src=\"" + sBasePicsURL + "\" class=\"img_border\"/>";
                     }
                     else
                     {
-                        sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
-                        sTmp += "</td></tr>";
+                        object oPic = PageUtils.GetTableSingleVal("pics", "BASE_URL", int.Parse(sPicID));
+                        if (oPic != DBNull.Value && oPic != null)
+                        {
+                            string sPicURL = ImageUtils.GetTNName(oPic.ToString(), "tn");
+                            if (sBasePicsURL.EndsWith("=") == true)
+                            {
+                                string sTmp1 = "";
+                                string[] s = sPicURL.Split('.');
+                                for (int i = 0; i < s.Length - 1; i++)
+                                {
+                                    if (i > 0)
+                                        sTmp1 += ".";
+                                    sTmp1 += s[i];
+                                }
+                                sPicURL = sTmp1;
+                            }
+                            sTmp += "<img src=\"";
+                            sTmp += sBasePicsURL;
+                            if (sBasePicsURL.EndsWith("=") == false)
+                                sTmp += "/";
+                            sTmp += sPicURL + "\"";
+                            sTmp += " class=\"img_border\"/>";
+                        }
                     }
+
+                    sTmp += "</td></tr>";
                 }
                 else
                 {
