@@ -8468,9 +8468,9 @@ namespace WebAPI.Models.Catalog
                 ret.Add("ingestReferencePath", "\"ingestReferencePath\": " + "\"" + EscapeJson(IngestReferencePath) + "\"");
             }
             ret.Add("metaId", "\"metaId\": " + MetaId);
-            if(ParentAssetStructId.HasValue)
+            if(IsInherited.HasValue)
             {
-                ret.Add("parentAssetStructId", "\"parentAssetStructId\": " + ParentAssetStructId);
+                ret.Add("isInherited", "\"isInherited\": " + IsInherited);
             }
             if(ParentInheritancePolicy.HasValue)
             {
@@ -8504,9 +8504,9 @@ namespace WebAPI.Models.Catalog
                 ret.Add("ingestReferencePath", "<ingestReferencePath>" + EscapeXml(IngestReferencePath) + "</ingestReferencePath>");
             }
             ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
-            if(ParentAssetStructId.HasValue)
+            if(IsInherited.HasValue)
             {
-                ret.Add("parentAssetStructId", "<parentAssetStructId>" + ParentAssetStructId + "</parentAssetStructId>");
+                ret.Add("isInherited", "<isInherited>" + IsInherited + "</isInherited>");
             }
             if(ParentInheritancePolicy.HasValue)
             {

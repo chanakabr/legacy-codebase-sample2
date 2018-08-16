@@ -717,7 +717,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultIngestValue, opt => opt.MapFrom(src => src.DefaultIngestValue))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ParentAssetStructId, opt => opt.MapFrom(src => src.ParentAssetStructId))
+                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
                 .ForMember(dest => dest.ParentInheritancePolicy, opt => opt.MapFrom(src => ConvertToInheritancePolicy(src.ParentInheritancePolicy)))
                 .ForMember(dest => dest.IngestInheritancePolicy, opt => opt.MapFrom(src => ConvertToIngestInheritancePolicy(src.IngestPolicy)))
                 ;

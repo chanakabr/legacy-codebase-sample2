@@ -78,12 +78,12 @@ namespace WebAPI.Models.Catalog
         public long UpdateDate { get; set; }
 
         /// <summary>
-        ///  Parent Asset Struct id (template_id)
+        /// Is inherited
         /// </summary>
-        [DataMember(Name = "parentAssetStructId")]
-        [JsonProperty(PropertyName = "parentAssetStructId")]
-        [XmlElement(ElementName = "parentAssetStructId", IsNullable = true)]        
-        public long? ParentAssetStructId { get; set; }
+        [DataMember(Name = "isInherited")]
+        [JsonProperty(PropertyName = "isInherited")]
+        [XmlElement(ElementName = "isInherited", IsNullable = true)]        
+        public bool? IsInherited { get; set; }
 
         /// <summary>
         ///  Parent Inheritance Policy

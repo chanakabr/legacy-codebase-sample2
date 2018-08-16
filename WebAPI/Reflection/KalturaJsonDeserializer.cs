@@ -8770,7 +8770,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("parentAssetStructId") && parameters["parentAssetStructId"] != null)
                 {
-                    ParentAssetStructId = (Int64) Convert.ChangeType(parameters["parentAssetStructId"], typeof(Int64));
+                    IsInherited = (Boolean) Convert.ChangeType(parameters["isInherited"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("parentInheritancePolicy") && parameters["parentInheritancePolicy"] != null)
                 {

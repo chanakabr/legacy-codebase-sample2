@@ -6147,9 +6147,9 @@
             Specifies when was the Asset Struct Meta last updated. Date and time represented as epoch.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.ParentAssetStructId">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.IsInherited">
             <summary>
-             Parent Asset Struct id (template_id)
+            Is inherited
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.ParentInheritancePolicy">
