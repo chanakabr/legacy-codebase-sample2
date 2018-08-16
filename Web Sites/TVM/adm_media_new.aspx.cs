@@ -428,13 +428,12 @@ public partial class adm_media_new : System.Web.UI.Page
         // if media is not new - upload pic is allowed
         if (mediaId != null && !string.IsNullOrEmpty(mediaId.ToString()))
         {
-            bool isDownloadPicWithImageServer = false;
+            bool isDownloadPicWithImageServer = ImageUtils.IsDownloadPicWithImageServer();
             string imageUrl = string.Empty;
             int picId = 0;
 
-            if (ImageUtils.IsDownloadPicWithImageServer())
+            if (isDownloadPicWithImageServer)
             {
-                isDownloadPicWithImageServer = true;
                 int groupId = LoginManager.GetLoginGroupID();
                 imageUrl = GetPicImageUrlByRatio(mediaId, groupId, out picId);
             }
@@ -580,14 +579,17 @@ public partial class adm_media_new : System.Web.UI.Page
             {
                 //get default ratio from group
                 object ratio = ODBCWrapper.Utils.GetTableSingleVal("groups", "RATIO_ID", groupId);
-                if (ratio != null && ratio == DBNull.Value)
+                if (ratio != null && ratio != DBNull.Value)
                 {
                     ratioId = int.Parse(ratio.ToString());
                 }
             }
 
-            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, 94, 94);
         }
+
+        selectQuery.Finish();
+        selectQuery = null;
 
         return imageUrl;
     }
