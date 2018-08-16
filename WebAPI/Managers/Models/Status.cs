@@ -67,6 +67,10 @@ namespace WebAPI.Managers.Models
                 {
                     propertyValue = (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete);
                 }
+                else if (Result is bool)
+                {
+                    propertyValue = Result.ToString().ToLower();
+                }
                 else
                 {
                     propertyValue = Result.ToString();
