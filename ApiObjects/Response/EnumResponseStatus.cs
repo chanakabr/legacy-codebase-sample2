@@ -265,6 +265,11 @@ namespace ApiObjects.Response
         CanNotDeleteParentAssetStruct = 4072,
         CanNotDeleteConnectingAssetStructMeta = 4073,
         AccountIsNotOpcSupported = 4074,
+        NoParentAssociatedToTopic = 4075,
+        WrongParentAssociation = 4076,
+        MetaDoesNotBelongToParentAssetStruct = 4077,
+
+
 
         #endregion
 

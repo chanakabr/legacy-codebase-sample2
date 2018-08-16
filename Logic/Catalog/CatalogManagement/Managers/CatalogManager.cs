@@ -1,8 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Catalog.Response;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -83,9 +83,9 @@ namespace Core.Catalog.CatalogManagement
                         if (assetStructs == null || assetStructs.Count == 0)
                         {
                             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
-                        }                                                
-                        
-                        catalogGroupCache = new CatalogGroupCache(groupId.Value, languages, assetStructs, topics);                        
+                        }
+
+                        catalogGroupCache = new CatalogGroupCache(groupId.Value, languages, assetStructs, topics);
 
                         res = true;
                     }
@@ -175,16 +175,16 @@ namespace Core.Catalog.CatalogManagement
                     long connectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID");
                     long connectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID");
                     string pluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME");
-                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, associationTag, parentId, 
+                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, associationTag, parentId,
                                                 createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0, 
+                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
                                                 features, connectingMetaId, connectedParentMetaId, pluralName);
                 }
             }
 
             return result;
         }
-        
+
         private static GenericResponse<AssetStruct> CreateAssetStructResponseFromDataSet(DataSet ds, List<KeyValuePair<long, int>> insertedMetaIdsToPriority = null)
         {
             GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
@@ -281,13 +281,13 @@ namespace Core.Catalog.CatalogManagement
                 if (metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0 && idToAssetStructMap.Count > 0)
                 {
                     Dictionary<long, Dictionary<int, long>> assetStructOrderedMetasMap = new Dictionary<long, Dictionary<int, long>>();
-                    
+
                     foreach (DataRow dr in metasDt.Rows)
                     {
                         long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
                         long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
                         int order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER", 0);
-                        
+
                         if (assetStructId > 0 && metaId > 0 && order > 0 && idToAssetStructMap.ContainsKey(assetStructId))
                         {
                             if (assetStructOrderedMetasMap.ContainsKey(assetStructId))
@@ -630,7 +630,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
-        }        
+        }
 
         private static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
         {
@@ -659,7 +659,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         private static List<AssetStructMeta> CreateAssetStructMetaListFromDT(DataTable dt)
         {
             List<AssetStructMeta> assetStructMetaList = null;
@@ -701,7 +701,7 @@ namespace Core.Catalog.CatalogManagement
                 DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
                 CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
                 UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
-                ParentAssetStructId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_ASSET_STRUCT_ID"),
+                IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1 ? true : false,
                 IngestPolicy = ingestPolicy,
                 ParentInheritancePolicy = parentInheritancePolicy
             };
@@ -931,7 +931,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, 
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
                                                           assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
                                                           assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId);
                 result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
@@ -944,7 +944,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
@@ -977,17 +977,17 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
-                
+
                 AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
-                if (assetStruct.IsPredefined.HasValue && 
-                    assetStruct.IsPredefined.Value && 
-                    assetStructToUpdate.SystemName != null && 
+                if (assetStruct.IsPredefined.HasValue &&
+                    assetStruct.IsPredefined.Value &&
+                    assetStructToUpdate.SystemName != null &&
                     assetStruct.SystemName != assetStructToUpdate.SystemName)
                 {
                     result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
                 }
-                
+
                 if (shouldUpdateMetaIds)
                 {
                     // validate basic metas
@@ -1002,12 +1002,12 @@ namespace Core.Catalog.CatalogManagement
                     List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
-                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, 
+                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist,
                                          string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                         return result;
                     }
                 }
-                
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
                 {
@@ -1023,7 +1023,7 @@ namespace Core.Catalog.CatalogManagement
                     if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
                     {
                         shouldUpdateMetaIds = false;
-                    }                    
+                    }
                 }
 
                 // check if assets and index should be updated now
@@ -1051,7 +1051,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, 
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
                                                           assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
                                                           assetStructToUpdate.ParentId);
@@ -1288,7 +1288,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
                 }
-                
+
                 /************** According to new TVM UI system name can not be modified so no need for this validation *************************************************/
                 //if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null && topicToUpdate.SystemName != topic.SystemName)
                 //{
@@ -1357,7 +1357,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
-                {                    
+                {
                     bool isTag = topic.Type == MetaType.Tag;
                     List<long> tagTopicIds = new List<long>();
                     List<long> metaTopicIds = new List<long>();
@@ -1678,7 +1678,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     return result;
                 }
-                
+
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
                 if (tagToUpdate.TagsInOtherLanguages != null)
@@ -1861,7 +1861,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long MetaId, AssetStructMeta assetStructMeta, int groupId, long userId)
+        public static GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
         {
             GenericResponse<AssetStructMeta> response = new GenericResponse<AssetStructMeta>();
 
@@ -1880,43 +1880,101 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (!catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds.Contains(MetaId))
+                if (!catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds.Contains(metaId))
                 {
                     response.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return response;
                 }
 
-                int? parentInheritancePolicy = null;
-                if (assetStructMeta.ParentInheritancePolicy.HasValue)
-                    parentInheritancePolicy = (int)assetStructMeta.ParentInheritancePolicy.Value;
+                // Validate Metadata Inheritance
+                Status metaDataInheritanceStatus = new Status(0, eResponseStatus.OK.ToString());
 
-                int? ingestPolicy = null;
-                if (assetStructMeta.IngestPolicy.HasValue)
-                    ingestPolicy = (int)assetStructMeta.IngestPolicy.Value;
-
-                DataTable dt = CatalogDAL.UpdateAssetStructMeta
-                                        (assetStructId, MetaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
-                    assetStructMeta.ParentAssetStructId, parentInheritancePolicy, ingestPolicy);
-
-                List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
-
-                if (assetStructMetaList != null)
+                if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
                 {
-                    response.Object = assetStructMetaList.FirstOrDefault();
+                    metaDataInheritanceStatus = ValidateMetadataInheritance(catalogGroupCache, assetStructId, metaId, assetStructMeta);
                 }
 
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
+                if (metaDataInheritanceStatus.Code == (int)eResponseStatus.OK)
+                {
+                    int? parentInheritancePolicy = null;
+                    if (assetStructMeta.ParentInheritancePolicy.HasValue)
+                        parentInheritancePolicy = (int)assetStructMeta.ParentInheritancePolicy.Value;
+
+                    int? ingestPolicy = null;
+                    if (assetStructMeta.IngestPolicy.HasValue)
+                        ingestPolicy = (int)assetStructMeta.IngestPolicy.Value;
+
+                    DataTable dt = CatalogDAL.UpdateAssetStructMeta
+                                            (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
+                        assetStructMeta.IsInherited, parentInheritancePolicy, ingestPolicy);
+
+                    List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
+
+                    if (assetStructMetaList != null)
+                    {
+                        response.Object = assetStructMetaList.FirstOrDefault();
+                    }
+
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed UpdateAssetStructMeta for groupId: {0}, assetStructId: {1}, MetaId: {2} and assetStructMeta: {3}",
-                                        groupId, assetStructId, MetaId, assetStructMeta.ToString()), ex);
+                                        groupId, assetStructId, metaId, assetStructMeta.ToString()), ex);
             }
 
             return response;
         }
-        
+
+        private static Status ValidateMetadataInheritance(CatalogGroupCache catalogGroupCache, long assetStructId, long metaId, AssetStructMeta assetStructMeta)
+        {
+            Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            // Get AssetStructMeta from cache, compare IsInherited with current assetStructMeta
+            AssetStructMeta currentAssetStructMeta = catalogGroupCache.AssetStructsMapById[assetStructId].AssetStructMetas[metaId];
+            if (currentAssetStructMeta.IsInherited == assetStructMeta.IsInherited)
+            {
+                return status;
+            }
+
+            AssetStruct currentAssetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
+            if (!currentAssetStruct.ParentId.HasValue)
+            {
+                return new Status((int)eResponseStatus.NoParentAssociatedToTopic, "No parent associated to topic");
+            }
+
+            // check meta existed at parent        
+            AssetStruct parentAssetStruct = catalogGroupCache.AssetStructsMapById[currentAssetStruct.ParentId.Value];
+
+            if (parentAssetStruct.MetaIds.Contains(metaId))
+            {
+                status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            else
+            {
+                return new Status((int)eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "Meta does not belong to ParentAssetStruct");
+            }
+
+
+            return status;
+
+        }
+
+        private static Status CheckMetaExistenceAtAssetStruct(AssetStruct assetStruct, long metaId)
+        {
+            // check meta existed at parent 
+            if (assetStruct.MetaIds.Contains(metaId))
+            {
+                return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            else
+            {
+                return new Status((int)eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "Meta does not belong to ParentAssetStruct");
+            }
+        }
+
         public static GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
         {
             GenericListResponse<AssetStructMeta> response = new GenericListResponse<AssetStructMeta>();
@@ -1965,5 +2023,191 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
+
+        /*
+         * isInherited changed to true
+        Handle Heritage ( assetStructId, metaId) 
+
+            Get parent Asset Struct
+
+
+        */
+
+        // add action / add connection or remove
+        public static bool HandleHeritage(int groupId, long assetStructId, long metaId)
+        {
+            bool result = false;
+            CatalogGroupCache catalogGroupCache;
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStructMeta", groupId);
+                return result;
+            }
+
+            AssetStruct currentAssetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
+            if (currentAssetStruct == null)
+            {
+                log.ErrorFormat("Error. AssetStruct {0}, for group {1} not exist.", assetStructId, groupId);
+                return result;
+            }
+
+            if (!currentAssetStruct.ParentId.HasValue)
+            {
+                log.ErrorFormat("Error. AssetStruct {0} without ParentId , for group {1} not exist.", assetStructId, groupId);
+                return result;
+            }
+
+            AssetStruct parentAssetStruct = catalogGroupCache.AssetStructsMapById[currentAssetStruct.ParentId.Value];
+            if (parentAssetStruct == null)
+            {
+                log.ErrorFormat("Error. Parent AssetStruct {0}, for group {1} not exist.", currentAssetStruct.ParentId, groupId);
+                return result;
+            }
+
+            if (!currentAssetStruct.AssetStructMetas.ContainsKey(metaId) || !currentAssetStruct.AssetStructMetas[metaId].ParentInheritancePolicy.HasValue)
+            {
+                //log.ErrorFormat("Error. Parent AssetStruct {0}, for group {1} not exist.", currentAssetStruct.ParentId, groupId);
+                return result;
+            }
+
+            AssetStructMeta currentAssetStructMeta = currentAssetStruct.AssetStructMetas[metaId];
+
+            string filter = string.Empty;
+            string connectedParentMetaSystemName = string.Empty;
+            string connectingMetaSystemName = string.Empty;
+            Topic inhertiedMeta = null;
+
+            //get meta system_name
+            if (catalogGroupCache.TopicsMapById.ContainsKey(metaId))
+            {
+                inhertiedMeta = catalogGroupCache.TopicsMapById[metaId];
+            }
+            else
+            {
+                log.ErrorFormat("Error. Meta is missing {0}, for group {1} not exist.", metaId, groupId);
+                return result;
+            }
+
+            // get connected parent connectedParentMetaSystemName
+            if (currentAssetStruct.ConnectedParentMetaId.HasValue && catalogGroupCache.TopicsMapById.ContainsKey(currentAssetStruct.ConnectedParentMetaId.Value))
+            {
+                connectedParentMetaSystemName = catalogGroupCache.TopicsMapById[currentAssetStruct.ConnectedParentMetaId.Value].SystemName;
+            }
+            else
+            {
+                log.ErrorFormat("Error. ConnectedParentMetaId is missing {0}, for assetStruct {1} at group {2} not exist.", metaId, assetStructId, groupId);
+                return result;
+            }
+
+            // get connected parent connectingMetaSystemName
+            Topic connectingMeta = null;
+            if (currentAssetStruct.ConnectingMetaId.HasValue && catalogGroupCache.TopicsMapById.ContainsKey(currentAssetStruct.ConnectingMetaId.Value))
+            {
+                connectingMeta = catalogGroupCache.TopicsMapById[currentAssetStruct.ConnectingMetaId.Value];
+                connectingMetaSystemName = connectingMeta.SystemName;
+            }
+            else
+            {
+                log.ErrorFormat("Error. ConnectingMetaId is missing {0}, for assetStruct {1} at group {2} not exist.", metaId, assetStructId, groupId);
+                return result;
+            }
+
+            // Get Assets according parentAssetStruct.ConnectingMetaId
+            filter = string.Format("(and asset_type='{0}' {1}+'')", parentAssetStruct.Id, connectingMetaSystemName); // Getting all parent assets that contains value for this meta
+
+            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+            string metaSystemNameValue = string.Empty;
+            string connectedParentMetaSystemNameValue = string.Empty;
+            string connectingMetaValue = string.Empty;
+
+            foreach (UnifiedSearchResult asset in assets)
+            {
+                GenericResponse<Asset> mediaAsset = AssetManager.GetAsset(groupId, long.Parse(asset.AssetId), eAssetTypes.MEDIA, true);
+
+                if (mediaAsset.Status.Code != (int)eResponseStatus.OK || mediaAsset.Object == null)
+                {
+                    log.ErrorFormat("");
+                    continue;
+                }
+
+                var meta = mediaAsset.Object.Metas.Where(x => x.m_oTagMeta.m_sName == connectingMetaSystemName).FirstOrDefault();
+                if (meta != null)
+                {
+                    connectingMetaValue = meta.m_sValue;
+                }
+
+                string inhertiedMetaValue = "";
+
+                // take only asset that need to be updated                    
+                if (inhertiedMeta.Type == MetaType.Tag)
+                {
+                    var tag = mediaAsset.Object.Tags.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                    if (tag != null && tag.m_lValues != null && tag.m_lValues.Count > 0)
+                    {
+                        inhertiedMetaValue = tag.m_lValues[0];
+                    }
+                }
+                else
+                {
+                    var meta1 = mediaAsset.Object.Metas.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                    if (meta1 != null)
+                    {
+                        inhertiedMetaValue = meta.m_sValue;
+                    }
+                }
+
+
+                filter = string.Format("(and asset_type='{0}' {1}='{2}')", currentAssetStruct.Id, connectingMetaSystemName, connectingMetaValue); // Getting all parent assets that contains value for this meta
+
+                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+                if (childAssetIds == null || childAssetIds.Length == 0)
+                {
+                    //log.ErrorFormat("");
+                    continue;
+                }
+
+                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+
+                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
+
+                string connectedParentMetaSystemNameValue1 = string.Empty;
+                List<long> assetsToUpdate = new List<long>();
+                foreach (Asset childAsset in childAssets)
+                {
+                    // take only asset that need to be updated                    
+                    if (inhertiedMeta.Type == MetaType.Tag)
+                    {
+                        var tag = childAsset.Tags.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                        if (tag != null && tag.m_lValues != null && tag.m_lValues.Count > 0 && !tag.m_lValues[0].ToLower().Equals(inhertiedMetaValue.ToLower()))
+                        {
+                            assetsToUpdate.Add(childAsset.Id);
+                        }
+                    }
+                    else
+                    {
+                        var meta2 = childAsset.Metas.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                        if (meta2 != null && !meta2.m_sValue.ToLower().Equals(inhertiedMetaValue.ToLower()))
+                        {
+                            assetsToUpdate.Add(childAsset.Id);
+                        }
+                    }
+                }
+
+                switch (currentAssetStructMeta.ParentInheritancePolicy.Value)
+                {
+                    case InheritancePolicy.Add:
+
+                        break;
+                    case InheritancePolicy.Replace:
+
+                        break;
+                    default:
+                        log.ErrorFormat("");
+                        break;
+                }
+            }
+
+            return result;
+        }
     }
 }

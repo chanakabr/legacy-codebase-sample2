@@ -15,10 +15,10 @@ namespace Core.Catalog.CatalogManagement
         public bool? ProtectFromIngest { get; set; }
         public string DefaultIngestValue { get; set; }
         public long CreateDate { get; set; }
-        public long UpdateDate { get; set; }
-        public long? ParentAssetStructId { get; set; }
+        public long UpdateDate { get; set; }        
         public InheritancePolicy? ParentInheritancePolicy { get; set; }
         public IngestInheritancePolicy? IngestPolicy { get; set; }
+        public bool? IsInherited { get; set; }
 
         public AssetStructMeta()
         {
@@ -40,7 +40,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("DefaultIngestValue: {0}, ", DefaultIngestValue);
             sb.AppendFormat("CreateDate: {0} ", CreateDate);
             sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
-            sb.AppendFormat("ParentAssetStructId: {0} ", ParentAssetStructId);            
+            sb.AppendFormat("IsInherited: {0} ", IsInherited);            
             sb.AppendFormat("InheritancePolicy: {0} ", ParentInheritancePolicy);            
             sb.AppendFormat("IngestInheritancePolicy: {0} ", IngestPolicy);            
             return sb.ToString();
