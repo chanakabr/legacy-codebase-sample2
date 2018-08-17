@@ -853,7 +853,6 @@ namespace Core.ConditionalAccess
                 return res;
             }
 
-
             if (!resp.isOK)
             {
                 log.Error("Error - " + GetNPVRLogMsg(String.Concat("CalcNPVRLicensedLink. Response is not OK. Msg: ", resp.msg), sSiteGUID, sProgramId, false, null));
@@ -861,6 +860,38 @@ namespace Core.ConditionalAccess
             }
 
             res = resp.licensedLink;
+
+            if (drmAdapterId == 0)
+            {
+                try
+                {
+                    string key = string.Format("mfDrmAdapterId_{0}", nMediaFileID);
+
+                    if (CachingManager.CachingManager.Exist(key))
+                    {
+                        int.TryParse((string)CachingManager.CachingManager.GetCachedData(key), out drmAdapterId);
+                    }
+                    else
+                    {
+                        string url = string.Empty;
+                        string sc = string.Empty;
+                        int scId = 0;
+                        string ft = string.Empty;
+                        ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref url, ref sc, ref scId, ref ft, out drmAdapterId);
+
+                        CachingManager.CachingManager.SetCachedData(key, drmAdapterId.ToString(), 3600, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    drmAdapterId = 0;
+                }
+
+                if (drmAdapterId > 0)
+                {
+                    log.DebugFormat("Update drmAdapterId:{0}", drmAdapterId);
+                }
+            }
 
             if (drmAdapterId > 0)
             { 
