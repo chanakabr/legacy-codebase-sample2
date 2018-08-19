@@ -300,7 +300,6 @@ namespace Core.Users
             LongIdsResponse userIdsResponse = Module.GetUserRoleIds(groupId, userId);
             if (userIdsResponse != null && userIdsResponse.Status != null && userIdsResponse.Status.Code == (int)eResponseStatus.OK && userIdsResponse.Ids != null)
             {
-                //TODO SHIR - CHECK IN THE FUTURE IF OVERRIDE CURRENT ROLES
                 RoleIds = userIdsResponse.Ids;
                 isRoleIdsSet = true;
             }
