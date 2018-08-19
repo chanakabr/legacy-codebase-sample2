@@ -1863,20 +1863,10 @@ namespace TvinciImporter
                 DateTime dCreate = GetDateTimeFromStrUTF(sCreateDate, DateTime.UtcNow);
                 DateTime dCatalogEndDate = GetDateTimeFromStrUTF(sCatalogEndDate, new DateTime(2099, 1, 1));
                 DateTime dFinalEndDate = GetDateTimeFromStrUTF(sFinalEndDate, dCatalogEndDate);
-
-                string sThumb = GetNodeParameterVal(ref theItem, "basic/thumb", "url");
-
+                
                 XmlNode theItemName = theItem.SelectSingleNode("basic/name");
                 XmlNode theItemDesc = theItem.SelectSingleNode("basic/description");
-                XmlNodeList thePicRatios = theItem.SelectNodes("basic/pic_ratios/ratio");
-                XmlNodeList theStrings = theItem.SelectNodes("structure/strings/meta");
-                XmlNodeList theDoubles = theItem.SelectNodes("structure/doubles/meta");
-                XmlNodeList theBools = theItem.SelectNodes("structure/booleans/meta");
-                XmlNodeList theDates = theItem.SelectNodes("structure/dates/meta");
-                XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
-                XmlNodeList theFiles = theItem.SelectNodes("files/file");
-
-
+                
                 string sMainLang = "";
                 Int32 nLangID = 0;
                 GetLangData(nGroupID, ref sMainLang, ref nLangID);
@@ -1888,7 +1878,9 @@ namespace TvinciImporter
                 //update InternalAssetId 
                 ingestAssetStatus.InternalAssetId = nMediaID;
 
+
                 // get all ratio and ratio's pic url from input xml
+                XmlNodeList thePicRatios = theItem.SelectNodes("basic/pic_ratios/ratio");
                 Dictionary<string, string> ratioStrThumb = SetRatioStrThumb(thePicRatios);
 
                 Dictionary<int, List<string>> ratioSizesList = new Dictionary<int, List<string>>();
@@ -1897,6 +1889,7 @@ namespace TvinciImporter
                 SetRatioIdsWithPicUrl(nGroupID, ratioStrThumb, out ratioSizesList, out ratiosThumb);
 
                 //set default ratio with size
+                string sThumb = GetNodeParameterVal(ref theItem, "basic/thumb", "url");
                 if (!string.IsNullOrEmpty(sThumb))
                 {
                     log.DebugFormat("ProcessItem - Thumb Url:{0}, mediaId:{1}", sThumb, nMediaID);
@@ -1912,13 +1905,26 @@ namespace TvinciImporter
                         ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
                     }
                 }
+                
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
+
+                XmlNodeList theStrings = theItem.SelectNodes("structure/strings/meta");
                 UpdateStringMainLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
+
+                XmlNodeList theDoubles = theItem.SelectNodes("structure/doubles/meta");
                 UpdateDoublesData(nGroupID, nMediaID, sMainLang, ref theDoubles, ref sErrorMessage);
+
+                XmlNodeList theBools = theItem.SelectNodes("structure/booleans/meta");
                 UpdateBoolsData(nGroupID, nMediaID, sMainLang, ref theBools, ref sErrorMessage);
+
+                XmlNodeList theDates = theItem.SelectNodes("structure/dates/meta");
                 UpdateDatesData(nGroupID, nMediaID, ref theDates, ref sErrorMessage);
+
+                XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
                 UpdateMetas(nGroupID, nMediaID, sMainLang, ref theMetas, ref sErrorMessage);
+
+                XmlNodeList theFiles = theItem.SelectNodes("files/file");
                 UpdateFiles(nGroupID, sMainLang, nMediaID, ref theFiles, ref sErrorMessage);
 
                 ProtocolsFuncs.SeperateMediaTexts(nMediaID);
