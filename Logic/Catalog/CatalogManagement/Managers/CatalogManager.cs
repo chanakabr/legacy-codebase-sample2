@@ -1158,6 +1158,12 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
             {
+                if (!DoesGroupUsesTemplates(groupId))
+                {
+                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return response;
+                }
+
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -1190,6 +1196,12 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
             {
+                if (!DoesGroupUsesTemplates(groupId))
+                {
+                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return response;
+                }
+
                 if (assetStructId > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
@@ -1225,7 +1237,14 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
             {
-                CatalogGroupCache catalogGroupCache;
+
+                if (!DoesGroupUsesTemplates(groupId))
+                {
+                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return result;
+                }
+
+                CatalogGroupCache catalogGroupCache = null;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
@@ -1265,6 +1284,12 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
             {
+                if (!DoesGroupUsesTemplates(groupId))
+                {
+                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return result;
+                }
+
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -1316,6 +1341,12 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
+                if (!DoesGroupUsesTemplates(groupId))
+                {
+                    result.Set((int)eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                    return result;
+                }
+
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
