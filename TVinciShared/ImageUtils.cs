@@ -863,7 +863,7 @@ namespace TVinciShared
             return res;
         }
 
-        public static int GetGroupDefaultRatioId(int groupId)
+        public static int GetGroupDefaultRatio(int groupId)
         {
             int rationId = 0;
 
@@ -884,38 +884,7 @@ namespace TVinciShared
             selectQuery = null;
             return rationId;
         }
-
-        // TODO SHIR - use good method
-        public static string GetGroupDefaultRatioName(int ratioId)
-        {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-            try
-            {
-                selectQuery += "select ratio from lu_pics_ratios where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", ratioId);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
-                    {
-                        return selectQuery.Table("query").DefaultView[0].Row["ratio"].ToString();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                log.ErrorFormat("GetRatioVal failed for ratioId: {0}.", ratioId);
-            }
-            finally
-            {
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-
-            return null;
-        }
-
+        
         public static int GetGroupDefaultEpgRatio(int groupId)
         {
             int rationId = 0;
