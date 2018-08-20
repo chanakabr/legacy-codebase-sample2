@@ -98,7 +98,7 @@ namespace Core.Catalog.CatalogManagement
 
             GenericListResponse<ImageType> imageTypes = ImageManager.GetImageTypes(groupId, false, null);
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
-            string groupDefaultRatioName = ImageUtils.GetGroupDefaultRatioName(ImageUtils.GetGroupDefaultRatioId(groupId));
+            string groupDefaultRatioName = ImageUtils.GetGroupDefaultRatioName(ImageUtils.GetGroupDefaultRatio(groupId));
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)
             {
