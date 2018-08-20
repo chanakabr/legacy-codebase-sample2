@@ -1973,26 +1973,7 @@ namespace TVinciShared
 
             return enqueueSuccessful;
         }
-
-        static private string GetRatioVal(string ratioID)
-        {
-            string retVal = string.Empty;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select ratio from lu_pics_ratios where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(ratioID));
-            if (selectQuery.Execute("query", true) != null)
-            {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                if (count > 0)
-                {
-                    retVal = selectQuery.Table("query").DefaultView[0].Row["ratio"].ToString();
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return retVal;
-        }
-
+        
         static public Int32 DoTheWork()
         {
             return DoTheWork("");
