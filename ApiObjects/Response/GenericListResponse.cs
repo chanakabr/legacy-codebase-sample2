@@ -43,7 +43,7 @@ namespace ApiObjects.Response
 
         public bool HasObjects()
         {
-            return (Status.Code == (int)eResponseStatus.OK && Objects != null && Objects.Count > 0);
+            return (Status != null && Status.Code == (int)eResponseStatus.OK && Objects != null && Objects.Count > 0);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -24,6 +25,26 @@ namespace ApiObjects
 
         [DataMember(Name = "AssetsStatus", Order = 4)]
         public List<IngestAssetStatus> AssetsStatus { get; set; }
+        
+        public void Set(string coGuid, string errorMessage, string status, int mediaId)
+        {
+            this.AssetID = coGuid;
+            AddError(errorMessage);
+            this.Status = status;
+            this.TvmID = mediaId.ToString();
+        }
+
+        public void AddError(string errorMessage)
+        {
+            if (string.IsNullOrEmpty(this.Description))
+            {
+                this.Description = errorMessage;
+            }
+            else
+            {
+                this.Description += " | " + errorMessage;
+            }
+        }
     }
 }
 

@@ -449,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
