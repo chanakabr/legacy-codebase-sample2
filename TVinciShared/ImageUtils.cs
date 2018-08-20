@@ -863,7 +863,7 @@ namespace TVinciShared
             return res;
         }
 
-        public static int GetGroupDefaultRatioId(int groupId)
+        public static int GetGroupDefaultRatio(int groupId)
         {
             int rationId = 0;
 

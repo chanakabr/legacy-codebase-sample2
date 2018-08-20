@@ -3050,7 +3050,7 @@ namespace TvinciImporter
             // in case ratio Id = 0 get default group's ratio
             if (ratioId <= 0)
             {
-                ratioId = ImageUtils.GetGroupDefaultRatioId(groupId);
+                ratioId = ImageUtils.GetGroupDefaultRatio(groupId);
             }
 
             //get pic data           
