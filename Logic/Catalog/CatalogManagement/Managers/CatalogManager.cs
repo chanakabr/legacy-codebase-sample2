@@ -934,146 +934,153 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        public static GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
+        public static GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId, bool shouldCheckRegularFlowValidations = true)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
-                    return result;
-                }
-
-                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
-                {
-                    result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
-                    return result;
-                }
-
-                if (assetStructToUpdate.ParentId.HasValue)
-                {
-                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
-                    {
-                        result.SetStatus(eResponseStatus.AssetStructDoesNotExist, "Parent AssetStruct does not exist");
-                        return result;
-                    }
-
-                    if (assetStructToUpdate.ParentId.Value == id)
-                    {
-                        result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "Parent id should not point to itself");
-                        return result;
-                    }
-                }
-                
-                AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
-                if (assetStruct.IsPredefined.HasValue && 
-                    assetStruct.IsPredefined.Value && 
-                    assetStructToUpdate.SystemName != null && 
-                    assetStruct.SystemName != assetStructToUpdate.SystemName)
-                {
-                    result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
-                    return result;
-                }
-                
-                if (shouldUpdateMetaIds)
-                {
-                    // validate basic metas
-                    Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache);
-                    if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
-                    {
-                        result.SetStatus(validateBasicMetasResult);
-                        return result;
-                    }
-
-                    // validate meta ids exist
-                    List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
-                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
-                    {
-                        result.SetStatus(eResponseStatus.MetaIdsDoesNotExist, 
-                                         string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
-                        return result;
-                    }
-                }
-                
-                List<KeyValuePair<long, int>> metaIdsToPriority = null;
-                if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
-                {
-                    metaIdsToPriority = new List<KeyValuePair<long, int>>();
-                    int priority = 1;
-                    foreach (long metaId in assetStructToUpdate.MetaIds)
-                    {
-                        metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
-                        priority++;
-                    }
-
-                    // no need to update DB if lists are equal
-                    if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
-                    {
-                        shouldUpdateMetaIds = false;
-                    }                    
-                }
-
-                // check if assets and index should be updated now
-                bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds;
-                List<long> removedTopicIds = new List<long>();
-                if (shouldUpdateAssetStructAssets && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds != null)
-                {
-                    removedTopicIds = assetStruct.MetaIds.Except(assetStructToUpdate.MetaIds).ToList();
-                    // if its just the oreder of the metas being changed on the asset struct we don't need to update the assets
-                    if (removedTopicIds == null || removedTopicIds.Count == 0)
-                    {
-                        shouldUpdateAssetStructAssets = false;
-                    }
-                }
-
-                List<KeyValuePair<string, string>> languageCodeToName = null;
+                CatalogGroupCache catalogGroupCache = null;
                 bool shouldUpdateOtherNames = false;
-                if (assetStructToUpdate.NamesInOtherLanguages != null)
-                {
-                    shouldUpdateOtherNames = true;
-                    languageCodeToName = new List<KeyValuePair<string, string>>();
-                    foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
+                List<KeyValuePair<string, string>> languageCodeToName = null;
+                List<KeyValuePair<long, int>> metaIdsToPriority = null;
+                List<long> removedTopicIds = new List<long>();
+                bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds;
+
+                if (shouldCheckRegularFlowValidations)
+                {                    
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
+                        return result;
+                    }
+
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
+                    {
+                        result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    if (assetStructToUpdate.ParentId.HasValue)
+                    {
+                        if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
+                        {
+                            result.SetStatus(eResponseStatus.AssetStructDoesNotExist, "Parent AssetStruct does not exist");
+                            return result;
+                        }
+
+                        if (assetStructToUpdate.ParentId.Value == id)
+                        {
+                            result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "Parent id should not point to itself");
+                            return result;
+                        }
+                    }
+
+                    AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
+                    if (assetStruct.IsPredefined.HasValue &&
+                        assetStruct.IsPredefined.Value &&
+                        assetStructToUpdate.SystemName != null &&
+                        assetStruct.SystemName != assetStructToUpdate.SystemName)
+                    {
+                        result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
+                        return result;
+                    }
+
+                    if (shouldUpdateMetaIds)
+                    {
+                        // validate basic metas
+                        Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache);
+                        if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
+                        {
+                            result.SetStatus(validateBasicMetasResult);
+                            return result;
+                        }
+
+                        // validate meta ids exist
+                        List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
+                        if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                        {
+                            result.SetStatus(eResponseStatus.MetaIdsDoesNotExist,
+                                             string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                            return result;
+                        }
+                    }
+
+                    if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
+                    {
+                        metaIdsToPriority = new List<KeyValuePair<long, int>>();
+                        int priority = 1;
+                        foreach (long metaId in assetStructToUpdate.MetaIds)
+                        {
+                            metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
+                            priority++;
+                        }
+
+                        // no need to update DB if lists are equal
+                        if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
+                        {
+                            shouldUpdateMetaIds = false;
+                        }
+                    }
+
+                    // check if assets and index should be updated now                                 
+                    if (shouldUpdateAssetStructAssets && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds != null)
+                    {
+                        removedTopicIds = assetStruct.MetaIds.Except(assetStructToUpdate.MetaIds).ToList();
+                        // if its just the oreder of the metas being changed on the asset struct we don't need to update the assets
+                        if (removedTopicIds == null || removedTopicIds.Count == 0)
+                        {
+                            shouldUpdateAssetStructAssets = false;
+                        }
+                    }
+
+                    if (assetStructToUpdate.NamesInOtherLanguages != null)
+                    {
+                        shouldUpdateOtherNames = true;
+                        languageCodeToName = new List<KeyValuePair<string, string>>();
+                        foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
+                        {
+                            languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        }
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, 
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
                                                           assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
                                                           assetStructToUpdate.ParentId);
                 result = CreateAssetStructResponseFromDataSet(ds);
 
-                if (result.Status != null && result.Status.Code == (int)eResponseStatus.OK && shouldUpdateAssetStructAssets && removedTopicIds != null && removedTopicIds.Count > 0)
+                if (shouldCheckRegularFlowValidations)
                 {
-                    List<long> tagTopicIds = new List<long>();
-                    List<long> metaTopicIds = new List<long>();
-                    foreach (long topicId in removedTopicIds)
+                    if (result.Status != null && result.Status.Code == (int)eResponseStatus.OK && shouldUpdateAssetStructAssets && removedTopicIds != null && removedTopicIds.Count > 0)
                     {
-                        if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                        List<long> tagTopicIds = new List<long>();
+                        List<long> metaTopicIds = new List<long>();
+                        foreach (long topicId in removedTopicIds)
                         {
-                            Topic topicToRemoveFromAssetStruct = catalogGroupCache.TopicsMapById[topicId];
-                            if (topicToRemoveFromAssetStruct.Type == MetaType.Tag)
+                            if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
                             {
-                                tagTopicIds.Add(topicId);
+                                Topic topicToRemoveFromAssetStruct = catalogGroupCache.TopicsMapById[topicId];
+                                if (topicToRemoveFromAssetStruct.Type == MetaType.Tag)
+                                {
+                                    tagTopicIds.Add(topicId);
+                                }
+                                else
+                                {
+                                    metaTopicIds.Add(topicId);
+                                }
                             }
-                            else
-                            {
-                                metaTopicIds.Add(topicId);
-                            }
+                        }
+
+                        if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, false, metaTopicIds, id, userId))
+                        {
+                            log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
+                                            groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
                         }
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, false, metaTopicIds, id, userId))
-                    {
-                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
-                                        groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
-                    }
+                    InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
                 }
-
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)
             {
@@ -1232,29 +1239,32 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId)
+        public static GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true)
         {
             GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
             {
-
-                if (!DoesGroupUsesTemplates(groupId))
+                if (shouldCheckRegularFlowValidations)
                 {
-                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                    return result;
-                }
 
-                CatalogGroupCache catalogGroupCache = null;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
-                    return result;
-                }
+                    if (!DoesGroupUsesTemplates(groupId))
+                    {
+                        result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                        return result;
+                    }
 
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
-                {
-                    result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
-                    return result;
+                    CatalogGroupCache catalogGroupCache = null;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
+                        return result;
+                    }
+
+                    if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
+                    {
+                        result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
+                        return result;
+                    }
                 }
 
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -1269,7 +1279,10 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, languageCodeToName, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
+                if (shouldCheckRegularFlowValidations)
+                {
+                    InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
+                }
             }
             catch (Exception ex)
             {
