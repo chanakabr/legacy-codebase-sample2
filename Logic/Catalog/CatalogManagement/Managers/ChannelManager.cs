@@ -365,6 +365,39 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static Status ValidateChannelMediaTypes(int groupId, Channel channel)
+        {
+            Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ValidateChannelMediaTypes", groupId);
+                    result.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return result;
+                }
+
+                List<int> groupAssetTypes = new List<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
+                // add epg type for backward compatibility
+                groupAssetTypes.Add(APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE);
+                List<int> noneGroupAssetTypes = new List<int>(channel.m_nMediaType.Except(groupAssetTypes));
+                if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
+                {
+                    result.Set((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                    eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed ValidateChannelMediaTypes for groupId: {0} when calling UpdateChannel", groupId);
+                result.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Internal Methods
@@ -498,18 +531,10 @@ namespace Core.Catalog.CatalogManagement
                     // Validate asset types
                     if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToAdd);
+                        if (validateAssetTypesResult.IsOkStatusCode())
                         {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
-                            return response;
-                        }
-
-                        List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
-                        if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
-                        {
-                            response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                            eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                            response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
                             return response;
                         }
                     }
@@ -670,18 +695,10 @@ namespace Core.Catalog.CatalogManagement
                 // Validate asset types
                 if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
                 {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
+                    if (validateAssetTypesResult.IsOkStatusCode())
                     {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
-                        return response;
-                    }
-
-                    List<int> noneGroupAssetTypes = channelToUpdate.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
-                    if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
-                    {
-                        response.SetStatus(eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                            eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                        response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
                         return response;
                     }
                 }
