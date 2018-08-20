@@ -79,6 +79,63 @@ namespace Core.Catalog.CatalogManagement
     {
         [XmlElement("value")]
         public List<IngestLanguageValue> Values { get; set; }
+
+        internal void Validate(string parameterName, string GroupDefaultLanguageCode,  bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
+        {
+        //    if (Values != null && Values.Count > 0)
+        //    {
+        //        if (string.IsNullOrEmpty(GroupDefaultLanguageCode))
+        //        {
+        //            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+        //        }
+
+        //        if (string.IsNullOrEmpty(RequestLanguageCode))
+        //        {
+        //            RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+        //        }
+
+        //        HashSet<string> languageCodes = new HashSet<string>();
+        //        HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
+
+        //        foreach (KalturaTranslationToken token in Values)
+        //        {
+        //            if (languageCodes.Contains(token.Language))
+        //            {
+        //                throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
+        //            }
+
+        //            if (shouldValidateValues)
+        //            {
+
+        //                if (string.IsNullOrEmpty(token.Value))
+        //                {
+        //                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
+        //                }
+
+
+        //                if (!groupLanguageCodes.Contains(token.Language))
+        //                {
+        //                    throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
+        //                }
+        //            }
+
+        //            languageCodes.Add(token.Language);
+        //        }
+
+        //        if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(GroupDefaultLanguageCode))
+        //        {
+        //            throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT, parameterName);
+        //        }
+
+        //        if (shouldValidateRequestLanguage)
+        //        {
+        //            if (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*")
+        //            {
+        //                throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
+        //            }
+        //        }
+        //    }
+        }
     }
 
     public class IngestThumb
@@ -257,7 +314,7 @@ namespace Core.Catalog.CatalogManagement
         public string IsDefaultLanguage { get; set; }
 
         [XmlAttribute("output_protection_level")]
-        public string OutputProtectionLevel { get; set; }
+        public string OutputProtecationLevel { get; set; }
 
         [XmlAttribute("file_start_date")]
         public string FileStartDate { get; set; }
