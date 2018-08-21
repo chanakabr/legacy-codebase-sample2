@@ -185,6 +185,13 @@ namespace Core.Catalog.CatalogManagement
                                     continue;
                                 }
                             }
+                            
+                            // UpdateIndex
+                            bool indexingResult = IndexManager.UpsertMedia(groupId, (int)mediaAsset.Id);
+                            if (!indexingResult)
+                            {
+                                log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+                            }
                         }
 
                         // TODO SHIR - ASK IRA ABOUT THIS
@@ -269,15 +276,19 @@ namespace Core.Catalog.CatalogManagement
             {
                 ingestAssetStatus.Status.Set(genericResponse.Status.Code, genericResponse.Status.Message);
                 log.Debug("InsertMediaAsset - AddAsset faild");
-                ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", (int)mediaAsset.Id);
+                ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", 0);
                 ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false; ;
+            }
+            else
+            {
+                mediaAsset.Id = genericResponse.Object.Id;
             }
                        
             var images = GetImages(media.Basic, groupId, imageTypes, groupDefaultRatioId, groupRatios);
             if (images != null && images.Count > 0)
             {
-                Status handleAssetImagesStatus = HandleAssetImages(groupId, genericResponse.Object.Id, eAssetImageType.Media, images, false);
+                Status handleAssetImagesStatus = HandleAssetImages(groupId, mediaAsset.Id, eAssetImageType.Media, images, false);
                 if (handleAssetImagesStatus != null && handleAssetImagesStatus.Code != (int)eResponseStatus.OK)
                 {
                     // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
@@ -293,7 +304,7 @@ namespace Core.Catalog.CatalogManagement
             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
             if (assetFiles != null && assetFiles.Count > 0)
             {
-                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, genericResponse.Object.Id, assetFiles, true);
+                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, mediaAsset.Id, assetFiles, true);
                 if (HandleAssetFilesStatus != null && HandleAssetFilesStatus.Code != (int)eResponseStatus.OK)
                 {
                     // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
@@ -995,6 +1006,7 @@ namespace Core.Catalog.CatalogManagement
                             foreach (Image image in imagesToUpdate)
                             {
                                 image.Id = imageTypeIdsToIdsMapToUpdate[image.ImageTypeId];
+                                image.ImageObjectId = assetId;
                             }
                         }
                     }
@@ -1011,6 +1023,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (var imageToAdd in imagesToAdd)
                     {
+                        imageToAdd.ImageObjectId = assetId;
                         GenericResponse<Image> addImageResponse = ImageManager.AddImage(groupId, imageToAdd, USER_ID);
                         if (addImageResponse == null || !addImageResponse.HasObject() || addImageResponse.Object.Id == 0)
                         {
