@@ -3494,21 +3494,18 @@ namespace TvinciImporter
             return res;
         }
 
-        static protected void EnterClipMediaFile(string sPicType,
-            Int32 nMediaID, Int32 nPicID, Int32 nGroupID, string sQuality, string sCDN, string sCDNId,
-            string sCDNCode, string sBillingType,
-            string sPreRule, string sPostRule, string sBreakRule,
-            string sOverlayRule, string sBreakPoints, string sOverlayPoints,
-            bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
-            string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode,
-            DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, string sAltCDN, string sAltCDNID, string sAltCDNCode, long fileSize)
+        static protected void EnterClipMediaFile(string sPicType, Int32 nMediaID, Int32 nPicID, Int32 nGroupID, string sQuality, string sCDN, 
+                                                 string sCDNId, string sCDNCode, string sBillingType, string sPreRule, string sPostRule, 
+                                                 string sBreakRule, string sOverlayRule, string sBreakPoints, string sOverlayPoints,
+                                                 bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, 
+                                                 string ppvModuleName, string sCoGuid, string sContractFamily, string sLanguage, 
+                                                 int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, 
+                                                 string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, 
+                                                 string sAltCDN, string sAltCDNID, string sAltCDNCode, long fileSize)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
-
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
-
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
-
             Int32 nCDNId = 0, nAltCDNId = 0;
 
             if (String.IsNullOrEmpty(sCDNId))
