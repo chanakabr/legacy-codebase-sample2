@@ -3,6 +3,7 @@ using System.Xml;
 using System.Collections.Generic;
 using ApiObjects.Response;
 using System;
+using System.Linq;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -86,56 +87,59 @@ namespace Core.Catalog.CatalogManagement
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            if (Values != null && Values.Count > 0)
+            if (Values == null || Values.Count == 0)
             {
-                HashSet<string> languageCodes = new HashSet<string>();
+                status.Set((int)eResponseStatus.NameRequired, parameterName + " cannot be empty");
+                return status;
+            }
 
-                foreach (IngestLanguageValue ingestLanguageValue in Values)
+            HashSet<string> languageCodes = new HashSet<string>();
+
+            foreach (IngestLanguageValue ingestLanguageValue in Values)
+            {
+                if (languageCodes.Contains(ingestLanguageValue.LangCode))
                 {
-                    if (languageCodes.Contains(ingestLanguageValue.LangCode))
-                    {
-                        // TODO SHIR - ASK LIOR FOR CODE StatusCode.DuplicateLanguageSent
-                        status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
-                        return status;
-                    }
-
-                    if (shouldValidateValues)
-                    {
-                        if (string.IsNullOrEmpty(ingestLanguageValue.Text))
-                        {
-                            status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                            return status;
-                        }
-                        
-                        if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
-                        {
-                            // TODO SHIR - ASK LIOR FOR CODE StatusCode.GroupDoesNotContainLanguage
-                            status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
-                            return status;
-                        }
-                    }
-
-                    languageCodes.Add(ingestLanguageValue.LangCode);
-                }
-
-                if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
-                {
-                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.DefaultLanguageMustBeSent
-                    status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
+                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.DuplicateLanguageSent
+                    status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
                     return status;
                 }
 
-                // TODO SHIR - ASK LIOR ABOUT RequestLanguageCode
-                //if (string.IsNullOrEmpty(RequestLanguageCode))
-                //{
-                //    RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-                //}
+                if (shouldValidateValues)
+                {
+                    if (string.IsNullOrEmpty(ingestLanguageValue.Text))
+                    {
+                        status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
+                        return status;
+                    }
 
-                //if (shouldValidateRequestLanguage && (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*"))
-                //{
-                //    throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
-                //}
+                    if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
+                    {
+                        // TODO SHIR - ASK LIOR FOR CODE StatusCode.GroupDoesNotContainLanguage
+                        status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
+                        return status;
+                    }
+                }
+
+                languageCodes.Add(ingestLanguageValue.LangCode);
             }
+
+            if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
+            {
+                // TODO SHIR - ASK LIOR FOR CODE StatusCode.DefaultLanguageMustBeSent
+                status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
+                return status;
+            }
+
+            // TODO SHIR - ASK LIOR ABOUT RequestLanguageCode
+            //if (string.IsNullOrEmpty(RequestLanguageCode))
+            //{
+            //    RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+            //}
+
+            //if (shouldValidateRequestLanguage && (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*"))
+            //{
+            //    throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
+            //}
 
             return status;
         }
@@ -236,28 +240,31 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal Status ValidateMetaTags()
+        internal Status ValidateMetaTags(string mainLanguageName, HashSet<string> groupLanguageCodes)
         {
-            // TODO SHIR - FINISH ValidateMetaTags
-            //if (Tags != null && Tags.Count > 0)
-            //{
-            //    foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
-            //    {
-            //        if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
-            //        {
-            //            foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
-            //            {
-            //                List<ApiObjects.LanguageContainer> noneDefaultLanugageContainer = item.value.GetNoneDefaultLanugageContainer();
-            //                if (noneDefaultLanugageContainer != null && noneDefaultLanugageContainer.Count > 0)
-            //                {
-            //                    throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
-            //                }
-            //            }
-            //        }
+            if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
+            {
+                foreach (var metaTag in Metas.MetaTags)
+                {
+                    if (metaTag.Containers != null && metaTag.Containers.Count > 0)
+                    {
+                        foreach (var item in metaTag.Containers)
+                        {
+                            if (item.Values != null && item.Values.Count > 0)
+                            {
+                                var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
+                                if (otherTagLangCount > 0)
+                                {
+                                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.TagTranslationNotAllowed
+                                    return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");   
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-            //    }
-            //}
-            return null;
+            return new Status((int)eResponseStatus.OK);
         }
     }
 
