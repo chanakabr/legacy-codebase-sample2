@@ -2,8 +2,7 @@
   "roles": [
     {
       "permissions": [
-        "Anonymous",
-		"PLAYBACK_PPV"
+        "Anonymous"
       ],
       "excluded_permissions": [],
       "name": "Guest"
