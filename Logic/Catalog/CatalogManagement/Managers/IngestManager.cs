@@ -273,11 +273,11 @@ namespace Core.Catalog.CatalogManagement
                 ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false; ;
             }
-
+                       
             var images = GetImages(media.Basic, groupId, imageTypes, groupDefaultRatioId, groupRatios);
             if (images != null && images.Count > 0)
             {
-                Status handleAssetImagesStatus = HandleAssetImages(groupId, mediaAsset.Id, eAssetImageType.Media, images, false);
+                Status handleAssetImagesStatus = HandleAssetImages(groupId, genericResponse.Object.Id, eAssetImageType.Media, images, false);
                 if (handleAssetImagesStatus != null && handleAssetImagesStatus.Code != (int)eResponseStatus.OK)
                 {
                     // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
@@ -293,7 +293,7 @@ namespace Core.Catalog.CatalogManagement
             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
             if (assetFiles != null && assetFiles.Count > 0)
             {
-                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, mediaAsset.Id, assetFiles, true);
+                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, genericResponse.Object.Id, assetFiles, true);
                 if (HandleAssetFilesStatus != null && HandleAssetFilesStatus.Code != (int)eResponseStatus.OK)
                 {
                     // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
