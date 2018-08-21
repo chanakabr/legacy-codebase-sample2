@@ -4379,8 +4379,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
@@ -4477,8 +4475,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "KSql":
-                            return "kSql";
                         case "TypeIn":
                             return "typeIn";
                     }
