@@ -458,7 +458,7 @@ namespace Core.Notification
 
                 if (ratio != null && ratio != DBNull.Value)
                 {
-                    Picture pic = mediaImages.Where(p => p.ratio == ratio.ToString()).FirstOrDefault();
+                    Picture pic = mediaImages.FirstOrDefault(p => p.ratio == ratio.ToString());
                     if (pic != null)
                     {
                         imageUrl = pic.m_sURL;
