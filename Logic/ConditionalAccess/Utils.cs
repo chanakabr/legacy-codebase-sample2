@@ -1762,7 +1762,7 @@ namespace Core.ConditionalAccess
                 price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theCol.m_oCollectionPriceCode.m_oPrise));
             }
 
-            if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
+            if (!string.IsNullOrEmpty(sSiteGUID) && sSiteGUID != "0" && blockEntitlement == BlockEntitlementType.BLOCK_PPV)
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
@@ -2185,7 +2185,7 @@ namespace Core.ConditionalAccess
                 return null;
             }
 
-            bool isUserValidRes = true;
+            bool isUserValidRes = !string.IsNullOrEmpty(sSiteGUID) && sSiteGUID != "0";
             // get user status and validity if needed
             if (shouldCheckUserStatus)
             {
@@ -2194,12 +2194,12 @@ namespace Core.ConditionalAccess
             }
 
             // check user status and validity
-            if (blockEntitlement == BlockEntitlementType.NONE && isUserValidRes && userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
+            if (isUserValidRes && blockEntitlement == BlockEntitlementType.NONE && userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
             }
-            else if (blockEntitlement == BlockEntitlementType.BLOCK_ALL)
+            else if (isUserValidRes && blockEntitlement == BlockEntitlementType.BLOCK_ALL)
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
