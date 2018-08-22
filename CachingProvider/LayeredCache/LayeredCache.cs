@@ -35,11 +35,11 @@ namespace CachingProvider.LayeredCache
         {
             get
             {
-                if (instance == null)
+                if (instance == null || layeredCacheTcmConfig == null)
                 {
                     lock (locker)
                     {
-                        if (instance == null)
+                        if (instance == null || layeredCacheTcmConfig == null)
                         {
                             instance = new LayeredCache();
                         }
@@ -516,7 +516,7 @@ namespace CachingProvider.LayeredCache
             {
                 if (layeredCacheTcmConfig != null && layeredCacheTcmConfig.BucketSettings != null && layeredCacheTcmConfig.BucketSettings.Count > 0)
                 {
-                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType == cacheType).FirstOrDefault();
+                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.FirstOrDefault(x => x.CacheType == cacheType);
                     if (bucketSettings != null && bucketSettings.Bucket != eCouchbaseBucket.DEFAULT)
                     {
                         bucketName = bucketSettings.Bucket.ToString();
@@ -1272,8 +1272,9 @@ namespace CachingProvider.LayeredCache
                     return res;
                 }
 
-                LayeredCacheConfig invalidationKeyCacheConfig = layeredCacheTcmConfig.InvalidationKeySettings.Where(x => x.Type == LayeredCacheType.CbCache
-                                                                                                    || x.Type == LayeredCacheType.CbMemCache).DefaultIfEmpty(null).First();
+                LayeredCacheConfig invalidationKeyCacheConfig = layeredCacheTcmConfig.InvalidationKeySettings
+                    .FirstOrDefault(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache);
+
                 if (invalidationKeyCacheConfig == null)
                 {
                     return res;
