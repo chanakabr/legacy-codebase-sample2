@@ -6559,8 +6559,7 @@ namespace Core.ConditionalAccess
                 // check if user is valid
                 if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
                 {
-                    if (userSuspendStatus == DomainSuspentionStatus.Suspended &&
-                        blockEntitlement == BlockEntitlementType.NONE)
+                    if (userSuspendStatus == DomainSuspentionStatus.Suspended && blockEntitlement == BlockEntitlementType.NONE)
                     {
                         userId = string.Empty;
                     }

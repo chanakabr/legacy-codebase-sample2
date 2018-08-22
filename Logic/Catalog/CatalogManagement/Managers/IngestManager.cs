@@ -183,6 +183,13 @@ namespace Core.Catalog.CatalogManagement
                                     continue;
                                 }
                             }
+                            
+                            // UpdateIndex
+                            bool indexingResult = IndexManager.UpsertMedia(groupId, (int)mediaAsset.Id);
+                            if (!indexingResult)
+                            {
+                                log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+                            }
                         }
 
                         // TODO SHIR - ASK IRA ABOUT THIS
@@ -262,12 +269,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
                 log.Debug("InsertMediaAsset - AddAsset faild");
-                ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", (int)mediaAsset.Id);
+                ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", 0);
                 return false; ;
             }
 
             mediaAsset.Id = genericResponse.Object.Id;
-
+            
             if (UpsertMediaAssetImagesAndFiles(false, mediaAsset.Id, true, groupId, media, imageTypes, groupDefaultRatioId, groupRatios, mediaFileTypes, ref ingestResponse, mediaIndex))
             {
                 ingestResponse.Set(mediaAsset.CoGuid, "succeeded insert media", "OK", (int)mediaAsset.Id);
@@ -974,6 +981,7 @@ namespace Core.Catalog.CatalogManagement
                             foreach (Image image in imagesToUpdate)
                             {
                                 image.Id = imageTypeIdsToIdsMapToUpdate[image.ImageTypeId];
+                                image.ImageObjectId = assetId;
                             }
                         }
                     }
@@ -990,6 +998,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (var imageToAdd in imagesToAdd)
                     {
+                        imageToAdd.ImageObjectId = assetId;
                         GenericResponse<Image> addImageResponse = ImageManager.AddImage(groupId, imageToAdd, USER_ID);
                         if (addImageResponse == null || !addImageResponse.HasObject() || addImageResponse.Object.Id == 0)
                         {
