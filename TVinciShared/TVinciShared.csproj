@@ -119,6 +119,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoolUtils.cs" />
     <Compile Include="CacheServerNotifier.cs" />
     <Compile Include="CBTableWebEditor.cs" />
     <Compile Include="CertificateTruster.cs" />

@@ -30,10 +30,18 @@ namespace TVinciShared
             if (!string.IsNullOrEmpty(value))
             {
                 Type t = typeof(T);
-                var convertedValue = Convert.ChangeType(value, t);
-                if (convertedValue != null && convertedValue is T)
+
+                try
                 {
-                    return (T)convertedValue;
+                    var convertedValue = Convert.ChangeType(value, t);
+                    if (convertedValue != null && convertedValue is T)
+                    {
+                        return (T)convertedValue;
+                    }
+                }
+                catch (Exception)
+                {
+                    return null;
                 }
             }
 
