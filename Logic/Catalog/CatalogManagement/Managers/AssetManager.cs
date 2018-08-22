@@ -652,8 +652,8 @@ namespace Core.Catalog.CatalogManagement
                     break;
                 case MetaType.Bool:
                     isValidMeta = true;
-                    int intVal;
-                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
+                    bool boolVal;
+                    isValidMetaValue = bool.TryParse(meta.m_sValue, out boolVal);
                     break;
                 case MetaType.DateTime:
                     isValidMeta = true;
