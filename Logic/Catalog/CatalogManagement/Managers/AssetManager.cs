@@ -14,6 +14,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using ApiObjects.TimeShiftedTv;
 using Newtonsoft.Json.Linq;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -653,7 +654,7 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.Bool:
                     isValidMeta = true;
                     bool boolVal;
-                    isValidMetaValue = bool.TryParse(meta.m_sValue, out boolVal);
+                    isValidMetaValue = BoolUtils.TryConvert(meta.m_sValue, out boolVal);
                     break;
                 case MetaType.DateTime:
                     isValidMeta = true;
