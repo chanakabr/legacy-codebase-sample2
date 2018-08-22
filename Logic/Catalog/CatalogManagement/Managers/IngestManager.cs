@@ -938,6 +938,13 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
                                             assetFileToUpdate.ExternalId, assetFileToUpdate.Id, assetId, groupId);
+                            updateFileResponse.Status.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("externalId", assetFileToUpdate.ExternalId),
+                                new KeyValuePair("fileId", assetFileToUpdate.Id.ToString()),
+                                new KeyValuePair("assetId", assetId.ToString()),
+                                new KeyValuePair("groupId", groupId.ToString()),
+                            };
                             return updateFileResponse.Status;
                         }
                     }
@@ -1021,7 +1028,15 @@ namespace Core.Catalog.CatalogManagement
                         Status setContentResponse = ImageManager.SetContent(groupId, USER_ID, imageToUpdate.Id, imageToUpdate.Url);
                         if (setContentResponse == null || !setContentResponse.IsOkStatusCode())
                         {
-                            log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}", imageToUpdate.Id, imageToUpdate.ImageTypeId, assetId, groupId);
+                            log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}",
+                                             imageToUpdate.Id, imageToUpdate.ImageTypeId, assetId, groupId);
+                            setContentResponse.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("imageToUpdate.Id", imageToUpdate.Id.ToString()),
+                                new KeyValuePair("ImageTypeId", imageToUpdate.ImageTypeId.ToString()),
+                                new KeyValuePair("assetId", assetId.ToString()),
+                                new KeyValuePair("groupId", groupId.ToString()),
+                            };
                             return setContentResponse;
                         }
                     }
