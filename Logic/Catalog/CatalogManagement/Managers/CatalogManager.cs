@@ -1920,9 +1920,10 @@ namespace Core.Catalog.CatalogManagement
                 // Validate Metadata Inheritance
                 Status metaDataInheritanceStatus = new Status(0, eResponseStatus.OK.ToString());
 
+                bool needToHandleHeritage = false;
                 if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
                 {
-                    metaDataInheritanceStatus = ValidateMetadataInheritance(catalogGroupCache, assetStructId, metaId, assetStructMeta);
+                    metaDataInheritanceStatus = ValidateMetadataInheritance(catalogGroupCache, assetStructId, metaId, assetStructMeta, out needToHandleHeritage);
                 }
 
                 if (metaDataInheritanceStatus.Code == (int)eResponseStatus.OK)
@@ -1938,6 +1939,15 @@ namespace Core.Catalog.CatalogManagement
                     DataTable dt = CatalogDAL.UpdateAssetStructMeta
                                             (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
                         assetStructMeta.IsInherited, parentInheritancePolicy, ingestPolicy);
+
+                    if (needToHandleHeritage)
+                    {
+                        bool result = HandleHeritage(groupId, assetStructId, metaId);
+                        if (!result)
+                        {
+                            log.ErrorFormat("Failed to HandleHeritage. groupId:{0}, assetStructId:{1}, metaId:{2}", groupId, assetStructId, metaId);
+                        }
+                    }
 
                     List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
 
@@ -1959,8 +1969,10 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static Status ValidateMetadataInheritance(CatalogGroupCache catalogGroupCache, long assetStructId, long metaId, AssetStructMeta assetStructMeta)
+        private static Status ValidateMetadataInheritance(CatalogGroupCache catalogGroupCache, long assetStructId, long metaId, AssetStructMeta assetStructMeta,
+            out bool needToHandleHeritage)
         {
+            needToHandleHeritage = false;
             Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             // Get AssetStructMeta from cache, compare IsInherited with current assetStructMeta
@@ -1968,6 +1980,11 @@ namespace Core.Catalog.CatalogManagement
             if (currentAssetStructMeta.IsInherited == assetStructMeta.IsInherited)
             {
                 return status;
+            }
+
+            if ((!currentAssetStructMeta.IsInherited.HasValue || !currentAssetStructMeta.IsInherited.Value) && assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
+            {
+                needToHandleHeritage = true;
             }
 
             AssetStruct currentAssetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
@@ -1981,16 +1998,12 @@ namespace Core.Catalog.CatalogManagement
 
             if (parentAssetStruct.MetaIds.Contains(metaId))
             {
-                status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return status;
             }
             else
             {
                 return new Status((int)eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "Meta does not belong to ParentAssetStruct");
             }
-
-
-            return status;
-
         }
 
         private static Status CheckMetaExistenceAtAssetStruct(AssetStruct assetStruct, long metaId)
@@ -2062,7 +2075,7 @@ namespace Core.Catalog.CatalogManagement
             AssetStruct currentAssetStruct = null;
             AssetStruct parentAssetStruct = null;
 
-            result = ValidateHeritage(groupId, catalogGroupCache, assetStructId, metaId, out currentAssetStruct, out parentAssetStruct);
+            result = ValidateHeritage(groupId, assetStructId, metaId, out catalogGroupCache, out currentAssetStruct, out parentAssetStruct);
             if (!result)
             {
                 return result;
@@ -2099,7 +2112,7 @@ namespace Core.Catalog.CatalogManagement
                 string connectingMetaValue = "";
 
                 // take only asset that need to be updated                    
-                if (inhertiedMeta.Type == MetaType.Tag)
+                if (parentConnectingTopic.Type == MetaType.Tag)
                 {
                     var tag = mediaAsset.Object.Tags.Where(x => x.m_oTagMeta.m_sName == parentConnectingTopic.SystemName).FirstOrDefault();
                     if (tag != null && tag.m_lValues != null && tag.m_lValues.Count > 0)
@@ -2115,6 +2128,9 @@ namespace Core.Catalog.CatalogManagement
                         connectingMetaValue = meta.m_sValue;
                     }
                 }
+
+                if (string.IsNullOrEmpty(connectingMetaValue))
+                    continue;
 
                 // Getting all parent assets that contains value for this meta
                 filter = string.Format("(and asset_type='{0}' {1}='{2}')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
@@ -2152,49 +2168,66 @@ namespace Core.Catalog.CatalogManagement
                     // take only asset that need to be updated                    
                     if (inhertiedMeta.Type == MetaType.Tag)
                     {
-                        var tag = childAsset.Tags.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                        int tagIndex = -1;
+                        for (int i = 0; i < childAsset.Tags.Count; i++)
+                        {
+                            if (childAsset.Tags[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
+                            {
+                                tagIndex = i;
+                                break;
+                            }
+                        }
+
                         if (inheratedTagsObj == null)
                         {
-                            if (tag != null)
+                            if (tagIndex > -1)
                             {
                                 AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
                             }
                         }
                         else
                         {
-                            if (tag == null)
+                            if (tagIndex == -1)
                             {
                                 childAsset.Tags.Add(inheratedTagsObj);
                                 update = true;
                             }
-                            else if (!inheratedTagsObj.Equals(tag))
+                            else if (!inheratedTagsObj.Equals(childAsset.Tags[tagIndex]))
                             {
-                                tag = inheratedTagsObj;
+                                childAsset.Tags[tagIndex] = inheratedTagsObj;
                                 update = true;
                             }
                         }
                     }
                     else
                     {
-                        Metas meta = childAsset.Metas.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
-
+                        int metaIndex = -1;
+                        for (int i = 0; i < childAsset.Metas.Count; i++)
+                        {
+                            if (childAsset.Metas[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
+                            {
+                                metaIndex = i;
+                                break;
+                            }
+                        }
+                        
                         if (inheratedMetaObj == null)
                         {
-                            if (meta != null)
+                            if (metaIndex > -1)
                             {
                                 AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
                             }
                         }
                         else
                         {
-                            if (meta == null)
+                            if (metaIndex == -1)
                             {
                                 childAsset.Metas.Add(inheratedMetaObj);
                                 update = true;
                             }
-                            else if (!inheratedMetaObj.Equals(meta))
+                            else if (!inheratedMetaObj.Equals(childAsset.Metas[metaIndex]))
                             {
-                                meta = inheratedMetaObj;
+                                childAsset.Metas[metaIndex] = inheratedMetaObj;
                                 update = true;
                             }
                         }
@@ -2253,7 +2286,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static bool ValidateHeritage(int groupId, CatalogGroupCache catalogGroupCache, long assetStructId, long metaId,
+        private static bool ValidateHeritage(int groupId, long assetStructId, long metaId, out CatalogGroupCache catalogGroupCache,
             out AssetStruct currentAssetStruct, out AssetStruct parentAssetStruct)
         {
             currentAssetStruct = null;
@@ -2285,9 +2318,9 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
-            if (!currentAssetStruct.AssetStructMetas.ContainsKey(metaId) || !currentAssetStruct.AssetStructMetas[metaId].ParentInheritancePolicy.HasValue)
+            if (!currentAssetStruct.AssetStructMetas.ContainsKey(metaId))
             {
-                //log.ErrorFormat("Error. Parent AssetStruct {0}, for group {1} not exist.", currentAssetStruct.ParentId, groupId);
+                log.ErrorFormat("Error. metaId:{0} for AssetStruct {1}, group {2} not exist.", metaId, assetStructId, groupId);
                 return false;
             }
 
