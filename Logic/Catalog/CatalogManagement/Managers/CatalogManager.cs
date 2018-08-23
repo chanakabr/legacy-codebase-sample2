@@ -2084,7 +2084,7 @@ namespace Core.Catalog.CatalogManagement
             if (assets == null || assets.Length == 0)
             {
                 return false;
-            }           
+            }
 
             foreach (UnifiedSearchResult asset in assets)
             {
@@ -2157,9 +2157,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             if (tag != null)
                             {
-                                //todo
-                                childAsset.Tags.Remove(tag);
-                                update = true;
+                                AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
                             }
                         }
                         else
@@ -2184,9 +2182,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             if (meta != null)
                             {
-                                //Todo
-                                childAsset.Metas.Remove(meta);
-                                update = true;
+                                AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
                             }
                         }
                         else
