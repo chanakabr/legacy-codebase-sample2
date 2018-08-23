@@ -99,7 +99,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (languageCodes.Contains(ingestLanguageValue.LangCode))
                 {
-                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.DuplicateLanguageSent
                     status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
                     return status;
                 }
@@ -114,7 +113,6 @@ namespace Core.Catalog.CatalogManagement
 
                     if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
                     {
-                        // TODO SHIR - ASK LIOR FOR CODE StatusCode.GroupDoesNotContainLanguage
                         status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
                         return status;
                     }
@@ -125,22 +123,10 @@ namespace Core.Catalog.CatalogManagement
 
             if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
             {
-                // TODO SHIR - ASK LIOR FOR CODE StatusCode.DefaultLanguageMustBeSent
                 status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
                 return status;
             }
-
-            // TODO SHIR - ASK LIOR ABOUT RequestLanguageCode
-            //if (string.IsNullOrEmpty(RequestLanguageCode))
-            //{
-            //    RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-            //}
-
-            //if (shouldValidateRequestLanguage && (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*"))
-            //{
-            //    throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
-            //}
-
+            
             return status;
         }
     }
@@ -255,7 +241,6 @@ namespace Core.Catalog.CatalogManagement
                                 var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
                                 if (otherTagLangCount > 0)
                                 {
-                                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.TagTranslationNotAllowed
                                     return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");   
                                 }
                             }
@@ -318,7 +303,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (languageCodes.Contains(ingestLanguageValue.LangCode))
                     {
-                        // TODO SHIR - ASK LIOR FOR CODE StatusCode.DuplicateLanguageSent
                         status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
                         return status;
                     }
@@ -333,7 +317,6 @@ namespace Core.Catalog.CatalogManagement
 
                         if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
                         {
-                            // TODO SHIR - ASK LIOR FOR CODE StatusCode.GroupDoesNotContainLanguage
                             status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
                             return status;
                         }
@@ -344,21 +327,9 @@ namespace Core.Catalog.CatalogManagement
 
                 if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
                 {
-                    // TODO SHIR - ASK LIOR FOR CODE StatusCode.DefaultLanguageMustBeSent
                     status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
                     return status;
                 }
-
-                // TODO SHIR - ASK LIOR ABOUT RequestLanguageCode
-                //if (string.IsNullOrEmpty(RequestLanguageCode))
-                //{
-                //    RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-                //}
-
-                //if (shouldValidateRequestLanguage && (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*"))
-                //{
-                //    throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
-                //}
             }
 
             return status;

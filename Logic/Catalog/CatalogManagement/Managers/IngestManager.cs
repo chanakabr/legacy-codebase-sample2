@@ -148,7 +148,7 @@ namespace Core.Catalog.CatalogManagement
                                 MediaAssetType = MediaAssetType.Media,
                                 CoGuid = media.CoGuid,
                                 EntryId = media.EntryId,
-                                IsActive = StringUtils.ConvertTo<bool>(media.IsActive),
+                                IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
                                 MediaType = new MediaType(media.Basic.MediaType, (int)catalogGroupCache.AssetStructsMapBySystemName[media.Basic.MediaType].Id),
                                 Name = GetMainLanguageValue(mainLanguageName, media.Basic.Name),
                                 NamesWithLanguages = GetOtherLanguages(mainLanguageName, media.Basic.Name),
@@ -429,9 +429,9 @@ namespace Core.Catalog.CatalogManagement
                 {
                     metas = new List<Metas>();
                 }
-
+                
                 metas.AddRange(structure.Booleans.Metas.Select
-                    (boolMeta => new Metas(new TagMeta(boolMeta.Name, MetaType.Bool.ToString()), boolMeta.Value)));
+                    (boolMeta => new Metas(new TagMeta(boolMeta.Name, MetaType.Bool.ToString()), boolMeta.Value.Equals(TRUE) ? "1" : "0")));
             }
 
             // add metas-dates
@@ -1124,19 +1124,18 @@ namespace Core.Catalog.CatalogManagement
                         {
                             TypeId = (int)mediaFileType.Id,
                             Url = mediaFile.CdnCode,
-                            Duration = StringUtils.ConvertTo<long>(mediaFile.AssetDuration),
+                            Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
                             ExternalId = mediaFile.CoGuid,
                             AltExternalId = mediaFile.AltCoGuid,
                             ExternalStoreId = mediaFile.ProductCode,
                             AltStreamingCode = mediaFile.AltCdnCode,
                             BillingType = GetBillingTypeIdByName(mediaFile.BillingType),
                             Language = mediaFile.Language,
-                            IsDefaultLanguage = StringUtils.ConvertTo<bool>(mediaFile.IsDefaultLanguage),
-                            // TODO SHIR - ASK LIOR ABOUT OutputProtecationLevel
-                            // OutputProtecationLevel = mediaFile.OutputProtecationLevel,
+                            IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
+                            OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
                             StartDate = ExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                             EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
-                            FileSize = StringUtils.ConvertTo<long>(mediaFile.FileSize),
+                            FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                             IsActive = true
                         });
                     }

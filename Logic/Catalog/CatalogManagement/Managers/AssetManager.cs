@@ -1261,7 +1261,7 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 IEnumerable<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault).Select(x => x.Value).FirstOrDefault();
+                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).Value;
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
                                     topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x);
