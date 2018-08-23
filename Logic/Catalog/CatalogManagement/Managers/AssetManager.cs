@@ -1906,7 +1906,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId)
+        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId, bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
