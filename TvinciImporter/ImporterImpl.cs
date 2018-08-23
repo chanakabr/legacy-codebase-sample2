@@ -3649,7 +3649,7 @@ namespace TvinciImporter
                             DateTime? prevPPVFileStartDate = null;
                             DateTime? prevPPVFileEndDate = null;
 
-                            if (ppvStartDate.HasValue && ppvStartDate.HasValue)
+                            if (ppvStartDate.HasValue && ppvEndDate.HasValue)
                             {
                                 DataRow updatedppvModuleMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("ppv_modules_media_files", "media_file_id", nMediaFileID.ToString(), new List<string>() { "start_date", "end_date" }, "pricing_connection");
                                 prevPPVFileStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "start_date");
