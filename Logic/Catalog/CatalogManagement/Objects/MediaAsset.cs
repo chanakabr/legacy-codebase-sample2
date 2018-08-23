@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -23,19 +24,19 @@ namespace Core.Catalog.CatalogManagement
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.DEVICE_RULE_ID)]
         public int? DeviceRuleId { get; set; }
-
+        
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.GEO_BLOCK_RULE_ID)]
         public int? GeoBlockRuleId { get; set; }
-
+        
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<AssetFile> Files { get; set; }
-
+        
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public string UserTypes { get; set; }
-
+        
         [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.STATUS_META_SYSTEM_NAME)]
         public bool? IsActive { get; set; }
-
+        
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public MediaAssetType MediaAssetType { get; set; }
 
@@ -62,13 +63,13 @@ namespace Core.Catalog.CatalogManagement
             this.CatalogStartDate = catalogStartDate;
             if (this.CatalogStartDate.HasValue)
             {                                
-                this.Metas.Add(new Metas(new TagMeta(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,MetaType.DateTime.ToString()), this.CatalogStartDate.Value.ToString(), null));
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,MetaType.DateTime.ToString()), this.CatalogStartDate.Value.ToString()));
             }
 
             this.FinalEndDate = finalEndDate;
             if (this.FinalEndDate.HasValue)
             {
-                this.Metas.Add(new Metas(new TagMeta(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.FinalEndDate.Value.ToString(), null));
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.FinalEndDate.Value.ToString()));
             }
 
             this.MediaType = new MediaType(mediaType.m_sTypeName, mediaType.m_nTypeID);
@@ -95,6 +96,5 @@ namespace Core.Catalog.CatalogManagement
             this.IsActive = mediaAssetToCopy.IsActive;
             this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
         }
-
     }
 }

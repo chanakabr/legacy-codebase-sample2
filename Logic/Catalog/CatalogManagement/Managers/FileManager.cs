@@ -538,7 +538,7 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd)
+        public static GenericResponse<AssetFile> InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, bool isFromIngest = false)
         {
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
@@ -611,11 +611,14 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToAdd.AssetId);
-                    if (!indexingResult)
+                    if (isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
+                        // UpdateIndex
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToAdd.AssetId);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
+                        }
                     }
 
                     // invalidate asset
@@ -674,7 +677,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId)
+        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false)
         {
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
@@ -770,11 +773,14 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToUpdate.AssetId);
-                    if (!indexingResult)
+                    if (isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
+                        // UpdateIndex
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToUpdate.AssetId);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
+                        }
                     }
 
                     // invalidate asset

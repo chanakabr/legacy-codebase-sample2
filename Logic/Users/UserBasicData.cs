@@ -199,7 +199,6 @@ namespace Core.Users
             m_sEmail = WS_Utils.GetNodeValue(ref t, "email");
             m_sAddress = WS_Utils.GetNodeValue(ref t, "address");
             m_sCity = WS_Utils.GetNodeValue(ref t, "city");
-            // TODO SHIR - ASK LIOR IF TO ADD CREATE_DATE AND UPDATE_DATE HERE.. (OLD METHOD)
             
             string sbIsFacebookImagePermitted = WS_Utils.GetNodeValue(ref t, "facebookimagepermitted").ToLower().Trim();
             m_bIsFacebookImagePermitted = (sbIsFacebookImagePermitted == "true");
@@ -267,7 +266,7 @@ namespace Core.Users
                                                     m_ExternalToken);
                                                     //m_UserType
 
-            saved &= UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
+            UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
             
             return saved;
         }
@@ -301,7 +300,6 @@ namespace Core.Users
             LongIdsResponse userIdsResponse = Module.GetUserRoleIds(groupId, userId);
             if (userIdsResponse != null && userIdsResponse.Status != null && userIdsResponse.Status.Code == (int)eResponseStatus.OK && userIdsResponse.Ids != null)
             {
-                //TODO SHIR - CHECK IN THE FUTURE IF OVERRIDE CURRENT ROLES
                 RoleIds = userIdsResponse.Ids;
                 isRoleIdsSet = true;
             }
@@ -432,18 +430,9 @@ namespace Core.Users
             if (other.RoleIds != null && other.RoleIds.Count > 0)
             {
                 this.RoleIds = other.RoleIds;
+                isBasicChanged = true;
             }
-
-            if (!other.CreateDate.Equals(DateTime.MinValue))
-            {
-                this.CreateDate = other.CreateDate;
-            }
-
-            if (!other.UpdateDate.Equals(DateTime.MinValue))
-            {
-                this.UpdateDate = other.UpdateDate;
-            }
-
+            
             return isBasicChanged;
         }
     }

@@ -14,6 +14,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using ApiObjects.TimeShiftedTv;
 using Newtonsoft.Json.Linq;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -264,6 +265,29 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+        
+        internal static bool ClearAsset(int groupId, long id, eAssetTypes assetType, long userId)
+        {
+            bool result = false;
+            try
+            {
+                if (CatalogDAL.DeleteMediaAsset(groupId, id, userId, true))
+                {
+                    result = true;
+                    InvalidateAsset(assetType, id);
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to Clear media asset with id: {0}, groupId: {1}", id, groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed ClearAsset for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
+        }
 
         private static List<MediaAsset> CreateMediaAssets(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
@@ -426,7 +450,7 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -629,8 +653,8 @@ namespace Core.Catalog.CatalogManagement
                     break;
                 case MetaType.Bool:
                     isValidMeta = true;
-                    int intVal;
-                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
+                    bool boolVal;
+                    isValidMetaValue = BoolUtils.TryConvert(meta.m_sValue, out boolVal);
                     break;
                 case MetaType.DateTime:
                     isValidMeta = true;
@@ -1236,11 +1260,11 @@ namespace Core.Catalog.CatalogManagement
                         {
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
-                                List<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault).Select(x => x.Value).FirstOrDefault();
+                                IEnumerable<LanguageContainer> topicLanguages = null;
+                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).Value;
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
-                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x).ToList();
+                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x);
                                 }
 
                                 metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
@@ -1837,8 +1861,9 @@ namespace Core.Catalog.CatalogManagement
             return groupMediaAssetsMap;
         }
 
-        public static GenericResponse<Asset> AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId)
+        public static GenericResponse<Asset> AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId, bool isFromIngest = false)
         {
+            // TODO ANAT - SET SOME VAL IF isFromIngest = TRUE
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {

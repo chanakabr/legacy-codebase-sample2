@@ -1185,6 +1185,26 @@ namespace Core.Catalog
             }
         }
 
+        // TODO SHIR - UPDATE PREFORMENCE GetGeoBlockRuleId
+        internal static int? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
+        {
+            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
+            if (geoblockRules == null || geoblockRules.Count == 0)
+            {
+                log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
+                return null;
+            }
+
+            var geoblockRule = geoblockRules.FirstOrDefault(x => x.Value.ToLower().Equals(geoBlockRuleName.ToLower()));
+            if (!geoblockRule.IsDefault())
+            {
+                return geoblockRule.Key;
+            }
+
+            log.ErrorFormat("group geoblockRule {0} was not found. groupId: {1}", geoBlockRuleName, groupId);
+            return null;
+        }
+
         internal static bool ValidateDeviceRuleExists(int groupId, int deviceRuleId)
         {
             return false;
@@ -1206,6 +1226,26 @@ namespace Core.Catalog
                 log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleId, groupId);
                 return string.Empty;
             }
+        }
+
+        // TODO SHIR - UPDATE PREFORMENCE GetDeviceRuleId
+        internal static int? GetDeviceRuleId(int groupId, string deviceRuleName)
+        {
+            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
+            if (deviceRules == null || deviceRules.Count == 0)
+            {
+                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
+                return null;
+            }
+
+            var deviceRule = deviceRules.FirstOrDefault(x => x.Value.ToLower().Equals(deviceRuleName.ToLower()));
+            if (!deviceRule.IsDefault())
+            {
+                return deviceRule.Key;
+            }
+            
+            log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleName, groupId);
+            return null;
         }
 
         private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)

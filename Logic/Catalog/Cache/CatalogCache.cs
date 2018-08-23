@@ -438,14 +438,21 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
 
+        //internal Tuple<Dictionary<int, string>, Dictionary<string, int>> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
         internal Dictionary<int, string> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
         {
             Dictionary<int, string> result = null;
+
             try
             {
                 string key = LayeredCacheKeys.GetGroupGeoBlockRulesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupGeoblockRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                            LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, 
+                                                                        ref result, 
+                                                                        Utils.GetGroupGeoblockRules, 
+                                                                        new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                                                        groupId,
+                                                                        LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, 
+                                                                        new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting GetGroupGeoBlockRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }

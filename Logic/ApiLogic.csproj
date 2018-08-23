@@ -198,10 +198,12 @@
     <Compile Include="Catalog\CatalogManagement\Managers\AssetManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\ChannelManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\FileManager.cs" />
+    <Compile Include="Catalog\CatalogManagement\Managers\IngestManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Asset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetFile.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\IndexManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetStructMeta.cs" />
+    <Compile Include="Catalog\CatalogManagement\Objects\IngestMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\EpgAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ExcelTemplateAttribute.cs" />

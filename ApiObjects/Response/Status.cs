@@ -76,5 +76,10 @@ namespace ApiObjects.Response
             this.code = newCode;
             this.message = newMessage;
         }
+
+        public bool IsOkStatusCode()
+        {
+            return code == (int)eResponseStatus.OK;
+        }
     }
 }
