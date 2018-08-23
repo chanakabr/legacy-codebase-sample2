@@ -1749,7 +1749,6 @@ namespace WS_Users
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                // TODO SHIR - ASK IRA IF NEED TO SET IT IN TVPAPI
                 return Core.Users.Module.SendRenewalPasswordMail(nGroupID, userName, null);
             }
             else

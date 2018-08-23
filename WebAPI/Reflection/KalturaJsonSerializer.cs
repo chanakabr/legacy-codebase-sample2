@@ -11374,10 +11374,6 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             }
-            if(KSql != null)
-            {
-                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(KSql) + "\"");
-            }
             if(TypeIn != null)
             {
                 ret.Add("typeIn", "\"typeIn\": " + "\"" + EscapeJson(TypeIn) + "\"");
@@ -11394,10 +11390,6 @@ namespace WebAPI.Models.Catalog
             if(IdEqual.HasValue)
             {
                 ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
-            }
-            if(KSql != null)
-            {
-                ret.Add("kSql", "<kSql>" + EscapeXml(KSql) + "</kSql>");
             }
             if(TypeIn != null)
             {
@@ -11461,10 +11453,6 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
-            if(KSql != null)
-            {
-                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(KSql) + "\"");
-            }
             if(TypeIn != null)
             {
                 ret.Add("typeIn", "\"typeIn\": " + "\"" + EscapeJson(TypeIn) + "\"");
@@ -11480,10 +11468,6 @@ namespace WebAPI.Models.Catalog
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
-            }
-            if(KSql != null)
-            {
-                ret.Add("kSql", "<kSql>" + EscapeXml(KSql) + "</kSql>");
             }
             if(TypeIn != null)
             {

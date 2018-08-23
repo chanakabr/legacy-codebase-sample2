@@ -838,7 +838,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                HashSet<long> roleIdsIn = filter != null ? filter.GetRoleIdsIn() : null;
+                HashSet<long> roleIdsIn = filter != null ? filter.GetItemsIn<HashSet<long>, long>(filter.RoleIdsIn, "roleIdsIn") : null;
                 bool isOperatorAndAbove = RolesManager.GetRoleIds(KS.GetFromRequest()).Count(ur => ur > RolesManager.MASTER_ROLE_ID) > 0;
 
                 // call client
