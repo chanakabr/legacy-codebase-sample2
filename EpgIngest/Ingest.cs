@@ -600,7 +600,7 @@ namespace EpgIngest
                             }
                             if (dEpgMetas.ContainsKey(meta.MetaType))
                             {
-                                dEpgMetas[meta.MetaType].Add(value.Value);
+                                dEpgMetas[meta.MetaType] = new List<string>() { value.Value };
                             }
                             else
                             {

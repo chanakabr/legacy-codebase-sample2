@@ -884,7 +884,7 @@ namespace TVinciShared
             selectQuery = null;
             return rationId;
         }
-
+        
         public static int GetGroupDefaultEpgRatio(int groupId)
         {
             int rationId = 0;

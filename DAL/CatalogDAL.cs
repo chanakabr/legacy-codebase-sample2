@@ -4719,14 +4719,15 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool DeleteMediaAsset(int groupId, long id, long userId)
+        public static bool DeleteMediaAsset(int groupId, long id, long userId, bool shouldClearMedia = false)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaAsset");
+            StoredProcedure sp = new StoredProcedure("DeleteMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
-
+            sp.AddParameter("@ShouldClearMedia", shouldClearMedia ? 1 : 0);
+            
             return sp.ExecuteReturnValue<int>() > 0;
         }
 

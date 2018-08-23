@@ -18,5 +18,26 @@ namespace TVinciShared
         {
             return (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value));
         }
+
+        /// <summary>
+        /// Convert string value to nullable struct
+        /// </summary>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <param name="value">String to convert from</param>
+        /// <returns>Converted value, null if can't be converted</returns>
+        public static T? ConvertTo<T>(string value) where T : struct, IConvertible
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                Type t = typeof(T);
+                var convertedValue = Convert.ChangeType(value, t);
+                if (convertedValue != null && convertedValue is T)
+                {
+                    return (T)convertedValue;
+                }
+            }
+
+            return null;
+        }
     }
 }
