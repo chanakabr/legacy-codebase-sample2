@@ -252,9 +252,7 @@ namespace Core.Users
                 this.m_oDynamicData = oDynamicData;
             }
 
-            int userID = Save(nGroupID);
-
-            return userID;
+            return Save(nGroupID);
         }
 
         public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)

@@ -266,7 +266,7 @@ namespace Core.Users
                                                     m_ExternalToken);
                                                     //m_UserType
 
-            saved &= UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
+            UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
             
             return saved;
         }
@@ -430,18 +430,9 @@ namespace Core.Users
             if (other.RoleIds != null && other.RoleIds.Count > 0)
             {
                 this.RoleIds = other.RoleIds;
+                isBasicChanged = true;
             }
-
-            if (!other.CreateDate.Equals(DateTime.MinValue))
-            {
-                this.CreateDate = other.CreateDate;
-            }
-
-            if (!other.UpdateDate.Equals(DateTime.MinValue))
-            {
-                this.UpdateDate = other.UpdateDate;
-            }
-
+            
             return isBasicChanged;
         }
     }
