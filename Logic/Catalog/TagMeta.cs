@@ -1,12 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog
 {
     [DataContract]
-    public class TagMeta
+    public class TagMeta : IEquatable<TagMeta>
     {
         [DataMember]
         public string m_sName;
@@ -20,9 +21,18 @@ namespace Core.Catalog
             m_sName = sName;
             m_sType = sType;
         }
+
+        public bool Equals(TagMeta other)
+        {
+            if (other == null)
+                return false;
+
+            return m_sName.Equals(other.m_sName) &&
+                m_sType.Equals(other.m_sType);
+        }       
     }
     [DataContract]
-    public class Metas
+    public class Metas : IEquatable<Metas>
     {
         [DataMember]
         public TagMeta m_oTagMeta;
@@ -44,9 +54,44 @@ namespace Core.Catalog
                 Value = new List<LanguageContainer>(languageContainer).ToArray();
             }
         }
+
+        public bool Equals(Metas other)
+        {
+            if (other == null)
+                return false;
+
+            // compare Value
+            if (!m_sValue.Equals(other.m_sValue))
+            {
+                return false;
+            }
+
+            int valueCount = Value != null ? Value.Length : 0;
+            int otherValueCount = other.Value != null ? other.Value.Length : 0;
+
+            if (valueCount != otherValueCount)
+                return false;
+
+            if (valueCount > 0)
+            {
+                Dictionary<string, string> bla = new Dictionary<string, string>();
+                foreach (LanguageContainer lc in Value)
+                {
+                    bla.Add(lc.LanguageCode, lc.Value);
+                }
+
+                foreach (LanguageContainer lc in other.Value)
+                {
+                    if (!bla.ContainsKey(lc.LanguageCode) || !bla[lc.LanguageCode].Equals(lc.Value))
+                        return false;
+                }
+            }
+
+            return true;
+        }
     }
     [DataContract]
-    public class Tags
+    public class Tags : IEquatable<Tags>
     {
         [DataMember]
         public TagMeta m_oTagMeta;
@@ -66,6 +111,29 @@ namespace Core.Catalog
             m_lValues = new List<string>(values);
             Values = new List<LanguageContainer[]>(languageContainers);
         }
+
+        public bool Equals(Tags other)
+        {
+            if (other == null)
+                return false;
+
+            int valueCount = m_lValues != null ? m_lValues.Count : 0;
+            int otherValueCount = other.m_lValues != null ? other.m_lValues.Count : 0;
+
+            if (valueCount != otherValueCount)
+                return false;
+
+            if (valueCount > 0)
+            {
+                for (int i = 0; i < m_lValues.Count; i++)
+                {
+                    if (!m_lValues[i].Equals(other.m_lValues[i]))
+                        return false;
+                }
+            }
+
+            return true;
+        }       
     }
 
     [DataContract]

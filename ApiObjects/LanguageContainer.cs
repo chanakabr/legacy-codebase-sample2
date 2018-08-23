@@ -3,7 +3,7 @@
 namespace ApiObjects
 {
     [Serializable]
-    public class LanguageContainer
+    public class LanguageContainer : IEquatable<LanguageContainer>
     {
 
         public string LanguageCode { get; set; }
@@ -38,5 +38,14 @@ namespace ApiObjects
             this.IsDefault = false;
         }
 
+        public bool Equals(LanguageContainer other)
+        {
+            if (other == null)
+                return false;
+
+            return LanguageCode.Equals(other.LanguageCode) &&
+                Value.Equals(other.Value) &&
+                IsDefault == other.IsDefault;
+        }       
     }
 }
