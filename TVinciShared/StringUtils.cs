@@ -25,19 +25,56 @@ namespace TVinciShared
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <param name="value">String to convert from</param>
         /// <returns>Converted value, null if can't be converted</returns>
-        public static T? ConvertTo<T>(string value) where T : struct, IConvertible
+        public static T? TryConvertTo<T>(string value) where T : struct, IConvertible
         {
             if (!string.IsNullOrEmpty(value))
             {
                 Type t = typeof(T);
-                var convertedValue = Convert.ChangeType(value, t);
-                if (convertedValue != null && convertedValue is T)
+
+                try
                 {
-                    return (T)convertedValue;
+                    var convertedValue = Convert.ChangeType(value, t);
+                    if (convertedValue != null && convertedValue is T)
+                    {
+                        return (T)convertedValue;
+                    }
+                }
+                catch (Exception)
+                {
+                    return null;
                 }
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Convert string value to nullable struct
+        /// </summary>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <param name="value">String to convert from</param>
+        /// <returns>Converted value, null if can't be converted</returns>
+        public static T ConvertTo<T>(string value) where T : struct, IConvertible
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                Type t = typeof(T);
+
+                try
+                {
+                    var convertedValue = Convert.ChangeType(value, t);
+                    if (convertedValue != null && convertedValue is T)
+                    {
+                        return (T)convertedValue;
+                    }
+                }
+                catch (Exception)
+                {
+                    return default(T);
+                }
+            }
+
+            return default(T);
         }
     }
 }
