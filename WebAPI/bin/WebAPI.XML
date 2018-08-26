@@ -6082,6 +6082,1250 @@
             PIN type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecording.ExternalId">
+            <summary>
+            External identifier for the recording
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Type">
+            <summary>
+            Device types as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsPolicy">
+            <summary>
+            Ads policy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsParams">
+            <summary>
+            The parameters to pass to the ads server 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UnifiedPaymentId">
+            <summary>
+            Unified payment ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
+            <summary>
+            List of entitlements in this unified payment renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
+            <summary>
+            Message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Code">
+            <summary>
+            Code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
+            <summary>
+            Compensation request parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Id">
+            <summary>
+            Compensation identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.SubscriptionId">
+            <summary>
+            Subscription identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.CompensationType">
+            <summary>
+            Compensation type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Amount">
+            <summary>
+            Compensation amount
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.TotalRenewalIterations">
+            <summary>
+            The number of renewals for compensation
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.AppliedRenewalIterations">
+            <summary>
+            The number of renewals the compensation was already applied on 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.PurchaseId">
+            <summary>
+            Purchase identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensationType">
+            <summary>
+            Compensation type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
+            <summary>
+            Scheme
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
+            <summary>
+            License URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
+            <summary>
+            Custom data string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCustomDrmPlaybackPluginData.Data">
+            <summary>
+            Custom DRM license data
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation">
+            <summary>
+            Cancellation of a user's entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Id">
+             <summary>
+            Purchase identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Type">
+             <summary>
+            Entitlement type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.ProductId">
+             <summary>
+            Product Id (Media File ID, Subscription ID)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.UserId">
+            <summary>
+            The Identifier of the purchasing user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.HouseholdId">
+            <summary>
+            The Identifier of the purchasing household
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
+            <summary>
+            Npvr Premium Service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService.QuotaInMinutes">
+            <summary>
+            Quota in minutes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
+            <summary>
+            Actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
+            <summary>
+            Messages
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
+            <summary>
+            Protocol of the specific media object (http / https).
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
+            <summary>
+            Playback streamer type: applehttp, mpegdash, url.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AssetFileIds">
+            <summary>
+            List of comma separated media file IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Context">
+            <summary>
+            Playback context type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.UrlType">
+            <summary>
+            Url type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
+            <summary>
+            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
+            <summary>
+            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Drm">
+            <summary>
+            DRM data object containing relevant license URL ,scheme name and certificate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsPolicy">
+            <summary>
+            Ads policy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsParams">
+            <summary>
+            The parameters to pass to the ads server 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
+            <summary>
+            KalturaPpvEntitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaFileId">
+             <summary>
+            Media file identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaId">
+             <summary>
+            Media identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Type">
+            <summary>
+            The type of the action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction">
+            <summary>
+            Time offset action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.Offset">
+            <summary>
+            Offset in seconds 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.TimeZone">
+            <summary>
+            Indicates whether to add time zone offset to the time 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEndDateOffsetRuleAction">
+            <summary>
+            End date offset action
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaStartDateOffsetRuleAction">
+            <summary>
+            Start date offset action
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
+            <summary>
+            KalturaSubscriptionEntitlement
+            </summary>   
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.NextRenewalDate">
+             <summary>
+            The date of the next renewal (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewableForPurchase">
+             <summary>
+            Indicates whether the subscription is renewable in this purchase (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewable">
+             <summary>
+            Indicates whether a subscription is renewable (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsInGracePeriod">
+            <summary>
+            Indicates whether the user is currently in his grace period entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentGatewayId">
+             <summary>
+            Payment Gateway identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentMethodId">
+             <summary>
+            Payment Method identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
+            <summary>
+            Scheduled Subscription Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.UnifiedPaymentId">
+            <summary>
+            Unified payment identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
+            <summary>
+            Indicates if the subscription suspended
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlMediaRequest.ContentId">
+            <summary>
+            Identifier of the content to get the link for (file identifier)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlMediaRequest.BaseUrl">
+            <summary>
+            Base URL for the licensed URLs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlEpgRequest.StreamType">
+            <summary>
+            The stream type to get the URL for
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlEpgRequest.StartDate">
+            <summary>
+            The start date of the stream (epoch)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlRecordingRequest.FileType">
+            <summary>
+            The file type for the URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlBaseRequest.AssetId">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.ViewLifeCycle">
+            <summary>
+            viewLifeCycle
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.FullLifeCycle">
+            <summary>
+            fullLifeCycle
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.IsOfflinePlayBack">
+            <summary>
+            isOfflinePlayBack
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
+            <summary>
+            Kaltura unique ID representing the series recording identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.EpgId">
+            <summary>
+            Kaltura EpgId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.ChannelId">
+            <summary>
+            Kaltura ChannelId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.SeriesId">
+            <summary>
+            Kaltura SeriesId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.SeasonNumber">
+            <summary>
+            Kaltura SeasonNumber
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Type">
+            <summary>
+            Recording Type: single/series/season
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.CreateDate">
+            <summary>
+            Specifies when was the series recording created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.UpdateDate">
+            <summary>
+            Specifies when was the series recording last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.ExcludedSeasons">
+            <summary>
+            List of the season numbers to exclude.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter">
+            <summary>
+            Filtering recordings
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse">
+            <summary>
+            Series Recordings info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse.Objects">
+            <summary>
+            Series Recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.AdapterStatus">
+            <summary>
+            Payment gateway adapter application state for the transaction to update
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalId">
+            <summary>
+            External transaction identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalStatus">
+            <summary>
+            Payment gateway transaction status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalMessage">
+            <summary>
+            Payment gateway message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.FailReason">
+            <summary>
+            The reason the transaction failed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductId">
+            <summary>
+            Identifier for the package from which this content is offered
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ContentId">
+            <summary>
+            Identifier for the content to purchase. Relevant only if Product type = PPV
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductType">
+            <summary>
+            Package type. Possible values: PPV, Subscription, Collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Currency">
+            <summary>
+            Identifier for paying currency, according to ISO 4217
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Price">
+            <summary>
+            Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentMethodId">
+            <summary>
+            Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentGatewayId">
+            <summary>
+            Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Coupon">
+            <summary>
+            Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.AdapterData">
+            <summary>
+            Additional data for the adapter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseSession.PreviewModuleId">
+            <summary>
+            Preview module identifier (relevant only for subscription)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.ReceiptId">
+            <summary>
+            A unique identifier that was provided by the In-App billing service to validate the purchase
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.PaymentGatewayName">
+            <summary>
+            The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
+            <summary>
+            Houshold premium service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
+            <summary>
+            Premium services list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse.PremiumServices">
+            <summary>
+            A list of premium services
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.SubscriptionIdIn">
+            <summary>
+            Comma separated subscriptions identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
+            <summary>
+            Comma separated media files identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CollectionIdIn">
+            <summary>
+            Comma separated collections identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
+            <summary>
+            A flag that indicates if only the lowest price of an item should return
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CouponCodeEqual">
+            <summary>
+            Discount coupon code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter">
+            <summary>
+            Entitlements filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntitlementTypeEqual">
+             <summary>
+            The type of the entitlements to return
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.ProductTypeEqual">
+             <summary>
+            The type of the entitlements to return
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntityReferenceEqual">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.IsExpiredEqual">
+             <summary>
+            Is expired 
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter">
+            <summary>
+            Transactions filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.EntityReferenceEqual">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.StartDateGreaterThanOrEqual">
+             <summary>
+            Filter transactions later than specific date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.EndDateLessThanOrEqual">
+             <summary>
+            Filter transactions earlier than specific date
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfileListResponse">
+            <summary>
+            C-DVR adapter profiles
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfileListResponse.Objects">
+            <summary>
+            C-DVR adapter profiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile">
+            <summary>
+            C-DVR Adapter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Id">
+            <summary>
+            C-DVR adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Name">
+            <summary>
+            C-DVR adapter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.IsActive">
+            <summary>
+            C-DVR adapter active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.AdapterUrl">
+            <summary>
+            C-DVR adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Settings">
+            <summary>
+            C-DVR adapter extra parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.ExternalIdentifier">
+            <summary>
+            C-DVR adapter external identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.SharedSecret">
+            <summary>
+            C-DVR shared secret
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.DynamicLinksSupport">
+            <summary>
+            Indicates whether the C-DVR adapter supports dynamic URLs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.HouseholdId">
+            <summary>
+            Household identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.TotalQuota">
+            <summary>
+            Total quota that is allocated to the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.AvailableQuota">
+            <summary>
+            Available quota that household has remaining
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Id">
+            <summary>
+            Kaltura unique ID representing the recording identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Status">
+            <summary>
+            Recording state: scheduled/recording/recorded/canceled/failed/deleted
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.AssetId">
+            <summary>
+            Kaltura unique ID representing the program identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Type">
+            <summary>
+            Recording Type: single/season/series
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.ViewableUntilDate">
+            <summary>
+            Specifies until when the recording is available for viewing. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.IsProtected">
+            <summary>
+            Specifies whether or not the recording is protected
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.CreateDate">
+            <summary>
+            Specifies when was the recording created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.UpdateDate">
+            <summary>
+            Specifies when was the recording last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Code">
+            <summary>
+            query status code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Message">
+            <summary>
+            query status message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.AssetId">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Recording">
+            <summary>
+            Recording object
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter">
+            <summary>
+            Filtering assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
+            <summary>
+            Comma separated asset ids
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse">
+            <summary>
+            Recordings context info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse.Objects">
+            <summary>
+            Recording contexts
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter">
+            <summary>
+            Filtering recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.StatusIn">
+            <summary>
+            Recording Statuses
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.FilterExpression">
+            <summary>
+            KSQL expression, deprecated, please use ksql
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.ExternalRecordingIdIn">
+            <summary>
+            Comma separated external identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.Ksql">
+            <summary>
+            KSQL expression
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse">
+            <summary>
+            Recordings info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse.Objects">
+            <summary>
+            Recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
+            <summary>
+            Main licensed URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.AltUrl">
+            <summary>
+            An alternate URL to use in case the main fails
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingResponse">
+            <summary>
+            Billing response
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingResponse.ReceiptCode">
+            <summary>
+            Receipt Code 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingResponse.ExternalReceiptCode">
+            <summary>
+            External receipt Code 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse">
+            <summary>
+            Billing Transactions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse.transactions">
+             <summary>
+            Transactions
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction">
+            <summary>
+            Billing Transaction
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.recieptCode">
+             <summary>
+            Reciept Code
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchasedItemName">
+             <summary>
+            Purchased Item Name
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchasedItemCode">
+             <summary>
+            Purchased Item Code
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.itemType">
+             <summary>
+            Item Type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingAction">
+             <summary>
+            Billing Action
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.price">
+             <summary>
+            price
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.actionDate">
+             <summary>
+            Action Date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.startDate">
+             <summary>
+            Start Date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.endDate">
+            <summary>
+            End Date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.paymentMethod">
+             <summary>
+            Payment Method
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.paymentMethodExtraDetails">
+             <summary>
+            Payment Method Extra Details
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.isRecurring">
+             <summary>
+            Is Recurring
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingProviderRef">
+             <summary>
+            Billing Provider Ref
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchaseID">
+             <summary>
+            Purchase ID
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.remarks">
+             <summary>
+            Remarks
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingPriceType">
+             <summary>
+            Billing Price Info
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaUserBillingTransaction">
+            <summary>
+            Billing transactions of single user
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter">
+            <summary>
+            Entitlements filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter.EntitlementType">
+             <summary>
+            The type of the entitlements to return
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter.By">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.SubscriptionsIds">
+            <summary>
+            Subscriptions Identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.FilesIds">
+            <summary>
+            Media files Identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.ShouldGetOnlyLowest">
+            <summary>
+            A flag that indicates if only the lowest price of an item should return
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.Id">
+            <summary>
+            Kaltura unique ID representing the transaction
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.PGReferenceID">
+            <summary>
+            Transaction reference ID received from the payment gateway. 
+            Value is available only if the payment gateway provides this information.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.PGResponseID">
+            <summary>
+            Response ID received from by the payment gateway. 
+            Value is available only if the payment gateway provides this information.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.State">
+            <summary>
+            Transaction state: OK/Pending/Failed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.FailReasonCode">
+            <summary>
+            Adapter failure reason code
+            Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
+            No response from payment gateway = 25, Exceeded retry limit = 26, Illegal client request = 27, Expired = 28
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.CreatedAt">
+            <summary>
+            Entitlement creation date
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter">
+            <summary>
+            Transactions filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.By">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.StartDate">
+             <summary>
+            Filter transactions later than specific date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.EndDate">
+             <summary>
+            Filter transactions earlier than specific date
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse">
+            <summary>
+            Entitlements list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse.Entitlements">
+            <summary>
+            A list of entitlements
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
+            <summary>
+            Entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Id">
+             <summary>
+            Purchase identifier (for subscriptions and collections only)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Type">
+             <summary>
+            Entitlement type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
+             <summary>
+            Entitlement identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ProductId">
+             <summary>
+            Product identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">
+             <summary>
+            The current number of uses 
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EndDate">
+             <summary>
+            The end date of the entitlement
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentDate">
+             <summary>
+            Current date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.LastViewDate">
+             <summary>
+            The last date the item was viewed
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseDate">
+             <summary>
+            Purchase date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseId">
+             <summary>
+            Purchase identifier (for subscriptions and collections only)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PaymentMethod">
+             <summary>
+            Payment Method
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceUDID">
+             <summary>
+            The UDID of the device from which the purchase was made
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceName">
+             <summary>
+            The name of the device from which the purchase was made
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsCancelationWindowEnabled">
+             <summary>
+            Indicates whether a cancelation window period is enabled
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MaxUses">
+             <summary>
+            The maximum number of uses available for this item (only for subscription and PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.NextRenewalDate">
+             <summary>
+            The date of the next renewal (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewableForPurchase">
+             <summary>
+            Indicates whether the subscription is renewable in this purchase (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewable">
+             <summary>
+            Indicates whether a subscription is renewable (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaFileId">
+             <summary>
+            Media file identifier (only for PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaId">
+             <summary>
+            Media identifier (only for PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
+            <summary>
+            Indicates whether the user is currently in his grace period entitlement (only for subscription)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.UserId">
+            <summary>
+            The Identifier of the purchasing user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.HouseholdId">
+            <summary>
+            The Identifier of the purchasing household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkFilter.StatusEqual">
+            <summary>
+            dynamicOrderBy - order by Meta
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkListResponse">
+            <summary>
+            Asset wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkListResponse.Objects">
+            <summary>
+            bulk items
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulk">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Id">
+            <summary>
+            Bulk identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.CreateDate">
+            <summary>
+            Specifies when was the bulk action created. Date and time represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulk.UpdateDate">
+            <summary>
+            Specifies when was the bulk action last updated. Date and time represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
+            <summary>
+            Upload-token identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.CreateDate">
+            <summary>
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter">
             <summary>
             Filtering Asset Struct Metas
@@ -6150,16 +7394,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.IsInherited">
             <summary>
             Is inherited
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.ParentInheritancePolicy">
-            <summary>
-             Parent Inheritance Policy
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructMeta.IngestInheritancePolicy">
-            <summary>
-             Ingest Inheritance Policy
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaChannelOrder">
@@ -8288,1250 +9522,6 @@
             <summary>
             Holder object for Catalog With enum
             </summary>    
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecording.ExternalId">
-            <summary>
-            External identifier for the recording
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
-            <summary>
-            Sources
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Id">
-            <summary>
-            File unique identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Type">
-            <summary>
-            Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsPolicy">
-            <summary>
-            Ads policy 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsParams">
-            <summary>
-            The parameters to pass to the ads server 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Price">
-            <summary>
-            Price that is going to be paid on the renewal
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Date">
-            <summary>
-            Next renewal date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.PurchaseId">
-            <summary>
-            Puchase ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.SubscriptionId">
-            <summary>
-            Subscription ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
-            <summary>
-            Price that is going to be paid on the renewal
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Date">
-            <summary>
-            Next renewal date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UnifiedPaymentId">
-            <summary>
-            Unified payment ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
-            <summary>
-            List of entitlements in this unified payment renewal
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">
-            <summary>
-            Price that is going to be paid on the renewal
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.PurchaseId">
-            <summary>
-            Puchase ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.SubscriptionId">
-            <summary>
-            Subscription ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
-            <summary>
-            Message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Code">
-            <summary>
-            Code
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
-            <summary>
-            Compensation request parameters
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Id">
-            <summary>
-            Compensation identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.SubscriptionId">
-            <summary>
-            Subscription identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.CompensationType">
-            <summary>
-            Compensation type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Amount">
-            <summary>
-            Compensation amount
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.TotalRenewalIterations">
-            <summary>
-            The number of renewals for compensation
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.AppliedRenewalIterations">
-            <summary>
-            The number of renewals the compensation was already applied on 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.PurchaseId">
-            <summary>
-            Purchase identifier
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensationType">
-            <summary>
-            Compensation type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
-            <summary>
-            Scheme
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
-            <summary>
-            License URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
-            <summary>
-            Custom data string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCustomDrmPlaybackPluginData.Data">
-            <summary>
-            Custom DRM license data
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation">
-            <summary>
-            Cancellation of a user's entitlement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Id">
-             <summary>
-            Purchase identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Type">
-             <summary>
-            Entitlement type
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.ProductId">
-             <summary>
-            Product Id (Media File ID, Subscription ID)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.UserId">
-            <summary>
-            The Identifier of the purchasing user
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.HouseholdId">
-            <summary>
-            The Identifier of the purchasing household
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
-            <summary>
-            Npvr Premium Service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService.QuotaInMinutes">
-            <summary>
-            Quota in minutes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
-            <summary>
-            Sources
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
-            <summary>
-            Actions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
-            <summary>
-            Messages
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
-            <summary>
-            Protocol of the specific media object (http / https).
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
-            <summary>
-            Playback streamer type: applehttp, mpegdash, url.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AssetFileIds">
-            <summary>
-            List of comma separated media file IDs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Context">
-            <summary>
-            Playback context type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.UrlType">
-            <summary>
-            Url type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
-            <summary>
-            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
-            <summary>
-            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Drm">
-            <summary>
-            DRM data object containing relevant license URL ,scheme name and certificate
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsPolicy">
-            <summary>
-            Ads policy 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsParams">
-            <summary>
-            The parameters to pass to the ads server 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
-            <summary>
-            KalturaPpvEntitlement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaFileId">
-             <summary>
-            Media file identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaId">
-             <summary>
-            Media identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Type">
-            <summary>
-            The type of the action
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Description">
-            <summary>
-            Description
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction">
-            <summary>
-            Time offset action
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.Offset">
-            <summary>
-            Offset in seconds 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction.TimeZone">
-            <summary>
-            Indicates whether to add time zone offset to the time 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEndDateOffsetRuleAction">
-            <summary>
-            End date offset action
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaStartDateOffsetRuleAction">
-            <summary>
-            Start date offset action
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
-            <summary>
-            KalturaSubscriptionEntitlement
-            </summary>   
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.NextRenewalDate">
-             <summary>
-            The date of the next renewal (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewableForPurchase">
-             <summary>
-            Indicates whether the subscription is renewable in this purchase (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewable">
-             <summary>
-            Indicates whether a subscription is renewable (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsInGracePeriod">
-            <summary>
-            Indicates whether the user is currently in his grace period entitlement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentGatewayId">
-             <summary>
-            Payment Gateway identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentMethodId">
-             <summary>
-            Payment Method identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
-            <summary>
-            Scheduled Subscription Identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.UnifiedPaymentId">
-            <summary>
-            Unified payment identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
-            <summary>
-            Indicates if the subscription suspended
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlMediaRequest.ContentId">
-            <summary>
-            Identifier of the content to get the link for (file identifier)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlMediaRequest.BaseUrl">
-            <summary>
-            Base URL for the licensed URLs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlEpgRequest.StreamType">
-            <summary>
-            The stream type to get the URL for
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlEpgRequest.StartDate">
-            <summary>
-            The start date of the stream (epoch)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlRecordingRequest.FileType">
-            <summary>
-            The file type for the URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlBaseRequest.AssetId">
-            <summary>
-            Asset identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.ViewLifeCycle">
-            <summary>
-            viewLifeCycle
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.FullLifeCycle">
-            <summary>
-            fullLifeCycle
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.IsOfflinePlayBack">
-            <summary>
-            isOfflinePlayBack
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
-            <summary>
-            Kaltura unique ID representing the series recording identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.EpgId">
-            <summary>
-            Kaltura EpgId
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.ChannelId">
-            <summary>
-            Kaltura ChannelId
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.SeriesId">
-            <summary>
-            Kaltura SeriesId
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.SeasonNumber">
-            <summary>
-            Kaltura SeasonNumber
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Type">
-            <summary>
-            Recording Type: single/series/season
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.CreateDate">
-            <summary>
-            Specifies when was the series recording created. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.UpdateDate">
-            <summary>
-            Specifies when was the series recording last updated. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.ExcludedSeasons">
-            <summary>
-            List of the season numbers to exclude.
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter">
-            <summary>
-            Filtering recordings
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse">
-            <summary>
-            Series Recordings info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse.Objects">
-            <summary>
-            Series Recordings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.AdapterStatus">
-            <summary>
-            Payment gateway adapter application state for the transaction to update
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalId">
-            <summary>
-            External transaction identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalStatus">
-            <summary>
-            Payment gateway transaction status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalMessage">
-            <summary>
-            Payment gateway message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.FailReason">
-            <summary>
-            The reason the transaction failed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductId">
-            <summary>
-            Identifier for the package from which this content is offered
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ContentId">
-            <summary>
-            Identifier for the content to purchase. Relevant only if Product type = PPV
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductType">
-            <summary>
-            Package type. Possible values: PPV, Subscription, Collection
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Currency">
-            <summary>
-            Identifier for paying currency, according to ISO 4217
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Price">
-            <summary>
-            Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentMethodId">
-            <summary>
-            Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentGatewayId">
-            <summary>
-            Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Coupon">
-            <summary>
-            Coupon code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.AdapterData">
-            <summary>
-            Additional data for the adapter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseSession.PreviewModuleId">
-            <summary>
-            Preview module identifier (relevant only for subscription)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.ReceiptId">
-            <summary>
-            A unique identifier that was provided by the In-App billing service to validate the purchase
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.PaymentGatewayName">
-            <summary>
-            The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
-            <summary>
-            Houshold premium service
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
-            <summary>
-            Premium services list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse.PremiumServices">
-            <summary>
-            A list of premium services
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.SubscriptionIdIn">
-            <summary>
-            Comma separated subscriptions identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
-            <summary>
-            Comma separated media files identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CollectionIdIn">
-            <summary>
-            Comma separated collections identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
-            <summary>
-            A flag that indicates if only the lowest price of an item should return
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CouponCodeEqual">
-            <summary>
-            Discount coupon code
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter">
-            <summary>
-            Entitlements filter 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntitlementTypeEqual">
-             <summary>
-            The type of the entitlements to return
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.ProductTypeEqual">
-             <summary>
-            The type of the entitlements to return
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntityReferenceEqual">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.IsExpiredEqual">
-             <summary>
-            Is expired 
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter">
-            <summary>
-            Transactions filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.EntityReferenceEqual">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.StartDateGreaterThanOrEqual">
-             <summary>
-            Filter transactions later than specific date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter.EndDateLessThanOrEqual">
-             <summary>
-            Filter transactions earlier than specific date
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfileListResponse">
-            <summary>
-            C-DVR adapter profiles
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfileListResponse.Objects">
-            <summary>
-            C-DVR adapter profiles
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile">
-            <summary>
-            C-DVR Adapter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Id">
-            <summary>
-            C-DVR adapter identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Name">
-            <summary>
-            C-DVR adapter name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.IsActive">
-            <summary>
-            C-DVR adapter active status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.AdapterUrl">
-            <summary>
-            C-DVR adapter adapter URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Settings">
-            <summary>
-            C-DVR adapter extra parameters
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.ExternalIdentifier">
-            <summary>
-            C-DVR adapter external identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.SharedSecret">
-            <summary>
-            C-DVR shared secret
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.DynamicLinksSupport">
-            <summary>
-            Indicates whether the C-DVR adapter supports dynamic URLs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.HouseholdId">
-            <summary>
-            Household identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.TotalQuota">
-            <summary>
-            Total quota that is allocated to the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.AvailableQuota">
-            <summary>
-            Available quota that household has remaining
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Id">
-            <summary>
-            Kaltura unique ID representing the recording identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Status">
-            <summary>
-            Recording state: scheduled/recording/recorded/canceled/failed/deleted
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.AssetId">
-            <summary>
-            Kaltura unique ID representing the program identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Type">
-            <summary>
-            Recording Type: single/season/series
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.ViewableUntilDate">
-            <summary>
-            Specifies until when the recording is available for viewing. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.IsProtected">
-            <summary>
-            Specifies whether or not the recording is protected
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.CreateDate">
-            <summary>
-            Specifies when was the recording created. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.UpdateDate">
-            <summary>
-            Specifies when was the recording last updated. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Code">
-            <summary>
-            query status code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Message">
-            <summary>
-            query status message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.AssetId">
-            <summary>
-            Asset identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Recording">
-            <summary>
-            Recording object
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter">
-            <summary>
-            Filtering assets
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
-            <summary>
-            Comma separated asset ids
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse">
-            <summary>
-            Recordings context info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse.Objects">
-            <summary>
-            Recording contexts
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter">
-            <summary>
-            Filtering recordings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.StatusIn">
-            <summary>
-            Recording Statuses
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.FilterExpression">
-            <summary>
-            KSQL expression, deprecated, please use ksql
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.ExternalRecordingIdIn">
-            <summary>
-            Comma separated external identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.Ksql">
-            <summary>
-            KSQL expression
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse">
-            <summary>
-            Recordings info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse.Objects">
-            <summary>
-            Recordings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
-            <summary>
-            Main licensed URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.AltUrl">
-            <summary>
-            An alternate URL to use in case the main fails
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingResponse">
-            <summary>
-            Billing response
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingResponse.ReceiptCode">
-            <summary>
-            Receipt Code 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingResponse.ExternalReceiptCode">
-            <summary>
-            External receipt Code 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse">
-            <summary>
-            Billing Transactions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse.transactions">
-             <summary>
-            Transactions
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction">
-            <summary>
-            Billing Transaction
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.recieptCode">
-             <summary>
-            Reciept Code
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchasedItemName">
-             <summary>
-            Purchased Item Name
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchasedItemCode">
-             <summary>
-            Purchased Item Code
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.itemType">
-             <summary>
-            Item Type
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingAction">
-             <summary>
-            Billing Action
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.price">
-             <summary>
-            price
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.actionDate">
-             <summary>
-            Action Date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.startDate">
-             <summary>
-            Start Date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.endDate">
-            <summary>
-            End Date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.paymentMethod">
-             <summary>
-            Payment Method
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.paymentMethodExtraDetails">
-             <summary>
-            Payment Method Extra Details
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.isRecurring">
-             <summary>
-            Is Recurring
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingProviderRef">
-             <summary>
-            Billing Provider Ref
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.purchaseID">
-             <summary>
-            Purchase ID
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.remarks">
-             <summary>
-            Remarks
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingPriceType">
-             <summary>
-            Billing Price Info
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaUserBillingTransaction">
-            <summary>
-            Billing transactions of single user
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter">
-            <summary>
-            Entitlements filter 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter.EntitlementType">
-             <summary>
-            The type of the entitlements to return
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter.By">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.SubscriptionsIds">
-            <summary>
-            Subscriptions Identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.FilesIds">
-            <summary>
-            Media files Identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.ShouldGetOnlyLowest">
-            <summary>
-            A flag that indicates if only the lowest price of an item should return
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.Id">
-            <summary>
-            Kaltura unique ID representing the transaction
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.PGReferenceID">
-            <summary>
-            Transaction reference ID received from the payment gateway. 
-            Value is available only if the payment gateway provides this information.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.PGResponseID">
-            <summary>
-            Response ID received from by the payment gateway. 
-            Value is available only if the payment gateway provides this information.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.State">
-            <summary>
-            Transaction state: OK/Pending/Failed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.FailReasonCode">
-            <summary>
-            Adapter failure reason code
-            Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
-            No response from payment gateway = 25, Exceeded retry limit = 26, Illegal client request = 27, Expired = 28
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransaction.CreatedAt">
-            <summary>
-            Entitlement creation date
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter">
-            <summary>
-            Transactions filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.By">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.StartDate">
-             <summary>
-            Filter transactions later than specific date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionsFilter.EndDate">
-             <summary>
-            Filter transactions earlier than specific date
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse">
-            <summary>
-            Entitlements list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse.Entitlements">
-            <summary>
-            A list of entitlements
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
-            <summary>
-            Entitlement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Id">
-             <summary>
-            Purchase identifier (for subscriptions and collections only)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Type">
-             <summary>
-            Entitlement type
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
-             <summary>
-            Entitlement identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ProductId">
-             <summary>
-            Product identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">
-             <summary>
-            The current number of uses 
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EndDate">
-             <summary>
-            The end date of the entitlement
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentDate">
-             <summary>
-            Current date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.LastViewDate">
-             <summary>
-            The last date the item was viewed
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseDate">
-             <summary>
-            Purchase date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseId">
-             <summary>
-            Purchase identifier (for subscriptions and collections only)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PaymentMethod">
-             <summary>
-            Payment Method
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceUDID">
-             <summary>
-            The UDID of the device from which the purchase was made
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceName">
-             <summary>
-            The name of the device from which the purchase was made
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsCancelationWindowEnabled">
-             <summary>
-            Indicates whether a cancelation window period is enabled
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MaxUses">
-             <summary>
-            The maximum number of uses available for this item (only for subscription and PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.NextRenewalDate">
-             <summary>
-            The date of the next renewal (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewableForPurchase">
-             <summary>
-            Indicates whether the subscription is renewable in this purchase (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewable">
-             <summary>
-            Indicates whether a subscription is renewable (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaFileId">
-             <summary>
-            Media file identifier (only for PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaId">
-             <summary>
-            Media identifier (only for PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
-            <summary>
-            Indicates whether the user is currently in his grace period entitlement (only for subscription)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.UserId">
-            <summary>
-            The Identifier of the purchasing user
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.HouseholdId">
-            <summary>
-            The Identifier of the purchasing household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkFilter.StatusEqual">
-            <summary>
-            dynamicOrderBy - order by Meta
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkListResponse">
-            <summary>
-            Asset wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkListResponse.Objects">
-            <summary>
-            bulk items
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulk">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulk.Id">
-            <summary>
-            Bulk identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulk.Status">
-            <summary>
-            Status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulk.CreateDate">
-            <summary>
-            Specifies when was the bulk action created. Date and time represented as epoch
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulk.UpdateDate">
-            <summary>
-            Specifies when was the bulk action last updated. Date and time represented as epoch
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
-            <summary>
-            Upload-token identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Status">
-            <summary>
-            Status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.FileSize">
-            <summary>
-            File size
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.CreateDate">
-            <summary>
-            Specifies when was the Asset was created. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
-            <summary>
-            Specifies when was the Asset last updated. Date and time represented as epoch.
-            </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
             <summary>

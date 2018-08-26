@@ -8768,18 +8768,10 @@ namespace WebAPI.Models.Catalog
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("parentAssetStructId") && parameters["parentAssetStructId"] != null)
+                if (parameters.ContainsKey("isInherited") && parameters["isInherited"] != null)
                 {
                     IsInherited = (Boolean) Convert.ChangeType(parameters["isInherited"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("parentInheritancePolicy") && parameters["parentInheritancePolicy"] != null)
-                {
-                    ParentInheritancePolicy = (KalturaInheritancePolicy) Enum.Parse(typeof(KalturaInheritancePolicy), parameters["parentInheritancePolicy"].ToString(), true);
-                }
-                if (parameters.ContainsKey("ingestInheritancePolicy") && parameters["ingestInheritancePolicy"] != null)
-                {
-                    IngestInheritancePolicy = (KalturaIngestInheritancePolicy) Enum.Parse(typeof(KalturaIngestInheritancePolicy), parameters["ingestInheritancePolicy"].ToString(), true);
-                }
+                }               
             }
         }
     }

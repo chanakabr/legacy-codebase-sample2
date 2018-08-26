@@ -8459,10 +8459,6 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("defaultIngestValue", "\"defaultIngestValue\": " + "\"" + EscapeJson(DefaultIngestValue) + "\"");
             }
-            if(IngestInheritancePolicy.HasValue)
-            {
-                ret.Add("ingestInheritancePolicy", "\"ingestInheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaIngestInheritancePolicy), IngestInheritancePolicy) + "\"");
-            }
             if(IngestReferencePath != null)
             {
                 ret.Add("ingestReferencePath", "\"ingestReferencePath\": " + "\"" + EscapeJson(IngestReferencePath) + "\"");
@@ -8471,10 +8467,6 @@ namespace WebAPI.Models.Catalog
             if(IsInherited.HasValue)
             {
                 ret.Add("isInherited", "\"isInherited\": " + IsInherited);
-            }
-            if(ParentInheritancePolicy.HasValue)
-            {
-                ret.Add("parentInheritancePolicy", "\"parentInheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaInheritancePolicy), ParentInheritancePolicy) + "\"");
             }
             if(ProtectFromIngest.HasValue)
             {
@@ -8494,11 +8486,7 @@ namespace WebAPI.Models.Catalog
             if(DefaultIngestValue != null)
             {
                 ret.Add("defaultIngestValue", "<defaultIngestValue>" + EscapeXml(DefaultIngestValue) + "</defaultIngestValue>");
-            }
-            if(IngestInheritancePolicy.HasValue)
-            {
-                ret.Add("ingestInheritancePolicy", "<ingestInheritancePolicy>" + "" + Enum.GetName(typeof(KalturaIngestInheritancePolicy), IngestInheritancePolicy) + "" + "</ingestInheritancePolicy>");
-            }
+            }           
             if(IngestReferencePath != null)
             {
                 ret.Add("ingestReferencePath", "<ingestReferencePath>" + EscapeXml(IngestReferencePath) + "</ingestReferencePath>");
@@ -8507,11 +8495,7 @@ namespace WebAPI.Models.Catalog
             if(IsInherited.HasValue)
             {
                 ret.Add("isInherited", "<isInherited>" + IsInherited + "</isInherited>");
-            }
-            if(ParentInheritancePolicy.HasValue)
-            {
-                ret.Add("parentInheritancePolicy", "<parentInheritancePolicy>" + "" + Enum.GetName(typeof(KalturaInheritancePolicy), ParentInheritancePolicy) + "" + "</parentInheritancePolicy>");
-            }
+            }            
             if(ProtectFromIngest.HasValue)
             {
                 ret.Add("protectFromIngest", "<protectFromIngest>" + ProtectFromIngest.ToString().ToLower() + "</protectFromIngest>");

@@ -83,23 +83,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isInherited")]
         [JsonProperty(PropertyName = "isInherited")]
         [XmlElement(ElementName = "isInherited", IsNullable = true)]        
-        public bool? IsInherited { get; set; }
-
-        /// <summary>
-        ///  Parent Inheritance Policy
-        /// </summary>
-        [DataMember(Name = "parentInheritancePolicy")]
-        [JsonProperty(PropertyName = "parentInheritancePolicy")]
-        [XmlElement(ElementName = "parentInheritancePolicy", IsNullable = true)]
-        public KalturaInheritancePolicy? ParentInheritancePolicy { get; set; }
-
-
-        /// <summary>
-        ///  Ingest Inheritance Policy
-        /// </summary>
-        [DataMember(Name = "ingestInheritancePolicy")]
-        [JsonProperty(PropertyName = "ingestInheritancePolicy")]
-        [XmlElement(ElementName = "ingestInheritancePolicy", IsNullable = true)]
-        public KalturaIngestInheritancePolicy? IngestInheritancePolicy { get; set; }
+        public bool? IsInherited { get; set; }       
     }
 }
