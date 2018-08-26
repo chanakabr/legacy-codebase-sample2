@@ -5,6 +5,7 @@ RUN apt-get install unzip
 
 ENV TARGET_API ott
 ENV NO_SSL true
+ENV BASE_PATH /doc
 ENV ENABLE_HOMEPAGE true
 ENV KALTURA_RECIPES_PORT 80
 
