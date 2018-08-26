@@ -134,7 +134,7 @@ namespace WebAPI.Utils
                 return null;
             }
 
-            Language langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
+            Language langModel = languages.FirstOrDefault(l => l.IsDefault);
             if (langModel != null)
             {
                 return langModel.Code;
