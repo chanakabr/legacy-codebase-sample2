@@ -8583,10 +8583,9 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.TypeIn">
             <summary>
-            (Deprecated - use KalturaBaseSearchAssetFilter.kSql)
             Comma separated list of asset types to search within. 
             Possible values: any media type ID (according to media type IDs defined dynamically in the system).
-            If omitted –   same type as the provided asset.
+            If omitted – same type as the provided asset.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.ExcludeWatched">
