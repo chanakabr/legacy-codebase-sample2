@@ -683,14 +683,6 @@ namespace Core.Catalog.CatalogManagement
         private static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
         {
             int? ingestPolicyId = ODBCWrapper.Utils.GetNullableInt(dr, "INGEST_INHERITANCE_POLICY");
-            IngestInheritancePolicy? ingestPolicy = null;
-            if (ingestPolicyId.HasValue)
-                ingestPolicy = (IngestInheritancePolicy)Enum.Parse(typeof(IngestInheritancePolicy), ingestPolicyId.Value.ToString());
-
-            int? parentInheritancePolicyId = ODBCWrapper.Utils.GetNullableInt(dr, "INGEST_INHERITANCE_POLICY");
-            InheritancePolicy? parentInheritancePolicy = null;
-            if (parentInheritancePolicyId.HasValue)
-                parentInheritancePolicy = (InheritancePolicy)Enum.Parse(typeof(InheritancePolicy), parentInheritancePolicyId.Value.ToString());
 
             AssetStructMeta assetStructMeta = new AssetStructMeta()
             {
@@ -701,9 +693,7 @@ namespace Core.Catalog.CatalogManagement
                 DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
                 CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
                 UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
-                IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1 ? true : false,
-                IngestPolicy = ingestPolicy,
-                ParentInheritancePolicy = parentInheritancePolicy
+                IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1
             };
             return assetStructMeta;
         }
@@ -1928,17 +1918,9 @@ namespace Core.Catalog.CatalogManagement
 
                 if (metaDataInheritanceStatus.Code == (int)eResponseStatus.OK)
                 {
-                    int? parentInheritancePolicy = null;
-                    if (assetStructMeta.ParentInheritancePolicy.HasValue)
-                        parentInheritancePolicy = (int)assetStructMeta.ParentInheritancePolicy.Value;
-
-                    int? ingestPolicy = null;
-                    if (assetStructMeta.IngestPolicy.HasValue)
-                        ingestPolicy = (int)assetStructMeta.IngestPolicy.Value;
-
                     DataTable dt = CatalogDAL.UpdateAssetStructMeta
                                             (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
-                        assetStructMeta.IsInherited, parentInheritancePolicy, ingestPolicy);
+                        assetStructMeta.IsInherited);
 
                     if (needToHandleHeritage)
                     {
@@ -1980,12 +1962,7 @@ namespace Core.Catalog.CatalogManagement
             if (currentAssetStructMeta.IsInherited == assetStructMeta.IsInherited)
             {
                 return status;
-            }
-
-            if ((!currentAssetStructMeta.IsInherited.HasValue || !currentAssetStructMeta.IsInherited.Value) && assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
-            {
-                needToHandleHeritage = true;
-            }
+            }            
 
             AssetStruct currentAssetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
             if (!currentAssetStruct.ParentId.HasValue)
@@ -1995,15 +1972,13 @@ namespace Core.Catalog.CatalogManagement
 
             // check meta existed at parent        
             AssetStruct parentAssetStruct = catalogGroupCache.AssetStructsMapById[currentAssetStruct.ParentId.Value];
-
-            if (parentAssetStruct.MetaIds.Contains(metaId))
-            {
-                return status;
-            }
-            else
+            if (!parentAssetStruct.MetaIds.Contains(metaId))
             {
                 return new Status((int)eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "Meta does not belong to ParentAssetStruct");
             }
+
+            needToHandleHeritage = true;
+            return status;
         }
 
         private static Status CheckMetaExistenceAtAssetStruct(AssetStruct assetStruct, long metaId)
@@ -2091,12 +2066,12 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            // Getting all parent assets that contains value for this meta
+            // Getting all parent assets that contains value for connected meta
             string filter = string.Format("(and asset_type='{0}' {1}+'')", parentAssetStruct.Id, parentConnectingTopic.SystemName);
             UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
             if (assets == null || assets.Length == 0)
             {
-                return false;
+                return true;
             }
 
             foreach (UnifiedSearchResult asset in assets)
@@ -2138,7 +2113,6 @@ namespace Core.Catalog.CatalogManagement
 
                 if (childAssetIds == null || childAssetIds.Length == 0)
                 {
-                    //log.ErrorFormat("");
                     continue;
                 }
 
@@ -2162,85 +2136,91 @@ namespace Core.Catalog.CatalogManagement
                     return false;
                 }
 
-                foreach (Asset childAsset in childAssets)
-                {
-                    bool update = false;
-                    // take only asset that need to be updated                    
-                    if (inhertiedMeta.Type == MetaType.Tag)
-                    {
-                        int tagIndex = -1;
-                        for (int i = 0; i < childAsset.Tags.Count; i++)
-                        {
-                            if (childAsset.Tags[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
-                            {
-                                tagIndex = i;
-                                break;
-                            }
-                        }
+                // Update Inherited Child Asset
+                UpdateInheritedChildAsset(groupId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
+            }
 
-                        if (inheratedTagsObj == null)
+            return result;
+        }
+
+        private static void UpdateInheritedChildAsset(int groupId, Topic inhertiedMeta, Metas inheratedMetaObj, Tags inheratedTagsObj, List<Asset> childAssets)
+        {
+            foreach (Asset childAsset in childAssets)
+            {
+                bool update = false;
+                // take only asset that need to be updated                    
+                if (inhertiedMeta.Type == MetaType.Tag)
+                {
+                    int tagIndex = -1;
+                    for (int i = 0; i < childAsset.Tags.Count; i++)
+                    {
+                        if (childAsset.Tags[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
                         {
-                            if (tagIndex > -1)
-                            {
-                                AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
-                            }
+                            tagIndex = i;
+                            break;
                         }
-                        else
+                    }
+
+                    if (inheratedTagsObj == null)
+                    {
+                        if (tagIndex > -1)
                         {
-                            if (tagIndex == -1)
-                            {
-                                childAsset.Tags.Add(inheratedTagsObj);
-                                update = true;
-                            }
-                            else if (!inheratedTagsObj.Equals(childAsset.Tags[tagIndex]))
-                            {
-                                childAsset.Tags[tagIndex] = inheratedTagsObj;
-                                update = true;
-                            }
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
                         }
                     }
                     else
                     {
-                        int metaIndex = -1;
-                        for (int i = 0; i < childAsset.Metas.Count; i++)
+                        if (tagIndex == -1)
                         {
-                            if (childAsset.Metas[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
-                            {
-                                metaIndex = i;
-                                break;
-                            }
+                            childAsset.Tags.Add(inheratedTagsObj);
+                            update = true;
                         }
-                        
-                        if (inheratedMetaObj == null)
+                        else if (!inheratedTagsObj.Equals(childAsset.Tags[tagIndex]))
                         {
-                            if (metaIndex > -1)
-                            {
-                                AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
-                            }
+                            childAsset.Tags[tagIndex] = inheratedTagsObj;
+                            update = true;
                         }
-                        else
-                        {
-                            if (metaIndex == -1)
-                            {
-                                childAsset.Metas.Add(inheratedMetaObj);
-                                update = true;
-                            }
-                            else if (!inheratedMetaObj.Equals(childAsset.Metas[metaIndex]))
-                            {
-                                childAsset.Metas[metaIndex] = inheratedMetaObj;
-                                update = true;
-                            }
-                        }
-                    }
-
-                    if (update)
-                    {
-                        AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, 999);
                     }
                 }
-            }
+                else
+                {
+                    int metaIndex = -1;
+                    for (int i = 0; i < childAsset.Metas.Count; i++)
+                    {
+                        if (childAsset.Metas[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
+                        {
+                            metaIndex = i;
+                            break;
+                        }
+                    }
 
-            return result;
+                    if (inheratedMetaObj == null)
+                    {
+                        if (metaIndex > -1)
+                        {
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
+                        }
+                    }
+                    else
+                    {
+                        if (metaIndex == -1)
+                        {
+                            childAsset.Metas.Add(inheratedMetaObj);
+                            update = true;
+                        }
+                        else if (!inheratedMetaObj.Equals(childAsset.Metas[metaIndex]))
+                        {
+                            childAsset.Metas[metaIndex] = inheratedMetaObj;
+                            update = true;
+                        }
+                    }
+                }
+
+                if (update)
+                {
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, 999);
+                }
+            }
         }
 
         private static bool GetHeritageTopics(int groupId, CatalogGroupCache catalogGroupCache, long assetStructId, long metaId, AssetStruct currentAssetStruct,
