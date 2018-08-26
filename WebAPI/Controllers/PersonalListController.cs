@@ -8,6 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.Api;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
@@ -49,7 +50,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid userId");
                 }
 
-                response = ClientsManager.NotificationClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.GetPartnerListTypeIn());
+                //response = ClientsManager.ApiClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.GetPartnerListTypeIn());
             }
             catch (ClientException ex)
             {
@@ -80,7 +81,7 @@ namespace WebAPI.Controllers
                 {
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
-
+                /*
                 if (string.IsNullOrEmpty(personalList.Name) || string.IsNullOrWhiteSpace(personalList.Name))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -90,8 +91,11 @@ namespace WebAPI.Controllers
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
                 }
+                
+                return ClientsManager.ApiClient().AddPersonalListItemToUser(groupId, userId, personalList);
+                */
+                return null;
 
-                return ClientsManager.NotificationClient().AddPersonalListItemToUser(groupId, userId, personalList);
             }
             catch (ClientException ex)
             {
@@ -125,7 +129,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
 
-                ClientsManager.NotificationClient().DeletePersonalListItemFromUser(groupId, userId, personalListId);
+                ClientsManager.ApiClient().DeletePersonalListItemFromUser(groupId, userId, personalListId);
             }
             catch (ClientException ex)
             {

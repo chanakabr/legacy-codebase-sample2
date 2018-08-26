@@ -727,59 +727,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
-        {
-            GetUserFollowsResponse response = null;
-
-            // create order object
-            OrderDir order = OrderDir.DESC;
-            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
-                order = OrderDir.ASC;
-            
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListTypes, true);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetPersonalListItems.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                // Bad response received from WS
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse()
-            {
-                PersonalListList = Mapper.Map<List<KalturaPersonalList>>(response.Follows),
-                TotalCount = response.TotalCount
-            };
-            
-            return result;
-        }
-
-        internal void DeletePersonalListItemFromUser(int groupId, int userID, long personalListId)
-        {
-            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Notification.Module.DeletePersonalListItemFromUser(groupId, userID, personalListId);
-            ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
-        }
-
-        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, int userID, KalturaPersonalList kalturaPersonalList)
-        {
-            Func<FollowDataBase, GenericResponse<FollowDataBase>> addPersonalListItemToUserFunc = (FollowDataBase personalListItemToFollow) =>
-                Core.Notification.Module.AddPersonalListItemToUser(userID, groupId, personalListItemToFollow);
-
-            KalturaPersonalList result =
-                ClientUtils.GetResponseFromWS<KalturaPersonalList, FollowDataBase>(kalturaPersonalList, addPersonalListItemToUserFunc);
-
-            return result;
-        }
-
         internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaMessageTemplateType messageTemplateType)
         {
             MessageTemplateResponse response = null;

@@ -19,7 +19,6 @@ namespace WebAPI.Controllers
     public class FollowTvSeriesController : IKalturaController
     {
         /// <summary>
-        /// (Deprecated - use personalList.list)
         /// List user's tv series follows.
         /// <remarks>Possible status codes:</remarks>
         /// </summary>
@@ -84,7 +83,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// (Deprecated - use personalList.delete)
         /// Delete a user's tv series follow.
         /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
         /// </summary>
@@ -117,7 +115,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// (Deprecated - use personalList.add)
         /// Add a user's tv series follow.
         /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
         /// </summary>
