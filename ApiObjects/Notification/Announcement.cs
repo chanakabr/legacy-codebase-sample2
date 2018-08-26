@@ -10,6 +10,6 @@ namespace ApiObjects.Notification
         public long AnnouncementId { get; set; }
         public string AnnouncementName { get; set; }
         public long AddedDateSec { get; set; }
-        public int PartnerListType { get; set; }
+        //public int PartnerListType { get; set; }
     }
 }

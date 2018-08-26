@@ -37,6 +37,9 @@ namespace APILogic.Api.Managers
                 if (userPersonalList.Items.Count(x => x.PartnerListType == personalListItem.PartnerListType && x.Ksql.Equals(personalListItem.Ksql)) > 0)
                 {
                     //allready exist
+                    log.ErrorFormat("personal list: User already following, userId:{0}", userId);
+                    response.SetStatus(eResponseStatus.UserAlreadyFollowing, "User already following");
+                    return response;
                 }
 
                 itemId = userPersonalList.Items.Max(x => x.Id);
@@ -48,7 +51,7 @@ namespace APILogic.Api.Managers
             string key = GetUserPersonalListKey(userId);
             if (!UtilsDal.SaveObjectInCB<UserPersonalList>(COUCHBASE_BUCKET, key, userPersonalList))
             {
-                //log fail to delete
+                log.ErrorFormat("Failed to save personal list, userId:{0}", userId);
             }
             else
             {
@@ -113,42 +116,50 @@ namespace APILogic.Api.Managers
 
                 if (userPersonalList == null || userPersonalList.Items == null || userPersonalList.Items.Count == 0)
                 {
-                    //log
+                    log.ErrorFormat("personal list (Delete): User not following, userId:{0}", userId);
+                    response = new Status((int)eResponseStatus.UserNotFollowing, "User not following");
                     return response;
                 }
 
                 PersonalListItem itemToDelete = userPersonalList.Items.FirstOrDefault(x => x.Id == personalListItemId);
                 if (itemToDelete == null)
                 {
-                    //log item not found
+                    log.ErrorFormat("personal list (Delete): User not following, userId:{0}", userId);
+                    response = new Status((int)eResponseStatus.UserNotFollowing, "User not following");
+                    return response;
+                }
+
+                if (!userPersonalList.Items.Remove(itemToDelete))
+                {
+                    log.ErrorFormat("personal list(Delete): Fail to remove item, itemId:{0}, userId:{1}", personalListItemId, userId);
+                    return response;
+                }
+
+                string key = GetUserPersonalListKey(userId);
+
+                if (userPersonalList.Items.Count == 0)
+                {
+                    if(!UtilsDal.DeleteObjectFromCB(COUCHBASE_BUCKET, key))
+                    {
+                        log.ErrorFormat("personal list(Delete): Fail to remove entire personal list, itemId:{0}, userId:{1}", personalListItemId, userId);
+                        return response;
+                    }
                 }
                 else
                 {
-                    if (!userPersonalList.Items.Remove(itemToDelete))
+                    if (!UtilsDal.SaveObjectInCB<UserPersonalList>(COUCHBASE_BUCKET, key, userPersonalList))
                     {
-                        //log fail to delete
+                        log.ErrorFormat("personal list(Delete): Fail to remove item, itemId:{0}, userId:{1}", personalListItemId, userId);
+                        return response;
                     }
-
-                    string key = GetUserPersonalListKey(userId);
-
-                    if (userPersonalList.Items.Count == 0)
-                    {
-                        UtilsDal.DeleteObjectFromCB(COUCHBASE_BUCKET, key);
-                    }
-                    else
-                    {
-                        if (!UtilsDal.SaveObjectInCB<UserPersonalList>(COUCHBASE_BUCKET, key, userPersonalList))
-                        {
-                            //log fail to delete
-                        }
-                    }
-
-                    response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
+
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             }
             catch (Exception ex)
             {
-                //log.ErrorFormat("", ex, groupId, assetRuleId);
+                log.Error(string.Format("Error personal list (Delete), itemId:{0}, userId:{1}", personalListItemId, userId), ex);
             }
 
             return response;

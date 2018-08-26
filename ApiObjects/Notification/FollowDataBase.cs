@@ -34,9 +34,6 @@ namespace ApiObjects.Notification
         [DataMember]
         public string FollowPhrase;
 
-        [DataMember]
-        public int PartnerListType;
-
         public FollowDataBase()
         {
         }
