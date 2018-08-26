@@ -11,7 +11,6 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.Models.Notification;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -50,7 +49,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid userId");
                 }
 
-                //response = ClientsManager.ApiClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.GetPartnerListTypeIn());
+                response = ClientsManager.ApiClient().GetPersonalListItems(groupId, userId, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy, filter.GetPartnerListTypeIn());
             }
             catch (ClientException ex)
             {
@@ -81,7 +80,7 @@ namespace WebAPI.Controllers
                 {
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
-                /*
+                
                 if (string.IsNullOrEmpty(personalList.Name) || string.IsNullOrWhiteSpace(personalList.Name))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -93,9 +92,6 @@ namespace WebAPI.Controllers
                 }
                 
                 return ClientsManager.ApiClient().AddPersonalListItemToUser(groupId, userId, personalList);
-                */
-                return null;
-
             }
             catch (ClientException ex)
             {

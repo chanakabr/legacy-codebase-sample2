@@ -27,6 +27,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Api;
 
 namespace WebAPI.Reflection
 {

@@ -19,6 +19,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Api;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -6603,100 +6604,6 @@ namespace WebAPI.Models.Notification
             if(PersonalFollowFeed != null)
             {
                 propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaPersonalList
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("createDate", "\"createDate\": " + CreateDate);
-            ret.Add("id", "\"id\": " + Id);
-            if(Ksql != null)
-            {
-                ret.Add("ksql", "\"ksql\": " + "\"" + EscapeJson(Ksql) + "\"");
-            }
-            if(Name != null)
-            {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            ret.Add("partnerListType", "\"partnerListType\": " + PartnerListType);
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
-            ret.Add("id", "<id>" + Id + "</id>");
-            if(Ksql != null)
-            {
-                ret.Add("ksql", "<ksql>" + EscapeXml(Ksql) + "</ksql>");
-            }
-            if(Name != null)
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
-            ret.Add("partnerListType", "<partnerListType>" + PartnerListType + "</partnerListType>");
-            return ret;
-        }
-    }
-    public partial class KalturaPersonalListFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            if(PartnerListTypeIn != null)
-            {
-                ret.Add("partnerListTypeIn", "\"partnerListTypeIn\": " + "\"" + EscapeJson(PartnerListTypeIn) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            if(PartnerListTypeIn != null)
-            {
-                ret.Add("partnerListTypeIn", "<partnerListTypeIn>" + EscapeXml(PartnerListTypeIn) + "</partnerListTypeIn>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaPersonalListListResponse
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            if(PersonalListList != null)
-            {
-                propertyValue = "[" + String.Join(", ", PersonalListList.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            if(PersonalListList != null)
-            {
-                propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
@@ -22281,6 +22188,104 @@ namespace WebAPI.EventNotifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.Api
+{
+    public partial class KalturaPersonalList
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            ret.Add("id", "\"id\": " + Id);
+            if(Ksql != null)
+            {
+                ret.Add("ksql", "\"ksql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            ret.Add("partnerListType", "\"partnerListType\": " + PartnerListType);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(Ksql != null)
+            {
+                ret.Add("ksql", "<ksql>" + EscapeXml(Ksql) + "</ksql>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            ret.Add("partnerListType", "<partnerListType>" + PartnerListType + "</partnerListType>");
+            return ret;
+        }
+    }
+    public partial class KalturaPersonalListFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PartnerListTypeIn != null)
+            {
+                ret.Add("partnerListTypeIn", "\"partnerListTypeIn\": " + "\"" + EscapeJson(PartnerListTypeIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PartnerListTypeIn != null)
+            {
+                ret.Add("partnerListTypeIn", "<partnerListTypeIn>" + EscapeXml(PartnerListTypeIn) + "</partnerListTypeIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPersonalListListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PersonalListList != null)
+            {
+                propertyValue = "[" + String.Join(", ", PersonalListList.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PersonalListList != null)
+            {
+                propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
