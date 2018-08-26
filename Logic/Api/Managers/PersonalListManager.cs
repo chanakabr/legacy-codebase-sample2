@@ -22,41 +22,48 @@ namespace APILogic.Api.Managers
         {
             GenericResponse<PersonalListItem> response = new GenericResponse<PersonalListItem>();
 
-            UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
-            int itemId = 0;
-            personalListItem.Timestamp = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
-
-            if (userPersonalList == null)
+            try
             {
-                userPersonalList = new UserPersonalList(userId);
-                userPersonalList.CreateDateSec = personalListItem.Timestamp;
-            }
+                UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
+                int itemId = 0;
+                personalListItem.Timestamp = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
 
-            if (userPersonalList.Items != null && userPersonalList.Items.Count > 0)
-            {
-                if (userPersonalList.Items.Count(x => x.PartnerListType == personalListItem.PartnerListType && x.Ksql.Equals(personalListItem.Ksql)) > 0)
+                if (userPersonalList == null)
                 {
-                    //allready exist
-                    log.ErrorFormat("personal list: User already following, userId:{0}", userId);
-                    response.SetStatus(eResponseStatus.UserAlreadyFollowing, "User already following");
-                    return response;
+                    userPersonalList = new UserPersonalList(userId);
+                    userPersonalList.CreateDateSec = personalListItem.Timestamp;
                 }
 
-                itemId = userPersonalList.Items.Max(x => x.Id);
-            }
+                if (userPersonalList.Items != null && userPersonalList.Items.Count > 0)
+                {
+                    if (userPersonalList.Items.Count(x => x.PartnerListType == personalListItem.PartnerListType && x.Ksql.Equals(personalListItem.Ksql)) > 0)
+                    {
+                        //allready exist
+                        log.ErrorFormat("personal list: User already following, userId:{0}", userId);
+                        response.SetStatus(eResponseStatus.UserAlreadyFollowing, "User already following");
+                        return response;
+                    }
 
-            personalListItem.Id = itemId + 1;
-            userPersonalList.Items.Add(personalListItem);
-            
-            string key = GetUserPersonalListKey(userId);
-            if (!UtilsDal.SaveObjectInCB<UserPersonalList>(COUCHBASE_BUCKET, key, userPersonalList))
-            {
-                log.ErrorFormat("Failed to save personal list, userId:{0}", userId);
+                    itemId = userPersonalList.Items.Max(x => x.Id);
+                }
+
+                personalListItem.Id = itemId + 1;
+                userPersonalList.Items.Add(personalListItem);
+
+                string key = GetUserPersonalListKey(userId);
+                if (!UtilsDal.SaveObjectInCB<UserPersonalList>(COUCHBASE_BUCKET, key, userPersonalList))
+                {
+                    log.ErrorFormat("Failed to save personal list, userId:{0}", userId);
+                }
+                else
+                {
+                    response.Object = personalListItem;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
-            else
+            catch (Exception ex)
             {
-                response.Object = personalListItem;
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                log.Error(string.Format("Error personal list (Add), userId:{0}", userId), ex);
             }
 
             return response;
@@ -65,44 +72,53 @@ namespace APILogic.Api.Managers
         public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
         {
             GenericListResponse<PersonalListItem> response = new GenericListResponse<PersonalListItem>();
-            List<PersonalListItem> items = new List<PersonalListItem>();
 
-            UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
-
-            if (userPersonalList == null)
+            try
             {
-                return response;
-            }
+                UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
 
-            if (userPersonalList.Items != null && userPersonalList.Items.Count > 0)
-            {
-                if (partnerListTypes != null && partnerListTypes.Count > 0)
+                if (userPersonalList == null)
                 {
-                    items = userPersonalList.Items.Where(x => partnerListTypes.Contains(x.PartnerListType)).ToList();
-                }
-                else
-                {
-                    items = userPersonalList.Items;
+                    return response;
                 }
 
-                if (items != null && items.Count > 0)
+                if (userPersonalList.Items != null && userPersonalList.Items.Count > 0)
                 {
-                    response.TotalItems = items.Count;
+                    List<PersonalListItem> items = new List<PersonalListItem>();
 
-                    if (order == OrderDiretion.Desc)
+                    if (partnerListTypes != null && partnerListTypes.Count > 0)
                     {
-                        items.Reverse();
+                        items = userPersonalList.Items.Where(x => partnerListTypes.Contains(x.PartnerListType)).ToList();
+                    }
+                    else
+                    {
+                        items = userPersonalList.Items;
                     }
 
-                    if (pageSize > 0)
+                    if (items != null && items.Count > 0)
                     {
-                        items = items.Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                    }
-                }
-            }
+                        response.TotalItems = items.Count;
 
-            response.Objects = items;
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        if (order == OrderDiretion.Desc)
+                        {
+                            items.Reverse();
+                        }
+
+                        if (pageSize > 0)
+                        {
+                            items = items.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                        }
+                    }
+
+                    response.Objects = items;
+                }
+
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error get personal list, userId:{0}", userId), ex);
+            }
 
             return response;
         }
