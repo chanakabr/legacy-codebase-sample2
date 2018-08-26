@@ -148,6 +148,7 @@
     <Compile Include="Notification\SMSNotificationData.cs" />
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
+    <Compile Include="PersonalListItem.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
     <Compile Include="Response\GenericListResponse.cs" />
     <Compile Include="Response\GenericResponse.cs" />
