@@ -110,7 +110,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("personalListId", MinLong = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
-        [Throws(eResponseStatus.AnnouncementNotFound)]
         [Throws(eResponseStatus.InvalidUser)]
         static public void Delete(long personalListId)
         {

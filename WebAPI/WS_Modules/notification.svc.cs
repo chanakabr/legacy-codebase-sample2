@@ -667,7 +667,7 @@ namespace WS_Notification
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.GetUserFollows(groupID, userId, pageSize, pageIndex, order, null);
+                    return Core.Notification.Module.GetUserFollows(groupID, userId, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)
