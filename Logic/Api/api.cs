@@ -11171,5 +11171,20 @@ namespace Core.Api
 
             return response;
         }
+
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
+        {
+            return APILogic.Api.Managers.PersonalListManager.AddPersonalListItemForUser(groupId, userId, personalListItem);
+        }
+
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        {    
+            return APILogic.Api.Managers.PersonalListManager.GetUserPersonalListItems(groupId, userId, pageIndex, pageSize, order, partnerListTypes);
+        }
+
+        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
+        {
+            return APILogic.Api.Managers.PersonalListManager.DeletePersonalListItemForUser(groupId, userId, personalListItemId);
+        }
     }
 }

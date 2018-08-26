@@ -18,7 +18,7 @@ namespace APILogic.Api.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const eCouchbaseBucket COUCHBASE_BUCKET = eCouchbaseBucket.NOTIFICATION;
 
-        public static GenericResponse<PersonalListItem> AddPersonalListItem(int groupId, long userId, PersonalListItem personalListItem)
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
         {
             GenericResponse<PersonalListItem> response = new GenericResponse<PersonalListItem>();
 
@@ -59,9 +59,9 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        public static GenericResponse<List<PersonalListItem>> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
         {
-            GenericResponse<List<PersonalListItem>> response = new GenericResponse<List<PersonalListItem>>();
+            GenericListResponse<PersonalListItem> response = new GenericListResponse<PersonalListItem>();
             List<PersonalListItem> items = new List<PersonalListItem>();
 
             UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
@@ -84,6 +84,8 @@ namespace APILogic.Api.Managers
 
                 if (items != null && items.Count > 0)
                 {
+                    response.TotalItems = items.Count;
+
                     if (order == OrderDiretion.Desc)
                     {
                         items.Reverse();
@@ -96,13 +98,13 @@ namespace APILogic.Api.Managers
                 }
             }
 
-            response.Object = items;
+            response.Objects = items;
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return response;
         }
 
-        public static Status DeletePersonalListItem(int groupId, long userId, long personalListItemId)
+        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
