@@ -302,8 +302,12 @@ namespace Core.Users
                 try
                 {
                     //handle basic data
-                    UserBasicData userBasicData = GetUserBasicData(dUserInfo);
-                    UpdateUserBasicData(userInfo, userBasicData);
+                    UserBasicData newUserBasicData = GetUserBasicData(dUserInfo);
+                    
+                    if (userInfo.m_user.m_oBasicData.CopyForUpdate(newUserBasicData, true))
+                    {
+                        userInfo.m_user.m_oBasicData.Save(int.Parse(userInfo.m_user.m_sSiteGUID), userInfo.m_user.GroupId);
+                    }
 
                     //get the dynamic data from and update it in DB
                     UserDynamicData userDynamic = GetUserDynamicData(dUserInfo);
@@ -495,24 +499,7 @@ namespace Core.Users
 
             return udd;
         }
-
-        private void UpdateUserBasicData(UserResponseObject userInfo, UserBasicData newUserData)
-        {
-            bool isBasicChanged = false;
-            if (!userInfo.m_user.m_oBasicData.m_sUserName.Equals(newUserData.m_sUserName))
-            {
-                userInfo.m_user.m_oBasicData.m_sUserName = newUserData.m_sUserName;
-                userInfo.m_user.m_oBasicData.m_sPassword = newUserData.m_sUserName.ToLower();
-                userInfo.m_user.m_oBasicData.m_sEmail = newUserData.m_sUserName;
-                isBasicChanged = true;
-            }
-            
-            if (userInfo.m_user.m_oBasicData.Copy(newUserData) || isBasicChanged)
-            {
-                userInfo.m_user.m_oBasicData.Save(int.Parse(userInfo.m_user.m_sSiteGUID), userInfo.m_user.GroupId);
-            }
-        }
-
+        
         private string GetContentInfo(string key, Dictionary<string, string> info)
         {
             if (info.ContainsKey(key))
