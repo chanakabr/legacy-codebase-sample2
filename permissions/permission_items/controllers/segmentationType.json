@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SegmentationType_Add",
+      "service": "SegmentationType",
+      "action": "Add",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SegmentationType_Update",
+      "service": "SegmentationType",
+      "action": "Update",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SegmentationType_Delete",
+      "service": "SegmentationType",
+      "action": "Delete",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "SegmentationType_List",
+      "service": "SegmentationType",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
