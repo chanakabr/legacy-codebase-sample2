@@ -1,0 +1,95 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Web;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Segmentation
+{
+    /// <summary>
+    /// Segmentation type - defines at least one segment 
+    /// </summary>
+    public partial class KalturaSegmentationType : KalturaOTTObject
+    {
+        /// <summary>
+        /// Id of segmentation type
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty()]
+        public long Id { get; set; }
+
+        /// <summary>
+        /// Name of segmentation type
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
+        [SchemeProperty()]
+        public KalturaMultilingualString Name { get; set; }
+
+        /// <summary>
+        /// Description of segmentation type
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty(PropertyName = "description")]
+        [XmlElement(ElementName = "description")]
+        [SchemeProperty()]
+        public KalturaMultilingualString Description { get; set; }
+
+        /// <summary>
+        /// Segmentation conditions - can be empty
+        /// </summary>
+        [DataMember(Name = "conditions", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "conditions", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "conditions", IsNullable = true)]
+        [XmlArrayItem("item")]
+        [SchemeProperty()]
+        public List<KalturaBaseSegmentCondition> Conditions { get; set; }
+
+        /// <summary>
+        /// Segmentation values - can be empty (so only one segment will be created)
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty(PropertyName = "value")]
+        [XmlElement(ElementName = "value")]
+        [SchemeProperty()]
+        public KalturaBaseSegmentValue Value { get; set; }
+    }
+
+    public enum KalturaContentAction
+    {
+        watch_linear,
+        watch_vod,
+        catchup,
+        npvr,
+        favorite,
+        recording,
+        social_action
+    }
+
+    public enum KalturaContentFieldType
+    {
+        meta,
+        tag
+    }
+    
+    public enum KalturaMonetizationType
+    {
+        ppv,
+        subscription
+    }
+
+    public enum KalturaMathemticalOperatorType
+    {
+        count,
+        sum,
+        avg
+    }
+}

@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
             }
             else if (pager.PageSize < 5)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaAssetHistoryFilter.pageSize", "5");
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaSearchHistoryFilter.pageSize", "5");
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();
