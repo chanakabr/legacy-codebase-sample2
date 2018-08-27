@@ -18,6 +18,8 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using AutoMapper.Configuration;
+using ApiObjects.Segmentation;
+using WebAPI.Models.Segmentation;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -556,10 +558,445 @@ namespace WebAPI.ObjectsConvertor.Mapping
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
             .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
             .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.ResolveUsing(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));           
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
             #endregion
 
-        }       
+            #region Segmentation Type
+
+            // Segmentation type
+            cfg.CreateMap<KalturaSegmentationType, SegmentationType>()
+                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
+                .ForMember(dest => dest.DescriptionWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
+                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionWithLanguages, src.Description)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            // Segmentation source
+            cfg.CreateMap<KalturaSegmentSource, SegmentSource>()
+                .Include<KalturaMonetizationSource, MonetizationSource>()
+                .Include<KalturaContentSource, ContentSource>()
+                .Include<KalturaUserDynamicDataSource, UserDynamicDataSource>()
+                ;
+
+            cfg.CreateMap<SegmentSource, KalturaSegmentSource>()
+                .Include<MonetizationSource, KalturaMonetizationSource>()
+                .Include<ContentSource, KalturaContentSource>()
+                .Include<UserDynamicDataSource, KalturaUserDynamicDataSource>()
+                ;
+
+            // Monetization source
+            cfg.CreateMap<KalturaMonetizationSource, MonetizationSource>()
+                .ForMember(dest => dest.Operator, opt => opt.ResolveUsing(src => ConvertMathematicalOperator(src.Operator)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMonetizationType(src.Type)))
+                ;
+
+            cfg.CreateMap<MonetizationSource, KalturaMonetizationSource>()
+                .ForMember(dest => dest.Operator, opt => opt.ResolveUsing(src => ConvertMathematicalOperator(src.Operator)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMonetizationType(src.Type)))
+                ;
+
+            // Content source
+            cfg.CreateMap<KalturaContentSource, ContentSource>()
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertContentType(src.Type)))
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                ;
+
+            cfg.CreateMap<ContentSource, KalturaContentSource>()
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertContentType(src.Type)))
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                ;
+
+            // User dnymaic data source
+            cfg.CreateMap<KalturaUserDynamicDataSource, UserDynamicDataSource>()
+                .ForMember(d => d.Field, opt => opt.MapFrom(s => s.Field))
+                ;
+
+            cfg.CreateMap<UserDynamicDataSource, KalturaUserDynamicDataSource>()
+                .ForMember(d => d.Field, opt => opt.MapFrom(s => s.Field))
+                ;
+
+            // segmentation condition
+            cfg.CreateMap<KalturaBaseSegmentCondition, SegmentCondition>()
+                .Include<KalturaUserDataCondition, SegmentUserDataCondition>()
+                .Include<KalturaContentScoreCondition, ContentScoreCondition>()
+                .Include<KalturaScoredMonetizationCondition, MonetizationScoredCondition>()
+                ;
+
+            cfg.CreateMap<SegmentCondition, KalturaBaseSegmentCondition>()
+                .Include<SegmentUserDataCondition, KalturaUserDataCondition>()
+                .Include<ContentScoreCondition, KalturaContentScoreCondition>()
+                .Include<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
+                ;
+
+            // user data condition
+            cfg.CreateMap<KalturaUserDataCondition, SegmentUserDataCondition>()
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            cfg.CreateMap<SegmentUserDataCondition, KalturaUserDataCondition>()
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            // content score condition
+            cfg.CreateMap<KalturaContentScoreCondition, ContentScoreCondition>()
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                ;
+
+            cfg.CreateMap<ContentScoreCondition, KalturaContentScoreCondition>()
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                ;
+
+            // content action condition
+            cfg.CreateMap<KalturaContentActionCondition, ContentActionCondition>()
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertContentAction(src.Action)))
+                .ForMember(dest => dest.Length, opt => opt.MapFrom(src => src.Length))
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                ;
+
+            cfg.CreateMap<ContentActionCondition, KalturaContentActionCondition>()
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertContentAction(src.Action)))
+                .ForMember(dest => dest.Length, opt => opt.MapFrom(src => src.Length))
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                ;
+
+            // scored monetization condition
+            cfg.CreateMap<KalturaScoredMonetizationCondition, MonetizationScoredCondition>()
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                ;
+
+            cfg.CreateMap<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                ;
+
+            // base segment value
+            cfg.CreateMap<KalturaBaseSegmentValue, SegmentBaseValue>()
+                .Include<KalturaSegmentValues, SegmentValues>()
+                .Include<KalturaSegmentAllValues, SegmentAllValues>()
+                .Include<KalturaSegmentRanges, SegmentRanges>()
+                ;
+
+            cfg.CreateMap<SegmentBaseValue, KalturaBaseSegmentValue>()
+                .Include<SegmentValues, KalturaSegmentValues>()
+                .Include<SegmentAllValues, KalturaSegmentAllValues>()
+                .Include<SegmentRanges, KalturaSegmentRanges>()
+                ;
+
+            // segment value
+            cfg.CreateMap<KalturaSegmentValue, SegmentValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            cfg.CreateMap<SegmentValue, KalturaSegmentValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                ;
+
+            // segment values
+            cfg.CreateMap<KalturaSegmentValues, SegmentValues>()
+                .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
+                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values))
+                ;
+
+            cfg.CreateMap<SegmentValues, KalturaSegmentValues>()
+                .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
+                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values))
+                ;
+
+            // segment all values
+            cfg.CreateMap<KalturaSegmentAllValues, SegmentAllValues>()
+                .ForMember(dest => dest.NameFormat, opt => opt.MapFrom(src => src.NameFormat))
+                ;
+
+            cfg.CreateMap<SegmentAllValues, KalturaSegmentAllValues>()
+                .ForMember(dest => dest.NameFormat, opt => opt.MapFrom(src => src.NameFormat))
+                ;
+
+            // segment ranges
+            cfg.CreateMap<KalturaSegmentRanges, SegmentRanges>()
+                .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
+                .ForMember(dest => dest.Ranges, opt => opt.MapFrom(src => src.Ranges))
+                ;
+
+            cfg.CreateMap<SegmentRanges, KalturaSegmentRanges>()
+                .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
+                .ForMember(dest => dest.Ranges, opt => opt.MapFrom(src => src.Ranges))
+                ;
+
+            // segment range
+            cfg.CreateMap<KalturaSegmentRange, SegmentRange>()
+                .ForMember(dest => dest.GreaterThan, opt => opt.MapFrom(src => src.GreaterThan))
+                .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
+                .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
+                .ForMember(dest => dest.LessThanOrEquals, opt => opt.MapFrom(src => src.LessThanOrEquals))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                ;
+
+            cfg.CreateMap<SegmentRange, KalturaSegmentRange>()
+                .ForMember(dest => dest.GreaterThan, opt => opt.MapFrom(src => src.GreaterThan))
+                .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
+                .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
+                .ForMember(dest => dest.LessThanOrEquals, opt => opt.MapFrom(src => src.LessThanOrEquals))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                ;
+
+            #endregion
+        }
+
+        private static ContentFieldType ConvertContentType(KalturaContentFieldType type)
+        {
+            ContentFieldType result;
+
+            switch (type)
+            {
+                case KalturaContentFieldType.meta:
+                    {
+                        result = ContentFieldType.meta;
+                        break;
+                    }
+                case KalturaContentFieldType.tag:
+                    {
+                        result = ContentFieldType.tag;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentFieldType");
+                    break;
+            }
+
+            return result;
+        }
+        private static KalturaContentFieldType ConvertContentType(ContentFieldType type)
+        {
+            KalturaContentFieldType result;
+
+            switch (type)
+            {
+                case ContentFieldType.meta:
+                    {
+                        result = KalturaContentFieldType.meta;
+                        break;
+                    }
+                case ContentFieldType.tag:
+                    {
+                        result = KalturaContentFieldType.tag;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentFieldType");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static ContentAction ConvertContentAction(KalturaContentAction action)
+        {
+            ContentAction result;
+
+            switch (action)
+            {
+                case KalturaContentAction.watch_linear:
+                    {
+                        result = ContentAction.watch_linear;
+                        break;
+                    }
+                case KalturaContentAction.watch_vod:
+                    {
+                        result = ContentAction.watch_vod;
+                        break;
+                    }
+                case KalturaContentAction.catchup:
+                    {
+                        result = ContentAction.catchup;
+                        break;
+                    }
+                case KalturaContentAction.npvr:
+                    {
+                        result = ContentAction.npvr;
+                        break;
+                    }
+                case KalturaContentAction.favorite:
+                    {
+                        result = ContentAction.favorite;
+                        break;
+                    }
+                case KalturaContentAction.recording:
+                    {
+                        result = ContentAction.recording;
+                        break;
+                    }
+                case KalturaContentAction.social_action:
+                    {
+                        result = ContentAction.social_action;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentAction");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaContentAction ConvertContentAction(ContentAction action)
+        {
+            KalturaContentAction result;
+
+            switch (action)
+            {
+                case ContentAction.watch_linear:
+                    {
+                        result = KalturaContentAction.watch_linear;
+                        break;
+                    }
+                case ContentAction.watch_vod:
+                    {
+                        result = KalturaContentAction.watch_vod;
+                        break;
+                    }
+                case ContentAction.catchup:
+                    {
+                        result = KalturaContentAction.catchup;
+                        break;
+                    }
+                case ContentAction.npvr:
+                    {
+                        result = KalturaContentAction.npvr;
+                        break;
+                    }
+                case ContentAction.favorite:
+                    {
+                        result = KalturaContentAction.favorite;
+                        break;
+                    }
+                case ContentAction.recording:
+                    {
+                        result = KalturaContentAction.recording;
+                        break;
+                    }
+                case ContentAction.social_action:
+                    {
+                        result = KalturaContentAction.social_action;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentAction");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static MonetizationType ConvertMonetizationType(KalturaMonetizationType type)
+        {
+            MonetizationType result;
+
+            switch (type)
+            {
+                case KalturaMonetizationType.ppv:
+                    result = MonetizationType.ppv;
+                    break;
+                case KalturaMonetizationType.subscription:
+                    result = MonetizationType.subscription;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown MonetizationType");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaMonetizationType ConvertMonetizationType(MonetizationType type)
+        {
+            KalturaMonetizationType result;
+
+            switch (type)
+            {
+                case MonetizationType.ppv:
+                    result = KalturaMonetizationType.ppv;
+                    break;
+                case MonetizationType.subscription:
+                    result = KalturaMonetizationType.subscription;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown MonetizationType");
+                    break;
+            }
+
+            return result;
+        }
+        private static MathemticalOperatorType ConvertMathematicalOperator(KalturaMathemticalOperatorType operatorType)
+        {
+            MathemticalOperatorType result;
+
+            switch (operatorType)
+            {
+                case KalturaMathemticalOperatorType.count:
+                    result = MathemticalOperatorType.count;
+                    break;
+                case KalturaMathemticalOperatorType.sum:
+                    result = MathemticalOperatorType.sum;
+                    break;
+                case KalturaMathemticalOperatorType.avg:
+                    result = MathemticalOperatorType.avg;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown MathemticalOperatorType");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaMathemticalOperatorType ConvertMathematicalOperator(MathemticalOperatorType operatorType)
+        {
+            KalturaMathemticalOperatorType result;
+
+            switch (operatorType)
+            {
+                case MathemticalOperatorType.count:
+                    result = KalturaMathemticalOperatorType.count;
+                    break;
+                case MathemticalOperatorType.sum:
+                    result = KalturaMathemticalOperatorType.sum;
+                    break;
+                case MathemticalOperatorType.avg:
+                    result = KalturaMathemticalOperatorType.avg;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown MathemticalOperatorType");
+                    break;
+            }
+
+            return result;
+        }
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {
