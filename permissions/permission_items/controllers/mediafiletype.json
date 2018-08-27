@@ -2,9 +2,8 @@
   "permission_items": [
     {
       "permissions": [
-        "Anonymous",
-        "Master",
-        "Operator"
+        "MEDIAFILETYPE_MNG",
+        "MEDIAFILETYPE_VIEW"
       ],
       "excluded_permissions": [],
       "name": "MediaFileType_List",
@@ -14,7 +13,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "MEDIAFILETYPE_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFileType_Add",
@@ -24,7 +23,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "MEDIAFILETYPE_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFileType_Delete",
@@ -34,7 +33,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "MEDIAFILETYPE_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFileType_Update",

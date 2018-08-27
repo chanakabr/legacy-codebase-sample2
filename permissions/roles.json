@@ -41,7 +41,13 @@
         "Operator",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-        "VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_VIEW",
+        "IMAGETYPE_VIEW",
+        "MEDIAFILETYPE_VIEW",
+        "MY_USER_MNG",
+        "TEAM_VIEW",
+        "RULES_VIEW"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -52,7 +58,13 @@
         "Manager",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-        "VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_MNG",
+        "IMAGETYPE_MNG",
+        "MEDIAFILETYPE_MNG",
+        "MANAGER_MNG",
+        "TEAM_VIEW",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -64,7 +76,13 @@
         "Administrator",
         "LOGIN",
         "DELETE_ALL_APP_TOKENS",
-        "VIEW_INACTIVE_ASSETS"
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_MNG",
+        "IMAGETYPE_MNG",
+        "MEDIAFILETYPE_MNG",
+        "ADMIN_MNG",
+        "TEAM_VIEW",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "Administrator"
