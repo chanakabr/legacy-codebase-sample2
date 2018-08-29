@@ -554,10 +554,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
             .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
             .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.ResolveUsing(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));           
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
             #endregion
 
-        }       
+            #region Personal List
+            cfg.CreateMap<PersonalListItem, Models.Api.KalturaPersonalList>()
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
+              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            cfg.CreateMap<Models.Api.KalturaPersonalList, PersonalListItem>()
+              .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+            #endregion
+
+        }
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {
