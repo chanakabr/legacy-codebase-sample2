@@ -23,6 +23,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Api;
 
 namespace WebAPI.Reflection
 {
@@ -7263,118 +7264,6 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         PersonalFollowFeed = buildList<KalturaPersonalFollowFeed>(typeof(KalturaPersonalFollowFeed), (JArray) parameters["objects"]);
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaPersonalList
-    {
-        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = 1,
-        };
-        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = 1,
-        };
-        public KalturaPersonalList(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("id") && parameters["id"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
-                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("name") && parameters["name"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
-                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
-                }
-                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
-                    }
-                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
-                    }
-                    Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
-                }
-                if (parameters.ContainsKey("partnerListType") && parameters["partnerListType"] != null)
-                {
-                    PartnerListType = (Int32) Convert.ChangeType(parameters["partnerListType"], typeof(Int32));
-                }
-            }
-        }
-    }
-    public partial class KalturaPersonalListFilter
-    {
-        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("partnerListTypeIn") && parameters["partnerListTypeIn"] != null)
-                {
-                    PartnerListTypeIn = (String) Convert.ChangeType(parameters["partnerListTypeIn"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaPersonalListListResponse
-    {
-        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        PersonalListList = buildList<KalturaPersonalList>(typeof(KalturaPersonalList), (JArray) parameters["objects"]);
                     }
                 }
             }
@@ -21729,6 +21618,122 @@ namespace WebAPI.EventNotifications
     {
         public KalturaHttpNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+}
+
+namespace WebAPI.Models.Api
+{
+    public partial class KalturaPersonalList
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = 1,
+        };
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = 1,
+        };
+        public KalturaPersonalList(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        NameSchemaProperty.Validate("name", parameters["name"]);
+                    }
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    }
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
+                    }
+                    Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+                if (parameters.ContainsKey("partnerListType") && parameters["partnerListType"] != null)
+                {
+                    PartnerListType = (Int32) Convert.ChangeType(parameters["partnerListType"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaPersonalListFilter
+    {
+        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("partnerListTypeIn") && parameters["partnerListTypeIn"] != null)
+                {
+                    PartnerListTypeIn = (String) Convert.ChangeType(parameters["partnerListTypeIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPersonalListListResponse
+    {
+        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        PersonalListList = buildList<KalturaPersonalList>(typeof(KalturaPersonalList), (JArray) parameters["objects"]);
+                    }
+                }
+            }
         }
     }
 }
