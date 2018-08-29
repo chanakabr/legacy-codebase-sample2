@@ -245,6 +245,16 @@ namespace Core.Api
                     return response;
                 }
 
+                // validate that there is such a role
+                var roles = GetRoles(groupId, new List<long>() { role.Id });
+
+                if (roles == null || roles.Status == null || roles.Roles == null || roles.Roles.Count == 0)
+                {
+
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
 
