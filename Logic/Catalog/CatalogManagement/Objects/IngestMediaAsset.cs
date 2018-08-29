@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ApiObjects.Response;
 using System;
 using System.Linq;
+using ApiObjects;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -83,7 +84,7 @@ namespace Core.Catalog.CatalogManagement
         [XmlElement("value")]
         public List<IngestLanguageValue> Values { get; set; }
 
-        internal Status Validate(string parameterName, string groupDefaultLanguageCode, HashSet<string> groupLanguageCodes)
+        internal Status Validate(string parameterName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -110,7 +111,7 @@ namespace Core.Catalog.CatalogManagement
                     return status;
                 }
 
-                if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
+                if (languageMapByCode != null && !languageMapByCode.ContainsKey(ingestLanguageValue.LangCode))
                 {
                     status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
                     return status;
@@ -120,7 +121,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // Check Default Language Is Sent
-            if (!languageCodes.Contains(groupDefaultLanguageCode))
+            if (!languageCodes.Contains(defaultLanguageCode))
             {
                 status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
                 return status;
@@ -204,7 +205,7 @@ namespace Core.Catalog.CatalogManagement
         [XmlElement("metas")]
         public IngestMetas Metas { get; set; }
 
-        internal Status ValidateStrings(Dictionary<string, Topic> topicsMapBySystemName, string groupDefaultLanguageCode, HashSet<string> groupLanguageCodes)
+        internal Status ValidateStrings(Dictionary<string, Topic> topicsMapBySystemName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             if (Strings != null && Strings.MetaStrings != null && Strings.MetaStrings.Count > 0)
             {
@@ -212,7 +213,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (topicsMapBySystemName.ContainsKey(metaString.Name) && topicsMapBySystemName[metaString.Name].Type == ApiObjects.MetaType.MultilingualString)
                     {
-                        Status status = metaString.Validate("media.structure.strings.meta", groupDefaultLanguageCode, groupLanguageCodes);
+                        Status status = metaString.Validate("media.structure.strings.meta", defaultLanguageCode, languageMapByCode);
                         if (status != null && status.Code != (int)eResponseStatus.OK)
                         {
                             return status;
@@ -224,7 +225,7 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal Status ValidateMetaTags(string mainLanguageName, HashSet<string> groupLanguageCodes)
+        internal Status ValidateMetaTags(string mainLanguageName, Dictionary<string, LanguageObj> languageMapByCode)
         {
             // TODO SHIR - THIS IS FALSE, FIX VALIDATION FOR ValidateMetaTags
             //if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)

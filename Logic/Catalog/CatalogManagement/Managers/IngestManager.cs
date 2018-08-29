@@ -96,8 +96,6 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
             string groupDefaultRatio = groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
-            string mainLanguageCode = string.Empty;
-            HashSet<string> groupLanguageCodes = GetGroupLanguageCodes(groupId, out mainLanguageCode);
             Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)
@@ -122,7 +120,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     int mediaId = GetMediaIdByCoGuid(groupId, media.CoGuid);
 
-                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, mainLanguageCode, groupLanguageCodes, ref ingestResponse))
+                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, ref ingestResponse))
                     {
                         if (media.Action.Equals(DELETE_ACTION))
                         {
@@ -146,18 +144,18 @@ namespace Core.Catalog.CatalogManagement
                                 EntryId = media.EntryId,
                                 IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
                                 MediaType = new MediaType(media.Basic.MediaType, (int)catalogGroupCache.AssetStructsMapBySystemName[media.Basic.MediaType].Id),
-                                Name = GetMainLanguageValue(mainLanguageCode, media.Basic.Name),
-                                NamesWithLanguages = GetOtherLanguages(mainLanguageCode, media.Basic.Name),
-                                Description = GetMainLanguageValue(mainLanguageCode, media.Basic.Description),
-                                DescriptionsWithLanguages = GetOtherLanguages(mainLanguageCode, media.Basic.Description),
+                                Name = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
+                                NamesWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
+                                Description = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
+                                DescriptionsWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
                                 StartDate = startDate,
                                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                                 EndDate = endDate,
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
                                 GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
-                                Metas = GetMetasList(media.Structure, mainLanguageCode),
-                                Tags = GetTagsList(media.Structure.Metas, mainLanguageCode, ref tagsTranslations)
+                                Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code),
+                                Tags = GetTagsList(media.Structure.Metas, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
 
                             // TODO SHIR - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
@@ -172,7 +170,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                             else
                             {
-                                if (!UpdateMediaAsset(mediaAsset, media, groupId, mediaFileTypes, !FALSE.Equals(media.Erase), groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
+                                if (!UpdateMediaAsset(mediaAsset, media, groupId, mediaFileTypes, TRUE.Equals(media.Erase), groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
                                 {
                                     continue;
                                 }
@@ -228,13 +226,13 @@ namespace Core.Catalog.CatalogManagement
                 ingestResponse.IngestStatus.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
-            HandleTagsTranslations(tagsTranslations, groupId, mainLanguageCode, catalogGroupCache, ref ingestResponse);
+            HandleTagsTranslations(tagsTranslations, groupId, catalogGroupCache, ref ingestResponse);
                 
             return ingestResponse;
         }
 
-        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations, int groupId, string mainLanguageCode, 
-                                                   CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
+        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations, int groupId, CatalogGroupCache catalogGroupCache, 
+                                                   ref IngestResponse ingestResponse)
         {
             foreach (var topic in tagsTranslations)
             {
@@ -254,14 +252,13 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 topicId = (int)catalogTopic.Id,
                                 value = tag.Key,
-                                languageId = catalogGroupCache.LanguageMapByCode[mainLanguageCode].ID,
+                                languageId = catalogGroupCache.DefaultLanguage.ID,
                                 TagsInOtherLanguages = new List<LanguageContainer>(tag.Value.Select(x => new LanguageContainer(x.Key, x.Value)))
                             };
                             
                             var addTagResponse = CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
                             if (addTagResponse != null && !addTagResponse.HasObject())
                             {
-
                                 string errorMsg = string.Format("HandleTagsTranslations - AddTag faild. topicId: {0}, addTagStatus: {1}.", catalogTopic.Id, addTagResponse.ToStringStatus());
                                 ingestResponse.AddError(errorMsg);
                                 log.Debug(errorMsg);
@@ -348,15 +345,21 @@ namespace Core.Catalog.CatalogManagement
         private static bool UpdateMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<MediaFileType> mediaFileTypes, bool eraseMedia, string groupDefaultRatio,
                                              Dictionary<string, ImageType> groupRatioNamesToImageTypes, ref IngestResponse ingestResponse, int mediaIndex)
         {
+            bool isCleared = false;
+
             if (eraseMedia)
             {
-                if (!AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, USER_ID))
+                if (AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, USER_ID))
+                {
+                    isCleared = true;
+                }
+                else
                 {
                     // TODO SHIR - SET SOME ERROR
                 }
             }
             
-            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, mediaAsset, USER_ID, true);
+            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, mediaAsset, USER_ID, true, isCleared);
             if (genericResponse.Status.Code != (int)eResponseStatus.OK)
             {
                 ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
@@ -408,21 +411,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return null;
-        }
-
-        private static HashSet<string> GetGroupLanguageCodes(int groupId, out string mainLanguageCode)
-        {
-            HashSet<string> groupLanguageCodes = null;
-            mainLanguageCode = string.Empty;
-
-            var groupLanguages = Api.Module.GetGroupLanguages(groupId);
-            if (groupLanguages != null && groupLanguages.Count > 0)
-            {
-                groupLanguageCodes = new HashSet<string>(groupLanguages.Select(x => x.Code));
-                mainLanguageCode = groupLanguages.FirstOrDefault(x => x.IsDefault).Code;
-            }
-
-            return groupLanguageCodes;
         }
         
         private static Dictionary<string, ImageType> GetGroupRatioNamesToImageTypes(int groupId)
@@ -582,8 +570,7 @@ namespace Core.Catalog.CatalogManagement
             return tags;
         }
 
-        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache,
-                                          int mediaId, string mainLanguageName, HashSet<string> groupLanguageCodes, ref IngestResponse ingestResponse)
+        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache, int mediaId, ref IngestResponse ingestResponse)
         {
             if (string.IsNullOrEmpty(media.EntryId))
             {
@@ -676,7 +663,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", mainLanguageName, groupLanguageCodes);
+                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(nameValidationStatus.Message);
@@ -693,7 +680,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (media.Basic.Description != null)
                     {
-                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", mainLanguageName, groupLanguageCodes);
+                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(descriptionValidationStatus.Message);
@@ -702,7 +689,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                     
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, mainLanguageName, groupLanguageCodes);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);
@@ -710,7 +697,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(mainLanguageName, groupLanguageCodes);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
@@ -718,7 +705,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    if (!media.IsActive.Equals(TRUE) && !media.IsActive.Equals(FALSE))
+                    if (!TRUE.Equals(media.IsActive) && !FALSE.Equals(media.IsActive))
                     {
                         ingestResponse.AddError("media.IsActive cannot be empty");
                         ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
@@ -731,7 +718,7 @@ namespace Core.Catalog.CatalogManagement
                     if (media.Basic.Name != null)
                     {
                         // TODO SHIR - SET METHOD COMMON FOR ALL ERROS
-                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", mainLanguageName, groupLanguageCodes);
+                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(nameValidationStatus.Message);
@@ -742,7 +729,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (media.Basic.Description != null)
                     {
-                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", mainLanguageName, groupLanguageCodes);
+                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(descriptionValidationStatus.Message);
@@ -751,7 +738,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                     
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, mainLanguageName, groupLanguageCodes);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);
@@ -759,7 +746,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(mainLanguageName, groupLanguageCodes);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
