@@ -2099,5 +2099,20 @@ namespace Core.Api
 
             return result;
         }
+
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
+        {
+            return Core.Api.api.AddPersonalListItemForUser(groupId, userId, personalListItem);
+        }
+
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        {
+            return Core.Api.api.GetUserPersonalListItems(groupId, userId, pageIndex, pageSize, order, partnerListTypes);
+        }
+
+        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
+        {
+            return Core.Api.api.DeletePersonalListItemForUser(groupId, userId, personalListItemId);
+        }
     }
 }
