@@ -56,5 +56,10 @@ namespace ApiObjects.Response
         {
             return (Status != null && Status.Code == (int)eResponseStatus.OK && Object != null);
         }
+
+        public string ToStringStatus()
+        {
+            return this.Status != null ? this.Status.Code + " - " + this.Status.Message : string.Empty;
+        }
     }
 }

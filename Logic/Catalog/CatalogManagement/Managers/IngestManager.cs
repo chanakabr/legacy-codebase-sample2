@@ -228,13 +228,13 @@ namespace Core.Catalog.CatalogManagement
                 ingestResponse.IngestStatus.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
-            HandleTagsTranslations(tagsTranslations, groupId, mainLanguageCode, catalogGroupCache);
+            HandleTagsTranslations(tagsTranslations, groupId, mainLanguageCode, catalogGroupCache, ref ingestResponse);
                 
             return ingestResponse;
         }
 
         private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations, int groupId, string mainLanguageCode, 
-                                                   CatalogGroupCache catalogGroupCache)
+                                                   CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
         {
             foreach (var topic in tagsTranslations)
             {
@@ -257,8 +257,15 @@ namespace Core.Catalog.CatalogManagement
                                 languageId = catalogGroupCache.LanguageMapByCode[mainLanguageCode].ID,
                                 TagsInOtherLanguages = new List<LanguageContainer>(tag.Value.Select(x => new LanguageContainer(x.Key, x.Value)))
                             };
+                            
+                            var addTagResponse = CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
+                            if (addTagResponse != null && !addTagResponse.HasObject())
+                            {
 
-                            CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
+                                string errorMsg = string.Format("HandleTagsTranslations - AddTag faild. topicId: {0}, addTagStatus: {1}.", catalogTopic.Id, addTagResponse.ToStringStatus());
+                                ingestResponse.AddError(errorMsg);
+                                log.Debug(errorMsg);
+                            }
                         }
                         else
                         {
@@ -275,7 +282,13 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
-                            CatalogManager.UpdateTag(groupId, catalogTopic.Id, tagValues.Objects[0], USER_ID);
+                            var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValues.Objects[0].tagId, tagValues.Objects[0], USER_ID);
+                            if (updateTagResponse != null && !updateTagResponse.HasObject())
+                            {
+                                string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                                ingestResponse.AddError(errorMsg);
+                                log.Debug(errorMsg);
+                            }
                         }
                     }
                 }
