@@ -149,6 +149,7 @@ namespace Core.Users
                     monkeyUser.m_oBasicData.m_sFacebookImage = string.Empty;
                     monkeyUser.m_oBasicData.m_sFacebookToken = string.Empty;
                     monkeyUser.m_oBasicData.m_CoGuid = string.Empty;
+                    monkeyUser.m_oBasicData.RoleIds = new List<long>(); //BEO-5488
 
                     int monkeyID = monkeyUser.Save(resDomain.m_nGroupID, true);
 
